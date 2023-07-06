@@ -24,7 +24,7 @@ export function QueryExpressionComponent(props: QueryExpressionProps) {
         <>
             {model.queryConstructType && <ExpressionComponent model={model.queryConstructType} />}
             <ExpressionComponent model={model.queryPipeline} />
-            <ExpressionComponent  model={model.selectClause} />
+            <ExpressionComponent  model={model.selectClause || (model as any).resultClause} />
         </>
     );
 }
