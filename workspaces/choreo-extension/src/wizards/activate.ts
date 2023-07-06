@@ -15,7 +15,7 @@ import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, 
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
-import { OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ComponentCreateMode, OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
 import { sendTelemetryEvent } from "../telemetry/utils";
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
@@ -31,8 +31,17 @@ export function activateWizards() {
         projectWizard.getWebview()?.reveal();
     });
 
-    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async () => {
+    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async (mode?: ComponentCreateMode) => {
 
+        if (mode) {
+            if (!componentWizard || !componentWizard.getWebview()) {
+                componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, mode);
+            }
+            componentWizard.getWebview()?.reveal();
+            return;
+        }
+
+        // if no mode passed, show quick pick
         const options: QuickPickOptions = {
 			canPickMany: false,
 			ignoreFocusOut: true,
