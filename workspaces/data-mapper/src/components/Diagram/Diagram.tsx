@@ -32,6 +32,7 @@ import { container } from "tsyringe";
 
 import FitToScreenIcon from "../../assets/icons/fitToScreen";
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
+import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
@@ -60,6 +61,7 @@ import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
+import { getErrorKind } from "./utils/dm-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -90,6 +92,7 @@ interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
 	links?: DataMapperLinkModel[];
 	hideCanvas?: boolean;
+	onError?: (kind: ErrorNodeKind) => void;
 }
 
 const defaultModelOptions = { zoom: 90 }
@@ -146,7 +149,7 @@ function initDiagramEngine() {
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const classes = useStyles();
 
-	const { nodes, hideCanvas } = props;
+	const { nodes, hideCanvas, onError } = props;
 
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel(defaultModelOptions));
@@ -181,7 +184,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					node.initLinks();
 					engine.repaintCanvas();
 				} catch (e) {
-					console.error(e)
+					const errorNodeKind = getErrorKind(node);
+					onError(errorNodeKind);
 				}
 			}
 			newModel.setLocked(true);
