@@ -15,12 +15,12 @@ import cn from "classnames";
 
 import styled from "@emotion/styled";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
-
+import { GithubSVG, BitbucketSVG } from "../assets";
 
 const TypeCardContainer = styled.div`
     // Flex Props
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -60,8 +60,11 @@ export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
         setSelectedType(type);
     };
 
+    let logo = type === GitProvider.BITBUCKET ? BitbucketSVG : GithubSVG;
+
     return (
         <TypeCardContainer className={cn({ "active": isSelected})} onClick={onSelection} >
+            <img src={logo} ></img>
             <h4>{label}</h4>
         </TypeCardContainer>
     );
