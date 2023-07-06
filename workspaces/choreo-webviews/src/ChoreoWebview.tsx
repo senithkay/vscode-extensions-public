@@ -23,6 +23,7 @@ import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
 import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ProjectView } from "./ActivityBar/ProjectView";
 import { AccountView } from "./ActivityBar/AccountView";
+import { ChoreoCellView } from "./ChoreoCellView/CellView";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -45,6 +46,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
     const { type, orgName, projectId, billingUrl, choreoUrl, componentLimit, componentCreateMode } = props;
 
     const switchViews = () => {
+        console.log("type", type);
         switch (type) {
             case "ProjectCreateForm":
                 return <ProjectWizard />;
@@ -54,6 +56,8 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                 return <ProjectView />;
             case "ActivityBarAccountView":
                 return <AccountView />;
+            case "ChoreoCellView":
+                return <ChoreoCellView projectId={projectId} orgName={orgName} />;
             case "ProjectOverview":
                 return (
                     <ProjectOverview
