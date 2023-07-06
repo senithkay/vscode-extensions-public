@@ -13,7 +13,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoWebViewAPI } from "./../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const Container = styled.div`
     display: flex;
@@ -29,7 +29,7 @@ const WideVSCodeButton = styled(VSCodeButton)`
     margin: 15px;
 `;
 
-export const WelcomeMessage = () => {
+export const EmptyWorkspaceMessage = () => {
     
     const openChoreoProject = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
