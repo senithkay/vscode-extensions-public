@@ -10,11 +10,23 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import styled from "@emotion/styled";
 import React from "react";
+import { useContext } from "react";
+import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 
-// A react component which will be rendered in the webview which is in the Choreo Activity Bar.
-// This will show the user details of the currently logged in user.
-// It will also show the list of Organizations the user is a member of.
-export const UserDetails = () => {
-    return <div>User Details Panel</div>;
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 5px;
+`;
+
+export const SelectedOrganization = () => {
+
+    const { selectedOrg } = useContext(ChoreoWebViewContext);
+
+    return <Container>
+        <div>Organization: {selectedOrg?.name}</div>
+    </Container>;
 };

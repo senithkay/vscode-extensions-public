@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoLoginStatus, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { useState, useEffect } from "react";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -19,6 +19,7 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
 
     const [loginStatusPending, setLoginStatusPending] = useState(true);
     const [loginStatus, setLoginStatus] = useState<ChoreoLoginStatus>("Initializing");
+    const [userInfo, setUserInfo] = useState<UserInfo>(undefined);
     const [fetchingOrgInfo, setFetchingOrgInfo] = useState(true);
     const [selectedOrg, setSelectedOrg] = useState<Organization | undefined>(undefined);
     const [userOrgs, setUserOrgs] = useState<Organization[] | undefined>(undefined);
@@ -61,15 +62,19 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
         try {
           const loginStatus = await rpcInstance.getLoginStatus();
           setLoginStatus(loginStatus);
+          const userInfo = await rpcInstance.getUserInfo();
+          setUserInfo(userInfo);
         } catch (err: any) {
           setError(err);
         }
         setLoginStatusPending(false);
       };
       checkLoginStatus();
-      rpcInstance.onLoginStatusChanged((newLoginStatus) => {
+      rpcInstance.onLoginStatusChanged(async (newLoginStatus) => {
         console.log("Login status changed" + JSON.stringify(newLoginStatus));
         setLoginStatus(newLoginStatus);
+        const userInfo = await rpcInstance.getUserInfo();
+        setUserInfo(userInfo);
       });
     }, []);
 
@@ -96,6 +101,7 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
     return {
         loginStatusPending,
         loginStatus,
+        userInfo,
         fetchingOrgInfo,
         selectedOrg,
         userOrgs,

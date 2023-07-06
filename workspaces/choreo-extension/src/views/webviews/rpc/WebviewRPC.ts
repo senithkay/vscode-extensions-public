@@ -54,7 +54,8 @@ import {
     GetLocalComponentDirMetaData,
     getLocalComponentDirMetaDataRequest,
     getConsoleUrl,
-    ChoreoComponentCreationParams
+    ChoreoComponentCreationParams,
+    GetUserInfoRequest
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -91,6 +92,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return organizations;
         }
     });
+
+    messenger.onRequest(GetUserInfoRequest, async () => {
+        return ext.api.userInfo;
+    });
+
     // TODO: Remove this once the Choreo project client RPC handlers are registered
     messenger.onRequest(GetAllProjectsRequest, async () => {
         if (ext.api.selectedOrg) {

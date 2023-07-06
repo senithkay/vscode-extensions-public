@@ -11,11 +11,12 @@
  *  associated services.
  */
 import React from "react";
-import { ChoreoLoginStatus, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoWebViewContext {
     loginStatus: ChoreoLoginStatus;
     loginStatusPending: boolean;
+    userInfo: UserInfo;
     fetchingOrgInfo: boolean;
     selectedOrg?: Organization;
     userOrgs?: Organization[];
@@ -32,6 +33,7 @@ const defaultContext: IChoreoWebViewContext = {
     loginStatus: "Initializing",
     loginStatusPending: true,
     fetchingOrgInfo: true,
+    userInfo: undefined,
     choreoUrl: "",
     bitbucketCredentialId: '',
     setBitbucketCredentialId: () => {},

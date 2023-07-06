@@ -35,8 +35,8 @@ export const ProjectView = () => {
         <Container>
             {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
             {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
-            {choreoProject && <ProjectActionsCard />}
-            {choreoProject && <ComponentsCard />}
+            {loginStatus == "LoggedIn" && choreoProject && <ProjectActionsCard />}
+            {loginStatus == "LoggedIn" && choreoProject && <ComponentsCard />}
             {!isChoreoProject && loginStatus == "LoggedIn" && <EmptyWorkspaceMessage />}
             {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
         </Container>
