@@ -10,32 +10,40 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useState } from "react";
 
+import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 
-import { Colors, Position } from "../../../resources/model";
+import { NodeType } from "../NodeFilter";
+import { Position } from "../resources/model";
 
-import { ServiceSubheader } from "./ServiceMenuActions/ServiceSubheader";
+import { FilterNodeMenuItem } from "./FilterNodeMenuItem";
+import { GoToSourceMenuItem } from "./GoToSourceMenuItem";
 
-interface ServiceHeaderMenuProps {
+interface GoToSourceNodeMenuProps {
     location: Position;
-    nodeName: string;
+    nodeType: NodeType;
 }
 
-export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
-    const { location, nodeName } = props;
+export function FilterNodeAndGoToSourceMenu(props: GoToSourceNodeMenuProps) {
+    const { location, nodeType } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
         <>
-            {location &&
+            {location?.filePath && location?.startLine && location?.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <div onClick={() => setTooltipStatus(false)}>
-                        <ServiceSubheader location={location} nodeName={nodeName} />
+                        <Paper style={{ maxWidth: "100%" }}>
+                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                <GoToSourceMenuItem location={location} />
+                                <FilterNodeMenuItem nodeType={nodeType} />
+                            </MenuList>
+                        </Paper>
                     </div>
                 }
                 PopperProps={{
@@ -71,13 +79,10 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                     cursor="pointer"
                     onClick={() => setTooltipStatus(true)}
                     sx={{
-                        backgroundColor: `${Colors.SECONDARY}`,
-                        borderRadius: '30%',
                         fontSize: '18px',
                         margin: '0px',
                         position: 'absolute',
-                        right: 2.5,
-                        marginLeft: '5px',
+                        right: 0.5
                     }}
                 />
             </Tooltip>
