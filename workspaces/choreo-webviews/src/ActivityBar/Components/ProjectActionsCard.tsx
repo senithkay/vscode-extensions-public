@@ -19,6 +19,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
 import { CellViewButton } from "./CellViewButton";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const Container = styled.div`
     margin-top: 10px;
