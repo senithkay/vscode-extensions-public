@@ -506,7 +506,7 @@ export function findNodeByValueNode(value: STNode,
 	if (value) {
 		dmNode.getModel().getNodes().find((node) => {
 			if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
-				&& STKindChecker.isRequiredParam(node.value))
+				&& node?.value && STKindChecker.isRequiredParam(node.value))
 				|| (STKindChecker.isFromClause(value) && node instanceof FromClauseNode
 					&& STKindChecker.isFromClause(node.value))
 				|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
@@ -540,7 +540,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				const bindingPattern = (node.value as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
 				return bindingPattern?.source?.trim() === expr.source?.trim()
 			} else if (node instanceof RequiredParamNode) {
-				return expr.name.value === node.value.paramName.value;
+				return node?.value && expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
 				const bindingPattern = node.value.typedBindingPattern.bindingPattern;
 				if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
@@ -639,7 +639,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode) && node.typeDef;
 	let portIdBuffer;
 	if (node instanceof RequiredParamNode) {
-		portIdBuffer = node.value.paramName.value
+		portIdBuffer = node?.value && node.value.paramName.value
 	} else if (node instanceof LetExpressionNode) {
 		const varDecl = node.letVarDecls.find(decl => {
 			if (decl.type.typeName === PrimitiveBalType.Record) {
@@ -656,7 +656,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 			}
 			return decl.varName === expr.source.trim();
 		});
-		typeDesc = moduleVar.type;
+		typeDesc = moduleVar?.type;
 		portIdBuffer = moduleVar && MODULE_VARIABLE_SOURCE_PORT_PREFIX + "." + moduleVar.varName;
 	} else {
 		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
