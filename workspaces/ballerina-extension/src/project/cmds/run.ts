@@ -14,8 +14,13 @@ import {
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf, MESSAGES } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
+import { configGenerator } from '../../config-generator/configGenerator';
 
 function activateRunCmdCommand() {
+
+    commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: Uri) => {
+        configGenerator(ballerinaExtInstance, filePath ? filePath.toString() : "");
+    });
 
     // register ballerina run handler
     commands.registerCommand(PALETTE_COMMANDS.RUN_CMD, async (...args: any[]) => {
