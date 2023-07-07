@@ -15,9 +15,9 @@ import React from "react";
 import { useContext } from "react";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ViewTitle } from "../Components/ViewTitle";
+import { ViewHeader } from "../Components/ViewHeader";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
-import { ViewHeader } from "../Components/ViewHeader";
 
 const Container = styled.div`
     display: flex;
@@ -29,37 +29,39 @@ const Container = styled.div`
 
 const Body = styled.div`
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 10px;
 `;
 
-export const SelectedOrganization = () => {
+export const SelectedProject = () => {
 
-    const { selectedOrg } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useContext(ChoreoWebViewContext);
 
-    const changeOrg = () => {
+    const changeProject = () => {
     };
 
     return <Container>
         <ViewHeader>
             <ViewTitle>
-                Organization
+                Project
             </ViewTitle>
             <VSCodeButton
                     appearance="icon"
-                    onClick={changeOrg}
-                    title={"Change Choreo Organization"}
-                    id="change-org-btn"
+                    onClick={changeProject}
+                    title={"Change Choreo Project"}
+                    id="change-project-btn"
                     style={{ marginLeft: "auto" }}
-                    disabled={selectedOrg === undefined}
                 >
+                Change
                 <Codicon name={"arrow-swap"} />
             </VSCodeButton>
         </ViewHeader>
         <Body>
-            {!selectedOrg && <div>fetching organization info...</div>}
-            <div>{selectedOrg?.name}</div>
-            <div style={{ color: "var(--vscode-descriptionForeground)"}}>{selectedOrg?.handle}</div>
+            {!choreoProject && <div>fetching project info...</div>}
+            <div>Name: {choreoProject?.name}</div>
+            <div>Description: {choreoProject?.description.trim() || "N/A"}</div>
+            <div>Region: {choreoProject?.region || "N/A"}</div>
+            <div>Created: {choreoProject?.createdData || "N/A"}</div>
         </Body>
     </Container>;
 };

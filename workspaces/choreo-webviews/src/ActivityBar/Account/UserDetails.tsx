@@ -15,9 +15,9 @@ import styled from "@emotion/styled";
 import { UserInfo } from "./UserInfo";
 import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { SelectedOrganization } from "./SelectedOrg";
-import { OrgSelector } from "./OrgSelector";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "../Components/ProgressIndicator";
+import { SelectedProject } from "./SelectedProject";
 
 const Container = styled.div`
     display: flex;
@@ -41,6 +41,7 @@ export const UserDetails = () => {
         <UserInfo />
         <Seperator />
         <SelectedOrganization />
-        <OrgSelector />
+        <Seperator />
+        <SelectedProject />
     </Container>;
 };
