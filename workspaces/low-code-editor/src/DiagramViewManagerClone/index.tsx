@@ -78,6 +78,10 @@ export function DiagramViewManager(props: EditorProps) {
     const [isLoadingST, setIsLoadingST] = useState<boolean>(false);
     const [showIdentificationFailureMessage, setShowIdentificationFailureMessage] = useState<boolean>(false);
 
+    projectPaths.forEach(path => {
+        path.uri.path = extractFilePath(path.uri.path);
+    })
+
     useEffect(() => {
         const mouseTrapClient = KeyboardNavigationManager.getClient();
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
@@ -111,8 +115,8 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (diagramFocus) {
             const { filePath, position } = diagramFocus;
-            if (position) historyPush({ file: filePath, position });
-            else historyPush({ file: filePath });
+            if (position) historyPush({ file: extractFilePath(filePath), position });
+            else historyPush({ file: extractFilePath(filePath) });
         }
     }, [diagramFocus]);
 
@@ -123,7 +127,8 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (history.length > 0) {
             (async () => {
-                const { file, position, uid } = history[history.length - 1];
+                const { file: filePath, position, uid } = history[history.length - 1];
+                const file = extractFilePath(filePath);
                 const langClient = await langClientPromise;
                 const componentResponse = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [
