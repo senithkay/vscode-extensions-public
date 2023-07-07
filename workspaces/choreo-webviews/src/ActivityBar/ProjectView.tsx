@@ -34,7 +34,7 @@ const Container = styled.div`
 export const ProjectView = (props: { componentLimit: number }) => {
     const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
 
-    const { data: isDeletedProject } = useQuery({
+    const { data: isDeletedProject = false } = useQuery({
         queryKey: ["deleted_project_show_warning", choreoProject?.id],
         queryFn: async () => ChoreoWebViewAPI.getInstance().checkProjectDeleted(choreoProject?.id),
         refetchOnWindowFocus: false,
