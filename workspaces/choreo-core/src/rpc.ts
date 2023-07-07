@@ -12,7 +12,7 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, UserInfo } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -42,6 +42,7 @@ export interface SendTelemetryExceptionParams {
 export const SendProjectTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendProjectTelemetryEvent' };
 export const SendTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendTelemetryEvent' };
 export const SendTelemetryExceptionNotification: NotificationType<SendTelemetryExceptionParams> = { method: 'sendTelemetryException' };
+export const GetUserInfoRequest: RequestType<void, UserInfo> = { method: 'getUserInfo' };
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };

@@ -11,16 +11,26 @@
  *  associated services.
  */
 import React from "react";
+import { useContext } from "react";
+import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
-const Title = styled.div`
-    font-size: 11px;
-    font-weight: bold;
-    // capitalize
-    text-transform: uppercase;
-    color: var(--vscode-descriptionForeground)
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin-left: 20px;
+    gap: 5px;
 `;
+export const OrgSelector = (props: { onChange: (orgName: string) => void; }) => {
+    const { userOrgs, selectedOrg } = useContext(ChoreoWebViewContext);
 
-export const ViewTitle: React.FC = (props) => (
-    <Title>{props.children}</Title>
-);
+    return <Container>
+        <AutoComplete
+            selectedItem={selectedOrg?.name}
+            items={userOrgs?.map((org) => org.name) || []}
+            onChange={props.onChange}
+        />
+    </Container>;
+};

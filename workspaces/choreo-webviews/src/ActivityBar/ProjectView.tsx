@@ -15,10 +15,10 @@ import React, { useContext } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ComponentsCard } from "./Components/ComponentsCard";
 import { ProjectActionsCard } from "./Components/ProjectActionsCard";
-import { SignIn } from "../SignIn/SignIn";
 import styled from "@emotion/styled";
 import { ProgressIndicator } from "./Components/ProgressIndicator";
-import { WelcomeMessage } from "./Components/WelcomeMessage";
+import { EmptyWorkspaceMessage } from "./Components/EmptyWorkspaceMessage";
+import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
 
 
 const Container = styled.div`
@@ -33,11 +33,11 @@ export const ProjectView = () => {
     const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
     return (
         <Container>
-            {loginStatus !== "LoggedIn" && <ProgressIndicator />}
-            {loginStatus === "LoggedOut" && <SignIn />}
-            {choreoProject && <ProjectActionsCard />}
-            {choreoProject && <ComponentsCard />}
-            {!isChoreoProject && loginStatus == "LoggedIn" && <WelcomeMessage />}
+            {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
+            {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
+            {loginStatus == "LoggedIn" && choreoProject && <ProjectActionsCard />}
+            {loginStatus == "LoggedIn" && choreoProject && <ComponentsCard />}
+            {!isChoreoProject && loginStatus == "LoggedIn" && <EmptyWorkspaceMessage />}
             {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
         </Container>
     )

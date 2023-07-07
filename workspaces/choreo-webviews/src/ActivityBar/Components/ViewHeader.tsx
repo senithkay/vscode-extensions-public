@@ -11,10 +11,16 @@
  *  associated services.
  */
 import React from "react";
+import styled from "@emotion/styled";
 
-// A react component which will be rendered in the webview which is in the Choreo Activity Bar.
-// This will show the user details of the currently logged in user.
-// It will also show the list of Organizations the user is a member of.
-export const UserDetails = () => {
-    return <div>User Details Panel</div>;
-};
+const Header = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+`;
+
+export const ViewHeader: React.FC = (props) => (
+    <Header>{props.children}</Header>
+);

@@ -12,16 +12,28 @@
  */
 import React, { useContext } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { UserDetails } from "./Components/UserDetails";
-import { SignIn } from "../SignIn/SignIn";
+import { UserDetails } from "./Account/UserDetails";
+import { ProgressIndicator } from "./Components/ProgressIndicator";
+import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
+import styled from "@emotion/styled";
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    width: 100%;
+`;
 
 // This react component will be rendered in the webview which is in the Choreo Activity Bar.
 // It will use VSCode webview toolkit components to render the list.
 export const AccountView = () => {
     const { loginStatus } = useContext(ChoreoWebViewContext);
     return (
-        <>
-            {loginStatus === "LoggedIn" ? <UserDetails /> : <SignIn />}
-        </>
+        <Container>
+            {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
+            {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
+            {loginStatus === "LoggedIn" && <UserDetails />}
+        </Container>
     )
 };

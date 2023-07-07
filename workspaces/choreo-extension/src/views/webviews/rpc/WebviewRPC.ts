@@ -55,6 +55,7 @@ import {
     getLocalComponentDirMetaDataRequest,
     getConsoleUrl,
     ChoreoComponentCreationParams,
+    GetUserInfoRequest,
     AskProjectDirPath,
     CloneChoreoProjectWithDir
 } from "@wso2-enterprise/choreo-core";
@@ -93,6 +94,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return organizations;
         }
     });
+
+    messenger.onRequest(GetUserInfoRequest, async () => {
+        return ext.api.userInfo;
+    });
+
     // TODO: Remove this once the Choreo project client RPC handlers are registered
     messenger.onRequest(GetAllProjectsRequest, async () => {
         if (ext.api.selectedOrg) {

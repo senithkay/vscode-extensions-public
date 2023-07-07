@@ -204,15 +204,16 @@ export class ChoreoExtensionApi {
     }
 
     public async enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined> {
-        if (this._selectedProjectId && this._selectedOrg?.id) {
-            const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(this._selectedProjectId);
+        const projectID = this.getChoreoProjectId();
+        if (projectID && this._selectedOrg?.id) {
+            const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(projectID);
             if (workspaceFileLocation) {
                 const workspaceFileConfig: WorkspaceConfig = JSON.parse(readFileSync(workspaceFileLocation).toString());
                 // Remove workspace file from path
                 const projectRoot = workspaceFileLocation.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
 
                 if (workspaceFileConfig?.folders && projectRoot) {
-                    const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(this._selectedProjectId,
+                    const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(projectID,
                         (this._selectedOrg as Organization).handle, (this._selectedOrg as Organization).uuid);
 
                     choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {

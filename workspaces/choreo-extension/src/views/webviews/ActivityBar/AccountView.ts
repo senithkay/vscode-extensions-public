@@ -45,6 +45,16 @@ export class AccountView implements vscode.WebviewViewProvider {
 
 		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
 		this._rpc = new WebViewViewRPC(webviewView);
+		this.updateLoginStatus();
+		ext.context.subscriptions.push(ext.api.onStatusChanged(() => this.updateLoginStatus()));
+	}
+
+	private async updateLoginStatus() {
+		const isLoggedIn = await ext.api.waitForLogin();
+		if (isLoggedIn && this._view) {
+			const userInfo = ext.api.userInfo;
+			// this._view.description = userInfo?.displayName;
+		}
 	}
 
 	private _getWebviewContent(webview: vscode.Webview) {

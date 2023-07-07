@@ -74,6 +74,8 @@ import {
     GetEnrichedComponent,
     getConsoleUrl,
     GitRepo,
+    UserInfo,
+    GetUserInfoRequest,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
 } from "@wso2-enterprise/choreo-core";
@@ -111,6 +113,10 @@ export class ChoreoWebViewAPI {
 
     public async getAllOrgs(): Promise<Organization[]> {
         return this._messenger.sendRequest(GetAllOrgsRequest, HOST_EXTENSION, '');
+    }
+
+    public async getUserInfo(): Promise<UserInfo> {
+        return this._messenger.sendRequest(GetUserInfoRequest, HOST_EXTENSION, undefined);
     }
 
     public async getAllProjects(): Promise<Project[]> {

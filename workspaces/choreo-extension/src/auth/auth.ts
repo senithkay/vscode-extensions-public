@@ -121,7 +121,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
                 }
             } catch (error: any) {
                 getLogger().error("Error while exchanging the refresh token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging the refresh token! " + error.message);
+                vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
                 signOut();
             }
         }
@@ -188,8 +188,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
         await tokenStore.setToken("choreo.token", response);
     } catch (error: any) {
         getLogger().error("Error while exchanging the refresh token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-        vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + SESSION_EXPIRED);
-        signOut();
+        throw new Error(SESSION_EXPIRED);
     }
 }
 
