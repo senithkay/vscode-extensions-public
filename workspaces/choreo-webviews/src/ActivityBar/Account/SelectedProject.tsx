@@ -18,6 +18,7 @@ import { ViewTitle } from "../Components/ViewTitle";
 import { ViewHeader } from "../Components/ViewHeader";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const Container = styled.div`
     display: flex;
@@ -38,6 +39,7 @@ export const SelectedProject = () => {
     const { choreoProject } = useContext(ChoreoWebViewContext);
 
     const changeProject = () => {
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
     };
 
     return <Container>
@@ -52,7 +54,6 @@ export const SelectedProject = () => {
                     id="change-project-btn"
                     style={{ marginLeft: "auto" }}
                 >
-                Change
                 <Codicon name={"arrow-swap"} />
             </VSCodeButton>
         </ViewHeader>
@@ -61,7 +62,7 @@ export const SelectedProject = () => {
             <div>Name: {choreoProject?.name}</div>
             <div>Description: {choreoProject?.description.trim() || "N/A"}</div>
             <div>Region: {choreoProject?.region || "N/A"}</div>
-            <div>Created: {choreoProject?.createdData || "N/A"}</div>
+            <div>Version: {choreoProject?.version || "N/A"}</div>
         </Body>
     </Container>;
 };
