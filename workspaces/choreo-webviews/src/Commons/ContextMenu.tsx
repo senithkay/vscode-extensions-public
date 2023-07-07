@@ -25,10 +25,9 @@ export interface MenuItem {
 
 interface Props {
     items: MenuItem[];
-    index: number
 }
 
-export const ContextMenu: React.FC<Props> = ({ items, index }) => {
+export const ContextMenu: React.FC<Props> = ({ items }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleClick = () => {
@@ -50,7 +49,7 @@ export const ContextMenu: React.FC<Props> = ({ items, index }) => {
                 appearance="icon"
                 onClick={handleClick}
                 title="More Actions"
-                id={`component-list-menu-btn-${index}`}
+                id={`component-list-menu-btn`}
             >
                 <Codicon name="ellipsis" />
             </VSCodeButton>
@@ -58,7 +57,8 @@ export const ContextMenu: React.FC<Props> = ({ items, index }) => {
                 <div
                     style={{
                         position: 'absolute',
-                        right: 10,
+                        right: 0,
+                        top: 0,
                         zIndex: 9999,
                         background: 'var(--vscode-editor-background)',
                         border: '1px solid var(--vscode-menu-border)',

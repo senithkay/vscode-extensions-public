@@ -17,7 +17,6 @@ import { ComponentWizard } from "./MultiStepComponentWizard/ComponentWizard";
 import { ChoreoWebViewContext } from "./context/choreo-web-view-ctx";
 import { usePopulateContext } from "./hooks/context-populate";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
-import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
 import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
 import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
 import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
@@ -37,12 +36,11 @@ interface ChoreoWebviewProps {
     orgName?: string;
     componentLimit?: number;
     choreoUrl?: string;
-    billingUrl?: string;
     componentCreateMode?: ComponentCreateMode;
 }
 
 function ChoreoWebview(props: ChoreoWebviewProps) {
-    const { type, orgName, projectId, billingUrl, choreoUrl, componentLimit, componentCreateMode } = props;
+    const { type, orgName, projectId, choreoUrl, componentCreateMode, componentLimit } = props;
 
     const switchViews = () => {
         switch (type) {
@@ -51,19 +49,9 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
             case "ComponentCreateForm":
                 return <ComponentWizard componentCreateMode={componentCreateMode} />;
             case "ActivityBarProjectView":
-                return <ProjectView />;
+                return <ProjectView componentLimit={componentLimit} />;
             case "ActivityBarAccountView":
                 return <AccountView />;
-            case "ProjectOverview":
-                return (
-                    <ProjectOverview
-                        projectId={projectId}
-                        orgName={orgName}
-                        componentLimit={componentLimit}
-                        billingUrl={billingUrl}
-                        choreoUrl={choreoUrl}
-                    />
-                );
         }
     };
 

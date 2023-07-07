@@ -14,7 +14,6 @@ import { useContext } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { Component } from "@wso2-enterprise/choreo-core";
 
 export function useGetComponents() {
 
@@ -29,8 +28,10 @@ export function useGetComponents() {
     } = useQuery({
         queryKey: ["project_component_list", choreoProject?.id],
         queryFn: async () => {
-            if (!isChoreoProject || !choreoProject) return Promise.resolve([] as Component[]);
-            return await ChoreoWebViewAPI.getInstance().getComponents(choreoProject?.id)
+            if (!isChoreoProject || !choreoProject) {
+                return [];
+            }
+            return ChoreoWebViewAPI.getInstance().getComponents(choreoProject?.id)
         },
         refetchOnWindowFocus: true,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),

@@ -19,6 +19,8 @@ import styled from "@emotion/styled";
 import { ProgressIndicator } from "./Components/ProgressIndicator";
 import { EmptyWorkspaceMessage } from "./Components/EmptyWorkspaceMessage";
 import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
+import { useQuery } from "@tanstack/react-query";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 
 const Container = styled.div`
@@ -29,16 +31,26 @@ const Container = styled.div`
     width: 100%;
 `;
 
-export const ProjectView = () => {
+export const ProjectView = (props: { componentLimit: number }) => {
     const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
+
+    const { data: isDeletedProject } = useQuery({
+        queryKey: ["deleted_project_show_warning", choreoProject?.id],
+        queryFn: async () => ChoreoWebViewAPI.getInstance().checkProjectDeleted(choreoProject?.id),
+        refetchOnWindowFocus: false,
+        enabled: loginStatus === "LoggedIn" && choreoProject?.id && isChoreoProject
+    });
+
+    const validProject = choreoProject && !isDeletedProject;
+    
     return (
         <Container>
             {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
             {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
-            {loginStatus == "LoggedIn" && choreoProject && <ProjectActionsCard />}
-            {loginStatus == "LoggedIn" && choreoProject && <ComponentsCard />}
-            {!isChoreoProject && loginStatus == "LoggedIn" && <EmptyWorkspaceMessage />}
-            {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
+            {loginStatus == "LoggedIn" && validProject && <ProjectActionsCard />}
+            {loginStatus == "LoggedIn" && validProject && <ComponentsCard componentLimit={props.componentLimit}/>}
+            {loginStatus == "LoggedIn" && (!isChoreoProject || isDeletedProject) && <EmptyWorkspaceMessage projectDeleted={isDeletedProject} />}
+            {isChoreoProject && !choreoProject && !isDeletedProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
         </Container>
     )
 };

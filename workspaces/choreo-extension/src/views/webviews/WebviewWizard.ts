@@ -81,7 +81,6 @@ export class WebviewWizard {
                   "", 
                   0,  
                   "" , 
-                  "",
                   "${mode}"
                 );
               }

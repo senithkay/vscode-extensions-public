@@ -12,7 +12,7 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, UserInfo } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, BuildStatus, Deployment, Endpoint, UserInfo } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -51,8 +51,8 @@ export const GetProject: RequestType<string, Project> = { method: 'getProject' }
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
 export const GetDeletedComponents: RequestType<string, PushedComponent[]> = { method: 'getDeletedComponents' };
 export const RemoveDeletedComponents: RequestType<{projectId: string, components: PushedComponent[]}, void> = { method: 'removeDeletedComponents' };
-export const GetEnrichedComponents: RequestType<string, Component[]> = { method: 'getEnrichedComponents' };
-export const GetEnrichedComponent: RequestType<Component, Component> = { method: 'getEnrichedComponent' };
+export const GetComponentBuildStatus: RequestType<Component, BuildStatus> = { method: 'getComponentBuildStatus' };
+export const GetComponentDevDeployment: RequestType<Component, Deployment> = { method: 'getComponentDevDeployment' };
 export const DeleteComponent: RequestType<{projectId: string, component: Component}, Component | null> = { method: 'deleteComponent' };
 export const PullComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'pullComponent' };
 export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };
@@ -66,6 +66,8 @@ export const getPreferredProjectRepository: RequestType<string, GitRepo> = { met
 export const CheckProjectDeleted: RequestType<string, boolean> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
+export const ReadEndpointsYaml: RequestType<SubpathAvailableRequest, Endpoint | undefined> = { method: 'readEndpointsYaml' };
+export const OpenBillingPortal: RequestType<string, void> = { method: 'openBillingPortal' };
 export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const getConsoleUrl: RequestType<void, string> = { method: 'getConsoleUrl' };
@@ -81,6 +83,7 @@ export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = 
 export const HasChoreoSubscription: RequestType<string, boolean> = { method: 'hasChoreoSubscription' };
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
+export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
 
 export interface OpenDialogOptions {
    title: string,
@@ -97,6 +100,7 @@ export const SelectedOrgChangedNotification: NotificationType<Organization> = { 
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
+export const RefreshComponentsNotification: NotificationType<void> = { method: 'refreshComponents' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

@@ -11,50 +11,50 @@
  *  associated services.
  */
 import React from "react";
-import styled from "@emotion/styled";
-import { Component, DeploymentStatus } from "@wso2-enterprise/choreo-core";
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: row;
-`;
-
+import { Deployment, DeploymentStatus } from "@wso2-enterprise/choreo-core";
 
 const DeploymentStatusMapping = {
-    [DeploymentStatus.Active]: 'Deployed',
-    [DeploymentStatus.Suspended]: 'Suspended',
-    [DeploymentStatus.NotDeployed]: 'Not Deployed',
-    [DeploymentStatus.Error]: 'Error',
-    [DeploymentStatus.InProgress]: 'In-progress',
+    [DeploymentStatus.Active]: "Deployed",
+    [DeploymentStatus.Suspended]: "Suspended",
+    [DeploymentStatus.NotDeployed]: "Not Deployed",
+    [DeploymentStatus.Error]: "Error",
+    [DeploymentStatus.InProgress]: "In-progress",
 };
 
-export const DeploymentStatusText: React.FC<{ enrichedComponent: Component }> = (props) => {
-    const { enrichedComponent: { deployments, local } } = props;
-    
-    const deploymentStatus: DeploymentStatus =
-        (deployments?.dev
-            ?.deploymentStatusV2 as DeploymentStatus.NotDeployed) ||
-        DeploymentStatus.NotDeployed;
+export const DeploymentStatusText: React.FC<{
+    localComponent: boolean;
+    deployment: Deployment;
+    loading: boolean;
+}> = (props) => {
+    const { deployment, localComponent, loading } = props;
 
-    let deploymentStatusColor = '--vscode-foreground';
-    switch (deploymentStatus as DeploymentStatus) {
+    const deploymentStatusText: DeploymentStatus =
+        (deployment?.deploymentStatus as DeploymentStatus) || DeploymentStatus.NotDeployed;
+
+    let deploymentStatusColor = "--vscode-foreground";
+    switch (deploymentStatusText) {
         case DeploymentStatus.Active:
-            deploymentStatusColor = '--vscode-charts-green';
+            deploymentStatusColor = "--vscode-charts-green";
             break;
         case DeploymentStatus.InProgress:
-            deploymentStatusColor = '--vscode-charts-orange';
+            deploymentStatusColor = "--vscode-charts-orange";
             break;
         case DeploymentStatus.Error:
-            deploymentStatusColor = '--vscode-errorForeground';
+            deploymentStatusColor = "--vscode-errorForeground";
             break;
         case DeploymentStatus.Suspended:
-            deploymentStatusColor = '--vscode-charts-lines';
+            deploymentStatusColor = "--vscode-charts-lines";
             break;
     }
     return (
-        <Container>
-            <div>Deployment:&nbsp;</div>
-            <div style={{ color: `var(${deploymentStatusColor})` }}>{local ? 'N/A' : DeploymentStatusMapping[deploymentStatus]}</div>
-        </Container>
+        <>
+            {localComponent ? (
+                "N/A"
+            ) : loading ? (
+                "Loading..."
+            ) : (
+                <div style={{ color: `var(${deploymentStatusColor})` }}>{DeploymentStatusMapping[deploymentStatusText]} </div>
+            )}
+        </>
     );
 };

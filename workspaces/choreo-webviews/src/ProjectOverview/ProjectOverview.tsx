@@ -1,3 +1,4 @@
+// TODO: Delete this component
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
