@@ -234,7 +234,8 @@
                         "request": "launch",
                         "programArgs": [],
                         "commandOptions": [],
-                        "env": {}
+                        "env": {},
+                        "terminal": "integrated"
                     },
                     {
                         "name": "Ballerina Test",
