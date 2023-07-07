@@ -18,26 +18,35 @@ import { ViewTitle } from "../Components/ViewTitle";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ViewHeader } from "../Components/ViewHeader";
+import { OrgSelector } from "./OrgSelector";
 
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: flex-start;
     gap: 10px;
     width: 100%;
+    min-height: 62px;
 `;
 
 const Body = styled.div`
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 10px;
 `;
 
 export const SelectedOrganization = () => {
 
     const { selectedOrg } = useContext(ChoreoWebViewContext);
+    const [changeMode, setChangeMode] = React.useState(false);
 
-    const changeOrg = () => {
+    const toggleChangeOrg = () => {
+        setChangeMode(!changeMode);
+    };
+
+    const onOrgChange = () => {
+        setChangeMode(false);
     };
 
     return <Container>
@@ -47,19 +56,27 @@ export const SelectedOrganization = () => {
             </ViewTitle>
             <VSCodeButton
                     appearance="icon"
-                    onClick={changeOrg}
+                    onClick={toggleChangeOrg}
                     title={"Change Choreo Organization"}
                     id="change-org-btn"
                     style={{ marginLeft: "auto" }}
                     disabled={selectedOrg === undefined}
                 >
-                <Codicon name={"arrow-swap"} />
+                <Codicon name={changeMode ? "close" : "arrow-swap"} />
             </VSCodeButton>
         </ViewHeader>
-        <Body>
-            {!selectedOrg && <div>fetching organization info...</div>}
-            <div>{selectedOrg?.name}</div>
-            <div style={{ color: "var(--vscode-descriptionForeground)"}}>{selectedOrg?.handle}</div>
-        </Body>
+        {!changeMode && (
+            <Body>
+                {!selectedOrg && <div>fetching organization info...</div>}
+                <div>{selectedOrg?.name}</div>
+                <div style={{ color: "var(--vscode-descriptionForeground)"}}>{selectedOrg?.handle}</div>
+            </Body>
+        )}
+        {changeMode && (
+            <Body>
+                <div>Select Org: </div>
+                <OrgSelector onChange={onOrgChange} />
+            </Body>
+        )}
     </Container>;
 };

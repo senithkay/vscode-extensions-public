@@ -22,7 +22,7 @@ import { SelectedProject } from "./SelectedProject";
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
+    margin-top: 20px;
     align-items: flex-start;
     gap: 10px;
     width: 100%;

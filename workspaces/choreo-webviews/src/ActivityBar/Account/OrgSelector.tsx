@@ -14,6 +14,7 @@ import React from "react";
 import { useContext } from "react";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     display: flex;
@@ -22,12 +23,14 @@ const Container = styled.div`
     margin-left: 20px;
     gap: 5px;
 `;
-export const OrgSelector = () => {
-    const { userOrgs } = useContext(ChoreoWebViewContext);
+export const OrgSelector = (props: { onChange: (orgName: string) => void; }) => {
+    const { userOrgs, selectedOrg } = useContext(ChoreoWebViewContext);
 
     return <Container>
-        {userOrgs?.map((org) => {
-            return <div key={org.id}>{org.name}</div>
-        })}
+        <AutoComplete
+            selectedItem={selectedOrg?.name}
+            items={userOrgs?.map((org) => org.name) || []}
+            onChange={props.onChange}
+        />
     </Container>;
 };
