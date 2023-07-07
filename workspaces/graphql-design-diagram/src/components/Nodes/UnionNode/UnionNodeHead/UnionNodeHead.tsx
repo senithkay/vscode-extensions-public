@@ -11,6 +11,8 @@ import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { FilterNodeMenu } from "../../../NodeActionMenu/FilterNodeMenu";
+import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { UnionIcon } from "../../../resources/assets/icons/UnionIcon";
 import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
@@ -34,13 +36,13 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
 
     return (
         <NodeHeader>
-            <UnionIcon/>
+            <UnionIcon />
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
             <HeaderName>{displayName}</HeaderName>
-
+            <FilterNodeMenu nodeType={{ name: displayName, type: NodeCategory.UNION }} />
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

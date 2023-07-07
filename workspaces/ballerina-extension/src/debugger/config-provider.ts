@@ -8,7 +8,7 @@
  */
 
 import {
-    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands,
+    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands, DebugAdapterInlineImplementation,
     DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri, workspace, RelativePattern
 } from 'vscode';
 import * as child_process from "child_process";
@@ -31,6 +31,11 @@ import fileUriToPath from 'file-uri-to-path';
 import { readFileSync } from 'fs';
 import { dirname, sep } from 'path';
 import { parseTomlToConfig } from '../config-generator/utils';
+import { LoggingDebugSession, OutputEvent, TerminatedEvent } from 'vscode-debugadapter';
+import { DebugProtocol } from 'vscode-debugprotocol';
+import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
+import { Disposable } from 'monaco-languageclient';
+import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../utils/project-utils';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
@@ -88,6 +93,8 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         config.request = DEBUG_REQUEST.LAUNCH;
     }
 
+    config.noDebug = Boolean(config.noDebug);
+
     const activeDoc = window.activeTextEditor.document;
 
     if (activeDoc.fileName.endsWith(BAL_NOTEBOOK)) {
@@ -102,7 +109,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
     }
 
     if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME && !config.script) {
-        const tomls = await workspace.findFiles(workspaceFolder ? new RelativePattern(workspaceFolder, BALLERINA_TOML_REGEX): BALLERINA_TOML_REGEX);
+        const tomls = await workspace.findFiles(workspaceFolder ? new RelativePattern(workspaceFolder, BALLERINA_TOML_REGEX) : BALLERINA_TOML_REGEX);
         const projects: { project: BallerinaProject; balFile: Uri; relativePath: string }[] = [];
         for (const toml of tomls) {
             const projectRoot = dirname(toml.fsPath);
@@ -193,6 +200,12 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     }
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
         Thenable<DebugAdapterDescriptor> {
+        if (session.configuration.noDebug && ballerinaExtInstance.enabledRunFast()) {
+            return new Promise((resolve) => {
+                resolve(new DebugAdapterInlineImplementation(new FastRunDebugAdapter()));
+            });
+        }
+
         const port = session.configuration.debugServer;
         const configEnv = session.configuration.configEnv;
         const cwd = this.getCurrentWorkingDir();
@@ -233,4 +246,54 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     getCurrentWorkingDir(): string {
         return path.join(this.ballerinaExtInstance.ballerinaHome, "bin");
     }
+}
+
+class FastRunDebugAdapter extends LoggingDebugSession {
+
+    notificationHandler: Disposable | null = null;
+    root: string | null = null;
+
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
+        const langClient = ballerinaExtInstance.langClient;
+        const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
+            if (params.verbose === "stopped") { // even if a single channel (stderr,stdout) stopped, we stop the debug session
+                notificationHandler!.dispose();
+                this.sendEvent(new TerminatedEvent());
+            } else {
+                const category = params.verbose === 'err' ? 'stderr' : 'stdout';
+                this.sendEvent(new OutputEvent(params.message, category));
+            }
+        });
+        this.notificationHandler = notificationHandler;
+        getCurrentRoot().then((root) => {
+            this.root = root;
+            runFast(root).then((didRan) => {
+                response.success = didRan;
+                this.sendResponse(response);
+            });
+        });
+    }
+
+    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+        const notificationHandler = this.notificationHandler;
+        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
+            response.success = didStop;
+            notificationHandler!.dispose();
+            this.sendResponse(response);
+        });
+    }
+
+}
+
+async function runFast(root: string) {
+    if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
+        await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+    }
+    return await ballerinaExtInstance.langClient.executeCommand({ command: "RUN", arguments: [{ key: "path", value: root }] });
+}
+
+async function getCurrentRoot(): Promise<string> {
+    const file = getCurrentBallerinaFile();
+    const currentProject = await getCurrentBallerinaProject(file);
+    return (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) ? currentProject.path! : file;
 }

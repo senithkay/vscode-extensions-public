@@ -12,7 +12,8 @@ import React, { useEffect, useRef } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
 import { CtrlClickHandler } from "../../../CtrlClickHandler";
-import { GoToSourceNodeMenu } from "../../../NodeActionMenu/GoToSourceNodeMenu";
+import { FilterNodeAndGoToSourceMenu } from "../../../NodeActionMenu/FilterNodeAndGoToSourceMenu";
+import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
 import { HeaderName, InterfaceNodeHeader, InterfaceSubHeader } from "../../../resources/styles/styles";
@@ -43,13 +44,16 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
             <InterfaceNodeHeader>
                 <div>{"<<interface>>"}</div>
                 <InterfaceSubHeader>
-                    <ServiceClassIcon/>
+                    <ServiceClassIcon />
                     <GraphqlBasePortWidget
                         port={node.getPort(`left-${node.getID()}`)}
                         engine={engine}
                     />
                     <HeaderName>{displayName}</HeaderName>
-                    <GoToSourceNodeMenu location={node.interfaceObject?.position} />
+                    <FilterNodeAndGoToSourceMenu
+                        location={node.interfaceObject?.position}
+                        nodeType={{ name: displayName, type: NodeCategory.INTERFACE }}
+                    />
                     <GraphqlBasePortWidget
                         port={node.getPort(`right-${node.getID()}`)}
                         engine={engine}

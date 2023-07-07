@@ -10,6 +10,7 @@ import {
     FunctionDefinition,
     IdentifierToken,
     LetVarDecl,
+    MappingConstructor,
     SpecificField,
     STKindChecker,
     STNode,
@@ -92,12 +93,17 @@ export class SelectedSTFindingVisitor implements Visitor {
                 : STKindChecker.isLetVarDecl(node)
                     ? node.expression
                     : undefined;
-            const nextItem = STKindChecker.isMappingConstructor(expr)
-                ? expr
-                : STKindChecker.isQueryExpression(expr)
-                && STKindChecker.isMappingConstructor(expr.selectClause.expression)
-                    ? expr.selectClause.expression
-                    : undefined;
+            let nextItem: MappingConstructor;
+            if (expr) {
+                if (STKindChecker.isMappingConstructor(expr)) {
+                    nextItem = expr;
+                } else if (STKindChecker.isQueryExpression(expr)) {
+                    const selectClause = expr?.selectClause || expr?.resultClause;
+                    if (STKindChecker.isMappingConstructor(selectClause.expression)) {
+                        nextItem = selectClause.expression;
+                    }
+                }
+            }
             if (nextItem && this.prevST) {
                 const nexFieldPath = this.prevST[this.prevST.length - 1]?.fieldPath;
                 const nextPathSegment = nexFieldPath && nexFieldPath.split('.')[0];

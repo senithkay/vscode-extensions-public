@@ -17,18 +17,21 @@ import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-common
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { FilterNodeMenuItem } from "../../../NodeActionMenu/FilterNodeMenuItem";
 import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
+import { NodeCategory } from "../../../NodeFilter";
 import { Colors, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
 import { getSyntaxTree } from "../../../utils/ls-util";
 
 interface RecordHeaderMenuProps {
     location: Position;
+    nodeName: string;
 }
 
 export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
-    const { location } = props;
+    const { location, nodeName } = props;
     const classes = useStyles();
 
     const { recordEditor, langClientPromise, fullST, currentFile } = useGraphQlContext();
@@ -65,7 +68,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <div onClick={() =>  setTooltipStatus(false)}>
+                    <div onClick={() => setTooltipStatus(false)}>
                         <Paper style={{ maxWidth: "100%" }}>
                             <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
                                 <MenuItem onClick={() => handleEditRecord()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
@@ -76,6 +79,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
                                 </MenuItem>
                                 <Divider />
                                 <GoToSourceMenuItem location={location} />
+                                <FilterNodeMenuItem nodeType={{ name: nodeName, type: NodeCategory.RECORD }} />
                             </MenuList>
                         </Paper>
                     </div>

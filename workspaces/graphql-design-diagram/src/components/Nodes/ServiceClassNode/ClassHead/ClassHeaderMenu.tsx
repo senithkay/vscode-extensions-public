@@ -17,19 +17,22 @@ import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-common
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { FilterNodeMenuItem } from "../../../NodeActionMenu/FilterNodeMenuItem";
 import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
 import { NodeMenuItem } from "../../../NodeActionMenu/NodeMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
+import { NodeCategory } from "../../../NodeFilter";
 import { Colors, FunctionType, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
 import { getSyntaxTree } from "../../../utils/ls-util";
 
 interface ServiceHeaderMenuProps {
     location: Position;
+    nodeName: string;
 }
 
 export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
-    const { location } = props;
+    const { location, nodeName } = props;
     const { langClientPromise, currentFile, fullST, functionPanel } = useGraphQlContext();
     const classes = useStyles();
 
@@ -98,6 +101,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                                 />
                                 <Divider />
                                 <GoToSourceMenuItem location={location} />
+                                <FilterNodeMenuItem nodeType={{ name: nodeName, type: NodeCategory.SERVICE_CLASS }} />
                             </MenuList>
                         </Paper>
                         }

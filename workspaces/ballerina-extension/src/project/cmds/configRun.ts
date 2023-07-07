@@ -38,7 +38,7 @@ function activateConfigRunCommand() {
             const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
             const filePath = window.activeTextEditor.document;
             const path = filePath.uri.fsPath;
-            const suggestions = await getConfigCompletions(ballerinaExtInstance, currentProject ? currentProject.path! : path, document, position)
+            const suggestions = await getConfigCompletions(ballerinaExtInstance, currentProject ? currentProject.path! : path, document, position);
             return suggestions;
         }
     });

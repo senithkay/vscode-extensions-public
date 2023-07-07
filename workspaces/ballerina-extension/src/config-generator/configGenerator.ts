@@ -15,6 +15,8 @@ import { getCurrentBallerinaProject } from "../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 
+const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
+
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = 'packageName';
@@ -207,7 +209,7 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
 
 function executeRunCommand(ballerinaExtInstance: BallerinaExtension): void {
     if (ballerinaExtInstance.enabledRunFast()) {
-        commands.executeCommand(PALETTE_COMMANDS.RUN_FAST);
+        commands.executeCommand(DEBUG_RUN_COMMAND_ID);
     } else {
         commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
     }
