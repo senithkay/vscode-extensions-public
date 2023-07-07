@@ -9,7 +9,8 @@
 
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
-import { Position } from "../resources/model";
+import { NodeCategory, NodeType } from "../NodeFilter";
+import { GraphqlDesignModel, Position } from "../resources/model";
 import {visitor as STNodeFindingVisitor } from "../visitors/STNodeFindingVisitor";
 
 export function getSTNodeFromRange(position: NodePosition, model: STNode): STNode {
@@ -35,4 +36,37 @@ export function getFormattedPosition(position: Position): NodePosition {
 
 export function getComponentName(name: string): string {
     return name.replace(/[!\[\]]/g, "");
+}
+
+export function getNodeListOfModel(model: GraphqlDesignModel) {
+    const nodes: NodeType[] = [];
+    nodes.push({type: NodeCategory.GRAPHQL_SERVICE, name: model.graphqlService.serviceName});
+    if (model.records) {
+        Object.entries(model.records).forEach(([key]) => {
+            if (!model.records[key]?.isInputObject) {
+                nodes.push({type: NodeCategory.RECORD, name: key});
+            }
+        });
+    }
+    if (model.serviceClasses) {
+        Object.entries(model.serviceClasses).forEach(([key]) => {
+            nodes.push({type: NodeCategory.SERVICE_CLASS, name: key});
+        });
+    }
+    if (model.unions) {
+        Object.entries(model.unions).forEach(([key]) => {
+            nodes.push({type: NodeCategory.UNION, name: key});
+        });
+    }
+    if (model.enums) {
+        Object.entries(model.enums).forEach(([key]) => {
+            nodes.push({type: NodeCategory.ENUM, name: key});
+        });
+    }
+    if (model.interfaces) {
+        Object.entries(model.interfaces).forEach(([key]) => {
+            nodes.push({type: NodeCategory.INTERFACE, name: key});
+        });
+    }
+    return nodes;
 }

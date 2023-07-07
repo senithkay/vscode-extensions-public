@@ -12,7 +12,8 @@ import React, { useEffect, useRef } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
 import { CtrlClickHandler } from "../../../CtrlClickHandler";
-import { GoToSourceNodeMenu } from "../../../NodeActionMenu/GoToSourceNodeMenu";
+import { FilterNodeAndGoToSourceMenu } from "../../../NodeActionMenu/FilterNodeAndGoToSourceMenu";
+import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { EnumIcon } from "../../../resources/assets/icons/EnumIcon";
 import { HeaderName } from "../../../resources/styles/styles";
@@ -49,7 +50,10 @@ export function EnumHeadWidget(props: EnumHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <GoToSourceNodeMenu location={node?.enumObject?.position} />
+                <FilterNodeAndGoToSourceMenu
+                    location={node?.enumObject?.position}
+                    nodeType={{ name: displayName, type: NodeCategory.ENUM }}
+                />
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}

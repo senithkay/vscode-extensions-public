@@ -19,6 +19,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Container } from "../Canvas/CanvasWidgetContainer";
 import { GraphqlDiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlDiagramContainer } from "../GraphqlDiagramContainer/GraphqlDiagramContainer";
+import { NodeType } from "../NodeFilter";
 import { GraphqlDesignModel } from "../resources/model";
 import { getModelForGraphqlService } from "../utils/ls-util";
 
@@ -67,6 +68,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
 
     const [modelData, setModelData] = useState<GraphqlModelData>(undefined);
     const [selectedDiagramNode, setSelectedDiagramNode] = useState<string>(undefined);
+    const [filteredNode, setFilteredNode] = useState<NodeType>(undefined);
 
     useEffect(() => {
         if (fullST) {
@@ -93,6 +95,10 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         setSelectedDiagramNode(node);
     }
 
+    const updateNodeFiltering = (node: NodeType) => {
+        setFilteredNode(node);
+    }
+
     const ctxt = {
         model,
         functionPanel,
@@ -105,7 +111,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         langClientPromise,
         currentFile,
         setSelectedNode,
-        selectedDiagramNode
+        selectedDiagramNode,
+        setFilteredNode: updateNodeFiltering,
+        filteredNode
     };
 
     return (

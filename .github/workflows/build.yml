@@ -111,7 +111,7 @@ jobs:
   PluginTest_Stage:
     name: Run Plugin test
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests || github.head_ref == 'main' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -177,7 +177,7 @@ jobs:
   UiTest_Stage:
     name: Run UI tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests || github.head_ref == 'main' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:

@@ -63,8 +63,9 @@ describe('VSCode Config Generation UI Tests', () => {
 
         browser = VSBrowser.instance;
         driver = browser.driver;
+        // Close all open tabs
+        await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackage/service.bal`);
-        await wait(10000);
     });
 
     it('Click on run anyway button to just ignore the config generation', async () => {

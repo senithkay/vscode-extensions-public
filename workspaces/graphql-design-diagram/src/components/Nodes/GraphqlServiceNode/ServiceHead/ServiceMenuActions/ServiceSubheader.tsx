@@ -14,7 +14,9 @@ import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { FilterNodeMenuItem } from "../../../../NodeActionMenu/FilterNodeMenuItem";
 import { GoToSourceMenuItem } from "../../../../NodeActionMenu/GoToSourceMenuItem";
+import { NodeCategory } from "../../../../NodeFilter";
 import { FunctionType, Position } from "../../../../resources/model";
 
 import { AddFunctionWidget } from "./AddFunctionWidget";
@@ -22,10 +24,11 @@ import { useStyles } from "./styles";
 
 interface ServiceSubheaderProps {
     location: Position;
+    nodeName: string;
 }
 
 export function ServiceSubheader(props: ServiceSubheaderProps) {
-    const { location } = props;
+    const { location, nodeName } = props;
     const { servicePanel } = useGraphQlContext();
     const classes = useStyles();
 
@@ -47,6 +50,7 @@ export function ServiceSubheader(props: ServiceSubheaderProps) {
                     <>
                         <Divider />
                         <GoToSourceMenuItem location={location} />
+                        <FilterNodeMenuItem nodeType={{ name: nodeName, type: NodeCategory.GRAPHQL_SERVICE }} />
                     </>
                     }
                 </MenuList>

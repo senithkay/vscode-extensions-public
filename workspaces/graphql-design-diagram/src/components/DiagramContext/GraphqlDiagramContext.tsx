@@ -14,6 +14,8 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import { CurrentFile } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { NodeType } from "../NodeFilter";
+
 interface GraphqlDiagramContextProps {
     children?: React.ReactNode,
     functionPanel?: (position: NodePosition, functionType: string, model?: STNode, filePath?: string, completeST?: STNode) => void;
@@ -28,6 +30,8 @@ interface GraphqlDiagramContextProps {
     currentFile?: CurrentFile;
     setSelectedNode?: (nodeId: string) => void;
     selectedDiagramNode?: string;
+    setFilteredNode?: (nodeType: NodeType) => void;
+    filteredNode?: NodeType;
 }
 
 export const DiagramContext = createContext({
@@ -42,7 +46,9 @@ export const DiagramContext = createContext({
         langClientPromise: undefined,
         currentFile: undefined,
         setSelectedNode: (nodeId: string) => {},
-        selectedDiagramNode: undefined
+        selectedDiagramNode: undefined,
+        setFilteredNode: (nodeType: NodeType) => {},
+        filteredNode: undefined
     }
 );
 
@@ -61,7 +67,9 @@ export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
         langClientPromise,
         currentFile,
         setSelectedNode,
-        selectedDiagramNode
+        selectedDiagramNode,
+        setFilteredNode,
+        filteredNode
     } = props;
 
     return (
@@ -78,7 +86,9 @@ export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
                 langClientPromise,
                 currentFile,
                 setSelectedNode,
-                selectedDiagramNode
+                selectedDiagramNode,
+                setFilteredNode,
+                filteredNode
             }}
         >
             {children}

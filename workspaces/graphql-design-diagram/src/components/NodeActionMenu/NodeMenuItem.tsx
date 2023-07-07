@@ -10,7 +10,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
 import React from "react";
 
-import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
+import { ListItemIcon, ListItemText, MenuItem, TextField } from "@material-ui/core";
 import {
     GraphqlQueryIcon,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -53,7 +53,7 @@ export function NodeMenuItem(props: NodeMenuItemProps) {
             {position.filePath &&
             <MenuItem onClick={() => openFunctionPanel()} className={menuStyles.menuItem}>
                 <ListItemIcon className={menuStyles.menuIcon}>
-                    <GraphqlQueryIcon/>
+                    <GraphqlQueryIcon />
                 </ListItemIcon>
                 <ListItemText className={menuStyles.listItemText}>Add Field</ListItemText>
             </MenuItem>
