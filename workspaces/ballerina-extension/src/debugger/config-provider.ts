@@ -101,7 +101,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         }
     }
 
-    if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME) {
+    if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME && !config.script) {
         const tomls = await workspace.findFiles(workspaceFolder ? new RelativePattern(workspaceFolder, BALLERINA_TOML_REGEX): BALLERINA_TOML_REGEX);
         const projects: { project: BallerinaProject; balFile: Uri; relativePath: string }[] = [];
         for (const toml of tomls) {

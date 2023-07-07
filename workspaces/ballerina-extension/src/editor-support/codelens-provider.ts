@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) (2021-2023), WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -9,18 +9,21 @@
 
 import { BallerinaExtension, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, LANGUAGE } from '../core';
 import {
-    CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
-    ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
+    CancellationToken, CodeLens, CodeLensProvider, commands, ConfigurationTarget, debug, DebugConfiguration, Event, EventEmitter,
+    ExtensionContext,
+    ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceConfiguration, WorkspaceFolder
 } from 'vscode';
 import { BAL_TOML, clearTerminal, PALETTE_COMMANDS } from '../project';
 import fileUriToPath from 'file-uri-to-path';
 import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
-import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
+import { DEBUG_CONFIG } from '../debugger';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { traversNode } from '@wso2-enterprise/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -70,8 +73,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_SOURCE_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(this.activeTextEditorUri!, false, this.ballerinaExtension.getBallerinaCmd(),
-                this.ballerinaExtension.getBallerinaHome(), args);
+            startDebugging(this.activeTextEditorUri!, false, args, this.ballerinaExtension.context);
         });
 
         commands.registerCommand(SOURCE_DEBUG_COMMAND, async () => {
@@ -84,8 +86,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_TEST_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(window.activeTextEditor!.document.uri, true, this.ballerinaExtension.getBallerinaCmd(),
-                this.ballerinaExtension.getBallerinaHome(), args);
+            startDebugging(window.activeTextEditor!.document.uri, true, args, this.ballerinaExtension.context);
         });
     }
 
@@ -109,10 +110,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         try {
             const response = await langClient!.getExecutorPositions({
-                    documentIdentifier: {
-                        uri: fileUri
-                    }
-                }) as ExecutorPositionsResponse;
+                documentIdentifier: {
+                    uri: fileUri
+                }
+            }) as ExecutorPositionsResponse;
             if (response.executorPositions) {
                 response.executorPositions.forEach(position => {
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
@@ -125,10 +126,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         // Open in diagram code lenses
         try {
             const syntaxTreeResponse = await langClient!.getSyntaxTree({
-                    documentIdentifier: {
-                        uri: fileUri
-                    }
-                });
+                documentIdentifier: {
+                    uri: fileUri
+                }
+            });
             const response = syntaxTreeResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess && response.syntaxTree) {
                 const syntaxTree = response.syntaxTree;
@@ -162,60 +163,52 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 }
 
-async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
+async function startDebugging(uri: Uri, testDebug: boolean, args: any[], context: ExtensionContext)
     : Promise<boolean> {
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
-    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, ballerinaCmd,
-        ballerinaHome, args);
+    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, args, context);
     return debug.startDebugging(workspaceFolder, debugConfig);
 }
 
-async function constructDebugConfig(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string,
-    args: any): Promise<DebugConfiguration> {
+async function constructDebugConfig(uri: Uri, testDebug: boolean, args: any, context: ExtensionContext): Promise<DebugConfiguration> {
 
-    let programArgs = [];
-    let commandOptions = [];
-    let env = {};
-    const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
-    if (debugConfigs.length > 0) {
-        let debugConfig: DebugConfiguration | undefined;
-        for (let i = 0; i < debugConfigs.length; i++) {
-            if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
-                (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
-                debugConfig = debugConfigs[i];
-                break;
-            }
+    const launchConfig: WorkspaceConfiguration = workspace.getConfiguration('launch').length > 0 ? workspace.getConfiguration('launch') :
+        workspace.getConfiguration('launch', uri);
+    const debugConfigs: DebugConfiguration[] = launchConfig.configurations;
+
+    if (debugConfigs.length == 0) {
+        const packageJson = JSON.parse(readFileSync(resolve(context.extensionPath, "package.json"), 'utf8'));
+        const initialConfigurations: DebugConfiguration[] = packageJson.contributes.debuggers[0].initialConfigurations;
+
+        debugConfigs.push(initialConfigurations[0]);
+        launchConfig.update('configurations', debugConfigs, ConfigurationTarget.WorkspaceFolder, true);
+    }
+
+    let debugConfig: DebugConfiguration | undefined;
+    for (let i = 0; i < debugConfigs.length; i++) {
+        if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
+            (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
+            debugConfig = debugConfigs[i];
+            break;
         }
-        if (debugConfig) {
-            if (debugConfig.programArgs) {
-                programArgs = debugConfig.programArgs;
-            }
-            if (debugConfig.commandOptions) {
-                commandOptions = debugConfig.commandOptions;
-            }
-            if (debugConfig.env) {
-                env = debugConfig.env;
-            }
+    }
+    if (debugConfig) {
+        if (debugConfig.programArgs) {
+            debugConfig.programArgs = debugConfig.programArgs;
+        }
+        if (debugConfig.commandOptions) {
+            debugConfig.commandOptions = debugConfig.commandOptions;
+        }
+        if (debugConfig.env) {
+            debugConfig.env = debugConfig.env;
         }
     }
 
-    const debugConfig: DebugConfiguration = {
-        type: LANGUAGE.BALLERINA,
-        name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
-        request: DEBUG_REQUEST.LAUNCH,
-        script: fileUriToPath(uri.toString()),
-        networkLogs: false,
-        debugServer: '10001',
-        debuggeePort: '5010',
-        'ballerina.home': ballerinaHome,
-        'ballerina.command': ballerinaCmd,
-        debugTests: testDebug,
-        tests: testDebug ? args : [],
-        configEnv: !testDebug ? args : undefined,
-        programArgs,
-        commandOptions,
-        env,
-        capabilities: { supportsReadOnlyEditors: true }
-    };
+    if (!debugConfig.terminal) {
+        debugConfig.terminal = 'integrated';
+    }
+    debugConfig.script = fileUriToPath(uri.toString());
+    debugConfig.configEnv = !testDebug ? args : undefined;
+    debugConfig.debugTests = testDebug;
     return debugConfig;
 }
