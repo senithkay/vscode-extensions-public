@@ -21,6 +21,7 @@ import { Codicon } from "../Codicon/Codicon";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
+    flex-wrap: wrap;
     flex-direction: row;
     gap: 30px;
     width: "100%";

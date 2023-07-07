@@ -26,7 +26,7 @@ const TypeCardContainer = styled.div`
     gap: 10px;
     // End Flex Props
     // Sizing Props
-    width: 120px;
+    width: 150px;
     padding: 5px;
     // End Sizing Props
     // Border Props
