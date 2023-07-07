@@ -39,6 +39,7 @@ const ActionContainer = styled.div`
     flex-direction: row;
     justify-content: flex-end;
     gap: 10px;
+    padding-bottom: 20px;
 `;
 
 const ErrorMessageContainer = styled.div`
@@ -68,7 +69,11 @@ const SubContainer = styled.div`
     gap: 20px;
 `;
 
-const AccordionItem = styled.div`
+const CredContainer = styled.div`
+    height: 26px;
+`;
+
+const SectionWrapper = styled.div`
     // Flex Props
     display: flex;
     flex-direction: column;
@@ -82,8 +87,11 @@ const AccordionItem = styled.div`
     border-radius: 10px;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--vscode-panel-border);
-    cursor: pointer;
+    border-color: transparent;
+    background-color: var(--vscode-welcomePage-tileBackground);
+    &.active {
+        border-color: var(--vscode-focusBorder);
+    }
 `;
 
 const RepoStepWrapper = styled.div`
@@ -133,8 +141,6 @@ export function ProjectWizard() {
 
     const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
 
-    const [currentStep, setCurrentStep] = useState(0);
-    const [selectedStep, setSelectedStep] = useState(0);
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
     const [creationInProgress, setCreationInProgress] = useState(false);
@@ -143,8 +149,7 @@ export function ProjectWizard() {
     const [selectedGHOrgName, setSelectedGHOrgName] = useState("");
     const [selectedGHRepo, setSelectedGHRepo] = useState("");
     const [isBareRepo, setIsBareRepo] = useState(false);
-    const [gitProvider, setGitProvider] = useState(GitProvider.GITHUB);
-    const [isGHAuthorized, setIsGHAuthorized] = useState(false);
+    const [gitProvider, setGitProvider] = useState(undefined);
     const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
     const [refreshRepoList, setRefreshRepoList] = useState(false);
     const [projectDir, setProjectDir] = useState("");
@@ -154,22 +159,6 @@ export function ProjectWizard() {
             eventName: CREATE_PROJECT_START_EVENT
         });
     }, []);
-
-    useEffect(() => {
-        if (currentStep === 0 && projectName.length > 0 && initMonoRepo) {
-            setCurrentStep(1);
-            setSelectedStep(1);
-        }
-    }, [initMonoRepo]);
-
-    useEffect(() => {
-        if (isGHAuthorized || selectedCredential.id.length > 0) {
-            if (currentStep === 1) {
-                setCurrentStep(2);
-            }
-            setSelectedStep(2);
-        }
-    }, [isGHAuthorized, selectedCredential]);
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -205,8 +194,9 @@ export function ProjectWizard() {
                         repoDetails.bitbucketCredentialId = selectedCredential?.id
                     }
                     await webviewAPI.setProjectRepository(createdProject.id, repoDetails);
-                    handleCloneProjectClick(createdProject);
                 }
+
+                handleCloneProject(createdProject);
 
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                     eventName: CREATE_PROJECT_SUCCESS_EVENT,
@@ -232,7 +222,7 @@ export function ProjectWizard() {
         setCreationInProgress(false);
     };
 
-    const handleCloneProjectClick = (project: Project) => {
+    const handleCloneProject = (project: Project) => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
             eventName: CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
             properties: {
@@ -281,18 +271,11 @@ export function ProjectWizard() {
         setSelectedGHRepo('');
         if (type === GitProvider.GITHUB) {
             setSelectedCredential({ id: '', name: '' });
-        } else {
-            setIsGHAuthorized(false);
         }
     }
 
-    const selectStep = (step: number) => {
-        if (step <= currentStep) {
-            setSelectedStep(step);
-        }
-    }
 
-    const isValid: boolean = projectName.length > 0 && (!initMonoRepo || (!!selectedGHOrgName && !!selectedGHRepo && !!projectDir));
+    const isValid: boolean = projectName.length > 0 && !!projectDir && (!initMonoRepo || (!!selectedGHOrgName && !!selectedGHRepo));
 
     return (
         <>
@@ -300,150 +283,131 @@ export function ProjectWizard() {
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
                     <h2>New Choreo Project</h2>
-                    <AccordionItem onClick={() => selectStep(0)}>
+                    <SectionWrapper>
                         <h3>Project Details</h3>
-                        {selectedStep === 0 && (
-                            <>
-                                <VSCodeTextField
-                                    autofocus
-                                    // TODO: Add validation
-                                    // validate={projectName.length > 0}
-                                    validationMessage="Project name is required"
-                                    placeholder="Name"
-                                    onInput={(e: any) => setProjectName(e.target.value)}
-                                    value={projectName}
-                                    id='project-name-input'
-                                >
-                                    Project Name <RequiredFormInput />
-                                </VSCodeTextField>
-                                <VSCodeTextArea
-                                    placeholder="Description"
-                                    onInput={(e: any) => setProjectDescription(e.target.value)}
-                                    value={projectDescription}
-                                    id='project-description-input'
-                                >
-                                    Project Description
-                                </VSCodeTextArea>
-                                <VSCodeCheckbox
-                                    checked={initMonoRepo}
-                                    onChange={handleInitiMonoRepoCheckChange}
-                                >
-                                    Initialize a mono repo
-                                </VSCodeCheckbox>
-                            </>
-                        )}
-                    </AccordionItem>
+                        <VSCodeTextField
+                            autofocus
+                            // TODO: Add validation
+                            // validate={projectName.length > 0}
+                            validationMessage="Project name is required"
+                            placeholder="Name"
+                            onInput={(e: any) => setProjectName(e.target.value)}
+                            value={projectName}
+                            id='project-name-input'
+                        >
+                            Project Name <RequiredFormInput />
+                        </VSCodeTextField>
+                        <VSCodeTextArea
+                            placeholder="Description"
+                            onInput={(e: any) => setProjectDescription(e.target.value)}
+                            value={projectDescription}
+                            id='project-description-input'
+                        >
+                            Project Description
+                        </VSCodeTextArea>
+                        <VSCodeCheckbox
+                            checked={initMonoRepo}
+                            onChange={handleInitiMonoRepoCheckChange}
+                        >
+                            Initialize a mono repo
+                        </VSCodeCheckbox>
+                    </SectionWrapper>
                     {initMonoRepo &&
                         (
-                            <AccordionItem onClick={() => selectStep(1)}>
+                            <SectionWrapper>
                                 <h3>Git Provider Details</h3>
-                                {selectedStep === 1 && (
-                                    <>
-                                        <SubContainer>
-                                            <CardContainer>
-                                                <ProjectTypeCard
-                                                    type={GitProvider.GITHUB}
-                                                    label="GitHub"
-                                                    currentType={gitProvider}
-                                                    onChange={changeGitProvider}
-                                                />
-                                                <ProjectTypeCard
-                                                    type={GitProvider.BITBUCKET}
-                                                    label="BitBucket"
-                                                    currentType={gitProvider}
-                                                    onChange={changeGitProvider}
-                                                />
-                                            </CardContainer>
-                                        </SubContainer>
-                                        {gitProvider === GitProvider.GITHUB && <GithubAutherizer setAuthStatus={setIsGHAuthorized} />}
-                                        {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
-                                    </>
-                                )}
-                            </AccordionItem>
+                                <SubContainer>
+                                    <CardContainer>
+                                        <ProjectTypeCard
+                                            type={GitProvider.GITHUB}
+                                            label="GitHub"
+                                            currentType={gitProvider}
+                                            onChange={changeGitProvider}
+                                        />
+                                        <ProjectTypeCard
+                                            type={GitProvider.BITBUCKET}
+                                            label="BitBucket"
+                                            currentType={gitProvider}
+                                            onChange={changeGitProvider}
+                                        />
+                                    </CardContainer>
+                                </SubContainer>
+                                <CredContainer>
+                                    {gitProvider === GitProvider.GITHUB && <GithubAutherizer />}
+                                    {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
+                                </CredContainer>
+                            </SectionWrapper>
                         )
                     }
-                    {initMonoRepo &&
+                    {initMonoRepo && gitProvider &&
                         (
-                            <AccordionItem onClick={() => selectStep(2)}>
+                            <SectionWrapper>
                                 <h3>Configure Repository</h3>
-                                {selectedStep === 2 && (
-                                    <>
-                                        <RepoStepWrapper>
-                                            <RepoStepNumber> 1 </RepoStepNumber>
-                                            <RepoStepContent>
-                                                <h3>  Starting from scratch?  </h3>
-                                                <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span>
-                                            </RepoStepContent>
-                                        </RepoStepWrapper>
-                                        <RepoStepWrapper>
-                                            <RepoStepNumber> 2 </RepoStepNumber>
-                                            <RepoStepContent>
-                                                {gitProvider === GitProvider.GITHUB && (
-                                                    <>
-                                                        <h3>  Install Choreo App to the repo  </h3>
-                                                        <GithubInstaller></GithubInstaller>
-                                                    </>
-                                                )}
-                                                {gitProvider === GitProvider.BITBUCKET && (
-                                                    <>
-                                                        <h3>  Refresh repository list  </h3>
-                                                        <VSCodeButton onClick={handleRepoRefresh}>Refresh</VSCodeButton>
-                                                    </>
-                                                )}
-                                            </RepoStepContent>
-                                        </RepoStepWrapper>
-                                        <RepoStepWrapper>
-                                            <RepoStepNumber> 3 </RepoStepNumber>
-                                            <RepoStepContent>
-                                                <h3>  Select repository  </h3>
-                                                {initMonoRepo &&
-                                                    (<>
-                                                        {gitProvider === GitProvider.GITHUB &&
-                                                            <GithubRepoSelector
-                                                                selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
-                                                                onRepoSelect={handleRepoSelect}
-                                                            />}
-                                                        {gitProvider === GitProvider.BITBUCKET &&
-                                                            <BitbucketRepoSelector
-                                                                selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
-                                                                onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
-                                                                refreshRepoList={refreshRepoList}
-                                                            />}
-                                                    </>)
-                                                }
-                                                {initMonoRepo && isBareRepo &&
-                                                    (<>
-                                                        Repository is not initialized. Please initialize the repository before cloning can continue.
-                                                        <GhRepoSelectorActions>
-                                                            <VSCodeLink onClick={handleRepoInit}>
-                                                                Initialize
-                                                            </VSCodeLink>
-                                                            <VSCodeLink onClick={handleCreateProject}>
-                                                                Recheck & Create Project
-                                                            </VSCodeLink>
-                                                        </GhRepoSelectorActions>
-                                                    </>)
-                                                }
-                                            </RepoStepContent>
-                                        </RepoStepWrapper>
-                                        <RepoStepWrapper>
-                                            <RepoStepNumber> 4 </RepoStepNumber>
-                                            <RepoStepContent>
-                                                <h3>  Project Location  </h3>
-                                                <VSCodeLink onClick={handleProjecDirSelection}>
-                                                    <i className={`codicon codicon-folder-opened`} style={{ verticalAlign: "bottom", marginRight: "5px" }} />
-                                                    Browse
-                                                </VSCodeLink>
-                                                {!!projectDir && <span>{projectDir}</span>}
-                                                {!projectDir && <span>Please choose a directory for project workspace</span>}
-                                            </RepoStepContent>
-                                        </RepoStepWrapper>
-
-                                    </>
-                                )}
-                            </AccordionItem>
-                        )
+                                <RepoStepWrapper>
+                                    <RepoStepNumber> 1 </RepoStepNumber>
+                                    <RepoStepContent>
+                                        <h3>  Starting from scratch?  </h3>
+                                        <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span>
+                                    </RepoStepContent>
+                                </RepoStepWrapper>
+                                <RepoStepWrapper>
+                                    <RepoStepNumber> 2 </RepoStepNumber>
+                                    <RepoStepContent>
+                                        {gitProvider === GitProvider.GITHUB && (
+                                            <>
+                                                <h3>  Install Choreo App to the repo  </h3>
+                                                <GithubInstaller></GithubInstaller>
+                                            </>
+                                        )}
+                                        {gitProvider === GitProvider.BITBUCKET && (
+                                            <>
+                                                <h3>  Refresh repository list  </h3>
+                                                <VSCodeButton onClick={handleRepoRefresh}>Refresh</VSCodeButton>
+                                            </>
+                                        )}
+                                    </RepoStepContent>
+                                </RepoStepWrapper>
+                                <RepoStepWrapper>
+                                    <RepoStepNumber> 3 </RepoStepNumber>
+                                    <RepoStepContent>
+                                        <h3>  Select repository  </h3>
+                                        {gitProvider === GitProvider.GITHUB &&
+                                            <GithubRepoSelector
+                                                selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                                onRepoSelect={handleRepoSelect}
+                                            />}
+                                        {gitProvider === GitProvider.BITBUCKET &&
+                                            <BitbucketRepoSelector
+                                                selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                                onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
+                                                refreshRepoList={refreshRepoList}
+                                            />}
+                                        {isBareRepo &&
+                                            (<>
+                                                Repository is not initialized. Please initialize the repository before cloning can continue.
+                                                <GhRepoSelectorActions>
+                                                    <VSCodeLink onClick={handleRepoInit}>
+                                                        Initialize
+                                                    </VSCodeLink>
+                                                    <VSCodeLink onClick={handleCreateProject}>
+                                                        Recheck & Create Project
+                                                    </VSCodeLink>
+                                                </GhRepoSelectorActions>
+                                            </>)
+                                        }
+                                    </RepoStepContent>
+                                </RepoStepWrapper>
+                            </SectionWrapper>)
                     }
+                    <SectionWrapper>
+                        <h3>  Project Location  </h3>
+                        <VSCodeLink>
+                            <i className={`codicon codicon-folder-opened`} style={{ verticalAlign: "bottom", marginRight: "5px" }} />
+                            <span onClick={handleProjecDirSelection}>Browse</span>
+                        </VSCodeLink>
+                        {!!projectDir && <span>{projectDir}</span>}
+                        {!projectDir && <span>Please choose a directory for project workspace</span>}
+                    </SectionWrapper>
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
                         <ErrorMessageContainer>

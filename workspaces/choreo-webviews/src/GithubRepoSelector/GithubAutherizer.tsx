@@ -22,15 +22,9 @@ const GhRepoSelectorActions = styled.div`
     gap: 10px;
 `;
 
-export interface GithubAutherizerProps {
-    setAuthStatus: (status: boolean) => void;
-}
+export function GithubAutherizer() {
 
-export function GithubAutherizer(props: GithubAutherizerProps) {
-
-    const { setAuthStatus } = props;
-
-    const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
+    const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: undefined });
 
     useEffect(() => {
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
@@ -46,10 +40,6 @@ export function GithubAutherizer(props: GithubAutherizerProps) {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
     };
 
-    const useCredential = () => {
-        setAuthStatus(true);
-    }
-
     const showAuthorizeButton = ghStatus.status === "not-authorized";
     const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress";
     let loaderMessage = "Authenticating...";
@@ -62,7 +52,6 @@ export function GithubAutherizer(props: GithubAutherizerProps) {
         <>
             <GhRepoSelectorActions>
                 {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
-                {!showAuthorizeButton && <span><VSCodeLink onClick={useCredential}>Use available credentials</VSCodeLink></span>}
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />}
             </GhRepoSelectorActions>
