@@ -135,7 +135,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
                 }
             }
         } else {
-            ballerinaExtInstance.showMessageInvalidFile();
+            ballerinaExtInstance.showMessageInvalidProject();
             return Promise.reject();
         }
 
