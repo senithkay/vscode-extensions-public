@@ -143,15 +143,17 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     const loaderMessage = "Loading repositories...";
-    const showLoader = isFetching || isRefetching;
+    const credentialsAvailable = !!selectedCred.id;
+    const showLoader = (isFetching || isRefetching) && credentialsAvailable;
 
     return (
         <>
             <GhRepoSelectorActions>
+                {!credentialsAvailable && "Please select a bitbucket credential."}
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />} 
             </GhRepoSelectorActions>
-            {bborgs && bborgs.length > 0 && !showLoader && selectedCred.id && (
+            {bborgs && bborgs.length > 0 && !showLoader && credentialsAvailable && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Workspace</label>
