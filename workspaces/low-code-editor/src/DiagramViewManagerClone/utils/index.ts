@@ -22,6 +22,7 @@ import {
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { TextDocumentPositionParams, WorkspaceEdit } from "vscode-languageserver-protocol";
 
+import { UndoRedoManager } from "../../Diagram/components/FormComponents/UndoRedoManager";
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
 import {
@@ -61,6 +62,7 @@ export function getDiagramProviderProps(
     lowCodeResourcesVersion: any,
     balVersion: string,
     props: EditorProps,
+    undoRedoManager: UndoRedoManager,
     setFocusedST: React.Dispatch<React.SetStateAction<STNode>>,
     setCompleteST: React.Dispatch<React.SetStateAction<STNode>>,
     setFileContent: (content: string) => void,
@@ -130,6 +132,7 @@ export function getDiagramProviderProps(
                             uri
                         }
                     });
+                    undoRedoManager.addModification(currentFileContent);
                     let visitedST: STNode;
                     if (parseSuccess) {
                         setUpdateTimestamp(new Date().getTime().toString());

@@ -71,7 +71,8 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     if (field?.value) {
         body = getInnermostExpressionBody(field.value);
         if (STKindChecker.isQueryExpression(field.value)) {
-            body = field.value.selectClause.expression;
+            const selectClause = field.value?.selectClause || field.value?.resultClause;
+            body = selectClause.expression;
         }
     }
 

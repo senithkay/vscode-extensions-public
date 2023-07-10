@@ -19,10 +19,11 @@ import { ServiceSubheader } from "./ServiceMenuActions/ServiceSubheader";
 
 interface ServiceHeaderMenuProps {
     location: Position;
+    nodeName: string;
 }
 
 export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
-    const { location } = props;
+    const { location, nodeName } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
@@ -34,7 +35,7 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <div onClick={() => setTooltipStatus(false)}>
-                        <ServiceSubheader location={location}/>
+                        <ServiceSubheader location={location} nodeName={nodeName} />
                     </div>
                 }
                 PopperProps={{

@@ -2929,6 +2929,7 @@ export interface VisibleEndpoint {
     queryConstructType?: QueryConstructType;
     queryPipeline: QueryPipeline;
     selectClause: SelectClause;
+    resultClause?: SelectClause; // [Hack] This is to support the new syntax
   }
   
   export interface QueryPipeline extends STNode {

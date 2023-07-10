@@ -63,8 +63,9 @@ describe('VSCode Config Creation Using Command UI Tests', () => {
 
         browser = VSBrowser.instance;
         driver = browser.driver;
+        // Close all open tabs
+        await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackage/service.bal`);
-        await wait(10000);
     });
 
     it('Open command palette to select config create command', async () => {

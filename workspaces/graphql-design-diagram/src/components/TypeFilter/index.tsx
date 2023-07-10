@@ -21,11 +21,12 @@ export enum OperationTypes {
 
 interface TypeFilterProps {
     updateFilter: (type: OperationTypes) => void;
+    isFilterDisabled: boolean;
 }
 
 
 export function TypeFilter(props: TypeFilterProps) {
-    const { updateFilter } = props;
+    const { updateFilter, isFilterDisabled } = props;
     const [type, setType] = React.useState<OperationTypes>(OperationTypes.All_Operations);
 
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -43,6 +44,7 @@ export function TypeFilter(props: TypeFilterProps) {
                     value={type}
                     label="Operation Type"
                     onChange={handleChange}
+                    disabled={isFilterDisabled}
                     SelectDisplayProps={{ style: { padding: '10px' } }}
                 >
                     <MenuItem value={OperationTypes.All_Operations}>All Operations</MenuItem>

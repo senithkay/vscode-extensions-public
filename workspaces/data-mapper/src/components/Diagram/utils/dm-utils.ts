@@ -45,21 +45,28 @@ import {
 import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DMNode } from "../../DataMapper/DataMapper";
+import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
 import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
-import { MappingConstructorNode, QueryExpressionNode, RequiredParamNode } from "../Node";
+import {
+	LIST_CONSTRUCTOR_NODE_TYPE,
+	MappingConstructorNode,
+	MAPPING_CONSTRUCTOR_NODE_TYPE, PRIMITIVE_TYPE_NODE_TYPE, QueryExpressionNode,
+	QUERY_EXPR_NODE_TYPE, RequiredParamNode,
+	REQ_PARAM_NODE_TYPE
+} from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
-import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
+import { ExpandedMappingHeaderNode, EXPANDED_MAPPING_HEADER_NODE_TYPE } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
-import { JoinClauseNode } from "../Node/JoinClause";
-import { LetClauseNode } from "../Node/LetClause";
-import { LetExpressionNode } from "../Node/LetExpression";
+import { JoinClauseNode, QUERY_EXPR_JOIN_NODE_TYPE } from "../Node/JoinClause";
+import { LetClauseNode, QUERY_EXPR_SOURCE_NODE_TYPE } from "../Node/LetClause";
+import { LetExpressionNode, LET_EXPR_SOURCE_NODE_TYPE } from "../Node/LetExpression";
 import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
-import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
+import { ModuleVariable, ModuleVariableNode, MODULE_VAR_SOURCE_NODE_TYPE } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
@@ -78,7 +85,6 @@ import {
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
-import { resolveUnionType } from "./union-type-utils";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -132,7 +138,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		if (STKindChecker.isLetExpression(targetPort.editableRecordField.value)) {
 			targetExpr = getExprBodyFromLetExpression(targetPort.editableRecordField.value);
 		} else if (STKindChecker.isQueryExpression(targetPort.editableRecordField.value)) {
-			targetExpr = targetPort.editableRecordField.value?.selectClause.expression;
+			const selectClause = targetPort.editableRecordField.value?.selectClause
+				|| targetPort.editableRecordField.value?.resultClause;
+			targetExpr = selectClause.expression;
 		} else {
 			targetExpr = targetPort.editableRecordField.value;
 		}
@@ -142,8 +150,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			return updateValueExprSource(rhs, valuePosition, applyModifications);
 		}
 	} else if (isMappedToSelectClauseExprConstructor(targetPort)) {
-		const exprPosition = (targetPort.editableRecordField.value as QueryExpression)
-			.selectClause.expression.position as NodePosition;
+		const queryExpr = targetPort.editableRecordField.value as QueryExpression;
+		const selectClause = queryExpr?.selectClause || queryExpr?.resultClause;
+		const exprPosition = selectClause.expression.position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	} else if (isMappedToRootUnionType(targetPort)) {
 		const exprPosition = (targetPort.getParent() as UnionTypeNode).innermostExpr.position as NodePosition;
@@ -497,7 +506,7 @@ export function findNodeByValueNode(value: STNode,
 	if (value) {
 		dmNode.getModel().getNodes().find((node) => {
 			if (((STKindChecker.isRequiredParam(value) && node instanceof RequiredParamNode
-				&& STKindChecker.isRequiredParam(node.value))
+				&& node?.value && STKindChecker.isRequiredParam(node.value))
 				|| (STKindChecker.isFromClause(value) && node instanceof FromClauseNode
 					&& STKindChecker.isFromClause(node.value))
 				|| (STKindChecker.isLetClause(value) && node instanceof LetClauseNode
@@ -531,7 +540,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				const bindingPattern = (node.value as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
 				return bindingPattern?.source?.trim() === expr.source?.trim()
 			} else if (node instanceof RequiredParamNode) {
-				return expr.name.value === node.value.paramName.value;
+				return node?.value && expr.name.value === node.value.paramName.value;
 			} else if (node instanceof FromClauseNode) {
 				const bindingPattern = node.value.typedBindingPattern.bindingPattern;
 				if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
@@ -630,7 +639,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode) && node.typeDef;
 	let portIdBuffer;
 	if (node instanceof RequiredParamNode) {
-		portIdBuffer = node.value.paramName.value
+		portIdBuffer = node?.value && node.value.paramName.value
 	} else if (node instanceof LetExpressionNode) {
 		const varDecl = node.letVarDecls.find(decl => {
 			if (decl.type.typeName === PrimitiveBalType.Record) {
@@ -647,7 +656,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 			}
 			return decl.varName === expr.source.trim();
 		});
-		typeDesc = moduleVar.type;
+		typeDesc = moduleVar?.type;
 		portIdBuffer = moduleVar && MODULE_VARIABLE_SOURCE_PORT_PREFIX + "." + moduleVar.varName;
 	} else {
 		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
@@ -1221,6 +1230,27 @@ export function isRepresentFnBody(queryParentNode: STNode, fnBody: ExpressionFun
 	return false;
 }
 
+export function getErrorKind(node: DataMapperNodeModel): ErrorNodeKind {
+	const nodeType = node.getType();
+	switch (nodeType) {
+		case MAPPING_CONSTRUCTOR_NODE_TYPE:
+		case LIST_CONSTRUCTOR_NODE_TYPE:
+		case PRIMITIVE_TYPE_NODE_TYPE:
+			return ErrorNodeKind.Output;
+		case REQ_PARAM_NODE_TYPE:
+			return ErrorNodeKind.Input;
+		case LET_EXPR_SOURCE_NODE_TYPE:
+		case MODULE_VAR_SOURCE_NODE_TYPE:
+		case EXPANDED_MAPPING_HEADER_NODE_TYPE:
+		case QUERY_EXPR_NODE_TYPE:
+		case QUERY_EXPR_SOURCE_NODE_TYPE:
+		case QUERY_EXPR_JOIN_NODE_TYPE:
+			return ErrorNodeKind.Other;
+		default:
+			return ErrorNodeKind.Other;
+	}
+}
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value
@@ -1266,13 +1296,18 @@ function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortMode
 }
 
 function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel): boolean {
-	return !targetPort.parentModel
+	const queryExpr = !targetPort.parentModel
 		&& targetPort.field.typeName === PrimitiveBalType.Array
 		&& targetPort?.editableRecordField?.value
 		&& STKindChecker.isQueryExpression(targetPort.editableRecordField.value)
-		&& (STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression)
-			|| STKindChecker.isMappingConstructor(targetPort.editableRecordField.value.selectClause.expression)
-		);
+		&& targetPort.editableRecordField.value;
+	if (queryExpr) {
+		const selectClause = queryExpr?.selectClause || queryExpr?.resultClause;
+		return selectClause
+			&& (STKindChecker.isListConstructor(selectClause.expression)
+				|| STKindChecker.isMappingConstructor(selectClause.expression));
+	}
+	return false;
 }
 
 function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {

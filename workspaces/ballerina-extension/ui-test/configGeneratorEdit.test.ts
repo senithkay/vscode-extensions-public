@@ -22,7 +22,7 @@ const expectedConfigs = [
     'isAdmin',
     'url',
     'authConfig'
-  ];
+];
 
 
 describe('VSCode Config Generation Edit UI Tests', () => {
@@ -56,8 +56,10 @@ describe('VSCode Config Generation Edit UI Tests', () => {
         });
         browser = VSBrowser.instance;
         driver = browser.driver;
+        // Close all open tabs
+        await new EditorView().closeAllEditors();
+
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackageEdit/service.bal`);
-        await wait(10000);
     });
 
     it('Click on run button to add configs to the file', async () => {
@@ -72,7 +74,7 @@ describe('VSCode Config Generation Edit UI Tests', () => {
         for (const infoNotification of infoNotifications) {
             await infoNotification.click();
         }
-        await wait(15000);
+        await wait(5000);
 
         // Read the updated config file and expected config file
         const generatedConfigContent = readFileSync(configFilePath, 'utf8').replace(/\s/g, '');

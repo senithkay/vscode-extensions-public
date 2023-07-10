@@ -63,7 +63,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             PRIMITIVE_TYPE_NODE_TYPE
         );
         this.innermostExpr = getInnermostExpressionBody(this.queryExpr
-            ? this.queryExpr.selectClause.expression
+            ? (this.queryExpr?.selectClause || this.queryExpr?.resultClause).expression
             : this.value.expression
         );
     }

@@ -925,7 +925,14 @@ export const useStyles = makeStyles((theme: Theme) =>
                 WebkitFilter: "drop-shadow( 1px 1px 3px rgba(0, 0, 0, .3))",
                 filter: "drop-shadow( 1px 1px 3px rgba(0, 0, 0, .3))"
             }
-        }
+        },
+        jsonUpload: {
+            textTransform: 'none',
+            color: '#5567D5',
+            "& .MuiButton-startIcon": {
+                margin: '0',
+            },
+        },
     }),
     { index: 1 }
 );

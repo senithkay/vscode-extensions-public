@@ -399,13 +399,13 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitParenthesisedTypeDesc(node: ParenthesisedTypeDesc) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typedesc.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typedesc.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.typedesc.position);
         }
     }
 
     public beginVisitUnionTypeDesc(node: UnionTypeDesc) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.leftTypeDesc.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.leftTypeDesc.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.leftTypeDesc.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.rightTypeDesc.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.rightTypeDesc.position);
@@ -413,7 +413,7 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitIntersectionTypeDesc(node: IntersectionTypeDesc) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.leftTypeDesc.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.leftTypeDesc.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.leftTypeDesc.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.rightTypeDesc.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.rightTypeDesc.position);
@@ -421,13 +421,13 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitOptionalTypeDesc(node: OptionalTypeDesc) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeDescriptor.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeDescriptor.position);
         }
     }
 
     public beginVisitTypeParameter(node: TypeParameter) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeNode.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeNode.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeNode.position);
         }
     }
@@ -457,48 +457,48 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitRecordTypeDesc(node: RecordTypeDesc) {
         if (!this.isNodeFound) {
-                const hasItemsToBeDeleted = node.fields.some((item: STNode) => {
-                    return isPositionsEquals(this.deletePosition, item.position);
+            const hasItemsToBeDeleted = node.fields.some((item: STNode) => {
+                return isPositionsEquals(this.deletePosition, item.position);
+            });
+
+            if (hasItemsToBeDeleted) {
+                const expressions: string[] = [];
+                node.fields.map((expr: STNode) => {
+                    if (!isPositionsEquals(this.deletePosition, expr.position)) {
+                        expressions.push(expr.source);
+                    }
                 });
 
-                if (hasItemsToBeDeleted) {
-                    const expressions: string[] = [];
-                    node.fields.map((expr: STNode) => {
-                        if (!isPositionsEquals(this.deletePosition, expr.position)) {
-                            expressions.push(expr.source);
-                        }
-                    });
-
-                    this.setProperties(expressions.join(''), {
-                        ...node.position,
-                        startColumn: node.bodyStartDelimiter.position.endColumn,
-                        endColumn: node.bodyEndDelimiter.position.startColumn
-                    });
-                }
+                this.setProperties(expressions.join(''), {
+                    ...node.position,
+                    startColumn: node.bodyStartDelimiter.position.endColumn,
+                    endColumn: node.bodyEndDelimiter.position.startColumn
+                });
             }
+        }
     }
 
     public beginVisitRecordField(node: RecordField) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
-        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)) {
             this.setProperties(DEFAULT_FIELD_NAME, node.fieldName.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.questionMarkToken?.position)) {
             this.setProperties('', node.questionMarkToken.position);
-        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.readonlyKeyword?.position)){
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.readonlyKeyword?.position)) {
 
             this.setProperties(node.typeName.source, {
-            ...node.position,
-            startColumn: node.readonlyKeyword.position.startColumn,
-            endColumn: node.typeName.position.endColumn
+                ...node.position,
+                startColumn: node.readonlyKeyword.position.startColumn,
+                endColumn: node.typeName.position.endColumn
             });
         }
     }
 
     public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.typeName.position)) {
             this.setProperties(DEFAULT_TYPE_DESC, node.typeName.position);
-        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)){
+        } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.fieldName.position)) {
             this.setProperties(DEFAULT_BINDING_PATTERN, node.fieldName.position);
         } else if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.expression.position) &&
             node.expression.source.trim() === DEFAULT_EXPR) {
@@ -514,7 +514,7 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitLetClause(node: LetClause) {
         if (!this.isNodeFound) {
             if (node.letVarDeclarations.length === 1 && isPositionsEquals(this.deletePosition, node.letVarDeclarations[0].position)) {
-                    this.setProperties("", node.position);
+                this.setProperties("", node.position);
             } else {
                 const hasItemsToBeDeleted = node.letVarDeclarations.some((item: STNode) => {
                     return isPositionsEquals(this.deletePosition, item.position);
@@ -540,7 +540,7 @@ class ExpressionDeletingVisitor implements Visitor {
     public beginVisitOrderByClause(node: OrderByClause) {
         if (!this.isNodeFound) {
             if (node.orderKey.length === 1 && isPositionsEquals(this.deletePosition, node.orderKey[0].position)) {
-                    this.setProperties("", node.position);
+                this.setProperties("", node.position);
             } else {
                 const hasItemsToBeDeleted = node.orderKey.some((item: STNode) => {
                     return isPositionsEquals(this.deletePosition, item.position);
@@ -592,9 +592,9 @@ class ExpressionDeletingVisitor implements Visitor {
                 if (parent) {
                     this.setProperties(!!expressions.length ? expressions.join('') : ' ', {
                         startLine: node.fromClause.position.endLine,
-                        endLine: parent.selectClause.position.startLine,
+                        endLine: parent.selectClause ? parent.selectClause.position.startLine : (parent as any).resultClause.position.startLine,
                         startColumn: node.fromClause.position.endColumn,
-                        endColumn: parent.selectClause.position.startColumn
+                        endColumn: parent.selectClause ? parent.selectClause.position.startColumn : (parent as any).resultClause.position.startColumn
                     });
                 }
             }
@@ -603,7 +603,7 @@ class ExpressionDeletingVisitor implements Visitor {
 
     public beginVisitConstDeclaration(node: ConstDeclaration) {
         if (!this.isNodeFound) {
-            if (isPositionsEquals(this.deletePosition, node?.typeDescriptor?.position)){
+            if (isPositionsEquals(this.deletePosition, node?.typeDescriptor?.position)) {
                 this.setProperties('', node?.typeDescriptor?.position);
             } else if (isPositionsEquals(this.deletePosition, node.visibilityQualifier?.position)) {
                 this.setProperties('', node.visibilityQualifier.position);
@@ -618,7 +618,7 @@ class ExpressionDeletingVisitor implements Visitor {
     }
 
     public beginVisitUnaryExpression(node: UnaryExpression) {
-        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.unaryOperator.position)){
+        if (!this.isNodeFound && isPositionsEquals(this.deletePosition, node.unaryOperator.position)) {
             this.setProperties('', node.unaryOperator.position);
         }
     }

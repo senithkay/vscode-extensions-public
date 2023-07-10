@@ -20,8 +20,6 @@ export enum PALETTE_COMMANDS {
     DOC = 'ballerina.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
     RUN_CMD = 'ballerina.project.run.cmd',
-    RUN_FAST = 'ballerina.project.run.fast',
-    STOP = 'ballerina.project.stop',
     RUN = 'ballerina.project.run',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',

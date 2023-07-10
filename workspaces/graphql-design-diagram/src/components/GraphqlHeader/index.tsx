@@ -7,24 +7,35 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import styled from "@emotion/styled";
 
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
+import { NodeCategory, NodeFilter, NodeType } from "../NodeFilter";
+import { GraphqlDesignModel } from "../resources/model";
 import { OperationTypes, TypeFilter } from "../TypeFilter";
+import { getNodeListOfModel } from "../utils/common-util";
 
 interface GraphqlHeaderProps {
     updateFilter: (type: OperationTypes) => void;
+    designModel: GraphqlDesignModel;
 }
 
 export function GraphqlHeader(props: GraphqlHeaderProps) {
-    const { updateFilter } = props;
+    const { updateFilter, designModel } = props;
+    const { filteredNode } = useGraphQlContext();
+    const nodeList = getNodeListOfModel(designModel);
 
     return (
         <HeaderContainer>
             <Title> GraphQL Designer </Title>
             <FilterBar>
-                <TypeFilter updateFilter={updateFilter} />
+                <NodeFilter nodeList={nodeList} />
+                <TypeFilter
+                    updateFilter={updateFilter}
+                    isFilterDisabled={filteredNode ? (filteredNode.type !== NodeCategory.GRAPHQL_SERVICE) : false}
+                />
             </FilterBar>
         </HeaderContainer>
     );
