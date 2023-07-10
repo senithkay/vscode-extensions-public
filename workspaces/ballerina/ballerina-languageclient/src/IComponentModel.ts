@@ -8,6 +8,7 @@ export interface ComponentModel {
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
+    hasModelErrors: boolean;
     dependencies: CMDependency[];
 }
 
@@ -48,8 +49,8 @@ interface CMFunctionNode extends CMNode {
 
 export interface CMEntryPoint extends CMFunctionNode {
     annotation: CMAnnotation;
-    dependencies: CMDependency[];
     type?: 'scheduledTask' | 'manualTrigger';
+    dependencyIDs: CMEntryPointID[];
 }
 
 export interface CMService extends CMNode {

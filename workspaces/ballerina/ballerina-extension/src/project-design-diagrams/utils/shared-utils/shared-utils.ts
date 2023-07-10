@@ -131,6 +131,7 @@ function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponent
         retrievedModel.componentModels[pkgId] = {
             packageId: pkg,
             hasCompilationErrors: true,
+            hasModelErrors: false,
             services: pkgServices as any,
             entities: new Map(),
             dependencies: []

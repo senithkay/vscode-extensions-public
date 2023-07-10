@@ -15,7 +15,7 @@ import {
 } from '@wso2-enterprise/ballerina-languageclient';
 import { Level, ServiceModels, ServiceTypes } from '../../resources';
 import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
-import { extractGateways } from "../utils";
+import { extractGateways, isVersionBelowV4, transformToV4Models } from "../utils";
 
 type ServiceNodeModels = ServiceNodeModel | EntryNodeModel;
 
@@ -49,12 +49,17 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
 
     l1Links = new Map<string, ServiceLinkModel>();
     cellLinks = new Map<string, ServiceLinkModel>();
-    l2Links = []
+    l2Links = [];
+
+    let components = projectComponents;
+    if (isVersionBelowV4(projectComponents)) {
+        components = transformToV4Models(projectComponents);
+    }
 
     // convert service and main entrypoints to nodes
-    generateNodes(projectComponents, projectPackages);
+    generateNodes(components, projectPackages);
     // convert interactions to links and detect external services
-    generateLinks(projectComponents, projectPackages);
+    generateLinks(components, projectPackages);
 
     // set L1 model
     let l1Model = new DiagramModel();
@@ -155,9 +160,15 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                 const l1EntryNode: EntryNodeModel = l1EntryNodes.get(packageName);
                 const l2EntryNode: EntryNodeModel = l2EntryNodes.get(packageName);
                 const cellEntryNode: EntryNodeModel = cellEntryNodes.get(packageName);
-                const { interactions, dependencies } = projectComponents.get(packageName).functionEntryPoint;
+                const { interactions, dependencyIDs } = projectComponents.get(packageName).functionEntryPoint;
                 mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
-                mapDependencies(l1EntryNode, l2EntryNode, cellEntryNode, dependencies);
+
+                if (dependencyIDs.length > 0) {
+                    const depIDs = dependencyIDs.map(d => d.id);
+                    const functionDependencies: CMDependency[] = dependencies.filter(dependency =>
+                        depIDs.includes(dependency.entryPointID.id));
+                    mapDependencies(l1EntryNode, l2EntryNode, cellEntryNode, functionDependencies);
+                }
             }
         }
     });

@@ -121,7 +121,8 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         services: pkgServices as any,
         entities: new Map(),
         dependencies: [],
-        hasCompilationErrors: false
+        hasCompilationErrors: false,
+        hasModelErrors: false
     };
 }
 
