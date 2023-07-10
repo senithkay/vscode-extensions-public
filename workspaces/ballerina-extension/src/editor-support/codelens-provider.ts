@@ -192,17 +192,6 @@ async function constructDebugConfig(uri: Uri, testDebug: boolean, args: any, con
             break;
         }
     }
-    if (debugConfig) {
-        if (debugConfig.programArgs) {
-            debugConfig.programArgs = debugConfig.programArgs;
-        }
-        if (debugConfig.commandOptions) {
-            debugConfig.commandOptions = debugConfig.commandOptions;
-        }
-        if (debugConfig.env) {
-            debugConfig.env = debugConfig.env;
-        }
-    }
 
     if (!debugConfig.terminal) {
         debugConfig.terminal = 'integrated';

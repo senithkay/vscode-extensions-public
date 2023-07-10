@@ -40,7 +40,7 @@ import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../utils/pr
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
 const BALLERINA_TOML_REGEX = `**${sep}Ballerina.toml`;
-const BALLERINA_REGEX = `**${sep}*.bal`;
+const BALLERINA_FILE_REGEX = `**${sep}*.bal`;
 
 export enum DEBUG_REQUEST {
     LAUNCH = 'launch'
@@ -113,7 +113,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         const projects: { project: BallerinaProject; balFile: Uri; relativePath: string }[] = [];
         for (const toml of tomls) {
             const projectRoot = dirname(toml.fsPath);
-            const balFiles = await workspace.findFiles(new RelativePattern(projectRoot, BALLERINA_REGEX), undefined, 1);
+            const balFiles = await workspace.findFiles(new RelativePattern(projectRoot, BALLERINA_FILE_REGEX), undefined, 1);
             if (balFiles.length > 0) {
 
                 const tomlContent: string = readFileSync(toml.fsPath, 'utf8');
