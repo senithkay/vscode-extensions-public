@@ -15,7 +15,7 @@ import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
-export function GithubInstaller() {
+export function ChoreoAppInstaller() {
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "authorized" });
 
@@ -38,7 +38,7 @@ export function GithubInstaller() {
 
     let loaderMessage;
     if (ghStatus.status === "install-inprogress") {
-        loaderMessage = "Installing Github App...";
+        loaderMessage = "Installing Choreo App...";
     } else {
         loaderMessage = "";
     }
@@ -46,6 +46,7 @@ export function GithubInstaller() {
     return (
         <>
             <span><VSCodeLink onClick={handleConfigureNewRepo}>Install app in GitHub</VSCodeLink> or Proceed to step 3.</span>
+            
             {loaderMessage}
         </>
     );

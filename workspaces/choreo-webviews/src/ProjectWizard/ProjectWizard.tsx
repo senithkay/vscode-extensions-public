@@ -18,7 +18,7 @@ import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { GithubAutherizer } from "../GithubRepoSelector/GithubAutherizer";
-import { GithubInstaller } from "../GithubRepoSelector/GithubInstaller";
+import { ChoreoAppInstaller } from "../GithubRepoSelector/ChoreoAppInstaller";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import { ProjectTypeCard } from "./ProjectTypeCard";
@@ -257,7 +257,9 @@ export function ProjectWizard() {
         if (gitProvider === GitProvider.GITHUB) {
             ChoreoWebViewAPI.getInstance().openExternal(`https://github.com/new`);
         } else if (gitProvider === GitProvider.BITBUCKET) {
-            ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${selectedGHOrgName}/workspace/create/repository`);
+            if(!!selectedCredential.id) {
+                ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${selectedGHOrgName}/workspace/create/repository`);
+            }
         }
     }
 
@@ -356,7 +358,7 @@ export function ProjectWizard() {
                                         {gitProvider === GitProvider.GITHUB && (
                                             <>
                                                 <h3>  Install Choreo App to the repo  </h3>
-                                                <GithubInstaller></GithubInstaller>
+                                                <ChoreoAppInstaller />
                                             </>
                                         )}
                                         {gitProvider === GitProvider.BITBUCKET && (
