@@ -93,7 +93,9 @@ export function EndpointList(props: FormGeneratorProps) {
         ) {
             const blockVisibleEndpoints: VisibleEndpoint[] = targetBlock?.VisibleEndpoints;
             blockVisibleEndpoints?.forEach((endpoint) => {
-                if (endpoint.position && endpoint.position.endLine < targetPosition.startLine) {
+                let isTopLevelEndpoint = endpoint.isModuleVar || endpoint.isClassField;
+                let isAboveTarget = endpoint.position && endpoint.position.endLine < targetPosition.startLine;
+                if (isTopLevelEndpoint || isAboveTarget) {
                     const connector = getConnectorFromVisibleEp(endpoint);
                     endpointElementList.push(getListComponent(connector, endpoint.name, endpoint.isClassField));
                     isEndpointExists = true;
