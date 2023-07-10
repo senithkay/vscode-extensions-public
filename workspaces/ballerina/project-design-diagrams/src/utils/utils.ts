@@ -8,7 +8,12 @@
  */
 
 import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
-import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import {
+    CMDependency,
+    CMEntryPoint, CMService,
+    CMService as Service,
+    ComponentModel
+} from '@wso2-enterprise/ballerina-languageclient';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
     EntryNodeFactory,
@@ -310,4 +315,99 @@ export function getNorthGWArrowHeadSlope(slope: number) {
         newSlope = (newSlope * 1.2);
     }
     return newSlope;
+}
+
+export function isVersionBelowV4(projectComponents: Map<string, ComponentModel>): boolean {
+    const firstComponent: ComponentModel = projectComponents.values().next().value;
+    return parseFloat(firstComponent.version) < 0.4;
+}
+
+export function transformToV4Models(projectComponents: Map<string, ComponentModel>): Map<string, ComponentModel> {
+    const newProjectComponents = new Map<string, ComponentModel>();
+    projectComponents.forEach((componentModel: ComponentModel, key: string) => {
+        const newComponentModel: ComponentModel = {
+            ...componentModel,
+            services: transformToV4Services(componentModel.services) as any,
+            functionEntryPoint: componentModel.functionEntryPoint
+                && transformToV4FunctionEntryPoint(componentModel.functionEntryPoint),
+            hasModelErrors: false,
+            dependencies: deriveDependencies(componentModel),
+        }
+
+        newProjectComponents.set(key, newComponentModel);
+    });
+
+    return newProjectComponents;
+}
+
+function deriveDependencies(componentModel: ComponentModel): CMDependency[] {
+    const dependencies: CMDependency[] = [];
+    Object.entries(componentModel.services).forEach(([_, service]: [string, any]) => {
+        (service as any)?.dependencies.forEach((dependency: CMDependency) => {
+            dependencies.push(transformToV4Dependency(dependency));
+        });
+    });
+    (componentModel.functionEntryPoint as any)?.dependencies.forEach((dependency: CMDependency) => {
+        dependencies.push(transformToV4Dependency(dependency));
+    });
+
+    return dependencies;
+}
+
+export function transformToV4Services(services: Map<string, any>): Record<string, CMService> {
+    const newServices: Record<string, CMService> = {};
+    Object.entries(services).forEach(([key, service]: [string, any]) => {
+        newServices[key] = {
+            serviceId: {
+                id: (service as any)?.serviceId,
+                label: service.annotation.label
+            },
+            annotation: service.annotation,
+            path: service.path,
+            serviceType: service.serviceType,
+            resources: service.resources,
+            remoteFunctions: service.remoteFunctions,
+            deploymentMetadata: service.deploymentMetadata,
+            isNoData: service.isNoData,
+            dependencyIDs: service?.dependencies?.map((dep: any) => {
+                return {
+                    id: dep?.serviceId,
+                    label: dep?.serviceLabel
+                }
+            })
+        };
+    });
+
+    return newServices;
+}
+
+export function transformToV4FunctionEntryPoint(functionEntryPoint: CMEntryPoint): CMEntryPoint {
+    return {
+        functionID: {
+            id: functionEntryPoint.annotation.id,
+            label: functionEntryPoint.annotation.label
+        },
+        annotation: functionEntryPoint.annotation,
+        type: functionEntryPoint.type,
+        interactions: functionEntryPoint.interactions,
+        parameters: functionEntryPoint.parameters,
+        returns: functionEntryPoint.returns,
+        dependencyIDs: (functionEntryPoint as any)?.dependencies?.map((dep: any) => {
+            return {
+                id: dep?.serviceId,
+                label: dep?.serviceLabel
+            }
+        })
+    };
+}
+
+export function transformToV4Dependency(dependency: CMDependency): CMDependency {
+    return {
+        entryPointID: {
+            id: (dependency as any)?.serviceId,
+            label: dependency?.serviceLabel
+        },
+        connectorType: dependency.connectorType,
+        serviceLabel: dependency.serviceLabel
+    };
 }
