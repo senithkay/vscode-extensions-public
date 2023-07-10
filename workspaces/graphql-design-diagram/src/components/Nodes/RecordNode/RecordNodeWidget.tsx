@@ -12,6 +12,9 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { getComponentName } from "../../utils/common-util";
+
 import { RecordFieldWidget } from "./RecordFields/RecordField";
 import { RecordHeadWidget } from "./RecordHead/RecordHead";
 import { RecordNodeModel } from "./RecordNodeModel";
@@ -24,10 +27,12 @@ interface RecordNodeWidgetProps {
 
 export function RecordNodeWidget(props: RecordNodeWidgetProps) {
     const { node, engine } = props;
+    const { selectedDiagramNode } = useGraphQlContext();
+    const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.recordObject.name;
 
     return (
-        <RecordNode>
-            <RecordHeadWidget engine={engine} node={node}/>
+        <RecordNode isSelected={isNodeSelected}>
+            <RecordHeadWidget engine={engine} node={node} />
             {node.recordObject.recordFields.map((field, index) => {
                 return (
                     <RecordFieldWidget

@@ -12,7 +12,9 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
 import { NodeContainer } from "../../resources/styles/styles";
+import { getComponentName } from "../../utils/common-util";
 
 import { UnionField } from "./UnionField/UnionField";
 import { UnionNodeHeadWidget } from "./UnionNodeHead/UnionNodeHead";
@@ -25,9 +27,12 @@ interface UnionNodeWidgetProps {
 
 export function UnionNodeWidget(props: UnionNodeWidgetProps) {
     const { node, engine } = props;
+    const { selectedDiagramNode } = useGraphQlContext();
+
+    const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.unionObject.name;
 
     return (
-        <NodeContainer>
+        <NodeContainer isSelected={isNodeSelected}>
             <UnionNodeHeadWidget node={node} engine={engine}/>
             {node.unionObject.possibleTypes.map((field, index) => {
                 return (

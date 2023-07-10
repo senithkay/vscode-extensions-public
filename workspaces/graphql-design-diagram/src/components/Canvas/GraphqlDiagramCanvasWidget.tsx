@@ -50,6 +50,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         diagramEngine.setModel(model);
         setDiagramModel(model);
         autoDistribute();
+        setSelectedNode(undefined);
 
     }, [model]);
 
@@ -58,9 +59,11 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
             const selectedNewModel = diagramEngine.getModel().getNode(getComponentName(selectedDiagramNode));
             if (selectedNewModel) {
                 const zoomLevel = diagramEngine.getModel().getZoomLevel();
-                focusToNode(selectedNewModel, zoomLevel, diagramEngine);
+                setTimeout(() => {
+                    focusToNode(selectedNewModel, zoomLevel, diagramEngine);
+                }, 300);
+
             }
-            setSelectedNode(undefined);
         }
     }, [selectedDiagramNode]);
 
@@ -108,13 +111,21 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
             });
     };
 
+    const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (selectedDiagramNode && event.target === diagramEngine.getCanvas()) {
+            setSelectedNode(undefined);
+        }
+    };
+
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            <CanvasWidgetContainer>
-                <CanvasWidget engine={diagramEngine} />
-                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
-            </CanvasWidgetContainer>
+            <div onClick={handleCanvasClick}>
+                <CanvasWidgetContainer>
+                    <CanvasWidget engine={diagramEngine} />
+                    <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
+                </CanvasWidgetContainer>
+            </div>
             }
         </>
     );
