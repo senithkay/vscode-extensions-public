@@ -87,11 +87,13 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			level={nodeLevel}
 			isEditMode={editingEnabled}
 			isNoData={node.nodeObject.isNoData}
+			dataInProgress={node.nodeObject.dataInProgress}
 		>
 			<ServiceHeadWidget
 				engine={engine}
 				node={node}
 				isSelected={node.checkSelectedList(selectedLinks, node.getID())}
+				dataInProgress={node.nodeObject.dataInProgress}
 			/>
 
 			{node.level === Level.TWO &&

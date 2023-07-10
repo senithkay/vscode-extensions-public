@@ -17,16 +17,19 @@ import { ServiceNodeModel } from '../ServiceNodeModel';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 import { UnSupportedMessage } from '../../../common/UnSupportedMessage/UnSupportedMessage';
 import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views, WebhookIcon } from '../../../../resources';
-import { ServiceHead, ServiceName } from '../styles/styles';
+import { LoadingIconWrapper, ServiceHead, ServiceName } from '../styles/styles';
+import { ResourceLoadingIcon } from "../../../../resources/assets/icons/ResourceLoadingIcon";
+
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ServiceNodeModel;
     isSelected: boolean;
+    dataInProgress?: boolean;
 }
 
 export function ServiceHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected } = props;
+    const { engine, node, isSelected, dataInProgress } = props;
     const { currentView, editingEnabled } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -77,11 +80,13 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     isSelected={isSelected}
                     onMouseOver={() => { handleOnHover('SELECT') }}
                     onMouseLeave={() => { handleOnHover('UNSELECT') }}
+                    dataInProgress={dataInProgress}
                 >
-                    {
+                    {/*Render this Icon on console side when the data is being fetched*/}
+                    {dataInProgress ? (<LoadingIconWrapper><ResourceLoadingIcon /></LoadingIconWrapper>) : (
                         node.nodeObject.isNoData ? (
-                            <WarningIcon />
-                        ) :
+                                <WarningIcon />
+                            ) :
                             node.serviceType === ServiceTypes.GRPC ?
                                 <GrpcIcon /> :
                                 node.serviceType === ServiceTypes.GRAPHQL ?
@@ -91,7 +96,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                                         node.serviceType === ServiceTypes.WEBHOOK ?
                                             <WebhookIcon /> :
                                             <MiscellaneousServicesIcon fontSize='medium' />
-                    }
+                    )}
                     <ServicePortWidget
                         port={node.getPort(`left-${node.getID()}`)}
                         engine={engine}
