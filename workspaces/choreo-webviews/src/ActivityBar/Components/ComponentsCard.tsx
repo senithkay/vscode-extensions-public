@@ -47,10 +47,9 @@ const CodeIconWithMargin = styled(Codicon)`
     margin-right: 3px;
 `;
 
-
 export const ComponentsCard = () => {
     const { choreoProject } = useContext(ChoreoWebViewContext);
-    const { components,componentLoadError, isLoadingComponents, isRefetchingComponents, refreshComponents } = useChoreoComponentsContext();
+    const { components, componentLoadError, isLoadingComponents, isRefetchingComponents, refreshComponents } = useChoreoComponentsContext();
     const [expandedComponents, setExpandedComponents] = useState<string[]>([])
 
     const handleCreateComponentClick = () => {
@@ -111,17 +110,18 @@ export const ComponentsCard = () => {
             </Header>
             {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
             <Body>
-                {components && components.map((component, index) =>
-                (<>
-                    <ComponentRow
-                        component={component}
-                        handleSourceControlClick={handleSourceControlClick}
-                        expanded={expandedComponents.includes(component.name)}
-                        handleExpandClick={handleExpandClick}
-                    />
-                    {index !== components.length - 1 && <VSCodeDivider />}
-                </>)
-                )}
+                {components &&
+                    components.map((component, index) => (
+                        <>
+                            <ComponentRow
+                                component={component}
+                                handleSourceControlClick={handleSourceControlClick}
+                                expanded={expandedComponents.includes(component.name)}
+                                handleExpandClick={handleExpandClick}
+                            />
+                            {index !== components.length - 1 && <VSCodeDivider />}
+                        </>
+                    ))}
                 {!isLoadingComponents && components && components.length === 0 && <NoComponentsMessage />}
                 {componentLoadError && <div>{componentLoadError}</div>}
             </Body>

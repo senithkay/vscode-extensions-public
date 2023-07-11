@@ -12,15 +12,13 @@
  */
 import React, { useCallback, useContext } from "react";
 import styled from "@emotion/styled";
-import { Component, DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT, OPEN_GITHUB_REPO_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
+import { Component, OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT, OPEN_GITHUB_REPO_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
 import { ContextMenu, MenuItem } from "../../Commons/ContextMenu";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
-
+import { useComponentDelete } from '../../hooks/use-component-delete';
 
 const InlineIcon = styled(Codicon)`
     vertical-align: sub;
@@ -30,11 +28,10 @@ const InlineIcon = styled(Codicon)`
 
 export const ComponentContextMenu = (props: { component: Component }) => {
     const { component } = props;
-    const { refreshComponents } = useChoreoComponentsContext()
     const { repository } = component;
     const { choreoUrl } = useContext(ChoreoWebViewContext);
     const { selectedOrg } = useSelectedOrg();
-    const queryClient = useQueryClient();
+    const { deletingComponent, handleDeleteComponentClick } = useComponentDelete(component);
 
     const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
     const openComponentUrl = useCallback(() => {
@@ -54,27 +51,6 @@ export const ComponentContextMenu = (props: { component: Component }) => {
         });
         ChoreoWebViewAPI.getInstance().openExternal(repoLink);
     };
-
-    const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
-        mutationFn: (component: Component) => ChoreoWebViewAPI.getInstance().deleteComponent({ component, projectId: component.projectId }),
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        onMutate: () => {
-            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-                eventName: DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
-                properties: {  component: component.name },
-            })
-        },
-        onSuccess: async (data) => {
-            if (data) {
-                await queryClient.cancelQueries({ queryKey: ["overview_component_list", component.projectId] })
-                const previousComponents: Component[] | undefined = queryClient.getQueryData(["overview_component_list", component.projectId])
-                const filteredComponents = previousComponents?.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
-                queryClient.setQueryData(["overview_component_list", component.projectId], filteredComponents)
-                refreshComponents();
-            }
-        },
-    });
-
 
     const menuItems: MenuItem[] = [
         {

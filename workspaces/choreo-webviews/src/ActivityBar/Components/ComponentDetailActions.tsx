@@ -11,12 +11,11 @@
  *  associated services.
  */
 import React from "react";
-import { Component, PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Repository } from "@wso2-enterprise/choreo-core";
+import { Component } from "@wso2-enterprise/choreo-core";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "@emotion/styled";
-import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
+import { useComponentPush } from "../../hooks/use-component-push";
+import { useComponentPullRepo } from "../../hooks/use-component-pull-repo";
 
 const DisabledVSCodeLink = styled.div`
   padding: 1px;
@@ -30,83 +29,9 @@ export const ComponentDetailActions: React.FC<{
     loading?: boolean;
 }> = (props) => {
     const { component, loading, handleSourceControlClick } = props;
-    const { refreshComponents } = useChoreoComponentsContext();
     const hasDirtyLocalRepo = component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits;
-
-    const queryClient = useQueryClient();
-
-    const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
-        mutationFn: (componentName: string) =>
-            ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({
-                projectId: component.projectId,
-                componentName,
-            }),
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        onSuccess: async (_, name) => {
-            await queryClient.cancelQueries({
-                queryKey: ["overview_component_list", component.projectId],
-            });
-            const previousComponents: Component[] | undefined = queryClient.getQueryData([
-                "overview_component_list",
-                component.projectId,
-            ]);
-            const updatedComponents = previousComponents?.map((item) =>
-                item.name === name ? { ...item, local: false } : item
-            );
-            queryClient.setQueryData(["overview_component_list", component.projectId], updatedComponents);
-            refreshComponents();
-        },
-    });
-
-    const { mutate: pullComponent, isLoading: isPulling } = useMutation({
-        onMutate: () => {
-            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-                eventName: PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
-                properties: { component: component?.name },
-            });
-        },
-        mutationFn: async ({
-            repository,
-            branchName,
-            componentId,
-        }: {
-            repository: Repository;
-            branchName: string;
-            componentId: string;
-        }) => {
-            if (component.projectId && repository && branchName) {
-                const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(component.projectId);
-                if (projectPath) {
-                    const isCloned = await ChoreoWebViewAPI.getInstance()
-                        .getChoreoProjectManager()
-                        .isRepoCloned({
-                            repository: `${repository.organizationApp}/${repository.nameApp}`,
-                            workspaceFilePath: projectPath,
-                            branch: branchName,
-                            gitProvider: repository.gitProvider,
-                        });
-                    if (isCloned) {
-                        await ChoreoWebViewAPI.getInstance().pullComponent({
-                            componentId,
-                            projectId: component.projectId,
-                        });
-                    } else {
-                        await ChoreoWebViewAPI.getInstance()
-                            .getChoreoProjectManager()
-                            .cloneRepo({
-                                repository: `${repository.organizationApp}/${repository.nameApp}`,
-                                workspaceFilePath: projectPath,
-                                branch: branchName,
-                                gitProvider: repository.gitProvider,
-                            });
-                    }
-                } else {
-                    await ChoreoWebViewAPI.getInstance().cloneChoreoProject(component.projectId);
-                }
-            }
-        },
-        onSuccess: () => refreshComponents(),
-    });
+    const { handlePushComponentClick, pushingSingleComponent } = useComponentPush(component);
+    const { pullComponent, isPulling } = useComponentPullRepo(component);
 
     let visibleAction: "push" | "pull" | "sync" | undefined;
     if (hasDirtyLocalRepo) {

@@ -48,7 +48,7 @@ const defaultContext: IChoreoComponentsContext = {
     isLoadingComponents: false,
     isRefetchingComponents: false,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    refreshComponents: () => {},
+    refreshComponents: () => { },
     componentLoadError: null,
     isComponentsFetched: false,
     pushableComponentCount: 0,
@@ -90,7 +90,7 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
         keepPreviousData: true
     });
 
-    
+
     const pushableComponentCount = useMemo(() => {
         const localOnlyComponents = components.filter(
             (component) => component.local
@@ -104,7 +104,7 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
     }, [components])
 
     const hasPushableComponents = useMemo(() => pushableComponentCount > 0, [pushableComponentCount]);
-    
+
     const hasLocalComponents = useMemo(
         () => components?.some((component) => component.local),
         [components]
@@ -121,9 +121,9 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
             refreshComponents();
         });
     }, []);
-    
+
     return (
-        <ChoreoComponentsContext.Provider value={{ 
+        <ChoreoComponentsContext.Provider value={{
             components,
             componentLoadError,
             isLoadingComponents,
