@@ -21,6 +21,7 @@ import { ComponentsPushAction } from './ComponentsPushAction';
 import { ComponentsSyncAction } from './ComponentsSyncAction';
 import { ProjectActionLink } from "./ProjectActionLink";
 import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
+import { CellViewButton } from "./CellViewButton";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -60,7 +61,7 @@ export const ProjectActionsCard: React.FC = () => {
                 <ViewTitle>Actions</ViewTitle>
                 <Body>
                     <ProjectActionLink label="Architecture View" onClick={handleClick} />
-                    <ProjectActionLink label="Cell View" />
+                    <CellViewButton />
                     <ProjectActionLink onClick={openProjectInChoreoConsole} label="Open in Choreo Console" />
                     <ComponentsPushAction />
                     <ComponentsSyncAction />

@@ -59,7 +59,8 @@ import {
     ReadEndpointsYaml,
     OpenBillingPortal,
     RefreshComponentsNotification,
-    FireRefreshComponentList
+    FireRefreshComponentList,
+    OpenCellView
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -266,6 +267,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(OpenArchitectureView, () => {
         commands.executeCommand("ballerina.view.architectureView");
+    });
+
+    messenger.onRequest(OpenCellView, () => {
+        commands.executeCommand("ballerina.view.cellView");
     });
 
     messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
