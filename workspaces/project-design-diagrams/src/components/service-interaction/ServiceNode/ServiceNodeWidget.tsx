@@ -93,7 +93,6 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 				engine={engine}
 				node={node}
 				isSelected={node.checkSelectedList(selectedLinks, node.getID())}
-				dataInProgress={node.nodeObject.dataInProgress}
 			/>
 
 			{node.level === Level.TWO &&

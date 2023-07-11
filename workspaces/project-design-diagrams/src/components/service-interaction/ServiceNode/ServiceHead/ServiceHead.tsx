@@ -25,11 +25,10 @@ interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ServiceNodeModel;
     isSelected: boolean;
-    dataInProgress?: boolean;
 }
 
 export function ServiceHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, dataInProgress } = props;
+    const { engine, node, isSelected } = props;
     const { currentView, editingEnabled } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -80,10 +79,15 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     isSelected={isSelected}
                     onMouseOver={() => { handleOnHover('SELECT') }}
                     onMouseLeave={() => { handleOnHover('UNSELECT') }}
-                    dataInProgress={dataInProgress}
+                    dataInProgress={node.nodeObject.dataInProgress}
                 >
                     {/*Render this Icon on console side when the data is being fetched*/}
-                    {dataInProgress ? (<LoadingIconWrapper><ResourceLoadingIcon /></LoadingIconWrapper>) : (
+                    {node.nodeObject.dataInProgress ?
+                        (
+                            <LoadingIconWrapper>
+                                <ResourceLoadingIcon />
+                            </LoadingIconWrapper>) :
+                        (
                         node.nodeObject.isNoData ? (
                                 <WarningIcon />
                             ) :
