@@ -16,99 +16,96 @@ import { Component } from "@wso2-enterprise/choreo-core";
 import { VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ComponentDetails } from "./ComponentDetails";
-import { ComponentContextMenu } from './ComponentContextMenu';
+import { ComponentContextMenu } from "./ComponentContextMenu";
+import { useComponentDelete } from "../../hooks/use-component-delete";
 
 const Container = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `;
 
 // Header div will lay the items horizontally
 const Header = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 2px;
-    margin: 5px;
-    align-items: center;
-    position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  margin: 5px;
+  align-items: center;
+  position: relative;
 `;
 // Body div will lay the items vertically
 const Body = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-left: 18px;
-    margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-left: 18px;
+  margin-bottom: 10px;
 `;
 
 const ComponentName = styled.span`
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
 `;
 
 const Flex = styled.div`
-    flex: 1;
-`
+  flex: 1;
+`;
 
-
-export const ComponentRow = (props: { 
-    component: Component, 
-    handleSourceControlClick: () => void,
+export const ComponentRow = (props: {
+    component: Component;
+    handleSourceControlClick: () => void;
     expanded: boolean;
     handleExpandClick: (componentName: string) => void;
     loading?: boolean;
 }) => {
     const { component, handleSourceControlClick, loading, expanded, handleExpandClick } = props;
+    const { deletingComponent, handleDeleteComponentClick } = useComponentDelete(component);
+    const actionRequired = component.hasDirtyLocalRepo || component.isRemoteOnly || component.local;
 
-    const actionRequired = component.hasDirtyLocalRepo || component.isRemoteOnly || component.local
-
-    return (<Container>
-        <Header>
-            <VSCodeButton
-                appearance="icon"
-                onClick={() => handleExpandClick(component.name)}
-                title={expanded ? "Collapse" : "Expand"}
-                id="expand-components-btn"
-            >
-                <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
-            </VSCodeButton>
-            <ComponentName>{props.component.displayName}</ComponentName>
-            {component.local && 
-                <VSCodeTag 
-                    title={"Only available locally"}
-                    style={{ marginLeft: "3px" }}
-                >
-                    Local
-                </VSCodeTag>}
-            {component.isRemoteOnly && 
-                <VSCodeTag 
-                    title={"Only available remotely"}
-                    style={{ marginLeft: "3px" }}
-                >
-                    Remote
-                </VSCodeTag>}
-            <Flex />
-            {actionRequired && (
+    return (
+        <Container>
+            <Header>
                 <VSCodeButton
                     appearance="icon"
-                    disabled
-                    title="Action Required"
-                    style={{ cursor: 'default' }}
+                    onClick={() => handleExpandClick(component.name)}
+                    title={expanded ? "Collapse" : "Expand"}
+                    id="expand-components-btn"
                 >
-                    <Codicon name="info" />
+                    <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
                 </VSCodeButton>
-            )}
-            <ComponentContextMenu component={component} />
-        </Header>
-        {expanded && (
-            <Body>
-                <ComponentDetails 
-                    loading={loading} // Todo: convert delete component into hook and pass deletingComponent also here
-                    component={props.component} 
-                    handleSourceControlClick={handleSourceControlClick} 
+                <ComponentName>{props.component.displayName}</ComponentName>
+                {component.local && (
+                    <VSCodeTag title={"Only available locally"} style={{ marginLeft: "3px" }}>
+                        Local
+                    </VSCodeTag>
+                )}
+                {component.isRemoteOnly && (
+                    <VSCodeTag title={"Only available remotely"} style={{ marginLeft: "3px" }}>
+                        Remote
+                    </VSCodeTag>
+                )}
+                <Flex />
+                {actionRequired && (
+                    <VSCodeButton appearance="icon" disabled title="Action Required" style={{ cursor: "default" }}>
+                        <Codicon name="info" />
+                    </VSCodeButton>
+                )}
+                <ComponentContextMenu
+                    component={component}
+                    deletingComponent={deletingComponent}
+                    handleDeleteComponentClick={handleDeleteComponentClick}
                 />
-            </Body>
-        )}
-    </Container>)
+            </Header>
+            {expanded && (
+                <Body>
+                    <ComponentDetails
+                        loading={loading || deletingComponent}
+                        component={props.component}
+                        handleSourceControlClick={handleSourceControlClick}
+                    />
+                </Body>
+            )}
+        </Container>
+    );
 };
