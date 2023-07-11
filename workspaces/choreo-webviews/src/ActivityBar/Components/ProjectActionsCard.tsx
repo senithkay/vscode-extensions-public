@@ -18,6 +18,7 @@ import { ViewTitle } from "./ViewTitle";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
+import { CellViewButton } from "./CellViewButton";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -47,7 +48,7 @@ export const ProjectActionsCard: React.FC = () => {
             <ViewTitle>Actions</ViewTitle>
             <Body>
                 <ArchiViewButton />
-                <VSCodeLink>Cell View</VSCodeLink>
+                <CellViewButton />
                 <VSCodeLink onClick={openProjectInChoreoConsole}>Open in Choreo Console</VSCodeLink>
                 <VSCodeLink>Push to Choreo</VSCodeLink>
             </Body>

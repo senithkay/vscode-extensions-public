@@ -24,6 +24,7 @@ import { PALETTE_COMMANDS } from "../project/activator";
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
+let cellDiagramWebview: WebviewPanel | undefined;
 let balVersion: BallerinaVersion;
 let isChoreoProject: boolean;
 let activeChoreoProject: Project | undefined;
@@ -46,7 +47,16 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         }
     });
 
-    commands.registerCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW, async () => {
+    commands.registerCommand(PALETTE_COMMANDS.SHOW_CELL_VIEW, async () => {
+        if (isCompatible(2201.2, 2)) {
+            await viewCellDiagram("");
+        } else {
+            window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
+            return;
+        }
+    });
+
+    commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, async () => {
         if (designDiagramWebview) {
             designDiagramWebview.webview.postMessage({ command: "refresh" });
         }
@@ -66,11 +76,25 @@ export function getLangClient(): ExtendedLangClient {
 
 async function viewProjectDesignDiagrams(selectedNodeId: string) {
     await setupWebviewPanel();
-
     if (designDiagramWebview) {
-        const html = render(designDiagramWebview.webview, isChoreoProject, selectedNodeId);
+        const html = render(designDiagramWebview.webview, isChoreoProject, selectedNodeId, false);
         if (html) {
             designDiagramWebview.webview.html = html;
+        }
+        if (workspace.workspaceFolders?.length === 1 && !isChoreoProject) {
+            window.showInformationMessage(USER_TIP);
+        }
+    } else {
+        terminateActivation(ERROR_MESSAGE);
+    }
+}
+
+async function viewCellDiagram(selectedNodeId: string) {
+    await setupCellWebviewPanel();
+    if (cellDiagramWebview) {
+        const html = render(cellDiagramWebview.webview, isChoreoProject, selectedNodeId, true);
+        if (html) {
+            cellDiagramWebview.webview.html = html;
         }
         if (workspace.workspaceFolders?.length === 1 && !isChoreoProject) {
             window.showInformationMessage(USER_TIP);
@@ -151,16 +175,93 @@ async function setupWebviewPanel() {
     }
 }
 
+async function setupCellWebviewPanel() {
+    if (cellDiagramWebview) {
+        cellDiagramWebview.reveal();
+    } else {
+        cellDiagramWebview = window.createWebviewPanel(
+            "cellView",
+            "Cell View",
+            { viewColumn: ViewColumn.One, preserveFocus: false },
+            getCommonWebViewOptions()
+        );
+
+        let shouldUpdateDiagram: boolean = false;
+        const handleDocumentChanges = () => {
+            if (cellDiagramWebview && !cellDiagramWebview.active) {
+                shouldUpdateDiagram = true;
+            }
+        };
+
+        const refreshDiagram = debounce(() => {
+            if (cellDiagramWebview) {
+                cellDiagramWebview.webview.postMessage({ command: "refresh" });
+            }
+        }, 500);
+
+        cellDiagramWebview.onDidChangeViewState(() => {
+            if (cellDiagramWebview && cellDiagramWebview.active && shouldUpdateDiagram) {
+                refreshDiagram();
+                shouldUpdateDiagram = false;
+            }
+        });
+
+        workspace.onDidChangeTextDocument(handleDocumentChanges);
+        workspace.onDidChangeWorkspaceFolders(refreshDiagram);
+
+        const remoteMethods: WebViewMethod[] = [
+            {
+                methodName: "getComponentModel",
+                handler: (): Promise<GetComponentModelResponse> => {
+                    return getComponentModel(langClient, isChoreoProject);
+                }
+            },
+            {
+                methodName: "showChoreoProjectOverview",
+                handler: async (): Promise<void> => {
+                    if (isChoreoProject && !activeChoreoProject) {
+                        activeChoreoProject = await getActiveChoreoProject();
+                    }
+                    return showChoreoProjectOverview(activeChoreoProject);
+                }
+            },
+            {
+                methodName: "deleteComponent",
+                handler: async (args: any[]): Promise<void> => {
+                    if (isChoreoProject && !activeChoreoProject) {
+                        activeChoreoProject = await getActiveChoreoProject();
+                    }
+                    return deleteProjectComponent(isChoreoProject ? activeChoreoProject.id : undefined, args[0], args[1]);
+                }
+            }
+        ];
+        WebViewRPCHandler.create(cellDiagramWebview, langClient, remoteMethods);
+
+        isChoreoProject = await checkIsChoreoProject();
+        EditLayerRPC.create(cellDiagramWebview, langClient, extInstance.context, isChoreoProject);
+
+        cellDiagramWebview.onDidDispose(() => {
+            cellDiagramWebview = undefined;
+        });
+    }
+}
+
 export function terminateActivation(message: string) {
     window.showErrorMessage(message);
     if (designDiagramWebview) {
         designDiagramWebview.dispose();
+    }
+    if (cellDiagramWebview) {
+        cellDiagramWebview.dispose();
     }
 }
 
 export function disposeDiagramWebview() {
     if (designDiagramWebview) {
         designDiagramWebview.dispose();
+    }
+    if (cellDiagramWebview) {
+        cellDiagramWebview.dispose();
     }
 }
 

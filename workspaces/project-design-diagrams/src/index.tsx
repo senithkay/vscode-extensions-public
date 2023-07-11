@@ -17,6 +17,7 @@ export function renderDesignDiagrams(
     isEditable: boolean,
     isChoreoProject: boolean,
     selectedNodeId: string,
+    isCellView: boolean,
     getComponentModel: () => Promise<GetComponentModelResponse>,
     showChoreoProjectOverview: () => Promise<void>,
     deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>,
@@ -27,6 +28,7 @@ export function renderDesignDiagrams(
             isEditable={isEditable}
             isChoreoProject={isChoreoProject}
             selectedNodeId={selectedNodeId}
+            isCellView={isCellView}
             getComponentModel={getComponentModel}
             showChoreoProjectOverview={showChoreoProjectOverview}
             editLayerAPI={WebviewEditLayerAPI.getInstance()}
