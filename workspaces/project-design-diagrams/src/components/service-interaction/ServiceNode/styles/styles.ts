@@ -18,6 +18,7 @@ interface StyleProps {
     awaitLinking?: boolean;
     isEditMode?: boolean;
     isNoData?: boolean;
+    dataInProgress?: boolean;
 }
 
 export const ServiceNode: React.FC<any> = styled.div`
@@ -52,10 +53,15 @@ export const ServiceHead: React.FC<any> = styled.div`
     text-align: center;
     text-transform: capitalize;
     white-space: nowrap;
+    opacity: ${(props: StyleProps) => props.dataInProgress ? `0.5` : `1`};
 `;
 
 export const ServiceName = styled.span`
     margin-left: 12px;
+`;
+
+export const LoadingIconWrapper = styled.span`
+    display: flex;
 `;
 
 export const FunctionContainer: React.FC<any> = styled.div`
