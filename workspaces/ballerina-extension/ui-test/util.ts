@@ -8,7 +8,7 @@
  */
 
 import { expect } from "chai";
-import { SideBarView, CustomTreeSection, ActivityBar, By, until, VSBrowser, Locator } from "vscode-extension-tester";
+import { SideBarView, CustomTreeSection, ActivityBar, By, until, VSBrowser, Locator, WebElement, WebElementPromise } from "vscode-extension-tester";
 
 export function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +16,14 @@ export function wait(ms: number) {
 
 export function waitUntil(locator: Locator) {
     return VSBrowser.instance.driver.wait(until.elementLocated(locator), 15000);
+}
+
+export function waitUntilVisible(element: WebElement, timeout: number = 15000): WebElementPromise {
+    return VSBrowser.instance.driver.wait(until.elementIsVisible(element), timeout);
+}
+
+export function waitUntilTextContains(element: WebElement, text: string, timeout: number = 15000): WebElementPromise {
+    return VSBrowser.instance.driver.wait(until.elementTextContains(element, text), timeout, "Element text did not contain " + text);
 }
 
 export function waitForWebview(name: string) {

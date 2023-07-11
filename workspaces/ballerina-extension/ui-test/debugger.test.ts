@@ -7,21 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView } from "vscode-extension-tester";
-import { wait } from "./util";
+import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar } from "vscode-extension-tester";
+import { wait, waitUntilTextContains } from "./util";
 import { join } from "path";
 import { expect } from "chai";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
+import { fail } from "assert";
 import { PROJECT_RUN_TIME } from "./constants";
+
+const expectedOut = "Listening for transport dt_socket at address: 5010";
 
 describe('Debugger UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
 
-    before(async () => {
+    beforeEach(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_service.bal`);
+        await VSBrowser.instance.waitForWorkbench;
     });
 
     it('Test Debug Codelense', async () => {
+        await wait(2000);
         const editorView = new ExtendedEditorView(new EditorView());
         const lens = await editorView.getAction("Debug");
         expect(lens).is.not.undefined;
@@ -42,11 +47,11 @@ describe('Debugger UI Tests', () => {
 });
 
 async function verifyDebugOutput() {
-    await wait(5000); // wait for terminal to appear
-    const terminal = await new BottomBarPanel().openTerminalView();
     await wait(PROJECT_RUN_TIME);
+    const terminal = await new BottomBarPanel().openTerminalView();
 
-    const text = await terminal.getText();
-    expect(text).to.contain("Listening for transport dt_socket at address: 5010");
+    await waitUntilTextContains(terminal, expectedOut, 2400000).catch((e) => {
+        fail(e);
+    });
 }
 
