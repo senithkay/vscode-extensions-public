@@ -43,7 +43,7 @@ export function DiagramHeader(props: HeaderProps) {
     return (
         <HeaderContainer>
             <HeaderLeftPane isEditable={editingEnabled}>
-                {currentView !== Views.TYPE_COMPOSITION &&
+                {(currentView !== Views.TYPE_COMPOSITION) && (currentView !==  Views.CELL_VIEW) &&
                     <IconButton
                         className={'iconButton'}
                         size='small'

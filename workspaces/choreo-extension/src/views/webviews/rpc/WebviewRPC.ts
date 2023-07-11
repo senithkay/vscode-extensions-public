@@ -56,6 +56,7 @@ import {
     getConsoleUrl,
     ChoreoComponentCreationParams,
     GetUserInfoRequest,
+    OpenCellView,
     AskProjectDirPath,
     CloneChoreoProjectWithDir
 } from "@wso2-enterprise/choreo-core";
@@ -281,6 +282,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(OpenArchitectureView, () => {
         commands.executeCommand("ballerina.view.architectureView");
+    });
+
+    messenger.onRequest(OpenCellView, () => {
+        commands.executeCommand("ballerina.view.cellView");
     });
 
     messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
