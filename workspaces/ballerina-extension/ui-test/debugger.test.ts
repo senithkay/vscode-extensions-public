@@ -15,7 +15,7 @@ import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 import { fail } from "assert";
 import { PROJECT_RUN_TIME } from "./constants";
 
-const expectedOut = "Listening for transport dt_socket at address: 5010";
+const expectedOut = "Listening for transport dt_socket at address: 501";
 
 describe('Debugger UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
@@ -50,8 +50,12 @@ async function verifyDebugOutput() {
     await wait(PROJECT_RUN_TIME);
     const terminal = await new BottomBarPanel().openTerminalView();
 
-    await waitUntilTextContains(terminal, expectedOut, 2400000).catch((e) => {
+    await waitUntilTextContains(terminal, expectedOut, 30000).catch((e) => {
         fail(e);
+    }).finally(async () => {
+        const bar = await DebugToolbar.create();
+        await bar.stop();
+        await terminal.executeCommand('clear');
     });
 }
 
