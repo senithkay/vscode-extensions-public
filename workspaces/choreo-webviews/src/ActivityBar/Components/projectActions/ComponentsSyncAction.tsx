@@ -11,10 +11,10 @@
  *  associated services.
  */
 import React, { useCallback } from "react";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_SOURCE_CONTROL_VIEW_EVENT } from "@wso2-enterprise/choreo-core";
-import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
-import { ProjectActionLink } from "./ProjectActionLink";
+import { useChoreoComponentsContext } from "../../../context/choreo-components-ctx";
+import { ProjectActionLink } from "../ProjectActionLink";
 
 export const ComponentsSyncAction = () => {
     const { hasLocalComponents, componentsOutOfSync } = useChoreoComponentsContext()

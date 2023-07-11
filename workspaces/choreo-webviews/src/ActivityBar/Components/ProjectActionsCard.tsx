@@ -17,11 +17,11 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
 import { ComponentsCard } from "./ComponentsCard";
-import { ComponentsPushAction } from './ComponentsPushAction';
-import { ComponentsSyncAction } from './ComponentsSyncAction';
+import { ComponentsPushAction } from './projectActions/ComponentsPushAction';
+import { ComponentsSyncAction } from './projectActions/ComponentsSyncAction';
+import { ArchiViewButton } from './projectActions/ArchitectureViewButton';
 import { ProjectActionLink } from "./ProjectActionLink";
-import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
-import { CellViewButton } from "./CellViewButton";
+import { CellViewButton } from "./projectActions/CellViewButton";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -45,22 +45,12 @@ export const ProjectActionsCard: React.FC = () => {
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);
     }
 
-    const handleClick = () => {
-        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-          eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
-          properties: {
-            project: choreoProject?.name,
-          },
-        });
-        ChoreoWebViewAPI.getInstance().openArchitectureView();
-      };
-
     return (
         <>
             <Container>
                 <ViewTitle>Actions</ViewTitle>
                 <Body>
-                    <ProjectActionLink label="Architecture View" onClick={handleClick} />
+                    <ArchiViewButton />
                     <CellViewButton />
                     <ProjectActionLink onClick={openProjectInChoreoConsole} label="Open in Choreo Console" />
                     <ComponentsPushAction />

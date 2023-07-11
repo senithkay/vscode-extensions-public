@@ -11,9 +11,9 @@
  *  associated services.
  */
 import React from "react";
-import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
-import { ProjectActionLink } from "./ProjectActionLink";
-import { useComponentPushAll } from '../../hooks/use-component-push-all'
+import { useChoreoComponentsContext } from "../../../context/choreo-components-ctx";
+import { ProjectActionLink } from "../ProjectActionLink";
+import { useComponentPushAll } from '../../../hooks/use-component-push-all'
 
 export const ComponentsPushAction = () => {
     const { hasPushableComponents, isLoadingComponents, componentsOutOfSync, hasLocalComponents } = useChoreoComponentsContext();
