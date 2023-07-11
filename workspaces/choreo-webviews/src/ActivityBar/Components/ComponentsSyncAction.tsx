@@ -16,9 +16,6 @@ import { OPEN_SOURCE_CONTROL_VIEW_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
 import { ProjectActionLink } from "./ProjectActionLink";
 
-
-
-
 export const ComponentsSyncAction = () => {
     const { hasLocalComponents, componentsOutOfSync } = useChoreoComponentsContext()
 
@@ -28,7 +25,6 @@ export const ComponentsSyncAction = () => {
         });
         ChoreoWebViewAPI.getInstance().triggerCmd("workbench.scm.focus");
     }, []);
-
 
     let syncButtonTooltip = "";
     if(componentsOutOfSync){
