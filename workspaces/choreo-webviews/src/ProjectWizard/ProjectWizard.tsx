@@ -25,6 +25,7 @@ import { ProjectTypeCard } from "./ProjectTypeCard";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
+import { ErrorBanner } from "../Commons/ErrorBanner";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -71,6 +72,12 @@ const SubContainer = styled.div`
 
 const CredContainer = styled.div`
     height: 26px;
+`;
+
+const ValidationWrapper = styled.div`
+    display  : flex;
+    justify-content: flex-start;
+    align-items: flex-end;
 `;
 
 const SectionWrapper = styled.div`
@@ -137,6 +144,30 @@ const RepoStepContent = styled.div`
     justify-content: flex-start;
 `;
 
+const RepoSubContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 20px;
+    min-height: 83px;
+`;
+
+const RepoSelectorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 10px;
+`;
+
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 4px);
+    width: calc(var(--design-unit) * 4px);
+    margin-top: auto;
+    padding: 4px;
+`;
+
 export function ProjectWizard() {
 
     const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
@@ -153,12 +184,18 @@ export function ProjectWizard() {
     const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
     const [refreshRepoList, setRefreshRepoList] = useState(false);
     const [projectDir, setProjectDir] = useState("");
+    const [appInstallComleted, setAppInstallCompleted] = useState(false);
+    const [validationInProgress, setValidationInProgress] = useState(false);
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
             eventName: CREATE_PROJECT_START_EVENT
         });
     }, []);
+
+    useEffect(() => {
+        checkBareRepoStatus();
+    }, [selectedGHRepo]);
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -170,18 +207,6 @@ export function ProjectWizard() {
         const projectClient = webviewAPI.getProjectClient();
         if (selectedOrg) {
             try {
-                // check if the repo is empty
-                const repoMetaData = await projectClient.getRepoMetadata({
-                    repo: selectedGHRepo,
-                    organization: selectedGHOrgName,
-                    branch: "main",
-                    credentialId: selectedCredential.id
-                });
-                if (repoMetaData?.isBareRepo) {
-                    setIsBareRepo(true);
-                    setCreationInProgress(false);
-                    return;
-                }
                 const createdProject = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
@@ -257,7 +282,7 @@ export function ProjectWizard() {
         if (gitProvider === GitProvider.GITHUB) {
             ChoreoWebViewAPI.getInstance().openExternal(`https://github.com/new`);
         } else if (gitProvider === GitProvider.BITBUCKET) {
-            if(!!selectedCredential.id) {
+            if (!!selectedCredential.id) {
                 ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${selectedGHOrgName}/workspace/create/repository`);
             }
         }
@@ -266,6 +291,11 @@ export function ProjectWizard() {
     const handleRepoRefresh = async () => {
         setRefreshRepoList(!refreshRepoList);
     };
+
+    const handleAppInstallSuccess = async () => {
+        handleRepoRefresh();
+        setAppInstallCompleted(true);
+    }
 
     const changeGitProvider = (type: GitProvider) => {
         setGitProvider(type);
@@ -276,8 +306,33 @@ export function ProjectWizard() {
         }
     }
 
+    const checkBareRepoStatus = async () => {
+        try {
+            setValidationInProgress(true);
+            const webviewAPI = ChoreoWebViewAPI.getInstance();
+            const projectClient = webviewAPI.getProjectClient();
 
-    const isValid: boolean = projectName.length > 0 && !!projectDir && (!initMonoRepo || (!!selectedGHOrgName && !!selectedGHRepo));
+            // check if the repo is empty
+            const repoMetaData = await projectClient.getRepoMetadata({
+                repo: selectedGHRepo,
+                organization: selectedGHOrgName,
+                branch: "main",
+                credentialId: selectedCredential.id
+            });
+            if (repoMetaData?.isBareRepo) {
+                setIsBareRepo(true);
+            } else {
+                setIsBareRepo(false);
+            }
+            setValidationInProgress(false);
+        } catch (error: any) {
+            setErrorMsg(error.message + " " + error.cause);
+        }
+    }
+
+    const bareRepoError = 'Get started by creating a new file or uploading an existing file. We recommend every repository include a README, LICENSE, and .gitignore.';
+    const isValid: boolean = projectName.length > 0 && !!projectDir && (!initMonoRepo || (!!selectedGHOrgName &&
+        !!selectedGHRepo)) && !validationInProgress && !isBareRepo;
 
     return (
         <>
@@ -358,7 +413,7 @@ export function ProjectWizard() {
                                         {gitProvider === GitProvider.GITHUB && (
                                             <>
                                                 <h3>  Install Choreo App to the repo  </h3>
-                                                <ChoreoAppInstaller />
+                                                <ChoreoAppInstaller onAppInstallation={handleAppInstallSuccess} />
                                             </>
                                         )}
                                         {gitProvider === GitProvider.BITBUCKET && (
@@ -373,30 +428,42 @@ export function ProjectWizard() {
                                     <RepoStepNumber> 3 </RepoStepNumber>
                                     <RepoStepContent>
                                         <h3>  Select repository  </h3>
-                                        {gitProvider === GitProvider.GITHUB &&
-                                            <GithubRepoSelector
-                                                selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
-                                                onRepoSelect={handleRepoSelect}
-                                            />}
-                                        {gitProvider === GitProvider.BITBUCKET &&
-                                            <BitbucketRepoSelector
-                                                selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
-                                                onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
-                                                refreshRepoList={refreshRepoList}
-                                            />}
-                                        {isBareRepo &&
-                                            (<>
-                                                Repository is not initialized. Please initialize the repository before cloning can continue.
-                                                <GhRepoSelectorActions>
-                                                    <VSCodeLink onClick={handleRepoInit}>
-                                                        Initialize
-                                                    </VSCodeLink>
-                                                    <VSCodeLink onClick={handleCreateProject}>
-                                                        Recheck & Create Project
-                                                    </VSCodeLink>
-                                                </GhRepoSelectorActions>
-                                            </>)
-                                        }
+                                        <RepoSubContainer>
+                                            {appInstallComleted && <h5>Repository list refreshed. Select a repository to continue.</h5>}
+                                            <RepoSelectorContainer>
+                                                {gitProvider === GitProvider.GITHUB &&
+                                                    <GithubRepoSelector
+                                                        selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                                        onRepoSelect={handleRepoSelect}
+                                                    />}
+                                                {gitProvider === GitProvider.BITBUCKET &&
+                                                    <BitbucketRepoSelector
+                                                        selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                                        onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
+                                                        refreshRepoList={refreshRepoList}
+                                                    />}
+                                                {validationInProgress && (
+                                                    <ValidationWrapper>
+                                                        <SmallProgressRing />
+                                                        <span>Validating repository...</span>
+                                                    </ValidationWrapper>
+
+                                                )}
+                                            </RepoSelectorContainer>
+                                            {isBareRepo && !validationInProgress && (
+                                                <>
+                                                    <ErrorBanner errorMsg={bareRepoError} />
+                                                    <GhRepoSelectorActions>
+                                                        <VSCodeButton onClick={handleRepoInit}>
+                                                            Create File
+                                                        </VSCodeButton>
+                                                        <VSCodeButton onClick={checkBareRepoStatus}>
+                                                            Recheck
+                                                        </VSCodeButton>
+                                                    </GhRepoSelectorActions>
+                                                </>
+                                            )}
+                                        </RepoSubContainer>
                                     </RepoStepContent>
                                 </RepoStepWrapper>
                             </SectionWrapper>)
@@ -408,7 +475,7 @@ export function ProjectWizard() {
                             <span onClick={handleProjecDirSelection}>Browse</span>
                         </VSCodeLink>
                         {!!projectDir && <span>{projectDir}</span>}
-                        {!projectDir && <span>Please choose a directory for project workspace</span>}
+                        {!projectDir && <span>Please choose a directory for project workspace. The git repositories will be cloned here</span>}
                     </SectionWrapper>
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
