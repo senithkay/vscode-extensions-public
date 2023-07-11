@@ -79,6 +79,7 @@ import {
     GetUserInfoRequest,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
+    GetColorTheme,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -286,6 +287,9 @@ export class ChoreoWebViewAPI {
 
     public async showOpenDialog(options: OpenDialogOptions): Promise<string[] | undefined> {
         return this._messenger.sendRequest(showOpenDialogRequest, HOST_EXTENSION, options);
+    }
+    public async getColorTheme(): Promise<string> {
+        return this._messenger.sendRequest(GetColorTheme, HOST_EXTENSION, undefined);
     }
 
     public static getInstance() {
