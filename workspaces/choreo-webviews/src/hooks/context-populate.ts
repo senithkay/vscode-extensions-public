@@ -27,6 +27,7 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
     const [isChoreoProject, setIsChoreoProject] = useState<boolean | undefined>(undefined);
     const [choreoProject, setChoreoProject] = useState<Project | undefined>(undefined);
     const [bitbucketCredentialId, setBitbucketCredentialId] = useState<string>('');
+    const [projectUnavailable, setProjectUnavailable] = useState(false);
 
     useEffect(() => {
       const rpcInstance = ChoreoWebViewAPI.getInstance();
@@ -98,6 +99,22 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
         });
     }, []);
 
+    useEffect(() => {
+      const rpcInstance = ChoreoWebViewAPI.getInstance();
+      const checkIsProjectUnAvailable = async () => {
+        try {
+          const isProjectDeleted = await rpcInstance.checkProjectDeleted(choreoProject?.id);
+          setProjectUnavailable(isProjectDeleted);
+        } catch (err: any) {
+          setError(err);
+        }
+      }
+      if (choreoProject?.id) {
+        checkIsProjectUnAvailable();
+      }
+    }, [choreoProject]);
+
+
     return {
         loginStatusPending,
         loginStatus,
@@ -111,5 +128,6 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
         choreoUrl: props.choreoUrl,
         bitbucketCredentialId,
         setBitbucketCredentialId,
+        projectUnavailable
     };
 }

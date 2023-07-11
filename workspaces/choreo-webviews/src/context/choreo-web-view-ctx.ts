@@ -26,7 +26,7 @@ export interface IChoreoWebViewContext {
     choreoUrl: string;
     bitbucketCredentialId: string;
     setBitbucketCredentialId: (bitbucketCredentialId: string) => void;
-
+    projectUnavailable: boolean;
 }
 
 const defaultContext: IChoreoWebViewContext = {
@@ -37,6 +37,7 @@ const defaultContext: IChoreoWebViewContext = {
     choreoUrl: "",
     bitbucketCredentialId: '',
     setBitbucketCredentialId: () => {},
+    projectUnavailable: false
 };
 
 export const ChoreoWebViewContext = React.createContext(defaultContext);

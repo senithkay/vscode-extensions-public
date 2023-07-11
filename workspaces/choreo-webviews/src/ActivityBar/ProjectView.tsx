@@ -13,14 +13,11 @@
 
 import React, { useContext } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ComponentsCard } from "./Components/ComponentsCard";
 import { ProjectActionsCard } from "./Components/ProjectActionsCard";
 import styled from "@emotion/styled";
 import { ProgressIndicator } from "./Components/ProgressIndicator";
 import { EmptyWorkspaceMessage } from "./Components/EmptyWorkspaceMessage";
 import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
-import { useQuery } from "@tanstack/react-query";
-import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 
 const Container = styled.div`
@@ -31,26 +28,17 @@ const Container = styled.div`
     width: 100%;
 `;
 
-export const ProjectView = (props: { componentLimit: number }) => {
-    const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
+export const ProjectView = () => {
+    const { choreoProject, loginStatus, isChoreoProject, projectUnavailable } = useContext(ChoreoWebViewContext);
+    const validProject = choreoProject && !projectUnavailable;
 
-    const { data: isDeletedProject = false } = useQuery({
-        queryKey: ["deleted_project_show_warning", choreoProject?.id],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().checkProjectDeleted(choreoProject?.id),
-        refetchOnWindowFocus: false,
-        enabled: loginStatus === "LoggedIn" && choreoProject?.id && isChoreoProject
-    });
-
-    const validProject = choreoProject && !isDeletedProject;
-    
     return (
         <Container>
             {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
             {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
             {loginStatus == "LoggedIn" && validProject && <ProjectActionsCard />}
-            {loginStatus == "LoggedIn" && validProject && <ComponentsCard componentLimit={props.componentLimit}/>}
-            {loginStatus == "LoggedIn" && (!isChoreoProject || isDeletedProject) && <EmptyWorkspaceMessage projectDeleted={isDeletedProject} />}
-            {isChoreoProject && !choreoProject && !isDeletedProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
+            {loginStatus == "LoggedIn" && (!isChoreoProject || projectUnavailable) && <EmptyWorkspaceMessage projectUnavailable={projectUnavailable} />}
+            {isChoreoProject && !choreoProject && !projectUnavailable && loginStatus === "LoggedIn" && <ProgressIndicator />}
         </Container>
     )
 };

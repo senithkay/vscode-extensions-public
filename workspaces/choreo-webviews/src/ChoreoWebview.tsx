@@ -22,6 +22,7 @@ import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
 import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ProjectView } from "./ActivityBar/ProjectView";
 import { AccountView } from "./ActivityBar/AccountView";
+import { ChoreoComponentsContextProvider } from "./context/choreo-components-ctx";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -34,13 +35,12 @@ interface ChoreoWebviewProps {
     type: string;
     projectId?: string;
     orgName?: string;
-    componentLimit?: number;
     choreoUrl?: string;
     componentCreateMode?: ComponentCreateMode;
 }
 
 function ChoreoWebview(props: ChoreoWebviewProps) {
-    const { type, orgName, projectId, choreoUrl, componentCreateMode, componentLimit } = props;
+    const { type, orgName, projectId, choreoUrl, componentCreateMode } = props;
 
     const switchViews = () => {
         switch (type) {
@@ -49,7 +49,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
             case "ComponentCreateForm":
                 return <ComponentWizard componentCreateMode={componentCreateMode} />;
             case "ActivityBarProjectView":
-                return <ProjectView componentLimit={componentLimit} />;
+                return <ProjectView />;
             case "ActivityBarAccountView":
                 return <AccountView />;
         }
@@ -58,12 +58,15 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
     return (
         <ChoreoWebviewQueryClientProvider>
             <Main>
-                {type === 'ChoreoArchitectureView' ?
-                    <ChoreoArchitectureView projectId={projectId} orgName={orgName} /> :
+                {type === "ChoreoArchitectureView" ? (
+                    <ChoreoArchitectureView projectId={projectId} orgName={orgName} />
+                ) : (
                     <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
-                        {switchViews()}
+                        <ChoreoComponentsContextProvider>
+                            {switchViews()}
+                        </ChoreoComponentsContextProvider>
                     </ChoreoWebViewContext.Provider>
-                }
+                )}
             </Main>
         </ChoreoWebviewQueryClientProvider>
     );

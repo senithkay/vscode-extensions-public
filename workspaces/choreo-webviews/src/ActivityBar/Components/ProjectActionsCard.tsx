@@ -12,12 +12,15 @@
  */
 import styled from "@emotion/styled";
 import React, { useContext } from "react";
-import { ArchiViewButton } from "./ArchitectureViewButton";
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ViewTitle } from "./ViewTitle";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
+import { ComponentsCard } from "./ComponentsCard";
+import { ComponentsPushAction } from './ComponentsPushAction';
+import { ComponentsSyncAction } from './ComponentsSyncAction';
+import { ProjectActionLink } from "./ProjectActionLink";
+import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -32,7 +35,6 @@ const Body = styled.div`
 `;
 
 export const ProjectActionsCard: React.FC = () => {
-
     const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
     const { selectedOrg } = useSelectedOrg();
 
@@ -41,15 +43,30 @@ export const ProjectActionsCard: React.FC = () => {
     const openProjectInChoreoConsole = () => {
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);
     }
-    
+
+    const handleClick = () => {
+        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+          eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
+          properties: {
+            project: choreoProject?.name,
+          },
+        });
+        ChoreoWebViewAPI.getInstance().openArchitectureView();
+      };
+
     return (
-        <Container>
-            <ViewTitle>Actions</ViewTitle>
-            <Body>
-                <ArchiViewButton />
-                <VSCodeLink>Cell View</VSCodeLink>
-                <VSCodeLink onClick={openProjectInChoreoConsole}>Open in Choreo Console</VSCodeLink>
-            </Body>
-        </Container>
+        <>
+            <Container>
+                <ViewTitle>Actions</ViewTitle>
+                <Body>
+                    <ProjectActionLink label="Architecture View" onClick={handleClick} />
+                    <ProjectActionLink label="Cell View" />
+                    <ProjectActionLink onClick={openProjectInChoreoConsole} label="Open in Choreo Console" />
+                    <ComponentsPushAction />
+                    <ComponentsSyncAction />
+                </Body>
+            </Container>
+            <ComponentsCard />
+        </>
     );
 };

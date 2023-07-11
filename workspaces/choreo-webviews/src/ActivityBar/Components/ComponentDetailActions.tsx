@@ -16,37 +16,45 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styled from "@emotion/styled";
+import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
 
-const GridVSCodeLink = styled(VSCodeLink) <{ disabled: boolean }>`
-    cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-    color:  ${props => props.disabled ? 'var(--foreground)' : 'var(--link-foreground)'};
-    text-decoration: underline;
-    &:hover {
-        text-decoration: ${props => props.disabled ? 'none' : 'underline'};
-    }
-`
+const DisabledVSCodeLink = styled.div`
+  padding: 1px;
+  color: var(--foreground);
+  opacity: 0.5;
+`;
 
 export const ComponentDetailActions: React.FC<{
     component: Component;
-    refetchComponents: () => void;
     handleSourceControlClick: () => void;
-    reachedChoreoLimit: boolean;
     loading?: boolean;
 }> = (props) => {
-    const { component, refetchComponents, reachedChoreoLimit, loading, handleSourceControlClick } = props;
+    const { component, loading, handleSourceControlClick } = props;
+    const { refreshComponents } = useChoreoComponentsContext();
     const hasDirtyLocalRepo = component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits;
 
     const queryClient = useQueryClient();
 
     const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
-        mutationFn: (componentName: string) => ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({ projectId: component.projectId, componentName }),
+        mutationFn: (componentName: string) =>
+            ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({
+                projectId: component.projectId,
+                componentName,
+            }),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         onSuccess: async (_, name) => {
-            await queryClient.cancelQueries({ queryKey: ["overview_component_list", component.projectId] })
-            const previousComponents: Component[] | undefined = queryClient.getQueryData(["overview_component_list", component.projectId])
-            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }) : item);
-            queryClient.setQueryData(["overview_component_list", component.projectId], updatedComponents)
-            refetchComponents()
+            await queryClient.cancelQueries({
+                queryKey: ["overview_component_list", component.projectId],
+            });
+            const previousComponents: Component[] | undefined = queryClient.getQueryData([
+                "overview_component_list",
+                component.projectId,
+            ]);
+            const updatedComponents = previousComponents?.map((item) =>
+                item.name === name ? { ...item, local: false } : item
+            );
+            queryClient.setQueryData(["overview_component_list", component.projectId], updatedComponents);
+            refreshComponents();
         },
     });
 
@@ -55,87 +63,104 @@ export const ComponentDetailActions: React.FC<{
             ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
                 eventName: PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
                 properties: { component: component?.name },
-            })
+            });
         },
-        mutationFn: async ({ repository, branchName, componentId }: { repository: Repository; branchName: string; componentId: string }) => {
+        mutationFn: async ({
+            repository,
+            branchName,
+            componentId,
+        }: {
+            repository: Repository;
+            branchName: string;
+            componentId: string;
+        }) => {
             if (component.projectId && repository && branchName) {
                 const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(component.projectId);
                 if (projectPath) {
-                    const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
-                        repository: `${repository.organizationApp}/${repository.nameApp}`,
-                        workspaceFilePath: projectPath,
-                        branch: branchName,
-                        gitProvider: repository.gitProvider
-                    })
-                    if (isCloned) {
-                        await ChoreoWebViewAPI.getInstance().pullComponent({ componentId, projectId: component.projectId })
-                    } else {
-                        await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
+                    const isCloned = await ChoreoWebViewAPI.getInstance()
+                        .getChoreoProjectManager()
+                        .isRepoCloned({
                             repository: `${repository.organizationApp}/${repository.nameApp}`,
                             workspaceFilePath: projectPath,
                             branch: branchName,
-                            gitProvider: repository.gitProvider
+                            gitProvider: repository.gitProvider,
                         });
+                    if (isCloned) {
+                        await ChoreoWebViewAPI.getInstance().pullComponent({
+                            componentId,
+                            projectId: component.projectId,
+                        });
+                    } else {
+                        await ChoreoWebViewAPI.getInstance()
+                            .getChoreoProjectManager()
+                            .cloneRepo({
+                                repository: `${repository.organizationApp}/${repository.nameApp}`,
+                                workspaceFilePath: projectPath,
+                                branch: branchName,
+                                gitProvider: repository.gitProvider,
+                            });
                     }
                 } else {
                     await ChoreoWebViewAPI.getInstance().cloneChoreoProject(component.projectId);
                 }
             }
         },
-        onSuccess: () => refetchComponents(),
+        onSuccess: () => refreshComponents(),
     });
 
-    let visibleAction: 'push' | 'pull' | 'sync' | undefined;
+    let visibleAction: "push" | "pull" | "sync" | undefined;
     if (hasDirtyLocalRepo) {
-        visibleAction = 'sync';
+        visibleAction = "sync";
     } else if (component.isRemoteOnly && component.repository) {
-        visibleAction = 'pull'
+        visibleAction = "pull";
     } else if (component.local) {
-        visibleAction = 'push'
+        visibleAction = "push";
     }
 
     return (
         <>
-            {visibleAction === 'sync' && (
-                <GridVSCodeLink
-                    onClick={handleSourceControlClick}
-                    title="Open source control view & sync changes"
-                >
+            {visibleAction === "sync" && (
+                <VSCodeLink onClick={handleSourceControlClick} title="Open source control view & sync changes">
                     Commit & Push
-                </GridVSCodeLink>
+                </VSCodeLink>
             )}
-            {visibleAction === 'pull' && (
-                <GridVSCodeLink
-                    onClick={() => {
-                        if (component?.repository?.branchApp && !loading && !isPulling) {
-                            pullComponent({
-                                repository: component.repository,
-                                branchName: component?.repository?.branchApp,
-                                componentId: component.id
-                            });
-                        }
-                    }}
-                    title="Pull code from remote repository"
-                    disabled={loading || isPulling}
-                >
-                    {isPulling ? "Pulling..." : "Pull Component"}
-                </GridVSCodeLink>
+            {visibleAction === "pull" && (
+                <>
+                    {loading || isPulling ? (
+                        <DisabledVSCodeLink>{isPulling ? "Pulling..." : "Pull Component"}</DisabledVSCodeLink>
+                    ) : (
+                        <VSCodeLink
+                            title="Pull code from remote repository"
+                            onClick={() => {
+                                pullComponent({
+                                    repository: component.repository,
+                                    branchName: component?.repository?.branchApp,
+                                    componentId: component.id,
+                                });
+                            }}
+                        >
+                            Pull Component
+                        </VSCodeLink>
+                    )}
+                </>
             )}
-            {visibleAction === 'push' && (
-                <GridVSCodeLink
-                    onClick={() => {
-                        if (!loading && !pushingSingleComponent && !reachedChoreoLimit) {
-                            handlePushComponentClick(component.name)
-                        }
-                    }}
-                    title={reachedChoreoLimit ? "Please upgrade your tier to push to Choreo" : "Push component to Choreo"}
-                    disabled={loading || pushingSingleComponent || reachedChoreoLimit}
-                >
-                    {pushingSingleComponent ? "Pushing..." : "Push to Choreo"}
-                </GridVSCodeLink>
+            {visibleAction === "push" && (
+                <>
+                    {loading || pushingSingleComponent ? (
+                        <DisabledVSCodeLink>{pushingSingleComponent ? "Pushing..." : "Push to Choreo"}</DisabledVSCodeLink>
+                    ) : (
+                        <VSCodeLink
+                            onClick={() => {
+                                handlePushComponentClick(component.name);
+                            }}
+                            title="Push component to Choreo"
+                        >
+                            Push to Choreo
+                        </VSCodeLink>
+                    )}
+                </>
             )}
-            {visibleAction === undefined && '-'}
+            {visibleAction === undefined && "-"}
         </>
     );
 };
-

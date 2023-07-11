@@ -37,7 +37,7 @@ const ErrorWrap = styled.div`
 `;
 
 
-export const EmptyWorkspaceMessage = (props: { projectDeleted?: boolean }) => {
+export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) => {
     
     const openChoreoProject = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
@@ -49,7 +49,7 @@ export const EmptyWorkspaceMessage = (props: { projectDeleted?: boolean }) => {
 
     return (
         <Container>
-            {props.projectDeleted ? (
+            {props.projectUnavailable ? (
                 <ErrorWrap>
                     This project is no longer available in Choreo. Please create a new project or switch to a different project
                 </ErrorWrap>

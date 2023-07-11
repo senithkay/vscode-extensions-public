@@ -32,11 +32,9 @@ const Container = styled.div`
 export const ComponentDetails = (props: {
     component: Component,
     handleSourceControlClick: () => void,
-    reachedChoreoLimit: boolean,
     loading: boolean,
-    refetchComponents: () => void,
 }) => {
-    const { component, handleSourceControlClick, reachedChoreoLimit, loading, refetchComponents } = props;
+    const { component, handleSourceControlClick, loading } = props;
     const { buildData, isLoadingBuild } = useComponentBuildStatus(props.component);
     const { devDeploymentData, isLoadingDeployment } = useComponentDeploymentStatus(props.component);
 
@@ -84,8 +82,6 @@ export const ComponentDetails = (props: {
                         <ComponentDetailActions
                             component={component}
                             handleSourceControlClick={handleSourceControlClick}
-                            reachedChoreoLimit={reachedChoreoLimit}
-                            refetchComponents={refetchComponents}
                             loading={loading}
                         />
                     </VSCodeDataGridCell>

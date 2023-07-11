@@ -10,17 +10,13 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback, useContext } from "react";
+import React from "react";
 import styled from "@emotion/styled";
-import { Component, DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT, OPEN_GITHUB_REPO_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
+import { Component } from "@wso2-enterprise/choreo-core";
 import { VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ComponentDetails } from "./ComponentDetails";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { useSelectedOrg } from "../../hooks/use-selected-org";
-import { ContextMenu, MenuItem } from "../../Commons/ContextMenu";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ComponentContextMenu } from './ComponentContextMenu';
 
 const Container = styled.div`
     display: flex;
@@ -51,11 +47,6 @@ const ComponentName = styled.span`
     font-weight: 600;
 `;
 
-const InlineIcon = styled.span`
-    vertical-align: sub;
-    padding-left: 5px;
-`;
-
 const Flex = styled.div`
     flex: 1;
 `
@@ -63,101 +54,12 @@ const Flex = styled.div`
 
 export const ComponentRow = (props: { 
     component: Component, 
-    refetchComponents: () => void, 
     handleSourceControlClick: () => void,
-    reachedChoreoLimit: boolean;
-    loading: boolean;
     expanded: boolean;
     handleExpandClick: (componentName: string) => void;
+    loading?: boolean;
 }) => {
-    const { component, refetchComponents, handleSourceControlClick, reachedChoreoLimit, loading, expanded, handleExpandClick } = props;
-    const { repository } = component;
-    const { choreoUrl } = useContext(ChoreoWebViewContext);
-    const { selectedOrg } = useSelectedOrg();
-    const queryClient = useQueryClient();
-
-    // component URL
-    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
-    const openComponentUrl = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-            eventName: OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT,
-            properties: { component: component?.name }
-        });
-        ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
-    }, [componentBaseUrl]);
-
-    const gitHubBaseUrl = `https://github.com/${repository.organizationApp}/${repository.nameApp}`;
-    const repoLink = `${gitHubBaseUrl}/tree/${repository.branchApp}${repository.appSubPath ? `/${repository.appSubPath}` : ''}`;
-
-    const onOpenRepo = () => {
-        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-            eventName: OPEN_GITHUB_REPO_PAGE_EVENT
-        });
-        ChoreoWebViewAPI.getInstance().openExternal(repoLink);
-    };
-
-    const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
-        mutationFn: (component: Component) => ChoreoWebViewAPI.getInstance().deleteComponent({ component, projectId: component.projectId }),
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        onMutate: () => {
-            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-                eventName: DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
-                properties: {  component: component.name },
-            })
-        },
-        onSuccess: async (data) => {
-            if (data) {
-                await queryClient.cancelQueries({ queryKey: ["overview_component_list", component.projectId] })
-                const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", component.projectId])
-                const filteredComponents = previousComponents?.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
-                queryClient.setQueryData(["overview_component_list", component.projectId], filteredComponents)
-                refetchComponents();
-            }
-        },
-    });
-
-
-    const menuItems: MenuItem[] = [
-        {
-            id: "github-remote",
-            label: (
-                <>
-                    <InlineIcon>
-                        <Codicon name="github" />
-                    </InlineIcon>{" "}
-                    &nbsp; Open in Github
-                </>
-            ),
-            onClick: () => onOpenRepo(),
-        }
-    ]
-    if (!component.local) {
-        menuItems.push({
-            id: "choreo-console",
-            label: (
-                <>
-                    <InlineIcon>
-                        <Codicon name="link-external" />
-                    </InlineIcon>{" "}
-                    &nbsp; Open in Choreo Console
-                </>
-            ),
-            onClick: () => openComponentUrl()
-        });
-    }
-    menuItems.push({
-        id: "delete",
-        label: (
-            <>
-                <InlineIcon>
-                    <Codicon name="trash" />
-                </InlineIcon>{" "}
-                &nbsp; {deletingComponent ? "Deleting..." : "Delete Component"}
-            </>
-        ),
-        onClick: () => handleDeleteComponentClick(component),
-        disabled: deletingComponent
-    });
+    const { component, handleSourceControlClick, loading, expanded, handleExpandClick } = props;
 
     const actionRequired = component.hasDirtyLocalRepo || component.isRemoteOnly || component.local
 
@@ -197,16 +99,14 @@ export const ComponentRow = (props: {
                     <Codicon name="info" />
                 </VSCodeButton>
             )}
-            <ContextMenu items={menuItems}></ContextMenu>
+            <ComponentContextMenu component={component} />
         </Header>
         {expanded && (
             <Body>
                 <ComponentDetails 
-                    loading={loading || deletingComponent}
+                    loading={loading} // Todo: convert delete component into hook and pass deletingComponent also here
                     component={props.component} 
                     handleSourceControlClick={handleSourceControlClick} 
-                    reachedChoreoLimit={reachedChoreoLimit}
-                    refetchComponents={refetchComponents}    
                 />
             </Body>
         )}
