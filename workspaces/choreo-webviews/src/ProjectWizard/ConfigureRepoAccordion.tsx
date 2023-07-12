@@ -117,7 +117,7 @@ export interface ConfigureRepoAccordionProps {
 
 export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
 
-    const { gitProvider, selectedCredential, selectedGHOrgName, setSelectedGHOrgName, selectedGHRepo, setSelectedGHRepo,  isBareRepo, setIsBareRepo, validationInProgress, setValidationInProgress, setErrorMsg } = props;
+    const { gitProvider, selectedCredential, selectedGHOrgName, setSelectedGHOrgName, selectedGHRepo, setSelectedGHRepo, isBareRepo, setIsBareRepo, validationInProgress, setValidationInProgress, setErrorMsg } = props;
 
     const [refreshRepoList, setRefreshRepoList] = useState(false);
     const [appInstallComleted, setAppInstallCompleted] = useState(false);
@@ -148,9 +148,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
         if (gitProvider === GitProvider.GITHUB) {
             ChoreoWebViewAPI.getInstance().openExternal(`https://github.com/new`);
         } else if (gitProvider === GitProvider.BITBUCKET) {
-            if (selectedCredential.id) {
-                ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${selectedGHOrgName}/workspace/create/repository`);
-            }
+            ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${selectedGHOrgName}/workspace/create/repository`);
         }
     }
 
@@ -196,7 +194,12 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                 <RepoStepNumber> 1 </RepoStepNumber>
                 <RepoStepContent>
                     <h3>  Starting from scratch?  </h3>
-                    <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span>
+                    {gitProvider === GitProvider.GITHUB && <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span>}
+                    {gitProvider === GitProvider.BITBUCKET && (
+                        selectedCredential.id ? <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span> : (
+                            <span>Please select a bitbucket credential.</span>
+                        )
+                    )}
                 </RepoStepContent>
             </RepoStepWrapper>
             <RepoStepWrapper>
