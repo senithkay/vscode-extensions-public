@@ -27,7 +27,6 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaExplorerTreeView",
         "onNotebook:ballerina-notebook"
     ],
     "contributes": {
