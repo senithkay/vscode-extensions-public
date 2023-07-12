@@ -29,8 +29,7 @@
     ]
   },
   "include": [
-    "src/index.tsx",
-    "src/custom.d.ts"
+    "src/index.tsx"
   ],
   "exclude": [
     "node_modules",

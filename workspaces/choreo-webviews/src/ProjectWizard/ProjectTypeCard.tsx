@@ -10,13 +10,12 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
-import { GithubSVG, GithubWhiteSVG, BitbucketSVG } from "../assets";
-import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { BitBucketIcon, GithubIcon } from "../icons";
 
 const TypeCardContainer = styled.div`
     // Flex Props
@@ -41,6 +40,11 @@ const TypeCardContainer = styled.div`
     }
 `;
 
+const IconContainer = styled.div`
+    height: 50px;
+    width: 50px;
+`
+
 export interface ProjectTypeCardProps {
     currentType: GitProvider;
     onChange: (type: GitProvider) => void;
@@ -50,23 +54,7 @@ export interface ProjectTypeCardProps {
 
 export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
     const { type, label, currentType, onChange } = props;
-    const [isDarkTheme, setIsDarkTheme] = useState(false);
-    const darkThemes = ["Default Dark+", "Visual Studio Dark", "Abyss", "Default Dark+ Experimental", "Kimbie Dark", "Monokai", "Monokai Dimmed", "Red", "Solarized Dark", "Tomorrow Night Blue", "Default High Contrast"];
-
     const isSelected = currentType === type;
-
-    useEffect(() => {
-        getTheme();
-    }, []);
-
-    const getTheme = async () => {
-        const theme = await ChoreoWebViewAPI.getInstance().getColorTheme();
-        if (darkThemes.includes(theme)) {
-            setIsDarkTheme(true);
-        } else {
-            setIsDarkTheme(false);
-        }
-    };
 
     const setSelectedType = (type: GitProvider) => {
         onChange(type);
@@ -76,11 +64,11 @@ export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
         setSelectedType(type);
     };
 
-    let logo = type === GitProvider.BITBUCKET ? BitbucketSVG : (isDarkTheme) ? GithubWhiteSVG : GithubSVG;
-
     return (
         <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} >
-            <img src={logo} ></img>
+            <IconContainer>
+                {type === GitProvider.BITBUCKET ? <BitBucketIcon /> : <GithubIcon />}
+            </IconContainer>
             <h4>{label}</h4>
         </TypeCardContainer>
     );

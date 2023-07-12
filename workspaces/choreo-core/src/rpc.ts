@@ -82,7 +82,6 @@ export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = {
 export const GetComponentCount: RequestType<number, ComponentCount> = { method: 'getComponentCount' };
 export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = { method: 'isBareRepo' };
 export const HasChoreoSubscription: RequestType<string, boolean> = { method: 'hasChoreoSubscription' };
-export const GetColorTheme: RequestType<void, string> = { method: 'getColorTheme' };
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
 
