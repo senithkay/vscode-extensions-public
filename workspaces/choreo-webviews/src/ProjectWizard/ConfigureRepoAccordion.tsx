@@ -123,7 +123,9 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
     const [appInstallComleted, setAppInstallCompleted] = useState(false);
 
     useEffect(() => {
-        checkBareRepoStatus();
+        if (selectedGHRepo) {
+            checkBareRepoStatus();
+        }
     }, [selectedGHRepo]);
 
     const handleRepoSelect = (org?: string, repo?: string) => {
