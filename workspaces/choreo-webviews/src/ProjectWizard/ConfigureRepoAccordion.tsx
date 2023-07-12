@@ -1,0 +1,261 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+import { VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import styled from "@emotion/styled";
+import React, { useEffect, useState } from "react";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
+import { ChoreoAppInstaller } from "../GithubRepoSelector/ChoreoAppInstaller";
+import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { ErrorBanner } from "../Commons/ErrorBanner";
+
+const GhRepoSelectorActions = styled.div`
+    display  : flex;
+    flex-direction: row;
+    gap: 10px;
+`;
+
+const ValidationWrapper = styled.div`
+    display  : flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+`;
+
+const RepoStepWrapper = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    // End Flex Props
+    // Sizing Props
+    padding: 20px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--vscode-panel-border);
+    cursor: default;
+`;
+
+const RepoStepNumber = styled.div`
+    //Flex Props
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-items: center;
+    // End Flex Props
+    // Sizing Props
+    width: 40px;
+    height: 40px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--vscode-panel-border);
+`;
+
+const RepoStepContent = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+`;
+
+const RepoSubContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 20px;
+    min-height: 83px;
+`;
+
+const RepoSelectorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 10px;
+`;
+
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 4px);
+    width: calc(var(--design-unit) * 4px);
+    margin-top: auto;
+    padding: 4px;
+`;
+
+export interface ConfigureRepoAccordionProps {
+    gitProvider: GitProvider;
+    selectedCredential: FilteredCredentialData;
+    selectedGHOrgName: string;
+    setSelectedGHOrgName: (orgName: string) => void;
+    selectedGHRepo: string;
+    setSelectedGHRepo: (repoName: string) => void;
+    validationInProgress: boolean;
+    setValidationInProgress: (inProgress: boolean) => void;
+    isBareRepo: boolean;
+    setIsBareRepo: (isBareRepo: boolean) => void;
+    setErrorMsg: (msg: string) => void;
+
+}
+
+export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
+
+    const { gitProvider, selectedCredential, selectedGHOrgName, setSelectedGHOrgName, selectedGHRepo, setSelectedGHRepo,  isBareRepo, setIsBareRepo, validationInProgress, setValidationInProgress, setErrorMsg } = props;
+
+    const [refreshRepoList, setRefreshRepoList] = useState(false);
+    const [appInstallComleted, setAppInstallCompleted] = useState(false);
+
+    useEffect(() => {
+        checkBareRepoStatus();
+    }, [selectedGHRepo]);
+
+    const handleRepoSelect = (org?: string, repo?: string) => {
+        setSelectedGHOrgName(org || "");
+        setSelectedGHRepo(repo || "");
+    };
+
+    const handleRepoInit = async () => {
+        // open github repo in browser with vscode open external
+        if (selectedGHOrgName && selectedGHRepo) {
+            if (gitProvider === GitProvider.GITHUB) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
+            } else if (gitProvider === GitProvider.BITBUCKET) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`);
+            }
+        }
+    };
+
+    const handleNewRepoCreation = async () => {
+        if (gitProvider === GitProvider.GITHUB) {
+            ChoreoWebViewAPI.getInstance().openExternal(`https://github.com/new`);
+        } else if (gitProvider === GitProvider.BITBUCKET) {
+            if (selectedCredential.id) {
+                ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${selectedGHOrgName}/workspace/create/repository`);
+            }
+        }
+    }
+
+    const handleRepoRefresh = async () => {
+        setRefreshRepoList(!refreshRepoList);
+    };
+
+    const handleAppInstallSuccess = async () => {
+        handleRepoRefresh();
+        setAppInstallCompleted(true);
+    }
+
+    const checkBareRepoStatus = async () => {
+        try {
+            setValidationInProgress(true);
+            const webviewAPI = ChoreoWebViewAPI.getInstance();
+            const projectClient = webviewAPI.getProjectClient();
+
+            // check if the repo is empty
+            const repoMetaData = await projectClient.getRepoMetadata({
+                repo: selectedGHRepo,
+                organization: selectedGHOrgName,
+                branch: "main",
+                credentialId: selectedCredential.id
+            });
+            if (repoMetaData?.isBareRepo) {
+                setIsBareRepo(true);
+            } else {
+                setIsBareRepo(false);
+            }
+            setValidationInProgress(false);
+        } catch (error: any) {
+            setErrorMsg(error.message + " " + error.cause);
+        }
+    }
+
+    const bareRepoError = 'Get started by creating a new file or uploading an existing file. We recommend every repository include a README, LICENSE, and .gitignore.';
+
+    return (
+        <>
+            <h3>Configure Repository</h3>
+            <RepoStepWrapper>
+                <RepoStepNumber> 1 </RepoStepNumber>
+                <RepoStepContent>
+                    <h3>  Starting from scratch?  </h3>
+                    <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span>
+                </RepoStepContent>
+            </RepoStepWrapper>
+            <RepoStepWrapper>
+                <RepoStepNumber> 2 </RepoStepNumber>
+                <RepoStepContent>
+                    {gitProvider === GitProvider.GITHUB && (
+                        <>
+                            <h3>  Install Choreo App to the repo  </h3>
+                            <ChoreoAppInstaller onAppInstallation={handleAppInstallSuccess} />
+                        </>
+                    )}
+                    {gitProvider === GitProvider.BITBUCKET && (
+                        <>
+                            <h3>  Refresh repository list  </h3>
+                            <VSCodeButton onClick={handleRepoRefresh}>Refresh</VSCodeButton>
+                        </>
+                    )}
+                </RepoStepContent>
+            </RepoStepWrapper>
+            <RepoStepWrapper>
+                <RepoStepNumber> 3 </RepoStepNumber>
+                <RepoStepContent>
+                    <h3>  Select repository  </h3>
+                    <RepoSubContainer>
+                        {appInstallComleted && <h5>Repository list refreshed. Select a repository to continue.</h5>}
+                        <RepoSelectorContainer>
+                            {gitProvider === GitProvider.GITHUB &&
+                                <GithubRepoSelector
+                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                    onRepoSelect={handleRepoSelect}
+                                />}
+                            {gitProvider === GitProvider.BITBUCKET &&
+                                <BitbucketRepoSelector
+                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                    onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
+                                    refreshRepoList={refreshRepoList}
+                                />}
+                            {validationInProgress && (
+                                <ValidationWrapper>
+                                    <SmallProgressRing />
+                                    <span>Validating repository...</span>
+                                </ValidationWrapper>
+
+                            )}
+                        </RepoSelectorContainer>
+                        {isBareRepo && !validationInProgress && (
+                            <>
+                                <ErrorBanner errorMsg={bareRepoError} />
+                                <GhRepoSelectorActions>
+                                    <VSCodeButton onClick={handleRepoInit}>
+                                        Create File
+                                    </VSCodeButton>
+                                    <VSCodeButton onClick={checkBareRepoStatus}>
+                                        Recheck
+                                    </VSCodeButton>
+                                </GhRepoSelectorActions>
+                            </>
+                        )}
+                    </RepoSubContainer>
+                </RepoStepContent>
+            </RepoStepWrapper>
+        </>
+    );
+}

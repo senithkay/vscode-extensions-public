@@ -96,16 +96,15 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     }
 
     public async waitForInstallation(): Promise<boolean> {
-        switch (this._status.status) {
-            case 'installed':
-                return true;
-            default:
-                return new Promise<boolean>(resolve => {
-                    const subscription: Disposable = this.onGHAppAuthCallback(() => {
-                        subscription.dispose();
-                        resolve(this.waitForInstallation());
-                    });
+        if (this._status.status === 'installed') {
+            return true;
+        } else {   
+            return new Promise<boolean>(resolve => {
+                const subscription: Disposable = this.onGHAppAuthCallback(() => {
+                    subscription.dispose();
+                    resolve(this.waitForInstallation());
                 });
+            });
         }
     }
 
