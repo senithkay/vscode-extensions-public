@@ -88,6 +88,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             cancellable: true
         }, async (_progress, cancellationToken) => {
             cancellationToken.onCancellationRequested(async () => {
+                this.fireGHAppAuthCallback({ status: "error" });
                 window.showInformationMessage(`Cancelled app installation.`);
             });
             await this.waitForInstallation();
@@ -98,6 +99,8 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     public async waitForInstallation(): Promise<boolean> {
         if (this._status.status === 'installed') {
             return true;
+        } else if (this._status.status === 'error') {
+            return false;
         } else {   
             return new Promise<boolean>(resolve => {
                 const subscription: Disposable = this.onGHAppAuthCallback(() => {
