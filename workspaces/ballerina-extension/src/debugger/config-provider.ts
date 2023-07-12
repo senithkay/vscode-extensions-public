@@ -95,11 +95,11 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
 
     config.noDebug = Boolean(config.noDebug);
 
-    const activeDoc = window.activeTextEditor.document;
+    const activeTextEditor = window.activeTextEditor;
 
-    if (activeDoc.fileName.endsWith(BAL_NOTEBOOK)) {
+    if (activeTextEditor && activeTextEditor.document.fileName.endsWith(BAL_NOTEBOOK)) {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_NOTEBOOK_DEBUG, CMP_NOTEBOOK);
-        let activeTextEditorUri = activeDoc.uri;
+        let activeTextEditorUri = activeTextEditor.document.uri;
         if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
             activeTextEditorUri = Uri.file(getTempFile());
             config.script = fileUriToPath(activeTextEditorUri.toString(true));
@@ -108,7 +108,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         }
     }
 
-    if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME && !config.script) {
+    if (!config.script) {
         const tomls = await workspace.findFiles(workspaceFolder ? new RelativePattern(workspaceFolder, BALLERINA_TOML_REGEX) : BALLERINA_TOML_REGEX);
         const projects: { project: BallerinaProject; balFile: Uri; relativePath: string }[] = [];
         for (const toml of tomls) {
@@ -121,7 +121,7 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
                 const relativePath = workspace.asRelativePath(projectRoot);
                 projects.push({ project: { packageName: tomlObj.package.name }, balFile: balFiles[0], relativePath });
             }
-        };
+        }
 
         if (projects.length > 0) {
             if (projects.length === 1) {
