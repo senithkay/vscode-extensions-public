@@ -105,6 +105,17 @@ export async function askProjectClonePath() {
     });
 }
 
+export async function askProjectDirPath() {
+    const selectedDir = await askProjectClonePath();
+    if (!selectedDir || selectedDir.length === 0) {
+        window.showErrorMessage('A folder must be selected to start cloning');
+        return;
+    } else {
+        const parentDir = selectedDir[0].fsPath;
+        return parentDir;
+    }
+}
+
 export async function createProjectDir(parentDir: string, project: Project): Promise<string> {
     const { name } = project;
     const projectDir = path.join(parentDir, name);
@@ -199,7 +210,7 @@ function generateWorkspaceItems(userManagedComponents: Component[]) {
     });
 }
 
-export const cloneProject = async (project: Project) => {
+export const cloneProject = async (project: Project, dirPath = "") => {
     sendTelemetryEvent(CLONE_PROJECT_START_EVENT, { project: project?.name });
     await window.withProgress({
         title: `Cloning ${project.name} components to workspace.`,
@@ -223,14 +234,17 @@ export const cloneProject = async (project: Project) => {
             getLogger().debug("getting folder path to clone project: " + project.name);
             
             try {
-                const selectedDir = await askProjectClonePath();
-                if (!selectedDir || selectedDir.length === 0) {
-                    getLogger().debug("No folder selected to clone project: " + project.name);
-                    window.showErrorMessage('A folder must be selected to start cloning');
-                    return;
+                let parentDir = dirPath;
+                if (!dirPath || dirPath.length === 0) {
+                    const selectedDir = await askProjectClonePath();
+                    if (!selectedDir || selectedDir.length === 0) {
+                        getLogger().debug("No folder selected to clone project: " + project.name);
+                        window.showErrorMessage('A folder must be selected to start cloning');
+                        return;
+                    }
+                    parentDir = selectedDir[0].fsPath;
                 }
 
-                const parentDir = selectedDir[0].fsPath;
                 const projectDir = await createProjectDir(parentDir, project);
 
                 getLogger().debug("folder path to clone project: " + projectName + " is " + projectDir);
@@ -239,6 +253,7 @@ export const cloneProject = async (project: Project) => {
                 // Get Mono Repo if configured
                 const monoRepo = ProjectRegistry.getInstance().getProjectRepository(project.id);
                 if (monoRepo) {
+                    gitProvider = monoRepo.provider;
                     getLogger().debug("Mono Repo configured for project: " + project.name + " at " + monoRepo);
                 }
 
