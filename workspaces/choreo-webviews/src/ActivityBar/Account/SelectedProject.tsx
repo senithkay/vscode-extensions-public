@@ -36,7 +36,7 @@ const Body = styled.div`
 
 export const SelectedProject = () => {
 
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject, isChoreoProject } = useContext(ChoreoWebViewContext);
 
     const changeProject = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
@@ -45,7 +45,7 @@ export const SelectedProject = () => {
     return <Container>
         <ViewHeader>
             <ViewTitle>
-                Project
+                Current Project
             </ViewTitle>
             <VSCodeButton
                     appearance="icon"
@@ -58,11 +58,13 @@ export const SelectedProject = () => {
             </VSCodeButton>
         </ViewHeader>
         <Body>
-            {!choreoProject && <div>fetching project info...</div>}
-            <div>Name: {choreoProject?.name}</div>
-            <div>Description: {choreoProject?.description.trim() || "N/A"}</div>
-            <div>Region: {choreoProject?.region || "N/A"}</div>
-            <div>Version: {choreoProject?.version || "N/A"}</div>
+            {!isChoreoProject && <div>N/A</div>}
+            {choreoProject && <>
+                <div>Name: {choreoProject?.name}</div>
+                <div>Description: {choreoProject?.description.trim() || "N/A"}</div>
+                <div>Region: {choreoProject?.region || "N/A"}</div>
+                <div>Version: {choreoProject?.version || "N/A"}</div>
+            </>}
         </Body>
     </Container>;
 };
