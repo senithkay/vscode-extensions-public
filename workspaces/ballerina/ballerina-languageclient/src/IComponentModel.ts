@@ -1,7 +1,7 @@
 import { LinePosition } from "./IBallerinaLanguageClient";
 
 export interface ComponentModel {
-    packageId: CMPackageID;
+    packageId: CMPackageID | string;
     version?: string;
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
@@ -24,11 +24,6 @@ export interface CMPackageID {
     version: string
 }
 
-export interface CMEntryPointID {
-    id: string;
-    label: string;
-}
-
 export interface CMLocation {
     filePath: string;
     startPosition: LinePosition;
@@ -41,7 +36,8 @@ interface CMNode {
 }
 
 interface CMFunctionNode extends CMNode {
-    functionID: CMEntryPointID;
+    functionID: string;
+    label: string;
     interactions: CMInteraction[];
     parameters: CMParameter[];
     returns: string[];
@@ -50,17 +46,18 @@ interface CMFunctionNode extends CMNode {
 export interface CMEntryPoint extends CMFunctionNode {
     annotation: CMAnnotation;
     type?: 'scheduledTask' | 'manualTrigger';
-    dependencyIDs: CMEntryPointID[];
+    dependencyIDs: string[];
 }
 
 export interface CMService extends CMNode {
     annotation: CMAnnotation;
     path: string;
-    serviceId: CMEntryPointID;
+    serviceId: string;
+    label: string;
     remoteFunctions: CMRemoteFunction[];
     resources: CMResourceFunction[];
     serviceType: string;
-    dependencyIDs: CMEntryPointID[];
+    dependencyIDs: string[];
     deploymentMetadata?: CMDeploymentMetadata;
     isNoData?: boolean;
     dataInProgress?: boolean;
@@ -73,7 +70,7 @@ export interface CMAnnotation extends CMNode {
 
 export interface CMDependency extends CMNode {
     connectorType: string;
-    entryPointID: CMEntryPointID;
+    entryPointID: string;
     serviceLabel?: string;
 }
 

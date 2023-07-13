@@ -112,7 +112,8 @@ export function DesignDiagram(props: DiagramProps) {
         await getComponentModel().then((response) => {
             const components: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
             if (components && components.size > 0) {
-                defaultOrg.current = [...components][0][1].packageId.org;
+                const packageId = [...components][0][1].packageId;
+                defaultOrg.current = typeof packageId === "object" ? packageId.org : '';
             }
             if (!hasDiagnostics.current && response.diagnostics.length && editLayerAPI) {
                 editLayerAPI.showDiagnosticsWarning();

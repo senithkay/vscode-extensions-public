@@ -354,7 +354,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                         const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
                         const model: ComponentModel = JSON.parse(decodedString.toString());
                         enrichConsoleDeploymentData(model.services, finalVersion);
-                        componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
+                        if (typeof model.packageId === "object") {
+                                componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
+                            } else {
+                                // todo: handle this case when adding support for non-ballerina components
+                            }
                     } else {
                         componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
                         diagnostics.push({ name: `${value.displayName} Component` });
@@ -425,11 +429,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     ext.api.onRefreshComponentList(() => {
         messenger.sendNotification(RefreshComponentsNotification, BROADCAST, null);
     });
-    
-    ext.api.onRefreshWorkspaceMetadata(() => {
+ext.api.onRefreshWorkspaceMetadata(() => {
         messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
     });
-
     messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
         if (args.length >= 1) {
             const cmdArgs = args.length > 1 ? args.slice(1) : [];
@@ -475,7 +477,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
         await ext.context.workspaceState.update(cacheKey, undefined);
     });
-    
+
     messenger.onRequest(IsBallerinaExtInstalled, () => {
         const ext = vscode.extensions.getExtension("wso2.ballerina");
         return !!ext;

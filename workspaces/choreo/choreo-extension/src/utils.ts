@@ -91,10 +91,8 @@ export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, a
 export function mergeNonClonedProjectData(component: Component): ComponentModel {
     const pkgServices: { [key: string]: Service } = {};
     pkgServices[component.id] = {
-        serviceId: {
-            id: component.displayName,
-            label: component.displayName,
-        },
+        serviceId: component.displayName,
+        label: component.displayName,
         serviceType: component.displayType,
         annotation: {
             id: component.id,
