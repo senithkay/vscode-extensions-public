@@ -108,10 +108,10 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
           setError(err);
         }
       }
-      if (choreoProject?.id && loginStatus === 'LoggedIn') {
+      if (isChoreoProject && choreoProject?.id && loginStatus === 'LoggedIn') {
         checkIsProjectUnAvailable();
       }
-    }, [choreoProject, loginStatus]);
+    }, [choreoProject, loginStatus, isChoreoProject]);
 
 
     return {
