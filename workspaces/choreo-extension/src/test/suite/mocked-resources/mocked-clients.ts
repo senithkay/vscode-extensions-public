@@ -67,6 +67,14 @@ export class MockKeyChainTokenStorage implements ITokenStorage {
             expirationTime: 3600
         };
     }
+    async getTokenForCurrentOrg(): Promise<AccessToken | undefined> {
+        return {
+            accessToken: randomUUID(),
+            loginTime: this._choreoLoginTime,
+            refreshToken: randomUUID(),
+            expirationTime: 3600
+        };
+    }
 }
 
 export class MockOrgClient implements IChoreoOrgClient {

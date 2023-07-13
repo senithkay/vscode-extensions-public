@@ -14,7 +14,7 @@ import { ExtensionContext, commands, window } from "vscode";
 import { setSelectedOrgCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
-import { CHOREO_AUTH_ERROR_PREFIX, choreoAuthConfig, exchangeOrgAccessTokens } from "../auth/auth";
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from "../auth/auth";
 import { Organization, SWITCH_ORGANIZATION_EVENT } from "@wso2-enterprise/choreo-core";
 import { sendTelemetryEvent } from "../telemetry/utils";
 
@@ -32,7 +32,7 @@ export function activateChangeOrgCmd(context: ExtensionContext) {
 
         try {
             getLogger().debug("Exchanging access tokens for the organization " + organization.name);
-            await exchangeOrgAccessTokens(organization.handle);
+            await exchangeOrgAccessTokens(organization.handle, organization.id);
         } catch (error: any) {
             getLogger().error("Error while exchanging access tokens for the organization "
                 + organization.name + ". "

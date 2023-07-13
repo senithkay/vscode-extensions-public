@@ -14,7 +14,7 @@ import { ExtensionContext, commands } from "vscode";
 import { openProjectInConsoleCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
-import { choreoAuthConfig } from "../auth/auth";
+import { choreoEnvConfig } from "../auth/auth";
 
 export function activateOpenInConsoleCmd(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(openProjectInConsoleCmdId, async (projectId: string) => {
@@ -28,7 +28,7 @@ export function activateOpenInConsoleCmd(context: ExtensionContext) {
                 getLogger().error("No project selected");
                 return;
             }
-            const url = `${choreoAuthConfig.getConsoleUrl()}/organizations/${orgHandle}/projects/${targetProject}`;
+            const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${orgHandle}/projects/${targetProject}`;
             // open external url
             commands.executeCommand('vscode.open', url);
          } else {

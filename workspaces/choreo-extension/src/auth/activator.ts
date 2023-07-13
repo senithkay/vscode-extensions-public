@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { ProgressLocation, commands, window } from "vscode";
-import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signOut, tokenStore, signin } from "./auth";
+import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signOut, signin } from "./auth";
 import { ext } from '../extensionVariables';
 import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
@@ -86,7 +86,7 @@ export async function activateAuth() {
 
             if (apimResponse) {
                 const choreoTokenInfo = JSON.parse(apimResponse);
-                await tokenStore.setToken("choreo.token", choreoTokenInfo);
+                await ext.tokenStorage.setToken("choreo.token", choreoTokenInfo);
                 await signin();
             } else {
                 window.showErrorMessage("APIM token response is required to login");

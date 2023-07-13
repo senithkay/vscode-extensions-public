@@ -23,6 +23,14 @@ export enum Keys {
 }
 
 export class KeyChainTokenStorage implements ITokenStorage {
+
+    constructor(private _currentOrgHandle: string) {
+    }
+
+    async getTokenForCurrentOrg(): Promise<AccessToken | undefined> {
+        return this.getToken(`choreo.vscode.token.org.${this._currentOrgHandle}`);
+    }
+
     async getToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
         const serviceName = Keys.serviceName + tokenType;
         let choreoAccessToken: string | null = null;

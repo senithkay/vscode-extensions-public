@@ -16,7 +16,6 @@ import path = require('path');
 import { commands, ProgressLocation, Uri, window } from 'vscode';
 import { CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT, CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT, CLONE_NEW_REPO_TO_PROJECT_START_EVENT, CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT, CLONE_PROJECT_CANCEL_EVENT, CLONE_PROJECT_FAILURE_EVENT, CLONE_PROJECT_START_EVENT, CLONE_PROJECT_SUCCESS_EVENT, Component, GitProvider, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem, getChoreoProject } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
-import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
 import { execSync } from 'child_process';
@@ -174,7 +173,7 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
 
 
 async function getProjectRepositories(orgHandle: string, projId: string, orgUuid: string) {
-    const components = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ orgHandle, projId, orgUuid }));
+    const components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ orgHandle, projId, orgUuid }));
     const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
     const repos = components.map((cmp) => cmp.repository);
 
@@ -344,5 +343,3 @@ export const cloneComponentCmd = async (component: Component) => {
     }
 
 };
-
-

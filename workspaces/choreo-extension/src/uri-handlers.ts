@@ -12,7 +12,6 @@
  */
 
 import { ProviderResult, Uri, commands, window } from "vscode";
-import { githubAppClient } from "./auth/auth";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { STATUS_LOGGED_IN, choreoProjectOverview, choreoProjectOverviewCloseCmdId, choreoSignInCmdId, choreoSignOutCmdId, refreshProjectsTreeViewCmdId } from "./constants";
@@ -46,18 +45,18 @@ export function activateURIHandlers() {
                 const installationId = urlParams.get("installationId");
                 if (authCode) {
                     getLogger().debug(`Github exchanging code for token`);
-                    executeWithTaskRetryPrompt(() => githubAppClient.obatainAccessToken(authCode)).catch((err) => {
+                    executeWithTaskRetryPrompt(() => ext.clients.githubAppClient.obatainAccessToken(authCode)).catch((err) => {
                         getLogger().error(`Github App Auth Failed: ${err.message}` + (err?.cause ? "\nCause: " + err.cause.message : ""));
                         window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
                     });
                 } else if (installationId) {
                     getLogger().debug(`Github App installation id: ${installationId}`);
-                    githubAppClient.fireGHAppAuthCallback({
+                    ext.clients.githubAppClient.fireGHAppAuthCallback({
                         status: "installed",
                         installationId,
                     });
                 } else {
-                    githubAppClient.fireGHAppAuthCallback({
+                    ext.clients.githubAppClient.fireGHAppAuthCallback({
                         status: "error",
                     });
                     window.showErrorMessage(`Choreo Github Auth Failed`);

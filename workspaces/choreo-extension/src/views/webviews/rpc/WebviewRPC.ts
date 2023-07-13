@@ -70,7 +70,6 @@ import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
 
 import { ext } from "../../../extensionVariables";
-import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject, askProjectDirPath } from "../../../cmds/clone";
@@ -95,7 +94,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(GetAllOrgsRequest, async () => {
         const loginSuccess = await ext.api.waitForLogin();
         if (loginSuccess) {
-            const organizations = await executeWithTaskRetryPrompt(() => orgClient.getOrganizations());
+            const organizations = await executeWithTaskRetryPrompt(() => ext.clients.orgClient.getOrganizations());
             return organizations;
         }
     });
@@ -396,10 +395,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     // Register RPC handlers for Choreo project client
-    registerChoreoProjectRPCHandlers(messenger, projectClient);
+    registerChoreoProjectRPCHandlers(messenger, ext.clients.projectClient);
 
     // Register RPC handlers for Choreo Github app client
-    registerChoreoGithubRPCHandlers(messenger, githubAppClient);
+    registerChoreoGithubRPCHandlers(messenger, ext.clients.githubAppClient);
 
     // Register RPC handlers for the Choreo Project Manager
     registerChoreoProjectManagerRPCHandlers(messenger, manager);

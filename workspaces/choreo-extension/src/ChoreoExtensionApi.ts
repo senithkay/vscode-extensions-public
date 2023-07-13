@@ -175,6 +175,17 @@ export class ChoreoExtensionApi {
         }
     }
 
+    public getOrgIdOfCurrentProject(): number|undefined {
+        const workspaceFile = workspace.workspaceFile;
+        if (workspaceFile && this.isChoreoProject()) {
+            const workspaceFilePath = workspaceFile.fsPath;
+            const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
+            const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
+            const orgId = workspaceConfig.metadata?.choreo?.orgId;
+            return orgId;
+        }
+    }
+
     public async getChoreoProject(): Promise<Project | undefined> {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile) {

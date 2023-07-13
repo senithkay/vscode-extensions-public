@@ -18,7 +18,6 @@ import { ChoreoSignInTreeItem } from "./ChoreoSignInTreeItem";
 import { ChoreoSignOutTreeItem } from "./ChoreoSignOutTreeItem";
 import { ChoreoOrgTreeItem } from "./ChoreoOrganizationTreeItem";
 import { ChoreoOrganizationsTreeItem } from "./ChoreoOrganizationsTreeItem";
-import { orgClient } from "../../auth/auth";
 import { getLogger } from "../../logger/logger";
 import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from "../../constants";
 import { executeWithTaskRetryPrompt } from "../../retry";
@@ -66,7 +65,7 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
          const loginSuccess = await ext.api.waitForLogin();
          if (loginSuccess) {
              try {
-                 const organizations = await executeWithTaskRetryPrompt(() => orgClient.getOrganizations());
+                 const organizations = await executeWithTaskRetryPrompt(() => ext.clients.orgClient.getOrganizations());
                  if (organizations && organizations.length > 0) {
                      const treeItems: ChoreoOrgTreeItem[] = organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.None));
                      return treeItems;

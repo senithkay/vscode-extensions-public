@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { choreoAuthConfig, componentManagementClient, getConsoleUrl, projectClient, subscriptionClient } from "../auth/auth";
+import { choreoEnvConfig, getConsoleUrl } from "../auth/auth";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType, GitRepo, GitProvider, Endpoint } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
@@ -100,7 +100,7 @@ export class ProjectRegistry {
     async getProjects(orgId: number): Promise<Project[]> {
         if (!this._dataProjects.has(orgId) && ext.api.status === "LoggedIn") {
             try {
-                const projects: Project[] = await executeWithTaskRetryPrompt(() => projectClient.getProjects({ orgId: orgId }));
+                const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId: orgId }));
                 this._dataProjects.set(orgId, projects);
                 return projects;
             } catch (error: any) {
@@ -117,7 +117,7 @@ export class ProjectRegistry {
     }
 
     async checkProjectDeleted(projectId: string, orgId: number): Promise<boolean> {
-        const projects: Project[] = await executeWithTaskRetryPrompt(() => projectClient.getProjects({ orgId }));
+        const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId }));
         const project = projects.find((project: Project) => project.id === projectId);
 
         if (project === undefined) {
@@ -243,7 +243,7 @@ export class ProjectRegistry {
 
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
-            let components = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
+            let components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
             components = this._addLocalComponents(projectId, components);
             components = await Promise.all(
                 components.map(async (component) => {
@@ -276,7 +276,8 @@ export class ProjectRegistry {
 
     async getDeletedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
         const projectLocation = this.getProjectLocation(projectId);
-        const dataComponents = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
+        const dataComponents = await executeWithTaskRetryPrompt(() => ext.clients.projectClient
+                    .getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
         let deletedComponents: PushedComponent[] = [];
 
         if (projectLocation !== undefined) {
@@ -342,7 +343,7 @@ export class ProjectRegistry {
         try {
             const selectedVersion = component.apiVersions?.find(item => item.latest);
             if (selectedVersion) {
-                const buildStatus = await projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id });
+                const buildStatus = await ext.clients.projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id });
                 return buildStatus;
             }
         } catch {
@@ -354,7 +355,7 @@ export class ProjectRegistry {
         try {
             let envData = this._projectEnvs.get(component.projectId);
             if (!envData) {
-                envData = await projectClient.getProjectEnv({ orgUuid, projId: component.projectId });
+                envData = await ext.clients.projectClient.getProjectEnv({ orgUuid, projId: component.projectId });
                 if (envData) {
                     this._projectEnvs.set(component.projectId, envData);
                 }
@@ -362,7 +363,7 @@ export class ProjectRegistry {
             const devEnv = envData?.find((env: Environment) => env.name === 'Development');
             const selectedVersion = component.apiVersions?.find(item => item.latest);
             if (selectedVersion && devEnv) {
-                const deploymentDetails = await projectClient.getComponentDeploymentStatus({
+                const deploymentDetails = await ext.clients.projectClient.getComponentDeploymentStatus({
                     component,
                     envId: devEnv?.id,
                     orgHandle,
@@ -386,7 +387,7 @@ export class ProjectRegistry {
             }, async () => {
                 let successMsg = "The component has been deleted successfully.";
                 if (!component?.local && component.id) {
-                    await projectClient.deleteComponent({ component, orgHandler, projectId });
+                    await ext.clients.projectClient.deleteComponent({ component, orgHandler, projectId });
                 }
 
                 const projectLocation = this.getProjectLocation(projectId);
@@ -475,7 +476,7 @@ export class ProjectRegistry {
 
     async getComponentCount(orgId: number): Promise<ComponentCount> {
         try {
-            return componentManagementClient.getComponentCount(orgId);
+            return ext.clients.componentManagementClient.getComponentCount(orgId);
         } catch (error: any) {
             getLogger().error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             throw new Error("Failed to fetch the component count. " + error?.message);
@@ -484,7 +485,7 @@ export class ProjectRegistry {
 
     async hasChoreoSubscription(orgId: string): Promise<boolean> {
         try {
-            const res = await subscriptionClient.getSubscriptions(orgId);
+            const res = await ext.clients.subscriptionClient.getSubscriptions(orgId);
             const hasSubscription = res?.list?.some(item => item.subscriptionType === 'choreo-subscription');
             return hasSubscription;
         } catch (error: any) {
@@ -494,15 +495,15 @@ export class ProjectRegistry {
     }
 
     async getDiagramModel(projectId: string, orgHandle: string): Promise<Component[]> {
-        return executeWithTaskRetryPrompt(() => projectClient.getDiagramModel({ projId: projectId, orgHandle: orgHandle }));
+        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getDiagramModel({ projId: projectId, orgHandle: orgHandle }));
     }
 
     async getPerformanceForecast(data: string): Promise<AxiosResponse> {
-        return executeWithTaskRetryPrompt(() => projectClient.getPerformanceForecastData(data));
+        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getPerformanceForecastData(data));
     }
 
     async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
-        return projectClient.getSwaggerExamples(spec)
+        return ext.clients.projectClient.getSwaggerExamples(spec)
             .then((result: any) => {
                 return result;
             }).catch((error: any) => {
@@ -669,7 +670,7 @@ export class ProjectRegistry {
             repositoryBranch: branchApp,
             bitbucketCredentialId: bitbucketCredentialId
         };
-        await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
+        await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createComponent(componentRequest));
     }
 
     private async _createByoComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
@@ -690,13 +691,13 @@ export class ProjectRegistry {
         };
         if(componentMetadata.displayType.toString() === ComponentDisplayType.ByocWebAppDockerLess && componentMetadata.byocWebAppsConfig){
             componentRequest.byocWebAppsConfig = componentMetadata.byocWebAppsConfig;
-            await executeWithTaskRetryPrompt(() => projectClient.createWebAppByocComponent(componentRequest));
+            await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createWebAppByocComponent(componentRequest));
         } else if (componentMetadata.byocConfig) {
             componentRequest.byocConfig = componentMetadata.byocConfig;
             if (componentMetadata.port) {
                 componentRequest.port = componentMetadata.port;
             }
-            await executeWithTaskRetryPrompt(() => projectClient.createByocComponent(componentRequest));
+            await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createByocComponent(componentRequest));
         }
     }
 
@@ -785,7 +786,7 @@ export class ProjectRegistry {
     }
 
     public openBillingPortal(orgId: string): void {
-        const billingLink = `${choreoAuthConfig.getBillingUrl()}/cloud/choreo/upgrade?orgId=${orgId}`;
+        const billingLink = `${choreoEnvConfig.getBillingUrl()}/cloud/choreo/upgrade?orgId=${orgId}`;
         vscode.commands.executeCommand('vscode.open', billingLink);
     }
 

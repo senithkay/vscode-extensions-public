@@ -11,16 +11,15 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoUserManagementClient } from "@wso2-enterprise/choreo-client";
+import { AccessToken, ChoreoAuthClient, ChoreoTokenType, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoUserManagementClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
-import { CHOREO_AUTH_CONFIG_DEV, CHOREO_AUTH_CONFIG_STAGE, ChoreoAuthConfig, ChoreoAuthConfigParams, DEFAULT_CHOREO_AUTH_CONFIG } from "./config";
+import { CHOREO_ENV_CONFIG_DEV, CHOREO_ENV_CONFIG_STAGE, ChoreoEnvConfig, IChoreoEnvConfig, DEFAULT_CHOREO_ENV_CONFIG } from "./config";
 import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
 import { Organization, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT } from '@wso2-enterprise/choreo-core';
 import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from '../constants';
-import { showChoreoProjectOverview } from '../extension';
 import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
@@ -33,73 +32,92 @@ const SESSION_EXPIRED = "The session has expired, please login again!";
 
 export const choreoAIConfig = new ChoreoAIConfig();
 
-export const tokenStore = new KeyChainTokenStorage();
-
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
+const choreoEnv = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
 
-let authConfig: ChoreoAuthConfigParams;
+let pickedEnvConfig: IChoreoEnvConfig;
 
-switch (ChoreoEnvironment) {
+switch (choreoEnv) {
     case 'prod':
-        authConfig = DEFAULT_CHOREO_AUTH_CONFIG;
+        pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
         break;
     case 'stage':
-        authConfig = CHOREO_AUTH_CONFIG_STAGE;
+        pickedEnvConfig = CHOREO_ENV_CONFIG_STAGE;
         break;
     case 'dev':
-        authConfig = CHOREO_AUTH_CONFIG_DEV;
+        pickedEnvConfig = CHOREO_ENV_CONFIG_DEV;
         break;
     default:
-        authConfig = DEFAULT_CHOREO_AUTH_CONFIG;
+        pickedEnvConfig = DEFAULT_CHOREO_ENV_CONFIG;
 }
 
-export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig(authConfig);
+export const choreoEnvConfig: ChoreoEnvConfig = new ChoreoEnvConfig(pickedEnvConfig);
 
-export const readonlyTokenStore: IReadOnlyTokenStorage = {
-    getToken: async (key: ChoreoTokenType) => {
-        getLogger().debug("Getting token from keychain: " + key);
-        return await getChoreoToken(key);
-    }
-};
+export async function activateClients(): Promise<void> {
 
-export const authClient = new ChoreoAuthClient({
-    loginUrl: choreoAuthConfig.getLoginUrl(),
-    redirectUrl: choreoAuthConfig.getRedirectUri(),
-    signUpUrl: choreoAuthConfig.getSignUpUri(),
-    apimTokenUrl: choreoAuthConfig.getApimTokenUri(),
-    clientId: choreoAuthConfig.getClientId(),
-    apimClientId: choreoAuthConfig.getApimClientId(),
-    vscodeClientId: choreoAuthConfig.getVscodeClientId(),
-    tokenUrl: choreoAuthConfig.getTokenUri(),
-    apimScopes: choreoAuthConfig.getApimEnvScopes()
-});
+    const readonlyTokenStore: IReadOnlyTokenStorage = {
+        getToken: async (key: ChoreoTokenType) => {
+            getLogger().debug("Getting token from keychain: " + key);
+            return await getChoreoToken(key);
+        },
+        getTokenForCurrentOrg: async () => {
+            const orgId = ext.api.getOrgIdOfCurrentProject();
+            const selectedOrgId = orgId || ext.api.userInfo?.organizations?.[0]?.id;
+            if (selectedOrgId) {
+                return await getChoreoToken(`choreo.vscode.token.org.${selectedOrgId}`);
+            }
+            return undefined;
+        }
+    };
 
-export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getOrgsAPI());
+    const authClient = new ChoreoAuthClient({
+        loginUrl: choreoEnvConfig.getLoginUrl(),
+        redirectUrl: choreoEnvConfig.getRedirectUri(),
+        signUpUrl: choreoEnvConfig.getSignUpUri(),
+        apimTokenUrl: choreoEnvConfig.getApimTokenUri(),
+        clientId: choreoEnvConfig.getClientId(),
+        apimClientId: choreoEnvConfig.getApimClientId(),
+        vscodeClientId: choreoEnvConfig.getVscodeClientId(),
+        tokenUrl: choreoEnvConfig.getTokenUri(),
+        apimScopes: choreoEnvConfig.getApimEnvScopes()
+    });
 
-export const userManagementClient = new ChoreoUserManagementClient(readonlyTokenStore, choreoAuthConfig.getUserManagementUrl());
+    const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoEnvConfig.getOrgsAPI());
 
-export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(),
-    choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
+    const userManagementClient = new ChoreoUserManagementClient(readonlyTokenStore, choreoEnvConfig.getUserManagementUrl());
 
-export const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(), choreoAuthConfig.getGHAppConfig());
+    const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI(),
+        choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
 
-export const subscriptionClient = new ChoreoSubscriptionClient(readonlyTokenStore, `${choreoAuthConfig.getBillingUrl()}/api`);
+    const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI(), choreoEnvConfig.getGHAppConfig());
 
-export const componentManagementClient = new ComponentManagementClient(readonlyTokenStore, choreoAuthConfig.getComponentManagementUrl());
+    const subscriptionClient = new ChoreoSubscriptionClient(readonlyTokenStore, `${choreoEnvConfig.getBillingUrl()}/api`);
+
+    const componentManagementClient = new ComponentManagementClient(readonlyTokenStore, choreoEnvConfig.getComponentManagementUrl());
+
+    ext.clients = {
+        authClient,
+        orgClient,
+        userManagementClient,
+        projectClient,
+        githubAppClient,
+        subscriptionClient,
+        componentManagementClient
+    };
+}
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
         vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`)
     );
-    const oauthURL = authClient.getAuthURL(callbackUri.toString());
+    const oauthURL = ext.clients.authClient.getAuthURL(callbackUri.toString());
     getLogger().debug("OAuth URL: " + oauthURL);
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
 }
 
 export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
     await lock.acquire();
-    const currentChoreoToken = await tokenStore.getToken("choreo.token");
+    const currentChoreoToken = await ext.tokenStorage.getToken("choreo.token");
     if (currentChoreoToken?.accessToken && currentChoreoToken.expirationTime
         && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
         getLogger().debug("Found Choreo token in keychain.");
@@ -108,11 +126,13 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
             getLogger().debug("Choreo token expired. Exchanging refresh token.");
             try {
                 await exchangeRefreshToken(currentChoreoToken.refreshToken);
-                const newChoreoToken = await tokenStore.getToken("choreo.token");
+                const newChoreoToken = await ext.tokenStorage.getToken("choreo.token");
                 if (newChoreoToken?.accessToken) {
                     if (ext.api.selectedOrg) {
                         getLogger().debug("Exchanged refresh token.");
-                        await exchangeVSCodeToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+                        await exchangeVSCodeToken(newChoreoToken?.accessToken,
+                                ext.api.selectedOrg?.handle,
+                                ext.api.selectedOrg?.id);
                     } else {
                         getLogger().error("Exchanged refresh token. No selected org found.");
                     }
@@ -129,7 +149,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
         getLogger().warn("Choreo token not found in keychain.");
     }
     lock.release();
-    return tokenStore.getToken(tokenType);
+    return ext.tokenStorage.getToken(tokenType);
 }
 
 export async function exchangeAuthToken(authCode: string) {
@@ -141,10 +161,10 @@ export async function exchangeAuthToken(authCode: string) {
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
         try {
             var currentTime = Date.now();
-            const response = await authClient.exchangeAuthCode(authCode);
+            const response = await ext.clients.authClient.exchangeAuthCode(authCode);
             getLogger().info("auth token exchange time: " + (Date.now() - currentTime));
 
-            await tokenStore.setToken("choreo.token", response);
+            await ext.tokenStorage.setToken("choreo.token", response);
             getLogger().debug("Successfully exchanged auth code to token.");
             await signin();
             vscode.window.showInformationMessage("Successfully signed in to Choreo.");
@@ -158,16 +178,16 @@ export async function exchangeAuthToken(authCode: string) {
     }
 }
 
-export async function exchangeVSCodeToken(apimToken: string, orgHandle: string) {
+export async function exchangeVSCodeToken(apimToken: string, orgHandle: string, orgId: number) {
     getLogger().debug("Exchanging apim token to vscode token.");
     if (!apimToken) {
         vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + APIM_TOKEN_ERROR);
         return;
     }
     try {
-        const response = await authClient.exchangeVSCodeToken(apimToken, orgHandle);
+        const response = await ext.clients.authClient.exchangeVSCodeToken(apimToken, orgHandle);
         getLogger().debug("Successfully exchanged apim token to vscode token.");
-        await tokenStore.setToken("choreo.vscode.token", response);
+        await ext.tokenStorage.setToken(`choreo.vscode.token.org.${orgId}`, response);
     } catch (error: any) {
         getLogger().error("Error while exchanging the vscode token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
         vscode.window.showErrorMessage(error.message);
@@ -182,10 +202,10 @@ export async function exchangeRefreshToken(refreshToken: string) {
         return;
     }
     try {
-        const response = await authClient.exchangeRefreshToken(refreshToken);
+        const response = await ext.clients.authClient.exchangeRefreshToken(refreshToken);
         getLogger().debug("Successfully exchanged refresh token to access token.");
-        await tokenStore.setToken("choreo.token", response);
-        await tokenStore.setToken("choreo.token", response);
+        await ext.tokenStorage.setToken("choreo.token", response);
+        await ext.tokenStorage.setToken("choreo.token", response);
     } catch (error: any) {
         getLogger().error("Error while exchanging the refresh token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
         throw new Error(SESSION_EXPIRED);
@@ -193,7 +213,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
 }
 
 export async function chooseUserOrg(isExistingSession?: boolean): Promise<Organization|undefined> {
-    const choreoTokenInfo = await tokenStore.getToken("choreo.token");
+    const choreoTokenInfo = await ext.tokenStorage.getToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         getLogger().debug("Getting the org list of current user.");
@@ -203,12 +223,12 @@ export async function chooseUserOrg(isExistingSession?: boolean): Promise<Organi
             if (!isExistingSession) {
                 getLogger().debug("Validating the user.");
                 // If its a fresh login, we need to get the user info to get the org list.
-                const userInfo = await userManagementClient.validateUser();
+                const userInfo = await ext.clients.userManagementClient.validateUser();
                 ext.api.userInfo = userInfo;
                 selectedOrg = await getDefaultSelectedOrg(userInfo?.organizations);
             } else {
                 getLogger().debug("Getting the org list.");
-                const orgs = await orgClient.getOrganizations();
+                const orgs = await ext.clients.orgClient.getOrganizations();
                 if (ext.api.userInfo) {
                     ext.api.userInfo.organizations = orgs;
                 }
@@ -237,7 +257,7 @@ export async function chooseUserOrg(isExistingSession?: boolean): Promise<Organi
 
 
 export async function promptToOpenSignupPage() {
-    const signUpURL = authClient.getSignUpURL();
+    const signUpURL = ext.clients.authClient.getSignUpURL();
     await vscode.window.showInformationMessage("Please complete signup in the Choreo Console", "Sign Up").then((selection) => {
         if (selection === "Sign Up") {
             return vscode.env.openExternal(vscode.Uri.parse(signUpURL));
@@ -249,6 +269,18 @@ export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
     if (userOrgs.length === 0) {
         throw new Error("No organizations found for the user.");
     }
+    // If workspace a choreo project, we need to select the org of the project.
+    const isChoreoProject = ext.api.isChoreoProject();
+    if (isChoreoProject) {
+        const choreoProject = await ext.api.getChoreoProject();
+        if (choreoProject?.orgId) {
+            const foundOrg = userOrgs.find(org => org.id.toString() === choreoProject.orgId);
+            if (foundOrg) {
+                return foundOrg;
+            }
+        }
+    }
+    // Else we need to select the org that was selected last time.
     const currentSelectedOrgId = ext.context.globalState.get(SELECTED_ORG_ID_KEY);
     if (currentSelectedOrgId) {
         const foundOrg = userOrgs.find(org => org.id === currentSelectedOrgId);
@@ -256,21 +288,22 @@ export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
             return foundOrg;
         }
     }
+    // Else we need to select the first org.
     return userOrgs[0];
 }
 
-export async function exchangeOrgAccessTokens( orgHandle: string) {
+export async function exchangeOrgAccessTokens( orgHandle: string, orgId: number) {
     getLogger().debug("Exchanging apim token for the org " + orgHandle);
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken) {
-        await exchangeVSCodeToken(choreoTokenInfo?.accessToken, orgHandle);
+        await exchangeVSCodeToken(choreoTokenInfo?.accessToken, orgHandle, orgId);
     } else {
         throw new Error("Choreo token not found in token store!");
     }
 }
 
 export function getConsoleUrl() {
-    return choreoAuthConfig.getConsoleUrl();
+    return choreoEnvConfig.getConsoleUrl();
 }
 
 export async function signin(isExistingSession?: boolean) {
@@ -282,7 +315,7 @@ export async function signin(isExistingSession?: boolean) {
     if (!selectedOrg) {
         throw new Error("No organizations found for the user.");
     }
-    await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
+    await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle, selectedOrg.id);
     ext.api.selectedOrg = selectedOrg;
     ext.api.status = STATUS_LOGGED_IN;
 }
@@ -290,8 +323,8 @@ export async function signin(isExistingSession?: boolean) {
 export async function signOut() {
     getLogger().info("Signing out.");
     getLogger().debug("Clear current Choreo session.");
-    await tokenStore.deleteToken("choreo.token");
-    await tokenStore.deleteToken("choreo.vscode.token");
+    await ext.tokenStorage.deleteToken('choreo.token');
+    await ext.tokenStorage.deleteToken(`choreo.vscode.token.org.${ext.api.selectedOrg?.id}`);
     ext.api.status = STATUS_LOGGED_OUT;
     ext.api.userInfo = undefined;
     ext.api.selectedOrg = undefined;

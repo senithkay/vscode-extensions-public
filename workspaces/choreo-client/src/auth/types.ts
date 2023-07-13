@@ -21,10 +21,14 @@ export interface AccessToken {
 export type ChoreoToken = "choreo.token";
 export type ChoreoVscodeToken = "choreo.vscode.token";
 
-export type ChoreoTokenType = ChoreoToken | ChoreoVscodeToken;
+// org scoped token type which starts with text "choreo.vscode.token-" and ends with org id (e.g. choreo.vscode.token.org.1234)
+export type ChoreoVscodeOrgScopedToken = `choreo.vscode.token.org.${string}`;
+
+export type ChoreoTokenType = ChoreoToken | ChoreoVscodeToken | ChoreoVscodeOrgScopedToken;
 
 export interface IReadOnlyTokenStorage {
     getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
+    getTokenForCurrentOrg(): Promise<AccessToken|undefined>;
 }
 export interface ITokenStorage extends IReadOnlyTokenStorage {
     setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void>;

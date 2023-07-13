@@ -116,7 +116,11 @@ export const deleteProject = async (projectName: string): Promise<void> => {
     const tokenManager = TokenManager.getInstance();
     const accessToken = tokenManager.getVscodeTokenResponse();
     if (accessToken) {
-        const projectClient = new ChoreoProjectClient({ getToken: async () => accessToken }, process.env.PROJECT_API!);
+        const projectClient = new ChoreoProjectClient(
+            { 
+                getToken: async () => accessToken,
+                getTokenForCurrentOrg : async () => accessToken
+            }, process.env.PROJECT_API!);
         const projects = await projectClient.getProjects({ orgId: Number(process.env.TEST_USER_ORG_ID!) });
         const projectObj = projects.find(item => item.name.includes(projectName));
         if (projectObj) {

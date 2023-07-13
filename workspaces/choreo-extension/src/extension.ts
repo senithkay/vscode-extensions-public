@@ -12,29 +12,16 @@
  */
 
 import * as vscode from 'vscode';
-import { ThemeIcon, window, extensions, ProgressLocation, workspace, ConfigurationChangeEvent, commands } from 'vscode';
+import { window, extensions, ProgressLocation, workspace, ConfigurationChangeEvent, commands } from 'vscode';
 
 import { activateAuth } from './auth';
-import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, githubAppClient } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
-import {
-	choreoAccountTreeId,
-	choreoProjectsTreeId,
-	cloneAllComponentsCmdId,
-	cloneRepoToCurrentProjectWorkspaceCmdId,
-	refreshProjectsTreeViewCmdId,
-	setSelectedOrgCmdId,
-	STATUS_LOGGED_IN
-} from './constants';
+
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { activateRegistry } from './registry/activate';
 import { activateStatusBarItem } from './status-bar';
 import { activateURIHandlers } from './uri-handlers';
-import { AccountTreeProvider } from './views/account/AccountTreeProvider';
-import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
-import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
 import { activateWizards } from './wizards/activate';
 
@@ -45,6 +32,8 @@ import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils
 import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, Organization, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
 import { activateActivityBarWebViews } from './views/webviews/ActivityBar/activate';
 import { activateCmds } from './cmds';
+import { TokenStorage } from './auth/TokenStorage';
+import { activateClients } from './auth/auth';
 
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
@@ -57,9 +46,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateTelemetry(context);
 	await initLogger(context);
   	getLogger().debug("Activating Choreo Extension");
+	ext.tokenStorage = new TokenStorage(context);
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
+	activateClients();
 	setupEvents();
 	activateWizards();
 	activateAuth();
@@ -70,7 +61,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateRegistry();
 	setupGithubAuthStatusCheck();
 	registerPreInitHandlers();
-	activateBallerinaExtension();
 	ext.isPluginStartup = false;
 	openChoreoActivity();
 	getLogger().debug("Choreo Extension activated");
@@ -79,7 +69,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 function setupGithubAuthStatusCheck() {
 	ext.api.onStatusChanged(() => {
-		githubAppClient.checkAuthStatus();
+		ext.clients.githubAppClient.checkAuthStatus();
 	});
 }
 
@@ -175,82 +165,6 @@ export function getGitExtensionAPI() {
 	getLogger().debug("Getting Git Extension API");
 	const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')!.exports;
 	return gitExtension.getAPI(1);
-}
-
-// TODO: remove following function
-function createProjectTreeView() {
-	getLogger().debug("Creating Choreo Projects Tree View");
-	const choreoResourcesProvider = new ProjectsTreeProvider();
-	ext.projectsTreeProvider = choreoResourcesProvider;
-
-	vscode.commands.registerCommand(refreshProjectsTreeViewCmdId, () => {
-		sendTelemetryEvent(REFRESH_PROJECTS_EVENT);
-		choreoResourcesProvider.refresh();
-	});
-
-	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
-	vscode.commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
-
-	const treeView = window.createTreeView(choreoProjectsTreeId, {
-		treeDataProvider: choreoResourcesProvider, showCollapseAll: true
-	});
-
-	ext.context.subscriptions.push(ext.api.onOrganizationChanged((newOrg) => {
-		treeView.description = newOrg?.name;
-	}));
-
-	return treeView;
-}
-
-// TODO: remove following
-function createAccountTreeView() {
-	getLogger().debug("Creating Choreo Account Tree View");
-	const accountTreeProvider = new AccountTreeProvider();
-	vscode.commands.registerCommand(setSelectedOrgCmdId, async (treeItem, org) => {
-
-		let organization: Organization | undefined;
-		if (treeItem && treeItem instanceof ChoreoOrgTreeItem) {
-			organization = treeItem.org;
-			treeItem.iconPath = new ThemeIcon('loading~spin');
-			accountTreeProvider.refresh(treeItem);
-		} else if (org) {
-			organization = org;
-		} 
-		
-		if(!organization) {
-			getLogger().error("Invalid arguments to switch organization.");
-			vscode.window.showErrorMessage("Invalid arguments to switch organization.");
-			return;
-		}
-
-		sendTelemetryEvent(SWITCH_ORGANIZATION_EVENT, { org: organization.name });
-		getLogger().debug("Setting selected organization to " + organization.name);
-
-		try {
-			getLogger().debug("Exchanging access tokens for the organization " + organization.name);
-			await exchangeOrgAccessTokens(organization.handle);
-		} catch (error: any) {
-			getLogger().error("Error while exchanging access tokens for the organization " + organization.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-			vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + organization.name + ". " + error.message);
-		}
-		ext.api.selectedOrg = organization;
-		accountTreeProvider.refresh();
-	});
-
-	const treeView = window.createTreeView(choreoAccountTreeId, {
-		treeDataProvider: accountTreeProvider, showCollapseAll: false
-	});
-
-	ext.context.subscriptions.push(ext.api.onStatusChanged((newStatus) => {
-		getLogger().debug("Updating Choreo Account Tree View description based on the new status " + newStatus);
-		let description = '';
-		if (newStatus === STATUS_LOGGED_IN && ext.api.userInfo) {
-			description = ext.api.userInfo?.displayName;
-		}
-		treeView.description = description;
-	}));
-
-	return treeView;
 }
 
 function setupEvents() {

@@ -22,7 +22,7 @@ export class ComponentManagementClient implements IComponentMgtClient {
     }
 
     private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
+        const token = await this._tokenStore.getTokenForCurrentOrg();
         if (!token) {
             throw new Error('User is not logged in');
         }
