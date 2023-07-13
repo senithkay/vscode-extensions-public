@@ -24,7 +24,7 @@ export interface IChoreoWebViewContext {
     isChoreoProject?: boolean;
     choreoProject?: Project;
     choreoUrl: string;
-
+    projectUnavailable: boolean;
 }
 
 const defaultContext: IChoreoWebViewContext = {
@@ -33,6 +33,7 @@ const defaultContext: IChoreoWebViewContext = {
     fetchingOrgInfo: true,
     userInfo: undefined,
     choreoUrl: "",
+    projectUnavailable: false
 };
 
 export const ChoreoWebViewContext = React.createContext(defaultContext);

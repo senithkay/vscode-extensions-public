@@ -13,7 +13,6 @@
 
 import React, { useContext } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ComponentsCard } from "./Components/ComponentsCard";
 import { ProjectActionsCard } from "./Components/ProjectActionsCard";
 import styled from "@emotion/styled";
 import { ProgressIndicator } from "./Components/ProgressIndicator";
@@ -30,15 +29,16 @@ const Container = styled.div`
 `;
 
 export const ProjectView = () => {
-    const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject, loginStatus, isChoreoProject, projectUnavailable } = useContext(ChoreoWebViewContext);
+    const validProject = choreoProject && !projectUnavailable;
+
     return (
         <Container>
             {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
             {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
-            {loginStatus == "LoggedIn" && choreoProject && <ProjectActionsCard />}
-            {loginStatus == "LoggedIn" && choreoProject && <ComponentsCard />}
-            {!isChoreoProject && loginStatus == "LoggedIn" && <EmptyWorkspaceMessage />}
-            {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
+            {loginStatus == "LoggedIn" && validProject && <ProjectActionsCard />}
+            {loginStatus == "LoggedIn" && (!isChoreoProject || projectUnavailable) && <EmptyWorkspaceMessage projectUnavailable={projectUnavailable} />}
+            {isChoreoProject && !choreoProject && !projectUnavailable && loginStatus === "LoggedIn" && <ProgressIndicator />}
         </Container>
     )
 };

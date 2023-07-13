@@ -33,7 +33,6 @@ import {
     showOpenDialogRequest,
     OpenDialogOptions,
     GetDeletedComponents,
-    GetEnrichedComponents,
     getPreferredProjectRepository,
     setPreferredProjectRepository,
     PushedComponent,
@@ -50,12 +49,17 @@ import {
     SendProjectTelemetryEventNotification,
     CreateNonBalLocalComponent,
     CreateNonBalLocalComponentFromExistingSource,
-    GetEnrichedComponent,
     GetLocalComponentDirMetaData,
     getLocalComponentDirMetaDataRequest,
     getConsoleUrl,
     ChoreoComponentCreationParams,
     GetUserInfoRequest,
+    GetComponentBuildStatus,
+    GetComponentDevDeployment,
+    ReadEndpointsYaml,
+    OpenBillingPortal,
+    RefreshComponentsNotification,
+    FireRefreshComponentList,
     OpenCellView,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
@@ -116,21 +120,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(CheckProjectDeleted, (projectId: string) => {
         if (ext.api.selectedOrg) {
-            ProjectRegistry.getInstance().checkProjectDeleted(projectId, ext.api.selectedOrg?.id)
-                .then(async (isAvailable: boolean) => {
-                    if (!isAvailable) {
-                        const answer = await vscode.window.showInformationMessage("This project is deleted in Choreo. Close the project?", "Yes", "No");
-                        if (answer === "Yes") {
-                            if ('dispose' in view) {
-                                view.dispose();
-                            }
-                            await ProjectRegistry.getInstance().refreshProjects();
-                            commands.executeCommand(refreshProjectsTreeViewCmdId);
-                        }
-                    }
-                });
+            return ProjectRegistry.getInstance().checkProjectDeleted(projectId, ext.api.selectedOrg?.id);
         }
-        return true;
+        return false;
     });
 
     messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
@@ -154,18 +146,15 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
     });
 
-    messenger.onRequest(GetEnrichedComponents, async (projectId: string) => {
+    messenger.onRequest(GetComponentDevDeployment, async (component: Component) => {
         if (ext.api.selectedOrg) {
-            return ProjectRegistry.getInstance().getEnrichedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
+            return ProjectRegistry.getInstance().getComponentDevDeployment(component, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
         }
-        return [];
+        return null;
     });
 
-    messenger.onRequest(GetEnrichedComponent, async (component: Component) => {
-        if (ext.api.selectedOrg) {
-            return ProjectRegistry.getInstance().getEnrichedComponent(component, true, component.projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
-        }
-        return component;
+    messenger.onRequest(GetComponentBuildStatus, async (component: Component) => {
+        return ProjectRegistry.getInstance().getComponentBuildStatus(component);
     });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
@@ -276,6 +265,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return ProjectRegistry.getInstance().isSubpathAvailable(params.projectID, params.orgName, params.repoName, params.subpath);
     });
 
+    messenger.onRequest(ReadEndpointsYaml, (params: SubpathAvailableRequest) => {
+        return ProjectRegistry.getInstance().readEndpointsYaml(params.projectID, params.orgName, params.repoName, params.subpath);
+    });
+
+    messenger.onRequest(OpenBillingPortal, (orgId: string) => {
+        return ProjectRegistry.getInstance().openBillingPortal(orgId);
+    });
+
     messenger.onRequest(getChoreoProject, () => {
         return ext.api.getChoreoProject();
     });
@@ -347,6 +344,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     ext.api.onChoreoProjectChanged((projectId) => {
         messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, projectId);
     });
+
+    ext.api.onRefreshComponentList(() => {
+        messenger.sendNotification(RefreshComponentsNotification, BROADCAST, null);
+    });
+    
     messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
         if (args.length >= 1) {
             const cmdArgs = args.length > 1 ? args.slice(1) : [];
@@ -371,6 +373,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             getLogger().error(error.message);
             return [];
         }
+    });
+
+    messenger.onRequest(FireRefreshComponentList, () => {
+        ext.api.refreshComponentList();
     });
 
     messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
@@ -415,7 +421,7 @@ export class WebViewPanelRpc {
 
     public registerPanel(view: WebviewPanel) {
         if (!this._panel) {
-            this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
+            this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents'] });
             this._panel = view;
         } else {
             throw new Error("Panel already registered");
@@ -439,7 +445,7 @@ export class WebViewViewRPC {
 
     public registerView(view: WebviewView) {
         if (!this._view) {
-            this._messenger.registerWebviewView(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
+            this._messenger.registerWebviewView(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents'] });
             this._view = view;
         } else {
             throw new Error("View already registered");

@@ -26,6 +26,7 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
     const [error, setError] = useState<Error | undefined>(undefined);
     const [isChoreoProject, setIsChoreoProject] = useState<boolean | undefined>(undefined);
     const [choreoProject, setChoreoProject] = useState<Project | undefined>(undefined);
+    const [projectUnavailable, setProjectUnavailable] = useState(false);
 
     useEffect(() => {
       const rpcInstance = ChoreoWebViewAPI.getInstance();
@@ -97,6 +98,22 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
         });
     }, []);
 
+    useEffect(() => {
+      const rpcInstance = ChoreoWebViewAPI.getInstance();
+      const checkIsProjectUnAvailable = async () => {
+        try {
+          const isProjectDeleted = await rpcInstance.checkProjectDeleted(choreoProject?.id);
+          setProjectUnavailable(isProjectDeleted);
+        } catch (err: any) {
+          setError(err);
+        }
+      }
+      if (choreoProject?.id) {
+        checkIsProjectUnAvailable();
+      }
+    }, [choreoProject]);
+
+
     return {
         loginStatusPending,
         loginStatus,
@@ -108,5 +125,6 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
         isChoreoProject,
         choreoProject,
         choreoUrl: props.choreoUrl,
+        projectUnavailable
     };
 }

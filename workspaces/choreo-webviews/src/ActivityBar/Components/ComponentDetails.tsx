@@ -13,34 +13,80 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Component } from "@wso2-enterprise/choreo-core";
-import { useEnrichComponent } from "../../hooks/use-enrich-component";
-import { ProgressIndicator } from "./ProgressIndicator";
+import { useComponentBuildStatus } from "../../hooks/use-component-build-status";
+import { useComponentDeploymentStatus } from "../../hooks/use-component-deployment-status";
 import { DeploymentStatusText } from "./DeploymentStatusText";
-import { RepositoryDetails } from "./RepositoryDetails";
-import { BuildStatus } from "./BuildStatus";
+import { ComponentDetailActions } from './ComponentDetailActions';
+import { BuildStatusText } from "./BuildStatusText";
+import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
 
 const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 10px;
 `;
 
+export const ComponentDetails = (props: {
+    component: Component,
+    handleSourceControlClick: () => void,
+    loading: boolean,
+}) => {
+    const { component, handleSourceControlClick, loading } = props;
+    const { buildData, isLoadingBuild } = useComponentBuildStatus(props.component);
+    const { devDeploymentData, isLoadingDeployment } = useComponentDeploymentStatus(props.component);
 
-export const ComponentDetails = (props: { component: Component}) => {
-    const { enrichedComponent, isLoadingComponent, isRefetchingComponent } = useEnrichComponent(props.component);
-
-    return (<Container>
-        {(isLoadingComponent || isRefetchingComponent) && <ProgressIndicator />}
-        {enrichedComponent && (
-            <>
-                <DeploymentStatusText enrichedComponent={enrichedComponent} />
-                <RepositoryDetails enrichedComponent={enrichedComponent} />
-                <BuildStatus enrichedComponent={enrichedComponent} />
-            </>
-        )}
-    </Container>)
+    return (
+        <Container>
+            <VSCodeDataGrid aria-label="Components">
+                <VSCodeDataGridRow>
+                    <VSCodeDataGridCell gridColumn="1">
+                        Version
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell gridColumn="2">
+                        {component.version}
+                    </VSCodeDataGridCell>
+                </VSCodeDataGridRow>
+                <VSCodeDataGridRow>
+                    <VSCodeDataGridCell gridColumn="1">
+                        Build
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell gridColumn="2">
+                        <BuildStatusText
+                            buildStatus={buildData}
+                            handler={props.component.handler}
+                            loading={isLoadingBuild}
+                            localComponent={props.component.local}
+                        />
+                    </VSCodeDataGridCell>
+                </VSCodeDataGridRow>
+                <VSCodeDataGridRow>
+                    <VSCodeDataGridCell gridColumn="1">
+                        Deployment
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell gridColumn="2">
+                        <DeploymentStatusText
+                            deployment={devDeploymentData}
+                            loading={isLoadingDeployment}
+                            localComponent={props.component.local}
+                        />
+                    </VSCodeDataGridCell>
+                </VSCodeDataGridRow>
+                <VSCodeDataGridRow>
+                    <VSCodeDataGridCell gridColumn="1">
+                        Action
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell gridColumn="2">
+                        <ComponentDetailActions
+                            component={component}
+                            handleSourceControlClick={handleSourceControlClick}
+                            loading={loading}
+                        />
+                    </VSCodeDataGridCell>
+                </VSCodeDataGridRow>
+            </VSCodeDataGrid>
+        </Container>
+    );
 };

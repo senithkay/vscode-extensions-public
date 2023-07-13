@@ -49,7 +49,7 @@ export interface WizardProps<T> {
     closeOnSave?: boolean;
     state: WizardState<T>;
     setState: React.Dispatch<React.SetStateAction<WizardState<T>>>;
-    loading: boolean;
+    loading?: boolean;
 }
 
 export type ValidationRule<T> = {

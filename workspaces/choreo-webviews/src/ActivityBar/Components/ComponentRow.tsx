@@ -10,104 +10,102 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback, useContext } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { Component } from "@wso2-enterprise/choreo-core";
 import { VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ComponentDetails } from "./ComponentDetails";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { RepositoryLink } from "./RepositoryLink"
-import { useSelectedOrg } from "../../hooks/use-selected-org";
+import { ComponentContextMenu } from "./ComponentContextMenu";
+import { useComponentDelete } from "../../hooks/use-component-delete";
 
 const Container = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `;
 
 // Header div will lay the items horizontally
 const Header = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 2px;
-    margin: 5px;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  margin: 5px;
+  align-items: center;
+  position: relative;
 `;
 // Body div will lay the items vertically
 const Body = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-left: 18px;
-    margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-left: 18px;
+  margin-bottom: 10px;
 `;
 
 const ComponentName = styled.span`
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
 `;
 
+const Flex = styled.div`
+  flex: 1;
+`;
 
-export const ComponentRow = (props: { component: Component }) => {
-    const { component } = props;
-    const { choreoUrl } = useContext(ChoreoWebViewContext);
-    const { selectedOrg } = useSelectedOrg();
+export const ComponentRow = (props: {
+    component: Component;
+    handleSourceControlClick: () => void;
+    expanded: boolean;
+    handleExpandClick: (componentName: string) => void;
+    loading?: boolean;
+}) => {
+    const { component, handleSourceControlClick, loading, expanded, handleExpandClick } = props;
+    const { deletingComponent, handleDeleteComponentClick } = useComponentDelete(component);
+    const actionRequired = component.hasDirtyLocalRepo || component.isRemoteOnly || component.local;
 
-    const [expanded, setExpanded] = React.useState(false);
-
-    const handleExpandClick = () => {
-        setExpanded(!expanded);
-    }
-
-    // component URL
-    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
-    const openComponentUrl = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
-    }, [componentBaseUrl]);
-
-    return (<Container>
-        <Header>
-            <VSCodeButton
-                appearance="icon"
-                onClick={handleExpandClick}
-                title={expanded ? "Collapse" : "Expand"}
-                id="expand-components-btn"
-            >
-                <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
-            </VSCodeButton>
-            <ComponentName>{props.component.displayName}</ComponentName>
-            {component.local && 
-                <VSCodeTag 
-                    title={"Only available locally"}
-                    style={{ marginLeft: "3px" }}
+    return (
+        <Container>
+            <Header>
+                <VSCodeButton
+                    appearance="icon"
+                    onClick={() => handleExpandClick(component.name)}
+                    title={expanded ? "Collapse" : "Expand"}
+                    id="expand-components-btn"
                 >
-                    Local
-                </VSCodeTag>}
-            {component.isRemoteOnly && 
-                <VSCodeTag 
-                    title={"Only available remotely"}
-                    style={{ marginLeft: "3px" }}
-                >
-                    Remote
-                </VSCodeTag>}
-            <VSCodeButton
-                appearance="icon"
-                onClick={openComponentUrl}
-                title={"Open in Choreo Console"}
-                id="open-in-console-btn"
-                style={{ marginLeft: "auto" }}
-                disabled={component?.local}
-            >
-                <Codicon name={"link-external"} />
-            </VSCodeButton>
-            <RepositoryLink repo={component?.repository} />
-        </Header>
-        {expanded && (
-            <Body>
-                <ComponentDetails component={props.component} />
-            </Body>
-        )}
-    </Container>)
+                    <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
+                </VSCodeButton>
+                <ComponentName>{props.component.displayName}</ComponentName>
+                {component.local && (
+                    <VSCodeTag title={"Only available locally"} style={{ marginLeft: "3px" }}>
+                        Local
+                    </VSCodeTag>
+                )}
+                {component.isRemoteOnly && (
+                    <VSCodeTag title={"Only available remotely"} style={{ marginLeft: "3px" }}>
+                        Remote
+                    </VSCodeTag>
+                )}
+                <Flex />
+                {actionRequired && (
+                    <VSCodeButton appearance="icon" disabled title="Action Required" style={{ cursor: "default" }}>
+                        <Codicon name="info" />
+                    </VSCodeButton>
+                )}
+                <ComponentContextMenu
+                    component={component}
+                    deletingComponent={deletingComponent}
+                    handleDeleteComponentClick={handleDeleteComponentClick}
+                />
+            </Header>
+            {expanded && (
+                <Body>
+                    <ComponentDetails
+                        loading={loading || deletingComponent}
+                        component={props.component}
+                        handleSourceControlClick={handleSourceControlClick}
+                    />
+                </Body>
+            )}
+        </Container>
+    );
 };

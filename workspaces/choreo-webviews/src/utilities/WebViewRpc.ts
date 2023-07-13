@@ -42,6 +42,7 @@ import {
     OpenCellView,
     UpdateProjectOverview,
     isSubpathAvailable,
+    ReadEndpointsYaml,
     SubpathAvailableRequest,
     getDiagramComponentModel,
     DeleteComponent,
@@ -49,7 +50,6 @@ import {
     PushedComponent,
     GetDeletedComponents,
     PushLocalComponentToChoreo,
-    GetEnrichedComponents,
     OpenDialogOptions,
     showOpenDialogRequest,
     getPreferredProjectRepository,
@@ -72,11 +72,18 @@ import {
     getLocalComponentDirMetaDataRequest,
     getLocalComponentDirMetaDataRes,
     CreateNonBalLocalComponentFromExistingSource,
-    GetEnrichedComponent,
     getConsoleUrl,
     GitRepo,
     UserInfo,
     GetUserInfoRequest,
+    GetComponentBuildStatus,
+    BuildStatus,
+    Deployment,
+    GetComponentDevDeployment,
+    OpenBillingPortal,
+    Endpoint,
+    RefreshComponentsNotification,
+    FireRefreshComponentList,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
 } from "@wso2-enterprise/choreo-core";
@@ -136,12 +143,12 @@ export class ChoreoWebViewAPI {
         this._messenger.sendRequest(RemoveDeletedComponents, HOST_EXTENSION, params);
     }
 
-    public async getEnrichedComponents(projectId: string): Promise<Component[]> {
-        return this._messenger.sendRequest(GetEnrichedComponents, HOST_EXTENSION, projectId);
+    public async getComponentDevDeployment(component: Component): Promise<Deployment> {
+        return this._messenger.sendRequest(GetComponentDevDeployment, HOST_EXTENSION, component);
     }
 
-    public async getEnrichedComponent(component: Component): Promise<Component> {
-        return this._messenger.sendRequest(GetEnrichedComponent, HOST_EXTENSION, component);
+    public async getComponentBuildStatus(component: Component): Promise<BuildStatus> {
+        return this._messenger.sendRequest(GetComponentBuildStatus, HOST_EXTENSION, component);
     }
 
     public async deleteComponent(params: {component: Component; projectId: string}): Promise<Component | null> {
@@ -208,6 +215,14 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(isSubpathAvailable, HOST_EXTENSION, params);
     }
 
+    public async readEndpointsYaml(params: SubpathAvailableRequest): Promise<Endpoint | undefined> {
+        return this._messenger.sendRequest(ReadEndpointsYaml, HOST_EXTENSION, params);
+    }
+
+    public async openBillingPortal(orgId: string): Promise<void> {
+        return this._messenger.sendRequest(OpenBillingPortal, HOST_EXTENSION, orgId);
+    }
+
     public async getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): Promise<getLocalComponentDirMetaDataRes> {
         return this._messenger.sendRequest(GetLocalComponentDirMetaData, HOST_EXTENSION, params);
     }
@@ -250,6 +265,10 @@ export class ChoreoWebViewAPI {
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
         this._messenger.onNotification(LoginStatusChangedNotification, callback);
+    }
+
+    public onRefreshComponents(callback: () => void) {
+        this._messenger.onNotification(RefreshComponentsNotification, callback);
     }
 
     public onSelectedOrgChanged(callback: (newOrg: Organization) => void) {
@@ -317,5 +336,9 @@ export class ChoreoWebViewAPI {
 
     public sendTelemetryException(params: SendTelemetryExceptionParams) {
         return this._messenger.sendNotification(SendTelemetryExceptionNotification, HOST_EXTENSION, params);
+    }
+
+    public async fireRefreshComponents(): Promise<void> {
+        return this._messenger.sendRequest(FireRefreshComponentList, HOST_EXTENSION, null);
     }
 }

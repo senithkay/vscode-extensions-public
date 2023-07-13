@@ -10,11 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import React, { useContext } from "react";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { ChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
+import { ProjectActionLink } from "../ProjectActionLink";
 
 export const CellViewButton = () => {
     
@@ -31,11 +31,9 @@ export const CellViewButton = () => {
     }
     
     return (
-        <VSCodeLink
+        <ProjectActionLink
             onClick={handleClick}
-        >
-            Cell View
-
-        </VSCodeLink>
+            label="Cell View"
+        />
     );
 }

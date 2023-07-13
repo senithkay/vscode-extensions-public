@@ -374,6 +374,7 @@ importers:
       '@types/byline': ^4.2.33
       '@types/chai': ^4.2.18
       '@types/glob': ^8.0.0
+      '@types/js-yaml': ^4.0.5
       '@types/lodash': ^4.14.189
       '@types/mocha': ^10.0.0
       '@types/node': ^18.11.19
@@ -407,6 +408,7 @@ importers:
       gql-query-builder: ^3.8.0
       graphql: ^16.6.0
       graphql-request: ~5.1.0
+      js-yaml: ^4.1.0
       jschardet: ^3.0.0
       jwt-decode: ^3.1.2
       lodash: ^4.17.11
@@ -446,6 +448,7 @@ importers:
       gql-query-builder: 3.8.0
       graphql: 16.6.0
       graphql-request: 5.1.0_graphql@16.6.0
+      js-yaml: 4.1.0
       jschardet: 3.0.0
       jwt-decode: 3.1.2
       lodash: 4.17.21
@@ -457,6 +460,7 @@ importers:
       '@istanbuljs/nyc-config-typescript': 1.0.2_nyc@15.1.0
       '@types/byline': 4.2.33
       '@types/glob': 8.1.0
+      '@types/js-yaml': 4.0.5
       '@types/mocha': 10.0.1
       '@types/node': 18.15.3
       '@types/sinon': 10.0.13
@@ -11718,6 +11722,10 @@ packages:
     dependencies:
       expect: 29.5.0
       pretty-format: 29.5.0
+
+  /@types/js-yaml/4.0.5:
+    resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
+    dev: true
 
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
