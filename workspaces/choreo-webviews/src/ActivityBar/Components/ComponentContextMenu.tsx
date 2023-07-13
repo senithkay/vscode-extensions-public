@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import styled from "@emotion/styled";
 import {
     Component,
@@ -18,7 +18,7 @@ import {
     OPEN_GITHUB_REPO_PAGE_EVENT,
 } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../../Codicon/Codicon";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
 import { ContextMenu, MenuItem } from "../../Commons/ContextMenu";
@@ -35,7 +35,7 @@ export const ComponentContextMenu = (props: {
 }) => {
     const { component, deletingComponent, handleDeleteComponentClick } = props;
     const { repository } = component;
-    const { choreoUrl } = useContext(ChoreoWebViewContext);
+    const { choreoUrl } = useChoreoWebViewContext();
     const { selectedOrg } = useSelectedOrg();
 
     const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;

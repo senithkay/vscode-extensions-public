@@ -11,8 +11,7 @@
  *  associated services.
  */
 import React from "react";
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
@@ -24,7 +23,7 @@ const Container = styled.div`
     gap: 5px;
 `;
 export const OrgSelector = (props: { onChange: (orgName: string) => void; }) => {
-    const { userOrgs, selectedOrg } = useContext(ChoreoWebViewContext);
+    const { userOrgs, selectedOrg } = useChoreoWebViewContext();
 
     return <Container>
         <AutoComplete

@@ -12,8 +12,7 @@
  */
 import styled from "@emotion/styled";
 import React from "react";
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ViewTitle } from "../Components/ViewTitle";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
@@ -38,7 +37,7 @@ const Body = styled.div`
 
 export const SelectedOrganization = () => {
 
-    const { selectedOrg } = useContext(ChoreoWebViewContext);
+    const { selectedOrg } = useChoreoWebViewContext();
     const [changeMode, setChangeMode] = React.useState(false);
 
     const toggleChangeOrg = () => {

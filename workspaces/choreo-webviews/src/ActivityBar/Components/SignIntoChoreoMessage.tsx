@@ -10,11 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ChoreoWebViewContext } from "./../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "./../../context/choreo-web-view-ctx";
 
 
 const Container = styled.div`
@@ -33,7 +33,7 @@ const WideVSCodeButton = styled(VSCodeButton)`
 
 export const SignInToChoreoMessage = () => {
 
-    const { loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
+    const { isChoreoProject } = useChoreoWebViewContext();
 
     const signInToChoreo = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.in");
@@ -43,7 +43,7 @@ export const SignInToChoreoMessage = () => {
         <Container>
             {isChoreoProject && <div>You have a Choreo project in current workspace.</div>}
             {!isChoreoProject && <div>You do not have a Choreo project in current workspace.</div>}
-            {loginStatus === "LoggedOut" && <div>Please sign in to enable Choreo Features. </div>}
+            <div>Please sign in to enable Choreo Features. </div>
             <WideVSCodeButton
                 appearance="primary"
                 onClick={signInToChoreo}

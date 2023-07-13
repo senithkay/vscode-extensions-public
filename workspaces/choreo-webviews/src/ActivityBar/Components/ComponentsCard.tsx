@@ -10,8 +10,8 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback, useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import React, { useCallback } from "react";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
 import {
     OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT,
@@ -51,7 +51,7 @@ const CodeIconWithMargin = styled(Codicon)`
 `;
 
 export const ComponentsCard = () => {
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useChoreoWebViewContext();
     const {
         components,
         componentLoadError,

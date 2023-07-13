@@ -11,7 +11,7 @@
  *  associated services.
  */
 import React, { useContext, createContext, useMemo, FC, useEffect } from "react";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { Component } from "@wso2-enterprise/choreo-core";
@@ -76,7 +76,7 @@ export const useChoreoComponentsContext = () => {
  */
 export const ChoreoComponentsContextProvider: FC = ({ children }) => {
     const queryClient = useQueryClient();
-    const { isChoreoProject, choreoProject } = useContext(ChoreoWebViewContext);
+    const { isChoreoProject, choreoProject } = useChoreoWebViewContext();
     const projectId = choreoProject?.id;
     const {
         data: components = [],
