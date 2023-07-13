@@ -12,10 +12,10 @@ import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
 import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } from "../core";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
-import { generateExistingValues, parseTomlToConfig } from "./utils";
+import { generateExistingValues, parseTomlToConfig, typeOfComment } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 
-const typeOfComment = 'Type of';
+const DEBUG_RUN_COMMAND_ID = 'workbench.action.debug.run';
 
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean): Promise<void> {
     let configFile: string = filePath;
@@ -112,7 +112,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
     }
 }
 
-function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, tomlContent?: string): void {
+export function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, tomlContent?: string, skipAnyOf?: boolean): void {
     const properties = configs.properties;
     const requiredKeys = configs.required || [];
 
@@ -124,7 +124,8 @@ function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?
                 findPropertyValues(property, newValues, obj, tomlContent);
             } else {
                 const valueExists = obj ? (propertyKey in obj || tomlContent.includes(propertyKey)) : false;
-                if (!valueExists) {
+                const anyOfValue = skipAnyOf && Constants.ANY_OF in property;
+                if ((anyOfValue && valueExists) || !valueExists) {
                     newValues.push({
                         name: propertyKey,
                         type: property.type,
@@ -137,7 +138,7 @@ function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?
     }
 }
 
-async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance: BallerinaExtension): Promise<BallerinaProject | undefined> {
+export async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance: BallerinaExtension): Promise<BallerinaProject | undefined> {
     let currentProject: BallerinaProject = {};
 
     if (window.activeTextEditor) {
@@ -208,7 +209,7 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
 
 function executeRunCommand(ballerinaExtInstance: BallerinaExtension): void {
     if (ballerinaExtInstance.enabledRunFast()) {
-        commands.executeCommand(PALETTE_COMMANDS.RUN_FAST);
+        commands.executeCommand(DEBUG_RUN_COMMAND_ID);
     } else {
         commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
     }
@@ -237,7 +238,7 @@ function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPat
     });
 }
 
-function getConfigValue(name: string, obj: Property, comment: { value: string }): string {
+export function getConfigValue(name: string, obj: Property, comment: { value: string }): string {
     let newConfigValue = '';
     switch (obj.type) {
         case ConfigTypes.BOOLEAN:
@@ -268,8 +269,8 @@ function getConfigValue(name: string, obj: Property, comment: { value: string })
                     newConfigValue = `${name} = ""\t`;
                 } else if (anyType.type === ConfigTypes.OBJECT && anyType.name.includes(Constants.HTTP)) {
                     comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}\n`;
-                    comment.value += `# For more information refer https://lib.ballerina.io/ballerina/http/\n`;
-                    newConfigValue = `[${name}]\t`;
+                    const moreInfo = `# For more information refer https://lib.ballerina.io/ballerina/http/\n`;
+                    newConfigValue = `${moreInfo}[${name}]\t`;
                 } else {
                     comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}`;
                     newConfigValue = `[${name}]\t`;

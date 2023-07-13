@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -30,32 +30,42 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectIcon } from "../../../assets/icons";
+import { SelectIcon, TickIcon } from "../../../assets/icons";
 import Chip from "../../ChoreoSystem/Chip/Chip";
 import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
+import ButtonContainer from "../../elements/ButtonContainer";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
-import { SchemaConstants } from "../../model";
+import {
+    TextFieldInput,
+    TextFieldInputProps,
+} from "../../elements/TextFieldInput";
+import { ConfigValue, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
 import { getConfigProperties, getRecordName } from "../../utils";
-import ObjectType, { ObjectTypeProps } from "../ObjectType";
+import SimpleType, { SimpleTypeProps } from "../SimpleType";
 
 import { ArrayTypeProps } from ".";
+
+/**
+ * The leaf level configurable type representing boolean values.
+ */
 export interface NestedArrayProps extends ArrayTypeProps {
-    values?: any[];
     setArrayElement?: (id: string, nestedArrayValue: any) => void;
 }
 
 const NestedArray = (props: NestedArrayProps): ReactElement => {
     const classes = useStyles();
     const returnElement: ReactElement[] = [];
-    const [arrayValues, setArrayValues] = useState<ConfigElementProps[]>([]);
+    const [arrayValues, setArrayValues] = useState<ConfigValue[]>(
+        getInitialValues(props.value, props.id),
+    );
     const [counter, setCounter] = useState(arrayValues.length + 1);
     const { isLowCode, isInsideArray, isFeaturePreview, connectionConfig, isRequired } = props;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
@@ -67,23 +77,34 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
     const connectionId = open ? "simple-popover" : undefined;
     const [openElement, setOpenElement] = React.useState(true);
     const [openPopover, setOpenPopover] = React.useState(true);
-    const [selectedIndex, setSelectedIndex] = React.useState("");
 
+    const [selectedIndex, setSelectedIndex] = React.useState("");
     const [selectedValue, setSelectedValue] = useState(props.value);
+    const [selectedValue2, setSelectedValue2] = useState(props.value);
     const [arrayValue, setArrayValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
-    const [isOpenCollapse, setIsOpenCollapse] = useState<number | null>(null);
+    const [openConnection, setOpenConnection] = React.useState(true);
+    const handleClickOpenConnection = () => {
+        setOpenConnection(!openConnection);
+    };
 
-    const handleOpen = (clickedIndex: number) => {
-        if (isOpenCollapse === clickedIndex) {
-            setIsOpenCollapse(null);
-        } else {
-            setIsOpenCollapse(clickedIndex);
-        }
+    const element: ConfigElementProps = {
+        arrayType: props.arrayType,
+        description: props.description,
+        id: props.id,
+        isRequired: props.isRequired,
+        name: props.name,
+        schema: props.schema,
+        type: props.type,
+        value: props.value,
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
     };
 
     const handleValueAdd = () => {
@@ -91,14 +112,10 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
         setAnchorEl(null);
     };
 
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        if (!!connectionConfig || connectionConfig.length) {
+        if (connectionConfig !==  undefined || connectionConfig.length !== 0) {
             setIsOpenCollapse(0);
             setConnectionAnchorEl(connectionEvent.currentTarget);
         } else {
@@ -110,157 +127,108 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
         setConnectionAnchorEl(null);
     };
 
-    const elementSchema: object[] = props.schema[SchemaConstants.ITEMS];
-
-    const element: ConfigElementProps = {
-        arrayType: props.arrayType,
-        description: props.description,
-        id: props.id,
-        isFeaturePreview: props.isFeaturePreview,
-        isInsideArray: true,
-        isLowCode: props.isLowCode,
-        isRequired: props.isRequired,
-        name: props.name,
-        type: props.type,
-    };
-
-    useEffect(() => {
-        props.setArrayElement(props.id, element);
-        if (props.value) {
-            const initialValue: ConfigElementProps[] = [];
-            let newCounter = counter;
-            let configProperties: ConfigElementProps[];
-            if (elementSchema[SchemaConstants.PROPERTIES]) {
-                configProperties = getConfigProperties(
-                    elementSchema,
-                    props.connectionConfig,
-                    props.isFeaturePreview,
-                    props.isLowCode,
-                    props.id + "-" + newCounter,
-                ).properties;
-            }
-            Object.keys(props.value).forEach((key) => {
-                const nestedArrayProps: NestedArrayProps = {
-                    description: props.schema[SchemaConstants.DESCRIPTION],
-                    id: props.id + "-" + newCounter,
-                    isFeaturePreview: props.isFeaturePreview,
-                    isInsideArray: true,
-                    isLowCode: props.isLowCode,
-                    isRequired: true,
-                    name: "",
-                    properties: configProperties,
-                    schema: elementSchema,
-                    type: props.arrayType,
-                    value: props.value[key],
-                };
-                newCounter = newCounter + 1;
-                initialValue.push(nestedArrayProps);
-            });
-            setCounter(newCounter);
-            setArrayValues(initialValue);
-        }
-    }, []);
-
     const addArrayElememt = () => {
-        let propertiesValue: ConfigElementProps[];
-        if (elementSchema[SchemaConstants.PROPERTIES]) {
-            propertiesValue = getConfigProperties(
-                elementSchema,
-                props.connectionConfig,
-                props.isFeaturePreview,
-                props.isLowCode,
-                props.id + "-" + counter,
-            ).properties;
-        }
-        const nestedArrayProps: NestedArrayProps = {
-            description: props.schema[SchemaConstants.DESCRIPTION],
-            id: props.id + "-" + counter,
-            isFeaturePreview: props.isFeaturePreview,
-            isLowCode: props.isLowCode,
-            isRequired: true,
-            name: "",
-            properties: propertiesValue,
-            schema: elementSchema,
-            type: props.arrayType,
+        const configValue: ConfigValue = {
+            key: props.id + "-" + counter,
+            value: undefined,
         };
         setCounter((prevState) => prevState + 1);
-        setArrayValues((prevState) => [...prevState, nestedArrayProps]);
+        setArrayValues((prevState) => [...prevState, configValue]);
     };
 
     const removeArrayElement = (id: string) => {
-        let newArrayValues = [...arrayValues];
-        newArrayValues = newArrayValues.filter((arrayElement) => {
-            return arrayElement.id !== id;
+        let newNestedArray = [...arrayValues];
+        newNestedArray = newNestedArray.filter((arrayElement) => {
+            return arrayElement.key !== id;
         });
-        setArrayValues(newArrayValues);
+        setArrayValues(newNestedArray);
     };
 
     const handleValueChange = (id: string, value: any) => {
         const newArrayValues = [...arrayValues];
         const existingMap = newArrayValues.findIndex(
-            (property) => property.id === id,
+            (property) => property.key === id,
         );
         if (existingMap > -1) {
-            newArrayValues[existingMap] = value;
+            newArrayValues[existingMap].value = value.value;
         }
         setArrayValues(newArrayValues);
     };
 
     useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
+        setSelectedValue2(selectedValue2);
+    }, [selectedValue2]);
+
+    useEffect(() => {
+        if (arrayValue.length !== 0) {
+            let fullValue = "[ ";
+            for (const key in arrayValue) {
+                if (arrayValue.hasOwnProperty(key)) {
+                    key === "0"
+                        ? (fullValue = fullValue + arrayValue[key])
+                        : (fullValue = fullValue + ", " + arrayValue[key]);
+                }
             }
+            fullValue = fullValue + " ]";
+            setSelectedValue2(fullValue);
+        } else {
+            setSelectedValue2("");
         }
-        fullValue = fullValue + " ]";
-        setSelectedValue(fullValue);
     }, [selectedValue]);
 
     useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
-            }
-        }
-        fullValue = fullValue + " ]";
-        setSelectedValue(fullValue);
-    }, [props.value]);
-
-    useEffect(() => {
-        const newArrayValues: ConfigElementProps[] = [];
+        const values: any[] = [];
         arrayValues.forEach((entry) => {
-            if (entry.properties !== undefined && entry.properties.length > 0) {
-                entry.value = undefined;
-            }
-            newArrayValues.push(entry);
+            values.push(entry.value);
         });
-        element.value = newArrayValues;
-        setArrayValue(newArrayValues);
+        element.value = values;
+        setArrayValue(values);
         props.setArrayElement(props.id, element);
     }, [arrayValues]);
 
-    arrayValues.forEach((arrayElement) => {
-        const objectTypeProps: ObjectTypeProps = {
-            ...arrayElement,
-            setObjectConfig: handleValueChange,
-        };
+    useEffect(() => {
+        if (arrayValue.length !== 0) {
+            let fullValue = "[ ";
+            for (const key in arrayValue) {
+                if (arrayValue.hasOwnProperty(key)) {
+                    key === "0"
+                        ? (fullValue = fullValue + arrayValue[key])
+                        : (fullValue = fullValue + ", " + arrayValue[key]);
+                }
+            }
+            fullValue = fullValue + " ]";
+            setSelectedValue(fullValue);
+        } else {
+            setSelectedValue("");
+        }
+    }, [props.value]);
 
+    arrayValues.forEach((arrayElement) => {
+        const simpleTypeProps: SimpleTypeProps = {
+            ...props,
+            isNestedArray: props.isNestedArray,
+            id: arrayElement.key,
+            isInsideArray: true,
+            setSimpleConfig: handleValueChange,
+            type: props.arrayType,
+            value: arrayElement.value,
+        };
         returnElement.push(
             (
-                <Box key={arrayElement.id} display="flex">
-                    <Box key={arrayElement.id + "-ENTRY"} flexGrow={1}>
-                        <ObjectType {...objectTypeProps} />
+                <Box
+                    key={arrayElement.key}
+                    display="flex"
+                    alignItems="center"
+                    mb={2}
+                    gridGap={8}
+                >
+                    <Box flexGrow={1}>
+                        <SimpleType {...simpleTypeProps} />
                     </Box>
-                    <Box pt={1}>
+                    <Box>
                         <DeleteButton
                             onDelete={removeArrayElement}
-                            id={arrayElement.id}
+                            id={arrayElement.key}
                         />
                     </Box>
                 </Box>
@@ -271,10 +239,32 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             setSelectedIndex(connectionName.concat(index));
-            setSelectedValue(mappingName);
+            setSelectedValue2(mappingName);
             setSelectedValueRef(valueReference);
             setConnectionAnchorEl(null);
         };
+
+    const typeLabel: string =
+        props.schema[SchemaConstants.ITEMS][SchemaConstants.NAME];
+    const { fullRecordName, shortenedRecordName } = getRecordName(typeLabel);
+    const fieldLabelProps: FieldLabelProps = {
+        description: props.description,
+        name: props.name,
+        required: props.isRequired,
+        shortenedType:
+            (shortenedRecordName ? shortenedRecordName : "array [ ]") + " [ ]",
+        type: (fullRecordName ? fullRecordName : "array [ ]") + " [ ]",
+    };
+
+    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
+    };
 
     const getConnection = connectionConfig?.map((connections, index) => {
         return (
@@ -374,7 +364,7 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
     });
 
     function iconButtonWithToolTip() {
-        if (!connectionConfig || !connectionConfig.length) {
+        if (connectionConfig === undefined || connectionConfig.length === 0) {
           return (
             <Tooltip title="No global configurations defined. Please contact administrator">
                 <span>
@@ -385,7 +375,7 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
                         data-placement="top"
                         onClick={handleConnectionClick}
                         color={selectedValueRef ? "primary" : "default"}
-                        disabled={!connectionConfig || !connectionConfig.length}
+                        disabled={connectionConfig ===  undefined || connectionConfig.length === 0 ? true : false}
                     >
                         <SelectIcon />
                     </IconButton>
@@ -401,7 +391,7 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
                 data-placement="top"
                 onClick={handleConnectionClick}
                 color={selectedValueRef ? "primary" : "default"}
-                disabled={!connectionConfig || !connectionConfig.length}
+                disabled={connectionConfig ===  undefined || connectionConfig.length === 0 ? true : false}
             >
                 <SelectIcon />
             </IconButton>
@@ -426,18 +416,6 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
         />
     );
 
-    const typeLabel: string =
-        props.schema[SchemaConstants.ITEMS][SchemaConstants.NAME];
-    const { fullRecordName, shortenedRecordName } = getRecordName(typeLabel);
-    const fieldLabelProps: FieldLabelProps = {
-        description: props.description,
-        name: props.name,
-        required: props.isRequired,
-        shortenedType:
-            (shortenedRecordName ? shortenedRecordName : "array [ ]") + " [ ]",
-        type: (fullRecordName ? fullRecordName : "array [ ]") + " [ ]",
-    };
-
     return (
         <Box mb={2}>
             <Box display="flex" flexDirection="column">
@@ -458,7 +436,7 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
-                            value={selectedValue !== "[ undefined ]" ? selectedValue : undefined}
+                            value={selectedValue2 !== "[ undefined ]" ? selectedValue2 : undefined}
                         />
                     </Box>
                     {!isInsideArray &&
@@ -496,3 +474,16 @@ const NestedArray = (props: NestedArrayProps): ReactElement => {
 };
 
 export default NestedArray;
+
+function getInitialValues(values: any[], id: string): ConfigValue[] {
+    const arrayValues: ConfigValue[] = [];
+    if (values) {
+        values.forEach((element, index) => {
+            arrayValues.push({
+                key: id + "-" + (index + 1),
+                value: element,
+            });
+        });
+    }
+    return arrayValues;
+}

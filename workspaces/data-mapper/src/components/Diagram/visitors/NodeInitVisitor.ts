@@ -119,7 +119,7 @@ export class NodeInitVisitor implements Visitor {
                 } else if (STKindChecker.isQueryExpression(bodyExpr)) {
                     if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
                         isFnBodyQueryExpr = true;
-                        const selectClause = bodyExpr.selectClause;
+                        const selectClause = bodyExpr?.selectClause || bodyExpr?.resultClause;
                         const intermediateClausesHeight = 100 + bodyExpr.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
                         if (returnType?.typeName === PrimitiveBalType.Array) {
                             const { memberType } = returnType;
@@ -167,7 +167,7 @@ export class NodeInitVisitor implements Visitor {
                             //  (https://github.com/ballerina-platform/ballerina-lang/issues/40012)
                             // this.outputNode = new UnionTypeNode(
                             //     this.context,
-                            //     node.selectClause,
+                            //     selectClause,
                             //     parentIdentifier,
                             //     exprType
                             // );
@@ -235,7 +235,7 @@ export class NodeInitVisitor implements Visitor {
                         this.queryNode = queryNode;
                         queryNode.targetPorts = expandedHeaderPorts;
                         queryNode.height = intermediateClausesHeight;
-                        moduleVariables = getModuleVariables(bodyExpr.selectClause.expression, this.context.stSymbolInfo);
+                        moduleVariables = getModuleVariables(selectClause.expression, this.context.stSymbolInfo);
                     } else {
                         if (returnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
@@ -386,7 +386,8 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }
 
-                const innerExpr = getInnermostExpressionBody(node.selectClause.expression);
+                const selectClause = node?.selectClause || node?.resultClause
+                const innerExpr = getInnermostExpressionBody(selectClause.expression);
                 const hasConditionalOutput = STKindChecker.isConditionalExpression(innerExpr);
                 if (hasConditionalOutput) {
                     this.outputNode = new UnsupportedIONode(
@@ -399,7 +400,7 @@ export class NodeInitVisitor implements Visitor {
                     if (exprType.memberType.typeName === PrimitiveBalType.Record) {
                         this.outputNode = new MappingConstructorNode(
                             this.context,
-                            node.selectClause,
+                            selectClause,
                             parentIdentifier,
                             exprType,
                             node
@@ -407,7 +408,7 @@ export class NodeInitVisitor implements Visitor {
                     } else if (exprType.memberType.typeName === PrimitiveBalType.Array) {
                         this.outputNode = new ListConstructorNode(
                             this.context,
-                            node.selectClause,
+                            selectClause,
                             parentIdentifier,
                             exprType,
                             node
@@ -415,14 +416,14 @@ export class NodeInitVisitor implements Visitor {
                     } else if (exprType.memberType.typeName === PrimitiveBalType.Union) {
                         this.outputNode = new UnionTypeNode(
                             this.context,
-                            node.selectClause,
+                            selectClause,
                             parentIdentifier,
                             exprType
                         );
                     } else {
                         this.outputNode = new PrimitiveTypeNode(
                             this.context,
-                            node.selectClause,
+                            selectClause,
                             parentIdentifier,
                             exprType,
                             node
@@ -432,7 +433,7 @@ export class NodeInitVisitor implements Visitor {
                     if (exprType?.typeName === PrimitiveBalType.Record) {
                         this.outputNode = new MappingConstructorNode(
                             this.context,
-                            node.selectClause,
+                            selectClause,
                             parentIdentifier,
                             exprType
                         );
@@ -448,21 +449,21 @@ export class NodeInitVisitor implements Visitor {
                         //  (https://github.com/ballerina-platform/ballerina-lang/issues/40012)
                         // this.outputNode = new UnionTypeNode(
                         //     this.context,
-                        //     node.selectClause,
+                        //     selectClause,
                         //     parentIdentifier,
                         //     exprType
                         // );
                     } else {
                         this.outputNode = new PrimitiveTypeNode(
                             this.context,
-                            node.selectClause,
+                            selectClause,
                             parentIdentifier,
                             exprType,
                             node
                         );
                     }
-                    if (isComplexExpression(node.selectClause.expression)){
-                        const inputNodes = getInputNodes(node.selectClause);
+                    if (isComplexExpression(selectClause.expression)){
+                        const inputNodes = getInputNodes(selectClause);
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             node,
@@ -545,7 +546,7 @@ export class NodeInitVisitor implements Visitor {
                 this.otherInputNodes.push(letExprNode);
 
                 // create node for module variables
-                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(node.selectClause.expression, this.context.stSymbolInfo);
+                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(selectClause.expression, this.context.stSymbolInfo);
                 if (moduleVariables.size > 0) {
                     const moduleVarNode = new ModuleVariableNode(
                         this.context,

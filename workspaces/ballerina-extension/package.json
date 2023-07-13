@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "4.3.2",
+    "version": "4.3.5",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -27,7 +27,6 @@
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
         "workspaceContains:Ballerina.toml",
-        "onView:ballerinaExplorerTreeView",
         "onNotebook:ballerina-notebook"
     ],
     "contributes": {
@@ -141,6 +140,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Experimental: Enable compiling & running Ballerina programs inside Language Server resulting in faster execution."
+                },
+                "ballerina.enableInlayHints": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Experimental: Enable inlay hints for Ballerina."
                 }
             }
         },
@@ -646,6 +650,7 @@
         "source-map-support": "^0.5.21",
         "toml": "^3.0.0",
         "vscode-debugprotocol": "^1.44.0",
+        "vscode-debugadapter": "^1.44.0",
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver-protocol": "^3.17.2",

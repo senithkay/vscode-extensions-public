@@ -37,7 +37,6 @@ export enum ConfigType {
     FLOAT = "float",
     RECORD = "record",
     MAP = "map",
-    NESTEDARRAY = "array",
     MODULE = "module",
     NUMBER = "number",
     OBJECT = "object",

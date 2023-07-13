@@ -42,7 +42,6 @@ export class UndoRedoManager {
 
     public redo() {
         if (this.redoStack.get(this.path)?.length) {
-
             const undoSourceStack = this.undoStack.get(this.path);
             undoSourceStack.push(this.content);
             if (undoSourceStack.length >= 100) {

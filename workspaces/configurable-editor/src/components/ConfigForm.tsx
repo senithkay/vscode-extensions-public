@@ -152,31 +152,29 @@ export const ConfigForm = (props: ConfigFormProps) => {
         defaultableFields.push(
             (
                 <Box key="defaultable fields" className={classes.innerBoxCard}>
-                    <Card variant="outlined">
-                        <Box>
-                            <Box className={classes.innerBoxHead}>
-                                <FormLabel
-                                    component="div"
-                                    className={classes.mainLabelText}
-                                >
-                                    Defaultable Configurables
-                                </FormLabel>
-                                <ExpandMore
-                                    expand={expanded}
-                                    onClick={handleExpandClick}
-                                />
-                            </Box>
-                            <Collapse
-                                in={expanded}
-                                timeout="auto"
-                                unmountOnExit={false}
+                    <Box>
+                        <Box className={classes.innerBoxHead}>
+                            <FormLabel
+                                component="div"
+                                className={classes.mainLabelText}
                             >
-                                <Box p={2} borderTop="1px solid #E0E2E9">
-                                    {defaultableElements.map(ConfigElement)}
-                                </Box>
-                            </Collapse>
+                                Defaultable Configurables
+                            </FormLabel>
+                            <ExpandMore
+                                expand={expanded}
+                                onClick={handleExpandClick}
+                            />
                         </Box>
-                    </Card>
+                        <Collapse
+                            in={expanded}
+                            timeout="auto"
+                            unmountOnExit={false}
+                        >
+                            <Box p={2} borderTop="1px solid #E0E2E9">
+                                {defaultableElements.map(ConfigElement)}
+                            </Box>
+                        </Collapse>
+                    </Box>
                 </Box>
             ),
         );

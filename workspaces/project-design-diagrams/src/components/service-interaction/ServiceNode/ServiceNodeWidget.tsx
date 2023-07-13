@@ -87,6 +87,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			level={nodeLevel}
 			isEditMode={editingEnabled}
 			isNoData={node.nodeObject.isNoData}
+			dataInProgress={node.nodeObject.dataInProgress}
 		>
 			<ServiceHeadWidget
 				engine={engine}

@@ -70,7 +70,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             LIST_CONSTRUCTOR_NODE_TYPE
         );
         this.innermostExpr = getInnermostExpressionBody(this.queryExpr
-            ? this.queryExpr.selectClause.expression
+            ? (this.queryExpr?.selectClause || this.queryExpr?.resultClause).expression
             : this.value.expression
         );
     }

@@ -22,6 +22,7 @@ import StringType, { StringTypeProps } from "../StringType";
 export interface SimpleTypeProps extends ConfigElementProps {
     setSimpleConfig?: (id: string, simpleValue: ConfigElementProps) => void;
     isInsideArray?: boolean;
+    isNestedArray?: boolean;
 }
 
 const SimpleType = (props: SimpleTypeProps): ReactElement => {

@@ -7,10 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { commands, Uri, window } from "vscode";
+import { commands, languages, Uri, window } from "vscode";
 import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "./cmd-runner";
 import { ballerinaExtInstance } from "../../core";
 import { configGenerator } from "../../config-generator/configGenerator";
+import { getConfigCompletions } from "../../config-generator/utils";
 
 
 function activateConfigRunCommand() {
@@ -30,6 +31,16 @@ function activateConfigRunCommand() {
         const path = filePath.uri.fsPath;
         configGenerator(ballerinaExtInstance, currentProject ? currentProject.path! : path, true);
         return;
+    });
+
+    languages.registerCompletionItemProvider({ language: 'toml' }, {
+        async provideCompletionItems(document, position, token, context) {
+            const currentProject = ballerinaExtInstance.getDocumentContext().getCurrentProject();
+            const filePath = window.activeTextEditor.document;
+            const path = filePath.uri.fsPath;
+            const suggestions = await getConfigCompletions(ballerinaExtInstance, currentProject ? currentProject.path! : path, document, position);
+            return suggestions;
+        }
     });
 }
 

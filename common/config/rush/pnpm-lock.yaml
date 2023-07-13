@@ -55,6 +55,7 @@ importers:
       ts-loader: ^9.4.1
       tslint: ^6.1.3
       typescript: ^4.9.4
+      vscode-debugadapter: ^1.44.0
       vscode-debugadapter-testsupport: ^1.44.0
       vscode-debugprotocol: ^1.44.0
       vscode-extension-telemetry: ^0.1.7
@@ -89,6 +90,7 @@ importers:
       portfinder: 1.0.32
       source-map-support: 0.5.21
       toml: 3.0.0
+      vscode-debugadapter: 1.51.0
       vscode-debugprotocol: 1.51.0
       vscode-extension-telemetry: 0.1.7
       vscode-languageclient: 8.1.0
@@ -502,6 +504,7 @@ importers:
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/project-design-diagrams': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       classnames: ~2.3.2
       clean-webpack-plugin: ^4.0.0
       css-loader: ^6.7.3
@@ -536,6 +539,7 @@ importers:
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/project-design-diagrams': link:../project-design-diagrams
+      '@wso2-enterprise/ui-toolkit': link:../ui-toolkit
       classnames: 2.3.2
       idb-keyval: 6.2.0
       lodash.debounce: 4.0.8
@@ -1626,6 +1630,7 @@ importers:
       '@wso2-enterprise/ballerina-statement-editor': workspace:*
       '@wso2-enterprise/lang-service': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       babel-loader: ^8.2.5
       babel-plugin-istanbul: ^6.1.1
       body-parser: ^1.19.1
@@ -1712,6 +1717,7 @@ importers:
       '@wso2-enterprise/ballerina-statement-editor': link:../statement-editor
       '@wso2-enterprise/lang-service': link:../lang-service
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      '@wso2-enterprise/ui-toolkit': link:../ui-toolkit
       classnames: 2.3.2
       clipboard-copy: 3.2.0
       clsx: 1.2.1
@@ -2762,6 +2768,31 @@ importers:
       prettier: 2.8.4
       rimraf: 3.0.2
       tslint: 6.1.3_typescript@4.9.5
+      typescript: 4.9.5
+
+  ../../workspaces/ui-toolkit:
+    specifiers:
+      '@emotion/styled': ^11.10.5
+      '@types/react': ^17.0.37
+      '@types/react-dom': 17.0.14
+      '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
+      classnames: ^2.2.6
+      react: ^17.0.2
+      react-dom: ^17.0.2
+      typescript: ^4.9.4
+    dependencies:
+      '@emotion/styled': 11.10.6_h7fc2el62uaa77gho3xhys6ola
+      '@vscode/webview-ui-toolkit': 1.2.2_react@17.0.2
+      '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
+      '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      classnames: 2.3.2
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    devDependencies:
+      '@types/react': 17.0.53
+      '@types/react-dom': 17.0.14
       typescript: 4.9.5
 
   ../../workspaces/variable-view:
@@ -4805,7 +4836,7 @@ packages:
   /@emotion/is-prop-valid/1.2.0:
     resolution: {integrity: sha512-3aDpDprjM0AwaxGE09bOPkNxHpBd+kA6jty3RnaEXdweX1DF1U3VQpPYb0g1IStAuK7SVQ1cy+bNBBKp4W3Fjg==}
     dependencies:
-      '@emotion/memoize': 0.8.0
+      '@emotion/memoize': 0.8.1
     dev: false
 
   /@emotion/is-prop-valid/1.2.1:
@@ -4821,10 +4852,6 @@ packages:
   /@emotion/memoize/0.7.4:
     resolution: {integrity: sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==}
     dev: true
-
-  /@emotion/memoize/0.8.0:
-    resolution: {integrity: sha512-G/YwXTkv7Den9mXDO7AhLWkE3q+I92B+VqAE+dYG4NGPaHZGvt3G8Q0p9vmE+sq7rTGphUbAvmQ9YpbfMQGGlA==}
-    dev: false
 
   /@emotion/memoize/0.8.1:
     resolution: {integrity: sha512-W2P2c/VRW1/1tLox0mVUalvnWXxavmv/Oum2aPsRcoDJuob75FC3Y8FbpfLwUegRcxINtGUMPq0tFCvYNTBXNA==}
@@ -4994,11 +5021,11 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.0
       '@emotion/babel-plugin': 11.10.6
-      '@emotion/is-prop-valid': 1.2.0
+      '@emotion/is-prop-valid': 1.2.1
       '@emotion/react': 11.10.6_h7fc2el62uaa77gho3xhys6ola
       '@emotion/serialize': 1.1.1
       '@emotion/use-insertion-effect-with-fallbacks': 1.0.0_react@17.0.2
-      '@emotion/utils': 1.2.0
+      '@emotion/utils': 1.2.1
       '@types/react': 17.0.53
       react: 17.0.2
     dev: false
@@ -5015,10 +5042,10 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.0
       '@emotion/babel-plugin': 11.10.6
-      '@emotion/is-prop-valid': 1.2.0
+      '@emotion/is-prop-valid': 1.2.1
       '@emotion/serialize': 1.1.1
       '@emotion/use-insertion-effect-with-fallbacks': 1.0.0_react@17.0.2
-      '@emotion/utils': 1.2.0
+      '@emotion/utils': 1.2.1
       '@types/react': 17.0.53
       react: 17.0.2
     dev: false
@@ -35144,6 +35171,14 @@ packages:
     dependencies:
       vscode-debugprotocol: 1.51.0
     dev: true
+
+  /vscode-debugadapter/1.51.0:
+    resolution: {integrity: sha512-mObaXD5/FH/z6aL2GDuyCLbnwLsYRCAJWgFid01vKW9Y5Si8OvINK+Tn+Yl/lRUbetjNuZW3j1euMEz6z8Yzqg==}
+    deprecated: This package has been renamed to @vscode/debugadapter, please update to the new name
+    dependencies:
+      mkdirp: 1.0.4
+      vscode-debugprotocol: 1.51.0
+    dev: false
 
   /vscode-debugprotocol/1.51.0:
     resolution: {integrity: sha512-dzKWTMMyebIMPF1VYMuuQj7gGFq7guR8AFya0mKacu+ayptJfaRuM0mdHCqiOth4FnRP8mPhEroFPx6Ift8wHA==}
