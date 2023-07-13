@@ -19,6 +19,8 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ViewHeader } from "../Components/ViewHeader";
 import { OrgSelector } from "./OrgSelector";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { Organization } from "@wso2-enterprise/choreo-core";
 
 const Container = styled.div`
     display: flex;
@@ -45,8 +47,9 @@ export const SelectedOrganization = () => {
         setChangeMode(!changeMode);
     };
 
-    const onOrgChange = () => {
+    const onOrgChange = (newOrg: Organization) => {
         setChangeMode(false);
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.org.setAsSelected", newOrg);
     };
 
     return <Container>
