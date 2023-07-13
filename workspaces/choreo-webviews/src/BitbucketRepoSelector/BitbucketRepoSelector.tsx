@@ -161,7 +161,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />} 
             </GhRepoSelectorActions>
-            {bborgs && bborgs.length > 0 && !showLoader && (
+            {bborgs && bborgs.length > 0 && !showLoader && credentialsAvailable && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Workspace</label>
