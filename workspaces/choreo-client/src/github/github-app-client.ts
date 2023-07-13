@@ -13,7 +13,7 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import { IReadOnlyTokenStorage } from "../auth";
 import { GHAppAuthStatus, GHAppConfig, GithubOrgnization, IChoreoGithubAppClient } from "./types";
-import { EventEmitter, env, Uri, window } from 'vscode';
+import { EventEmitter, env, Uri, window, ProgressLocation, Disposable } from 'vscode';
 
 const extensionId = 'wso2.choreo';
 
@@ -80,13 +80,35 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         const { installUrl } = this._appConfig;
         const state = await this._getAuthState()
         const ghURL = Uri.parse(`${installUrl}?state=${state}`);
-        const success = await env.openExternal(ghURL);
-        window.showInformationMessage(`Please check your browser for Choreo Github App installation page.`, "Copy URL").then((selection) => {
-            if (selection === "Copy URL") {
-                env.clipboard.writeText(ghURL.toString());
-            }
+        await env.openExternal(ghURL);
+        this.fireGHAppAuthCallback({ status: "install-inprogress" });
+        await window.withProgress({
+            title: 'Installing Choreo Github App',
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+            cancellationToken.onCancellationRequested(async () => {
+                this.fireGHAppAuthCallback({ status: "error" });
+                window.showInformationMessage(`Cancelled app installation.`);
+            });
+            await this.waitForInstallation();
         });
-        return success;
+        return true;
+    }
+
+    public async waitForInstallation(): Promise<boolean> {
+        if (this._status.status === 'installed') {
+            return true;
+        } else if (this._status.status === 'error') {
+            return false;
+        } else {   
+            return new Promise<boolean>(resolve => {
+                const subscription: Disposable = this.onGHAppAuthCallback(() => {
+                    subscription.dispose();
+                    resolve(this.waitForInstallation());
+                });
+            });
+        }
     }
 
     async obatainAccessToken(authCode: string): Promise<void> {

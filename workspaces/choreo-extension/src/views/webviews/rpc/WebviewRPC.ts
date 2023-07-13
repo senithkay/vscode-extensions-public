@@ -60,7 +60,9 @@ import {
     OpenBillingPortal,
     RefreshComponentsNotification,
     FireRefreshComponentList,
-    OpenCellView
+    OpenCellView,
+    AskProjectDirPath,
+    CloneChoreoProjectWithDir,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -71,7 +73,7 @@ import { ext } from "../../../extensionVariables";
 import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
-import { cloneProject } from "../../../cmds/clone";
+import { cloneProject, askProjectDirPath } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
 import { executeWithTaskRetryPrompt } from "../../../retry";
@@ -206,6 +208,16 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                         cloneProject(project);
                     }
                 });
+        }
+    });
+
+    messenger.onRequest(AskProjectDirPath, async () => {
+        return await askProjectDirPath();
+    });
+
+    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project, dirPath: string }) => {
+        if (ext.api.selectedOrg) {
+            cloneProject(params.project, params.dirPath );
         }
     });
 

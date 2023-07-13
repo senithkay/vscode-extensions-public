@@ -11,16 +11,18 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
 import React, { useContext, useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { Codicon } from "../Codicon/Codicon";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
+    flex-wrap: wrap;
     flex-direction: row;
     gap: 30px;
     width: "100%";
@@ -37,18 +39,18 @@ const GhRepoSelectorRepoContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
-    width: 300px;
-`;
-
-const GhRepoSelectorActions = styled.div`
-    display  : flex;
-    flex-direction: row;
-    gap: 10px;
 `;
 
 const SmallProgressRing = styled(VSCodeProgressRing)`
     height: calc(var(--design-unit) * 4px);
     width: calc(var(--design-unit) * 4px);
+    margin-top: auto;
+    padding: 4px;
+`;
+
+const RefreshBtn = styled(VSCodeButton)`
+    margin-top: auto;
+    padding: 4px;
 `;
 
 export interface GithubRepoSelectorProps {
@@ -95,14 +97,6 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         });
     }, []);
 
-    const handleAuthorizeWithGithub = () => {
-        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
-    };
-
-    const handleConfigureNewRepo = () => {
-        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
-    };
-
     const handleGhOrgChange = (value: string) => {
         const org = filteredOrgs.find(org => org.orgName === value);
         if (org && org.repositories.length > 0) {
@@ -117,15 +111,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
-    const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
-    const showAuthorizeButton = ghStatus.status === "not-authorized";
-    const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
-    let loaderMessage = "Loading repositories...";
-    if (ghStatus.status === "auth-inprogress") {
-        loaderMessage = "Authorizing with Github...";
-    } else if (ghStatus.status === "install-inprogress") {
-        loaderMessage = "Installing Github App...";
-    }
+    const showLoader = isFetchingRepos || isRefetching;
 
     const repos: string[] = selectedOrg && selectedOrg.repositories.sort((a, b) => {
         // Vscode test-runner can't seem to scroll and find the necessary repo
@@ -138,14 +124,6 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     return (
         <>
-            <GhRepoSelectorActions>
-                {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
-                {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
-                {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
-                {!showLoader && isRefetching && <SmallProgressRing />}
-                {showLoader && loaderMessage}
-                {showLoader && <VSCodeProgressRing />}
-            </GhRepoSelectorActions>
             {filteredOrgs && filteredOrgs.length > 0 && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
@@ -156,6 +134,16 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                         <label htmlFor="repo-drop-down">Repository</label>
                         <AutoComplete items={repos} selectedItem={selectedRepo?.repo} onChange={handleGhRepoChange}></AutoComplete>
                     </GhRepoSelectorRepoContainer>
+                    {showRefreshButton && !showLoader && <RefreshBtn
+                        appearance="icon"
+                        onClick={() => refetch()}
+                        title="Refresh repository list"
+                        disabled={isRefetching}
+                        id='refresh-repository-btn'
+                    >
+                        <Codicon name="refresh" />
+                    </RefreshBtn>}
+                    {showLoader && <SmallProgressRing />}
                 </GhRepoSelectorContainer>
             )}
         </>

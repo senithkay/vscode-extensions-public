@@ -15,18 +15,18 @@ import cn from "classnames";
 
 import styled from "@emotion/styled";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
-
+import { BitBucketIcon, GithubIcon } from "../icons";
 
 const TypeCardContainer = styled.div`
     // Flex Props
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 10px;
     // End Flex Props
     // Sizing Props
-    width: 120px;
+    width: 150px;
     padding: 5px;
     // End Sizing Props
     // Border Props
@@ -40,6 +40,11 @@ const TypeCardContainer = styled.div`
     }
 `;
 
+const IconContainer = styled.div`
+    height: 50px;
+    width: 50px;
+`
+
 export interface ProjectTypeCardProps {
     currentType: GitProvider;
     onChange: (type: GitProvider) => void;
@@ -49,19 +54,21 @@ export interface ProjectTypeCardProps {
 
 export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
     const { type, label, currentType, onChange } = props;
-
     const isSelected = currentType === type;
 
     const setSelectedType = (type: GitProvider) => {
         onChange(type);
     };
-    
+
     const onSelection = () => {
         setSelectedType(type);
     };
 
     return (
-        <TypeCardContainer className={cn({ "active": isSelected})} onClick={onSelection} >
+        <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} >
+            <IconContainer>
+                {type === GitProvider.BITBUCKET ? <BitBucketIcon /> : <GithubIcon />}
+            </IconContainer>
             <h4>{label}</h4>
         </TypeCardContainer>
     );

@@ -11,13 +11,11 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { FilteredCredentialData, GHAppAuthStatus, Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { FilteredCredentialData, Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
-import { Organization } from "@wso2-enterprise/choreo-core";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -47,20 +45,18 @@ const GhRepoSelectorActions = styled.div`
 `;
 
 export interface GithubRepoSelectorProps {
-    userOrg: Organization;
     selectedCred: FilteredCredentialData;
-    onCredSelect: (cred: FilteredCredentialData) => void;
     selectedRepo?: {
         org: string;
         repo: string;
     };
     onRepoSelect: (org?: string, repo?: string) => void;
+    refreshRepoList: boolean;
 }
 
 export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
 
-    const { userOrg, selectedRepo, onRepoSelect, selectedCred, onCredSelect } = props;
-    const [bbStatus, setBBStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
+    const { selectedRepo, onRepoSelect, selectedCred, refreshRepoList } = props;
     const [repoDetails, setRepoDetails] = useState<UserRepo[]>([]);
     const [bborgs, setBBorgs] = useState<string[]>([]);
     const [bbrepos, setBBrepos] = useState<string[]>([]);
@@ -75,12 +71,10 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         }
     };
 
-    useQuery({
+    const { isFetching, refetch, isRefetching } = useQuery({
         queryKey: [selectedCred.id],
         queryFn: async () => {
-            setBBStatus({ status: 'install-inprogress' });
             const userRepos = await useGetRepoData(selectedCred.id || '');
-            setBBStatus({ status: 'installed' });
             return userRepos;
         },
         enabled: !!selectedCred.id,
@@ -90,6 +84,10 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
             }
         }
     });
+
+    useEffect(() => {
+        refetch();
+    }, [refreshRepoList]);
 
     useEffect(() => {
         if (repoDetails.length > 0) {
@@ -121,8 +119,6 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
                     });
                 }
             });
-
-            setBBStatus({ status: "authorized" });
             setBBrepos(allRepos);
         } else {
             setBBorgs([]);
@@ -146,29 +142,18 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         onRepoSelect(selectedRepo?.org, e.target.value);
     };
 
-    const refetch = async () => {
-        setBBStatus({ status: 'install-inprogress' });
-        const userRepos = await useGetRepoData(selectedCred.id || '');
-        setBBStatus({ status: 'installed' });
-        if (userRepos) {
-            setRepoDetails(userRepos);
-        }
-    }
-
     const loaderMessage = "Loading repositories...";
-    const showLoader = bbStatus.status === "install-inprogress";
-    const onSelection = bbStatus.status === "auth-inprogress";
-    const showRefreshButton = !onSelection && !showLoader && selectedCred.id;
+    const credentialsAvailable = !!selectedCred.id;
+    const showLoader = (isFetching || isRefetching) && credentialsAvailable;
 
     return (
         <>
-            <BitbucketCredSelector org={userOrg} selectedCred={selectedCred} onCredSelect={onCredSelect} />
             <GhRepoSelectorActions>
-                {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
+                {!credentialsAvailable && "Please select a bitbucket credential."}
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />} 
             </GhRepoSelectorActions>
-            {bborgs && bborgs.length > 0 && !onSelection && !showLoader && selectedCred.id && (
+            {bborgs && bborgs.length > 0 && !showLoader && credentialsAvailable && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Workspace</label>

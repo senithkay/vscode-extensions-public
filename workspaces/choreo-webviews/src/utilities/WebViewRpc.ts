@@ -83,7 +83,9 @@ import {
     OpenBillingPortal,
     Endpoint,
     RefreshComponentsNotification,
-    FireRefreshComponentList
+    FireRefreshComponentList,
+    AskProjectDirPath,
+    CloneChoreoProjectWithDir,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -171,6 +173,14 @@ export class ChoreoWebViewAPI {
 
     public async cloneChoreoProject(projectId: string): Promise<void> {
         return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
+    }
+
+    public async cloneChoreoProjectWithDir(project: Project, dirPath: string): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProjectWithDir, HOST_EXTENSION, { project, dirPath });
+    }
+
+    public async askProjectDirPath(): Promise<string | undefined> {
+        return this._messenger.sendRequest(AskProjectDirPath, HOST_EXTENSION, undefined);
     }
 
     public async isBareRepo(params: IsBareRepoRequestParams): Promise<boolean> {
