@@ -14,6 +14,8 @@ import React from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { BitBucketIcon, GithubIcon } from "../icons";
 
 const TypeCardContainer = styled.div`
     // Flex Props
@@ -38,27 +40,35 @@ const TypeCardContainer = styled.div`
     }
 `;
 
-export interface ProjectTypeCardProps {
-    isCurrentMonoRepo: boolean;
-    onChange: (type: boolean) => void;
-    isMonoRepo: boolean;
+const IconContainer = styled.div`
+    height: 50px;
+    width: 50px;
+`
+
+export interface ProviderTypeCardProps {
+    currentType: GitProvider;
+    onChange: (type: GitProvider) => void;
+    type: GitProvider;
     label: string;
 }
 
-export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
-    const { isMonoRepo, label, isCurrentMonoRepo, onChange } = props;
-    const isSelected = isCurrentMonoRepo === isMonoRepo;
+export const ProviderTypeCard: React.FC<ProviderTypeCardProps> = (props) => {
+    const { type, label, currentType, onChange } = props;
+    const isSelected = currentType === type;
 
-    const setSelectedType = (isMonoRepo: boolean) => {
-        onChange(isMonoRepo);
+    const setSelectedType = (type: GitProvider) => {
+        onChange(type);
     };
 
     const onSelection = () => {
-        setSelectedType(isMonoRepo);
+        setSelectedType(type);
     };
 
     return (
         <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} >
+            <IconContainer>
+                {type === GitProvider.BITBUCKET ? <BitBucketIcon /> : <GithubIcon />}
+            </IconContainer>
             <h4>{label}</h4>
         </TypeCardContainer>
     );

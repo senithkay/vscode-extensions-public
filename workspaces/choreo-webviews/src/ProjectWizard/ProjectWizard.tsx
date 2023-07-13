@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
@@ -18,6 +18,7 @@ import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubAutherizer } from "../GithubRepoSelector/GithubAutherizer";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import { ProviderTypeCard } from "./ProviderTypeCard";
 import { ProjectTypeCard } from "./ProjectTypeCard";
 import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo, Project } from "@wso2-enterprise/choreo-core";
@@ -110,8 +111,8 @@ export function ProjectWizard() {
         });
     }, []);
 
-    const handleInitiMonoRepoCheckChange = (e: any) => {
-        setInitMonoRepo(e.target.checked);
+    const handleInitiMonoRepoCheckChange = (isMonoRepo: boolean) => {
+        setInitMonoRepo(isMonoRepo);
     };
 
     const handleCreateProject = async () => {
@@ -230,12 +231,22 @@ export function ProjectWizard() {
                         >
                             Project Description
                         </VSCodeTextArea>
-                        <VSCodeCheckbox
-                            checked={initMonoRepo}
-                            onChange={handleInitiMonoRepoCheckChange}
-                        >
-                            Initialize a mono repo
-                        </VSCodeCheckbox>
+                        <SubContainer>
+                            <CardContainer>
+                                <ProjectTypeCard
+                                    isMonoRepo={false}
+                                    label="Multi Repository"
+                                    isCurrentMonoRepo={initMonoRepo}
+                                    onChange={handleInitiMonoRepoCheckChange}
+                                />
+                                <ProjectTypeCard
+                                    isMonoRepo={true}
+                                    label="Mono Repository"
+                                    isCurrentMonoRepo={initMonoRepo}
+                                    onChange={handleInitiMonoRepoCheckChange}
+                                />
+                            </CardContainer>
+                        </SubContainer>
                     </SectionWrapper>
                     {initMonoRepo &&
                         (
@@ -243,13 +254,13 @@ export function ProjectWizard() {
                                 <h3>Git Provider Details</h3>
                                 <SubContainer>
                                     <CardContainer>
-                                        <ProjectTypeCard
+                                        <ProviderTypeCard
                                             type={GitProvider.GITHUB}
                                             label="GitHub"
                                             currentType={gitProvider}
                                             onChange={changeGitProvider}
                                         />
-                                        <ProjectTypeCard
+                                        <ProviderTypeCard
                                             type={GitProvider.BITBUCKET}
                                             label="BitBucket"
                                             currentType={gitProvider}
@@ -267,9 +278,9 @@ export function ProjectWizard() {
                     {initMonoRepo && gitProvider &&
                         (
                             <SectionWrapper>
-                                <ConfigureRepoAccordion 
+                                <ConfigureRepoAccordion
                                     gitProvider={gitProvider}
-                                    selectedCredential={selectedCredential} 
+                                    selectedCredential={selectedCredential}
                                     selectedGHOrgName={selectedGHOrgName}
                                     selectedGHRepo={selectedGHRepo}
                                     setSelectedGHOrgName={setSelectedGHOrgName}
