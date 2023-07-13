@@ -180,7 +180,7 @@ async function constructDebugConfig(uri: Uri, testDebug: boolean, args: any, con
         const packageJson = JSON.parse(readFileSync(resolve(context.extensionPath, "package.json"), 'utf8'));
         const initialConfigurations: DebugConfiguration[] = packageJson.contributes.debuggers[0].initialConfigurations;
 
-        debugConfigs.push(initialConfigurations[0]);
+        debugConfigs.push(...initialConfigurations);
         launchConfig.update('configurations', debugConfigs, ConfigurationTarget.WorkspaceFolder, true);
     }
 
@@ -196,7 +196,7 @@ async function constructDebugConfig(uri: Uri, testDebug: boolean, args: any, con
     if (!debugConfig.terminal) {
         debugConfig.terminal = 'integrated';
     }
-    debugConfig.script = fileUriToPath(uri.toString());
+    debugConfig.script = uri.fsPath;
     debugConfig.configEnv = !testDebug ? args : undefined;
     debugConfig.debugTests = testDebug;
     return debugConfig;
