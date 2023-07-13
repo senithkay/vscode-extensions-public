@@ -102,6 +102,7 @@ export function ProjectWizard() {
     const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
     const [projectDir, setProjectDir] = useState("");
     const [validationInProgress, setValidationInProgress] = useState(false);
+    const [selectedBranch, setSelectedBranch] = useState("");
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -119,11 +120,15 @@ export function ProjectWizard() {
         const projectClient = webviewAPI.getProjectClient();
         if (selectedOrg) {
             try {
+                const repoString = getRepoString();
                 const createdProject = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
                     orgId: selectedOrg.id,
-                    orgHandle: selectedOrg.handle
+                    orgHandle: selectedOrg.handle,
+                    repository: repoString,
+                    credentialId: selectedCredential.id,
+                    branch: selectedBranch,
                 });
                 if (initMonoRepo) {
                     const repoDetails: GitRepo = { provider: gitProvider, orgName: selectedGHOrgName, repoName: selectedGHRepo };
@@ -169,18 +174,29 @@ export function ProjectWizard() {
         ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir);
     };
 
+    const getRepoString = (): string => {
+        if (selectedGHOrgName && selectedGHRepo) {
+            if (gitProvider === GitProvider.GITHUB) {
+                return `http://github.com/${selectedGHOrgName}/${selectedGHRepo}`;
+            } else if (gitProvider === GitProvider.BITBUCKET) {
+                return `http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`;
+            }
+        }
+    }
+
     const handleProjecDirSelection = async () => {
         const projectDirectory = await ChoreoWebViewAPI.getInstance().askProjectDirPath();
         setProjectDir(projectDirectory);
     }
 
     const changeGitProvider = (type: GitProvider) => {
-        setGitProvider(type);
         setSelectedGHOrgName('');
         setSelectedGHRepo('');
+        setSelectedBranch('');
         if (type === GitProvider.GITHUB) {
             setSelectedCredential({ id: '', name: '' });
         }
+        setGitProvider(type);
     }
 
     const isValid: boolean = projectName.length > 0 && !!projectDir && (!initMonoRepo || (!!selectedGHOrgName &&
@@ -262,6 +278,8 @@ export function ProjectWizard() {
                                     setIsBareRepo={setIsBareRepo}
                                     validationInProgress={validationInProgress}
                                     setValidationInProgress={setValidationInProgress}
+                                    selectedBranch={selectedBranch}
+                                    setSelectedBranch={setSelectedBranch}
                                     setErrorMsg={setErrorMsg}
                                 />
                             </SectionWrapper>)

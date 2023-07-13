@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Codicon } from "../Codicon/Codicon";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -57,8 +58,9 @@ export interface GithubRepoSelectorProps {
     selectedRepo?: {
         org: string;
         repo: string;
+        branch: string;
     };
-    onRepoSelect: (org?: string, repo?: string) => void;
+    onRepoSelect: (org?: string, repo?: string, branch?: string) => void;
 }
 
 export function GithubRepoSelector(props: GithubRepoSelectorProps) {
@@ -107,7 +109,11 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     const handleGhRepoChange = (value: string) => {
-        onRepoSelect(selectedOrg?.orgName, value);
+        onRepoSelect(selectedOrg?.orgName, value, selectedRepo?.branch);
+    };
+
+    const handleGhBranchChange = (value: string) => {
+        onRepoSelect(selectedOrg?.orgName, selectedRepo?.repo, value );
     };
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
@@ -144,6 +150,13 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                         <Codicon name="refresh" />
                     </RefreshBtn>}
                     {showLoader && <SmallProgressRing />}
+                    <RepoBranchSelector
+                        org={selectedRepo.org}
+                        repo={selectedRepo.repo}
+                        branch={selectedRepo.branch}
+                        onBranchChange={handleGhBranchChange}
+                        credentialID={""}
+                    />
                 </GhRepoSelectorContainer>
             )}
         </>

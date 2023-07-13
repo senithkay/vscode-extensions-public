@@ -47,6 +47,9 @@ export interface Project {
     region: string;
     version: string;
     description: string;
+    repository?: string,
+    credentialId?: string,
+    branch?: string,
 }
 
 export interface ComponentCount {
@@ -274,6 +277,7 @@ export interface WorkspaceConfig {
             projectID: string;
             orgId: number;
             monoRepo?: string;
+            branch?: string;
             gitProvider?: string;
         }
     }

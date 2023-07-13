@@ -149,7 +149,7 @@ export async function cloneRepositoryWithProgress(orgName: string, repoName: str
     });
 }
 
-export async function createProjectWorkspaceFile(projectName: string, projectID: string, orgId: number, projectDir: string, items: WorkspaceItem[], monoRepo?: string, gitProvider?: string ) {
+export async function createProjectWorkspaceFile(projectName: string, projectID: string, orgId: number, projectDir: string, items: WorkspaceItem[], monoRepo?: string, branch?: string, gitProvider?: string ) {
     const workspaceFile: WorkspaceConfig = {
         folders: [
             {
@@ -163,6 +163,7 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
                 projectID,
                 orgId: orgId,
                 monoRepo,
+                branch,
                 gitProvider
             }
         }
@@ -227,7 +228,7 @@ export const cloneProject = async (project: Project, dirPath = "") => {
 
         getLogger().debug("Cloning project: " + project.name);
 
-        const { id, name: projectName, orgId } = project;
+        const { id, name: projectName, orgId, branch } = project;
         const selectedOrg = ext.api.selectedOrg;
 
         if (selectedOrg) {
@@ -269,7 +270,8 @@ export const cloneProject = async (project: Project, dirPath = "") => {
                 const folders = generateWorkspaceItems(userManagedComponents);
 
                 const repo = monoRepo?.orgName && monoRepo?.repoName ? `${monoRepo?.orgName}/${monoRepo?.repoName}` : '';
-                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders,repo , gitProvider);
+                const repoBranch = branch ?? '';
+                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders,repo , repoBranch, gitProvider);
                 getLogger().debug("Workspace file created at " + workspaceFilePath);
                 
                 let currentCloneIndex = 0;
