@@ -25,10 +25,10 @@ import { AccountView } from "./ActivityBar/AccountView";
 import { ChoreoComponentsContextProvider } from "./context/choreo-components-ctx";
 
 export const Main: React.FC<any> = styled.main`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    height: 100vh;
 `;
 
 interface ChoreoWebviewProps {
@@ -42,31 +42,43 @@ interface ChoreoWebviewProps {
 function ChoreoWebview(props: ChoreoWebviewProps) {
     const { type, orgName, projectId, choreoUrl, componentCreateMode } = props;
 
-    const switchViews = () => {
-        switch (type) {
-            case "ProjectCreateForm":
-                return <ProjectWizard />;
-            case "ComponentCreateForm":
-                return <ComponentWizard componentCreateMode={componentCreateMode} />;
-            case "ActivityBarProjectView":
-                return <ProjectView />;
-            case "ActivityBarAccountView":
-                return <AccountView />;
-        }
-    };
-
     return (
         <ChoreoWebviewQueryClientProvider>
             <Main>
-                {type === "ChoreoArchitectureView" ? (
-                    <ChoreoArchitectureView projectId={projectId} orgName={orgName} />
-                ) : (
-                    <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
-                        <ChoreoComponentsContextProvider>
-                            {switchViews()}
-                        </ChoreoComponentsContextProvider>
-                    </ChoreoWebViewContext.Provider>
-                )}
+                {(() => {
+                    switch (type) {
+                        case "ChoreoArchitectureView":
+                            return <ChoreoArchitectureView projectId={projectId} orgName={orgName} />;
+                        case "ProjectCreateForm":
+                            return (
+                                <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
+                                    <ProjectWizard />
+                                </ChoreoWebViewContext.Provider>
+                            );
+                        case "ComponentCreateForm":
+                            return (
+                                <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
+                                    <ComponentWizard componentCreateMode={componentCreateMode} />
+                                </ChoreoWebViewContext.Provider>
+                            );
+                        case "ActivityBarAccountView":
+                            return (
+                                <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
+                                    <AccountView />
+                                </ChoreoWebViewContext.Provider>
+                            );
+                        case "ActivityBarProjectView":
+                            return (
+                                <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
+                                    <ChoreoComponentsContextProvider>
+                                        <ProjectView />
+                                    </ChoreoComponentsContextProvider>
+                                </ChoreoWebViewContext.Provider>
+                            );
+                        default:
+                            return null;
+                    }
+                })()}
             </Main>
         </ChoreoWebviewQueryClientProvider>
     );

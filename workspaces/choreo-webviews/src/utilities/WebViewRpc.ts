@@ -86,6 +86,8 @@ import {
     FireRefreshComponentList,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
+    SetExpandedComponents,
+    GetExpandedComponents,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -185,6 +187,14 @@ export class ChoreoWebViewAPI {
 
     public async isBareRepo(params: IsBareRepoRequestParams): Promise<boolean> {
         return this._messenger.sendRequest(IsBareRepoRequest, HOST_EXTENSION, params);
+    }
+
+    public async setExpandedComponents(projId: string, componentNames: string[]): Promise<void> {
+        return this._messenger.sendRequest(SetExpandedComponents, HOST_EXTENSION, { projId, componentNames });
+    }
+
+    public async getExpandedComponents(projId: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetExpandedComponents, HOST_EXTENSION, projId);
     }
 
     public async setProjectRepository(projId: string, repo: GitRepo): Promise<void> {

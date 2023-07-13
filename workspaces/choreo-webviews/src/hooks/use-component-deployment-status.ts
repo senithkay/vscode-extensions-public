@@ -27,7 +27,8 @@ export function useComponentDeploymentStatus(component: Component) {
         queryFn: async (): Promise<Deployment|undefined> => {
             return await ChoreoWebViewAPI.getInstance().getComponentDevDeployment(component);
         },
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: true,
+        refetchInterval: 15000,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         enabled: component?.id !== undefined && !component.local,
     });

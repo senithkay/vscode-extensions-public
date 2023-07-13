@@ -65,6 +65,8 @@ export const setProjectRepository: RequestType<{ projId: string, repo: GitRepo }
 export const getProjectRepository: RequestType<string, GitRepo> = { method: 'getProjectRepository' };
 export const setPreferredProjectRepository: RequestType<{ projId: string, repo: GitRepo }, void> = { method: 'setPreferredProjectRepository' };
 export const getPreferredProjectRepository: RequestType<string, GitRepo> = { method: 'getPreferredProjectRepository' };
+export const SetExpandedComponents: RequestType<{ projId: string, componentNames: string[] }, void> = { method: 'setExpandedComponents' };
+export const GetExpandedComponents: RequestType<string, string[]> = { method: 'getExpandedComponents' };
 export const CheckProjectDeleted: RequestType<string, boolean> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };

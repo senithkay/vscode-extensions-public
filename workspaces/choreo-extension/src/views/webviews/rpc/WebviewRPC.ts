@@ -63,6 +63,8 @@ import {
     OpenCellView,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
+    SetExpandedComponents,
+    GetExpandedComponents,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -235,6 +237,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             getLogger().error("Project location is not found for the project: " + params.projectID);
         }
         return false;
+    });
+
+    messenger.onRequest(SetExpandedComponents, async (params) => {
+        ProjectRegistry.getInstance().setExpandedComponents(params.projId, params.componentNames);
+    });
+
+    messenger.onRequest(GetExpandedComponents, (projectId: string) => {
+        return ProjectRegistry.getInstance().getExpandedComponents(projectId);
     });
 
     messenger.onRequest(setProjectRepository, async (params) => {
