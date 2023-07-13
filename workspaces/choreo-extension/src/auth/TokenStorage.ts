@@ -28,7 +28,7 @@ export class TokenStorage implements ITokenStorage {
         const orgId = ext.api.getOrgIdOfCurrentProject();
         const selectedOrgId = orgId || ext.api.userInfo?.organizations?.[0]?.id;
         if (selectedOrgId) {
-            return this.getToken(`choreo.vscode.token.org.${selectedOrgId}`);
+            return this.getToken(`choreo.apim.token.org.${selectedOrgId}`);
         }
         return undefined;
     }

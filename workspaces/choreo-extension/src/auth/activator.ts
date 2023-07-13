@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { ProgressLocation, commands, window } from "vscode";
-import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signOut, signin } from "./auth";
+import { getTokenWithAutoRefresh, initiateInbuiltAuth as openAuthURL, signOut, signin } from "./auth";
 import { ext } from '../extensionVariables';
 import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
@@ -85,8 +85,8 @@ export async function activateAuth() {
             });
 
             if (apimResponse) {
-                const choreoTokenInfo = JSON.parse(apimResponse);
-                await ext.tokenStorage.setToken("choreo.token", choreoTokenInfo);
+                const asgardioToken = JSON.parse(apimResponse);
+                await ext.tokenStorage.setToken("asgardio.token", asgardioToken);
                 await signin();
             } else {
                 window.showErrorMessage("APIM token response is required to login");
@@ -103,9 +103,9 @@ export async function activateAuth() {
 
 async function initFromExistingChoreoSession() {
     getLogger().debug("Initializing from existing Choreo session");
-    const choreoTokenInfo = await getChoreoToken("choreo.token");
-    if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
-        && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+    const asgardioToken = await getTokenWithAutoRefresh("asgardio.token");
+    if (asgardioToken?.accessToken && asgardioToken.expirationTime
+        && asgardioToken.loginTime && asgardioToken.refreshToken) {
         ext.api.status = STATUS_LOGGING_IN;
         sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_START_EVENT);
         getLogger().debug("Found existing Choreo session");

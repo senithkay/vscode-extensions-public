@@ -28,7 +28,7 @@ export class KeyChainTokenStorage implements ITokenStorage {
     }
 
     async getTokenForCurrentOrg(): Promise<AccessToken | undefined> {
-        return this.getToken(`choreo.vscode.token.org.${this._currentOrgHandle}`);
+        return this.getToken(`choreo.apim.token.org.${this._currentOrgHandle}`);
     }
 
     async getToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {

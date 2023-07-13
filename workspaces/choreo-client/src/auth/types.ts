@@ -18,13 +18,12 @@ export interface AccessToken {
     refreshToken? : string;
 }
 
-export type ChoreoToken = "choreo.token";
-export type ChoreoVscodeToken = "choreo.vscode.token";
+export type AsgardioToken = "asgardio.token";
 
-// org scoped token type which starts with text "choreo.vscode.token-" and ends with org id (e.g. choreo.vscode.token.org.1234)
-export type ChoreoVscodeOrgScopedToken = `choreo.vscode.token.org.${string}`;
+// org scoped token type which starts with text "choreo.apim.token" and ends with org id (e.g. choreo.apim.token.org.1234)
+export type ChoreoAPIMToken = `choreo.apim.token.org.${string}`;
 
-export type ChoreoTokenType = ChoreoToken | ChoreoVscodeToken | ChoreoVscodeOrgScopedToken;
+export type ChoreoTokenType = AsgardioToken | ChoreoAPIMToken;
 
 export interface IReadOnlyTokenStorage {
     getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
