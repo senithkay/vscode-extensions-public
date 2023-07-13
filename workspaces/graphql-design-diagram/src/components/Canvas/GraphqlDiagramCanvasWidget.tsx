@@ -21,6 +21,7 @@ import { createGraphqlDiagramEngine, focusToNode } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { ContainerController } from "./ContainerController";
+import { NavigationWrapperCanvasWidget } from "./NavigationWrapperCanvasWidget";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -54,18 +55,18 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
 
     }, [model]);
 
-    useEffect(() => {
-        if (selectedDiagramNode) {
-            const selectedNewModel = diagramEngine.getModel().getNode(getComponentName(selectedDiagramNode));
-            if (selectedNewModel) {
-                const zoomLevel = diagramEngine.getModel().getZoomLevel();
-                setTimeout(() => {
-                    focusToNode(selectedNewModel, zoomLevel, diagramEngine);
-                }, 300);
-
-            }
-        }
-    }, [selectedDiagramNode]);
+    // useEffect(() => {
+    //     if (selectedDiagramNode) {
+    //         const selectedNewModel = diagramEngine.getModel().getNode(getComponentName(selectedDiagramNode));
+    //         if (selectedNewModel) {
+    //             const zoomLevel = diagramEngine.getModel().getZoomLevel();
+    //             setTimeout(() => {
+    //                 focusToNode(selectedNewModel, zoomLevel, diagramEngine);
+    //             }, 300);
+    //
+    //         }
+    //     }
+    // }, [selectedDiagramNode]);
 
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
@@ -120,9 +121,10 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            <div onClick={handleCanvasClick}>
+            <div onClick={handleCanvasClick} style={{transition: "transform 1s ease-in-out"}}>
                 <CanvasWidgetContainer>
-                    <CanvasWidget engine={diagramEngine} />
+                    {/*<CanvasWidget engine={diagramEngine} />*/}
+                    <NavigationWrapperCanvasWidget diagramEngine={diagramEngine} />
                     <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
                 </CanvasWidgetContainer>
             </div>
