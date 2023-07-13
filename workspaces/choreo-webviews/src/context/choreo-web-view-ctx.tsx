@@ -52,7 +52,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         isLoading: isChoreoProjectLoading,
     } = useQuery({
         queryKey: ["is_choreo_project"],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().isChoreoProject(),
+        queryFn: () => ChoreoWebViewAPI.getInstance().isChoreoProject(),
     });
 
     const {
@@ -61,7 +61,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         isLoading: loginStatusLoading,
     } = useQuery({
         queryKey: ["choreo_login_status"],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
+        queryFn: () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
     });
 
     const {
@@ -71,7 +71,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         isLoading: userInfoLoading,
     } = useQuery({
         queryKey: ["choreo_user_info", loginStatus],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getUserInfo(),
+        queryFn: () => ChoreoWebViewAPI.getInstance().getUserInfo(),
         enabled: loginStatus === "LoggedIn",
     });
 
@@ -81,7 +81,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         isLoading: selectedOrgLoading,
     } = useQuery({
         queryKey: ["choreo_selected_org", loginStatus],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getCurrentOrg(),
+        queryFn: () => ChoreoWebViewAPI.getInstance().getCurrentOrg(),
         enabled: loginStatus === "LoggedIn",
     });
 
@@ -91,13 +91,13 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         isLoading: choreoProjectLoading,
     } = useQuery({
         queryKey: ["choreo_project_details", loginStatus, isChoreoProject, selectedOrg],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
+        queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
         enabled: loginStatus === "LoggedIn" && isChoreoProject,
     });
 
     const { data: userOrgs, error: allOrgError } = useQuery({
         queryKey: ["choreo_all_user_orgs", loginStatus],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getAllOrgs(),
+        queryFn: () => ChoreoWebViewAPI.getInstance().getAllOrgs(),
         enabled: loginStatus === "LoggedIn",
     });
 
