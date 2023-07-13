@@ -88,8 +88,7 @@ export class ProjectOverview {
                   "${projectId}", 
                   "${orgName}", 
                   ${FREE_COMPONENT_LIMIT}, 
-                  "${choreoAuthConfig.getConsoleUrl()}" , 
-                  "${choreoAuthConfig.getBillingUrl()}"
+                  "${choreoAuthConfig.getConsoleUrl()}"
                 );
               }
               render();

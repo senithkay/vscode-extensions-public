@@ -11,10 +11,11 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import React, { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import React from "react";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { useAccountSubscriptionStatus } from '../../hooks/use-account-subscription-status';
 
 const Container = styled.div`
     display: flex;
@@ -46,7 +47,8 @@ const SignOutButton = styled(VSCodeButton)`
 
 // Diplays the avatar, name and email of the currently logged in user.
 export const UserInfo = () => {
-    const { userInfo } = useContext(ChoreoWebViewContext);
+    const { showUpgradeButton } = useAccountSubscriptionStatus();
+    const { userInfo, selectedOrg } = useChoreoWebViewContext();
     if (!userInfo) {
         return null;
     }
@@ -56,12 +58,21 @@ export const UserInfo = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.out");
     };
 
-    return <Container>
-        <img src={userProfilePictureUrl} width="40px" height="40px" />
-        <MiddleContainer>
-            <div>{displayName}</div>
-            <Email>{userEmail}</Email>
-        </MiddleContainer>
-        <SignOutButton onClick={onSignOut}>Sign Out</SignOutButton>
-    </Container>;
+    const openBillingPortal = () => {
+        ChoreoWebViewAPI.getInstance().openBillingPortal(`${selectedOrg.id}`);
+    }
+
+    return (
+        <Container>
+            <img src={userProfilePictureUrl} width="40px" height="40px" />
+            <MiddleContainer>
+                <div>{displayName}</div>
+                <Email>{userEmail}</Email>
+                {showUpgradeButton && (
+                    <VSCodeLink onClick={openBillingPortal}>Upgrade</VSCodeLink>
+                )}
+            </MiddleContainer>
+            <SignOutButton onClick={onSignOut}>Sign Out</SignOutButton>
+        </Container>
+    );
 };

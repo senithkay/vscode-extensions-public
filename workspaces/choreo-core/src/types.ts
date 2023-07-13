@@ -14,6 +14,8 @@ export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'Log
 
 export type ComponentAccessibility = 'internal' | 'external';
 
+export type ComponentNetworkVisibility = 'Project' | 'Organization' | 'Public';
+
 export interface Owner {
     id: string;
     idpId: string;
@@ -101,8 +103,6 @@ export interface Component {
     hasUnPushedLocalCommits?: boolean;
     hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
-    deployments?: Deployments;
-    buildStatus?: BuildStatus;
 }
 
 export interface PushedComponent {
@@ -322,7 +322,7 @@ export interface WorkspaceComponentMetadata {
     displayType: ComponentDisplayType;
     description: string;
     projectId: string;
-    accessibility: ComponentAccessibility;
+    accessibility?: ComponentAccessibility;
     repository: {
         orgApp: string;
         nameApp: string;
@@ -370,12 +370,21 @@ export interface ChoreoComponentCreationParams {
     org: Organization;
     description: string;
     displayType: ComponentDisplayType;
-    accessibility: ComponentAccessibility;
     repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
+    /** Relevant for webhook types */
+    accessibility?: ComponentAccessibility;
+    /** Relevant for webhook types */
     trigger?: TriggerDetails;
+    /** Relevant for non-ballerina types */
     port?: number;
+    /** Whether its a REST, GraphQL or GRPC type */
     serviceType?: ChoreoServiceType;
-    webAppConfig?: ComponentWizardWebAppConfig
+    /** Relevant for web app types (React, Angular, Vue & static files) */
+    webAppConfig?: ComponentWizardWebAppConfig;
+    /** Relevant for non-ballerina service types */
+    networkVisibility?: ComponentNetworkVisibility;
+    /** Relevant for non-ballerina rest and gql APIs */
+    endpointContext?: string;
 }
 
 export interface TriggerDetails {
@@ -433,6 +442,15 @@ export interface getLocalComponentDirMetaDataRes {
     hasEndpointsYaml: boolean;
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
+}
+
+export interface Endpoint {
+    name: string;
+    port: number;
+    type?: string;
+    networkVisibility?: string;
+    context?: string;
+    schemaFilePath?: string;
 }
 
 export enum DeploymentStatus {

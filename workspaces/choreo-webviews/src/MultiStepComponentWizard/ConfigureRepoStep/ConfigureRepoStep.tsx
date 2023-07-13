@@ -14,9 +14,9 @@ import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
 import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { GithubRepoBranchSelector } from "./GithubRepoBranchSelector";
@@ -90,7 +90,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const gitProvider = formData?.repository?.gitProvider;
     const isMonoRepo = formData?.repository?.isMonoRepo;
 
-    const { choreoProject, selectedOrg: org } = useContext(ChoreoWebViewContext);
+    const { choreoProject, selectedOrg: org } = useChoreoWebViewContext();
 
     const { isLoading: isFetchingCredentials, data: credentials, refetch: refetchCredentials, isRefetching: isRefetching } = useQuery({
         queryKey: ['git-bitbucket-credentials', org?.uuid, gitProvider],

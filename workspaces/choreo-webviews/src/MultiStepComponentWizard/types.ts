@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentAccessibility, ComponentCreateMode, GitProvider } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentAccessibility, ComponentCreateMode, ComponentNetworkVisibility, GitProvider } from "@wso2-enterprise/choreo-core";
 
 
 export interface ComponentWizardState {
@@ -21,7 +21,9 @@ export interface ComponentWizardState {
     serviceType: ChoreoServiceType;
     implementationType: ChoreoImplementationType;
     accessibility: ComponentAccessibility;
+    networkVisibility: ComponentNetworkVisibility;
     port?: string;
+    endpointContext?: string;
     repository: {
         isCloned?: boolean;
         isBareRepo?: boolean;

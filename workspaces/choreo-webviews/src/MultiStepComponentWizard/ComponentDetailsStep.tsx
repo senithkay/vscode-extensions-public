@@ -12,13 +12,13 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner, ErrorIcon } from "../Commons/ErrorBanner";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
 
 const StepContainer = styled.div`
@@ -29,6 +29,11 @@ const StepContainer = styled.div`
     gap: 20px;
     width: 100%;
     min-width: 400px;
+`;
+
+const DropDownContainer = styled.div`
+    display: flex;
+    flex-direction: column;
 `;
 
 
@@ -63,6 +68,9 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
         onFormDataChange(prevFormData => ({ ...prevFormData, description }));
     };
 
+    const setAccessibility = (accessibility: ComponentAccessibility) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, accessibility }));
+    };
 
     return (
         <StepContainer>
@@ -141,6 +149,15 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                         ]}
                     />
                 </>}
+                {formData?.type === ChoreoComponentType.Webhook && (
+                    <DropDownContainer>
+                        <label htmlFor="access-mode">Access Mode</label>
+                        <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
+                            <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                            <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                        </VSCodeDropdown>
+                    </DropDownContainer>
+                )}
             </div>
         </StepContainer>
     );

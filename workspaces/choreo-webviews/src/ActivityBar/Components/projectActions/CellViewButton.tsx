@@ -10,16 +10,15 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import React, { useContext } from "react";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import React from "react";
+import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
+import { ProjectActionLink } from "../ProjectActionLink";
 
-
-export const ArchiViewButton = () => {
+export const CellViewButton = () => {
     
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useChoreoWebViewContext();
 
     const handleClick = () => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -28,15 +27,13 @@ export const ArchiViewButton = () => {
                 project: choreoProject?.name
             }
         });
-        ChoreoWebViewAPI.getInstance().openArchitectureView();
+        ChoreoWebViewAPI.getInstance().openCellView();
     }
     
     return (
-        <VSCodeLink
+        <ProjectActionLink
             onClick={handleClick}
-        >
-            Architecture View
-
-        </VSCodeLink>
+            label="Cell View"
+        />
     );
 }

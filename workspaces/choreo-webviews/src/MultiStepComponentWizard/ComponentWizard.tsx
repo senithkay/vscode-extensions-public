@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
@@ -20,8 +20,8 @@ import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { ServiceTypeStep } from "./ServiceTypeStep";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
 import { ConfigureRepoStep } from './ConfigureRepoStep/ConfigureRepoStep'
@@ -31,7 +31,7 @@ import { EndpointConfigStep } from './EndpointConfigStep';
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
-        const { mode, name, type, serviceType, implementationType, repository, description, accessibility, trigger, port } = formData;
+        const { mode, name, type, serviceType, implementationType, repository, description, accessibility, trigger, port, networkVisibility, endpointContext } = formData;
         const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo } = repository;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
@@ -83,12 +83,18 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             projectId: choreoProject?.id,
             org: selectedOrg,
             displayType: selectedDisplayType,
-            accessibility,
-            trigger,
             description: description ?? '',
             repositoryInfo: { org, repo, branch, subPath, gitProvider, bitbucketCredentialId },
-            serviceType: type === ChoreoComponentType.Service ? serviceType : undefined,
+            accessibility
         };
+
+        if(formData?.type === ChoreoComponentType.Service ){
+            componentParams.serviceType = serviceType;
+        }
+
+        if(formData?.type === ChoreoComponentType.Webhook ){
+            componentParams.trigger = trigger;
+        }
 
         const projectManager = ChoreoWebViewAPI.getInstance().getChoreoProjectManager();
         if (mode === 'fromScratch') {
@@ -128,6 +134,8 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                 }
                 componentParams.repositoryInfo = repoDetails;
                 componentParams.port = Number(port);
+                componentParams.networkVisibility = networkVisibility;
+                componentParams.endpointContext = endpointContext;
 
                 await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
             } else {
@@ -146,6 +154,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             }
             await ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, repoDetails);
         }
+        await ChoreoWebViewAPI.getInstance().fireRefreshComponents();
     } catch (err: any) {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: CREATE_COMPONENT_FAILURE_EVENT,
@@ -162,6 +171,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
             mode: props.componentCreateMode,
             name: '',
             accessibility: "external",
+            networkVisibility: "Project",
             type: ChoreoComponentType.Service,
             serviceType: ChoreoServiceType.RestApi,
             implementationType: ChoreoImplementationType.Ballerina,
@@ -180,6 +190,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
                 isMonoRepo: undefined
             },
             port: '3000',
+            endpointContext: '.',
             webAppConfig: {
                 dockerContext: '',
                 webAppBuildCommand: '',
@@ -194,7 +205,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         isStepValidating: false,
     };
 
-    const { loginStatus, choreoProject } = useContext(ChoreoWebViewContext);
+    const { loginStatus, choreoProject } = useChoreoWebViewContext();
     const [state, setState] = useState(initialState);
     
 
@@ -230,9 +241,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
                 }
             }
         },
-        {
-            enabled: state.formData?.repository?.isMonoRepo === undefined
-        }
+        { enabled: !!choreoProject?.id && state.formData?.repository?.isMonoRepo === undefined }
     );
 
     useEffect(() => {
@@ -241,27 +250,53 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         });
     }, []);
 
-    const { formData: { repository, type, mode, implementationType } } = state;
+    const { formData: { type, mode, implementationType, repository } } = state;
 
-    const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
-        ["getLocalComponentDirMetaData", choreoProject, repository, type, mode],
-        () =>
-            ChoreoWebViewAPI.getInstance().getLocalComponentDirMetaData({
-                orgName: repository?.org,
-                repoName: repository?.repo,
-                projectId: choreoProject.id,
-                subPath: repository?.subPath,
-                dockerFilePath: repository?.dockerFile,
-                dockerContextPath: repository?.dockerContext
-            }),
-        { enabled: type === ChoreoComponentType.Service && mode === 'fromExisting' }
+    useQuery(
+        ["readEndpointsYaml", repository?.dockerContext, type, mode],
+        async () => {
+            const endpointData =
+                await ChoreoWebViewAPI.getInstance().readEndpointsYaml({
+                    orgName: repository?.org,
+                    repoName: repository?.repo,
+                    projectID: choreoProject.id,
+                    subpath: repository?.dockerContext,
+                });
+            return endpointData || null;
+        },
+        {
+            enabled:
+                type === ChoreoComponentType.Service &&
+                mode === "fromExisting" &&
+                !!repository?.dockerContext,
+            refetchOnWindowFocus: false,
+            onSuccess: (data) => {
+                setState({
+                    ...state,
+                    formData: {
+                        ...state.formData,
+                        networkVisibility:
+                            (data.networkVisibility as ComponentNetworkVisibility) ||
+                            state.formData.networkVisibility,
+                        port: data.port?.toString() || state.formData.port,
+                        endpointContext: data.context || state.formData.endpointContext,
+                        repository: {
+                            ...state.formData.repository,
+                            openApiFilePath: data.schemaFilePath
+                                ? `${repository?.dockerContext}/${data.schemaFilePath}`
+                                : state.formData.repository.openApiFilePath,
+                        },
+                    },
+                });
+            },
+        }
     );
 
     let steps = [ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep];
     if (type === ChoreoComponentType.Service) {
         steps = [ComponentTypeStep, ServiceTypeStep, ComponentDetailsStep, ConfigureRepoStep];
 
-        if (mode === 'fromExisting' && implementationType === ChoreoImplementationType.Docker && !localDirectorMetaData?.hasEndpointsYaml) {
+        if (mode === 'fromExisting' && implementationType === ChoreoImplementationType.Docker) {
             steps = [...steps, EndpointConfigStep]
         }
     } else if (type === ChoreoComponentType.Webhook) {
@@ -289,7 +324,6 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
                     }}
                     saveButtonText="Create"
                     closeOnSave={true}
-                    loading={fetchingDirectoryMetadata}
                 /> :
                 <SignIn />
             }

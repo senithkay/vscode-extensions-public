@@ -62,6 +62,9 @@ export class ChoreoExtensionApi {
     private _onChoreoProjectChanged = new EventEmitter<string | undefined>();
     public onChoreoProjectChanged = this._onChoreoProjectChanged.event;
 
+    private _onRefreshComponentList = new EventEmitter();
+    public onRefreshComponentList = this._onRefreshComponentList.event;
+
     constructor() {
         this._status = STATUS_INITIALIZING;
     }
@@ -114,6 +117,10 @@ export class ChoreoExtensionApi {
     public set selectedProjectId(selectedProjectId: string) {
         this._selectedProjectId = selectedProjectId;
         this._onChoreoProjectChanged.fire(selectedProjectId);
+    }
+
+    public refreshComponentList() {
+        this._onRefreshComponentList.fire(null);
     }
 
     public projectUpdated() {
