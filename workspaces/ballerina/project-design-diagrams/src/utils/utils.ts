@@ -358,10 +358,8 @@ export function transformToV4Services(services: Map<string, any>): Record<string
     const newServices: Record<string, CMService> = {};
     Object.entries(services).forEach(([key, service]: [string, any]) => {
         newServices[key] = {
-            serviceId: {
-                id: (service as any)?.serviceId,
-                label: service.annotation.label
-            },
+            serviceId: service.serviceId,
+            label: service.annotation.label,
             annotation: service.annotation,
             path: service.path,
             serviceType: service.serviceType,
@@ -369,12 +367,7 @@ export function transformToV4Services(services: Map<string, any>): Record<string
             remoteFunctions: service.remoteFunctions,
             deploymentMetadata: service.deploymentMetadata,
             isNoData: service.isNoData,
-            dependencyIDs: service?.dependencies?.map((dep: any) => {
-                return {
-                    id: dep?.serviceId,
-                    label: dep?.serviceLabel
-                }
-            })
+            dependencyIDs: service?.dependencies?.map((dep: any) => dep?.serviceId)
         };
     });
 
@@ -383,30 +376,20 @@ export function transformToV4Services(services: Map<string, any>): Record<string
 
 export function transformToV4FunctionEntryPoint(functionEntryPoint: CMEntryPoint): CMEntryPoint {
     return {
-        functionID: {
-            id: functionEntryPoint.annotation.id,
-            label: functionEntryPoint.annotation.label
-        },
+        functionID: functionEntryPoint?.annotation?.id,
+        label: functionEntryPoint?.annotation?.label,
         annotation: functionEntryPoint.annotation,
         type: functionEntryPoint.type,
         interactions: functionEntryPoint.interactions,
         parameters: functionEntryPoint.parameters,
         returns: functionEntryPoint.returns,
-        dependencyIDs: (functionEntryPoint as any)?.dependencies?.map((dep: any) => {
-            return {
-                id: dep?.serviceId,
-                label: dep?.serviceLabel
-            }
-        })
+        dependencyIDs: (functionEntryPoint as any)?.dependencies?.map((dep: any) => dep?.serviceId)
     };
 }
 
 export function transformToV4Dependency(dependency: CMDependency): CMDependency {
     return {
-        entryPointID: {
-            id: (dependency as any)?.serviceId,
-            label: dependency?.serviceLabel
-        },
+        entryPointID: (dependency as any)?.serviceId,
         connectorType: dependency.connectorType,
         serviceLabel: dependency.serviceLabel
     };

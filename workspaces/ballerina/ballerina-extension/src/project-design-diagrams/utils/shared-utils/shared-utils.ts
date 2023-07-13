@@ -50,7 +50,9 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
                 for (let [_key, packageModel] of packageModels) {
                     if (packageModel.hasCompilationErrors) {
                         response.diagnostics.push({
-                            name: packageModel.packageId.name
+                            name: typeof packageModel.packageId === "object"
+                                ? packageModel.packageId.name
+                                : packageModel.packageId
                         });
                         break;
                     }
@@ -113,10 +115,8 @@ function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponent
         const pkg: TomlPackageData = workspacePkgs.get(pkgId);
         const pkgServices: { [key: string]: Service } = {};
         pkgServices[pkgId] = {
-            serviceId: {
-                id: pkgId,
-                label: pkg.name
-            },
+            serviceId: pkgId,
+            label: pkg.name,
             serviceType: undefined,
             annotation: {
                 id: pkgId,

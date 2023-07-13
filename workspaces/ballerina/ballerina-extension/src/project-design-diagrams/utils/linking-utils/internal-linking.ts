@@ -29,7 +29,7 @@ export async function linkServices(langClient: ExtendedLangClient, args: AddLink
     }) as STResponse;
 
     if (stResponse && stResponse.parseSuccess) {
-        clientName = genClientName(stResponse.source, transformLabel(target.annotation.label || target.path || target.serviceId.id));
+        clientName = genClientName(stResponse.source, transformLabel(target.annotation.label || target.path || target.serviceId));
         const targetType: ServiceTypes = getServiceType(target.serviceType);
         const imports = new Set<string>([`ballerina/${targetType}`]);
         const missingImports: Set<string> = getMissingImports(stResponse.source, imports);

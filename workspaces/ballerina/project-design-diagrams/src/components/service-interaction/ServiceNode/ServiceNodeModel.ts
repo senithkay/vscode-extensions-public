@@ -24,7 +24,7 @@ export class ServiceNodeModel extends SharedNodeModel {
 	readonly isBalService: boolean;
 
 	constructor(serviceObject: Service, level: Level, version: string, targetGateways?: GatewayType[]) {
-		super('serviceNode', serviceObject.serviceId.id);
+		super('serviceNode', serviceObject.serviceId);
 
 		this.level = level;
 		this.modelVersion = version;
@@ -33,12 +33,12 @@ export class ServiceNodeModel extends SharedNodeModel {
 		this.targetGateways = targetGateways ?? [];
 		this.isBalService = serviceObject?.elementLocation?.filePath.endsWith('.bal') ?? false;
 
-		this.addPort(new ServicePortModel(this.nodeObject.serviceId.id, PortModelAlignment.LEFT));
-		this.addPort(new ServicePortModel(this.nodeObject.serviceId.id, PortModelAlignment.RIGHT));
+		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT));
+		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.RIGHT));
 
 		if (targetGateways) {
-			this.addPort(new ServicePortModel(this.nodeObject.serviceId.id, PortModelAlignment.TOP));
-			this.addPort(new ServicePortModel(this.nodeObject.serviceId.id, PortModelAlignment.LEFT, true));
+			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.TOP));
+			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT, true));
 		}
 
 		if (level === Level.TWO) {
