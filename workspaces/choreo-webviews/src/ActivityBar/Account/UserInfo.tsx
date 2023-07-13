@@ -11,8 +11,8 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import React, { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import React from "react";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useAccountSubscriptionStatus } from '../../hooks/use-account-subscription-status';
@@ -48,7 +48,7 @@ const SignOutButton = styled(VSCodeButton)`
 // Diplays the avatar, name and email of the currently logged in user.
 export const UserInfo = () => {
     const { showUpgradeButton } = useAccountSubscriptionStatus();
-    const { userInfo, selectedOrg } = useContext(ChoreoWebViewContext);
+    const { userInfo, selectedOrg } = useChoreoWebViewContext();
     if (!userInfo) {
         return null;
     }

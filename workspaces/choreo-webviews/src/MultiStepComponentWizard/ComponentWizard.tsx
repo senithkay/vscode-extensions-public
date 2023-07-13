@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
@@ -21,7 +21,7 @@ import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { ServiceTypeStep } from "./ServiceTypeStep";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
 import { ConfigureRepoStep } from './ConfigureRepoStep/ConfigureRepoStep'
@@ -205,7 +205,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         isStepValidating: false,
     };
 
-    const { loginStatus, choreoProject } = useContext(ChoreoWebViewContext);
+    const { loginStatus, choreoProject } = useChoreoWebViewContext();
     const [state, setState] = useState(initialState);
     
 

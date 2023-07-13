@@ -14,9 +14,9 @@ import React, { useEffect } from "react";
 import { VSCodeDivider, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import styled from "@emotion/styled";
-import { createElement, useContext } from "react";
+import { createElement } from "react";
 import { ValidationRule, WizardProps } from "./types";
-import { ChoreoWebViewContext, IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext, IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`
@@ -43,7 +43,7 @@ const StepContainer = styled.div`
 `;
 
 export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, saveButtonText, cancelButtonText, onCancel, closeOnSave, loading }: WizardProps<T>) => {
-    const context = useContext(ChoreoWebViewContext);
+    const context = useChoreoWebViewContext();
 
     // const allValidationRules: ValidationRule<T>[] = [steps.map((step) => step.validationRules).flat(), validationRules].flat();
     const currentStepValidationRules = steps[state.currentStep].validationRules;

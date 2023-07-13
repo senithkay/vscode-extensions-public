@@ -12,9 +12,9 @@
  */
 import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubAutherizer } from "../GithubRepoSelector/GithubAutherizer";
 import { RequiredFormInput } from "../Commons/RequiredInput";
@@ -88,7 +88,7 @@ const SectionWrapper = styled.div`
 
 export function ProjectWizard() {
 
-    const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
+    const { loginStatus, loginStatusPending, selectedOrg, error } = useChoreoWebViewContext();
 
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");

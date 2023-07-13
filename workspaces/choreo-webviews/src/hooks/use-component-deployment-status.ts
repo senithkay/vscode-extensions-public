@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -24,13 +24,20 @@ export function useComponentDeploymentStatus(component: Component) {
         isFetched,
     } = useQuery({
         queryKey: ["project_component_deployment_status", component?.id],
-        queryFn: async (): Promise<Deployment|undefined> => {
-            return await ChoreoWebViewAPI.getInstance().getComponentDevDeployment(component);
-        },
-        refetchOnWindowFocus: false,
+        queryFn: (): Promise<Deployment | undefined> =>
+            ChoreoWebViewAPI.getInstance().getComponentDevDeployment(component),
+        refetchOnWindowFocus: true,
+        refetchInterval: 15000,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         enabled: component?.id !== undefined && !component.local,
     });
 
-    return { devDeploymentData, isLoadingDeployment, isRefetchingDeployment, refreshDeployment, deploymentLoadError, isFetched };
+    return {
+        devDeploymentData,
+        isLoadingDeployment,
+        isRefetchingDeployment,
+        refreshDeployment,
+        deploymentLoadError,
+        isFetched,
+    };
 }

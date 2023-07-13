@@ -12,11 +12,10 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 export function useAccountSubscriptionStatus() {
-    const { choreoProject, selectedOrg } = useContext(ChoreoWebViewContext);
+    const { choreoProject, selectedOrg } = useChoreoWebViewContext();
 
     const { data: isSubscribed = false, isFetched: fetchedSubscription } = useQuery({
         queryKey: ["overview_project_subscription", choreoProject?.id, selectedOrg?.id],

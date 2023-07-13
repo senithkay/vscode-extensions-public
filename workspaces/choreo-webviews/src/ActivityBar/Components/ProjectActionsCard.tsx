@@ -11,10 +11,10 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import React, { useContext } from "react";
+import React from "react";
 import { ViewTitle } from "./ViewTitle";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
 import { ComponentsCard } from "./ComponentsCard";
 import { ComponentsPushAction } from './projectActions/ComponentsPushAction';
@@ -36,7 +36,7 @@ const Body = styled.div`
 `;
 
 export const ProjectActionsCard: React.FC = () => {
-    const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoUrl, choreoProject } = useChoreoWebViewContext();
     const { selectedOrg } = useSelectedOrg();
 
     const projectURL = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}`;

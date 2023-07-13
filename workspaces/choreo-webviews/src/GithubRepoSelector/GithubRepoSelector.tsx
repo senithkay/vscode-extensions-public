@@ -13,10 +13,10 @@
 import styled from "@emotion/styled";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Codicon } from "../Codicon/Codicon";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
@@ -67,7 +67,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
 
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useChoreoWebViewContext();
 
     const { isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching } = useQuery({
         queryKey: [`repoData${choreoProject?.id}`],

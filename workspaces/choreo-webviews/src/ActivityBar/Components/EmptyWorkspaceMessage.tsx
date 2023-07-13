@@ -29,13 +29,6 @@ const WideVSCodeButton = styled(VSCodeButton)`
     margin: 15px;
 `;
 
-const ErrorWrap = styled.div`
-    color: var(--vscode-errorForeground);
-    background-color: var(--vscode-errorBackground);
-    border-width: 1px;
-    border-color: var(--vscode-errorBorder);
-`;
-
 
 export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) => {
     
@@ -50,9 +43,10 @@ export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) =
     return (
         <Container>
             {props.projectUnavailable ? (
-                <ErrorWrap>
-                    This project is no longer available in Choreo. Please create a new project or switch to a different project
-                </ErrorWrap>
+                <>
+                    <div>This project is not available in Choreo.</div>
+                    <div>Please create a new project or switch to a different project</div>
+                </>
             ) : (
                 <div>You do not have a Choreo project in current workspace.</div>
             )}

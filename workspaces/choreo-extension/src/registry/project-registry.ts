@@ -31,6 +31,7 @@ import * as yaml from 'js-yaml';
 const PROJECT_LOCATIONS = "project-locations";
 const PROJECT_REPOSITORIES = "project-repositories-v2";
 const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories-v2";
+const EXPANDED_COMPONENTS = "expanded-components";
 
 
 export class ProjectRegistry {
@@ -535,6 +536,21 @@ export class ProjectRegistry {
         }
         // If not, remove the location from the state
         return undefined;
+    }
+
+    setExpandedComponents(projectId: string, expandedComponentNames: string[]) {
+        let projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        if (projectExpandedComponents === undefined) {
+            projectExpandedComponents = {};
+        }
+        projectExpandedComponents[projectId] = expandedComponentNames;
+        ext.context.globalState.update(EXPANDED_COMPONENTS, projectExpandedComponents);
+    }
+
+    getExpandedComponents(projectId: string): string[] {
+        const projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        const componentNames = projectExpandedComponents?.[projectId];
+        return componentNames ?? [];
     }
 
     setProjectRepository(projectId: string, repo: GitRepo) {
