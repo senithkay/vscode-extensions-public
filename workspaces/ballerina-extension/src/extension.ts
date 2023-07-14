@@ -119,7 +119,7 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
         
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();
-            ballerinaExtInstance.showMissingBallerinaHomeWarning();
+            ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
 
             cmds.forEach((cmd) => {
                 const cmdID: string = cmd.command;

@@ -372,7 +372,7 @@ export class BallerinaExtension {
         });
     }
 
-    showMissingBallerinaHomeWarning(): any {
+    showMissingBallerinaErrInStatusBar(): any {
         this.sdkVersion.text = "Ballerina SDK: Not Found";
         this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
         this.sdkVersion.command = showMessageInstallBallerinaCommand;
