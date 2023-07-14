@@ -20,7 +20,7 @@ import {
     CloseWebViewNotification,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    ShowErrorMessage, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
     Component, UpdateProjectOverview,
@@ -245,14 +245,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(GetExpandedComponents, (projectId: string) => {
         return ProjectRegistry.getInstance().getExpandedComponents(projectId);
-    });
-
-    messenger.onRequest(setProjectRepository, async (params) => {
-        ProjectRegistry.getInstance().setProjectRepository(params.projId, params.repo);
-    });
-
-    messenger.onRequest(getProjectRepository, (projectId: string) => {
-        return ProjectRegistry.getInstance().getProjectRepository(projectId);
     });
 
     messenger.onRequest(setPreferredProjectRepository, async (params) => {

@@ -53,6 +53,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
     } = useQuery({
         queryKey: ["is_choreo_project"],
         queryFn: () => ChoreoWebViewAPI.getInstance().isChoreoProject(),
+        refetchOnWindowFocus: false
     });
 
     const {
@@ -62,6 +63,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
     } = useQuery({
         queryKey: ["choreo_login_status"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
+        refetchOnWindowFocus: false
     });
 
     const {
@@ -73,6 +75,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         queryKey: ["choreo_user_info", loginStatus],
         queryFn: () => ChoreoWebViewAPI.getInstance().getUserInfo(),
         enabled: loginStatus === "LoggedIn",
+        refetchOnWindowFocus: false
     });
 
     const {
@@ -83,6 +86,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         queryKey: ["choreo_selected_org", loginStatus],
         queryFn: () => ChoreoWebViewAPI.getInstance().getCurrentOrg(),
         enabled: loginStatus === "LoggedIn",
+        refetchOnWindowFocus: false
     });
 
     const {
@@ -93,12 +97,14 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         queryKey: ["choreo_project_details", loginStatus, isChoreoProject, selectedOrg],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
         enabled: loginStatus === "LoggedIn" && isChoreoProject,
+        refetchOnWindowFocus: false
     });
 
     const { data: userOrgs, error: allOrgError } = useQuery({
         queryKey: ["choreo_all_user_orgs", loginStatus],
         queryFn: () => ChoreoWebViewAPI.getInstance().getAllOrgs(),
         enabled: loginStatus === "LoggedIn",
+        refetchOnWindowFocus: false
     });
 
     useEffect(() => {
@@ -136,7 +142,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
                 choreoUrl,
                 loginStatusPending: loginStatusLoading || userInfoLoading,
                 fetchingOrgInfo: selectedOrgLoading,
-                loadingProject: isChoreoProjectLoading || choreoProjectLoading,
+                loadingProject: isChoreoProjectLoading || (isChoreoProject === true && choreoProjectLoading),
             }}
         >
             {children}

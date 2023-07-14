@@ -52,6 +52,8 @@ export interface Project {
     repository?: string,
     credentialId?: string,
     branch?: string,
+    gitOrganization?: string;
+    gitProvider?: string,
 }
 
 export interface ComponentCount {

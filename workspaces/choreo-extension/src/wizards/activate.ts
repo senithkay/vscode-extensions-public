@@ -32,11 +32,11 @@ export function activateWizards() {
     });
 
     const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async (mode?: ComponentCreateMode) => {
-
         if (mode) {
-            if (!componentWizard || !componentWizard.getWebview()) {
-                componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, mode);
+            if (componentWizard) {
+                componentWizard.dispose();
             }
+            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, mode);
             componentWizard.getWebview()?.reveal();
             return;
         }
@@ -58,9 +58,10 @@ export function activateWizards() {
 		const selected = await window.showQuickPick(items, options);
 
         if(selected){
-            if (!componentWizard || !componentWizard.getWebview()) {
-                componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, selected.label === "$(add) From scratch" ? 'fromScratch' : 'fromExisting');
+            if (componentWizard) {
+                componentWizard.dispose();
             }
+            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, selected.label === "$(add) From scratch" ? 'fromScratch' : 'fromExisting');
             componentWizard.getWebview()?.reveal();
         }      
     });

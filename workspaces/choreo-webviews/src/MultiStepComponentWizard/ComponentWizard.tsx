@@ -165,6 +165,8 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
 
 
 export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMode }> = (props) => {
+    const { loginStatus, choreoProject } = useChoreoWebViewContext();
+
     const initialState: WizardState<Partial<ComponentWizardState>> = {
         currentStep: 0,
         formData: {
@@ -187,7 +189,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
                 repo: '',
                 org: '',
                 branch: '',
-                isMonoRepo: undefined
+                isMonoRepo: false
             },
             port: '3000',
             endpointContext: '.',
@@ -205,50 +207,30 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         isStepValidating: false,
     };
 
-    const { loginStatus, choreoProject } = useChoreoWebViewContext();
     const [state, setState] = useState(initialState);
-    
-
-    const updateGitData = (repoData: GitRepo, isMonoRepo = false) => {
-        setState({
-            ...state,
-            formData: {
-                ...state.formData,
-                repository: {
-                    ...state.formData.repository,
-                    gitProvider: repoData.provider,
-                    org: repoData.orgName,
-                    repo: repoData.repoName,
-                    credentialID: repoData.bitbucketCredentialId || '',
-                    isMonoRepo
-                }
-            }
-        })
-    }
-
-    // todo: Remove once mono repo details are coming from the API
-    useQuery(
-        ["getProjectRepository", choreoProject?.id, state.formData?.repository?.isMonoRepo],
-        async () => {
-            const webViewApi = ChoreoWebViewAPI.getInstance();
-            const repoData = await webViewApi.getProjectRepository(choreoProject?.id);
-            if (repoData) {
-                updateGitData(repoData, true);
-            } else {
-                const preferredRepoData = await webViewApi.getPreferredProjectRepository(choreoProject?.id);
-                if (preferredRepoData) {
-                    updateGitData(preferredRepoData);
-                }
-            }
-        },
-        { enabled: !!choreoProject?.id && state.formData?.repository?.isMonoRepo === undefined }
-    );
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: CREATE_COMPONENT_START_EVENT,
         });
     }, []);
+
+    useEffect(() => {
+        setState({
+            ...state,
+            formData: {
+                ...state.formData,
+                repository: {
+                    ...state.formData.repository,
+                    repo: choreoProject?.repository ?? '',
+                    org: choreoProject?.gitOrganization ?? '',
+                    branch: choreoProject?.branch ?? '',
+                    isMonoRepo: choreoProject?.repository ? true : false,
+                    gitProvider: choreoProject?.gitProvider ? choreoProject?.gitProvider as GitProvider : GitProvider.GITHUB,
+                }
+            }
+        })
+    }, [choreoProject])
 
     const { formData: { type, mode, implementationType, repository } } = state;
 
