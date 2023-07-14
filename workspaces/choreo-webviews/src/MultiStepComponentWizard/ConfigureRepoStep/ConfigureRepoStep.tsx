@@ -22,7 +22,7 @@ import { ComponentWizardState } from "../types";
 import { GithubRepoBranchSelector } from "./GithubRepoBranchSelector";
 import { RepoStructureConfig } from "./RepoStructureConfig";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectTypeCard } from "../../ProjectWizard/ProjectTypeCard";
+import { ProviderTypeCard } from "../../ProjectWizard/ProviderTypeCard";
 import { ChoreoComponentType, ChoreoImplementationType, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
@@ -301,13 +301,13 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             {!isMonoRepo && (<>
                 <SubContainer>
                     <CardContainer>
-                        <ProjectTypeCard
+                        <ProviderTypeCard
                             type={GitProvider.GITHUB}
                             label="GitHub"
                             currentType={gitProvider}
                             onChange={changeGitProvider}
                         />
-                        <ProjectTypeCard
+                        <ProviderTypeCard
                             type={GitProvider.BITBUCKET}
                             label="BitBucket"
                             currentType={gitProvider}

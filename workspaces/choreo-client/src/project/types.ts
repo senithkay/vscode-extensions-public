@@ -19,6 +19,9 @@ export interface CreateProjectParams {
     orgHandle: string;
     version?: string;
     region?: string;
+    credentialId?: string;
+    repository?: string;
+    branch?: string;
 }
 
 export interface DeleteProjectParams {
