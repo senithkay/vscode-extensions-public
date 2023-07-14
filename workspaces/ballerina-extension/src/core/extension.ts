@@ -9,7 +9,7 @@
 
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
-    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor, ThemeColor
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -104,6 +104,7 @@ export interface WebviewContext {
     type?: WEBVIEW_TYPE;
 }
 
+const showMessageInstallBallerinaCommand = 'ballerina.showMessageInstallBallerina';
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
@@ -183,6 +184,10 @@ export class BallerinaExtension {
             outputChannel.show();
         });
         this.context!.subscriptions.push(showLogs);
+
+        commands.registerCommand(showMessageInstallBallerinaCommand, () => {
+            this.showMessageInstallBallerina();
+        });
 
         try {
             // Register pre init handlers.
@@ -270,6 +275,7 @@ export class BallerinaExtension {
         // ask to enable debug logs.
         // we can ask the user to report the issue.
         this.sdkVersion.text = `Ballerina SDK: Error`;
+        this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
         window.showErrorMessage(UNKNOWN_ERROR);
     }
 
@@ -364,6 +370,12 @@ export class BallerinaExtension {
                 }
             });
         });
+    }
+
+    showMissingBallerinaHomeWarning(): any {
+        this.sdkVersion.text = "Ballerina SDK: Not Found";
+        this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
+        this.sdkVersion.command = showMessageInstallBallerinaCommand;
     }
 
     showMessageInstallBallerina(): any {

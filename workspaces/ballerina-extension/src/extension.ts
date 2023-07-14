@@ -115,12 +115,21 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
         isPluginStartup = false;
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
+        const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
+        
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();
+            ballerinaExtInstance.showMissingBallerinaHomeWarning();
+
+            cmds.forEach((cmd) => {
+                const cmdID: string = cmd.command;
+                commands.registerCommand(cmdID, () => {
+                    ballerinaExtInstance.showMessageInstallBallerina();
+                });
+            });
         }
         // When plugins fails to start, provide a warning upon each command execution
-        if (!ballerinaExtInstance.langClient) {
-            const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
+        else if (!ballerinaExtInstance.langClient) {
             cmds.forEach((cmd) => {
                 const cmdID: string = cmd.command;
                 commands.registerCommand(cmdID, () => {
