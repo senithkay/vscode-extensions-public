@@ -21,7 +21,7 @@ export function getCreateProjectMutation(params: CreateProjectParams) {
                 name: "${name}",
                 description: "${description}",
                 orgId: ${orgId},
-                 orgHandler: "${orgHandle}",
+                orgHandler: "${orgHandle}",
                 version: "${version}",
                 region: "${region}",
                 repository: "${repository}",

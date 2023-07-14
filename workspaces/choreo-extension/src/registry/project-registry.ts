@@ -553,21 +553,6 @@ export class ProjectRegistry {
         return componentNames ?? [];
     }
 
-    setProjectRepository(projectId: string, repo: GitRepo) {
-        let projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
-        if (projectRepositories === undefined) {
-            projectRepositories = {};
-        }
-        projectRepositories[projectId] = repo;
-        ext.context.globalState.update(PROJECT_REPOSITORIES, projectRepositories);
-    }
-
-    getProjectRepository(projectId: string): GitRepo | undefined {
-        const projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
-        const repo = projectRepositories?.[projectId];
-        return repo;
-    }
-
     setPreferredProjectRepository(projectId: string, repo: GitRepo) {
         let projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
         if (projectRepositories === undefined) {
@@ -580,9 +565,6 @@ export class ProjectRegistry {
     getPreferredProjectRepository(projectId: string): GitRepo | undefined {
         const projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
         let preferredRepository: GitRepo | undefined = projectRepositories ? projectRepositories[projectId] : undefined;
-        if (preferredRepository === undefined) {
-            preferredRepository = this.getProjectRepository(projectId);
-        }
         return preferredRepository;
     }
 

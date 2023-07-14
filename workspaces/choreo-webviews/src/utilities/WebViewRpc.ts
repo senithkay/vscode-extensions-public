@@ -33,8 +33,6 @@ import {
     OpenExternal,
     OpenChoreoProject,
     CloneChoreoProject,
-    setProjectRepository,
-    getProjectRepository,
     isChoreoProject,
     getChoreoProject,
     PushLocalComponentsToChoreo,
@@ -195,14 +193,6 @@ export class ChoreoWebViewAPI {
 
     public async getExpandedComponents(projId: string): Promise<string[]> {
         return this._messenger.sendRequest(GetExpandedComponents, HOST_EXTENSION, projId);
-    }
-
-    public async setProjectRepository(projId: string, repo: GitRepo): Promise<void> {
-        return this._messenger.sendRequest(setProjectRepository, HOST_EXTENSION, { projId, repo });
-    }
-
-    public async getProjectRepository(projId: string): Promise<GitRepo> {
-        return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
     }
 
     public async setPreferredProjectRepository(projId: string, repo: GitRepo): Promise<void> {

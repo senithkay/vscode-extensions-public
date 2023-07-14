@@ -74,9 +74,9 @@ export const ComponentContextMenu = (props: {
             label: (
                 <>
                     <IconWrap style={{ width: 16, height: 16 }}>
-                        {GitProvider.GITHUB ? <GithubIcon /> : <BitBucketIcon />}
+                        {repository.gitProvider === GitProvider.BITBUCKET ? <BitBucketIcon /> : <GithubIcon />}
                     </IconWrap>
-                    &nbsp; {repository.gitProvider === GitProvider.GITHUB ? "Open in Github" : "Open in BitBucket"}
+                    &nbsp; {repository.gitProvider === GitProvider.BITBUCKET ? "Open in BitBucket" : "Open in GitHub"}
                 </>
             ),
             onClick: () => onOpenRepo(),

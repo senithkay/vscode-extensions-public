@@ -21,7 +21,7 @@ import { RequiredFormInput } from "../Commons/RequiredInput";
 import { ProviderTypeCard } from "./ProviderTypeCard";
 import { ProjectTypeCard } from "./ProjectTypeCard";
 import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
-import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo, Project } from "@wso2-enterprise/choreo-core";
+import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 
@@ -127,19 +127,17 @@ export function ProjectWizard() {
                     description: projectDescription,
                     orgId: selectedOrg.id,
                     orgHandle: selectedOrg.handle,
-                    repository: repoString,
-                    credentialId: selectedCredential.id,
-                    branch: selectedBranch,
+                    repository: repoString ?? '',
+                    credentialId: selectedCredential.id ?? '',
+                    branch: selectedBranch ?? '',
                 });
-                if (initMonoRepo) {
-                    const repoDetails: GitRepo = { provider: gitProvider, orgName: selectedGHOrgName, repoName: selectedGHRepo };
-                    if (gitProvider === GitProvider.BITBUCKET) {
-                        repoDetails.bitbucketCredentialId = selectedCredential?.id
-                    }
-                    await webviewAPI.setProjectRepository(createdProject.id, repoDetails);
-                }
 
-                handleCloneProject(createdProject);
+                handleCloneProject({
+                    ...createdProject,
+                    repository: selectedGHRepo,
+                    gitOrganization: selectedGHOrgName,
+                    gitProvider
+                });
 
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                     eventName: CREATE_PROJECT_SUCCESS_EVENT,
@@ -147,9 +145,6 @@ export function ProjectWizard() {
                         name: createdProject?.name,
                     }
                 });
-                await webviewAPI.triggerCmd("wso2.choreo.projects.registry.refresh");
-                await webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
-                await webviewAPI.triggerCmd("wso2.choreo.projects.tree.refresh");
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
