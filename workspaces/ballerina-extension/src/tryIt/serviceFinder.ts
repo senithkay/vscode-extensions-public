@@ -35,13 +35,13 @@ export function findRunningBallerinaServices(projectPath: string): Promise<Proce
 
             // Extract the service name, PID, and command information
             let services = processes.map((service) => {
-                const [, serviceName, pid, command] = service.trim().match(/(\S+)\s+(\d+)\s+(.+)/);
-                const port = getServicePort(pid);
+                const [, serviceName, pid, command] = service.trim().match(/(\S+)\s+(\d+)\s+(.+)/) || [];
+                const port = pid ? getServicePort(pid) : undefined;
                 return { serviceName, pid, command, port };
             });
 
             // Display the service information
-            services = services.filter((service) => !isNaN(service.port));
+            services = services.filter((service) => !isNaN(service.port as any));
             services.forEach((service) => {
                 debug(`Service: ${service.serviceName} Port: ${service.port}`);
             });
@@ -55,10 +55,12 @@ export function findRunningBallerinaServices(projectPath: string): Promise<Proce
 function getServicePort(pid: string): number | undefined {
     try {
         const output = execSync(getLSOFCommand(platform, pid), { encoding: 'utf-8' });
-        const portMatch = output.match(/:\d+/);
-        if (portMatch) {
-            return parseInt(portMatch[0].substring(1));
-        }
+        if (isNaN(output as any)) {
+            const portMatch = output.match(/:\d+/);
+            if (portMatch) {
+                return parseInt(portMatch[0].substring(1));
+            }
+        } else { return parseInt(output); }
     } catch (error) {
         debug(`Error retrieving port for process ${pid}: ${error}`);
     }
@@ -73,7 +75,7 @@ function getPSCommand(platform: string, searchStr: string): string {
         case 'linux':
             return `ps -A -o comm,pid,cmd | grep -e "${searchStr}"`;
         case 'win32':
-            return `powershell -command "Get-CimInstance -query 'select * from win32_process' | Format-Table "Name ProcessId commandLine" -AutoSize -Wrap" | findstr ${searchStr}`;
+            return `powershell -command "Get-CimInstance -query \\"select * from win32_process WHERE commandLine LIKE '%${searchStr.replaceAll("\\", "\\\\")}%'\\" | Format-Table Name,ProcessId,commandLine | Out-String -Width 512"`;
         default:
             throw new Error(`Unsupported platform: ${platform}`);
     }
