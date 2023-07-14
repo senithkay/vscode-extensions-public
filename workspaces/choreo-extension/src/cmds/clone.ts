@@ -227,7 +227,7 @@ export const cloneProject = async (project: Project, dirPath = "") => {
         getLogger().debug("Cloning project: " + project.name);
 
         const { id, name: projectName, orgId } = project;
-        const selectedOrg = ext.api.selectedOrg;
+        const selectedOrg = ext.api.getOrgById(parseInt(orgId));
 
         if (selectedOrg) {
             getLogger().debug("getting folder path to clone project: " + project.name);

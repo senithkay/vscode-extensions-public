@@ -10,23 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import { choreoSignOutCmdId } from "../../constants";
-import { ext } from "../../extensionVariables";
-import { getIconPath } from "../../icons";
+import { useContext } from "react";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
-export class ChoreoSignOutTreeItem extends TreeItem {
-    constructor(
-    ) {
-      super("Sign out from Choreo...", TreeItemCollapsibleState.None);
-      this.command = {
-        command: choreoSignOutCmdId,
-        title: 'Sign out from Choreo'
-      };
-    }
-  
-    iconPath = {
-      light: getIconPath('sign-out', "light"),
-      dark: getIconPath('sign-out', "dark")
-    };
+export function useOrgOfCurrentProject() {
+    const { userInfo, choreoProject } = useContext(ChoreoWebViewContext);
+    return userInfo?.organizations.find(org => org.id.toString() === choreoProject?.orgId);
 }

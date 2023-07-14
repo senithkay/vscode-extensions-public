@@ -11,15 +11,12 @@
  *  associated services.
  */
 import React from "react";
-import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import { ChoreoLoginStatus, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoWebViewContext {
     loginStatus: ChoreoLoginStatus;
     loginStatusPending: boolean;
     userInfo: UserInfo;
-    fetchingOrgInfo: boolean;
-    selectedOrg?: Organization;
-    userOrgs?: Organization[];
     error?: Error;
     isChoreoProject?: boolean;
     choreoProject?: Project;
@@ -30,7 +27,6 @@ export interface IChoreoWebViewContext {
 const defaultContext: IChoreoWebViewContext = {
     loginStatus: "Initializing",
     loginStatusPending: true,
-    fetchingOrgInfo: true,
     userInfo: undefined,
     choreoUrl: "",
     projectUnavailable: false

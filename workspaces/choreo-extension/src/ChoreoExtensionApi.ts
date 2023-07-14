@@ -33,7 +33,7 @@ import { getLogger } from './logger/logger';
 import * as path from "path";
 import { enrichDeploymentData, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
-import { SELECTED_ORG_ID_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
+import { STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -47,9 +47,8 @@ export interface IChoreoExtensionAPI {
 
 export class ChoreoExtensionApi {
     private _userInfo: UserInfo | undefined;
-
     private _status: ChoreoLoginStatus;
-    private _selectedOrg: Organization | undefined;
+
     private _selectedProjectId: string | undefined;
 
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
@@ -82,6 +81,7 @@ export class ChoreoExtensionApi {
         }
         return this._userInfo;
     }
+
     public set userInfo(value: UserInfo | undefined) {
         // update the user info in the global state
         if (value) {
@@ -95,23 +95,10 @@ export class ChoreoExtensionApi {
     public get status(): ChoreoLoginStatus {
         return this._status;
     }
+
     public set status(value: ChoreoLoginStatus) {
         this._status = value;
         this._onStatusChanged.fire(value);
-    }
-
-    public get selectedOrg(): Organization | undefined {
-        return this._selectedOrg;
-    }
-
-    public set selectedOrg(selectedOrg: Organization | undefined) {
-        this._selectedOrg = selectedOrg;
-        // In case this is a signout, where the selected org is undefined, we don't want to update the global state
-        // If user logs in again, we can use the last selected org from the global state
-        if (selectedOrg) {
-            ext.context.globalState.update(SELECTED_ORG_ID_KEY, selectedOrg?.id);
-        }
-        this._onOrganizationChanged.fire(selectedOrg);
     }
 
     public set selectedProjectId(selectedProjectId: string) {
@@ -132,6 +119,20 @@ export class ChoreoExtensionApi {
         return exchangeAuthToken(authCode);
     }
 
+    public getOrgById(orgId: number): Organization | undefined {
+        if (this.userInfo) {
+            return this.userInfo.organizations.find(org => org.id === orgId);
+        }
+        return undefined;
+    }
+
+    public getOrgByHandle(orgHandle: string): Organization | undefined {
+        if (this.userInfo) {
+            return this.userInfo.organizations.find(org => org.handle === orgHandle);
+        }
+        return undefined;
+    }
+    
     public async waitForLogin(): Promise<boolean> {
         switch (this._status) {
             case STATUS_LOGGED_IN:
@@ -194,8 +195,7 @@ export class ChoreoExtensionApi {
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
             const projectID = workspaceConfig.metadata?.choreo?.projectID,
                 orgId = workspaceConfig.metadata?.choreo?.orgId;
-            const selectedOrg = ext.api.selectedOrg?.id;
-            if (projectID && orgId && orgId === selectedOrg) {
+            if (projectID && orgId) {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
         }
@@ -222,8 +222,13 @@ export class ChoreoExtensionApi {
     }
 
     public async enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined> {
-        const projectID = this.getChoreoProjectId();
-        if (projectID && this._selectedOrg?.id) {
+        const choreoProject = await this.getChoreoProject();
+        if (choreoProject) {
+            const { id: projectID, orgId } = choreoProject;
+            const organization = this.getOrgById(parseInt(orgId));
+            if (!organization) {
+                throw new Error(`Organization with id ${orgId} not found under user ${this.userInfo?.displayName}`);
+            }
             const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(projectID);
             if (workspaceFileLocation) {
                 const workspaceFileConfig: WorkspaceConfig = JSON.parse(readFileSync(workspaceFileLocation).toString());
@@ -232,7 +237,7 @@ export class ChoreoExtensionApi {
 
                 if (workspaceFileConfig?.folders && projectRoot) {
                     const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(projectID,
-                        (this._selectedOrg as Organization).handle, (this._selectedOrg as Organization).uuid);
+                        organization.handle, organization.uuid);
 
                     choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
                         const wsConfig = workspaceFileConfig.folders.find(component =>
@@ -260,9 +265,14 @@ export class ChoreoExtensionApi {
     }
 
     public async deleteComponent(projectId: string, componentPath: string) {
-        const workspaceFilepath = ProjectRegistry.getInstance().getProjectLocation(projectId);
-        if (workspaceFilepath && ext.api.selectedOrg) {
-            const { handle, uuid } = ext.api.selectedOrg;
+        const choreoProject = await this.getChoreoProject();
+        if (choreoProject) {
+            const { orgId } = choreoProject;
+            const organization = this.getOrgById(parseInt(orgId));
+            if (!organization) {
+                throw new Error(`Organization with id ${orgId} not found under user ${this.userInfo?.displayName}`);
+            }
+            const {  handle, uuid } = organization;
             const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, handle, uuid);
             const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
             const toDelete = components.find(component =>

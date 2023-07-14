@@ -85,9 +85,9 @@ export class ProjectRegistry {
     // the tree view refresh as it is just to be used for the tree view.
     async refreshProjects(): Promise<Project[] | undefined> {
         await this.clean();
-        const selectedOrg = ext.api.selectedOrg;
-        if (selectedOrg) {
-            return this.getProjects(selectedOrg.id);
+        const selectedOrgId = ext.api.getOrgIdOfCurrentProject();
+        if (selectedOrgId) {
+            return this.getProjects(selectedOrgId);
         }
     }
 

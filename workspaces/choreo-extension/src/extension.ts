@@ -29,7 +29,7 @@ import { getLogger, initLogger } from "./logger/logger";
 import { choreoSignInCmdId } from './constants';
 import { activateTelemetry } from './telemetry/telemetry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
-import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, Organization, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
+import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 import { activateActivityBarWebViews } from './views/webviews/ActivityBar/activate';
 import { activateCmds } from './cmds';
 import { TokenStorage } from './auth/TokenStorage';

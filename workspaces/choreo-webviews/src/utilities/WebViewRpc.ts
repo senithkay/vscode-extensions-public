@@ -86,6 +86,11 @@ import {
     FireRefreshComponentList,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
+    PushLocalComponentsToChoreoParams,
+    CheckProjectDeletedParams,
+    CloneChoreoProjectParams,
+    GetDeletedComponentsParams,
+    GetComponentsRequestParams,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -127,16 +132,16 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetUserInfoRequest, HOST_EXTENSION, undefined);
     }
 
-    public async getAllProjects(): Promise<Project[]> {
-        return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
+    public async getAllProjects(orgId: number): Promise<Project[]> {
+        return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, orgId);
     }
 
-    public async getComponents(projectId: string): Promise<Component[]> {
-        return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
+    public async getComponents(params: GetComponentsRequestParams): Promise<Component[]> {
+        return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, params);
     }
     
-    public async getDeletedComponents(projectId: string): Promise<PushedComponent[]> {
-        return this._messenger.sendRequest(GetDeletedComponents, HOST_EXTENSION, projectId);
+    public async getDeletedComponents(params: GetDeletedComponentsParams): Promise<PushedComponent[]> {
+        return this._messenger.sendRequest(GetDeletedComponents, HOST_EXTENSION, params);
     }
 
     public async removeDeletedComponents(params: {projectId: string; components: PushedComponent[]}): Promise<void> {
@@ -171,8 +176,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenChoreoProject, HOST_EXTENSION, projectId);
     }
 
-    public async cloneChoreoProject(projectId: string): Promise<void> {
-        return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
+    public async cloneChoreoProject(params: CloneChoreoProjectParams): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, params);
     }
 
     public async cloneChoreoProjectWithDir(project: Project, dirPath: string): Promise<void> {
@@ -227,8 +232,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetLocalComponentDirMetaData, HOST_EXTENSION, params);
     }
 
-    public async checkProjectDeleted(projectId: string): Promise<boolean> {
-        return this._messenger.sendRequest(CheckProjectDeleted, HOST_EXTENSION, projectId);
+    public async checkProjectDeleted(params: CheckProjectDeletedParams): Promise<boolean> {
+        return this._messenger.sendRequest(CheckProjectDeleted, HOST_EXTENSION, params);
     }
 
     public async createNonBalComponent(params: ChoreoComponentCreationParams): Promise<void> {
@@ -243,8 +248,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
     }
 
-    public async pushLocalComponentsToChoreo(projectId: string): Promise<void> {
-        return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, projectId);
+    public async pushLocalComponentsToChoreo(params: PushLocalComponentsToChoreoParams): Promise<void> {
+        return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, params);
     }
 
     public async pushLocalComponentToChoreo(params: {projectId: string, componentName: string}): Promise<void> {

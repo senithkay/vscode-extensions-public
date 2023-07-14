@@ -13,10 +13,8 @@
 import { ExtensionContext } from "vscode";
 import { activateOpenProjectCmd } from "./open-project";
 import { activateOpenInConsoleCmd } from "./open-in-console";
-import { activateChangeOrgCmd } from "./change-org";
 
 export function activateCmds(context: ExtensionContext) {
     activateOpenProjectCmd(context);
     activateOpenInConsoleCmd(context);
-    activateChangeOrgCmd(context);
 }

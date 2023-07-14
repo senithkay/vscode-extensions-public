@@ -24,6 +24,7 @@ import { RepoStructureConfig } from "./RepoStructureConfig";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectTypeCard } from "../../ProjectWizard/ProjectTypeCard";
 import { ChoreoComponentType, ChoreoImplementationType, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
 const StepContainer = styled.div`
     display: flex;
@@ -90,7 +91,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const gitProvider = formData?.repository?.gitProvider;
     const isMonoRepo = formData?.repository?.isMonoRepo;
 
-    const { choreoProject, selectedOrg: org } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const org = useOrgOfCurrentProject();
 
     const { isLoading: isFetchingCredentials, data: credentials, refetch: refetchCredentials, isRefetching: isRefetching } = useQuery({
         queryKey: ['git-bitbucket-credentials', org?.uuid, gitProvider],

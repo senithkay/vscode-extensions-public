@@ -19,10 +19,11 @@ import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
 import { Organization, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT } from '@wso2-enterprise/choreo-core';
-import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from '../constants';
+import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from '../constants';
 import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
+import { parse } from 'path';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -128,16 +129,20 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
                 await exchangeRefreshToken(currentAsgardioToken.refreshToken);
                 const newAsgardioToken = await ext.tokenStorage.getToken("asgardio.token");
                 if (newAsgardioToken?.accessToken) {
-                    if (ext.api.selectedOrg) {
-                        getLogger().debug("Exchanged refresh token.");
-                        await exchangeChoreoAPIMToken(newAsgardioToken?.accessToken,
-                                ext.api.selectedOrg?.handle,
-                                ext.api.selectedOrg?.id);
-                    } else {
-                        getLogger().error("Exchanged refresh token. No selected org found.");
+                    getLogger().debug("New Asgardio token found in token store.");
+                    
+                    // get org id from tokenType, get the org from the id
+                    if (tokenType.startsWith("choreo.apim.token.org.")) {
+                        const orgId = tokenType.split("choreo.apim.token.org.")[1];
+                        const org = ext.api.getOrgById(parseInt(orgId));
+                        if (org) {
+                            await exchangeChoreoAPIMToken(newAsgardioToken.accessToken, org.handle, org.id);
+                        } else {
+                            throw new Error("Organization was not found in user info!");
+                        }
                     }
                 } else {
-                    throw new Error("New token was not found in token store!");
+                    throw new Error("New Asgardio token was not found in token store!");
                 }
             } catch (error: any) {
                 getLogger().error("Error while exchanging the refresh token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
@@ -279,14 +284,6 @@ export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
             }
         }
     }
-    // Else we need to select the org that was selected last time.
-    const currentSelectedOrgId = ext.context.globalState.get(SELECTED_ORG_ID_KEY);
-    if (currentSelectedOrgId) {
-        const foundOrg = userOrgs.find(org => org.id === currentSelectedOrgId);
-        if (foundOrg) {
-            return foundOrg;
-        }
-    }
     // Else we need to select the first org.
     return userOrgs[0];
 }
@@ -315,7 +312,6 @@ export async function signin(isExistingSession?: boolean) {
         throw new Error("No organizations found for the user.");
     }
     await exchangeChoreoAPIMToken(asgardioToken?.accessToken, selectedOrg.handle, selectedOrg.id);
-    ext.api.selectedOrg = selectedOrg;
     ext.api.status = STATUS_LOGGED_IN;
 }
 
@@ -325,5 +321,4 @@ export async function signOut() {
     await ext.tokenStorage.deleteToken('asgardio.token');
     ext.api.status = STATUS_LOGGED_OUT;
     ext.api.userInfo = undefined;
-    ext.api.selectedOrg = undefined;
 }

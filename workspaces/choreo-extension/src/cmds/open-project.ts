@@ -21,9 +21,17 @@ import { Organization, Project } from '@wso2-enterprise/choreo-core';
 
 export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, () => {
-        const targetOrg = ext.api.selectedOrg || ext.api.userInfo?.organizations?.[0];
-        if (targetOrg) {
-            showSwitchProjectQuickPick(targetOrg);
+        const currentOrgId = ext.api.getOrgIdOfCurrentProject();
+        if (currentOrgId) {
+            const currentOrg = ext.api.getOrgById(currentOrgId);
+            if (currentOrg) {
+                showSwitchProjectQuickPick(currentOrg);
+            }
+        } else {
+            const targetOrg = ext.api.userInfo?.organizations?.[0];
+            if (targetOrg) {
+                showSwitchProjectQuickPick(targetOrg);
+            }
         }
     }));
 }

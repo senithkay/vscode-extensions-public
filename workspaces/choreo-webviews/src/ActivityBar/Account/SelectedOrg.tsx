@@ -12,15 +12,9 @@
  */
 import styled from "@emotion/styled";
 import React from "react";
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ViewTitle } from "../Components/ViewTitle";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon } from "../../Codicon/Codicon";
 import { ViewHeader } from "../Components/ViewHeader";
-import { OrgSelector } from "./OrgSelector";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { Organization } from "@wso2-enterprise/choreo-core";
+import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
 const Container = styled.div`
     display: flex;
@@ -38,48 +32,20 @@ const Body = styled.div`
     gap: 10px;
 `;
 
-export const SelectedOrganization = () => {
+export const CurrentOrganization = () => {
 
-    const { selectedOrg } = useContext(ChoreoWebViewContext);
-    const [changeMode, setChangeMode] = React.useState(false);
-
-    const toggleChangeOrg = () => {
-        setChangeMode(!changeMode);
-    };
-
-    const onOrgChange = (newOrg: Organization) => {
-        setChangeMode(false);
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.org.setAsSelected", newOrg);
-    };
+    const org = useOrgOfCurrentProject();
 
     return <Container>
         <ViewHeader>
             <ViewTitle>
-                Organization
+                Project Organization
             </ViewTitle>
-            <VSCodeButton
-                    appearance="icon"
-                    onClick={toggleChangeOrg}
-                    title={"Change Choreo Organization"}
-                    id="change-org-btn"
-                    style={{ marginLeft: "auto" }}
-                    disabled={selectedOrg === undefined}
-                >
-                <Codicon name={changeMode ? "close" : "arrow-swap"} />
-            </VSCodeButton>
         </ViewHeader>
-        {!changeMode && (
-            <Body>
-                {!selectedOrg && <div>fetching organization info...</div>}
-                <div>{selectedOrg?.name}</div>
-                <div style={{ color: "var(--vscode-descriptionForeground)"}}>{selectedOrg?.handle}</div>
-            </Body>
-        )}
-        {changeMode && (
-            <Body>
-                <div>Select Org: </div>
-                <OrgSelector onChange={onOrgChange} />
-            </Body>
-        )}
+        <Body>
+            {!org && <div>fetching organization info...</div>}
+            <div>{org?.name}</div>
+            <div style={{ color: "var(--vscode-descriptionForeground)"}}>{org?.handle}</div>
+        </Body>
     </Container>;
 };

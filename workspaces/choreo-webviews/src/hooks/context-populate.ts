@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import { ChoreoLoginStatus, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { useState, useEffect } from "react";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -20,9 +20,6 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
     const [loginStatusPending, setLoginStatusPending] = useState(true);
     const [loginStatus, setLoginStatus] = useState<ChoreoLoginStatus>("Initializing");
     const [userInfo, setUserInfo] = useState<UserInfo>(undefined);
-    const [fetchingOrgInfo, setFetchingOrgInfo] = useState(true);
-    const [selectedOrg, setSelectedOrg] = useState<Organization | undefined>(undefined);
-    const [userOrgs, setUserOrgs] = useState<Organization[] | undefined>(undefined);
     const [error, setError] = useState<Error | undefined>(undefined);
     const [isChoreoProject, setIsChoreoProject] = useState<boolean | undefined>(undefined);
     const [choreoProject, setChoreoProject] = useState<Project | undefined>(undefined);
@@ -79,30 +76,13 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
     }, []);
 
     useEffect(() => {
-        const rpcInstance = ChoreoWebViewAPI.getInstance();
-        const fetchOrgInfo = async () => {
-            try {
-              const currOrg = await rpcInstance.getCurrentOrg();
-              const allOrgs = await rpcInstance.getAllOrgs();
-              setSelectedOrg(currOrg);
-              setUserOrgs(allOrgs);
-            } catch (err: any) {
-              setError(err);
-            }
-            setFetchingOrgInfo(false);
-        };
-        fetchOrgInfo();
-        rpcInstance.onSelectedOrgChanged((newOrg) => {
-          console.log("Selected org changed" + JSON.stringify(newOrg));
-          setSelectedOrg(newOrg);
-        });
-    }, []);
-
-    useEffect(() => {
       const rpcInstance = ChoreoWebViewAPI.getInstance();
       const checkIsProjectUnAvailable = async () => {
         try {
-          const isProjectDeleted = await rpcInstance.checkProjectDeleted(choreoProject?.id);
+          const isProjectDeleted = await rpcInstance.checkProjectDeleted({
+              orgId: parseInt(choreoProject?.orgId as string),
+              projectId: choreoProject?.id
+          });
           setProjectUnavailable(isProjectDeleted);
         } catch (err: any) {
           setError(err);
@@ -118,9 +98,6 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
         loginStatusPending,
         loginStatus,
         userInfo,
-        fetchingOrgInfo,
-        selectedOrg,
-        userOrgs,
         error,
         isChoreoProject,
         choreoProject,

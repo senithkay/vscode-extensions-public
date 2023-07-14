@@ -14,7 +14,7 @@ import React, { useContext } from "react";
 import styled from "@emotion/styled";
 import { UserInfo } from "./UserInfo";
 import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
-import { SelectedOrganization } from "./SelectedOrg";
+import { CurrentOrganization } from "./SelectedOrg";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "../Components/ProgressIndicator";
 import { SelectedProject } from "./SelectedProject";
@@ -34,13 +34,13 @@ const Seperator = styled(VSCodeDivider)`
 `;
 
 export const UserDetails = () => {
-    const { fetchingOrgInfo, loginStatusPending } = useContext(ChoreoWebViewContext);
+    const { loginStatusPending } = useContext(ChoreoWebViewContext);
 
     return <Container>
-        {(fetchingOrgInfo || loginStatusPending) && <ProgressIndicator />}
+        {(loginStatusPending) && <ProgressIndicator />}
         <UserInfo />
         <Seperator />
-        <SelectedOrganization />
+        <CurrentOrganization />
         <Seperator />
         <SelectedProject />
     </Container>;

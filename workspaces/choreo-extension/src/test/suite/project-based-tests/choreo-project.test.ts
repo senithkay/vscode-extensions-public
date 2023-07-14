@@ -17,7 +17,7 @@ import { commands, Uri, extensions } from "vscode";
 import { suite, suiteSetup, suiteTeardown } from "mocha";
 import { join } from "path";
 import { Component } from "@wso2-enterprise/choreo-core";
-import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
+import { ChoreoAuthClient, ChoreoProjectClient, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { MockAuthClient, MockKeyChainTokenStorage, MockOrgClient, MockProjectClient } from "../mocked-resources/mocked-clients";
 import { ext } from "../../../extensionVariables";
@@ -73,7 +73,7 @@ suite('Choreo Project Tests', () => {
         const localComponents: Component[] = new ChoreoProjectManager().getLocalComponents(workspaceFileURI.fsPath);
         const expectedComponents: Component[] = [FOO_P1_COMPONENT].concat(localComponents);
         assert.deepStrictEqual(actualComponents, expectedComponents, 'Failed to detect FooProject1 components.');
-        assert.strictEqual(ext.api.selectedOrg, FOO_ORG, 'Failed to detect correct organization.');
+        // assert.strictEqual(ext.api.selectedOrg, FOO_ORG, 'Failed to detect correct organization.');
 
         await wait(1000);
         sinon.assert.called(vscodeTokenStub);

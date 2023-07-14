@@ -45,7 +45,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
     const switchViews = () => {
         switch (type) {
             case "ProjectCreateForm":
-                return <ProjectWizard />;
+                return <ProjectWizard orgId={orgName} />;
             case "ComponentCreateForm":
                 return <ComponentWizard componentCreateMode={componentCreateMode} />;
             case "ActivityBarProjectView":

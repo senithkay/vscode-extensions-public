@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 import { ViewTitle } from "./ViewTitle";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { useSelectedOrg } from "../../hooks/use-selected-org";
+import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 import { ComponentsCard } from "./ComponentsCard";
 import { ComponentsPushAction } from './projectActions/ComponentsPushAction';
 import { ComponentsSyncAction } from './projectActions/ComponentsSyncAction';
@@ -37,9 +37,9 @@ const Body = styled.div`
 
 export const ProjectActionsCard: React.FC = () => {
     const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
-    const { selectedOrg } = useSelectedOrg();
+    const org = useOrgOfCurrentProject();
 
-    const projectURL = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}`;
+    const projectURL = `${choreoUrl}/organizations/${org?.handle}/projects/${choreoProject?.id}`;
 
     const openProjectInChoreoConsole = () => {
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);

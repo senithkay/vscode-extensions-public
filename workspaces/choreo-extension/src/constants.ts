@@ -12,7 +12,6 @@
  */
 export const choreoSignInCmdId = 'wso2.choreo.sign.in';
 export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
-export const setSelectedOrgCmdId = 'wso2.choreo.org.setAsSelected';
 export const refreshProjectsTreeViewCmdId = 'wso2.choreo.projects.tree.refresh';
 export const cloneComponentCmdId = 'wso2.choreo.component.clone';
 export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
@@ -41,5 +40,4 @@ export const choreoAccountTreeId = 'choreo-account';
 
 
 // state keys
-export const SELECTED_ORG_ID_KEY = 'selectedOrgId';
 export const USER_INFO_KEY = 'userInfo';
