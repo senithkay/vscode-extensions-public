@@ -92,7 +92,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                                     }
                                 }
                                 if (!port) {
-                                    window.showErrorMessage('GraphQL service port is required');
+                                    window.showErrorMessage('GraphQL service port is required to use the `Try It` feature');
                                 } else {
 
                                     const newPath = await window.showInputBox({
