@@ -244,17 +244,23 @@ export class ProjectRegistry {
 
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
-            let components = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
+            let components = await executeWithTaskRetryPrompt(() =>
+                projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid })
+            );
             components = this._addLocalComponents(projectId, components);
             components = await Promise.all(
                 components.map(async (component) => {
-                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
-                        this.hasUnPushedLocalCommit(projectId, component),
-                        this.hasDirtyLocalRepo(projectId, component),
-                    ]);
-
                     const componentPath = this.getComponentDirPath(component);
                     const isRemoteOnly = componentPath ? !existsSync(componentPath) : false;
+                    let hasUnPushedLocalCommits = false;
+                    let hasDirtyLocalRepo = false;
+
+                    if (!isRemoteOnly) {
+                        [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
+                            this.hasUnPushedLocalCommit(projectId, component),
+                            this.hasDirtyLocalRepo(projectId, component),
+                        ]);
+                    }
 
                     return {
                         ...component,
