@@ -10,21 +10,20 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback } from "react";
+import React from "react";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
-import {
-    OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT,
-    OPEN_SOURCE_CONTROL_VIEW_EVENT,
-} from "@wso2-enterprise/choreo-core";
+import { OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentRow } from "./ComponentRow";
 import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { ViewTitle } from "./ViewTitle";
-import { NoComponentsMessage } from "./NoComponentsMessage";
 import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
+import { NoComponentsAlert } from "./componentAlerts/NoComponentsAlert";
+import { ComponentSyncAlert } from "./componentAlerts/ComponentSyncAlert";
+import { ComponentsPushAlert } from "./componentAlerts/ComponentsPushAlert";
 
 const Container = styled.div`
     display: flex;
@@ -48,6 +47,12 @@ const Header = styled.div`
 
 const CodeIconWithMargin = styled(Codicon)`
     margin-right: 3px;
+`;
+
+const ComponentActionWrap = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    flex: 1;
 `;
 
 export const ComponentsCard = () => {
@@ -74,58 +79,56 @@ export const ComponentsCard = () => {
         refreshComponents();
     };
 
-    const handleSourceControlClick = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-            eventName: OPEN_SOURCE_CONTROL_VIEW_EVENT,
-        });
-        ChoreoWebViewAPI.getInstance().triggerCmd("workbench.scm.focus");
-    }, []);
-
     const componentsView = (
         <Container>
             <Header>
                 <ViewTitle>Components</ViewTitle>
-                <VSCodeButton
-                    appearance="icon"
-                    onClick={handleCreateComponentClick}
-                    title="Add Component"
-                    id="add-component-btn"
-                    style={{ marginLeft: "auto" }}
-                >
-                    <CodeIconWithMargin name="plus" />
-                </VSCodeButton>
-                <VSCodeButton
-                    appearance="icon"
-                    onClick={handleRefreshComponentsClick}
-                    title="Refresh Component List"
-                    id="refresh-components-btn"
-                >
-                    <CodeIconWithMargin name="refresh" />
-                </VSCodeButton>
-                <VSCodeButton
-                    onClick={() => collapseAllComponents()}
-                    appearance="icon"
-                    title="Collapse all components"
-                    id="collapse-components-btn"
-                >
-                    <CodeIconWithMargin name="collapse-all" />
-                </VSCodeButton>
+                <ComponentActionWrap>
+                    {components?.length > 0 && (
+                        <VSCodeButton
+                            appearance="icon"
+                            onClick={handleCreateComponentClick}
+                            title="Add Component"
+                            id="add-component-btn"
+                        >
+                            <CodeIconWithMargin name="plus" />
+                        </VSCodeButton>
+                    )}
+                    <VSCodeButton
+                        appearance="icon"
+                        onClick={handleRefreshComponentsClick}
+                        title="Refresh Component List"
+                        id="refresh-components-btn"
+                    >
+                        <CodeIconWithMargin name="refresh" />
+                    </VSCodeButton>
+                    {components?.length > 0 && (
+                        <VSCodeButton
+                            onClick={() => collapseAllComponents()}
+                            appearance="icon"
+                            title="Collapse all components"
+                            id="collapse-components-btn"
+                        >
+                            <CodeIconWithMargin name="collapse-all" />
+                        </VSCodeButton>
+                    )}
+                </ComponentActionWrap>
             </Header>
             {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
             <Body>
-                {components &&
-                    components.map((component, index) => (
-                        <>
-                            <ComponentRow
-                                component={component}
-                                handleSourceControlClick={handleSourceControlClick}
-                                expanded={expandedComponents.includes(component.name)}
-                                handleExpandClick={toggleExpandedComponents}
-                            />
-                            {index !== components.length - 1 && <VSCodeDivider />}
-                        </>
-                    ))}
-                {!isLoadingComponents && components && components.length === 0 && <NoComponentsMessage />}
+                <NoComponentsAlert />
+                <ComponentSyncAlert />
+                <ComponentsPushAlert />
+                {components?.map((component, index) => (
+                    <>
+                        <ComponentRow
+                            component={component}
+                            expanded={expandedComponents.includes(component.name)}
+                            handleExpandClick={toggleExpandedComponents}
+                        />
+                        {index !== components.length - 1 && <VSCodeDivider />}
+                    </>
+                ))}
                 {componentLoadError && <div>{componentLoadError}</div>}
             </Body>
         </Container>

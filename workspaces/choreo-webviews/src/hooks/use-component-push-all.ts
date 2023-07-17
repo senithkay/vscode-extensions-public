@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -19,22 +19,32 @@ import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 export function useComponentPushAll() {
     const queryClient = useQueryClient();
     const { choreoProject } = useChoreoWebViewContext();
-    const { refreshComponents } = useChoreoComponentsContext()
-    const { mutate: handlePushAllComponentsClick, isLoading: pushingAllComponents } =
-    useMutation({
-        mutationFn: () => ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(choreoProject?.id ?? ""),
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+    const { refreshComponents } = useChoreoComponentsContext();
+    const { mutate: handlePushAllComponentsClick, isLoading: pushingAllComponents } = useMutation({
+        mutationFn: (componentNames: string[]) =>
+            ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(choreoProject?.id ?? "", componentNames),
+        onError: (error: Error) => {
+            if (error.message) {
+                ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
+            }
+        },
         onMutate: () => {
             ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-                eventName: PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT
-            })
+                eventName: PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT,
+            });
         },
-        onSuccess: async () => {
-            await queryClient.cancelQueries({ queryKey: ["overview_component_list", choreoProject?.id] })
-            const previousComponents: Component[] | undefined = queryClient.getQueryData(["overview_component_list", choreoProject?.id])
-            const updatedComponents = previousComponents?.map(item => ({ ...item, local: false }));
-            queryClient.setQueryData(["overview_component_list", choreoProject?.id], updatedComponents)
-            refreshComponents()
+        onSuccess: async (_, componentNames) => {
+            await queryClient.cancelQueries({ queryKey: ["project_component_list", choreoProject?.id] });
+            const previousComponents: Component[] | undefined = queryClient.getQueryData([
+                "project_component_list",
+                choreoProject?.id,
+            ]);
+            const updatedComponents = previousComponents?.map((item) => ({
+                ...item,
+                local: !componentNames.includes(item.name),
+            }));
+            queryClient.setQueryData(["project_component_list", choreoProject?.id], updatedComponents);
+            refreshComponents();
         },
     });
 

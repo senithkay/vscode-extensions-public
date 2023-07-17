@@ -10,14 +10,15 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "@emotion/styled";
-import { Component } from "@wso2-enterprise/choreo-core";
+import { Component, OPEN_SOURCE_CONTROL_VIEW_EVENT } from "@wso2-enterprise/choreo-core";
 import { VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ComponentDetails } from "./ComponentDetails";
 import { ComponentContextMenu } from "./ComponentContextMenu";
 import { useComponentDelete } from "../../hooks/use-component-delete";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const Container = styled.div`
   display: flex;
@@ -54,14 +55,20 @@ const Flex = styled.div`
 
 export const ComponentRow = (props: {
     component: Component;
-    handleSourceControlClick: () => void;
     expanded: boolean;
     handleExpandClick: (componentName: string) => void;
     loading?: boolean;
 }) => {
-    const { component, handleSourceControlClick, loading, expanded, handleExpandClick } = props;
+    const { component, loading, expanded, handleExpandClick } = props;
     const { deletingComponent, handleDeleteComponentClick } = useComponentDelete(component);
     const actionRequired = component.hasDirtyLocalRepo || component.isRemoteOnly || component.local;
+
+    const handleSourceControlClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_SOURCE_CONTROL_VIEW_EVENT,
+        });
+        ChoreoWebViewAPI.getInstance().triggerCmd("workbench.scm.focus");
+    }, []);
 
     let componentTag: "Local" | "Remote" | undefined;
     if (component.local) {

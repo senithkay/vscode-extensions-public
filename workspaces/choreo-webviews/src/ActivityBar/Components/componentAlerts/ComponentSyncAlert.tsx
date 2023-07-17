@@ -14,33 +14,33 @@ import React, { useCallback } from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_SOURCE_CONTROL_VIEW_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoComponentsContext } from "../../../context/choreo-components-ctx";
-import { ProjectActionLink } from "../ProjectActionLink";
+import { AlertBox } from "../AlertBox";
 
-export const ComponentsSyncAction = () => {
-    const { hasLocalComponents, componentsOutOfSync } = useChoreoComponentsContext()
+export const ComponentSyncAlert = () => {
+    const { componentsOutOfSync, hasDirtyLocalComponents, isLoadingComponents } = useChoreoComponentsContext();
 
     const handleSourceControlClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-            eventName: OPEN_SOURCE_CONTROL_VIEW_EVENT
+            eventName: OPEN_SOURCE_CONTROL_VIEW_EVENT,
         });
         ChoreoWebViewAPI.getInstance().triggerCmd("workbench.scm.focus");
     }, []);
 
-    let syncButtonTooltip = "";
-    if(componentsOutOfSync){
-        if(hasLocalComponents) {
-            syncButtonTooltip = "Some components are not in sync with the upstream repository. Please commit and push them before pushing to Choreo."
-        }else{
-            syncButtonTooltip = "Some components have changes which are not yet pushed to git repository. Please commit them to be visible on Choreo"
-        }
-    }
-
     return (
-        <ProjectActionLink 
-            label="Sync repo changes"
-            tooltip={syncButtonTooltip}
-            onClick={componentsOutOfSync ? handleSourceControlClick : undefined}
-            disabled={!componentsOutOfSync}
-        />            
+        <>
+            {!isLoadingComponents && componentsOutOfSync && (
+                <AlertBox
+                    subTitle={`Some components have pending changes that haven't been pushed to the Git repository. ${
+                        hasDirtyLocalComponents
+                            ? "Please commit and push them before pushing to Choreo."
+                            : "Please commit & push them to be visible on Choreo"
+                    }`}
+                    buttonTitle="Open Source Control"
+                    iconName="source-control"
+                    variant="secondary"
+                    onClick={handleSourceControlClick}
+                />
+            )}
+        </>
     );
 };

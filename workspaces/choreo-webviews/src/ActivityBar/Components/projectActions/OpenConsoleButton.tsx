@@ -12,30 +12,24 @@
  */
 import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
-import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
 
-export const CellViewButton = () => {
-    
-    const { choreoProject } = useChoreoWebViewContext();
+export const OpenConsoleButton = () => {
+    const { choreoProject, choreoUrl, selectedOrg } = useChoreoWebViewContext();
 
-    const handleClick = () => {
-        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-            eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
-            properties: {
-                project: choreoProject?.name
-            }
-        });
-        ChoreoWebViewAPI.getInstance().openCellView();
-    }
-    
+    const projectURL = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}`;
+
+    const openProjectInChoreoConsole = () => {
+        ChoreoWebViewAPI.getInstance().openExternal(projectURL);
+    };
+
     return (
         <ProjectActionButton
-            onClick={handleClick}
-            label="Cell View"
-            iconName="group-by-ref-type"
-            tooltip="Open Cell View"
+            tooltip="Open project in Choreo Console"
+            onClick={openProjectInChoreoConsole}
+            label="Console"
+            iconName="browser"
         />
     );
-}
+};

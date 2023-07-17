@@ -243,8 +243,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
     }
 
-    public async pushLocalComponentsToChoreo(projectId: string): Promise<void> {
-        return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, projectId);
+    public async pushLocalComponentsToChoreo(projId: string, componentNames: string[]): Promise<void> {
+        return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, { projId, componentNames });
     }
 
     public async pushLocalComponentToChoreo(params: {projectId: string, componentName: string}): Promise<void> {

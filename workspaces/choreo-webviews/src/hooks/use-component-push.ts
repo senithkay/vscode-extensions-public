@@ -27,16 +27,16 @@ export function useComponentPush(component: Component) {
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         onSuccess: async (_, name) => {
             await queryClient.cancelQueries({
-                queryKey: ["overview_component_list", component.projectId],
+                queryKey: ["project_component_list", component.projectId],
             });
             const previousComponents: Component[] | undefined = queryClient.getQueryData([
-                "overview_component_list",
+                "project_component_list",
                 component.projectId,
             ]);
             const updatedComponents = previousComponents?.map((item) =>
                 item.name === name ? { ...item, local: false } : item
             );
-            queryClient.setQueryData(["overview_component_list", component.projectId], updatedComponents);
+            queryClient.setQueryData(["project_component_list", component.projectId], updatedComponents);
             refreshComponents();
         },
     });

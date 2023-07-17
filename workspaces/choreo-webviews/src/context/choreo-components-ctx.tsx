@@ -29,15 +29,16 @@ export interface IChoreoComponentsContext {
     componentLoadError: Error | null;
     /** Has the components been fetched for the very first time */
     isComponentsFetched: boolean;
-    /**
-     * Count of every local components that's without any local git changes to commit/push & valid path in remote repo.
-     * These components can be pushed to Choreo
-     * */
+    /** Components without any local git changes to commit/push. These components can be pushed to Choreo */
+    pushableComponents: Component[];
+    /** The count of components that can be pushed to choreo */
     pushableComponentCount: number;
     /** Has any components that can be pushed to choreo */
     hasPushableComponents: boolean;
     /** Does the component list include any local components that have not yet been pushed to choreo */
     hasLocalComponents: boolean;
+    /** Are there any components that have not been pushed but have local changes */
+    hasDirtyLocalComponents: boolean;
     /** Are there any local components with local changes or un-pushed commits */
     componentsOutOfSync: boolean;
     /** Name of the components that are expanded in the panel for a project */
@@ -55,9 +56,11 @@ const defaultContext: IChoreoComponentsContext = {
     refreshComponents: () => undefined,
     componentLoadError: null,
     isComponentsFetched: false,
+    pushableComponents: [],
     pushableComponentCount: 0,
     hasPushableComponents: false,
     hasLocalComponents: false,
+    hasDirtyLocalComponents: false,
     componentsOutOfSync: false,
     expandedComponents: [],
     toggleExpandedComponents: () => undefined,
@@ -147,17 +150,27 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
         },
     });
 
-    const pushableComponentCount = useMemo(() => {
+    const pushableComponents = useMemo(() => {
         const localOnlyComponents = components.filter((component) => component.local);
-        return localOnlyComponents.reduce((count, component) => {
+        return localOnlyComponents.reduce((comps, component) => {
             if (!component.hasDirtyLocalRepo && !component.hasUnPushedLocalCommits) {
-                return count + 1;
+                return [...comps, component];
             }
-            return count;
-        }, 0);
+            return comps;
+        }, []);
     }, [components]);
 
+    const pushableComponentCount = pushableComponents.length;
+
     const hasPushableComponents = useMemo(() => pushableComponentCount > 0, [pushableComponentCount]);
+
+    const hasDirtyLocalComponents = useMemo(
+        () =>
+            components?.some(
+                (component) => component.local && (component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits)
+            ),
+        [components]
+    );
 
     const hasLocalComponents = useMemo(() => components?.some((component) => component.local), [components]);
 
@@ -180,7 +193,9 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
                 isRefetchingComponents,
                 refreshComponents,
                 isComponentsFetched,
+                pushableComponents,
                 pushableComponentCount,
+                hasDirtyLocalComponents,
                 hasPushableComponents,
                 hasLocalComponents,
                 componentsOutOfSync,
