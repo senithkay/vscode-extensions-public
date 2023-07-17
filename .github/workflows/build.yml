@@ -215,7 +215,7 @@ jobs:
       - name: Publish UI Test recording
         uses: actions/upload-artifact@v3
         with:
-          path: workspaces/ballerina-extensio/test-resources/ui-test-out.mp4
+          path: workspaces/ballerina-extension/test-resources/ui-test-out.mp4
           name: Ui-test-recording-${{ github.run_attempt }}
         if: failure()
 
