@@ -24,6 +24,7 @@ import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -87,6 +88,8 @@ const SectionWrapper = styled.div`
     }
 `;
 
+const REGIONS: string[] = ["Cloud Data Plane - US", "Cloud Data Plane - EU"];
+
 export function ProjectWizard() {
 
     const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
@@ -104,6 +107,7 @@ export function ProjectWizard() {
     const [projectDir, setProjectDir] = useState("");
     const [validationInProgress, setValidationInProgress] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState("");
+    const [selectedRegion, setSelectedRegion] = useState("Cloud Data Plane - US");
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -115,28 +119,45 @@ export function ProjectWizard() {
         setInitMonoRepo(isMonoRepo);
     };
 
+    const handleRegionChange = (region: string) => {
+        setSelectedRegion(region);
+    };
+
     const handleCreateProject = async () => {
         setCreationInProgress(true);
         const webviewAPI = ChoreoWebViewAPI.getInstance();
         const projectClient = webviewAPI.getProjectClient();
         if (selectedOrg) {
             try {
-                const repoString = getRepoString();
-                const createdProject = await projectClient.createProject({
-                    name: projectName,
-                    description: projectDescription,
-                    orgId: selectedOrg.id,
-                    orgHandle: selectedOrg.handle,
-                    repository: repoString,
-                    credentialId: selectedCredential.id,
-                    branch: selectedBranch,
-                });
+                let createdProject;
                 if (initMonoRepo) {
+                    //Mono Repo project creation
+                    const repoString = getRepoString();
+                    createdProject = await projectClient.createProject({
+                        name: projectName,
+                        description: projectDescription,
+                        orgId: selectedOrg.id,
+                        orgHandle: selectedOrg.handle,
+                        region: selectedRegion.split(" ")[-1],
+                        repository: repoString,
+                        credentialId: selectedCredential.id,
+                        branch: selectedBranch,
+                    });
+
                     const repoDetails: GitRepo = { provider: gitProvider, orgName: selectedGHOrgName, repoName: selectedGHRepo };
                     if (gitProvider === GitProvider.BITBUCKET) {
                         repoDetails.bitbucketCredentialId = selectedCredential?.id
                     }
                     await webviewAPI.setProjectRepository(createdProject.id, repoDetails);
+                } else {
+                    //Multi Repo project creation
+                    createdProject = await projectClient.createProject({
+                        name: projectName,
+                        description: projectDescription,
+                        orgId: selectedOrg.id,
+                        orgHandle: selectedOrg.handle,
+                        region: selectedRegion.split(" ")[-1]
+                    });
                 }
 
                 handleCloneProject(createdProject);
@@ -233,6 +254,8 @@ export function ProjectWizard() {
                         >
                             Project Description
                         </VSCodeTextArea>
+                        <span>Region</span>
+                        <AutoComplete items={REGIONS} selectedItem={selectedRegion} onChange={handleRegionChange}></AutoComplete>
                         <SubContainer>
                             <CardContainer>
                                 <ProjectTypeCard
@@ -313,7 +336,6 @@ export function ProjectWizard() {
                         </ErrorMessageContainer>
                     )}
                     <ActionContainer>
-
                         <VSCodeButton
                             appearance="secondary"
                             onClick={() => {
