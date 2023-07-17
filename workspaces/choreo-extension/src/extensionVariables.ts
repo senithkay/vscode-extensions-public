@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
+import { ExtensionContext, StatusBarItem } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { TokenStorage } from "./auth/TokenStorage";
 import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, ChoreoSubscriptionClient, ChoreoUserManagementClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";

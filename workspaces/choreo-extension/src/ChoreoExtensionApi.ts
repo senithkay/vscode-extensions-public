@@ -121,7 +121,7 @@ export class ChoreoExtensionApi {
 
     public getOrgById(orgId: number): Organization | undefined {
         if (this.userInfo) {
-            return this.userInfo.organizations.find(org => org.id === orgId);
+            return this.userInfo.organizations.find(org => org.id.toString() === orgId.toString());
         }
         return undefined;
     }
@@ -196,7 +196,11 @@ export class ChoreoExtensionApi {
             const projectID = workspaceConfig.metadata?.choreo?.projectID,
                 orgId = workspaceConfig.metadata?.choreo?.orgId;
             if (projectID && orgId) {
-                return ProjectRegistry.getInstance().getProject(projectID, orgId);
+                const org = this.getOrgById(orgId);
+                if (!org) {
+                    throw new Error(`Organization with id ${orgId} not found for current user`);
+                }
+                return ProjectRegistry.getInstance().getProject(projectID, orgId, org.handle);
             }
         }
     }
@@ -206,19 +210,23 @@ export class ChoreoExtensionApi {
     }
 
     public async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
-        return ProjectRegistry.getInstance().getProject(projectId, orgId);
+        const org = this.getOrgById(orgId);
+        if (!org) {
+            throw new Error(`Organization with id ${orgId} not found for current user`);
+        }
+        return ProjectRegistry.getInstance().getProject(projectId, orgId, org.handle);
     }
 
     public getProjectManager(projectId: string): Promise<IProjectManager | undefined> {
         return Promise.resolve(undefined);
     }
 
-    public async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
-        return ProjectRegistry.getInstance().getPerformanceForecast(data);
+    public async getPerformanceForecastData(orgId: number, orgHandle: string, data: string): Promise<AxiosResponse> {
+        return ProjectRegistry.getInstance().getPerformanceForecast(orgId, orgHandle, data);
     }
 
-    public async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
-        return ProjectRegistry.getInstance().getSwaggerExamples(spec);
+    public async getSwaggerExamples(orgId: number, orgHandle: string, spec: any): Promise<AxiosResponse> {
+        return ProjectRegistry.getInstance().getSwaggerExamples(orgId, orgHandle, spec);
     }
 
     public async enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined> {
@@ -237,6 +245,7 @@ export class ChoreoExtensionApi {
 
                 if (workspaceFileConfig?.folders && projectRoot) {
                     const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(projectID,
+                        organization.id,
                         organization.handle, organization.uuid);
 
                     choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
@@ -272,14 +281,14 @@ export class ChoreoExtensionApi {
             if (!organization) {
                 throw new Error(`Organization with id ${orgId} not found under user ${this.userInfo?.displayName}`);
             }
-            const {  handle, uuid } = organization;
-            const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, handle, uuid);
+            const {  handle, id, uuid } = organization;
+            const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, id, handle, uuid);
             const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
             const toDelete = components.find(component =>
                 folder?.name && (component.name === folder.name || component.name === makeURLSafe(folder.name))
             );
             if (toDelete) {
-                await ProjectRegistry.getInstance().deleteComponent(toDelete, handle, projectId);
+                await ProjectRegistry.getInstance().deleteComponent(toDelete, id, handle, projectId);
             }
         }
     }

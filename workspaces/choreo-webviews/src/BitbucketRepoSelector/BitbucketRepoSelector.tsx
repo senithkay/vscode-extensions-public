@@ -16,6 +16,7 @@ import { FilteredCredentialData, Repo, UserRepo } from "@wso2-enterprise/choreo-
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -57,6 +58,7 @@ export interface GithubRepoSelectorProps {
 export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
 
     const { selectedRepo, onRepoSelect, selectedCred, refreshRepoList } = props;
+    const { currentProjectOrg } = useOrgOfCurrentProject();
     const [repoDetails, setRepoDetails] = useState<UserRepo[]>([]);
     const [bborgs, setBBorgs] = useState<string[]>([]);
     const [bbrepos, setBBrepos] = useState<string[]>([]);
@@ -64,7 +66,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
     const useGetRepoData = async (selectedCred: string) => {
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
         try {
-            return await ghClient.getUserRepos(selectedCred);
+            return await ghClient.getUserRepos(selectedCred, currentProjectOrg?.id);
         } catch (error: any) {
             ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. ");
             throw error;
@@ -188,4 +190,3 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         </>
     );
 }
-

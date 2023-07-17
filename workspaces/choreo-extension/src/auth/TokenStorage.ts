@@ -13,8 +13,6 @@
 import { AccessToken, ChoreoTokenType, ITokenStorage } from "@wso2-enterprise/choreo-client";
 import { ExtensionContext } from "vscode";
 import { VSCodeKeychain } from "./VSCodeKeychain";
-import { } from 'crypto';
-import { ext } from "../extensionVariables";
 
 export class TokenStorage implements ITokenStorage {
 
@@ -24,13 +22,16 @@ export class TokenStorage implements ITokenStorage {
         this._keyChain = new VSCodeKeychain(_ctx);
     }
 
-    async getTokenForCurrentOrg(): Promise<AccessToken | undefined> {
-        const orgId = ext.api.getOrgIdOfCurrentProject();
-        const selectedOrgId = orgId || ext.api.userInfo?.organizations?.[0]?.id;
-        if (selectedOrgId) {
-            return this.getToken(`choreo.apim.token.org.${selectedOrgId}`);
-        }
-        return undefined;
+    setTokenForOrg(orgId: number, token: AccessToken) {
+        return this.setToken(`choreo.apim.token.org.${orgId}`, token);
+    }
+
+    deleteTokenForOrg(orgId: number): Promise<void> {
+        return this.deleteToken(`choreo.apim.token.org.${orgId}`);
+    }
+
+    getTokenForOrg(orgId: number): Promise<AccessToken | undefined> {
+        return this.getToken(`choreo.apim.token.org.${orgId}`);
     }
 
     async setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void> {

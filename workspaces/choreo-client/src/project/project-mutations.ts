@@ -72,7 +72,7 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
 }
 
 export function getCreateBYOCComponentMutation(params: CreateByocComponentParams) {
-    const { name, displayName, componentType, description, orgId, orgHandler, projectId,
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId,
         accessibility, byocConfig, port } = params;
     if(!byocConfig){
         throw new Error('byocConfig not found')
@@ -84,7 +84,7 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
                 displayName: "${displayName}",        
                 description: "${description}", 
                 orgId: ${orgId},  
-                orgHandler: "${orgHandler}",
+                orgHandler: "${orgHandle}",
                 projectId: "${projectId}",  
                 labels: "", 
                 componentType: "${componentType}", 
@@ -104,7 +104,7 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
 }
 
 export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponentParams) {
-    const { name, displayName, componentType, description, orgId, orgHandler, projectId,
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId,
         accessibility, byocWebAppsConfig } = params;
     if(!byocWebAppsConfig){
         throw new Error('byocWebAppsConfig not found');
@@ -124,7 +124,7 @@ export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponent
                 displayName: "${displayName}",        
                 description: "${description}", 
                 orgId: ${orgId},  
-                orgHandler: "${orgHandler}",
+                orgHandler: "${orgHandle}",
                 projectId: "${projectId}",  
                 labels: "", 
                 componentType: "${componentType}", 

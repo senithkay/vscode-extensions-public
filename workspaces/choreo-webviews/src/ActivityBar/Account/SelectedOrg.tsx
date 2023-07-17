@@ -34,7 +34,7 @@ const Body = styled.div`
 
 export const CurrentOrganization = () => {
 
-    const org = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useOrgOfCurrentProject();
 
     return <Container>
         <ViewHeader>
@@ -43,9 +43,9 @@ export const CurrentOrganization = () => {
             </ViewTitle>
         </ViewHeader>
         <Body>
-            {!org && <div>fetching organization info...</div>}
-            <div>{org?.name}</div>
-            <div style={{ color: "var(--vscode-descriptionForeground)"}}>{org?.handle}</div>
+            {!currentProjectOrg && <div>fetching organization info...</div>}
+            <div>{currentProjectOrg?.name}</div>
+            <div style={{ color: "var(--vscode-descriptionForeground)"}}>{currentProjectOrg?.handle}</div>
         </Body>
     </Container>;
 };

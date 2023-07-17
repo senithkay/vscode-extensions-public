@@ -36,9 +36,9 @@ export const ComponentContextMenu = (props: {
     const { component, deletingComponent, handleDeleteComponentClick } = props;
     const { repository } = component;
     const { choreoUrl } = useContext(ChoreoWebViewContext);
-    const org = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useOrgOfCurrentProject();
 
-    const componentBaseUrl = `${choreoUrl}/organizations/${org?.handle}/projects/${component.projectId}/components/${component.handler}`;
+    const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
     const openComponentUrl = useCallback(() => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT,

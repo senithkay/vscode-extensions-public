@@ -19,7 +19,6 @@ import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
-import { activateRegistry } from './registry/activate';
 import { activateStatusBarItem } from './status-bar';
 import { activateURIHandlers } from './uri-handlers';
 
@@ -58,7 +57,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateActivityBarWebViews(context);
 	activateURIHandlers();
 	activateStatusBarItem();
-	activateRegistry();
 	setupGithubAuthStatusCheck();
 	registerPreInitHandlers();
 	ext.isPluginStartup = false;

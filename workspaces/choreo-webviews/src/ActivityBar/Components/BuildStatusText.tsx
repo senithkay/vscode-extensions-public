@@ -51,9 +51,9 @@ export const BuildStatusText: React.FC<{
 }> = (props) => {
     const { buildStatus, handler, loading, localComponent } = props;
     const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
-    const org = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useOrgOfCurrentProject();
 
-    const componentBaseUrl = `${choreoUrl}/organizations/${org?.handle}/projects/${choreoProject?.id}/components/${handler}`;
+    const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}/components/${handler}`;
     const componentDeployLink = `${componentBaseUrl}/deploy`;
 
     const openBuildInfoInConsole = useCallback(() => {

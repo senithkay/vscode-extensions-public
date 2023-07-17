@@ -10,10 +10,22 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { Organization } from "@wso2-enterprise/choreo-core";
 
 export function useOrgOfCurrentProject() {
     const { userInfo, choreoProject } = useContext(ChoreoWebViewContext);
-    return userInfo?.organizations.find(org => org.id.toString() === choreoProject?.orgId);
+
+    const [currentProjectOrg, setCurrentProjectOrg] = useState<Organization>();
+
+    useEffect(() => {
+        if (userInfo && choreoProject) {
+            setCurrentProjectOrg(userInfo?.organizations.find(org => org.id.toString() === choreoProject?.orgId));
+        }
+    }, [userInfo, choreoProject]);
+
+    return {
+        currentProjectOrg
+    };
 }

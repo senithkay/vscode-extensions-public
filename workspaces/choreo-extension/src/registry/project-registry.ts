@@ -72,35 +72,16 @@ export class ProjectRegistry {
         });
     }
 
-    // Adding a refersh method to refresh the data.
-    // Currently refresh is handled by clearing the registry
-    // and firing refresh on tree view.
-    // But tree view refresh API does not support async.
-    // Hence there's no way to know when the refresh is completed.
-    // We cannot remove tree view refresh either because if we depend
-    // on the registry to refresh the tree view, we will end up in a
-    // situation where the tree view is stuck until the registry refresh
-    // is completed without showing any loader animation.
-    // We will use this refresh method from every other places and keep
-    // the tree view refresh as it is just to be used for the tree view.
-    async refreshProjects(): Promise<Project[] | undefined> {
-        await this.clean();
-        const selectedOrgId = ext.api.getOrgIdOfCurrentProject();
-        if (selectedOrgId) {
-            return this.getProjects(selectedOrgId);
-        }
-    }
-
-    async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
-        return this.getProjects(orgId).then(async (projects: Project[]) => {
+    async getProject(projectId: string, orgId: number, orgHandle: string): Promise<Project | undefined> {
+        return this.getProjects(orgId, orgHandle).then(async (projects: Project[]) => {
             return projects.find((project: Project) => project.id === projectId);
         });
     }
 
-    async getProjects(orgId: number): Promise<Project[]> {
+    async getProjects(orgId: number, orgHandle: string ): Promise<Project[]> {
         if (!this._dataProjects.has(orgId) && ext.api.status === "LoggedIn") {
             try {
-                const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId: orgId }));
+                const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
                 this._dataProjects.set(orgId, projects);
                 return projects;
             } catch (error: any) {
@@ -116,8 +97,8 @@ export class ProjectRegistry {
         }
     }
 
-    async checkProjectDeleted(projectId: string, orgId: number): Promise<boolean> {
-        const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId }));
+    async checkProjectDeleted(projectId: string, orgId: number, orgHandle: string): Promise<boolean> {
+        const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
         const project = projects.find((project: Project) => project.id === projectId);
 
         if (project === undefined) {
@@ -241,15 +222,15 @@ export class ProjectRegistry {
         }
     }
 
-    async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
+    async getComponents(projId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
-            let components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
-            components = this._addLocalComponents(projectId, components);
+            let components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ projId, orgId, orgHandle, orgUuid }));
+            components = this._addLocalComponents(projId, components);
             components = await Promise.all(
                 components.map(async (component) => {
                     const [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
-                        this.hasUnPushedLocalCommit(projectId, component),
-                        this.hasDirtyLocalRepo(projectId, component),
+                        this.hasUnPushedLocalCommit(projId, component),
+                        this.hasDirtyLocalRepo(projId, component),
                     ]);
 
                     const componentPath = this.getComponentDirPath(component);
@@ -264,7 +245,7 @@ export class ProjectRegistry {
                 })
             );
 
-            this._dataComponents.set(projectId, components);
+            this._dataComponents.set(projId, components);
 
             return components;
         } catch (error: any) {
@@ -274,10 +255,10 @@ export class ProjectRegistry {
         }
     }
 
-    async getDeletedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
-        const projectLocation = this.getProjectLocation(projectId);
+    async getDeletedComponents(projId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
+        const projectLocation = this.getProjectLocation(projId);
         const dataComponents = await executeWithTaskRetryPrompt(() => ext.clients.projectClient
-                    .getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
+                    .getComponents({ projId, orgId, orgHandle, orgUuid }));
         let deletedComponents: PushedComponent[] = [];
 
         if (projectLocation !== undefined) {
@@ -339,11 +320,11 @@ export class ProjectRegistry {
         }
     }
 
-    public async getComponentBuildStatus(component: Component) {
+    public async getComponentBuildStatus(orgId: number, orgHandle: string, component: Component) {
         try {
             const selectedVersion = component.apiVersions?.find(item => item.latest);
             if (selectedVersion) {
-                const buildStatus = await ext.clients.projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id });
+                const buildStatus = await ext.clients.projectClient.getComponentBuildStatus({ orgId, orgHandle, componentId: component.id, versionId: selectedVersion.id });
                 return buildStatus;
             }
         } catch {
@@ -351,11 +332,11 @@ export class ProjectRegistry {
         }
     }
 
-    public async getComponentDevDeployment(component: Component, orgHandle: string, orgUuid: string) {
+    public async getComponentDevDeployment(component: Component, orgId: number, orgHandle: string, orgUuid: string) {
         try {
             let envData = this._projectEnvs.get(component.projectId);
             if (!envData) {
-                envData = await ext.clients.projectClient.getProjectEnv({ orgUuid, projId: component.projectId });
+                envData = await ext.clients.projectClient.getProjectEnv({ orgHandle, orgId, orgUuid, projId: component.projectId });
                 if (envData) {
                     this._projectEnvs.set(component.projectId, envData);
                 }
@@ -364,6 +345,7 @@ export class ProjectRegistry {
             const selectedVersion = component.apiVersions?.find(item => item.latest);
             if (selectedVersion && devEnv) {
                 const deploymentDetails = await ext.clients.projectClient.getComponentDeploymentStatus({
+                    orgId,
                     component,
                     envId: devEnv?.id,
                     orgHandle,
@@ -378,7 +360,7 @@ export class ProjectRegistry {
         }
     }
 
-    async deleteComponent(component: Component, orgHandler: string, projectId: string): Promise<void> {
+    async deleteComponent(component: Component, orgId: number, orgHandle: string, projectId: string): Promise<void> {
         try {
             await window.withProgress({
                 title: `Deleting component ${component?.name}.`,
@@ -387,7 +369,7 @@ export class ProjectRegistry {
             }, async () => {
                 let successMsg = "The component has been deleted successfully.";
                 if (!component?.local && component.id) {
-                    await ext.clients.projectClient.deleteComponent({ component, orgHandler, projectId });
+                    await ext.clients.projectClient.deleteComponent({ component, orgId, orgHandle, projectId });
                 }
 
                 const projectLocation = this.getProjectLocation(projectId);
@@ -435,7 +417,7 @@ export class ProjectRegistry {
         }
     }
 
-    async pullComponent(componentId: string, projectId: string): Promise<void> {
+    async pullComponent(orgId: number, componentId: string, projectId: string): Promise<void> {
         try {
             const allComponents = this._dataComponents.get(projectId);
             const componentToBePulled = allComponents?.find(item => item.id === componentId);
@@ -462,7 +444,7 @@ export class ProjectRegistry {
                 if (componentPath && !existsSync(componentPath)){
                     const selection = await window.showErrorMessage("Error: Directory for the component does not exist", "Delete Component");
                     if(selection === "Delete Component"){
-                        await this.deleteComponent(componentToBePulled, componentToBePulled.orgHandler, componentToBePulled.projectId);
+                        await this.deleteComponent(componentToBePulled, orgId, componentToBePulled.orgHandler, componentToBePulled.projectId);
                     }
                 } else {
                     window.showInformationMessage("The component has been successfully pulled");
@@ -483,7 +465,7 @@ export class ProjectRegistry {
         }
     }
 
-    async hasChoreoSubscription(orgId: string): Promise<boolean> {
+    async hasChoreoSubscription(orgId: number): Promise<boolean> {
         try {
             const res = await ext.clients.subscriptionClient.getSubscriptions(orgId);
             const hasSubscription = res?.list?.some(item => item.subscriptionType === 'choreo-subscription');
@@ -494,22 +476,29 @@ export class ProjectRegistry {
         }
     }
 
-    async getDiagramModel(projectId: string, orgHandle: string): Promise<Component[]> {
-        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getDiagramModel({ projId: projectId, orgHandle: orgHandle }));
+    async getDiagramModel(projId: string, orgId: number, orgHandle: string): Promise<Component[]> {
+        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getDiagramModel({ projId, orgHandle, orgId }));
     }
 
-    async getPerformanceForecast(data: string): Promise<AxiosResponse> {
-        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getPerformanceForecastData(data));
+    async getPerformanceForecast(orgId: number, orgHandle: string, data: string): Promise<AxiosResponse> {
+        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getPerformanceForecastData({
+            orgId,
+            orgHandle,
+            data
+        }));
     }
 
-    async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
-        return ext.clients.projectClient.getSwaggerExamples(spec)
-            .then((result: any) => {
-                return result;
-            }).catch((error: any) => {
-                getLogger().error("Failed to fetch the swagger examples. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                return false;
-            });
+    async getSwaggerExamples(orgId: number, orgHandle: string, spec: any): Promise<AxiosResponse> {
+        return ext.clients.projectClient.getSwaggerExamples({
+                    orgId,
+                    orgHandle,
+                    data: spec
+                }).then((result: any) => {
+                        return result;
+                    }).catch((error: any) => {
+                        getLogger().error("Failed to fetch the swagger examples. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+                        return false;
+                    });
     }
 
     setProjectLocation(projectId: string, location: string) {
@@ -633,10 +622,10 @@ export class ProjectRegistry {
         return getConsoleUrl();
     }
 
-    async fetchComponentsFromCache(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {
+    async fetchComponentsFromCache(projectId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {
         try {
             if (!this._dataComponents.get(projectId)?.length) {
-                await this.getComponents(projectId, orgHandle, orgUuid);
+                await this.getComponents(projectId, orgId, orgHandle, orgUuid);
             }
             return this._dataComponents.get(projectId);
         } catch (e) {
@@ -683,7 +672,7 @@ export class ProjectRegistry {
             componentType: componentMetadata.displayType.toString(),
             description: componentMetadata.description,
             orgId: componentMetadata.org.id,
-            orgHandler: componentMetadata.org.handle,
+            orgHandle: componentMetadata.org.handle,
             projectId: componentMetadata.projectId,
             accessibility: componentMetadata.accessibility ?? "",
             labels: "",

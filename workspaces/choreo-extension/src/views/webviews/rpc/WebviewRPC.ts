@@ -14,7 +14,7 @@ import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView } fr
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
-    GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
+    GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandRequest,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     CloseWebViewNotification,
@@ -100,13 +100,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return ext.api.getOrgById(orgId);
         }
     });
-    messenger.onRequest(GetAllOrgsRequest, async () => {
-        const loginSuccess = await ext.api.waitForLogin();
-        if (loginSuccess) {
-            const organizations = await executeWithTaskRetryPrompt(() => ext.clients.orgClient.getOrganizations());
-            return organizations;
-        }
-    });
 
     messenger.onRequest(GetUserInfoRequest, async () => {
         return ext.api.userInfo;
@@ -114,14 +107,18 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     // TODO: Remove this once the Choreo project client RPC handlers are registered
     messenger.onRequest(GetAllProjectsRequest, async (orgId: number) => {
-        return ProjectRegistry.getInstance().getProjects(orgId);
+        const org = ext.api.getOrgById(orgId);
+        if (org) {
+            return ProjectRegistry.getInstance().getProjects(orgId, org.handle);
+        }
+        return [];
     });
 
     messenger.onRequest(GetComponents, async (params: GetComponentsRequestParams) => {
         const { orgId, projectId } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            return ProjectRegistry.getInstance().getComponents(projectId, org.handle, org.uuid);
+            return ProjectRegistry.getInstance().getComponents(projectId, org.id, org.handle, org.uuid);
         }
         return [];
     });
@@ -130,7 +127,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgId, projectId } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            return ProjectRegistry.getInstance().checkProjectDeleted(projectId, orgId);
+            return ProjectRegistry.getInstance().checkProjectDeleted(projectId, orgId, org.handle);
         }
         return false;
     });
@@ -139,7 +136,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgId, projectId } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            return ProjectRegistry.getInstance().getDeletedComponents(projectId, org.handle, org.uuid);
+            return ProjectRegistry.getInstance().getDeletedComponents(projectId, org.id, org.handle, org.uuid);
         }
     });
 
@@ -162,13 +159,17 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgHandler } = component;
         const org = ext.api.getOrgByHandle(orgHandler);
         if (org) {
-            return ProjectRegistry.getInstance().getComponentDevDeployment(component, org.handle, org.uuid);
+            return ProjectRegistry.getInstance().getComponentDevDeployment(component, org.id, org.handle, org.uuid);
         }
         return null;
     });
 
     messenger.onRequest(GetComponentBuildStatus, async (component: Component) => {
-        return ProjectRegistry.getInstance().getComponentBuildStatus(component);
+        const org = ext.api.getOrgByHandle(component.orgHandler);
+        if (!org) {
+            return null;
+        }
+        return ProjectRegistry.getInstance().getComponentBuildStatus(org.id, org.handle, component);
     });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
@@ -177,7 +178,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         if (org) {
             const answer = await vscode.window.showInformationMessage("Are you sure you want to remove the component? This action will be irreversible and all related details will be lost.", "Delete Component", "Cancel");
             if (answer === "Delete Component") {
-                await ProjectRegistry.getInstance().deleteComponent(params.component, org.handle, params.projectId);
+                await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
                 return params.component;
             }
             return null;
@@ -185,11 +186,19 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(PullComponent, async (params: { projectId: string, componentId: string }) => {
-        await ProjectRegistry.getInstance().pullComponent(params.componentId, params.projectId);
+        const project = await ext.api.getChoreoProject();
+        if (!project) {
+            throw new Error("Project not found");
+        }
+        const org = ext.api.getOrgById(parseInt(project.orgId));
+        if (!org) {
+            throw new Error("Org not found");
+        }
+        await ProjectRegistry.getInstance().pullComponent(org.id, params.componentId, params.projectId);
     });
 
     messenger.onRequest(GetComponentCount, async (params: GetComponentCountParams) => {
-        const { orgId, projectId } = params;
+        const { orgId, } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
             return ProjectRegistry.getInstance().getComponentCount(orgId);
@@ -200,7 +209,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgId } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            return ProjectRegistry.getInstance().hasChoreoSubscription(org?.uuid);
+            return ProjectRegistry.getInstance().hasChoreoSubscription(orgId);
         }
     });
 
@@ -224,7 +233,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgId, projectId } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            ProjectRegistry.getInstance().getProject(projectId, orgId)
+            ProjectRegistry.getInstance().getProject(projectId, orgId, org.handle)
                 .then((project: Project | undefined) => {
                     if (project) {
                         cloneProject(project);
@@ -308,7 +317,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
         let componentModels: { [key: string]: ComponentModel } = {};
         let diagnostics: ComponentModelDiagnostics[] = [];
-        await ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgHandler)
+        const org = ext.api.getOrgById(params.orgId);
+        if (!org) {
+            throw new Error("Org not found");
+        }
+        await ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgId, org.handle)
             .then(async (component) => {
                 component.forEach((value, _key) => {
                     // Draw the cell diagram for the last version of the component

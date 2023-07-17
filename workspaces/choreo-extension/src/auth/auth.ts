@@ -23,7 +23,6 @@ import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from '../constants';
 import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
-import { parse } from 'path';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -61,13 +60,11 @@ export async function activateClients(): Promise<void> {
             getLogger().debug("Getting token from keychain: " + key);
             return await getTokenWithAutoRefresh(key);
         },
-        getTokenForCurrentOrg: async () => {
-            const orgId = ext.api.getOrgIdOfCurrentProject();
-            const selectedOrgId = orgId || ext.api.userInfo?.organizations?.[0]?.id;
-            if (selectedOrgId) {
-                return await getTokenWithAutoRefresh(`choreo.apim.token.org.${selectedOrgId}`);
+        getTokenForOrg : async (orgId: number) => {
+            if (orgId) {
+                return await getTokenWithAutoRefresh(`choreo.apim.token.org.${orgId}`);
             }
-            return undefined;
+            throw new Error("Organization ID is not provided.");
         }
     };
 
@@ -90,7 +87,8 @@ export async function activateClients(): Promise<void> {
     const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI(),
         choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
 
-    const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI(), choreoEnvConfig.getGHAppConfig());
+    const githubAppClient = new ChoreoGithubAppClient(
+        readonlyTokenStore, choreoEnvConfig.getProjectAPI(), choreoEnvConfig.getGHAppConfig());
 
     const subscriptionClient = new ChoreoSubscriptionClient(readonlyTokenStore, `${choreoEnvConfig.getBillingUrl()}/api`);
 
@@ -99,9 +97,9 @@ export async function activateClients(): Promise<void> {
     ext.clients = {
         authClient,
         orgClient,
+        githubAppClient,
         userManagementClient,
         projectClient,
-        githubAppClient,
         subscriptionClient,
         componentManagementClient
     };
@@ -117,6 +115,7 @@ export async function initiateInbuiltAuth() {
 }
 
 export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
+    let token: AccessToken | undefined;
     await lock.acquire();
     const currentAsgardioToken = await ext.tokenStorage.getToken("asgardio.token");
     if (currentAsgardioToken?.accessToken && currentAsgardioToken.expirationTime
@@ -137,8 +136,9 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
                         const org = ext.api.getOrgById(parseInt(orgId));
                         if (org) {
                             await exchangeChoreoAPIMToken(newAsgardioToken.accessToken, org.handle, org.id);
+                            token = await ext.tokenStorage.getToken(tokenType);
                         } else {
-                            throw new Error("Organization was not found in user info!");
+                            throw new Error("Organization was not found in user orgs!");
                         }
                     }
                 } else {
@@ -149,12 +149,29 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
                 vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
                 signOut();
             }
-        }
+        } else {
+            token = await ext.tokenStorage.getToken(tokenType);
+            if (!token) {
+                getLogger().debug("Token not found in keychain.");
+                // possible that token for this particular org was not requested before
+                // so we request a new token for this org
+                if (tokenType.startsWith("choreo.apim.token.org.")) {
+                    const orgId = tokenType.split("choreo.apim.token.org.")[1];
+                    const org = ext.api.getOrgById(parseInt(orgId));
+                    if (org) {
+                        await exchangeChoreoAPIMToken(currentAsgardioToken.accessToken, org.handle, org.id);
+                        token = await ext.tokenStorage.getToken(tokenType);
+                    } else {
+                        getLogger().error("Organization was not found in user orgs!, token exchange failed for org id: " + orgId);
+                    }
+                }
+            }
+        } 
     } else {
         getLogger().warn("Asgardio token not found in keychain.");
     }
     lock.release();
-    return ext.tokenStorage.getToken(tokenType);
+    return token;
 }
 
 export async function exchangeAuthToken(authCode: string) {
@@ -223,24 +240,26 @@ export async function chooseUserOrg(isExistingSession?: boolean): Promise<Organi
         getLogger().debug("Getting the org list of current user.");
         try {
             var currentTime = Date.now();
-            let selectedOrg: Organization;
             if (!isExistingSession) {
                 getLogger().debug("Validating the user.");
                 // If its a fresh login, we need to get the user info to get the org list.
                 const userInfo = await ext.clients.userManagementClient.validateUser();
                 ext.api.userInfo = userInfo;
-                selectedOrg = await getDefaultSelectedOrg(userInfo?.organizations);
+                getLogger().info("get user info request time: " + (Date.now() - currentTime));
+                getLogger().debug("Successfully retrived user info.");
+                return await getDefaultSelectedOrg(userInfo?.organizations);
+            } else if (ext.api.userInfo) {
+                // get orgs from previous session, then reload the orgs
+                const orgId = ext.api.userInfo.organizations?.[0]?.id;
+                const orgs = await ext.clients.orgClient.getOrganizations(orgId);
+                ext.api.userInfo.organizations = orgs;
+                getLogger().info("get user info request time: " + (Date.now() - currentTime));
+                getLogger().debug("Successfully retrived user info.");
+                return await getDefaultSelectedOrg(orgs);
             } else {
-                getLogger().debug("Getting the org list.");
-                const orgs = await ext.clients.orgClient.getOrganizations();
-                if (ext.api.userInfo) {
-                    ext.api.userInfo.organizations = orgs;
-                }
-                selectedOrg = await getDefaultSelectedOrg(orgs);
+                getLogger().error("Unable to get user info from previous session.");
+                throw new Error("Unable to get user info from previous session.");
             }
-            getLogger().info("get user info request time: " + (Date.now() - currentTime));
-            getLogger().debug("Successfully retrived user info.");
-            return selectedOrg;
         } catch (error: any) {
             if (error.cause?.response?.status === 404) {
                 getLogger().warn("User not found. Prompting to open signup page.");
@@ -276,9 +295,9 @@ export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
     // If workspace a choreo project, we need to select the org of the project.
     const isChoreoProject = ext.api.isChoreoProject();
     if (isChoreoProject) {
-        const choreoProject = await ext.api.getChoreoProject();
-        if (choreoProject?.orgId) {
-            const foundOrg = userOrgs.find(org => org.id.toString() === choreoProject.orgId);
+        const currentProjectId = await ext.api.getOrgIdOfCurrentProject();
+        if (currentProjectId) {
+            const foundOrg = userOrgs.find(org => org.id === currentProjectId);
             if (foundOrg) {
                 return foundOrg;
             }

@@ -51,6 +51,8 @@ export class MockAuthClient implements IAuthClient {
 }
 
 export class MockKeyChainTokenStorage implements ITokenStorage {
+
+    
     private _choreoLoginTime: string = new Date().toISOString();
 
     async setToken(tokenType: ChoreoTokenType, _token: AccessToken): Promise<void> {
@@ -74,6 +76,15 @@ export class MockKeyChainTokenStorage implements ITokenStorage {
             refreshToken: randomUUID(),
             expirationTime: 3600
         };
+    }
+    async setTokenForOrg(orgId: number, token: AccessToken): Promise<void> {
+        return this.setToken(`choreo.apim.token.org.${orgId}`, token);
+    }
+    async deleteTokenForOrg(orgId: number): Promise<void> {
+        return this.deleteToken(`choreo.apim.token.org.${orgId}`);
+    }
+    async getTokenForOrg(orgId: number): Promise<AccessToken | undefined> {
+        return this.getToken(`choreo.apim.token.org.${orgId}`);
     }
 }
 

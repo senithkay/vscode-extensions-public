@@ -14,10 +14,8 @@
 import { ProviderResult, Uri, commands, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
-import { STATUS_LOGGED_IN, choreoProjectOverview, choreoProjectOverviewCloseCmdId, choreoSignInCmdId, choreoSignOutCmdId, refreshProjectsTreeViewCmdId } from "./constants";
+import { choreoProjectOverview, refreshProjectsTreeViewCmdId } from "./constants";
 import { executeWithTaskRetryPrompt } from "./retry";
-
-const NOT_AUTHORIZED_MESSAGE = "You are not authorized to access this project";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
@@ -42,9 +40,16 @@ export function activateURIHandlers() {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get("code");
                 const installationId = urlParams.get("installationId");
+                const orgId = ext.api.getOrgIdOfCurrentProject();
+                if (!orgId) {
+                    // TODO!IMPORTANT: Handle project creation when no project is open
+                    getLogger().error(`Choreo Github Auth Failed: No Choreo org id found`);
+                    window.showErrorMessage(`Choreo Github Auth Failed: No org id found`);
+                    return;
+                }
                 if (authCode) {
                     getLogger().debug(`Github exchanging code for token`);
-                    executeWithTaskRetryPrompt(() => ext.clients.githubAppClient.obatainAccessToken(authCode)).catch((err) => {
+                    executeWithTaskRetryPrompt(() => ext.clients.githubAppClient.obatainAccessToken(authCode, orgId)).catch((err) => {
                         getLogger().error(`Github App Auth Failed: ${err.message}` + (err?.cause ? "\nCause: " + err.cause.message : ""));
                         window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
                     });

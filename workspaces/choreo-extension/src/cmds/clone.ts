@@ -172,8 +172,8 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
 }
 
 
-async function getProjectRepositories(orgHandle: string, projId: string, orgUuid: string) {
-    const components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ orgHandle, projId, orgUuid }));
+async function getProjectRepositories(orgId: number, orgHandle: string, projId: string, orgUuid: string) {
+    const components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ orgId, orgHandle, projId, orgUuid }));
     const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
     const repos = components.map((cmp) => cmp.repository);
 
@@ -260,7 +260,7 @@ export const cloneProject = async (project: Project, dirPath = "") => {
                 getLogger().debug("Starting cloning project: " + project.name);
 
                 progress.report({ message: "Retrieving details on component repositories of project: " + projectName });
-                const { userManagedReposWithoutDuplicates, userManagedComponents, choreoManagedRepos } = await getProjectRepositories(selectedOrg.handle, id, selectedOrg.uuid);
+                const { userManagedReposWithoutDuplicates, userManagedComponents, choreoManagedRepos } = await getProjectRepositories(selectedOrg?.id, selectedOrg.handle, id, selectedOrg.uuid);
 
                 getLogger().debug("Cloning " + userManagedReposWithoutDuplicates.length + " repositories without duplicates");
 

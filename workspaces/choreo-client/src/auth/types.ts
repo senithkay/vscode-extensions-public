@@ -27,11 +27,13 @@ export type ChoreoTokenType = AsgardioToken | ChoreoAPIMToken;
 
 export interface IReadOnlyTokenStorage {
     getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
-    getTokenForCurrentOrg(): Promise<AccessToken|undefined>;
+    getTokenForOrg(orgId: number): Promise<AccessToken|undefined>;
 }
 export interface ITokenStorage extends IReadOnlyTokenStorage {
     setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void>;
+    setTokenForOrg(orgId: number, token: AccessToken): Promise<void>;
     deleteToken(tokenType: ChoreoTokenType): Promise<void>;
+    deleteTokenForOrg(orgId: number): Promise<void>;
 }
 
 export interface AuthClientConfig {

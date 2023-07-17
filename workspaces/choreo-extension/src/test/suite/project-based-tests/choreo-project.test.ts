@@ -17,7 +17,7 @@ import { commands, Uri, extensions } from "vscode";
 import { suite, suiteSetup, suiteTeardown } from "mocha";
 import { join } from "path";
 import { Component } from "@wso2-enterprise/choreo-core";
-import { ChoreoAuthClient, ChoreoProjectClient, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
+import { ChoreoAuthClient, ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { MockAuthClient, MockKeyChainTokenStorage, MockOrgClient, MockProjectClient } from "../mocked-resources/mocked-clients";
 import { ext } from "../../../extensionVariables";
@@ -25,6 +25,7 @@ import { showChoreoProjectOverview } from "../../../extension";
 import { activateStatusBarItem } from "../../../status-bar";
 import { FOO_ORG, FOO_P1_COMPONENT, FOO_PROJECT_1 } from "../mocked-resources/mocked-data";
 import { ProjectRegistry } from "../../../registry/project-registry";
+import { TokenStorage } from "../../../auth/TokenStorage";
 
 export const TEST_PROJECT_NAME: string = 'FooProject1';
 const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
@@ -44,7 +45,7 @@ suite('Choreo Project Tests', () => {
             await mockAuthClient.exchangeVSCodeToken(params[0]));
 
         const mockTokenStore = new MockKeyChainTokenStorage();
-        keyChainGetTokenStub = sinon.stub(KeyChainTokenStorage.prototype, 'getToken').callsFake(async (params) =>
+        keyChainGetTokenStub = sinon.stub(TokenStorage.prototype, 'getToken').callsFake(async (params: any) =>
             await mockTokenStore.getToken(params));
 
         const mockOrgClient = new MockOrgClient();
@@ -69,7 +70,7 @@ suite('Choreo Project Tests', () => {
 
     test('Generate Project Overview', async () => {
         await showChoreoProjectOverview();
-        const actualComponents: Component[] = await ProjectRegistry.getInstance().getComponents(FOO_PROJECT_1.id, FOO_ORG.handle, FOO_ORG.uuid);
+        const actualComponents: Component[] = await ProjectRegistry.getInstance().getComponents(FOO_PROJECT_1.id, FOO_ORG.id, FOO_ORG.handle, FOO_ORG.uuid);
         const localComponents: Component[] = new ChoreoProjectManager().getLocalComponents(workspaceFileURI.fsPath);
         const expectedComponents: Component[] = [FOO_P1_COMPONENT].concat(localComponents);
         assert.deepStrictEqual(actualComponents, expectedComponents, 'Failed to detect FooProject1 components.');

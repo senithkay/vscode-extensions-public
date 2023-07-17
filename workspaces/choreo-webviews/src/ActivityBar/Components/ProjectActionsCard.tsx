@@ -37,9 +37,9 @@ const Body = styled.div`
 
 export const ProjectActionsCard: React.FC = () => {
     const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
-    const org = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useOrgOfCurrentProject();
 
-    const projectURL = `${choreoUrl}/organizations/${org?.handle}/projects/${choreoProject?.id}`;
+    const projectURL = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}`;
 
     const openProjectInChoreoConsole = () => {
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);

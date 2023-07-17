@@ -91,7 +91,7 @@ export function ProjectWizard(props: { orgId: string}) {
 
     const { loginStatus, loginStatusPending, userInfo, error } = useContext(ChoreoWebViewContext);
     const { orgId } = props;
-    const currentProjectOrg = useOrgOfCurrentProject();
+    const{ currentProjectOrg } = useOrgOfCurrentProject();
 
     const selectedOrg = currentProjectOrg || userInfo?.organizations.find(org => org.id.toString() === orgId);
 

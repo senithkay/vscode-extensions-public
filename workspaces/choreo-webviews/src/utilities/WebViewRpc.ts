@@ -14,7 +14,6 @@ import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
-    GetAllOrgsRequest,
     GetAllProjectsRequest,
     GetCurrentOrgRequest,
     GetLoginStatusRequest,
@@ -122,10 +121,6 @@ export class ChoreoWebViewAPI {
 
     public async getCurrentOrg(): Promise<Organization> {
         return this._messenger.sendRequest(GetCurrentOrgRequest, HOST_EXTENSION, '');
-    }
-
-    public async getAllOrgs(): Promise<Organization[]> {
-        return this._messenger.sendRequest(GetAllOrgsRequest, HOST_EXTENSION, '');
     }
 
     public async getUserInfo(): Promise<UserInfo> {
@@ -264,8 +259,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenCellView, HOST_EXTENSION, undefined);
     }
 
-    public async getDiagramComponentModel(projId: string, orgHandler: string): Promise<GetComponentModelResponse> {
-        return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgHandler } );
+    public async getDiagramComponentModel(projId: string, orgId: number): Promise<GetComponentModelResponse> {
+        return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgId } );
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

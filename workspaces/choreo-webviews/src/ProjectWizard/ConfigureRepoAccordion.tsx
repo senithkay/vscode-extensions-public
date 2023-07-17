@@ -20,6 +20,7 @@ import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSel
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ErrorBanner } from "../Commons/ErrorBanner";
+import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 
 const GhRepoSelectorActions = styled.div`
     display  : flex;
@@ -119,6 +120,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
 
     const { gitProvider, selectedCredential, selectedGHOrgName, setSelectedGHOrgName, selectedGHRepo, setSelectedGHRepo, isBareRepo, setIsBareRepo, validationInProgress, setValidationInProgress, setErrorMsg } = props;
 
+    const { currentProjectOrg } = useOrgOfCurrentProject();
     const [refreshRepoList, setRefreshRepoList] = useState(false);
     const [appInstallComleted, setAppInstallCompleted] = useState(false);
 
@@ -169,6 +171,8 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
 
             // check if the repo is empty
             const repoMetaData = await projectClient.getRepoMetadata({
+                orgId: currentProjectOrg?.id,
+                orgHandle: currentProjectOrg?.handle,
                 repo: selectedGHRepo,
                 organization: selectedGHOrgName,
                 branch: "main",
