@@ -51,7 +51,6 @@ export interface CMEntryPoint extends CMFunctionNode {
 
 export interface CMService extends CMNode {
     annotation: CMAnnotation;
-    path: string;
     serviceId: string;
     label: string;
     remoteFunctions: CMRemoteFunction[];
