@@ -132,15 +132,15 @@ export function ProjectWizard() {
             try {
                 let createdProject;
                 const repoString = getRepoString();
-                    createdProject = await projectClient.createProject({
-                        name: projectName,
-                        description: projectDescription,
-                        orgId: selectedOrg.id,
-                        orgHandle: selectedOrg.handle,
-                        region: region,
-                        repository: initMonoRepo ? repoString : null,
-                        credentialId: initMonoRepo ? selectedCredential.id : null,
-                        branch: initMonoRepo ? selectedBranch : null,
+                createdProject = await projectClient.createProject({
+                    name: projectName,
+                    description: projectDescription,
+                    orgId: selectedOrg.id,
+                    orgHandle: selectedOrg.handle,
+                    region: region,
+                    repository: initMonoRepo ? repoString : null,
+                    credentialId: initMonoRepo ? selectedCredential.id : null,
+                    branch: initMonoRepo ? selectedBranch : null,
                 });
 
                 handleCloneProject({
