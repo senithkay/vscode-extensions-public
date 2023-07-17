@@ -27,7 +27,7 @@ import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS
+    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS, FILE_DOWNLOAD_PATH
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -245,6 +245,7 @@ export class BallerinaExtension {
 
             }, (reason) => {
                 sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
+                this.showMessageInstallBallerina();
                 throw new Error(reason);
             }).catch(e => {
                 const msg = `Error when checking ballerina version. ${e.message}`;
@@ -572,6 +573,10 @@ export class BallerinaExtension {
 
     public enabledRunFast(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_RUN_FAST);
+    }
+
+    public getFileDownloadPath(): string {
+        return <string>workspace.getConfiguration().get(FILE_DOWNLOAD_PATH);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {

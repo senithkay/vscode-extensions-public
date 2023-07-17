@@ -19,4 +19,5 @@ export const ENABLE_BALLERINA_LS_DEBUG = "ballerina.enableLanguageServerDebug";
 export const ENABLE_EXPERIMENTAL_FEATURES = "ballerina.experimental";
 export const ENABLE_NOTEBOOK_DEBUG = "ballerina.enableNotebookDebug";
 export const ENABLE_RUN_FAST = "ballerina.enableRunFast";
+export const FILE_DOWNLOAD_PATH = "ballerina.samplesDownloadDirectory";
 export const ENABLE_INLAY_HINTS = "ballerina.enableInlayHints";
