@@ -8,7 +8,7 @@
  */
 
 import { expect } from 'chai';
-import { existsSync, readdir, statSync, unlink } from 'fs';
+import { existsSync, mkdirSync, readdir, statSync, unlink } from 'fs';
 import { before, describe, it } from 'mocha';
 import path, { join } from 'path';
 import { By, EditorView, Key, VSBrowser, WebDriver } from 'vscode-extension-tester';
@@ -24,6 +24,10 @@ describe('Open ballerina samples in VSCode from URL', () => {
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
 
     before(async () => {
+        // Create folder if not present
+        if (!existsSync(samplesDownloadDirectory)) {
+            mkdirSync(samplesDownloadDirectory);
+        }
         // Delete files in this folder
         deleteFilesInFolder(samplesDownloadDirectory);
 
@@ -37,7 +41,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=18e6c62b7ef307d7064ed4ef39e4d0d8&file=functions.bal';
         await executeURLdownload(driver, url);
-        expect(existsSync(`${defaultDownloadsPath}/functions.bal`)).to.be.true;
+        expect(existsSync(`${defaultDownloadsPath}/functions.bal`), "First assert with functions.bal").to.be.true;
 
         // Find the information message boxes for change direcotory
         const changePathBtns = await driver.findElements(By.linkText('Change Directory'));
@@ -69,7 +73,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
 
         // Check if the file has been downloaded to the new location
         await executeURLdownload(driver, url);
-        expect(existsSync(`${defaultDownloadsPath}/functions.bal`)).to.be.true;
+        expect(existsSync(`${samplesDownloadDirectory}/functions.bal`), "Second assert with functions.bal").to.be.true;
 
     });
 
