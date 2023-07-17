@@ -289,7 +289,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         <>
             {loginStatus === "LoggedIn" ?
                 <Wizard
-                    title="Create New Choreo Component"
+                    title={mode === 'fromScratch' ? "Create component from scratch" : "Create component from existing source"}
                     steps={steps}
                     state={state}
                     setState={setState}

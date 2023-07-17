@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -16,7 +16,7 @@ import { Component, PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Repository }
 import { useChoreoComponentsContext } from "../context/choreo-components-ctx";
 
 export function useComponentPullRepo(component: Component) {
-    const { refreshComponents } = useChoreoComponentsContext()
+    const { refreshComponents } = useChoreoComponentsContext();
     const { mutate: pullComponent, isLoading: isPulling } = useMutation({
         onMutate: () => {
             ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
@@ -58,6 +58,18 @@ export function useComponentPullRepo(component: Component) {
                                 branch: branchName,
                                 gitProvider: repository.gitProvider,
                             });
+                        const isSubpathUnavailable = await ChoreoWebViewAPI.getInstance().isSubpathAvailable({
+                            orgName: repository.organizationApp,
+                            projectID: component.projectId,
+                            repoName: repository.nameApp,
+                            subpath: repository.appSubPath,
+                        });
+
+                        if (isSubpathUnavailable) {
+                            ChoreoWebViewAPI.getInstance().showErrorMsg(
+                                `Unable to find ${repository.appSubPath} within the cloned repository`
+                            );
+                        }
                     }
                 } else {
                     await ChoreoWebViewAPI.getInstance().cloneChoreoProject(component.projectId);
