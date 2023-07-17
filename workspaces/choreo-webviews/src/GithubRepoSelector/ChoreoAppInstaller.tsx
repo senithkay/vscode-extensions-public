@@ -55,8 +55,7 @@ export function ChoreoAppInstaller(props: ChoreoAppInstallerProps) {
 
     return (
         <>
-            <span><VSCodeLink onClick={handleConfigureNewRepo}>Install app in GitHub</VSCodeLink> or Proceed to step 3.</span>
-            
+            <span>Install the <VSCodeLink onClick={handleConfigureNewRepo}>Choreo Application</VSCodeLink> to the repository.</span>
             {loaderMessage}
         </>
     );

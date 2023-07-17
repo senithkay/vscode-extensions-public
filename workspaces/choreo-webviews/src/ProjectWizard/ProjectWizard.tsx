@@ -182,6 +182,8 @@ export function ProjectWizard() {
             } else if (gitProvider === GitProvider.BITBUCKET) {
                 return `http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`;
             }
+        } else {
+            return "";
         }
     }
 

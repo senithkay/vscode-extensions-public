@@ -22,7 +22,7 @@ const GhRepoSelectorContainer = styled.div`
     display  : flex;
     flex-wrap: wrap;
     flex-direction: row;
-    gap: 30px;
+    gap: 40px;
     width: "100%";
 `;
 
