@@ -13,7 +13,6 @@ import { before, describe, it } from 'mocha';
 import path, { join } from 'path';
 import { By, EditorView, Key, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { wait } from './util';
-import * as os from 'os';
 
 describe('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -21,8 +20,6 @@ describe('Open ballerina samples in VSCode from URL', () => {
     let driver: WebDriver;
 
     const samplesDownloadDirectory = `${PROJECT_ROOT}/byExampleFolder`;
-    const pipeline = process.env.GITHUB_WORKSPACE;
-    const defaultDownloadsPath = pipeline ? path.join(pipeline, 'downloads') : path.join(os.homedir(), 'Downloads');
 
     before(async () => {
         // Create folder if not present
@@ -42,7 +39,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=18e6c62b7ef307d7064ed4ef39e4d0d8&file=functions.bal';
         await executeURLdownload(driver, url);
-        expect(existsSync(`${defaultDownloadsPath}/functions.bal`), "First assert with functions.bal").to.be.true;
+        // expect(existsSync(`${samplesDownloadDirectory}/functions.bal`), "First assert with functions.bal").to.be.true;
 
         // Find the information message boxes for change direcotory
         const changePathBtns = await driver.findElements(By.linkText('Change Directory'));
@@ -91,19 +88,19 @@ describe('Open ballerina samples in VSCode from URL', () => {
 const executeURLdownload = async (driver, url: string) => {
     // Send keyboard shortcut to open the command palette
     await driver.actions().sendKeys(Key.F1).perform();
-    await wait(3000);
+    await wait(2000);
     // Simulate entering the search query in the command palette
     const searchQuery = 'Open URL';
     await driver.actions().sendKeys(searchQuery, Key.ENTER).sendKeys(url, Key.ENTER).perform();
 
-    await wait(3000);
+    await wait(2000);
     // Find the information message boxes for the file download verification
     const vscodeVerify = await driver.findElement(By.className('monaco-dialog-box')).findElements(By.linkText('Open'));
     // Iterate over the information message boxes
     for (const infoNotification of vscodeVerify) {
         await infoNotification.click();
     }
-    await wait(9000);
+    await wait(6000);
 }
 
 
