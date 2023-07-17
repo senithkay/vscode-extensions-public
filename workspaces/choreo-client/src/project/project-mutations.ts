@@ -14,7 +14,7 @@ import { gql } from 'graphql-request';
 import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
-    const { name, description, orgId, orgHandle, version = "1.0.0", region, repository = null, credentialId = null, branch = null } = params;
+    const { name, description, orgId, orgHandle, version = "1.0.0", region, repository, credentialId, branch } = params;
     return gql`
         mutation{ 
             createProject(project: {
