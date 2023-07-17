@@ -105,6 +105,7 @@ export interface WebviewContext {
 }
 
 const showMessageInstallBallerinaCommand = 'ballerina.showMessageInstallBallerina';
+const SDK_PREFIX = 'Ballerina ';
 export class BallerinaExtension {
     public telemetryReporter: TelemetryReporter;
     public ballerinaHome: string;
@@ -125,10 +126,7 @@ export class BallerinaExtension {
         this.ballerinaHome = '';
         this.ballerinaCmd = '';
         this.ballerinaVersion = '';
-        this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Left, 100);
-        this.sdkVersion.text = `Ballerina SDK: Detecting`;
-        this.sdkVersion.command = `ballerina.showLogs`;
-        this.sdkVersion.show();
+        this.showStatusBarItem();
         // Load the extension
         this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
@@ -240,7 +238,7 @@ export class BallerinaExtension {
                     this.showPluginActivationError();
                 } else if (this.langClient.state === LS_STATE.Running) {
                     await this.langClient?.registerExtendedAPICapabilities();
-                    this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
+                    this.updateStatusBar(this.ballerinaVersion);
                     sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
                 }
 
@@ -270,11 +268,38 @@ export class BallerinaExtension {
         }
     }
 
+    showStatusBarItem() {
+        this.sdkVersion = window.createStatusBarItem(StatusBarAlignment.Right, 100);
+        this.updateStatusBar("Detecting");
+        this.sdkVersion.command = "ballerina.showLogs";
+        this.sdkVersion.show();
+
+        window.onDidChangeActiveTextEditor((editor) => {
+            this.sdkVersion.text = this.sdkVersion.text.replace(SDK_PREFIX, '')
+            if (!editor) {
+                this.updateStatusBar(this.sdkVersion.text);
+                this.sdkVersion.show();
+            } else if (editor.document.uri.scheme === 'file' && editor.document.languageId === 'ballerina') {
+                this.sdkVersion.show();
+            } else {
+                this.sdkVersion.hide();
+            }
+        });
+    }
+
+    updateStatusBar(text: string) {
+        if (!window.activeTextEditor) {
+            this.sdkVersion.text = `${SDK_PREFIX}${text}`;
+        } else {
+            this.sdkVersion.text = text;
+        }
+    }
+
     showPluginActivationError(): any {
         // message to display on Unknown errors.
         // ask to enable debug logs.
         // we can ask the user to report the issue.
-        this.sdkVersion.text = `Ballerina SDK: Error`;
+        this.updateStatusBar("Error");;
         this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
         window.showErrorMessage(UNKNOWN_ERROR);
     }
@@ -373,7 +398,7 @@ export class BallerinaExtension {
     }
 
     showMissingBallerinaErrInStatusBar(): any {
-        this.sdkVersion.text = "Ballerina SDK: Not Found";
+        this.updateStatusBar("Not Found");
         this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
         this.sdkVersion.command = showMessageInstallBallerinaCommand;
     }
