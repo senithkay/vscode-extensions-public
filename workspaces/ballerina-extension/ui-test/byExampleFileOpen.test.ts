@@ -21,7 +21,8 @@ describe('Open ballerina samples in VSCode from URL', () => {
     let driver: WebDriver;
 
     const samplesDownloadDirectory = `${PROJECT_ROOT}/byExampleFolder`;
-    const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
+    const pipeline = process.env.GITHUB_WORKSPACE;
+    const defaultDownloadsPath = pipeline ? path.join(pipeline, 'downloads') : path.join(os.homedir(), 'Downloads');
 
     before(async () => {
         // Create folder if not present
