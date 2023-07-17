@@ -8,7 +8,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { v4 as uuid, validate as validateUUID } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import {
     ComponentModel, CMDependency as Dependency, CMLocation as Location, CMInteraction as Interaction,
     CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service, CMDependency
@@ -31,8 +31,6 @@ let cellExtNodes: Map<string, ExtServiceNodeModel>;
 let l1Links: Map<string, ServiceLinkModel>;
 let l2Links: ServiceLinkModel[];
 let cellLinks: Map<string, ServiceLinkModel>;
-
-let untrackedPkgComponents: string[];
 
 export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
     l1Nodes = new Map<string, ServiceNodeModel>();
@@ -91,21 +89,12 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
 function generateNodes(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>) {
     projectPackages.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
-            untrackedPkgComponents = [];
             const packageModel: ComponentModel = projectComponents.get(packageName);
             const services: Map<string, Service> = new Map(Object.entries(packageModel.services));
             services.forEach((service) => {
                 if (!service.serviceId) {
                     service.serviceId = uuid();
                     service.annotation = { ...service.annotation, id: service.serviceId };
-                }
-
-                if (!service.path && (!service.annotation.label || validateUUID(service.annotation.label))
-                    && validateUUID(service.annotation.id)) {
-                    const packageName = typeof packageModel.packageId === "object"
-                        ? packageModel.packageId.name
-                        : packageModel.packageId;
-                    service.annotation.label = generateLabels(packageName, service.serviceId);
                 }
 
                 // create the L1 service nodes
@@ -423,18 +412,6 @@ function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeMode
 
 function isResource(functionObject: ResourceFunction | RemoteFunction): functionObject is ResourceFunction {
     return (functionObject as ResourceFunction).resourceId !== undefined;
-}
-
-function generateLabels(packageName: string, serviceId: string): string {
-    if (untrackedPkgComponents.length === 1 && l1Nodes.has(untrackedPkgComponents[0]) &&
-        l2Nodes.has(untrackedPkgComponents[0]) && cellNodes.has(untrackedPkgComponents[0])) {
-        [l1Nodes, l2Nodes, cellNodes].forEach((nodes) => {
-            nodes.get(untrackedPkgComponents[0]).nodeObject.annotation.label = `${packageName} Component1`;
-        });
-    }
-    const label: string = `${packageName} Component${untrackedPkgComponents.length > 0 ? untrackedPkgComponents.length + 1 : ''}`;
-    untrackedPkgComponents.push(serviceId);
-    return label;
 }
 
 function getExternalNodeLabel(interaction: Dependency | Interaction): string {

@@ -359,9 +359,8 @@ export function transformToV4Services(services: Map<string, any>): Record<string
     Object.entries(services).forEach(([key, service]: [string, any]) => {
         newServices[key] = {
             serviceId: service.serviceId,
-            label: service.annotation.label,
+            label: service.annotation.label || service.path,
             annotation: service.annotation,
-            path: service.path,
             serviceType: service.serviceType,
             resources: service.resources,
             remoteFunctions: service.remoteFunctions,
