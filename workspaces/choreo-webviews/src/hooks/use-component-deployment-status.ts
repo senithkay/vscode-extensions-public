@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -12,26 +12,32 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { Component } from "@wso2-enterprise/choreo-core";
+import { Component, Deployment } from "@wso2-enterprise/choreo-core";
 
-export function useEnrichComponent(component: Component) {
+export function useComponentDeploymentStatus(component: Component) {
     const {
-        data: enrichedComponent,
-        isLoading: isLoadingComponent,
-        isRefetching: isRefetchingComponent,
-        refetch: refreshComponent,
-        error: componentLoadError,
+        data: devDeploymentData,
+        isLoading: isLoadingDeployment,
+        isRefetching: isRefetchingDeployment,
+        refetch: refreshDeployment,
+        error: deploymentLoadError,
         isFetched,
     } = useQuery({
-        queryKey: ["project_component_details", component?.id, component?.displayName],
-        queryFn: async (): Promise<Component|undefined> => {
-            return await ChoreoWebViewAPI.getInstance().getEnrichedComponent(component);
-        },
-        refetchOnWindowFocus: false,
+        queryKey: ["project_component_deployment_status", component?.id],
+        queryFn: (): Promise<Deployment | undefined> =>
+            ChoreoWebViewAPI.getInstance().getComponentDevDeployment(component),
+        refetchOnWindowFocus: true,
+        refetchInterval: 15000,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        enabled: component !== undefined,
-        keepPreviousData: true
+        enabled: component?.id !== undefined && !component.local,
     });
 
-    return { enrichedComponent, isLoadingComponent, isRefetchingComponent, refreshComponent, componentLoadError, isFetched };
+    return {
+        devDeploymentData,
+        isLoadingDeployment,
+        isRefetchingDeployment,
+        refreshDeployment,
+        deploymentLoadError,
+        isFetched,
+    };
 }

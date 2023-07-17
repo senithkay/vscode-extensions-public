@@ -87,8 +87,7 @@ export class ProjectView implements vscode.WebviewViewProvider {
 						undefined, // webview will use RPC to get the current project
 						undefined, // webview will use RPC to get the current org
 						${FREE_COMPONENT_LIMIT}, 
-						"${choreoAuthConfig.getConsoleUrl()}" , 
-						"${choreoAuthConfig.getBillingUrl()}"
+						"${choreoAuthConfig.getConsoleUrl()}"
 					);
 				  }
 				  render();

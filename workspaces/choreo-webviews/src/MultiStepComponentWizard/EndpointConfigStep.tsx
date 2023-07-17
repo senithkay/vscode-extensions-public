@@ -12,12 +12,12 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ComponentWizardState } from "./types";
 import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ErrorIcon, ErrorBanner } from "../Commons/ErrorBanner";
-import { ChoreoServiceType } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
     display: flex;
@@ -27,6 +27,16 @@ const StepContainer = styled.div`
     gap: 20px;
     width: 100%;
     min-width: 400px;
+`;
+
+const DropDownContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const VisibilityLabel = styled.label`
+    margin-top: 5px;
+    font-weight: lighter;
 `;
 
 export interface EndpointConfigProps {
@@ -52,6 +62,20 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
         onFormDataChange(prevFormData => ({ ...prevFormData, port }));
     };
 
+    const setContextValue = (endpointContext: string) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, endpointContext }));
+    };
+
+    const setNetworkVisibility = (networkVisibility: ComponentNetworkVisibility) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, networkVisibility }));
+    };
+
+    const projectDesc = {
+        'Project': 'Allows components within the same project to access the endpoint.',
+        'Organization': 'Allows any component within the same organization to access the endpoint.',
+        'Public': 'Allows any client to access the endpoint, regardless of location or organization.'
+    }
+
     return (
         <div>
             <StepContainer>
@@ -66,6 +90,34 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
                     {stepValidationErrors["port"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
                 </VSCodeTextField>
                 {stepValidationErrors["port"] && <ErrorBanner errorMsg={stepValidationErrors["port"]} />}
+
+                {formData?.type === ChoreoComponentType.Service && (
+                    <DropDownContainer>
+                        <label htmlFor="network-visibility">Network Visibility</label>
+                        <VSCodeDropdown value={formData.networkVisibility} id="network-visibility" onChange={(e: any) => setNetworkVisibility(e.target.value)}>
+                            <VSCodeOption value='Project'>Project</VSCodeOption>
+                            <VSCodeOption value='Organization'>Organization</VSCodeOption>
+                            <VSCodeOption value='Public'>Public</VSCodeOption>
+                        </VSCodeDropdown>
+                        <VisibilityLabel>{projectDesc[formData.networkVisibility]}</VisibilityLabel>
+                    </DropDownContainer>
+                )}
+
+                {[ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(formData?.serviceType) && (
+                    <>
+                        <VSCodeTextField
+                            autofocus
+                            placeholder="/greeting"
+                            onInput={(e: any) => setContextValue(e.target.value)}
+                            value={formData?.endpointContext || ''}
+                            id='component-context-input'
+                        >
+                            Context
+                            {stepValidationErrors["endpointContext"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
+                        </VSCodeTextField>
+                        {stepValidationErrors["endpointContext"] && <ErrorBanner errorMsg={stepValidationErrors["endpointContext"]} />}
+                    </>
+                )}
 
                 {formData?.serviceType === ChoreoServiceType.RestApi && <VSCodeTextField
                     placeholder=""
@@ -107,6 +159,16 @@ export const EndpointConfigStep: Step<Partial<ComponentWizardState>> = {
             message: 'Port should be a number',
             rule: async (value: any) => {
                 return value !== undefined && !isNaN(value)
+            }
+        },
+        {
+            field: 'endpointContext',
+            message: 'Context is required',
+            rule: async (value: any, formData) => {
+                if ([ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(formData?.serviceType)) {
+                    return value !== undefined && value !== '';
+                }
+                return false;
             }
         },
     ]

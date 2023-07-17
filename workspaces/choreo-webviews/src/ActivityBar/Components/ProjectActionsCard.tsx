@@ -11,14 +11,17 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import React, { useContext } from "react";
-import { ArchiViewButton } from "./ArchitectureViewButton";
-import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import React from "react";
 import { ViewTitle } from "./ViewTitle";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { useSelectedOrg } from "../../hooks/use-selected-org";
-import { CellViewButton } from "./CellViewButton";
+import { ComponentsCard } from "./ComponentsCard";
+import { ComponentsPushAction } from './projectActions/ComponentsPushAction';
+import { ComponentsSyncAction } from './projectActions/ComponentsSyncAction';
+import { ArchiViewButton } from './projectActions/ArchitectureViewButton';
+import { ProjectActionLink } from "./ProjectActionLink";
+import { CellViewButton } from "./projectActions/CellViewButton";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -33,8 +36,7 @@ const Body = styled.div`
 `;
 
 export const ProjectActionsCard: React.FC = () => {
-
-    const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoUrl, choreoProject } = useChoreoWebViewContext();
     const { selectedOrg } = useSelectedOrg();
 
     const projectURL = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}`;
@@ -42,16 +44,20 @@ export const ProjectActionsCard: React.FC = () => {
     const openProjectInChoreoConsole = () => {
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);
     }
-    
+
     return (
-        <Container>
-            <ViewTitle>Actions</ViewTitle>
-            <Body>
-                <ArchiViewButton />
-                <CellViewButton />
-                <VSCodeLink onClick={openProjectInChoreoConsole}>Open in Choreo Console</VSCodeLink>
-                <VSCodeLink>Push to Choreo</VSCodeLink>
-            </Body>
-        </Container>
+        <>
+            <Container>
+                <ViewTitle>Actions</ViewTitle>
+                <Body>
+                    <ArchiViewButton />
+                    <CellViewButton />
+                    <ProjectActionLink onClick={openProjectInChoreoConsole} label="Open in Choreo Console" />
+                    <ComponentsPushAction />
+                    <ComponentsSyncAction />
+                </Body>
+            </Container>
+            <ComponentsCard />
+        </>
     );
 };

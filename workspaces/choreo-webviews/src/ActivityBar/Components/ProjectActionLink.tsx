@@ -10,26 +10,37 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
-import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
-import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import React from "react";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    margin-left: 20px;
-    gap: 5px;
+const DisabledVSCodeLink = styled.div`
+  padding: 1px;
+  color: var(--foreground);
+  opacity: 0.5;
+  cursor: default;
 `;
-export const OrgSelector = (props: { onChange: (orgName: string) => void; }) => {
-    const { userOrgs, selectedOrg } = useChoreoWebViewContext();
 
-    return <Container>
-        <AutoComplete
-            selectedItem={selectedOrg?.name}
-            items={userOrgs?.map((org) => org.name) || []}
-            onChange={props.onChange}
-        />
-    </Container>;
+export const ProjectActionLink = (props: {
+  label: string;
+  tooltip?: string;
+  disabled?: boolean;
+  onClick?: () => void;
+}) => {
+  const { disabled, label, tooltip, onClick } = props;
+
+  return (
+    <>
+      {disabled ? (
+        <DisabledVSCodeLink>{label}</DisabledVSCodeLink>
+      ) : (
+        <VSCodeLink
+          onClick={() => onClick()}
+          title={tooltip}
+        >
+          {label}
+        </VSCodeLink>
+      )}
+    </>
+  );
 };

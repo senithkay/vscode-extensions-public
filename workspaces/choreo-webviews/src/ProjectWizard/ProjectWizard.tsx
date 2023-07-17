@@ -12,16 +12,16 @@
  */
 import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubAutherizer } from "../GithubRepoSelector/GithubAutherizer";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import { ProviderTypeCard } from "./ProviderTypeCard";
 import { ProjectTypeCard } from "./ProjectTypeCard";
 import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
-import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo, Project } from "@wso2-enterprise/choreo-core";
+import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
@@ -92,7 +92,7 @@ const REGIONS: string[] = ["Cloud Data Plane - US", "Cloud Data Plane - EU"];
 
 export function ProjectWizard() {
 
-    const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
+    const { loginStatus, loginStatusPending, selectedOrg, error } = useChoreoWebViewContext();
 
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");
@@ -127,40 +127,28 @@ export function ProjectWizard() {
         setCreationInProgress(true);
         const webviewAPI = ChoreoWebViewAPI.getInstance();
         const projectClient = webviewAPI.getProjectClient();
+        const region = selectedRegion.split(' ').pop();
         if (selectedOrg) {
             try {
                 let createdProject;
-                if (initMonoRepo) {
-                    //Mono Repo project creation
-                    const repoString = getRepoString();
+                const repoString = getRepoString();
                     createdProject = await projectClient.createProject({
                         name: projectName,
                         description: projectDescription,
                         orgId: selectedOrg.id,
                         orgHandle: selectedOrg.handle,
-                        region: selectedRegion.split(" ")[-1],
-                        repository: repoString,
-                        credentialId: selectedCredential.id,
-                        branch: selectedBranch,
-                    });
+                        region: region,
+                        repository: initMonoRepo ? repoString : null,
+                        credentialId: initMonoRepo ? selectedCredential.id : null,
+                        branch: initMonoRepo ? selectedBranch : null,
+                });
 
-                    const repoDetails: GitRepo = { provider: gitProvider, orgName: selectedGHOrgName, repoName: selectedGHRepo };
-                    if (gitProvider === GitProvider.BITBUCKET) {
-                        repoDetails.bitbucketCredentialId = selectedCredential?.id
-                    }
-                    await webviewAPI.setProjectRepository(createdProject.id, repoDetails);
-                } else {
-                    //Multi Repo project creation
-                    createdProject = await projectClient.createProject({
-                        name: projectName,
-                        description: projectDescription,
-                        orgId: selectedOrg.id,
-                        orgHandle: selectedOrg.handle,
-                        region: selectedRegion.split(" ")[-1]
-                    });
-                }
-
-                handleCloneProject(createdProject);
+                handleCloneProject({
+                    ...createdProject,
+                    repository: selectedGHRepo,
+                    gitOrganization: selectedGHOrgName,
+                    gitProvider
+                });
 
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                     eventName: CREATE_PROJECT_SUCCESS_EVENT,
@@ -168,9 +156,6 @@ export function ProjectWizard() {
                         name: createdProject?.name,
                     }
                 });
-                await webviewAPI.triggerCmd("wso2.choreo.projects.registry.refresh");
-                await webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
-                await webviewAPI.triggerCmd("wso2.choreo.projects.tree.refresh");
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({

@@ -149,7 +149,7 @@ export async function cloneRepositoryWithProgress(orgName: string, repoName: str
     });
 }
 
-export async function createProjectWorkspaceFile(projectName: string, projectID: string, orgId: number, projectDir: string, items: WorkspaceItem[], monoRepo?: string, branch?: string, gitProvider?: string ) {
+export async function createProjectWorkspaceFile(projectName: string, projectID: string, orgId: number, projectDir: string, items: WorkspaceItem[]) {
     const workspaceFile: WorkspaceConfig = {
         folders: [
             {
@@ -162,9 +162,6 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
             choreo: {
                 projectID,
                 orgId: orgId,
-                monoRepo,
-                branch,
-                gitProvider
             }
         }
     };
@@ -250,15 +247,6 @@ export const cloneProject = async (project: Project, dirPath = "") => {
 
                 getLogger().debug("folder path to clone project: " + projectName + " is " + projectDir);
 
-                let gitProvider;
-                // Get Mono Repo if configured
-                const monoRepo = ProjectRegistry.getInstance().getProjectRepository(project.id);
-                if (monoRepo) {
-                    gitProvider = monoRepo.provider;
-                    getLogger().debug("Mono Repo configured for project: " + project.name + " at " + monoRepo);
-                }
-
-
                 getLogger().debug("Starting cloning project: " + project.name);
 
                 progress.report({ message: "Retrieving details on component repositories of project: " + projectName });
@@ -269,9 +257,7 @@ export const cloneProject = async (project: Project, dirPath = "") => {
                 progress.report({ message: "Generating workspace file for the project: " + projectName });
                 const folders = generateWorkspaceItems(userManagedComponents);
 
-                const repo = monoRepo?.orgName && monoRepo?.repoName ? `${monoRepo?.orgName}/${monoRepo?.repoName}` : '';
-                const repoBranch = branch ?? '';
-                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders,repo , repoBranch, gitProvider);
+                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders);
                 getLogger().debug("Workspace file created at " + workspaceFilePath);
                 
                 let currentCloneIndex = 0;
@@ -279,18 +265,18 @@ export const cloneProject = async (project: Project, dirPath = "") => {
                     const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
                     const repoOrgPath = path.join(projectDir, "repos", organizationApp);
                     getLogger().info("Cloning " + organizationApp + "/" + nameApp + " to " + repoOrgPath);
-                    const repoPath = await cloneRepositoryWithProgress(organizationApp, nameApp, repoOrgPath, gitProvider, branchApp);
+                    const repoPath = await cloneRepositoryWithProgress(organizationApp, nameApp, repoOrgPath, project.gitProvider, branchApp);
                     getLogger().debug("Cloned " + organizationApp + "/" + nameApp + " to " + repoPath);
                     currentCloneIndex = currentCloneIndex + 1;
                 }
 
                 // Clone project mono repo if not already cloned
-                if (monoRepo) {
-                    if (!existsSync(path.join(projectDir, "repos", monoRepo.orgName, monoRepo.repoName))) {
-                        const parentDir = path.join(projectDir, "repos", monoRepo.orgName);
-                        getLogger().info("Cloning " + monoRepo.orgName + "/" + monoRepo.repoName + " to " + parentDir);
-                        const repoPath = await cloneRepositoryWithProgress(monoRepo.orgName, monoRepo.repoName, parentDir, gitProvider);
-                        getLogger().debug("Cloned " + monoRepo.orgName + "/" + monoRepo.repoName + " to " + repoPath);
+                if (project.gitOrganization && project.repository) {
+                    if (!existsSync(path.join(projectDir, "repos", project.gitOrganization, project.repository))) {
+                        const parentDir = path.join(projectDir, "repos", project.gitOrganization);
+                        getLogger().info("Cloning " + project.gitOrganization + "/" + project.repository + " to " + parentDir);
+                        const repoPath = await cloneRepositoryWithProgress(project.gitOrganization, project.repository, parentDir, project.gitProvider);
+                        getLogger().debug("Cloned " + project.gitOrganization + "/" + project.repository + " to " + repoPath);
                     }
                 }
                 getLogger().debug("Cloning completed for project: " + project.name);

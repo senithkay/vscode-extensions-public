@@ -11,15 +11,13 @@
  *  associated services.
  */
 
-import React, { useContext } from "react";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ComponentsCard } from "./Components/ComponentsCard";
+import React from "react";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectActionsCard } from "./Components/ProjectActionsCard";
 import styled from "@emotion/styled";
 import { ProgressIndicator } from "./Components/ProgressIndicator";
 import { EmptyWorkspaceMessage } from "./Components/EmptyWorkspaceMessage";
 import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
-
 
 const Container = styled.div`
     display: flex;
@@ -30,15 +28,25 @@ const Container = styled.div`
 `;
 
 export const ProjectView = () => {
-    const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject, loginStatus, isChoreoProject, loadingProject } = useChoreoWebViewContext();
+
     return (
         <Container>
             {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
             {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
-            {loginStatus == "LoggedIn" && choreoProject && <ProjectActionsCard />}
-            {loginStatus == "LoggedIn" && choreoProject && <ComponentsCard />}
-            {!isChoreoProject && loginStatus == "LoggedIn" && <EmptyWorkspaceMessage />}
-            {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
+            {loginStatus == "LoggedIn" && (
+                <>
+                    {loadingProject ? (
+                        <ProgressIndicator />
+                    ) : (
+                        <>
+                            {isChoreoProject && choreoProject && <ProjectActionsCard />}
+                            {isChoreoProject && !choreoProject && <EmptyWorkspaceMessage projectUnavailable />}
+                            {!isChoreoProject && <EmptyWorkspaceMessage />}
+                        </>
+                    )}
+                </>
+            )}
         </Container>
-    )
+    );
 };

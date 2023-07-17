@@ -14,7 +14,32 @@
 import React, { useState } from 'react';
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from '@vscode/webview-ui-toolkit/react';
 import { Codicon } from "../Codicon/Codicon";
+import styled from '@emotion/styled';
 
+const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
+    text-align: left;
+    width: 220px;
+    display: flex;
+    align-items: center;
+`;
+
+const ContextOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+`;
+
+const ExpandedMenu = styled.div`
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 15;
+    background: var(--vscode-editor-background);
+    border: 1px solid var(--vscode-menu-border);
+`;
 
 export interface MenuItem {
     id: number | string;
@@ -25,10 +50,9 @@ export interface MenuItem {
 
 interface Props {
     items: MenuItem[];
-    index: number
 }
 
-export const ContextMenu: React.FC<Props> = ({ items, index }) => {
+export const ContextMenu: React.FC<Props> = ({ items }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleClick = () => {
@@ -50,20 +74,12 @@ export const ContextMenu: React.FC<Props> = ({ items, index }) => {
                 appearance="icon"
                 onClick={handleClick}
                 title="More Actions"
-                id={`component-list-menu-btn-${index}`}
+                id="component-list-menu-btn"
             >
                 <Codicon name="ellipsis" />
             </VSCodeButton>
             {isOpen && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        right: 10,
-                        zIndex: 9999,
-                        background: 'var(--vscode-editor-background)',
-                        border: '1px solid var(--vscode-menu-border)',
-                    }}
-                >
+                <ExpandedMenu>
                     <VSCodeDataGrid aria-label="Context Menu">
                         {items.map((item) => (
                             <VSCodeDataGridRow
@@ -75,27 +91,15 @@ export const ContextMenu: React.FC<Props> = ({ items, index }) => {
                                 }}
                                 id={`component-list-menu-${item.id}`}
                             >
-                                <VSCodeDataGridCell style={{ textAlign: 'left', width: 220 }}>
+                                <VSCodeDataGridInlineCell>
                                     {item.label}
-                                </VSCodeDataGridCell>
+                                </VSCodeDataGridInlineCell>
                             </VSCodeDataGridRow>
                         ))}
                     </VSCodeDataGrid>
-                </div>
+                </ExpandedMenu>
             )}
-            {isOpen && (
-                <div
-                    onClick={handleClose}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        zIndex: 9998,
-                    }}
-                />
-            )}
+            {isOpen && <ContextOverlay onClick={handleClose} />}
         </>
     );
 };

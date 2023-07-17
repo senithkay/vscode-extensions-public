@@ -29,7 +29,8 @@ const WideVSCodeButton = styled(VSCodeButton)`
     margin: 15px;
 `;
 
-export const EmptyWorkspaceMessage = () => {
+
+export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) => {
     
     const openChoreoProject = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
@@ -41,7 +42,15 @@ export const EmptyWorkspaceMessage = () => {
 
     return (
         <Container>
-            <div>You do not have a Choreo project in current workspace.</div>
+            {props.projectUnavailable ? (
+                <>
+                    <div>This project is not available in Choreo.</div>
+                    <div>Please create a new project or switch to a different project</div>
+                </>
+            ) : (
+                <div>You do not have a Choreo project in current workspace.</div>
+            )}
+
             <WideVSCodeButton
                 appearance="primary"
                 onClick={openChoreoProject}

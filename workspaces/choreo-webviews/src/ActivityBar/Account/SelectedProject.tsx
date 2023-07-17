@@ -12,8 +12,7 @@
  */
 import styled from "@emotion/styled";
 import React from "react";
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ViewTitle } from "../Components/ViewTitle";
 import { ViewHeader } from "../Components/ViewHeader";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
@@ -36,7 +35,7 @@ const Body = styled.div`
 
 export const SelectedProject = () => {
 
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject, loadingProject } = useChoreoWebViewContext();
 
     const changeProject = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
@@ -58,8 +57,8 @@ export const SelectedProject = () => {
             </VSCodeButton>
         </ViewHeader>
         <Body>
-            {!choreoProject && <div>fetching project info...</div>}
-            <div>Name: {choreoProject?.name}</div>
+            {loadingProject && <div>fetching project info...</div>}
+            <div>Name: {choreoProject?.name || "N/A"}</div>
             <div>Description: {choreoProject?.description.trim() || "N/A"}</div>
             <div>Region: {choreoProject?.region || "N/A"}</div>
             <div>Version: {choreoProject?.version || "N/A"}</div>
