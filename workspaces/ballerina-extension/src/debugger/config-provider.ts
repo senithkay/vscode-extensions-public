@@ -184,14 +184,14 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
     return config;
 }
 
-export async function constructDebugConfig(uri: Uri, testDebug: boolean, args: any, context: ExtensionContext): Promise<DebugConfiguration> {
+export async function constructDebugConfig(uri: Uri, testDebug: boolean, args?: any): Promise<DebugConfiguration> {
 
     const launchConfig: WorkspaceConfiguration = workspace.getConfiguration('launch').length > 0 ? workspace.getConfiguration('launch') :
         workspace.getConfiguration('launch', uri);
     const debugConfigs: DebugConfiguration[] = launchConfig.configurations;
 
     if (debugConfigs.length == 0) {
-        const initialConfigurations: DebugConfiguration[] = context.extension.packageJSON.contributes.debuggers[0].initialConfigurations;
+        const initialConfigurations: DebugConfiguration[] = ballerinaExtInstance.extension.packageJSON.contributes.debuggers[0].initialConfigurations;
 
         debugConfigs.push(...initialConfigurations);
         launchConfig.update('configurations', debugConfigs, ConfigurationTarget.WorkspaceFolder, true);
@@ -207,8 +207,8 @@ export async function constructDebugConfig(uri: Uri, testDebug: boolean, args: a
     }
 
     debugConfig.script = uri.fsPath;
-    debugConfig.configEnv = !testDebug ? args : undefined;
     debugConfig.debugTests = testDebug;
+    debugConfig.tests = testDebug ? args : undefined;
     return debugConfig;
 }
 

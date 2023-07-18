@@ -15,7 +15,7 @@
 import { log } from "console";
 import fileUriToPath from "file-uri-to-path";
 import { ballerinaExtInstance, LANGUAGE } from "../core";
-import { DEBUG_REQUEST, DEBUG_CONFIG } from "../debugger";
+import { DEBUG_REQUEST, DEBUG_CONFIG, constructDebugConfig } from "../debugger";
 import { Uri, WorkspaceFolder, workspace, DebugConfiguration, debug, window, CancellationToken, TestItem, TestMessage, TestRunProfileKind, TestRunRequest } from "vscode";
 import child_process from 'child_process';
 
@@ -115,15 +115,8 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
                 }
             }
         } else if (request.profile?.kind == TestRunProfileKind.Debug) {
-            for (const { test, } of queue) {
-                if (window.activeTextEditor) {
-                    // Debugs tests.
-                    await startDebugging(window.activeTextEditor.document.uri, true,
-                        ballerinaExtInstance.getBallerinaCmd(),
-                        ballerinaExtInstance.getBallerinaHome(), [test.label]);
-
-                }
-            }
+            const tests = queue.map(t => t.test.label);
+            await startDebugging(Uri.parse(projectRoot), true, tests);
         }
         run.appendOutput(`Tests Completed\r\n`);
 
@@ -178,11 +171,11 @@ export async function readTestJson(file): Promise<JSON | undefined> {
 /**
  * Start debugging
  */
-export async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
+export async function startDebugging(uri: Uri, testDebug: boolean, args: any[])
     : Promise<void> {
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
-    const debugConfig: DebugConfiguration = await constructDebugConfig(testDebug, ballerinaCmd,
-        ballerinaHome, args);
+    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, args);
+
     return debug.startDebugging(workspaceFolder, debugConfig).then(
         // Wait for debug session to be complete.
         () => {
@@ -194,53 +187,4 @@ export async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd:
         },
         (ex) => log('Failed to start debugging tests' + ex),
     );
-}
-
-async function constructDebugConfig(testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
-    : Promise<DebugConfiguration> {
-
-    let programArgs = [];
-    let commandOptions = [];
-    let env = {};
-    const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
-    if (debugConfigs.length > 0) {
-        let debugConfig: DebugConfiguration | undefined;
-        for (let i = 0; i < debugConfigs.length; i++) {
-            if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
-                (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
-                debugConfig = debugConfigs[i];
-                break;
-            }
-        }
-        if (debugConfig) {
-            if (debugConfig.programArgs) {
-                programArgs = debugConfig.programArgs;
-            }
-            if (debugConfig.commandOptions) {
-                commandOptions = debugConfig.commandOptions;
-            }
-            if (debugConfig.env) {
-                env = debugConfig.env;
-            }
-        }
-    }
-
-    const debugConfig: DebugConfiguration = {
-        type: LANGUAGE.BALLERINA,
-        name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
-        request: DEBUG_REQUEST.LAUNCH,
-        script: fileUriToPath(window.activeTextEditor!.document.uri.toString()),
-        networkLogs: false,
-        debugServer: '10001',
-        debuggeePort: '5010',
-        'ballerina.home': ballerinaHome,
-        'ballerina.command': ballerinaCmd,
-        debugTests: testDebug,
-        tests: testDebug ? args : [],
-        programArgs,
-        commandOptions,
-        env,
-        capabilities: { supportsReadOnlyEditors: true }
-    };
-    return debugConfig;
 }

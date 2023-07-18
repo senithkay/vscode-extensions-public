@@ -66,11 +66,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             }
         });
 
-        commands.registerCommand(INTERNAL_DEBUG_COMMAND, async (args: any) => {
+        commands.registerCommand(INTERNAL_DEBUG_COMMAND, async () => {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_SOURCE_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(this.activeTextEditorUri!, false, args, this.ballerinaExtension.context);
+            startDebugging(this.activeTextEditorUri!, false);
         });
 
         commands.registerCommand(SOURCE_DEBUG_COMMAND, async () => {
@@ -79,11 +79,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return;
         });
 
-        commands.registerCommand(TEST_DEBUG_COMMAND, async (...args: any[]) => {
+        commands.registerCommand(TEST_DEBUG_COMMAND, async () => {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_TEST_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(window.activeTextEditor!.document.uri, true, args, this.ballerinaExtension.context);
+            startDebugging(window.activeTextEditor!.document.uri, true);
         });
     }
 
@@ -160,9 +160,9 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 }
 
-async function startDebugging(uri: Uri, testDebug: boolean, args: any[], context: ExtensionContext)
+async function startDebugging(uri: Uri, testDebug: boolean)
     : Promise<boolean> {
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
-    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, args, context);
+    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug);
     return debug.startDebugging(workspaceFolder, debugConfig);
 }
