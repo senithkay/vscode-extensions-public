@@ -16,38 +16,46 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "./../../context/choreo-web-view-ctx";
 
-
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding: 10px;
-    gap: 10px;
+    gap: 8px;
 `;
 
 const WideVSCodeButton = styled(VSCodeButton)`
     width: 100%;
     max-width: 300px;
-    margin: 15px;
+    margin: 15px 0 15px 0;
 `;
 
-export const SignInToChoreoMessage = () => {
-
+export const SignInToChoreoMessage = (props: { showProjectHeader?: boolean }) => {
     const { isChoreoProject } = useChoreoWebViewContext();
+    const { showProjectHeader } = props;
 
     const signInToChoreo = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.in");
-    }
+    };
 
     return (
         <Container>
-            {isChoreoProject && <div>You have a Choreo project in current workspace.</div>}
-            {!isChoreoProject && <div>You do not have a Choreo project in current workspace.</div>}
-            <div>Please sign in to enable Choreo Features. </div>
-            <WideVSCodeButton
-                appearance="primary"
-                onClick={signInToChoreo}
-            >
+            {showProjectHeader && (
+                <>
+                    {isChoreoProject ? (
+                        <>
+                            <div>Choreo project detected in your current workspace.</div>
+                            <div>Please sign in to unlock Choreo Features for your project.</div>
+                        </>
+                    ) : (
+                        <>
+                            <div>No Choreo project found in your current workspace.</div>
+                            <div>Please sign in to create and manage your Choreo project.</div>
+                        </>
+                    )}
+                </>
+            )}
+            <WideVSCodeButton appearance="primary" onClick={signInToChoreo}>
                 Sign In
             </WideVSCodeButton>
         </Container>

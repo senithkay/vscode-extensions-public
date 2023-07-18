@@ -14,10 +14,9 @@ import React from "react";
 import styled from "@emotion/styled";
 import { UserInfo } from "./UserInfo";
 import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
-import { CurrentOrganization } from "./SelectedOrg";
+import { ProjectDetails } from "./ProjectDetails";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "../Components/ProgressIndicator";
-import { SelectedProject } from "./SelectedProject";
 
 const Container = styled.div`
     display: flex;
@@ -40,8 +39,6 @@ export const UserDetails = () => {
         {(loginStatusPending) && <ProgressIndicator />}
         <UserInfo />
         <Seperator />
-        <CurrentOrganization />
-        <Seperator />
-        <SelectedProject />
+        <ProjectDetails />
     </Container>;
 };

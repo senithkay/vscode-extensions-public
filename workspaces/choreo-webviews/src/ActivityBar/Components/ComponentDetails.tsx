@@ -29,6 +29,10 @@ const Container = styled.div`
   gap: 10px;
 `;
 
+const GridTitleCell = styled(VSCodeDataGridCell)`
+    opacity: 0.7;
+`;
+
 export const ComponentDetails = (props: {
     component: Component,
     handleSourceControlClick: () => void,
@@ -42,17 +46,17 @@ export const ComponentDetails = (props: {
         <Container>
             <VSCodeDataGrid aria-label="Components">
                 <VSCodeDataGridRow>
-                    <VSCodeDataGridCell gridColumn="1">
+                    <GridTitleCell gridColumn="1">
                         Version
-                    </VSCodeDataGridCell>
+                    </GridTitleCell>
                     <VSCodeDataGridCell gridColumn="2">
                         {component.version}
                     </VSCodeDataGridCell>
                 </VSCodeDataGridRow>
                 <VSCodeDataGridRow>
-                    <VSCodeDataGridCell gridColumn="1">
+                    <GridTitleCell gridColumn="1">
                         Build
-                    </VSCodeDataGridCell>
+                    </GridTitleCell>
                     <VSCodeDataGridCell gridColumn="2">
                         <BuildStatusText
                             buildStatus={buildData}
@@ -63,9 +67,9 @@ export const ComponentDetails = (props: {
                     </VSCodeDataGridCell>
                 </VSCodeDataGridRow>
                 <VSCodeDataGridRow>
-                    <VSCodeDataGridCell gridColumn="1">
+                    <GridTitleCell gridColumn="1">
                         Deployment
-                    </VSCodeDataGridCell>
+                    </GridTitleCell>
                     <VSCodeDataGridCell gridColumn="2">
                         <DeploymentStatusText
                             deployment={devDeploymentData}
@@ -75,9 +79,9 @@ export const ComponentDetails = (props: {
                     </VSCodeDataGridCell>
                 </VSCodeDataGridRow>
                 <VSCodeDataGridRow>
-                    <VSCodeDataGridCell gridColumn="1">
+                    <GridTitleCell gridColumn="1">
                         Action
-                    </VSCodeDataGridCell>
+                    </GridTitleCell>
                     <VSCodeDataGridCell gridColumn="2">
                         <ComponentDetailActions
                             component={component}
