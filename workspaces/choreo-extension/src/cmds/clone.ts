@@ -85,9 +85,9 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
             getLogger().error("Git was not initialized"); 
         }
         if (success) {
-            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT)
+            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT);
         } else {
-            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT)
+            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT);
         }
     });
     return success;

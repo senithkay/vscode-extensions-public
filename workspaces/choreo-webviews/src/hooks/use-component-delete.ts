@@ -29,10 +29,10 @@ export function useComponentDelete(component: Component) {
         },
         onSuccess: async (data) => {
             if (data) {
-                await queryClient.cancelQueries({ queryKey: ["overview_component_list", component.projectId] })
-                const previousComponents: Component[] | undefined = queryClient.getQueryData(["overview_component_list", component.projectId])
+                await queryClient.cancelQueries({ queryKey: ["project_component_list", component.projectId] })
+                const previousComponents: Component[] | undefined = queryClient.getQueryData(["project_component_list", component.projectId])
                 const filteredComponents = previousComponents?.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
-                queryClient.setQueryData(["overview_component_list", component.projectId], filteredComponents)
+                queryClient.setQueryData(["project_component_list", component.projectId], filteredComponents)
                 refreshComponents();
             }
         },

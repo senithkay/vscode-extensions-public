@@ -564,7 +564,7 @@ export class ProjectRegistry {
         return preferredRepository;
     }
 
-    pushLocalComponentsToChoreo(projectId: string, org: Organization): Thenable<void> {
+    pushLocalComponentsToChoreo(projectId: string, componentNames: string[] = []): Thenable<void> {
         return window.withProgress({
             title: `Pushing local components to Choreo`,
             location: ProgressLocation.Notification,
@@ -586,24 +586,26 @@ export class ProjectRegistry {
                     if (cancellationToken.isCancellationRequested) {
                         break;
                     }
-                    _progress.report({ message: `Uploading the ${componentMetadata.displayName} component from your local machine.` });
-                    try {
-                        if (componentMetadata.displayType.toString().startsWith("byoc")) {
-                            await this._createByoComponent(componentMetadata);
-                        } else {
-                            await this._createComponent(componentMetadata);
+                    if (componentNames.includes(componentMetadata.displayName)){
+                        _progress.report({ message: `Uploading the ${componentMetadata.displayName} component from your local machine.` });
+                        try {
+                            if (componentMetadata.displayType.toString().startsWith("byoc")) {
+                                await this._createByoComponent(componentMetadata);
+                            } else {
+                                await this._createComponent(componentMetadata);
+                            }
+                            choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                        } catch (error: any) {
+                            if (error.cause?.response?.metadata?.additionalData === "REACHED_MAXIMUM_NUMBER_OF_FREE_COMPONENTS") {
+                                const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
+                                failedComponentsDueToMaxLimit.push(componentMetadata.displayName);
+                            } else {
+                                const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
+                                getLogger().error(errorMsg + " " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+                                failedComponents.push(componentMetadata.displayName);
+                            }
+                            
                         }
-                        choreoPM.removeLocalComponent(projectLocation, componentMetadata);
-                    } catch (error: any) {
-                        if (error.cause?.response?.metadata?.additionalData === "REACHED_MAXIMUM_NUMBER_OF_FREE_COMPONENTS") {
-                            const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
-                            failedComponentsDueToMaxLimit.push(componentMetadata.displayName);
-                        } else {
-                            const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
-                            getLogger().error(errorMsg + " " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                            failedComponents.push(componentMetadata.displayName);
-                        }
-                        
                     }
                     _progress.report({ increment: 100 / localComponentMeta.length });
                 }

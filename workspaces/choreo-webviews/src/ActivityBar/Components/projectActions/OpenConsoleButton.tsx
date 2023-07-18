@@ -12,31 +12,27 @@
  */
 import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
-import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
-import { ArchitectureViewIcon } from "../../../icons";
+import { ChoreoIcon } from "../../../icons";
+import { useOrgOfCurrentProject } from "../../../hooks/use-org-of-current-project";
 
-export const ArchiViewButton = () => {
+export const OpenConsoleButton = () => {
+    const { choreoProject, choreoUrl } = useChoreoWebViewContext();
+    const { currentProjectOrg } = useOrgOfCurrentProject();
 
-    const { choreoProject } = useChoreoWebViewContext();
+    const projectURL = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}`;
 
-    const handleClick = () => {
-        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-            eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
-            properties: {
-                project: choreoProject?.name ?? ''
-            }
-        });
-        ChoreoWebViewAPI.getInstance().openArchitectureView();
-    }
+    const openProjectInChoreoConsole = () => {
+        ChoreoWebViewAPI.getInstance().openExternal(projectURL);
+    };
 
     return (
         <ProjectActionButton
-            onClick={handleClick}
-            label="Architecture"
-            icon={<ArchitectureViewIcon/>}
-            tooltip="Open Architecture Diagram"
+            tooltip="Open project in Choreo Console"
+            onClick={openProjectInChoreoConsole}
+            label="Console"
+            icon={<ChoreoIcon />}
         />
     );
-}
+};

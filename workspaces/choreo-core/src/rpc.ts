@@ -70,6 +70,7 @@ export interface CloneChoreoProjectParams {
 export interface PushLocalComponentsToChoreoParams {
    orgId: number;
    projectId: string;
+   componentNames: string[];
 }
 
 // request types 

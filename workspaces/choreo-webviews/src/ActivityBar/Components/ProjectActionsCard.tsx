@@ -12,16 +12,11 @@
  */
 import styled from "@emotion/styled";
 import React from "react";
-import { ViewTitle } from "./ViewTitle";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
-import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ComponentsCard } from "./ComponentsCard";
-import { ComponentsPushAction } from './projectActions/ComponentsPushAction';
-import { ComponentsSyncAction } from './projectActions/ComponentsSyncAction';
-import { ArchiViewButton } from './projectActions/ArchitectureViewButton';
-import { ProjectActionLink } from "./ProjectActionLink";
+import { ArchiViewButton } from "./projectActions/ArchitectureViewButton";
 import { CellViewButton } from "./projectActions/CellViewButton";
+import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
+import { OpenConsoleButton } from "./projectActions/OpenConsoleButton";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -29,32 +24,25 @@ const Container = styled.div`
 
 const Body = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 5px;
-    margin-top: 15px;
-    margin-left: 10px;
+    flex-wrap: wrap;
 `;
 
 export const ProjectActionsCard: React.FC = () => {
-    const { currentProjectOrg } = useOrgOfCurrentProject();
-    const { choreoUrl, choreoProject } = useChoreoWebViewContext();
-
-    const projectURL = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}`;
-
-    const openProjectInChoreoConsole = () => {
-        ChoreoWebViewAPI.getInstance().openExternal(projectURL);
-    }
+    const { components } = useChoreoComponentsContext();
 
     return (
         <>
             <Container>
-                <ViewTitle>Actions</ViewTitle>
                 <Body>
-                    <ArchiViewButton />
-                    <CellViewButton />
-                    <ProjectActionLink onClick={openProjectInChoreoConsole} label="Open in Choreo Console" />
-                    <ComponentsPushAction />
-                    <ComponentsSyncAction />
+                    {components?.length > 0 && (
+                        <>
+                            <ArchiViewButton />
+                            <CellViewButton />
+                        </>
+                    )}
+                    <OpenConsoleButton />
                 </Body>
             </Container>
             <ComponentsCard />

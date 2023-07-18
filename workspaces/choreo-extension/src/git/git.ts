@@ -132,8 +132,8 @@ function findSystemGitWin32(base: string, onValidate: (path: string) => boolean)
 }
 
 async function findGitWin32InPath(onValidate: (path: string) => boolean): Promise<IGit> {
-	const gitPath = await which('git.exe')
-	return findSpecificGit(gitPath, onValidate)
+	const gitPath = await which('git.exe');
+	return findSpecificGit(gitPath, onValidate);
 }
 
 function findGitWin32(onValidate: (path: string) => boolean): Promise<IGit> {
