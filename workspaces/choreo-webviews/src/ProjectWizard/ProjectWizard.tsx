@@ -108,7 +108,7 @@ export function ProjectWizard(props: { orgId: string}) {
     const [projectDescription, setProjectDescription] = useState("");
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
-    const [initMonoRepo, setInitMonoRepo] = useState(false);
+    const [initMonoRepo, setInitMonoRepo] = useState(true);
     const [selectedGHOrgName, setSelectedGHOrgName] = useState("");
     const [selectedGHRepo, setSelectedGHRepo] = useState("");
     const [isBareRepo, setIsBareRepo] = useState(false);
