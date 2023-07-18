@@ -113,8 +113,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             }) as ExecutorPositionsResponse;
             if (response.executorPositions) {
                 response.executorPositions.forEach(position => {
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
+                    if (position.kind === EXEC_POSITION_TYPE.SOURCE) {
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
+                    }
                 });
             }
         } catch (error) {
