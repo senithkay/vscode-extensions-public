@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js no-unused-expression
 import * as React from 'react';
 
@@ -9,16 +18,16 @@ import { CustomTransformLayerWidget } from "./CustomTransformLayer";
 export interface DiagramProps {
     engine: CanvasEngine;
     className?: string;
-    isNodeSelected?: string;
+    isNodeFocused?: boolean;
 }
 
 // tslint:disable-next-line:no-namespace
 namespace S {
     export const Canvas = styled.div`
-		position: relative;
-		cursor: move;
-		overflow: hidden;
-	`;
+      position: relative;
+      cursor: move;
+      overflow: hidden;
+    `;
 }
 
 export class CustomCanvasWidget extends React.Component<DiagramProps> {
@@ -108,7 +117,11 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
             >
                 {model.getLayers().map((layer) => {
                     return (
-                        <CustomTransformLayerWidget layer={layer} key={layer.getID()} isNodeSelected={this.props.isNodeSelected}>
+                        <CustomTransformLayerWidget
+                            layer={layer}
+                            key={layer.getID()}
+                            isNodeFocused={this.props.isNodeFocused}
+                        >
                             <SmartLayerWidget layer={layer} engine={this.props.engine} key={layer.getID()} />
                         </CustomTransformLayerWidget>
                     );

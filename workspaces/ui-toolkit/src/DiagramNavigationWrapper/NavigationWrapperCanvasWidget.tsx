@@ -1,0 +1,48 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { DiagramEngine, NodeModel } from "@projectstorm/react-diagrams";
+import React from "react";
+
+import { CustomCanvasWidget } from "./CustomCanvasWidget";
+
+interface NavigationWrapperCanvasProps {
+    diagramEngine: DiagramEngine;
+    className?: string;
+    focusedNode?: NodeModel;
+}
+
+export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProps) {
+    const { diagramEngine, focusedNode, className } = props;
+
+    function isFocusNodeTriggered(): boolean {
+        if (focusedNode) {
+            focusToNode(focusedNode, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+            return true;
+        }
+        return false;
+    }
+
+
+    return (
+        <CustomCanvasWidget engine={diagramEngine} isNodeFocused={isFocusNodeTriggered()} className={className} />
+    );
+}
+
+function focusToNode(node: NodeModel, currentZoomLevel: number, diagramEngine: DiagramEngine) {
+    const canvasBounds = diagramEngine.getCanvas().getBoundingClientRect();
+    const nodeBounds = node.getBoundingBox();
+
+    const zoomOffset = currentZoomLevel / 100;
+    const offsetX = canvasBounds.width / 2 - (nodeBounds.getTopLeft().x + nodeBounds.getWidth() / 2) * zoomOffset;
+    const offsetY = canvasBounds.height / 2 - (nodeBounds.getTopLeft().y + nodeBounds.getHeight() / 2) * zoomOffset;
+
+    diagramEngine.getModel().setOffset(offsetX, offsetY);
+    diagramEngine.repaintCanvas();
+}
