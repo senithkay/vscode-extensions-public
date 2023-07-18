@@ -12,8 +12,7 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
@@ -51,7 +50,7 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
 
 const RefreshBtn = styled(VSCodeButton)`
     margin-top: auto;
-    padding: 4px;
+    padding: 1px;
 `;
 
 export interface GithubRepoSelectorProps {
@@ -66,8 +65,6 @@ export interface GithubRepoSelectorProps {
 export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const { selectedRepo, onRepoSelect } = props;
-
-    const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
 
     const { choreoProject } = useChoreoWebViewContext();
 
@@ -88,17 +85,6 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const selectedOrg = filteredOrgs?.find(org => org.orgName === selectedRepo?.org) || filteredOrgs?.[0];
 
-
-    useEffect(() => {
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        ghClient.onGHAppAuthCallback((status) => {
-            setGHStatus(status);
-        });
-        ghClient.status.then((status) => {
-            setGHStatus(status);
-        });
-    }, []);
-
     const handleGhOrgChange = (value: string) => {
         const org = filteredOrgs.find(org => org.orgName === value);
         if (org && org.repositories.length > 0) {
@@ -116,7 +102,6 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         onRepoSelect(selectedOrg?.orgName, selectedRepo?.repo, value );
     };
 
-    const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     const showLoader = isFetchingRepos || isRefetching;
 
     const repos: string[] = selectedOrg && selectedOrg.repositories.sort((a, b) => {
@@ -140,7 +125,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                         <label htmlFor="repo-drop-down">Repository</label>
                         <AutoComplete items={repos} selectedItem={selectedRepo?.repo} onChange={handleGhRepoChange}></AutoComplete>
                     </GhRepoSelectorRepoContainer>
-                    {showRefreshButton && !showLoader && <RefreshBtn
+                    {!showLoader && <RefreshBtn
                         appearance="icon"
                         onClick={() => refetch()}
                         title="Refresh repository list"

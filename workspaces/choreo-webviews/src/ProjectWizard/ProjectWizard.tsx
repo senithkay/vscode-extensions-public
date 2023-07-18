@@ -25,6 +25,7 @@ import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -88,6 +89,8 @@ const SectionWrapper = styled.div`
     }
 `;
 
+const REGIONS: string[] = ["Cloud Data Plane - US", "Cloud Data Plane - EU"];
+
 export function ProjectWizard(props: { orgId: string}) {
 
     const { orgId } = props;
@@ -110,6 +113,7 @@ export function ProjectWizard(props: { orgId: string}) {
     const [projectDir, setProjectDir] = useState("");
     const [validationInProgress, setValidationInProgress] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState("");
+    const [selectedRegion, setSelectedRegion] = useState("Cloud Data Plane - US");
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -121,21 +125,28 @@ export function ProjectWizard(props: { orgId: string}) {
         setInitMonoRepo(isMonoRepo);
     };
 
+    const handleRegionChange = (region: string) => {
+        setSelectedRegion(region);
+    };
+
     const handleCreateProject = async () => {
         setCreationInProgress(true);
         const webviewAPI = ChoreoWebViewAPI.getInstance();
         const projectClient = webviewAPI.getProjectClient();
+        const region = selectedRegion.split(' ').pop();
         if (selectedOrg) {
             try {
+                let createdProject;
                 const repoString = getRepoString();
-                const createdProject = await projectClient.createProject({
+                createdProject = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
                     orgId: selectedOrg.id,
                     orgHandle: selectedOrg.handle,
-                    repository: repoString ?? '',
-                    credentialId: selectedCredential.id ?? '',
-                    branch: selectedBranch ?? '',
+                    region: region,
+                    repository: initMonoRepo ? repoString : null,
+                    credentialId: initMonoRepo ? selectedCredential.id : null,
+                    branch: initMonoRepo ? selectedBranch : null,
                 });
 
                 handleCloneProject({
@@ -183,6 +194,8 @@ export function ProjectWizard(props: { orgId: string}) {
             } else if (gitProvider === GitProvider.BITBUCKET) {
                 return `http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`;
             }
+        } else {
+            return "";
         }
     }
 
@@ -232,6 +245,8 @@ export function ProjectWizard(props: { orgId: string}) {
                         >
                             Project Description
                         </VSCodeTextArea>
+                        <span>Region</span>
+                        <AutoComplete items={REGIONS} selectedItem={selectedRegion} onChange={handleRegionChange}></AutoComplete>
                         <SubContainer>
                             <CardContainer>
                                 <ProjectTypeCard
@@ -312,7 +327,6 @@ export function ProjectWizard(props: { orgId: string}) {
                         </ErrorMessageContainer>
                     )}
                     <ActionContainer>
-
                         <VSCodeButton
                             appearance="secondary"
                             onClick={() => {

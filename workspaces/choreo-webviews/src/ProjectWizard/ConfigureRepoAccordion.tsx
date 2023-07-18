@@ -21,6 +21,7 @@ import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
+import { Codicon } from "../Codicon/Codicon";
 
 const GhRepoSelectorActions = styled.div`
     display  : flex;
@@ -32,6 +33,7 @@ const ValidationWrapper = styled.div`
     display  : flex;
     justify-content: flex-start;
     align-items: flex-end;
+    min-height: 25px;
 `;
 
 const RepoStepWrapper = styled.div`
@@ -101,6 +103,30 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
     padding: 4px;
 `;
 
+const StepContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 10px;
+`;
+
+const ListItemWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 20px;
+`;
+
+const ListWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 10px;
+`;
+
 export interface ConfigureRepoAccordionProps {
     gitProvider: GitProvider;
     selectedCredential: FilteredCredentialData;
@@ -133,18 +159,18 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
         setValidationInProgress,
         selectedBranch,
         setSelectedBranch,
-        setErrorMsg 
+        setErrorMsg
     } = props;
 
     const { currentProjectOrg } = useOrgOfCurrentProject();
     const [refreshRepoList, setRefreshRepoList] = useState(false);
-    const [appInstallComleted, setAppInstallCompleted] = useState(false);
 
     useEffect(() => {
-        if (selectedBranch) {
+        if (selectedGHRepo) {
             checkBareRepoStatus();
         }
-    }, [selectedBranch]);
+
+    }, [selectedBranch, selectedGHRepo]);
 
     const handleRepoSelect = (org?: string, repo?: string, branch?: string) => {
         setSelectedGHOrgName(org || "");
@@ -156,9 +182,9 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
         // open github repo in browser with vscode open external
         if (selectedGHOrgName && selectedGHRepo) {
             if (gitProvider === GitProvider.GITHUB) {
-                ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
+                ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}/new/main?readme=1`);
             } else if (gitProvider === GitProvider.BITBUCKET) {
-                ChoreoWebViewAPI.getInstance().openExternal(`http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`);
+                ChoreoWebViewAPI.getInstance().openExternal(`http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}/create-file/?filename=README.md&template=true`);
             }
         }
     };
@@ -177,7 +203,6 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
 
     const handleAppInstallSuccess = async () => {
         handleRepoRefresh();
-        setAppInstallCompleted(true);
     }
 
     const checkBareRepoStatus = async () => {
@@ -192,7 +217,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                 orgHandle: currentProjectOrg?.handle,
                 repo: selectedGHRepo,
                 organization: selectedGHOrgName,
-                branch: selectedBranch,
+                branch: selectedBranch.length > 0 ? selectedBranch : "main",
                 credentialId: selectedCredential.id
             });
             if (repoMetaData?.isBareRepo) {
@@ -215,9 +240,41 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                 <RepoStepNumber> 1 </RepoStepNumber>
                 <RepoStepContent>
                     <h3>  Starting from scratch?  </h3>
-                    {gitProvider === GitProvider.GITHUB && <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span>}
+                    {gitProvider === GitProvider.GITHUB && (
+                        <StepContainer>
+                            <ListItemWrapper>
+                                <Codicon name="circle-filled" />
+                                <span>Create a <VSCodeLink onClick={handleNewRepoCreation}>New Repository</VSCodeLink> in GitHub.</span>
+                            </ListItemWrapper>
+                            <ListWrapper>
+                                <ListItemWrapper>
+                                    <Codicon name="circle-filled" />
+                                    <span>Give Choreo permission to read the repository.</span>
+                                </ListItemWrapper>
+                                <ListItemWrapper style={{ marginLeft: '25px' }}>
+                                    <Codicon name="circle-outline" />
+                                    <ChoreoAppInstaller onAppInstallation={handleAppInstallSuccess} />
+                                </ListItemWrapper>
+                            </ListWrapper>
+                            <ListItemWrapper>
+                                <Codicon name="circle-filled" />
+                                <span>Select the newly created repo from Select repository.</span>
+                            </ListItemWrapper>
+                        </StepContainer>
+                    )}
                     {gitProvider === GitProvider.BITBUCKET && (
-                        selectedCredential.id ? <span><VSCodeLink onClick={handleNewRepoCreation}>Create new repo</VSCodeLink> or Proceed to step 2.</span> : (
+                        selectedCredential.id ? (
+                            <StepContainer>
+                                <ListItemWrapper>
+                                    <Codicon name="circle-filled" />
+                                    <span>Create a <VSCodeLink onClick={handleNewRepoCreation}>New Repository</VSCodeLink> in bitbucket.</span>
+                                </ListItemWrapper>
+                                <ListItemWrapper>
+                                    <Codicon name="circle-filled" />
+                                    <span>Select the newly created repo from Select repository.</span>
+                                </ListItemWrapper>
+                            </StepContainer>
+                        ) : (
                             <span>Please select a bitbucket credential.</span>
                         )
                     )}
@@ -226,27 +283,10 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
             <RepoStepWrapper>
                 <RepoStepNumber> 2 </RepoStepNumber>
                 <RepoStepContent>
-                    {gitProvider === GitProvider.GITHUB && (
-                        <>
-                            <h3>  Install Choreo App to the repo  </h3>
-                            <ChoreoAppInstaller onAppInstallation={handleAppInstallSuccess} />
-                        </>
-                    )}
-                    {gitProvider === GitProvider.BITBUCKET && (
-                        <>
-                            <h3>  Refresh repository list  </h3>
-                            <VSCodeButton onClick={handleRepoRefresh}>Refresh</VSCodeButton>
-                        </>
-                    )}
-                </RepoStepContent>
-            </RepoStepWrapper>
-            <RepoStepWrapper>
-                <RepoStepNumber> 3 </RepoStepNumber>
-                <RepoStepContent>
                     <h3>  Select repository  </h3>
                     <RepoSubContainer>
-                        {appInstallComleted && <h5>Repository list refreshed. Select a repository to continue.</h5>}
                         <RepoSelectorContainer>
+                            <span>Select the desired repository.</span>
                             {gitProvider === GitProvider.GITHUB &&
                                 <GithubRepoSelector
                                     selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
@@ -258,13 +298,16 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                                     onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
                                     refreshRepoList={refreshRepoList}
                                 />}
-                            {validationInProgress && (
-                                <ValidationWrapper>
-                                    <SmallProgressRing />
-                                    <span>Validating repository...</span>
-                                </ValidationWrapper>
+                            <ValidationWrapper>
+                                {validationInProgress && (
+                                    <>
+                                        <SmallProgressRing />
+                                        <span>Validating repository...</span>
+                                    </>
 
-                            )}
+                                )}
+                            </ValidationWrapper>
+
                         </RepoSelectorContainer>
                         {isBareRepo && !validationInProgress && (
                             <>
