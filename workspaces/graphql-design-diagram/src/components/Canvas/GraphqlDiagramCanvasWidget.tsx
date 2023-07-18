@@ -10,18 +10,17 @@
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { toJpeg } from 'html-to-image';
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlOverlayLayerModel } from "../OverlayLoader";
 import { getComponentName } from "../utils/common-util";
-import { createGraphqlDiagramEngine, focusToNode } from "../utils/engine-util";
+import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { ContainerController } from "./ContainerController";
-import { NavigationWrapperCanvasWidget } from "./NavigationWrapperCanvasWidget";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -54,19 +53,6 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         setSelectedNode(undefined);
 
     }, [model]);
-
-    // useEffect(() => {
-    //     if (selectedDiagramNode) {
-    //         const selectedNewModel = diagramEngine.getModel().getNode(getComponentName(selectedDiagramNode));
-    //         if (selectedNewModel) {
-    //             const zoomLevel = diagramEngine.getModel().getZoomLevel();
-    //             setTimeout(() => {
-    //                 focusToNode(selectedNewModel, zoomLevel, diagramEngine);
-    //             }, 300);
-    //
-    //         }
-    //     }
-    // }, [selectedDiagramNode]);
 
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
@@ -121,10 +107,12 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            <div onClick={handleCanvasClick} style={{transition: "transform 1s ease-in-out"}}>
+            <div onClick={handleCanvasClick}>
                 <CanvasWidgetContainer>
-                    {/*<CanvasWidget engine={diagramEngine} />*/}
-                    <NavigationWrapperCanvasWidget diagramEngine={diagramEngine} />
+                    <NavigationWrapperCanvasWidget
+                        diagramEngine={diagramEngine}
+                        focusedNode={diagramEngine?.getModel()?.getNode(getComponentName(selectedDiagramNode))}
+                    />
                     <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
                 </CanvasWidgetContainer>
             </div>

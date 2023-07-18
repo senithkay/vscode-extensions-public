@@ -19,10 +19,8 @@ interface StyleProps {
 }
 
 export const ServiceNode: React.FC<any> = styled.div`
-  animation: ${(props: StyleProps) => props.isNew ? 'fadeIn 5s' : ''};
-  background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
-  border: ${(props: StyleProps) => props.awaitLinking ? `2px solid green` : `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED
-          : Colors.PRIMARY}`};
+  background-color: ${Colors.SECONDARY};
+  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
   border-bottom-left-radius: 0px;
