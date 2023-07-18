@@ -108,7 +108,6 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
                 }
             }
         },
-        path: "",
         dependencyIDs: [],
         remoteFunctions: [],
         resources: [],

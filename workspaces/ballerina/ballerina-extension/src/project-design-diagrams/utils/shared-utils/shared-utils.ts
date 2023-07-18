@@ -122,7 +122,6 @@ function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponent
                 id: pkgId,
                 label: pkg.name
             },
-            path: "",
             dependencyIDs: [],
             remoteFunctions: [],
             resources: [],
