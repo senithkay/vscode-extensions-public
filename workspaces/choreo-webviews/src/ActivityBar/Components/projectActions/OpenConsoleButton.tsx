@@ -14,6 +14,7 @@ import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
+import { ChoreoIcon } from "../../../icons";
 
 export const OpenConsoleButton = () => {
     const { choreoProject, choreoUrl, selectedOrg } = useChoreoWebViewContext();
@@ -29,7 +30,7 @@ export const OpenConsoleButton = () => {
             tooltip="Open project in Choreo Console"
             onClick={openProjectInChoreoConsole}
             label="Console"
-            iconName="browser"
+            icon={<ChoreoIcon />}
         />
     );
 };

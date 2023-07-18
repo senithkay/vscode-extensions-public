@@ -11,15 +11,15 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import React from "react";
+import React, { ReactNode } from "react";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 
 const IconLabel = styled.div`
     // To hide label in small screens
-    // @media (max-width: 320px) {
-    //   display: none;
-    // }
+    @media (max-width: 320px) {
+      display: none;
+    }
 `;
 
 export const ProjectActionButton = (props: {
@@ -28,8 +28,9 @@ export const ProjectActionButton = (props: {
     disabled?: boolean;
     onClick?: () => void;
     iconName?: string;
+    icon?: ReactNode;
 }) => {
-    const { disabled, label, tooltip, onClick, iconName } = props;
+    const { disabled, label, tooltip, onClick, iconName, icon } = props;
 
     return (
         <>
@@ -37,6 +38,11 @@ export const ProjectActionButton = (props: {
                 {iconName && (
                     <>
                         <Codicon name={iconName} /> &nbsp;
+                    </>
+                )}
+                {icon && (
+                    <>
+                        {icon} &nbsp;
                     </>
                 )}
                 <IconLabel>{label}</IconLabel>

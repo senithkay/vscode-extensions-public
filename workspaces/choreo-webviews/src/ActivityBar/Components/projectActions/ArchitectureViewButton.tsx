@@ -15,6 +15,7 @@ import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
+import { ArchitectureViewIcon } from "../../../icons";
 
 export const ArchiViewButton = () => {
 
@@ -34,7 +35,7 @@ export const ArchiViewButton = () => {
         <ProjectActionButton
             onClick={handleClick}
             label="Architecture"
-            iconName="circuit-board"
+            icon={<ArchitectureViewIcon/>}
             tooltip="Open Architecture Diagram"
         />
     );
