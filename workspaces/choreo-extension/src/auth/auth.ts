@@ -23,7 +23,6 @@ import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from '../constants';
 import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
-import { get } from 'lodash';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
