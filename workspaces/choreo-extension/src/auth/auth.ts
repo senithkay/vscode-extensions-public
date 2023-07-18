@@ -23,6 +23,7 @@ import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from '../constants';
 import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
+import { get } from 'lodash';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -120,7 +121,7 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
     const currentAsgardioToken = await ext.tokenStorage.getToken("asgardio.token");
     if (currentAsgardioToken?.accessToken && currentAsgardioToken.expirationTime
         && currentAsgardioToken.loginTime && currentAsgardioToken.refreshToken) {
-        getLogger().debug("Found Asgardio token in keychain.");
+        getLogger().debug("Found Asgardio token in keychain. Checking if it is expired.");
         let tokenDuration = (new Date().getTime() - new Date(currentAsgardioToken.loginTime).getTime()) / 1000;
         if (tokenDuration > (currentAsgardioToken.expirationTime - (60 * 5) )) { // 5 minutes before expiry, we refresh the token
             getLogger().debug("Asgardio token expired. Exchanging with refresh token.");
@@ -132,6 +133,7 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
                     
                     // get org id from tokenType, get the org from the id
                     if (tokenType.startsWith("choreo.apim.token.org.")) {
+                        getLogger().debug("Exchanging APIM token for org: " + tokenType);
                         const orgId = tokenType.split("choreo.apim.token.org.")[1];
                         const org = ext.api.getOrgById(parseInt(orgId));
                         if (org) {
@@ -152,7 +154,7 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
         } else {
             token = await ext.tokenStorage.getToken(tokenType);
             if (!token) {
-                getLogger().debug("Token not found in keychain.");
+                getLogger().debug("Token not found in keychain. Trying to exchange with Asgardio token.");
                 // possible that token for this particular org was not requested before
                 // so we request a new token for this org
                 if (tokenType.startsWith("choreo.apim.token.org.")) {
@@ -165,6 +167,8 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
                         getLogger().error("Organization was not found in user orgs!, token exchange failed for org id: " + orgId);
                     }
                 }
+            } else {
+                getLogger().debug("Token found in keychain. " + tokenType);
             }
         } 
     } else {
@@ -338,6 +342,10 @@ export async function signOut() {
     getLogger().info("Signing out.");
     getLogger().debug("Clear current Choreo session.");
     await ext.tokenStorage.deleteToken('asgardio.token');
+    // Clear the org access tokens.
+    ext.api.userInfo?.organizations?.forEach(org => {
+        ext.tokenStorage.deleteToken(`choreo.apim.token.org.${org.id}`);
+    });
     ext.api.status = STATUS_LOGGED_OUT;
     ext.api.userInfo = undefined;
 }
