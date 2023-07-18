@@ -28,6 +28,8 @@ interface DiagramContextProps {
     deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
     consoleView: ConsoleView;
     addComponent?: () => void;
+    focusedNodeId?: string;
+    setFocusedNodeId?: (id: string) => void;
 }
 
 interface IDiagramContext {
@@ -50,6 +52,8 @@ interface IDiagramContext {
     setConnectorTarget?: (source: EntryPoint | Service) => void;
     deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
     addComponent?: () => void;
+    focusedNodeId?: string;
+    setFocusedNodeId?: (id: string) => void;
 }
 
 interface LinkedNodes {
@@ -76,7 +80,9 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         showChoreoProjectOverview,
         setConnectorTarget,
         deleteComponent,
-        addComponent
+        addComponent,
+        focusedNodeId,
+        setFocusedNodeId
     } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
@@ -94,7 +100,9 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview,
-        addComponent
+        addComponent,
+        focusedNodeId,
+        setFocusedNodeId
     }
 
     if (editingEnabled) {
