@@ -95,10 +95,6 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
                 refetchUserInfo();
             }
         });
-        rpcInstance.onSelectedOrgChanged((newOrg) => {
-            console.log("Selected org changed" + JSON.stringify(newOrg));
-            queryClient.setQueryData(["choreo_selected_org", true], newOrg);
-        });
     }, []);
 
     const error = (isChoreoProjectError ||

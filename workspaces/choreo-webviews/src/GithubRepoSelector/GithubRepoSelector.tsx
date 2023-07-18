@@ -67,12 +67,12 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const { selectedRepo, onRepoSelect } = props;
 
-    const { choreoProject } = useChoreoWebViewContext();
+    const { userInfo } = useChoreoWebViewContext();
 
     const { currentProjectOrg } = useOrgOfCurrentProject();
 
     const { isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching } = useQuery({
-        queryKey: [`repoData${choreoProject?.id}`],
+        queryKey: [`repoData`, userInfo?.userId],
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
             try {

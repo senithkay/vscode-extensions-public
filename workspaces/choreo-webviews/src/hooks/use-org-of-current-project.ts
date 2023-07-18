@@ -12,15 +12,22 @@
  */
 import { useContext, useMemo } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoProjectWizardContext } from "../context/choreo-project-wizard.ctx";
 
 export function useOrgOfCurrentProject() {
     const { userInfo, choreoProject } = useContext(ChoreoWebViewContext);
+    const { orgId: projectWizardOrgId } = useChoreoProjectWizardContext()
 
     const currentProjectOrg = useMemo(() => {
-        if (userInfo && choreoProject) {
-            return userInfo?.organizations.find(org => org.id.toString() === choreoProject?.orgId?.toString());
+        if (userInfo) {
+            if (projectWizardOrgId) {
+                return userInfo?.organizations.find(org => org.id.toString() === projectWizardOrgId?.toString());
+            }
+            if (choreoProject) {
+                return userInfo?.organizations.find(org => org.id.toString() === choreoProject?.orgId?.toString());
+            }
         }
-    }, [userInfo, choreoProject])
+    }, [userInfo, choreoProject, projectWizardOrgId])
 
     return {
         currentProjectOrg
