@@ -33,7 +33,7 @@ export const ProjectView = () => {
     return (
         <Container>
             {!["LoggedIn", "LoggedOut"].includes(loginStatus) && <ProgressIndicator />}
-            {loginStatus === "LoggedOut" && <SignInToChoreoMessage />}
+            {loginStatus === "LoggedOut" && <SignInToChoreoMessage showProjectHeader/>}
             {loginStatus == "LoggedIn" && (
                 <>
                     {loadingProject ? (
