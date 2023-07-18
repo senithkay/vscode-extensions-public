@@ -19,6 +19,7 @@ import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Codicon } from "../Codicon/Codicon";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
+import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -68,12 +69,14 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const { choreoProject } = useChoreoWebViewContext();
 
+    const { currentProjectOrg } = useOrgOfCurrentProject();
+
     const { isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching } = useQuery({
         queryKey: [`repoData${choreoProject?.id}`],
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
             try {
-                return ghClient.getAuthorizedRepositories();
+                return ghClient.getAuthorizedRepositories(currentProjectOrg?.id);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
                 throw error;
