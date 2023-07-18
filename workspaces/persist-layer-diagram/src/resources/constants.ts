@@ -14,6 +14,7 @@ export enum Colors {
     PRIMARY = '#5567D5',
     PRIMARY_LIGHT = '#CBCEDB',
     PRIMARY_SELECTED = '#ffaf4d',
+    PRIMARY_FOCUSED = '#d59155',
     SECONDARY = '#F0F1FB',
     SECONDARY_SELECTED = '#fffaf2',
     SHADED_SELECTED = '#faead2',
