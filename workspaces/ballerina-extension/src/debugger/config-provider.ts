@@ -9,7 +9,7 @@
 
 import {
     DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands, DebugAdapterInlineImplementation,
-    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri, workspace, RelativePattern
+    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri, workspace, RelativePattern, ConfigurationTarget, WorkspaceConfiguration
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
@@ -182,6 +182,34 @@ async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: Debu
         config.debugServer = debugServer.toString();
     }
     return config;
+}
+
+export async function constructDebugConfig(uri: Uri, testDebug: boolean, args: any, context: ExtensionContext): Promise<DebugConfiguration> {
+
+    const launchConfig: WorkspaceConfiguration = workspace.getConfiguration('launch').length > 0 ? workspace.getConfiguration('launch') :
+        workspace.getConfiguration('launch', uri);
+    const debugConfigs: DebugConfiguration[] = launchConfig.configurations;
+
+    if (debugConfigs.length == 0) {
+        const initialConfigurations: DebugConfiguration[] = context.extension.packageJSON.contributes.debuggers[0].initialConfigurations;
+
+        debugConfigs.push(...initialConfigurations);
+        launchConfig.update('configurations', debugConfigs, ConfigurationTarget.WorkspaceFolder, true);
+    }
+
+    let debugConfig: DebugConfiguration | undefined;
+    for (let i = 0; i < debugConfigs.length; i++) {
+        if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
+            (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
+            debugConfig = debugConfigs[i];
+            break;
+        }
+    }
+
+    debugConfig.script = uri.fsPath;
+    debugConfig.configEnv = !testDebug ? args : undefined;
+    debugConfig.debugTests = testDebug;
+    return debugConfig;
 }
 
 export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExtension) {

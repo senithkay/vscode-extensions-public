@@ -9,21 +9,18 @@
 
 import { BallerinaExtension, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, LANGUAGE } from '../core';
 import {
-    CancellationToken, CodeLens, CodeLensProvider, commands, ConfigurationTarget, debug, DebugConfiguration, Event, EventEmitter,
+    CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
     ExtensionContext,
-    ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceConfiguration, WorkspaceFolder
+    ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
 } from 'vscode';
 import { BAL_TOML, clearTerminal, PALETTE_COMMANDS } from '../project';
-import fileUriToPath from 'file-uri-to-path';
 import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
-import { DEBUG_CONFIG } from '../debugger';
+import { constructDebugConfig } from '../debugger';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { traversNode } from '@wso2-enterprise/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -168,32 +165,4 @@ async function startDebugging(uri: Uri, testDebug: boolean, args: any[], context
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
     const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, args, context);
     return debug.startDebugging(workspaceFolder, debugConfig);
-}
-
-async function constructDebugConfig(uri: Uri, testDebug: boolean, args: any, context: ExtensionContext): Promise<DebugConfiguration> {
-
-    const launchConfig: WorkspaceConfiguration = workspace.getConfiguration('launch').length > 0 ? workspace.getConfiguration('launch') :
-        workspace.getConfiguration('launch', uri);
-    const debugConfigs: DebugConfiguration[] = launchConfig.configurations;
-
-    if (debugConfigs.length == 0) {
-        const initialConfigurations: DebugConfiguration[] = context.extension.packageJSON.contributes.debuggers[0].initialConfigurations;
-
-        debugConfigs.push(...initialConfigurations);
-        launchConfig.update('configurations', debugConfigs, ConfigurationTarget.WorkspaceFolder, true);
-    }
-
-    let debugConfig: DebugConfiguration | undefined;
-    for (let i = 0; i < debugConfigs.length; i++) {
-        if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
-            (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
-            debugConfig = debugConfigs[i];
-            break;
-        }
-    }
-
-    debugConfig.script = uri.fsPath;
-    debugConfig.configEnv = !testDebug ? args : undefined;
-    debugConfig.debugTests = testDebug;
-    return debugConfig;
 }
