@@ -22,7 +22,7 @@ export class ChoreoUserManagementClient implements IChoreoUserManagementClient {
     }
 
     private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.token");
+        const token = await this._tokenStore.getToken("asgardio.token");
         if (!token) {
             throw new Error('User is not logged in');
         }

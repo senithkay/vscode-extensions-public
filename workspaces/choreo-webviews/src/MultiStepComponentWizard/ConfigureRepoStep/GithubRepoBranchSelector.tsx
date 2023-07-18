@@ -17,6 +17,7 @@ import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@v
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { useQuery } from "@tanstack/react-query";
+import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
 const GhRepoBranhSelectorContainer = styled.div`
     display  : flex;
@@ -56,6 +57,7 @@ export interface GithubRepoBranchSelectorProps {
 
 export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     const { formData, onFormDataChange } = props;
+    const { currentProjectOrg } = useOrgOfCurrentProject();
     const { org, repo, branch, credentialID } = formData?.repository || {};
     const repoId = `${org}/${repo}`;
 
@@ -65,7 +67,7 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
             try {
                 return ChoreoWebViewAPI.getInstance()
                 .getChoreoGithubAppClient()
-                .getRepoBranches(org, repo, credentialID);
+                .getRepoBranches(currentProjectOrg?.id, org, repo, credentialID);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching branches. Please authorize with GitHub.");
                 throw error;

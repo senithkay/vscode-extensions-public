@@ -40,7 +40,6 @@ interface ChoreoWebviewProps {
 
 function ChoreoWebview(props: ChoreoWebviewProps) {
     const { type, orgName, projectId, choreoUrl, componentCreateMode } = props;
-
     return (
         <ChoreoWebviewQueryClientProvider>
             <Main>
@@ -51,7 +50,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                         case "ProjectCreateForm":
                             return (
                                 <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    <ProjectWizard />
+                                    <ProjectWizard orgId={orgName} />
                                 </ChoreoWebViewContextProvider>
                             );
                         case "ComponentCreateForm":

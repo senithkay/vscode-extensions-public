@@ -14,9 +14,13 @@ import { useMutation } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { Component, PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Repository } from "@wso2-enterprise/choreo-core";
 import { useChoreoComponentsContext } from "../context/choreo-components-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+
 
 export function useComponentPullRepo(component: Component) {
     const { refreshComponents } = useChoreoComponentsContext();
+    const { choreoProject } = useChoreoWebViewContext();
+
     const { mutate: pullComponent, isLoading: isPulling } = useMutation({
         onMutate: () => {
             ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
@@ -72,7 +76,10 @@ export function useComponentPullRepo(component: Component) {
                         }
                     }
                 } else {
-                    await ChoreoWebViewAPI.getInstance().cloneChoreoProject(component.projectId);
+                    await ChoreoWebViewAPI.getInstance().cloneChoreoProject({
+                        orgId: parseInt(choreoProject?.orgId),
+                        projectId: component.projectId,
+                    });
                 }
             }
         },

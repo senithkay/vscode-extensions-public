@@ -22,7 +22,10 @@ export function useComponentPushAll() {
     const { refreshComponents } = useChoreoComponentsContext()
     const { mutate: handlePushAllComponentsClick, isLoading: pushingAllComponents } =
     useMutation({
-        mutationFn: () => ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(choreoProject?.id ?? ""),
+        mutationFn: () => ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo({
+            projectId: choreoProject?.id,
+            orgId: parseInt(choreoProject?.orgId)
+        }),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         onMutate: () => {
             ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
