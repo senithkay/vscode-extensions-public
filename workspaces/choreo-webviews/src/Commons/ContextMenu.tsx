@@ -35,10 +35,10 @@ const ContextOverlay = styled.div`
 const ExpandedMenu = styled.div`
     position: absolute;
     right: 0;
-    top: 0;
+    top: 24px;
     z-index: 15;
     background: var(--vscode-editor-background);
-    border: 1px solid var(--vscode-menu-border);
+    box-shadow: var(--vscode-widget-shadow) 0px 0px 8px;
 `;
 
 export interface MenuItem {

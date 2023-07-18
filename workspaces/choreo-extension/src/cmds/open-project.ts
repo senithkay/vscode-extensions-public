@@ -179,7 +179,7 @@ async function getProjectQuickPicks(org: Organization, currentProject?: Project)
         } else if (location) {
             detail = 'Local copy at ' + path.dirname(location);
         } else {
-            detail = 'Not cloned locally';
+            detail = 'Local copy not found';
         }
         return {
             label: project.name,
