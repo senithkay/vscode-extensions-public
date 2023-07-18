@@ -33,11 +33,13 @@ const BranchSelectorContainer = styled.div`
 
 const RefreshBtn = styled(VSCodeButton)`
     margin-top: auto;
-    padding: 4px;
+    padding: 1px;
 `;
 const SmallProgressRing = styled(VSCodeProgressRing)`
     height: calc(var(--design-unit) * 4px);
     width: calc(var(--design-unit) * 4px);
+    margin-top: auto;
+    padding: 4px;
 `;
 
 function getDefaultBranch(branches: string[], branch?: string): string {
