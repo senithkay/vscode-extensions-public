@@ -21,8 +21,8 @@ export class ComponentManagementClient implements IComponentMgtClient {
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {  
     }
 
-    private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
+    private async _getClient(orgId: number) {
+        const token = await this._tokenStore.getTokenForOrg(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }
@@ -35,7 +35,7 @@ export class ComponentManagementClient implements IComponentMgtClient {
 
 
     async getComponentCount(orgId: number): Promise<ComponentCount> {
-        const client = await this._getClient();
+        const client = await this._getClient(orgId);
         try {
             const response = await client.get(`/${orgId}/component-count`);
             return response.data?.data as ComponentCount;

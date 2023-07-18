@@ -24,6 +24,7 @@ import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
+import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -87,9 +88,14 @@ const SectionWrapper = styled.div`
     }
 `;
 
-export function ProjectWizard() {
+export function ProjectWizard(props: { orgId: string}) {
 
-    const { loginStatus, loginStatusPending, selectedOrg, error } = useChoreoWebViewContext();
+    const { orgId } = props;
+    const{ currentProjectOrg } = useOrgOfCurrentProject();
+    const { loginStatus, userInfo, loginStatusPending, error } = useChoreoWebViewContext();
+
+
+    const selectedOrg = currentProjectOrg || userInfo?.organizations.find(org => org.id.toString() === orgId);
 
     const [projectName, setProjectName] = useState("");
     const [projectDescription, setProjectDescription] = useState("");

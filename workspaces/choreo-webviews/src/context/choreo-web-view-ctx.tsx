@@ -11,7 +11,7 @@
  *  associated services.
  */
 import React, { FC, useContext, useEffect } from "react";
-import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import { ChoreoLoginStatus, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
@@ -19,9 +19,6 @@ export interface IChoreoWebViewContext {
     loginStatus: ChoreoLoginStatus;
     loginStatusPending: boolean;
     userInfo: UserInfo;
-    fetchingOrgInfo: boolean;
-    selectedOrg?: Organization;
-    userOrgs?: Organization[];
     error?: Error;
     isChoreoProject?: boolean;
     choreoProject?: Project;
@@ -32,7 +29,6 @@ export interface IChoreoWebViewContext {
 const defaultContext: IChoreoWebViewContext = {
     loginStatus: "Initializing",
     loginStatusPending: true,
-    fetchingOrgInfo: true,
     userInfo: undefined,
     choreoUrl: "",
 };
@@ -78,32 +74,15 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         refetchOnWindowFocus: false
     });
 
-    const {
-        data: selectedOrg,
-        error: selectedOrgError,
-        isLoading: selectedOrgLoading,
-    } = useQuery({
-        queryKey: ["choreo_selected_org", loginStatus],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getCurrentOrg(),
-        enabled: loginStatus === "LoggedIn",
-        refetchOnWindowFocus: false
-    });
 
     const {
         data: choreoProject,
         error: choreoProjectError,
         isLoading: choreoProjectLoading,
     } = useQuery({
-        queryKey: ["choreo_project_details", loginStatus, isChoreoProject, selectedOrg],
+        queryKey: ["choreo_project_details", loginStatus, isChoreoProject],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
         enabled: loginStatus === "LoggedIn" && isChoreoProject,
-        refetchOnWindowFocus: false
-    });
-
-    const { data: userOrgs, error: allOrgError } = useQuery({
-        queryKey: ["choreo_all_user_orgs", loginStatus],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getAllOrgs(),
-        enabled: loginStatus === "LoggedIn",
         refetchOnWindowFocus: false
     });
 
@@ -125,9 +104,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
     const error = (isChoreoProjectError ||
         loginStatusError ||
         userInfoError ||
-        choreoProjectError ||
-        selectedOrgError ||
-        allOrgError) as Error;
+        choreoProjectError) as Error;
 
     return (
         <ChoreoWebViewContext.Provider
@@ -136,12 +113,9 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
                 userInfo,
                 choreoProject,
                 isChoreoProject,
-                selectedOrg,
-                userOrgs,
                 error,
                 choreoUrl,
                 loginStatusPending: loginStatusLoading || userInfoLoading,
-                fetchingOrgInfo: selectedOrgLoading,
                 loadingProject: isChoreoProjectLoading || (isChoreoProject === true && choreoProjectLoading),
             }}
         >

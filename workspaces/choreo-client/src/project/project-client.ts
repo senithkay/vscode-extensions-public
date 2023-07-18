@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployment, BuildStatus, ProjectDeleteResponse } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams, PerformanceForecastDataRequest, GetSwaggerExamplesRequest } from "./types";
 import {
     getRepoMetadataQuery,
     getComponentBuildStatus,
@@ -35,8 +35,8 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI?: string, private _swaggerExamplesAPI?: string) {
     }
 
-    private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
+    private async _getClient(orgId: number) {
+        const token = await this._tokenStore.getTokenForOrg(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }
@@ -51,7 +51,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     async getProjects(params: GetProjectsParams): Promise<Project[]> {
         const query = getProjectsByOrgIdQuery(params.orgId);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(query);
             return data.projects;
         } catch (error) {
@@ -61,9 +61,9 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async deleteComponent(params: DeleteComponentParams): Promise<void> {
-        const query = getDeleteComponentQuery(params.orgHandler, params.component?.id, params.projectId);
+        const query = getDeleteComponentQuery(params.orgHandle, params.component?.id, params.projectId);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(query);
             return data.projects;
         } catch (error) {
@@ -75,7 +75,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         const { orgHandle, projId } = params;
         const query = getComponentsByProjectIdQuery(orgHandle, projId);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(query);
             return data.components;
         } catch (error) {
@@ -84,7 +84,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getProjectEnv(params: GetProjectEnvParams): Promise<Environment[]> {
-        const client = await this._getClient();
+        const client = await this._getClient(params.orgId);
         try {
             const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
             const envDataRes = await client.request(envQuery);
@@ -95,7 +95,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getComponentBuildStatus(params: GetComponentBuildStatusParams): Promise<BuildStatus | null> {
-        const client = await this._getClient();
+        const client = await this._getClient(params.orgId);
         try {
             const query = getComponentBuildStatus(params.componentId, params.versionId);
             const response = await client.request(query);
@@ -111,7 +111,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Deployment | null> {
-        const client = await this._getClient();
+        const client = await this._getClient(params.orgId);
         try {
             const queryData = {
                 componentId: params.component.id,
@@ -138,7 +138,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     async createProject(params: CreateProjectParams): Promise<Project> {
         const mutation = getCreateProjectMutation(params);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);
             return data.createProject;
         } catch (error) {
@@ -149,7 +149,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     async deleteProject(params: DeleteProjectParams): Promise<ProjectDeleteResponse> {
         const mutation = deleteProjectMutation(params);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);
             return data.deleteProject;
         } catch (error) {
@@ -162,7 +162,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         const mutation = getCreateComponentMutation(params);
         console.log(mutation);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);
             console.log(data);
             return data.createComponent;
@@ -174,7 +174,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     async createByocComponent(params: CreateByocComponentParams): Promise<Component> {
         const mutation = getCreateByocComponentMutation(params);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);
             return data.createComponent;
         } catch (error) {
@@ -185,7 +185,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     async createWebAppByocComponent(params: CreateByocComponentParams): Promise<Component> {
         const mutation = getCreateWebAppBYOCComponentMutation(params);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);
             return data.createComponent;
         } catch (error) {
@@ -193,9 +193,10 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
-        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
-        if (!choreoToken) {
+    async getPerformanceForecastData(params: PerformanceForecastDataRequest): Promise<AxiosResponse> {
+        const { orgId, data } = params;
+        const token = await this._tokenStore.getTokenForOrg(orgId);
+        if (!token) {
             throw new Error('User is not logged in');
         }
 
@@ -209,7 +210,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                     headers: {
                         'Content-Type': 'application/json',
                         'Content-Length': data.length,
-                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                        'Authorization': `Bearer ${token.accessToken}`
                     }
                 });
         } catch (err) {
@@ -217,9 +218,10 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getSwaggerExamples(data: string): Promise<AxiosResponse> {
-        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
-        if (!choreoToken) {
+    async getSwaggerExamples(params: GetSwaggerExamplesRequest): Promise<AxiosResponse> {
+        const { orgId, data } = params;
+        const token = await this._tokenStore.getTokenForOrg(orgId);
+        if (!token) {
             throw new Error('User is not logged in');
         }
 
@@ -233,7 +235,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                     headers: {
                         'Content-Type': 'application/json',
                         'Content-Length': data.length,
-                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                        'Authorization': `Bearer ${token.accessToken}`
                     },
                     timeout: 15000
                 });
@@ -243,11 +245,11 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
-        const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId, credentialId } = params;
+        const { orgId, organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId, credentialId } = params;
         const query = getRepoMetadataQuery(organization, repo, branch, credentialId, path, dockerfile, dockerContextPath, openApiPath, componentId);
         
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(orgId);
             const data = await client.request(query);
             return data.repoMetadata;
         } catch (error) {
@@ -259,7 +261,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         const { orgHandle, projId } = params;
         const query = getComponentsWithCellDiagramQuery(orgHandle, projId);
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(params.orgId);
             const data = await client.request(query);
             return data.components;
         } catch (error) {

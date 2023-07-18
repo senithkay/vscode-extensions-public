@@ -21,7 +21,7 @@ import {
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { useSelectedOrg } from "../../hooks/use-selected-org";
+import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 import { ContextMenu, MenuItem } from "../../Commons/ContextMenu";
 import { BitBucketIcon, GithubIcon } from "../../icons";
 
@@ -42,10 +42,10 @@ export const ComponentContextMenu = (props: {
 }) => {
     const { component, deletingComponent, handleDeleteComponentClick } = props;
     const { repository } = component;
+    const { currentProjectOrg } = useOrgOfCurrentProject();
     const { choreoUrl } = useChoreoWebViewContext();
-    const { selectedOrg } = useSelectedOrg();
 
-    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
+    const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
     const openComponentUrl = useCallback(() => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT,

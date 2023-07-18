@@ -48,7 +48,7 @@ const SignOutButton = styled(VSCodeButton)`
 // Diplays the avatar, name and email of the currently logged in user.
 export const UserInfo = () => {
     const { showUpgradeButton } = useAccountSubscriptionStatus();
-    const { userInfo, selectedOrg } = useChoreoWebViewContext();
+    const { userInfo, choreoProject } = useChoreoWebViewContext();
     if (!userInfo) {
         return null;
     }
@@ -59,7 +59,7 @@ export const UserInfo = () => {
     };
 
     const openBillingPortal = () => {
-        ChoreoWebViewAPI.getInstance().openBillingPortal(`${selectedOrg.id}`);
+        ChoreoWebViewAPI.getInstance().openBillingPortal(`${choreoProject.id}`);
     }
 
     return (

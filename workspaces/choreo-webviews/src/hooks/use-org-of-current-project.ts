@@ -10,21 +10,22 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from "vscode";
+import { useContext, useEffect, useState } from "react";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Organization } from "@wso2-enterprise/choreo-core";
-import { ext } from "../../extensionVariables";
 
-export class ChoreoOrgTreeItem extends TreeItem {
-	constructor(
-		public readonly org: Organization,
-		public readonly collapsibleState: TreeItemCollapsibleState
-	) {
-		super(org.name, collapsibleState);
-		const isSelected = ext.api.selectedOrg?.id === org.id;
-		this.description = isSelected ? '(selected)' : '';
-		this.tooltip = `Organization handle: ${org.handle}`;
-		this.contextValue = isSelected ? 'choreo.org.selected' : "choreo.org";
-	}
+export function useOrgOfCurrentProject() {
+    const { userInfo, choreoProject } = useContext(ChoreoWebViewContext);
 
-	iconPath = new ThemeIcon("organization");
+    const [currentProjectOrg, setCurrentProjectOrg] = useState<Organization>();
+
+    useEffect(() => {
+        if (userInfo && choreoProject) {
+            setCurrentProjectOrg(userInfo?.organizations.find(org => org.id.toString() === choreoProject?.orgId));
+        }
+    }, [userInfo, choreoProject]);
+
+    return {
+        currentProjectOrg
+    };
 }

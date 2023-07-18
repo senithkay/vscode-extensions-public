@@ -28,7 +28,7 @@ export enum ChoreoFidp {
 
 export const FREE_COMPONENT_LIMIT = 5;
 
-export interface ChoreoAuthConfigParams {
+export interface IChoreoEnvConfig {
     loginUrl: string;
     tokenUrl: string;
     redirectUrl: string;
@@ -52,7 +52,7 @@ export interface ChoreoAuthConfigParams {
     billingConsoleBaseUrl: string;
 }
 
-export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
+export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
     loginUrl: "https://console.choreo.dev/login",
     tokenUrl: "https://api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://console.choreo.dev/vscode-auth",
@@ -85,7 +85,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     billingConsoleBaseUrl: "https://subscriptions.wso2.com"
 };
 
-export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
+export const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
     loginUrl: "https://console.st.choreo.dev/login",
     tokenUrl: "https://stage.api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://console.st.choreo.dev/vscode-auth",
@@ -118,7 +118,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
     billingConsoleBaseUrl: "https://subscriptions.st.wso2.com"
 };
 
-export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
+export const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
     loginUrl: "https://consolev2.preview-dv.choreo.dev/login",
     tokenUrl: "https://dev.api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://consolev2.preview-dv.choreo.dev/vscode-auth",
@@ -153,8 +153,8 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
 };
 
 // Choreo V2 environment
-export class ChoreoAuthConfig {
-    constructor(private _config: ChoreoAuthConfigParams = DEFAULT_CHOREO_AUTH_CONFIG) {
+export class ChoreoEnvConfig {
+    constructor(private _config: IChoreoEnvConfig = DEFAULT_CHOREO_ENV_CONFIG) {
     }
 
     public getApimClientId(): string {

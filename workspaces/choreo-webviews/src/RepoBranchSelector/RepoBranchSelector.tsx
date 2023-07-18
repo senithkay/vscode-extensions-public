@@ -18,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../Codicon/Codicon";
+import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 
 const RepoBranchWrapper = styled.div`
     display  : flex;
@@ -62,6 +63,7 @@ export interface RepoBranchSelectorProps {
 
 export function RepoBranchSelector(props: RepoBranchSelectorProps) {
     const { org, repo, branch, onBranchChange, credentialID } = props;
+    const { currentProjectOrg } = useOrgOfCurrentProject();
     const repoId = `${org}/${repo}`;
 
     const { isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery(
@@ -70,7 +72,7 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
             try {
                 return ChoreoWebViewAPI.getInstance()
                     .getChoreoGithubAppClient()
-                    .getRepoBranches(org, repo, credentialID);
+                    .getRepoBranches(currentProjectOrg?.id, org, repo, credentialID);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching branches. Please authorize with GitHub.");
                 throw error;

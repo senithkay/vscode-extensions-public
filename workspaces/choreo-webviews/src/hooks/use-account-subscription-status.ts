@@ -15,10 +15,10 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 export function useAccountSubscriptionStatus() {
-    const { choreoProject, selectedOrg } = useChoreoWebViewContext();
+    const { choreoProject } = useChoreoWebViewContext();
 
     const { data: isSubscribed = false, isFetched: fetchedSubscription } = useQuery({
-        queryKey: ["overview_project_subscription", choreoProject?.id, selectedOrg?.id],
+        queryKey: ["overview_project_subscription", choreoProject?.id, choreoProject?.orgId],
         queryFn: () => ChoreoWebViewAPI.getInstance().hasChoreoSubscription(),
     });
 

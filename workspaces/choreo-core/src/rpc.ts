@@ -38,6 +38,40 @@ export interface SendTelemetryExceptionParams {
    measurements?: { [key: string]: number; }
 }
 
+export interface GetComponentsRequestParams {
+   orgId: number;
+   projectId: string;
+}
+
+export interface CheckProjectDeletedParams {
+   orgId: number; 
+   projectId: string;
+}
+
+export interface GetDeletedComponentsParams {
+   orgId: number;
+   projectId: string;
+}
+
+export interface GetComponentCountParams {
+   orgId: number;
+   projectId: string;
+}
+
+export interface HasChoreoSubscriptionParams {
+   orgId: number;
+}
+
+export interface CloneChoreoProjectParams {
+   orgId: number;
+   projectId: string;
+}
+
+export interface PushLocalComponentsToChoreoParams {
+   orgId: number;
+   projectId: string;
+}
+
 // request types 
 export const SendProjectTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendProjectTelemetryEvent' };
 export const SendTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendTelemetryEvent' };
@@ -45,11 +79,10 @@ export const SendTelemetryExceptionNotification: NotificationType<SendTelemetryE
 export const GetUserInfoRequest: RequestType<void, UserInfo> = { method: 'getUserInfo' };
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
-export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
-export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
+export const GetAllProjectsRequest: RequestType<number, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
-export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
-export const GetDeletedComponents: RequestType<string, PushedComponent[]> = { method: 'getDeletedComponents' };
+export const GetComponents: RequestType<GetComponentsRequestParams, Component[]> = { method: 'getComponents' };
+export const GetDeletedComponents: RequestType<GetDeletedComponentsParams, PushedComponent[]> = { method: 'getDeletedComponents' };
 export const RemoveDeletedComponents: RequestType<{projectId: string, components: PushedComponent[]}, void> = { method: 'removeDeletedComponents' };
 export const GetComponentBuildStatus: RequestType<Component, BuildStatus> = { method: 'getComponentBuildStatus' };
 export const GetComponentDevDeployment: RequestType<Component, Deployment> = { method: 'getComponentDevDeployment' };
@@ -58,14 +91,14 @@ export const PullComponent: RequestType<{projectId: string, componentId: string}
 export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };
 export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
 export const OpenChoreoProject: RequestType<string, void> = { method: 'openChoreoProject' };
-export const CloneChoreoProject: RequestType<string, void> = { method: 'cloneChoreoProject' };
+export const CloneChoreoProject: RequestType<CloneChoreoProjectParams, void> = { method: 'cloneChoreoProject' };
 export const CloneChoreoProjectWithDir: RequestType<{ project: Project, dirPath: string }, void> = { method: 'cloneChoreoProjectWithDir' };
 export const AskProjectDirPath: RequestType<void, string | undefined> = { method: 'askProjectDirPath' };
 export const setPreferredProjectRepository: RequestType<{ projId: string, repo: GitRepo }, void> = { method: 'setPreferredProjectRepository' };
 export const getPreferredProjectRepository: RequestType<string, GitRepo> = { method: 'getPreferredProjectRepository' };
 export const SetExpandedComponents: RequestType<{ projId: string, componentNames: string[] }, void> = { method: 'setExpandedComponents' };
 export const GetExpandedComponents: RequestType<string, string[]> = { method: 'getExpandedComponents' };
-export const CheckProjectDeleted: RequestType<string, boolean> = { method: 'CheckProjectDeleted' };
+export const CheckProjectDeleted: RequestType<CheckProjectDeletedParams, boolean> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const ReadEndpointsYaml: RequestType<SubpathAvailableRequest, Endpoint | undefined> = { method: 'readEndpointsYaml' };
@@ -73,17 +106,17 @@ export const OpenBillingPortal: RequestType<string, void> = { method: 'openBilli
 export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const getConsoleUrl: RequestType<void, string> = { method: 'getConsoleUrl' };
-export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
+export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChoreoParams, void> = { method: 'pushLocalComponentsToChoreo' };
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const OpenCellView: RequestType<string, void> = { method: 'openCellView' };
-export const getDiagramComponentModel: RequestType<{ projId: string, orgHandler: string }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
+export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
-export const GetComponentCount: RequestType<number, ComponentCount> = { method: 'getComponentCount' };
+export const GetComponentCount: RequestType<GetComponentCountParams, ComponentCount> = { method: 'getComponentCount' };
 export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = { method: 'isBareRepo' };
-export const HasChoreoSubscription: RequestType<string, boolean> = { method: 'hasChoreoSubscription' };
+export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boolean> = { method: 'hasChoreoSubscription' };
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };

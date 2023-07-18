@@ -25,14 +25,14 @@ export interface IChoreoGithubAppClient {
     checkAuthStatus(): Promise<void>;
     status: Promise<GHAppAuthStatus>;
     triggerAuthFlow(): Promise<boolean>;
-    obatainAccessToken(authCode: string): Promise<void>;
+    obatainAccessToken(authCode: string, choreoOrgId: number): Promise<void>;
     triggerInstallFlow(): Promise<boolean>;
-    getAuthorizedRepositories(): Promise<GithubOrgnization[]>;
-    getRepoBranches(orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]>;
+    getAuthorizedRepositories(choreoOrgId: number): Promise<GithubOrgnization[]>;
+    getRepoBranches(choreoOrgId: number, orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]>;
     onGHAppAuthCallback: Event<GHAppAuthStatus>;
     fireGHAppAuthCallback(status: GHAppAuthStatus): void;
-    getCredentials(org_uuid: string): Promise<CredentialData[]>;
-    getUserRepos(bitbucketCredentialId: string): Promise<UserRepo[]>;
+    getCredentials(org_uuid: string, orgId: number): Promise<CredentialData[]>;
+    getUserRepos(bitbucketCredentialId: string, choreoOrgId: number): Promise<UserRepo[]>;
 }
 
 export type GHAppAuthStatus = {

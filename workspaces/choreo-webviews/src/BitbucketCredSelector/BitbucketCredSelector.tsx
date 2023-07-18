@@ -43,7 +43,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
     const { isLoading: isFetchingCredentials, data: credentials } = useQuery({
         queryKey: ['git-bitbucket-credentials', org.uuid],
         queryFn: async () => {
-            const gitCredentialsData = await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org.uuid);
+            const gitCredentialsData = await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org.uuid, org.id);
             return gitCredentialsData;
         },
         select: (gitCredentialsData) => {

@@ -21,16 +21,16 @@ export class ChoreoOrgClient implements IChoreoOrgClient {
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _orgApiURL: string) {  
     }
 
-    private async _getOrgClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
-        if (!token) {   
+    private async _getOrgClient(orgId: number) {
+        const token = await this._tokenStore.getTokenForOrg(orgId);
+        if (!token) {
             throw new Error('User is not logged in');
         }
         return getHttpClient(token.accessToken, this._orgApiURL)
     }
 
-    async getOrganizations(): Promise<Organization[]> {
-        const client = await this._getOrgClient();
+    async getOrganizations(orgId: number): Promise<Organization[]> {
+        const client = await this._getOrgClient(orgId);
         try {
             const response = await client.get('');
             return response.data as Organization[];
