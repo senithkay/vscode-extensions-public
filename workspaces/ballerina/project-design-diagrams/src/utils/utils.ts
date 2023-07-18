@@ -10,7 +10,7 @@
 import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
 import {
     CMDependency,
-    CMEntryPoint, CMService,
+    CMEntryPoint, CMPackageID, CMService,
     CMService as Service,
     ComponentModel
 } from '@wso2-enterprise/ballerina-languageclient';
@@ -33,6 +33,7 @@ import { Point } from "@projectstorm/geometry";
 import { GatewayType } from "../components/gateway/types";
 import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortModel";
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
+import { validate as validateUUID } from 'uuid';
 
 export const CELL_DIAGRAM_MIN_WIDTH = 400;
 export const CELL_DIAGRAM_MAX_WIDTH = 800;
@@ -327,7 +328,7 @@ export function transformToV4Models(projectComponents: Map<string, ComponentMode
     projectComponents.forEach((componentModel: ComponentModel, key: string) => {
         const newComponentModel: ComponentModel = {
             ...componentModel,
-            services: transformToV4Services(componentModel.services) as any,
+            services: transformToV4Services(componentModel.services, (componentModel.packageId as CMPackageID).name) as any,
             functionEntryPoint: componentModel.functionEntryPoint
                 && transformToV4FunctionEntryPoint(componentModel.functionEntryPoint),
             hasModelErrors: false,
@@ -354,12 +355,18 @@ function deriveDependencies(componentModel: ComponentModel): CMDependency[] {
     return dependencies;
 }
 
-export function transformToV4Services(services: Map<string, any>): Record<string, CMService> {
+export function transformToV4Services(services: Map<string, any>, packageName: string): Record<string, CMService> {
     const newServices: Record<string, CMService> = {};
+    let unnamedSvcIndex = 0;
     Object.entries(services).forEach(([key, service]: [string, any]) => {
+        let label = service?.path || service.annotation.label;
+        if (!service.path && (!service.annotation.label || validateUUID(service.annotation.label))
+            && validateUUID(service.annotation.id)) {
+            [label, unnamedSvcIndex] = getLabelAndNextIndex(packageName, unnamedSvcIndex);
+        }
         newServices[key] = {
             serviceId: service.serviceId,
-            label: service.annotation.label || service.path,
+            label: label,
             annotation: service.annotation,
             serviceType: service.serviceType,
             resources: service.resources,
@@ -392,4 +399,9 @@ export function transformToV4Dependency(dependency: CMDependency): CMDependency 
         connectorType: dependency.connectorType,
         serviceLabel: dependency.serviceLabel
     };
+}
+
+function getLabelAndNextIndex(packageName: string, index: number): [string, number] {
+    const label: string = `${packageName} Component${index > 0 ? index : ''}`;
+    return [label, index + 1];
 }
