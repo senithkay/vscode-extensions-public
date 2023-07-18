@@ -8,7 +8,7 @@
  */
 
 import { DiagramEngine, NodeModel } from "@projectstorm/react-diagrams";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { CustomCanvasWidget } from "./CustomCanvasWidget";
 
@@ -21,17 +21,14 @@ interface NavigationWrapperCanvasProps {
 export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProps) {
     const { diagramEngine, focusedNode, className } = props;
 
-    function isFocusNodeTriggered(): boolean {
+    useEffect(() => {
         if (focusedNode) {
             focusToNode(focusedNode, diagramEngine.getModel().getZoomLevel(), diagramEngine);
-            return true;
         }
-        return false;
-    }
-
+    }, [focusedNode]);
 
     return (
-        <CustomCanvasWidget engine={diagramEngine} isNodeFocused={isFocusNodeTriggered()} className={className} />
+        <CustomCanvasWidget engine={diagramEngine} isNodeFocused={!!focusedNode} className={className} />
     );
 }
 
