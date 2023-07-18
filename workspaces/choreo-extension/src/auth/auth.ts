@@ -126,6 +126,10 @@ export async function getTokenWithAutoRefresh(tokenType: ChoreoTokenType): Promi
         if (tokenDuration > (currentAsgardioToken.expirationTime - (60 * 5) )) { // 5 minutes before expiry, we refresh the token
             getLogger().debug("Asgardio token expired. Exchanging with refresh token.");
             try {
+                // Clear all the existing org access tokens.
+                ext.api.userInfo?.organizations?.forEach(org => {
+                    ext.tokenStorage.deleteToken(`choreo.apim.token.org.${org.id}`);
+                });
                 await exchangeRefreshToken(currentAsgardioToken.refreshToken);
                 const newAsgardioToken = await ext.tokenStorage.getToken("asgardio.token");
                 if (newAsgardioToken?.accessToken) {
