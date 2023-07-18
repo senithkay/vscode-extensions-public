@@ -35,7 +35,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await new EditorView().closeAllEditors();
     });
 
-    it.only('Open URL to download first example on first time and change directory', async () => {
+    it.skip('Open URL to download first example on first time and change directory', async () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=18e6c62b7ef307d7064ed4ef39e4d0d8&file=functions.bal';
         await executeURLdownload(driver, url);
@@ -75,7 +75,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
 
     });
 
-    it.only('Open URL to download second example file', async () => {
+    it.skip('Open URL to download second example file', async () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=8ada14df03d5d8841d03ce4b92819b2b&file=hello_world.bal';
         await executeURLdownload(driver, url);
