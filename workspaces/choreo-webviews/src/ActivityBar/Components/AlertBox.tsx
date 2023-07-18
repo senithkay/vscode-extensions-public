@@ -5,7 +5,7 @@ import { Codicon } from "../../Codicon/Codicon";
 
 
 const Container = styled.div<{variant: 'primary' | 'secondary'}>`
-    border-left: 5px solid var(${props => props.variant ==='secondary' ? '--vscode-editorWidget-border' : '--vscode-focusBorder'});
+    border-left: 0.3rem solid var(${props => props.variant ==='secondary' ? '--vscode-editorWidget-border' : '--vscode-focusBorder'});
     background: var(${props => props.variant === 'secondary' ? 'transparent' : '--vscode-inputValidation-infoBackground'});
     display: flex;
     flex-direction: column;
@@ -18,6 +18,7 @@ const Container = styled.div<{variant: 'primary' | 'secondary'}>`
 const WideVSCodeButton = styled(VSCodeButton)`
     width: 100%;
     max-width: 300px;
+    align-self: center;
 `;
 
 const Title = styled.div`
