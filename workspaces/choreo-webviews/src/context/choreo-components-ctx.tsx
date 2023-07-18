@@ -11,11 +11,10 @@
  *  associated services.
  */
 import React, { useContext, createContext, useMemo, FC, useEffect } from "react";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { useQuery } from "@tanstack/react-query";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { Component } from "@wso2-enterprise/choreo-core";
-
 
 export interface IChoreoComponentsContext {
     /** List of choreo components */
@@ -27,12 +26,12 @@ export interface IChoreoComponentsContext {
     /** Refresh the component list */
     refreshComponents: () => void;
     /** Errors while loading the components */
-    componentLoadError: Error | null
+    componentLoadError: Error | null;
     /** Has the components been fetched for the very first time */
     isComponentsFetched: boolean;
-    /** 
-     * Count of every local components that's without any local git changes to commit/push & valid path in remote repo. 
-     * These components can be pushed to Choreo 
+    /**
+     * Count of every local components that's without any local git changes to commit/push & valid path in remote repo.
+     * These components can be pushed to Choreo
      * */
     pushableComponentCount: number;
     /** Has any components that can be pushed to choreo */
@@ -41,20 +40,28 @@ export interface IChoreoComponentsContext {
     hasLocalComponents: boolean;
     /** Are there any local components with local changes or un-pushed commits */
     componentsOutOfSync: boolean;
+    /** Name of the components that are expanded in the panel for a project */
+    expandedComponents: string[];
+    /** Update the expanded state of a component in the panel */
+    toggleExpandedComponents: (componentName: string) => void;
+    /** Collapse all the components in the panel */
+    collapseAllComponents: () => void;
 }
 
 const defaultContext: IChoreoComponentsContext = {
     components: [],
     isLoadingComponents: false,
     isRefetchingComponents: false,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    refreshComponents: () => { },
+    refreshComponents: () => undefined,
     componentLoadError: null,
     isComponentsFetched: false,
     pushableComponentCount: 0,
     hasPushableComponents: false,
     hasLocalComponents: false,
     componentsOutOfSync: false,
+    expandedComponents: [],
+    toggleExpandedComponents: () => undefined,
+    collapseAllComponents: () => undefined,
 };
 
 const ChoreoComponentsContext = createContext(defaultContext);
@@ -63,12 +70,14 @@ export const useChoreoComponentsContext = () => {
     return useContext(ChoreoComponentsContext);
 };
 
-/** 
+/**
  * Context provider to manage choreo components along with derived values.
  * Depends on ChoreoWebViewContext to get the project details
  */
 export const ChoreoComponentsContextProvider: FC = ({ children }) => {
-    const { isChoreoProject, choreoProject } = useContext(ChoreoWebViewContext);
+    const queryClient = useQueryClient();
+    const { isChoreoProject, choreoProject } = useChoreoWebViewContext();
+    const projectId = choreoProject?.id;
     const {
         data: components = [],
         isLoading: isLoadingComponents,
@@ -77,7 +86,7 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
         error: componentLoadError,
         isFetched: isComponentsFetched,
     } = useQuery({
-        queryKey: ["project_component_list", choreoProject?.id],
+        queryKey: ["project_component_list", projectId],
         queryFn: async () => {
             if (!isChoreoProject || !choreoProject) {
                 return [];
@@ -89,34 +98,74 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
         },
         refetchOnWindowFocus: true,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        enabled: !!choreoProject?.id,
-        keepPreviousData: true
+        enabled: !!projectId,
+        onSuccess: () => refreshExpandedComponents(),
     });
 
+    const { data: expandedComponents = [] } = useQuery({
+        queryKey: ["project_expanded_components", projectId],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getExpandedComponents(projectId),
+        enabled: !!projectId,
+    });
+
+    const { mutate: toggleExpandedComponents } = useMutation({
+        mutationFn: async (componentName: string) => {
+            if (choreoProject?.id) {
+                let newExpandedComponents: string[] = [];
+                if (expandedComponents?.includes(componentName)) {
+                    newExpandedComponents = expandedComponents?.filter((item) => item !== componentName);
+                } else if (expandedComponents) {
+                    newExpandedComponents = [...expandedComponents, componentName];
+                }
+
+                queryClient.setQueryData(["project_expanded_components", projectId], newExpandedComponents);
+                await ChoreoWebViewAPI.getInstance().setExpandedComponents(choreoProject?.id, newExpandedComponents);
+            }
+        },
+    });
+
+    const { mutate: refreshExpandedComponents } = useMutation({
+        mutationFn: async () => {
+            if (choreoProject?.id) {
+                const newExpandedComponents = expandedComponents.filter((name) =>
+                    components.some((component) => component.name === name)
+                );
+                if (expandedComponents.toString() !== newExpandedComponents.toString()) {
+                    queryClient.setQueryData(["project_expanded_components", projectId], newExpandedComponents);
+                    await ChoreoWebViewAPI.getInstance().setExpandedComponents(
+                        choreoProject?.id,
+                        newExpandedComponents
+                    );
+                }
+            }
+        },
+    });
+
+    const { mutate: collapseAllComponents } = useMutation({
+        mutationFn: async () => {
+            if (choreoProject?.id) {
+                queryClient.setQueryData(["project_expanded_components", projectId], []);
+                await ChoreoWebViewAPI.getInstance().setExpandedComponents(choreoProject?.id, []);
+            }
+        },
+    });
 
     const pushableComponentCount = useMemo(() => {
-        const localOnlyComponents = components.filter(
-            (component) => component.local
-        );
+        const localOnlyComponents = components.filter((component) => component.local);
         return localOnlyComponents.reduce((count, component) => {
             if (!component.hasDirtyLocalRepo && !component.hasUnPushedLocalCommits) {
                 return count + 1;
             }
             return count;
         }, 0);
-    }, [components])
+    }, [components]);
 
     const hasPushableComponents = useMemo(() => pushableComponentCount > 0, [pushableComponentCount]);
 
-    const hasLocalComponents = useMemo(
-        () => components?.some((component) => component.local),
-        [components]
-    );
+    const hasLocalComponents = useMemo(() => components?.some((component) => component.local), [components]);
 
     const componentsOutOfSync = useMemo(() => {
-        return components?.some(
-            (component) => component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits
-        );
+        return components?.some((component) => component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits);
     }, [components]);
 
     useEffect(() => {
@@ -126,18 +175,23 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
     }, []);
 
     return (
-        <ChoreoComponentsContext.Provider value={{
-            components,
-            componentLoadError,
-            isLoadingComponents,
-            isRefetchingComponents,
-            refreshComponents,
-            isComponentsFetched,
-            pushableComponentCount,
-            hasPushableComponents,
-            hasLocalComponents,
-            componentsOutOfSync
-        }}>
+        <ChoreoComponentsContext.Provider
+            value={{
+                components,
+                componentLoadError,
+                isLoadingComponents,
+                isRefetchingComponents,
+                refreshComponents,
+                isComponentsFetched,
+                pushableComponentCount,
+                hasPushableComponents,
+                hasLocalComponents,
+                componentsOutOfSync,
+                collapseAllComponents,
+                expandedComponents,
+                toggleExpandedComponents,
+            }}
+        >
             {children}
         </ChoreoComponentsContext.Provider>
     );

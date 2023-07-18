@@ -112,27 +112,44 @@ export interface ConfigureRepoAccordionProps {
     setValidationInProgress: (inProgress: boolean) => void;
     isBareRepo: boolean;
     setIsBareRepo: (isBareRepo: boolean) => void;
+    selectedBranch: string;
+    setSelectedBranch: (branch: string) => void;
     setErrorMsg: (msg: string) => void;
 
 }
 
 export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
 
-    const { gitProvider, selectedCredential, selectedGHOrgName, setSelectedGHOrgName, selectedGHRepo, setSelectedGHRepo, isBareRepo, setIsBareRepo, validationInProgress, setValidationInProgress, setErrorMsg } = props;
+    const {
+        gitProvider,
+        selectedCredential,
+        selectedGHOrgName,
+        setSelectedGHOrgName,
+        selectedGHRepo,
+        setSelectedGHRepo,
+        isBareRepo,
+        setIsBareRepo,
+        validationInProgress,
+        setValidationInProgress,
+        selectedBranch,
+        setSelectedBranch,
+        setErrorMsg 
+    } = props;
 
     const { currentProjectOrg } = useOrgOfCurrentProject();
     const [refreshRepoList, setRefreshRepoList] = useState(false);
     const [appInstallComleted, setAppInstallCompleted] = useState(false);
 
     useEffect(() => {
-        if (selectedGHRepo) {
+        if (selectedBranch) {
             checkBareRepoStatus();
         }
-    }, [selectedGHRepo]);
+    }, [selectedBranch]);
 
-    const handleRepoSelect = (org?: string, repo?: string) => {
+    const handleRepoSelect = (org?: string, repo?: string, branch?: string) => {
         setSelectedGHOrgName(org || "");
         setSelectedGHRepo(repo || "");
+        setSelectedBranch(branch || "");
     };
 
     const handleRepoInit = async () => {
@@ -175,7 +192,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                 orgHandle: currentProjectOrg?.handle,
                 repo: selectedGHRepo,
                 organization: selectedGHOrgName,
-                branch: "main",
+                branch: selectedBranch,
                 credentialId: selectedCredential.id
             });
             if (repoMetaData?.isBareRepo) {
@@ -232,12 +249,12 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                         <RepoSelectorContainer>
                             {gitProvider === GitProvider.GITHUB &&
                                 <GithubRepoSelector
-                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
                                     onRepoSelect={handleRepoSelect}
                                 />}
                             {gitProvider === GitProvider.BITBUCKET &&
                                 <BitbucketRepoSelector
-                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }}
+                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
                                     onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
                                     refreshRepoList={refreshRepoList}
                                 />}

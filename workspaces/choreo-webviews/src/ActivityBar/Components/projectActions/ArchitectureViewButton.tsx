@@ -10,15 +10,15 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionLink } from "../ProjectActionLink";
 
 export const ArchiViewButton = () => {
 
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useChoreoWebViewContext();
 
     const handleClick = () => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({

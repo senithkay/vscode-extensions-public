@@ -14,15 +14,15 @@ import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
 import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { GithubRepoBranchSelector } from "./GithubRepoBranchSelector";
 import { RepoStructureConfig } from "./RepoStructureConfig";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectTypeCard } from "../../ProjectWizard/ProjectTypeCard";
+import { ProviderTypeCard } from "../../ProjectWizard/ProviderTypeCard";
 import { ChoreoComponentType, ChoreoImplementationType, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
 import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
@@ -91,8 +91,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const gitProvider = formData?.repository?.gitProvider;
     const isMonoRepo = formData?.repository?.isMonoRepo;
 
-    const { choreoProject } = useContext(ChoreoWebViewContext);
     const { currentProjectOrg: org } = useOrgOfCurrentProject();
+    const { choreoProject } = useChoreoWebViewContext();
 
     const { isLoading: isFetchingCredentials, data: credentials, refetch: refetchCredentials, isRefetching: isRefetching } = useQuery({
         queryKey: ['git-bitbucket-credentials', org?.uuid, gitProvider],
@@ -305,13 +305,13 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             {!isMonoRepo && (<>
                 <SubContainer>
                     <CardContainer>
-                        <ProjectTypeCard
+                        <ProviderTypeCard
                             type={GitProvider.GITHUB}
                             label="GitHub"
                             currentType={gitProvider}
                             onChange={changeGitProvider}
                         />
-                        <ProjectTypeCard
+                        <ProviderTypeCard
                             type={GitProvider.BITBUCKET}
                             label="BitBucket"
                             currentType={gitProvider}

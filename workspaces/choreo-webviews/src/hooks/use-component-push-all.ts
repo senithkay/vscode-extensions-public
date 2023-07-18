@@ -14,12 +14,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { Component, PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoComponentsContext } from "../context/choreo-components-ctx";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { useContext } from "react";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 export function useComponentPushAll() {
     const queryClient = useQueryClient();
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useChoreoWebViewContext();
     const { refreshComponents } = useChoreoComponentsContext()
     const { mutate: handlePushAllComponentsClick, isLoading: pushingAllComponents } =
     useMutation({

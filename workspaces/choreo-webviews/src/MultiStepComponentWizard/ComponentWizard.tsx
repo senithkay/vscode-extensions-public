@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
@@ -21,7 +21,7 @@ import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { ServiceTypeStep } from "./ServiceTypeStep";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
 import { ConfigureRepoStep } from './ConfigureRepoStep/ConfigureRepoStep'
@@ -165,6 +165,8 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
 
 
 export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMode }> = (props) => {
+    const { loginStatus, choreoProject } = useChoreoWebViewContext();
+
     const initialState: WizardState<Partial<ComponentWizardState>> = {
         currentStep: 0,
         formData: {
@@ -187,7 +189,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
                 repo: '',
                 org: '',
                 branch: '',
-                isMonoRepo: undefined
+                isMonoRepo: false
             },
             port: '3000',
             endpointContext: '.',
@@ -205,50 +207,30 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         isStepValidating: false,
     };
 
-    const { loginStatus, choreoProject } = useContext(ChoreoWebViewContext);
     const [state, setState] = useState(initialState);
-    
-
-    const updateGitData = (repoData: GitRepo, isMonoRepo = false) => {
-        setState({
-            ...state,
-            formData: {
-                ...state.formData,
-                repository: {
-                    ...state.formData.repository,
-                    gitProvider: repoData.provider,
-                    org: repoData.orgName,
-                    repo: repoData.repoName,
-                    credentialID: repoData.bitbucketCredentialId || '',
-                    isMonoRepo
-                }
-            }
-        })
-    }
-
-    // todo: Remove once mono repo details are coming from the API
-    useQuery(
-        ["getProjectRepository", choreoProject?.id, state.formData?.repository?.isMonoRepo],
-        async () => {
-            const webViewApi = ChoreoWebViewAPI.getInstance();
-            const repoData = await webViewApi.getProjectRepository(choreoProject?.id);
-            if (repoData) {
-                updateGitData(repoData, true);
-            } else {
-                const preferredRepoData = await webViewApi.getPreferredProjectRepository(choreoProject?.id);
-                if (preferredRepoData) {
-                    updateGitData(preferredRepoData);
-                }
-            }
-        },
-        { enabled: !!choreoProject?.id && state.formData?.repository?.isMonoRepo === undefined }
-    );
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: CREATE_COMPONENT_START_EVENT,
         });
     }, []);
+
+    useEffect(() => {
+        setState({
+            ...state,
+            formData: {
+                ...state.formData,
+                repository: {
+                    ...state.formData.repository,
+                    repo: choreoProject?.repository ?? '',
+                    org: choreoProject?.gitOrganization ?? '',
+                    branch: choreoProject?.branch ?? '',
+                    isMonoRepo: choreoProject?.repository ? true : false,
+                    gitProvider: choreoProject?.gitProvider ? choreoProject?.gitProvider as GitProvider : GitProvider.GITHUB,
+                }
+            }
+        })
+    }, [choreoProject])
 
     const { formData: { type, mode, implementationType, repository } } = state;
 
@@ -307,7 +289,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         <>
             {loginStatus === "LoggedIn" ?
                 <Wizard
-                    title="Create New Choreo Component"
+                    title={mode === 'fromScratch' ? "Create component from scratch" : "Create component from existing source"}
                     steps={steps}
                     state={state}
                     setState={setState}

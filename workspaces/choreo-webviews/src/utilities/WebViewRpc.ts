@@ -32,8 +32,6 @@ import {
     OpenExternal,
     OpenChoreoProject,
     CloneChoreoProject,
-    setProjectRepository,
-    getProjectRepository,
     isChoreoProject,
     getChoreoProject,
     PushLocalComponentsToChoreo,
@@ -90,6 +88,8 @@ import {
     CloneChoreoProjectParams,
     GetDeletedComponentsParams,
     GetComponentsRequestParams,
+    SetExpandedComponents,
+    GetExpandedComponents,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -187,12 +187,12 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(IsBareRepoRequest, HOST_EXTENSION, params);
     }
 
-    public async setProjectRepository(projId: string, repo: GitRepo): Promise<void> {
-        return this._messenger.sendRequest(setProjectRepository, HOST_EXTENSION, { projId, repo });
+    public async setExpandedComponents(projId: string, componentNames: string[]): Promise<void> {
+        return this._messenger.sendRequest(SetExpandedComponents, HOST_EXTENSION, { projId, componentNames });
     }
 
-    public async getProjectRepository(projId: string): Promise<GitRepo> {
-        return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
+    public async getExpandedComponents(projId: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetExpandedComponents, HOST_EXTENSION, projId);
     }
 
     public async setPreferredProjectRepository(projId: string, repo: GitRepo): Promise<void> {

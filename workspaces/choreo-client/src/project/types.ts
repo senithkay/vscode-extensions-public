@@ -22,6 +22,9 @@ export interface CreateProjectParams extends ChoreoOrgIdParams {
     description: string;
     version?: string;
     region?: string;
+    credentialId?: string;
+    repository?: string;
+    branch?: string;
 }
 
 export interface DeleteProjectParams extends ChoreoOrgIdParams {

@@ -31,6 +31,7 @@ import * as yaml from 'js-yaml';
 const PROJECT_LOCATIONS = "project-locations";
 const PROJECT_REPOSITORIES = "project-repositories-v2";
 const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories-v2";
+const EXPANDED_COMPONENTS = "expanded-components";
 
 
 export class ProjectRegistry {
@@ -224,17 +225,23 @@ export class ProjectRegistry {
 
     async getComponents(projId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
-            let components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ projId, orgId, orgHandle, orgUuid }));
+            let components = await executeWithTaskRetryPrompt(() =>
+                ext.clients.projectClient.getComponents({ projId, orgId, orgHandle, orgUuid })
+            );
             components = this._addLocalComponents(projId, components);
             components = await Promise.all(
                 components.map(async (component) => {
-                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
-                        this.hasUnPushedLocalCommit(projId, component),
-                        this.hasDirtyLocalRepo(projId, component),
-                    ]);
-
                     const componentPath = this.getComponentDirPath(component);
                     const isRemoteOnly = componentPath ? !existsSync(componentPath) : false;
+                    let hasUnPushedLocalCommits = false;
+                    let hasDirtyLocalRepo = false;
+
+                    if (!isRemoteOnly) {
+                        [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
+                            this.hasUnPushedLocalCommit(projId, component),
+                            this.hasDirtyLocalRepo(projId, component),
+                        ]);
+                    }
 
                     return {
                         ...component,
@@ -527,19 +534,19 @@ export class ProjectRegistry {
         return undefined;
     }
 
-    setProjectRepository(projectId: string, repo: GitRepo) {
-        let projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
-        if (projectRepositories === undefined) {
-            projectRepositories = {};
+    setExpandedComponents(projectId: string, expandedComponentNames: string[]) {
+        let projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        if (projectExpandedComponents === undefined) {
+            projectExpandedComponents = {};
         }
-        projectRepositories[projectId] = repo;
-        ext.context.globalState.update(PROJECT_REPOSITORIES, projectRepositories);
+        projectExpandedComponents[projectId] = expandedComponentNames;
+        ext.context.globalState.update(EXPANDED_COMPONENTS, projectExpandedComponents);
     }
 
-    getProjectRepository(projectId: string): GitRepo | undefined {
-        const projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
-        const repo = projectRepositories?.[projectId];
-        return repo;
+    getExpandedComponents(projectId: string): string[] {
+        const projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        const componentNames = projectExpandedComponents?.[projectId];
+        return componentNames ?? [];
     }
 
     setPreferredProjectRepository(projectId: string, repo: GitRepo) {
@@ -554,9 +561,6 @@ export class ProjectRegistry {
     getPreferredProjectRepository(projectId: string): GitRepo | undefined {
         const projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
         let preferredRepository: GitRepo | undefined = projectRepositories ? projectRepositories[projectId] : undefined;
-        if (preferredRepository === undefined) {
-            preferredRepository = this.getProjectRepository(projectId);
-        }
         return preferredRepository;
     }
 

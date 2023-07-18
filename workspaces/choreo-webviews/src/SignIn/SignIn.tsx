@@ -12,8 +12,8 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import React, { useContext } from "react";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import React from "react";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const Container = styled.div`
@@ -26,7 +26,7 @@ const Container = styled.div`
 `;
 
 export function SignIn() {
-    const { loginStatus, loginStatusPending } = useContext(ChoreoWebViewContext);
+    const { loginStatus, loginStatusPending } = useChoreoWebViewContext();
 
     const onSignIn = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.sign.in");

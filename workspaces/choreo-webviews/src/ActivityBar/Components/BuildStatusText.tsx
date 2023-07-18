@@ -10,10 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import { BuildStatus as BuildStatusType } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
@@ -50,8 +50,8 @@ export const BuildStatusText: React.FC<{
     localComponent: boolean;
 }> = (props) => {
     const { buildStatus, handler, loading, localComponent } = props;
-    const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
     const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { choreoUrl, choreoProject } = useChoreoWebViewContext();
 
     const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}/components/${handler}`;
     const componentDeployLink = `${componentBaseUrl}/deploy`;

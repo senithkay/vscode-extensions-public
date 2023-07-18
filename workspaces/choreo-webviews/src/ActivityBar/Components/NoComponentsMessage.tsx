@@ -46,7 +46,7 @@ export const NoComponentsMessage = () => {
                 appearance="primary"
                 onClick={createFromScratch}
             >
-                Create from sctratch
+                Create from scratch
             </WideVSCodeButton>
             <div>You can also create a new Component from existing source.</div>
             <WideVSCodeButton

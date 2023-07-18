@@ -10,17 +10,18 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubAutherizer } from "../GithubRepoSelector/GithubAutherizer";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import { ProviderTypeCard } from "./ProviderTypeCard";
 import { ProjectTypeCard } from "./ProjectTypeCard";
 import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
-import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo, Project } from "@wso2-enterprise/choreo-core";
+import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
@@ -89,9 +90,10 @@ const SectionWrapper = styled.div`
 
 export function ProjectWizard(props: { orgId: string}) {
 
-    const { loginStatus, loginStatusPending, userInfo, error } = useContext(ChoreoWebViewContext);
     const { orgId } = props;
     const{ currentProjectOrg } = useOrgOfCurrentProject();
+    const { loginStatus, userInfo, loginStatusPending, error } = useChoreoWebViewContext();
+
 
     const selectedOrg = currentProjectOrg || userInfo?.organizations.find(org => org.id.toString() === orgId);
 
@@ -107,6 +109,7 @@ export function ProjectWizard(props: { orgId: string}) {
     const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
     const [projectDir, setProjectDir] = useState("");
     const [validationInProgress, setValidationInProgress] = useState(false);
+    const [selectedBranch, setSelectedBranch] = useState("");
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -114,8 +117,8 @@ export function ProjectWizard(props: { orgId: string}) {
         });
     }, []);
 
-    const handleInitiMonoRepoCheckChange = (e: any) => {
-        setInitMonoRepo(e.target.checked);
+    const handleInitiMonoRepoCheckChange = (isMonoRepo: boolean) => {
+        setInitMonoRepo(isMonoRepo);
     };
 
     const handleCreateProject = async () => {
@@ -124,21 +127,23 @@ export function ProjectWizard(props: { orgId: string}) {
         const projectClient = webviewAPI.getProjectClient();
         if (selectedOrg) {
             try {
+                const repoString = getRepoString();
                 const createdProject = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
                     orgId: selectedOrg.id,
-                    orgHandle: selectedOrg.handle
+                    orgHandle: selectedOrg.handle,
+                    repository: repoString ?? '',
+                    credentialId: selectedCredential.id ?? '',
+                    branch: selectedBranch ?? '',
                 });
-                if (initMonoRepo) {
-                    const repoDetails: GitRepo = { provider: gitProvider, orgName: selectedGHOrgName, repoName: selectedGHRepo };
-                    if (gitProvider === GitProvider.BITBUCKET) {
-                        repoDetails.bitbucketCredentialId = selectedCredential?.id
-                    }
-                    await webviewAPI.setProjectRepository(createdProject.id, repoDetails);
-                }
 
-                handleCloneProject(createdProject);
+                handleCloneProject({
+                    ...createdProject,
+                    repository: selectedGHRepo,
+                    gitOrganization: selectedGHOrgName,
+                    gitProvider
+                });
 
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                     eventName: CREATE_PROJECT_SUCCESS_EVENT,
@@ -146,9 +151,6 @@ export function ProjectWizard(props: { orgId: string}) {
                         name: createdProject?.name,
                     }
                 });
-                await webviewAPI.triggerCmd("wso2.choreo.projects.registry.refresh");
-                await webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
-                await webviewAPI.triggerCmd("wso2.choreo.projects.tree.refresh");
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -174,18 +176,29 @@ export function ProjectWizard(props: { orgId: string}) {
         ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir);
     };
 
+    const getRepoString = (): string => {
+        if (selectedGHOrgName && selectedGHRepo) {
+            if (gitProvider === GitProvider.GITHUB) {
+                return `http://github.com/${selectedGHOrgName}/${selectedGHRepo}`;
+            } else if (gitProvider === GitProvider.BITBUCKET) {
+                return `http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`;
+            }
+        }
+    }
+
     const handleProjecDirSelection = async () => {
         const projectDirectory = await ChoreoWebViewAPI.getInstance().askProjectDirPath();
         setProjectDir(projectDirectory);
     }
 
     const changeGitProvider = (type: GitProvider) => {
-        setGitProvider(type);
         setSelectedGHOrgName('');
         setSelectedGHRepo('');
+        setSelectedBranch('');
         if (type === GitProvider.GITHUB) {
             setSelectedCredential({ id: '', name: '' });
         }
+        setGitProvider(type);
     }
 
     const isValid: boolean = projectName.length > 0 && !!projectDir && (!initMonoRepo || (!!selectedGHOrgName &&
@@ -219,12 +232,22 @@ export function ProjectWizard(props: { orgId: string}) {
                         >
                             Project Description
                         </VSCodeTextArea>
-                        <VSCodeCheckbox
-                            checked={initMonoRepo}
-                            onChange={handleInitiMonoRepoCheckChange}
-                        >
-                            Initialize a mono repo
-                        </VSCodeCheckbox>
+                        <SubContainer>
+                            <CardContainer>
+                                <ProjectTypeCard
+                                    isMonoRepo={false}
+                                    label="Multi Repository"
+                                    isCurrentMonoRepo={initMonoRepo}
+                                    onChange={handleInitiMonoRepoCheckChange}
+                                />
+                                <ProjectTypeCard
+                                    isMonoRepo={true}
+                                    label="Mono Repository"
+                                    isCurrentMonoRepo={initMonoRepo}
+                                    onChange={handleInitiMonoRepoCheckChange}
+                                />
+                            </CardContainer>
+                        </SubContainer>
                     </SectionWrapper>
                     {initMonoRepo &&
                         (
@@ -232,13 +255,13 @@ export function ProjectWizard(props: { orgId: string}) {
                                 <h3>Git Provider Details</h3>
                                 <SubContainer>
                                     <CardContainer>
-                                        <ProjectTypeCard
+                                        <ProviderTypeCard
                                             type={GitProvider.GITHUB}
                                             label="GitHub"
                                             currentType={gitProvider}
                                             onChange={changeGitProvider}
                                         />
-                                        <ProjectTypeCard
+                                        <ProviderTypeCard
                                             type={GitProvider.BITBUCKET}
                                             label="BitBucket"
                                             currentType={gitProvider}
@@ -256,9 +279,9 @@ export function ProjectWizard(props: { orgId: string}) {
                     {initMonoRepo && gitProvider &&
                         (
                             <SectionWrapper>
-                                <ConfigureRepoAccordion 
+                                <ConfigureRepoAccordion
                                     gitProvider={gitProvider}
-                                    selectedCredential={selectedCredential} 
+                                    selectedCredential={selectedCredential}
                                     selectedGHOrgName={selectedGHOrgName}
                                     selectedGHRepo={selectedGHRepo}
                                     setSelectedGHOrgName={setSelectedGHOrgName}
@@ -267,6 +290,8 @@ export function ProjectWizard(props: { orgId: string}) {
                                     setIsBareRepo={setIsBareRepo}
                                     validationInProgress={validationInProgress}
                                     setValidationInProgress={setValidationInProgress}
+                                    selectedBranch={selectedBranch}
+                                    setSelectedBranch={setSelectedBranch}
                                     setErrorMsg={setErrorMsg}
                                 />
                             </SectionWrapper>)

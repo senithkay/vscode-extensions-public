@@ -20,7 +20,7 @@ import {
     CloseWebViewNotification,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    ShowErrorMessage, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
     Component, UpdateProjectOverview,
@@ -70,6 +70,8 @@ import {
     HasChoreoSubscriptionParams,
     CloneChoreoProjectParams,
     PushLocalComponentsToChoreoParams,
+    SetExpandedComponents,
+    GetExpandedComponents,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -266,12 +268,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return false;
     });
 
-    messenger.onRequest(setProjectRepository, async (params) => {
-        ProjectRegistry.getInstance().setProjectRepository(params.projId, params.repo);
+    messenger.onRequest(SetExpandedComponents, async (params) => {
+        ProjectRegistry.getInstance().setExpandedComponents(params.projId, params.componentNames);
     });
 
-    messenger.onRequest(getProjectRepository, (projectId: string) => {
-        return ProjectRegistry.getInstance().getProjectRepository(projectId);
+    messenger.onRequest(GetExpandedComponents, (projectId: string) => {
+        return ProjectRegistry.getInstance().getExpandedComponents(projectId);
     });
 
     messenger.onRequest(setPreferredProjectRepository, async (params) => {

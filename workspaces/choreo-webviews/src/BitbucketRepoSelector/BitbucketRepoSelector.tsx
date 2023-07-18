@@ -17,9 +17,11 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
+import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
+    flex-wrap: wrap;
     flex-direction: row;
     gap: 30px;
     width: "100%";
@@ -50,8 +52,9 @@ export interface GithubRepoSelectorProps {
     selectedRepo?: {
         org: string;
         repo: string;
+        branch: string;
     };
-    onRepoSelect: (org?: string, repo?: string) => void;
+    onRepoSelect: (org?: string, repo?: string, branch?: string) => void;
     refreshRepoList: boolean;
 }
 
@@ -98,6 +101,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
             let isSelectedRepoAvailable = false;
             const currentOrg = selectedRepo?.org || repoDetails?.[0]?.orgName || '';
             let currentRepo = '';
+            let currentBranch = selectedRepo?.branch || '';
 
             if (selectedRepo?.org) {
                 const selectedUserRepos = repoDetails?.filter((repo) => repo.orgName === selectedRepo.org) || [];
@@ -107,7 +111,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
                 }
             }
 
-            onRepoSelect(currentOrg, currentRepo);
+            onRepoSelect(currentOrg, currentRepo, currentBranch);
 
             repoDetails?.forEach((userRepo: UserRepo) => {
                 allOrgs.push(userRepo.orgName);
@@ -134,14 +138,18 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         const selectedUserRepos = repoDetails.filter((repo) => repo.orgName === selectedRepo?.org);
 
         if (selectedUserRepos && selectedUserRepos.length > 0) {
-            onRepoSelect(org, selectedUserRepos[0]?.repositories[0]?.name || '');
+            onRepoSelect(org, selectedUserRepos[0]?.repositories[0]?.name || '', selectedRepo?.branch ?? '');
         } else {
-            onRepoSelect(org, '');
+            onRepoSelect(org, '', '');
         }
     };
 
     const handleGhRepoChange = (e: any) => {
-        onRepoSelect(selectedRepo?.org, e.target.value);
+        onRepoSelect(selectedRepo?.org, e.target.value, selectedRepo?.branch);
+    };
+
+    const handleGhBranchChange = (value: string) => {
+        onRepoSelect(selectedRepo?.org, selectedRepo?.repo, value);
     };
 
     const loaderMessage = "Loading repositories...";
@@ -185,6 +193,13 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
                             ))}
                         </VSCodeDropdown>
                     </GhRepoSelectorRepoContainer>
+                    <RepoBranchSelector
+                        org={selectedRepo.org}
+                        repo={selectedRepo.repo}
+                        branch={selectedRepo.branch}
+                        onBranchChange={handleGhBranchChange}
+                        credentialID={selectedCred.id}
+                    />
                 </GhRepoSelectorContainer>
             )}
         </>

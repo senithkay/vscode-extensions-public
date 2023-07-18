@@ -10,22 +10,29 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import styled from "@emotion/styled";
 import {
     Component,
+    GitProvider,
     OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT,
     OPEN_GITHUB_REPO_PAGE_EVENT,
 } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../../Codicon/Codicon";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 import { ContextMenu, MenuItem } from "../../Commons/ContextMenu";
+import { BitBucketIcon, GithubIcon } from "../../icons";
 
 const InlineIcon = styled(Codicon)`
-  vertical-align: sub;
-  padding-left: 5px;
+    vertical-align: sub;
+    padding-left: 5px;
+`;
+
+const IconWrap = styled.div`
+    height: 15px;
+    width: 15px;
 `;
 
 export const ComponentContextMenu = (props: {
@@ -35,8 +42,8 @@ export const ComponentContextMenu = (props: {
 }) => {
     const { component, deletingComponent, handleDeleteComponentClick } = props;
     const { repository } = component;
-    const { choreoUrl } = useContext(ChoreoWebViewContext);
     const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { choreoUrl } = useChoreoWebViewContext();
 
     const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
     const openComponentUrl = useCallback(() => {
@@ -47,15 +54,18 @@ export const ComponentContextMenu = (props: {
         ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
     }, [componentBaseUrl]);
 
-    const gitHubBaseUrl = `https://github.com/${repository?.organizationApp}/${repository?.nameApp}`;
-    const repoLink = `${gitHubBaseUrl}/tree/${repository?.branchApp}${repository?.appSubPath ? `/${repository.appSubPath}` : ""
-        }`;
+    const gitBaseUrl = repository.gitProvider === GitProvider.GITHUB ? "https://github.com" : "https://bitbucket.org";
+    let gitUrl = `${gitBaseUrl}/${repository?.organizationApp}/${repository?.nameApp}`;
+    gitUrl = repository.gitProvider === GitProvider.GITHUB ? `${gitUrl}/tree` : `${gitUrl}/src`;
+    gitUrl = component.local
+        ? `${gitUrl}/${repository?.branchApp}`
+        : `${gitUrl}/${repository?.branchApp}/${repository.appSubPath ?? ""}`;
 
     const onOpenRepo = () => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: OPEN_GITHUB_REPO_PAGE_EVENT,
         });
-        ChoreoWebViewAPI.getInstance().openExternal(repoLink);
+        ChoreoWebViewAPI.getInstance().openExternal(gitUrl);
     };
 
     const menuItems: MenuItem[] = [
@@ -63,8 +73,10 @@ export const ComponentContextMenu = (props: {
             id: "github-remote",
             label: (
                 <>
-                    <InlineIcon name="github" />
-                    &nbsp; Open in Github
+                    <IconWrap style={{ width: 16, height: 16 }}>
+                        {repository.gitProvider === GitProvider.BITBUCKET ? <BitBucketIcon /> : <GithubIcon />}
+                    </IconWrap>
+                    &nbsp; {repository.gitProvider === GitProvider.BITBUCKET ? "Open in BitBucket" : "Open in GitHub"}
                 </>
             ),
             onClick: () => onOpenRepo(),

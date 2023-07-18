@@ -15,10 +15,9 @@ import styled from "@emotion/styled";
 
 import { cx } from "@emotion/css";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { useContext } from "react";
 import { ErrorBanner, ErrorIcon } from "../../Commons/ErrorBanner";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";
@@ -41,7 +40,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
 
     const { repository } = props.formData;
 
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useChoreoWebViewContext();
 
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
         ["getLocalComponentDirMetaData", choreoProject, repository],

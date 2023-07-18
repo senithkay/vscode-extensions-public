@@ -10,12 +10,12 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { UserInfo } from "./UserInfo";
 import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { CurrentOrganization } from "./SelectedOrg";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "../Components/ProgressIndicator";
 import { SelectedProject } from "./SelectedProject";
 
@@ -34,7 +34,7 @@ const Seperator = styled(VSCodeDivider)`
 `;
 
 export const UserDetails = () => {
-    const { loginStatusPending } = useContext(ChoreoWebViewContext);
+    const { loginStatusPending } = useChoreoWebViewContext();
 
     return <Container>
         {(loginStatusPending) && <ProgressIndicator />}

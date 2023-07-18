@@ -63,6 +63,13 @@ export const ComponentRow = (props: {
     const { deletingComponent, handleDeleteComponentClick } = useComponentDelete(component);
     const actionRequired = component.hasDirtyLocalRepo || component.isRemoteOnly || component.local;
 
+    let componentTag: "Local" | "Remote" | undefined;
+    if (component.local) {
+        componentTag = "Local";
+    } else if (component.isRemoteOnly) {
+        componentTag = "Remote";
+    }
+
     return (
         <Container>
             <Header>
@@ -75,14 +82,9 @@ export const ComponentRow = (props: {
                     <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
                 </VSCodeButton>
                 <ComponentName>{props.component.displayName}</ComponentName>
-                {component.local && (
+                {componentTag && (
                     <VSCodeTag title={"Only available locally"} style={{ marginLeft: "3px" }}>
-                        Local
-                    </VSCodeTag>
-                )}
-                {component.isRemoteOnly && (
-                    <VSCodeTag title={"Only available remotely"} style={{ marginLeft: "3px" }}>
-                        Remote
+                        {componentTag}
                     </VSCodeTag>
                 )}
                 <Flex />

@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -14,12 +14,12 @@ import { useMutation } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { Component, PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Repository } from "@wso2-enterprise/choreo-core";
 import { useChoreoComponentsContext } from "../context/choreo-components-ctx";
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+
 
 export function useComponentPullRepo(component: Component) {
-    const { refreshComponents } = useChoreoComponentsContext()
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { refreshComponents } = useChoreoComponentsContext();
+    const { choreoProject } = useChoreoWebViewContext();
 
     const { mutate: pullComponent, isLoading: isPulling } = useMutation({
         onMutate: () => {
@@ -62,6 +62,18 @@ export function useComponentPullRepo(component: Component) {
                                 branch: branchName,
                                 gitProvider: repository.gitProvider,
                             });
+                        const isSubpathUnavailable = await ChoreoWebViewAPI.getInstance().isSubpathAvailable({
+                            orgName: repository.organizationApp,
+                            projectID: component.projectId,
+                            repoName: repository.nameApp,
+                            subpath: repository.appSubPath,
+                        });
+
+                        if (isSubpathUnavailable) {
+                            ChoreoWebViewAPI.getInstance().showErrorMsg(
+                                `Unable to find ${repository.appSubPath} within the cloned repository`
+                            );
+                        }
                     }
                 } else {
                     await ChoreoWebViewAPI.getInstance().cloneChoreoProject({
