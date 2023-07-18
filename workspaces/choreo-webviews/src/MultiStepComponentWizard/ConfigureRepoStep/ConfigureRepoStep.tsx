@@ -128,7 +128,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
             try {
                 if(gitProvider === GitProvider.GITHUB) {
-                    return ghClient.getAuthorizedRepositories();
+                    return ghClient.getAuthorizedRepositories(org?.id);
                 }else if(gitProvider === GitProvider.BITBUCKET && selectedCredentialId) {
                     return ghClient.getUserRepos(selectedCredentialId, org?.id);
                 }       

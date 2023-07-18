@@ -11,12 +11,13 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { CredentialData, FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import React from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
+import { Codicon } from "../Codicon/Codicon";
 
 const BranchListContainer = styled.div`
     display: flex;
@@ -30,6 +31,11 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
     width: calc(var(--design-unit) * 4px);
 `;
 
+const RefreshBtn = styled(VSCodeButton)`
+    margin-top: auto;
+    padding: 1px;
+`;
+
 export interface BitbucketCredSelectorProps {
     org: Organization;
     selectedCred: FilteredCredentialData;
@@ -40,7 +46,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
 
     const { org, selectedCred, onCredSelect } = props;
 
-    const { isLoading: isFetchingCredentials, data: credentials } = useQuery({
+    const { isLoading: isFetchingCredentials, data: credentials, refetch, isRefetching } = useQuery({
         queryKey: ['git-bitbucket-credentials', org.uuid],
         queryFn: async () => {
             const gitCredentialsData = await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org.uuid, org.id);
@@ -90,7 +96,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
         <>
             {isFetchingCredentials && <SmallProgressRing />}
             {!isFetchingCredentials && credentials.length === 0 &&
-                <VSCodeLink onClick={handleConfigureNewCred}>Configure New Credential</VSCodeLink>
+                <span>No Credentials available. Please <VSCodeLink onClick={handleConfigureNewCred}>Configure New Credential</VSCodeLink> in bitbucket.</span>
             }
             {!isFetchingCredentials &&
                 (<>
@@ -119,6 +125,16 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                                 </VSCodeOption>
                             ))}
                         </VSCodeDropdown>
+                        {!isRefetching && <RefreshBtn
+                            appearance="icon"
+                            onClick={() => refetch()}
+                            title="Refresh credentials"
+                            disabled={isRefetching}
+                            id='refresh-credentials-btn'
+                        >
+                            <Codicon name="refresh" />
+                        </RefreshBtn>}
+                        {isRefetching && <SmallProgressRing />}
                     </BranchListContainer>
                 </>)
             }

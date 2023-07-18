@@ -38,8 +38,8 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
     triggerInstallFlow(): Promise<boolean> {
         return this._messenger.sendRequest(TriggerInstallFlowRequest, HOST_EXTENSION, undefined);
     }
-    getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
-        return this._messenger.sendRequest(GetAuthorizedRepositoriesRequest, HOST_EXTENSION, undefined);
+    getAuthorizedRepositories(choreoOrgId: number): Promise<GithubOrgnization[]> {
+        return this._messenger.sendRequest(GetAuthorizedRepositoriesRequest, HOST_EXTENSION, { choreoOrgId});
     }
 
     getUserRepos(bitbucketCredentialId: string, choreoOrgId: number): Promise<UserRepo[]> {

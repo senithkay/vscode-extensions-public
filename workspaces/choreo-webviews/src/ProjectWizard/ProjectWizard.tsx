@@ -88,8 +88,12 @@ const SectionWrapper = styled.div`
         border-color: var(--vscode-focusBorder);
     }
 `;
+export interface Region {
+    label: string;
+    value: string;
+}
 
-const REGIONS: string[] = ["Cloud Data Plane - US", "Cloud Data Plane - EU"];
+const REGIONS: Region[] = [{label: "Cloud Data Plane - US", value: "US"}, {label: "Cloud Data Plane - EU", value: "EU"}];
 
 export function ProjectWizard(props: { orgId: string}) {
 
@@ -104,7 +108,7 @@ export function ProjectWizard(props: { orgId: string}) {
     const [projectDescription, setProjectDescription] = useState("");
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
-    const [initMonoRepo, setInitMonoRepo] = useState(false);
+    const [initMonoRepo, setInitMonoRepo] = useState(true);
     const [selectedGHOrgName, setSelectedGHOrgName] = useState("");
     const [selectedGHRepo, setSelectedGHRepo] = useState("");
     const [isBareRepo, setIsBareRepo] = useState(false);
@@ -114,6 +118,8 @@ export function ProjectWizard(props: { orgId: string}) {
     const [validationInProgress, setValidationInProgress] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState("");
     const [selectedRegion, setSelectedRegion] = useState("Cloud Data Plane - US");
+
+    const regionLabels = REGIONS.map(region => region.label);
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -133,17 +139,16 @@ export function ProjectWizard(props: { orgId: string}) {
         setCreationInProgress(true);
         const webviewAPI = ChoreoWebViewAPI.getInstance();
         const projectClient = webviewAPI.getProjectClient();
-        const region = selectedRegion.split(' ').pop();
+        const regionValue = REGIONS.find(region => region.label === selectedRegion).value;
         if (selectedOrg) {
             try {
-                let createdProject;
                 const repoString = getRepoString();
-                createdProject = await projectClient.createProject({
+                const createdProject = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
                     orgId: selectedOrg.id,
                     orgHandle: selectedOrg.handle,
-                    region: region,
+                    region: regionValue,
                     repository: initMonoRepo ? repoString : null,
                     credentialId: initMonoRepo ? selectedCredential.id : null,
                     branch: initMonoRepo ? selectedBranch : null,
@@ -246,7 +251,7 @@ export function ProjectWizard(props: { orgId: string}) {
                             Project Description
                         </VSCodeTextArea>
                         <span>Region</span>
-                        <AutoComplete items={REGIONS} selectedItem={selectedRegion} onChange={handleRegionChange}></AutoComplete>
+                        <AutoComplete items={regionLabels} selectedItem={selectedRegion} onChange={handleRegionChange}></AutoComplete>
                         <SubContainer>
                             <CardContainer>
                                 <ProjectTypeCard
