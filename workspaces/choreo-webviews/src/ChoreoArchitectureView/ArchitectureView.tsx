@@ -16,6 +16,7 @@ import styled from "@emotion/styled";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
+import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 
 const WizardContainer = styled.div`
     width: 100vw;
@@ -29,10 +30,12 @@ export interface ArchitectureViewProps {
 
 export function ChoreoArchitectureView(props: ArchitectureViewProps) {
     const { orgName, projectId } = props;
+    const { currentProjectOrg } = useOrgOfCurrentProject();
 
     const getComponentModel = async (): Promise<GetComponentModelResponse> => {
         if (projectId && orgName) {
-            const response: GetComponentModelResponse = await ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, orgName);
+            const response: GetComponentModelResponse = await 
+                ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, currentProjectOrg?.id);
             return response;
         }
         throw new Error("Error while loading project resources.");

@@ -32,8 +32,8 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
         return this._messenger.sendRequest(TriggerAuthFlowRequest, HOST_EXTENSION, undefined);
     }
     
-    obatainAccessToken(authCode: string): Promise<void> {
-        return this._messenger.sendRequest(ObtainAccessTokenRequest, HOST_EXTENSION, authCode);
+    obatainAccessToken(authCode: string, choreoOrgId: number): Promise<void> {
+        return this._messenger.sendRequest(ObtainAccessTokenRequest, HOST_EXTENSION, { authCode, choreoOrgId });
     }
     triggerInstallFlow(): Promise<boolean> {
         return this._messenger.sendRequest(TriggerInstallFlowRequest, HOST_EXTENSION, undefined);
@@ -42,12 +42,15 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
         return this._messenger.sendRequest(GetAuthorizedRepositoriesRequest, HOST_EXTENSION, undefined);
     }
 
-    getUserRepos(bitbucketCredentialId: string): Promise<UserRepo[]> {
-        return this._messenger.sendRequest(GetUserReposRequest, HOST_EXTENSION, bitbucketCredentialId);
+    getUserRepos(bitbucketCredentialId: string, choreoOrgId: number): Promise<UserRepo[]> {
+        return this._messenger.sendRequest(GetUserReposRequest, HOST_EXTENSION, { 
+            bitbucketCredentialId,
+            choreoOrgId
+        });
     }
 
-    getRepoBranches(orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]> {
-        return this._messenger.sendRequest(GetRepoBranchesRequest, HOST_EXTENSION, {orgName, repoName, bitbucketCredentialId});
+    getRepoBranches(choreoOrgId: number, orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetRepoBranchesRequest, HOST_EXTENSION, {choreoOrgId, orgName, repoName, bitbucketCredentialId});
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,7 +63,7 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
         return this._messenger.sendNotification(FireGHAppAuthCallbackRequest, HOST_EXTENSION, status);
     }
 
-    getCredentials(org_uuid: string): Promise<CredentialData[]> {
-        return this._messenger.sendRequest(GetCredentialsRequest, HOST_EXTENSION, org_uuid);
+    getCredentials(org_uuid: string, orgId: number): Promise<CredentialData[]> {
+        return this._messenger.sendRequest(GetCredentialsRequest, HOST_EXTENSION, { org_uuid, orgId });
     }
 }

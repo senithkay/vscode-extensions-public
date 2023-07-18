@@ -27,21 +27,21 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         this.onGHAppAuthCallback((status) => {
             this._status = status;
         });
-        this.checkAuthStatus();
+        // this.checkAuthStatus();
     }
 
     async checkAuthStatus(): Promise<void> {
         try {
             // Check if the token is valid by trying to get the authorized repositories
-            await this.getAuthorizedRepositories();
+            // await this.getAuthorizedRepositories();
             this._onGHAppAuthCallback.fire({ status: 'authorized' });
         } catch (error) {
             this._onGHAppAuthCallback.fire({ status: 'not-authorized' });
         }
     }
 
-    private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
+    private async _getClient(orgId: number) {
+        const token = await this._tokenStore.getTokenForOrg(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }
@@ -111,7 +111,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async obatainAccessToken(authCode: string): Promise<void> {
+    async obatainAccessToken(authCode: string, choreoOrgId: number): Promise<void> {
         const mutation = gql`
             mutation {
                 obtainUserToken(authorizationCode:"${authCode}") {
@@ -121,7 +121,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             }
         `;
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(mutation);
             if(!data.obtainUserToken?.success) {
                 this._onGHAppAuthCallback.fire({ status: 'error', error: data.obtainUserToken?.message});
@@ -136,7 +136,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async getCredentials(org_uuid: string) {
+    async getCredentials(org_uuid: string, choreoOrgId: number) {
         
         const query = gql`
             query {
@@ -152,7 +152,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         `;
 
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(query);
             return data.commonCredentials;
         } catch (error) {
@@ -162,7 +162,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
+    async getAuthorizedRepositories(choreoOrgId: number): Promise<GithubOrgnization[]> {
         const query = gql`
             query {
                 userRepos {
@@ -174,7 +174,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             }
         `;
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(query);
             return data.userRepos;
         } catch (error) {
@@ -184,7 +184,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async getUserRepos(bitbucketCredentialId: string) {
+    async getUserRepos(bitbucketCredentialId: string, choreoOrgId: number) {
         const query = gql`
             query {
                 userRepos(secretRef :"${bitbucketCredentialId}") {
@@ -197,7 +197,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         `;
 
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(query);
             return data.userRepos;
         } catch (error) {
@@ -207,7 +207,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async getRepoBranches(orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]> {
+    async getRepoBranches(choreoOrgId: number, orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]> {
         const query = gql`
             query {
                 repoBranchList(secretRef: "${bitbucketCredentialId}", repositoryOrganization: "${orgName}", repositoryName: "${repoName}") {
@@ -216,7 +216,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             }
         `;
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(query);
             return data.repoBranchList.map((branch: { name: string }) => branch.name);
         } catch (error) {

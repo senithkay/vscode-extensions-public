@@ -24,6 +24,7 @@ import { RepoStructureConfig } from "./RepoStructureConfig";
 import { useQuery } from "@tanstack/react-query";
 import { ProviderTypeCard } from "../../ProjectWizard/ProviderTypeCard";
 import { ChoreoComponentType, ChoreoImplementationType, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
 const StepContainer = styled.div`
     display: flex;
@@ -90,12 +91,13 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const gitProvider = formData?.repository?.gitProvider;
     const isMonoRepo = formData?.repository?.isMonoRepo;
 
-    const { choreoProject, selectedOrg: org } = useChoreoWebViewContext();
+    const { currentProjectOrg: org } = useOrgOfCurrentProject();
+    const { choreoProject } = useChoreoWebViewContext();
 
     const { isLoading: isFetchingCredentials, data: credentials, refetch: refetchCredentials, isRefetching: isRefetching } = useQuery({
         queryKey: ['git-bitbucket-credentials', org?.uuid, gitProvider],
         queryFn: async () => {
-            return ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org?.uuid);
+            return ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org?.uuid, org.id);
         },
         select: (gitCredentialsData) => {
             return gitCredentialsData?.filter(item => item.type === GitProvider.BITBUCKET).map(({id, name}) => ({ id, name }));
@@ -128,7 +130,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                 if(gitProvider === GitProvider.GITHUB) {
                     return ghClient.getAuthorizedRepositories();
                 }else if(gitProvider === GitProvider.BITBUCKET && selectedCredentialId) {
-                    return ghClient.getUserRepos(selectedCredentialId);
+                    return ghClient.getUserRepos(selectedCredentialId, org?.id);
                 }       
                 return [];
             } catch (error: any) {
@@ -249,6 +251,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             setIsCloneInProgress(true);
             // check if the repo is empty
             const repoMetaData = await ChoreoWebViewAPI.getInstance().getProjectClient().getRepoMetadata({
+                orgId: org.id,
+                orgHandle: org.handle,
                 repo: formData?.repository?.repo,
                 organization: formData?.repository?.org,
                 branch: formData?.repository?.branch,

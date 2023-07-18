@@ -26,7 +26,7 @@ export class WebviewWizard {
   private _disposables: vscode.Disposable[] = [];
   private _rpcHandler: WebViewPanelRpc;
 
-  constructor(extensionUri: vscode.Uri, type: WizardTypes, mode?: ComponentCreateMode) {
+  constructor(extensionUri: vscode.Uri, type: WizardTypes, mode?: ComponentCreateMode, private _orgId?: string) {
     this._panel = WebviewWizard.createWebview(type);
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type, mode);
@@ -78,7 +78,7 @@ export class WebviewWizard {
                   document.getElementById("root"), 
                   "${wizardType.toString()}",
                   "", 
-                  "", 
+                  "${this._orgId}", 
                   0,  
                   "" , 
                   "${mode}"

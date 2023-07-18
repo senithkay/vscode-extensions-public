@@ -13,5 +13,5 @@
 import { SubscriptionResponse } from "@wso2-enterprise/choreo-core";
 
 export interface ISubscriptionClient  {
-    getSubscriptions(orgId: string): Promise<SubscriptionResponse>;
+    getSubscriptions(orgId: number): Promise<SubscriptionResponse>;
 }

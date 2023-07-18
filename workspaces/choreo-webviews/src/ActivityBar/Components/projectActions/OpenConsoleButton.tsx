@@ -15,11 +15,13 @@ import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
 import { ChoreoIcon } from "../../../icons";
+import { useOrgOfCurrentProject } from "../../../hooks/use-org-of-current-project";
 
 export const OpenConsoleButton = () => {
-    const { choreoProject, choreoUrl, selectedOrg } = useChoreoWebViewContext();
+    const { choreoProject, choreoUrl } = useChoreoWebViewContext();
+    const { currentProjectOrg } = useOrgOfCurrentProject();
 
-    const projectURL = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}`;
+    const projectURL = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}`;
 
     const openProjectInChoreoConsole = () => {
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);

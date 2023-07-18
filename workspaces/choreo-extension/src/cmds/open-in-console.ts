@@ -14,25 +14,26 @@ import { ExtensionContext, commands } from "vscode";
 import { openProjectInConsoleCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { getLogger } from "../logger/logger";
-import { choreoAuthConfig } from "../auth/auth";
+import { choreoEnvConfig } from "../auth/auth";
+import { Project } from "@wso2-enterprise/choreo-core";
 
 export function activateOpenInConsoleCmd(context: ExtensionContext) {
-    context.subscriptions.push(commands.registerCommand(openProjectInConsoleCmdId, async (projectId: string) => {
-         const orgHandle = ext.api.selectedOrg?.handle;
-         if (orgHandle) {
-            let targetProject: string|undefined = projectId;
-            if (!targetProject && await ext.api.isChoreoProject()) {
-                targetProject = (await ext.api.getChoreoProject())?.id;
-            }
-            if (!targetProject) {
-                getLogger().error("No project selected");
-                return;
-            }
-            const url = `${choreoAuthConfig.getConsoleUrl()}/organizations/${orgHandle}/projects/${targetProject}`;
-            // open external url
-            commands.executeCommand('vscode.open', url);
-         } else {
-            getLogger().error("No organization selected");
-         }
+    context.subscriptions.push(commands.registerCommand(openProjectInConsoleCmdId, async () => {
+        let targetProject: Project|undefined;
+        if (!targetProject && ext.api.isChoreoProject()) {
+            targetProject = (await ext.api.getChoreoProject());
+        }
+        if (!targetProject) {
+            getLogger().error("No project selected");
+            return;
+        }
+        const org = ext.api.getOrgById(parseInt(targetProject.orgId));
+        if (!org) {
+            getLogger().error("No organization found");
+            return;
+        }
+        const url = `${choreoEnvConfig.getConsoleUrl()}/organizations/${org?.handle}/projects/${targetProject}`;
+        // open external url
+        commands.executeCommand('vscode.open', url);
     }));
 }

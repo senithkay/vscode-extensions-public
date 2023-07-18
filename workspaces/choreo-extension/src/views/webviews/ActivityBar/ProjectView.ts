@@ -14,7 +14,7 @@ import * as vscode from 'vscode';
 import { WebViewViewRPC } from "../rpc/WebviewRPC";
 import { getUri } from '../utils';
 import { ext } from '../../../extensionVariables';
-import { choreoAuthConfig } from '../../../auth/auth';
+import { choreoEnvConfig } from '../../../auth/auth';
 import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
 
 
@@ -87,7 +87,7 @@ export class ProjectView implements vscode.WebviewViewProvider {
 						undefined, // webview will use RPC to get the current project
 						undefined, // webview will use RPC to get the current org
 						${FREE_COMPONENT_LIMIT}, 
-						"${choreoAuthConfig.getConsoleUrl()}"
+						"${choreoEnvConfig.getConsoleUrl()}"
 					);
 				  }
 				  render();

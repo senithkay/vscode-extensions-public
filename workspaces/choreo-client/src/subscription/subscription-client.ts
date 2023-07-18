@@ -21,8 +21,8 @@ export class ChoreoSubscriptionClient implements ISubscriptionClient {
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {  
     }
 
-    private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
+    private async _getClient(orgId: number) {
+        const token = await this._tokenStore.getTokenForOrg(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }
@@ -33,8 +33,8 @@ export class ChoreoSubscriptionClient implements ISubscriptionClient {
         return client;
     }
 
-    async getSubscriptions(orgId: string): Promise<SubscriptionResponse> {
-        const client = await this._getClient();
+    async getSubscriptions(orgId: number): Promise<SubscriptionResponse> {
+        const client = await this._getClient(orgId);
         try {
             const response = await client.get(`/organizations/${orgId}/subscriptions?cloudType=choreo&origin=choreo-console`);
             return response.data as SubscriptionResponse;

@@ -94,7 +94,10 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
             if (!isChoreoProject || !choreoProject) {
                 return [];
             }
-            return ChoreoWebViewAPI.getInstance().getComponents(projectId);
+            return ChoreoWebViewAPI.getInstance().getComponents({
+                projectId: choreoProject.id,
+                orgId: parseInt(choreoProject.orgId)
+            })
         },
         refetchOnWindowFocus: true,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),

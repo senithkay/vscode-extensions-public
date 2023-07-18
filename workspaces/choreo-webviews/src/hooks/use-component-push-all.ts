@@ -19,10 +19,14 @@ import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 export function useComponentPushAll() {
     const queryClient = useQueryClient();
     const { choreoProject } = useChoreoWebViewContext();
-    const { refreshComponents } = useChoreoComponentsContext();
-    const { mutate: handlePushAllComponentsClick, isLoading: pushingAllComponents } = useMutation({
-        mutationFn: (componentNames: string[]) =>
-            ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(choreoProject?.id ?? "", componentNames),
+    const { refreshComponents } = useChoreoComponentsContext()
+    const { mutate: handlePushAllComponentsClick, isLoading: pushingAllComponents } =
+    useMutation({
+        mutationFn: (componentNames: string[]) => ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo({
+            projectId: choreoProject?.id,
+            orgId: parseInt(choreoProject?.orgId),
+            componentNames
+        }),
         onError: (error: Error) => {
             if (error.message) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);

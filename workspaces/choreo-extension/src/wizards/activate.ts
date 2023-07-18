@@ -11,22 +11,21 @@
  *  associated services.
  */
 import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId, choreoProjectOverviewCloseCmdId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoArchitectureViewCmdId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
-import { ProjectOverview } from "../views/webviews/ProjectOverview";
-import { ComponentCreateMode, OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
-import { sendTelemetryEvent } from "../telemetry/utils";
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
 
 export function activateWizards() {
-    const createProjectCmd = commands.registerCommand(createNewProjectCmdId, () => {
+    const createProjectCmd = commands.registerCommand(createNewProjectCmdId, (orgId: string) => {
+        // TODO: Handle multiple project creation scenarios for different orgs
         if (!projectWizard || !projectWizard.getWebview()) {
-            projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation);
+            projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, orgId);
         }
         projectWizard.getWebview()?.reveal();
     });
@@ -68,44 +67,6 @@ export function activateWizards() {
 
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
 
-    // Register Project Overview Wizard
-    const projectOverview = commands.registerCommand(choreoProjectOverview, async (project: Project) => {
-        let selectedProjectId = project ? project?.id : undefined;
-        const isChoreoProject = await ext.api.isChoreoProject();
-        if (!selectedProjectId && isChoreoProject) {
-            const choreoProject = await ext.api.getChoreoProject();
-            if (choreoProject) {
-                selectedProjectId = choreoProject.id;
-                project = choreoProject;
-            }
-        }
-        if (selectedProjectId && !isChoreoProject) {
-            sendTelemetryEvent(OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, { "project": project?.name });
-        } else if (selectedProjectId && isChoreoProject) {
-            const choreoProject = await ext.api.getChoreoProject();
-            const isCurrentProject = choreoProject?.id === selectedProjectId;
-            if (!isCurrentProject) {
-                sendTelemetryEvent(OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, { "project": project?.name });
-            }
-        }
-        if (!selectedProjectId) {
-            return;
-        }
-        ext.api.selectedProjectId = selectedProjectId;
-        const org: Organization | undefined = ext.api.selectedOrg;
-        if (org !== undefined) {
-            ProjectOverview.render(ext.context.extensionUri, project, org);
-        }
-    });
-
-    const projectOverviewClose = commands.registerCommand(choreoProjectOverviewCloseCmdId, () => {
-        if (ProjectOverview.currentPanel) {
-            ProjectOverview.currentPanel.dispose();
-        }
-    });
-
-    ext.context.subscriptions.push(projectOverview);
-    ext.context.subscriptions.push(projectOverviewClose);
 
     // Register Cell Diagram Wizard
     const choreoArchitectureView = commands.registerCommand(choreoArchitectureViewCmdId, (orgName: string, projectId: string) => {

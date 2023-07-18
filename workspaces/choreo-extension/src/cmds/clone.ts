@@ -16,7 +16,6 @@ import path = require('path');
 import { commands, ProgressLocation, Uri, window } from 'vscode';
 import { CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT, CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT, CLONE_NEW_REPO_TO_PROJECT_START_EVENT, CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT, CLONE_PROJECT_CANCEL_EVENT, CLONE_PROJECT_FAILURE_EVENT, CLONE_PROJECT_START_EVENT, CLONE_PROJECT_SUCCESS_EVENT, Component, GitProvider, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem, getChoreoProject } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
-import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
 import { execSync } from 'child_process';
@@ -86,9 +85,9 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
             getLogger().error("Git was not initialized"); 
         }
         if (success) {
-            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT)
+            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT);
         } else {
-            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT)
+            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT);
         }
     });
     return success;
@@ -171,8 +170,8 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
 }
 
 
-async function getProjectRepositories(orgHandle: string, projId: string, orgUuid: string) {
-    const components = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ orgHandle, projId, orgUuid }));
+async function getProjectRepositories(orgId: number, orgHandle: string, projId: string, orgUuid: string) {
+    const components = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getComponents({ orgId, orgHandle, projId, orgUuid }));
     const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
     const repos = components.map((cmp) => cmp.repository);
 
@@ -226,7 +225,7 @@ export const cloneProject = async (project: Project, dirPath = "") => {
         getLogger().debug("Cloning project: " + project.name);
 
         const { id, name: projectName, orgId, branch } = project;
-        const selectedOrg = ext.api.selectedOrg;
+        const selectedOrg = ext.api.getOrgById(parseInt(orgId));
 
         if (selectedOrg) {
             getLogger().debug("getting folder path to clone project: " + project.name);
@@ -250,7 +249,7 @@ export const cloneProject = async (project: Project, dirPath = "") => {
                 getLogger().debug("Starting cloning project: " + project.name);
 
                 progress.report({ message: "Retrieving details on component repositories of project: " + projectName });
-                const { userManagedReposWithoutDuplicates, userManagedComponents, choreoManagedRepos } = await getProjectRepositories(selectedOrg.handle, id, selectedOrg.uuid);
+                const { userManagedReposWithoutDuplicates, userManagedComponents, choreoManagedRepos } = await getProjectRepositories(selectedOrg?.id, selectedOrg.handle, id, selectedOrg.uuid);
 
                 getLogger().debug("Cloning " + userManagedReposWithoutDuplicates.length + " repositories without duplicates");
 
@@ -332,5 +331,3 @@ export const cloneComponentCmd = async (component: Component) => {
     }
 
 };
-
-
