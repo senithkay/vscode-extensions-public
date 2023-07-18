@@ -71,7 +71,7 @@
       },
       {
         "command": "wso2.choreo.project.open",
-        "title": "Change Choreo Project",
+        "title": "Open Choreo Project",
         "category": "Choreo",
         "icon": "$(arrow-swap)"
       },
