@@ -39,7 +39,6 @@ describe('Open ballerina samples in VSCode from URL', () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=18e6c62b7ef307d7064ed4ef39e4d0d8&file=functions.bal';
         await executeURLdownload(driver, url);
-        // expect(existsSync(`${samplesDownloadDirectory}/functions.bal`), "First assert with functions.bal").to.be.true;
 
         // Find the information message boxes for change direcotory
         const changePathBtns = await driver.findElements(By.linkText('Change Directory'));
