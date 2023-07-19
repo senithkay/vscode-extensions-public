@@ -44,7 +44,7 @@ export class CodeLensProviderVisitor implements Visitor {
                 this.supportedServiceTypes.includes(expr.typeDescriptor.modulePrefix.value)) ||
                 (STKindChecker.isSimpleNameReference(expr) &&
                     this.supportedServiceTypes.includes(expr.typeData.typeSymbol.moduleID.moduleName))) {
-                this.createTryItCodeLens(node.position, node.serviceKeyword.position, node.absoluteResourcePath.map((path) => path.value).join());
+                this.createTryItCodeLens(node.position, node.serviceKeyword.position, node.absoluteResourcePath.map((path) => path.value).join(''));
                 this.createVisulizeCodeLens(node.serviceKeyword.position, node.position);
             }
         }
