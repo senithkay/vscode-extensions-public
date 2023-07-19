@@ -11,12 +11,10 @@
  *  associated services.
  */
 import { StatusBarAlignment, window} from "vscode";
-import { choreoProjectOverview } from "./constants";
 import { ext } from "./extensionVariables";
 
 export async function activateStatusBarItem() {
     ext.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
-	ext.statusBarItem.command = choreoProjectOverview;
 	ext.context.subscriptions.push(ext.statusBarItem);
     if (await ext.api.isChoreoProject()) {
         const project = await ext.api.getChoreoProject();
