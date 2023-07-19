@@ -21,7 +21,8 @@ import {
     WorkspaceConfig,
     Component,
     ChoreoComponentType,
-    UserInfo
+    UserInfo,
+    ChoreoWorkspaceMetaData
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { exchangeAuthToken } from "./auth/auth";
@@ -185,6 +186,13 @@ export class ChoreoExtensionApi {
             const orgId = workspaceConfig.metadata?.choreo?.orgId;
             return orgId;
         }
+    }
+
+    public getChoreoWorkspaceMetadata(): ChoreoWorkspaceMetaData {
+        return {
+            projectID: this.getChoreoProjectId(),
+            orgId: this.getOrgIdOfCurrentProject()
+        };
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {

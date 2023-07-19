@@ -31,6 +31,7 @@ const Container = styled.div`
 
 const GridTitleCell = styled(VSCodeDataGridCell)`
     opacity: 0.7;
+    padding-left: 22px;
 `;
 
 export const ComponentDetails = (props: {

@@ -72,6 +72,7 @@ import {
     PushLocalComponentsToChoreoParams,
     SetExpandedComponents,
     GetExpandedComponents,
+    GetChoreoWorkspaceMetadata,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -286,6 +287,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(isChoreoProject, () => {
         return ext.api.isChoreoProject();
+    });
+
+    messenger.onRequest(GetChoreoWorkspaceMetadata, () => {
+        return ext.api.getChoreoWorkspaceMetadata();
     });
 
     messenger.onRequest(getConsoleUrl, () => {

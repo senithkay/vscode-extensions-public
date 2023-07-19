@@ -16,7 +16,7 @@ import styled from "@emotion/styled";
 import { OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentRow } from "./ComponentRow";
-import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { ViewTitle } from "./ViewTitle";
@@ -119,14 +119,13 @@ export const ComponentsCard = () => {
                 <NoComponentsAlert />
                 <ComponentSyncAlert />
                 <ComponentsPushAlert />
-                {components?.map((component, index) => (
+                {components?.map((component) => (
                     <>
                         <ComponentRow
                             component={component}
                             expanded={expandedComponents.includes(component.name)}
                             handleExpandClick={toggleExpandedComponents}
                         />
-                        {index !== components.length - 1 && <VSCodeDivider />}
                     </>
                 ))}
                 {componentLoadError && <div>{componentLoadError}</div>}

@@ -12,7 +12,7 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, BuildStatus, Deployment, Endpoint, UserInfo } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, BuildStatus, Deployment, Endpoint, UserInfo, ChoreoWorkspaceMetaData } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -101,6 +101,7 @@ export const SetExpandedComponents: RequestType<{ projId: string, componentNames
 export const GetExpandedComponents: RequestType<string, string[]> = { method: 'getExpandedComponents' };
 export const CheckProjectDeleted: RequestType<CheckProjectDeletedParams, boolean> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
+export const GetChoreoWorkspaceMetadata: RequestType<void, ChoreoWorkspaceMetaData> = { method: 'getChoreoWorkspaceMetadata' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const ReadEndpointsYaml: RequestType<SubpathAvailableRequest, Endpoint | undefined> = { method: 'readEndpointsYaml' };
 export const OpenBillingPortal: RequestType<string, void> = { method: 'openBillingPortal' };

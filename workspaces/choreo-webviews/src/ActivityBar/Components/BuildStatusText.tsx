@@ -15,7 +15,6 @@ import { BuildStatus as BuildStatusType } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
 
 export const mapBuildStatus = (
@@ -50,8 +49,7 @@ export const BuildStatusText: React.FC<{
     localComponent: boolean;
 }> = (props) => {
     const { buildStatus, handler, loading, localComponent } = props;
-    const { currentProjectOrg } = useOrgOfCurrentProject();
-    const { choreoUrl, choreoProject } = useChoreoWebViewContext();
+    const { choreoUrl, choreoProject, currentProjectOrg } = useChoreoWebViewContext();
 
     const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}/components/${handler}`;
     const componentDeployLink = `${componentBaseUrl}/deploy`;
