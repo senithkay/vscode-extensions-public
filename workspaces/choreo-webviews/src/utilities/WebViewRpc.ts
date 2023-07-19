@@ -90,6 +90,8 @@ import {
     GetComponentsRequestParams,
     SetExpandedComponents,
     GetExpandedComponents,
+    GetChoreoWorkspaceMetadata,
+    ChoreoWorkspaceMetaData,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -205,6 +207,10 @@ export class ChoreoWebViewAPI {
 
     public async isChoreoProject(): Promise<boolean> {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async getChoreoWorkspaceMetadata(): Promise<ChoreoWorkspaceMetaData> {
+        return this._messenger.sendRequest(GetChoreoWorkspaceMetadata, HOST_EXTENSION, undefined);
     }
 
     public async getConsoleUrl(): Promise<string> {

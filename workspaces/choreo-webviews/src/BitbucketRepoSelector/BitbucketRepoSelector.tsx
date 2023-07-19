@@ -16,10 +16,10 @@ import { FilteredCredentialData, Repo, UserRepo } from "@wso2-enterprise/choreo-
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
 import { Codicon } from "../Codicon/Codicon";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 const BBRepoSelectorContainer = styled.div`
     display  : flex;
@@ -79,7 +79,7 @@ export interface GithubRepoSelectorProps {
 export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
 
     const { selectedRepo, onRepoSelect, selectedCred, refreshRepoList } = props;
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useChoreoWebViewContext()
     const [repoDetails, setRepoDetails] = useState<UserRepo[]>([]);
     const [bborgs, setBBorgs] = useState<string[]>([]);
     const [bbrepos, setBBrepos] = useState<string[]>([]);

@@ -10,8 +10,8 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { FC, useContext, useEffect } from "react";
-import { ChoreoLoginStatus, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import React, { FC, useContext, useEffect, useMemo } from "react";
+import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
@@ -24,6 +24,7 @@ export interface IChoreoWebViewContext {
     choreoProject?: Project;
     loadingProject?: boolean;
     choreoUrl: string;
+    currentProjectOrg?: Organization;
 }
 
 const defaultContext: IChoreoWebViewContext = {
@@ -39,18 +40,25 @@ export const useChoreoWebViewContext = () => {
     return useContext(ChoreoWebViewContext);
 };
 
-export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ children, choreoUrl }) => {
+interface Props {
+    choreoUrl?: string;
+    ctxOrgId?: string;
+}
+
+export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, ctxOrgId }) => {
     const queryClient = useQueryClient();
 
     const {
-        data: isChoreoProject = false,
-        error: isChoreoProjectError,
-        isLoading: isChoreoProjectLoading,
+        data: workspaceMetaData = {},
+        error: getChoreoWorkspaceError,
+        isLoading: getChoreoWorkspaceLoading,
     } = useQuery({
-        queryKey: ["is_choreo_project"],
-        queryFn: () => ChoreoWebViewAPI.getInstance().isChoreoProject(),
-        refetchOnWindowFocus: false
+        queryKey: ["choreo_workspace_metadata"],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoWorkspaceMetadata(),
+        refetchOnWindowFocus: false,
     });
+
+    const isChoreoProject = workspaceMetaData?.projectID !== undefined;
 
     const {
         data: loginStatus = "Initializing",
@@ -59,7 +67,6 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
     } = useQuery({
         queryKey: ["choreo_login_status"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
-        refetchOnWindowFocus: false
     });
 
     const {
@@ -71,20 +78,36 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         queryKey: ["choreo_user_info", loginStatus],
         queryFn: () => ChoreoWebViewAPI.getInstance().getUserInfo(),
         enabled: loginStatus === "LoggedIn",
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
     });
-
 
     const {
         data: choreoProject,
         error: choreoProjectError,
         isLoading: choreoProjectLoading,
     } = useQuery({
-        queryKey: ["choreo_project_details", loginStatus, isChoreoProject],
+        queryKey: [
+            "choreo_project_details",
+            loginStatus,
+            isChoreoProject,
+            workspaceMetaData?.projectID,
+            userInfo?.userId,
+        ],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
         enabled: loginStatus === "LoggedIn" && isChoreoProject,
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
     });
+
+    const currentProjectOrg = useMemo(() => {
+        if (userInfo) {
+            if (ctxOrgId) {
+                return userInfo?.organizations.find((org) => org.id.toString() === ctxOrgId?.toString());
+            }
+            if (choreoProject) {
+                return userInfo?.organizations.find((org) => org.id.toString() === choreoProject?.orgId?.toString());
+            }
+        }
+    }, [userInfo, choreoProject, ctxOrgId]);
 
     useEffect(() => {
         const rpcInstance = ChoreoWebViewAPI.getInstance();
@@ -97,10 +120,7 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
         });
     }, []);
 
-    const error = (isChoreoProjectError ||
-        loginStatusError ||
-        userInfoError ||
-        choreoProjectError) as Error;
+    const error = (getChoreoWorkspaceError || loginStatusError || userInfoError || choreoProjectError) as Error;
 
     return (
         <ChoreoWebViewContext.Provider
@@ -112,7 +132,8 @@ export const ChoreoWebViewContextProvider: FC<{ choreoUrl?: string }> = ({ child
                 error,
                 choreoUrl,
                 loginStatusPending: loginStatusLoading || userInfoLoading,
-                loadingProject: isChoreoProjectLoading || (isChoreoProject === true && choreoProjectLoading),
+                loadingProject: getChoreoWorkspaceLoading || (isChoreoProject === true && choreoProjectLoading),
+                currentProjectOrg,
             }}
         >
             {children}

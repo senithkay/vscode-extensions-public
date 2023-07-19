@@ -22,7 +22,6 @@ import { ProjectView } from "./ActivityBar/ProjectView";
 import { AccountView } from "./ActivityBar/AccountView";
 import { ChoreoComponentsContextProvider } from "./context/choreo-components-ctx";
 import { ChoreoWebViewContextProvider } from "./context/choreo-web-view-ctx";
-import { ChoreoProjWizardContextProvider } from "./context/choreo-project-wizard.ctx";
 
 export const Main: React.FC<any> = styled.main`
     display: flex;
@@ -50,10 +49,8 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                             return <ChoreoArchitectureView projectId={projectId} orgName={orgName} />;
                         case "ProjectCreateForm":
                             return (
-                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    <ChoreoProjWizardContextProvider orgId={orgName}>
-                                        <ProjectWizard orgId={orgName} />
-                                    </ChoreoProjWizardContextProvider>
+                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
+                                    <ProjectWizard orgId={orgName} />
                                 </ChoreoWebViewContextProvider>
                             );
                         case "ComponentCreateForm":

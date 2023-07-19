@@ -14,7 +14,6 @@ import styled from "@emotion/styled";
 import React from "react";
 import { ViewTitle } from "../Components/ViewTitle";
 import { ViewHeader } from "../Components/ViewHeader";
-import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { Codicon } from "../../Codicon/Codicon";
@@ -50,8 +49,7 @@ const IconLabel = styled.div`
 `;
 
 export const ProjectDetails = () => {
-    const { choreoProject } = useChoreoWebViewContext();
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { choreoProject, currentProjectOrg } = useChoreoWebViewContext();
 
     const changeProject = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");

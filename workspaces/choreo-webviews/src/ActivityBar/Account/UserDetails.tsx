@@ -17,7 +17,6 @@ import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { ProjectDetails } from "./ProjectDetails";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "../Components/ProgressIndicator";
-import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
 
 const Container = styled.div`
     display: flex;
@@ -34,8 +33,7 @@ const Seperator = styled(VSCodeDivider)`
 `;
 
 export const UserDetails = () => {
-    const { loginStatusPending, choreoProject } = useChoreoWebViewContext();
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { loginStatusPending, choreoProject, currentProjectOrg } = useChoreoWebViewContext();
 
     return (
         <Container>

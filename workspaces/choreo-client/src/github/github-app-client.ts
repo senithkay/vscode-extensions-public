@@ -174,7 +174,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             }
         `;
         try {
-            const client = await this._getClient(Number(choreoOrgId));
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(query);
             return data.userRepos;
         } catch (error) {

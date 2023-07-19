@@ -19,7 +19,6 @@ import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Codicon } from "../Codicon/Codicon";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -67,9 +66,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const { selectedRepo, onRepoSelect } = props;
 
-    const { userInfo } = useChoreoWebViewContext();
-
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { userInfo, currentProjectOrg } = useChoreoWebViewContext();
 
     const { isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching } = useQuery({
         queryKey: [`repoData`, userInfo?.userId],

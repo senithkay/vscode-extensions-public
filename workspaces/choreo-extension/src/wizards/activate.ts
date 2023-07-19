@@ -23,11 +23,10 @@ let componentWizard: WebviewWizard;
 
 export function activateWizards() {
     const createProjectCmd = commands.registerCommand(createNewProjectCmdId, async (orgId: string) => {
-        const selectedOrg = orgId || ext.api.getOrgIdOfCurrentProject();
-        if (selectedOrg) {
+        if (orgId) {
             // TODO: Handle multiple project creation scenarios for different orgs
             if (!projectWizard || !projectWizard.getWebview()) {
-                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, `${selectedOrg}`);
+                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, orgId);
             }
             projectWizard.getWebview()?.reveal();
         } else {
@@ -36,16 +35,8 @@ export function activateWizards() {
                 window.showErrorMessage('Failed to load organizations.');
                 return;
             }
-            const quickPicks: QuickPickItem[] = orgs.map(org => ({
-                label: org.name,
-                description: org.handle,
-            }));
-
-            const options: QuickPickOptions = {
-                canPickMany: false,
-                ignoreFocusOut: true,
-                title: "Select Organization",
-            };
+            const quickPicks: QuickPickItem[] = orgs.map(org => ({ label: org.name, description: org.handle }));
+            const options: QuickPickOptions = { canPickMany: false, ignoreFocusOut: true, title: "Select Organization" };
             const selected = await window.showQuickPick(quickPicks, options);
             if (selected) {
                 const selectedOrgItem = orgs.find(org => org.name === selected.label);
