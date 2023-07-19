@@ -65,6 +65,7 @@ const SubContainer = styled.div`
 `;
 
 const CredContainer = styled.div`
+    padding-top: 10px;
     height: 26px;
 `;
 

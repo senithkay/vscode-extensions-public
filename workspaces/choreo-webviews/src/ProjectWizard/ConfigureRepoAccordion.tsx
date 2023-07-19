@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -22,6 +22,7 @@ import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/githu
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 import { Codicon } from "../Codicon/Codicon";
+import { ProgressIndicator } from "../ActivityBar/Components/ProgressIndicator";
 
 const GhRepoSelectorActions = styled.div`
     display  : flex;
@@ -31,9 +32,8 @@ const GhRepoSelectorActions = styled.div`
 
 const ValidationWrapper = styled.div`
     display  : flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-    min-height: 25px;
+    min-height: 20px;
+    padding: 20px 0;
 `;
 
 const RepoStepWrapper = styled.div`
@@ -93,14 +93,7 @@ const RepoSelectorContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     align-content: space-between;
-    gap: 10px;
-`;
-
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
-    margin-top: auto;
-    padding: 4px;
+    gap: 30px;
 `;
 
 const StepContainer = styled.div`
@@ -125,6 +118,35 @@ const ListWrapper = styled.div`
     justify-content: flex-start;
     align-content: space-between;
     gap: 10px;
+`;
+
+const RepoConfigureStepWrapper = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    // End Flex Props
+    // Sizing Props
+    padding: 20px 20px 0 20px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--vscode-panel-border);
+    cursor: default;
+`;
+
+const RepoConfigureContent = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+`;
+
+const RepoLoader = styled.div`
+    position: relative;
 `;
 
 export interface ConfigureRepoAccordionProps {
@@ -164,6 +186,8 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
 
     const { currentProjectOrg } = useOrgOfCurrentProject();
     const [refreshRepoList, setRefreshRepoList] = useState(false);
+    const [loadingRepos, setLoadingRepos] = useState(false);
+    const [loadingBranches, setLoadingBranches] = useState(false);
 
     useEffect(() => {
         if (selectedGHRepo) {
@@ -232,6 +256,10 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
     }
 
     const bareRepoError = 'Get started by creating a new file or uploading an existing file. We recommend every repository include a README, LICENSE, and .gitignore.';
+    const showProgressBar = validationInProgress || loadingRepos || loadingBranches;
+    const loaderMessage = loadingRepos ? "Loading Repositories..." :
+        loadingBranches ? "Loading Branches..." :
+            validationInProgress ? "Validating Repository..." : "";
 
     return (
         <>
@@ -280,51 +308,53 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                     )}
                 </RepoStepContent>
             </RepoStepWrapper>
-            <RepoStepWrapper>
-                <RepoStepNumber> 2 </RepoStepNumber>
-                <RepoStepContent>
-                    <h3>  Select repository  </h3>
-                    <RepoSubContainer>
-                        <RepoSelectorContainer>
-                            <span>Select the desired repository.</span>
-                            {gitProvider === GitProvider.GITHUB &&
-                                <GithubRepoSelector
-                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
-                                    onRepoSelect={handleRepoSelect}
-                                />}
-                            {gitProvider === GitProvider.BITBUCKET &&
-                                <BitbucketRepoSelector
-                                    selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
-                                    onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
-                                    refreshRepoList={refreshRepoList}
-                                />}
+            <RepoConfigureStepWrapper>
+                <RepoConfigureContent>
+                    <RepoStepNumber> 2 </RepoStepNumber>
+                    <RepoStepContent>
+                        <h3>  Select repository  </h3>
+                        <RepoSubContainer>
+                            <RepoSelectorContainer>
+                                <span>Select the desired repository.</span>
+                                {gitProvider === GitProvider.GITHUB &&
+                                    <GithubRepoSelector
+                                        selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
+                                        onRepoSelect={handleRepoSelect}
+                                        setLoadingRepos={setLoadingRepos}
+                                        setLoadingBranches={setLoadingBranches}
+                                    />}
+                                {gitProvider === GitProvider.BITBUCKET &&
+                                    <BitbucketRepoSelector
+                                        selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
+                                        onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
+                                        refreshRepoList={refreshRepoList}
+                                        setLoadingRepos={setLoadingRepos}
+                                        setLoadingBranches={setLoadingBranches}
+                                    />}
+                            </RepoSelectorContainer>
                             <ValidationWrapper>
-                                {validationInProgress && (
-                                    <>
-                                        <SmallProgressRing />
-                                        <span>Validating repository...</span>
-                                    </>
-
-                                )}
+                                <span>{loaderMessage}</span>
                             </ValidationWrapper>
-
-                        </RepoSelectorContainer>
-                        {isBareRepo && !validationInProgress && (
-                            <>
-                                <ErrorBanner errorMsg={bareRepoError} />
-                                <GhRepoSelectorActions>
-                                    <VSCodeButton onClick={handleRepoInit}>
-                                        Create File
-                                    </VSCodeButton>
-                                    <VSCodeButton onClick={checkBareRepoStatus}>
-                                        Recheck
-                                    </VSCodeButton>
-                                </GhRepoSelectorActions>
-                            </>
-                        )}
-                    </RepoSubContainer>
-                </RepoStepContent>
-            </RepoStepWrapper>
+                            {isBareRepo && !validationInProgress && (
+                                <>
+                                    <ErrorBanner errorMsg={bareRepoError} />
+                                    <GhRepoSelectorActions>
+                                        <VSCodeButton onClick={handleRepoInit}>
+                                            Create File
+                                        </VSCodeButton>
+                                        <VSCodeButton onClick={checkBareRepoStatus}>
+                                            Recheck
+                                        </VSCodeButton>
+                                    </GhRepoSelectorActions>
+                                </>
+                            )}
+                        </RepoSubContainer>
+                    </RepoStepContent>
+                </RepoConfigureContent>
+                <RepoLoader>
+                    {showProgressBar && <ProgressIndicator />}
+                </RepoLoader>
+            </RepoConfigureStepWrapper>
         </>
     );
 }

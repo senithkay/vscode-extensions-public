@@ -11,7 +11,7 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import React from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
@@ -34,19 +34,13 @@ const GhRepoSelectorOrgContainer = styled.div`
     flex-direction: column;
     gap: 5px;
     width: 200px;
+    margin-right: 80px;
 `;
 
 const GhRepoSelectorRepoContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
-`;
-
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
-    margin-top: auto;
-    padding: 4px;
 `;
 
 const RefreshBtn = styled(VSCodeButton)`
@@ -61,11 +55,13 @@ export interface GithubRepoSelectorProps {
         branch: string;
     };
     onRepoSelect: (org?: string, repo?: string, branch?: string) => void;
+    setLoadingRepos: (loading: boolean) => void;
+    setLoadingBranches: (loading: boolean) => void;
 }
 
 export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
-    const { selectedRepo, onRepoSelect } = props;
+    const { selectedRepo, onRepoSelect, setLoadingRepos, setLoadingBranches } = props;
 
     const { choreoProject } = useChoreoWebViewContext();
 
@@ -91,7 +87,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     const handleGhOrgChange = (value: string) => {
         const org = filteredOrgs.find(org => org.orgName === value);
         if (org && org.repositories.length > 0) {
-            onRepoSelect(org.orgName, org.repositories[0]?.name);
+            onRepoSelect(org.orgName, org.repositories[0]?.name, selectedRepo?.branch);
         } else {
             onRepoSelect(org?.orgName);
         }
@@ -105,7 +101,12 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         onRepoSelect(selectedOrg?.orgName, selectedRepo?.repo, value);
     };
 
+    if (selectedOrg) {
+        handleGhOrgChange(selectedOrg.orgName);
+    }
+
     const showLoader = isFetchingRepos || isRefetching;
+    showLoader ? setLoadingRepos(true) : setLoadingRepos(false);
 
     const repos: string[] = selectedOrg && selectedOrg.repositories.sort((a, b) => {
         // Vscode test-runner can't seem to scroll and find the necessary repo
@@ -118,45 +119,41 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     return (
         <>
-            {filteredOrgs && filteredOrgs.length > 0 && (
-                <>
-                    <GhRepoSelectorContainer>
-                        <GhRepoSelectorOrgContainer>
-                            <label htmlFor="org-drop-down">Organization</label>
-                            <AutoComplete 
-                                items={orgs}
-                                selectedItem={selectedRepo?.org}
-                                onChange={handleGhOrgChange}>
-                            </AutoComplete>
-                        </GhRepoSelectorOrgContainer>
-                        <GhRepoSelectorRepoContainer>
-                            <label htmlFor="repo-drop-down">Repository</label>
-                            <AutoComplete
-                                items={repos}
-                                selectedItem={selectedRepo?.repo}
-                                onChange={handleGhRepoChange}>
-                            </AutoComplete>
-                        </GhRepoSelectorRepoContainer>
-                        {!showLoader && <RefreshBtn
-                            appearance="icon"
-                            onClick={() => refetch()}
-                            title="Refresh repository list"
-                            disabled={isRefetching}
-                            id='refresh-repository-btn'
-                        >
-                            <Codicon name="refresh" />
-                        </RefreshBtn>}
-                        {showLoader && <SmallProgressRing />}
-                    </GhRepoSelectorContainer>
-                    <RepoBranchSelector
-                        org={selectedRepo.org}
-                        repo={selectedRepo.repo}
-                        branch={selectedRepo.branch}
-                        onBranchChange={handleGhBranchChange}
-                        credentialID={""}
-                    />
-                </>
-            )}
+            <GhRepoSelectorContainer>
+                <GhRepoSelectorOrgContainer>
+                    <label htmlFor="org-drop-down">Organization</label>
+                    <AutoComplete
+                        items={orgs}
+                        selectedItem={selectedRepo?.org}
+                        onChange={handleGhOrgChange}>
+                    </AutoComplete>
+                </GhRepoSelectorOrgContainer>
+                <GhRepoSelectorRepoContainer>
+                    <label htmlFor="repo-drop-down">Repository</label>
+                    <AutoComplete
+                        items={repos}
+                        selectedItem={selectedRepo?.repo}
+                        onChange={handleGhRepoChange}>
+                    </AutoComplete>
+                </GhRepoSelectorRepoContainer>
+                <RefreshBtn
+                    appearance="icon"
+                    onClick={() => refetch()}
+                    title="Refresh repository list"
+                    disabled={isRefetching}
+                    id='refresh-repository-btn'
+                >
+                    <Codicon name="refresh" />
+                </RefreshBtn>
+            </GhRepoSelectorContainer>
+            <RepoBranchSelector
+                org={selectedRepo.org}
+                repo={selectedRepo.repo}
+                branch={selectedRepo.branch}
+                onBranchChange={handleGhBranchChange}
+                credentialID={""}
+                setLoadingBranches={setLoadingBranches}
+            />
         </>
     );
 }

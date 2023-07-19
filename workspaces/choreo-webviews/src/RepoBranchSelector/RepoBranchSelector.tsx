@@ -13,7 +13,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
@@ -36,12 +36,6 @@ const RefreshBtn = styled(VSCodeButton)`
     margin-top: auto;
     padding: 1px;
 `;
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
-    margin-top: auto;
-    padding: 4px;
-`;
 
 function getDefaultBranch(branches: string[], branch?: string): string {
     if (!branch) {
@@ -61,14 +55,15 @@ export interface RepoBranchSelectorProps {
     branch: string;
     onBranchChange: (branch: string) => void;
     credentialID: string;
+    setLoadingBranches: (loading: boolean) => void;
 }
 
 export function RepoBranchSelector(props: RepoBranchSelectorProps) {
-    const { org, repo, branch, onBranchChange, credentialID } = props;
+    const { org, repo, branch, onBranchChange, credentialID, setLoadingBranches } = props;
     const { currentProjectOrg } = useOrgOfCurrentProject();
     const repoId = `${org}/${repo}`;
 
-    const { isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery(
+    const { isFetching, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery(
         ['branchData', repoId, org, repo],
         async () => {
             try {
@@ -81,7 +76,7 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
             }
         },
         {
-            enabled: !!org && !!repo,
+            enabled: org.length>0 && repo.length>0,
             onSuccess: (repoBranches) => {
                 if (repoBranches) {
                     const defaultBranch = getDefaultBranch(repoBranches, branch);
@@ -95,12 +90,14 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
         onBranchChange(event);
     };
 
+    isFetching ? setLoadingBranches(true) : setLoadingBranches(false);
+
     return (
         <RepoBranchWrapper>
             <label htmlFor="branch-drop-down">Branch</label>
             <BranchSelectorContainer>
                 <AutoComplete items={repoBranches ?? []} selectedItem={branch} onChange={handleBranchChange}></AutoComplete>
-                {!isRefetchingBranches && (<RefreshBtn
+                <RefreshBtn
                     appearance="icon"
                     onClick={() => refetch()}
                     title="Refresh branch list"
@@ -109,9 +106,6 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
                 >
                     <Codicon name="refresh" />
                 </RefreshBtn>
-                )}
-                {isRefetchingBranches && <SmallProgressRing />}
-                {updatingBranchList && org && repo && <span>Updating branch list...</span>}
             </BranchSelectorContainer>
         </RepoBranchWrapper>
 
