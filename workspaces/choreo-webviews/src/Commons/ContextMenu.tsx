@@ -55,11 +55,13 @@ interface Props {
 export const ContextMenu: React.FC<Props> = ({ items }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleClick = () => {
+    const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
         setIsOpen(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
         setIsOpen(false);
     };
 
