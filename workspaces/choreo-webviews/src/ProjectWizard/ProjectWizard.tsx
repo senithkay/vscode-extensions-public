@@ -64,16 +64,12 @@ const SubContainer = styled.div`
     gap: 20px;
 `;
 
-const CredContainer = styled.div`
-    padding-top: 10px;
-    height: 26px;
-`;
-
 const SectionWrapper = styled.div`
     // Flex Props
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    position: relative;
     gap: 10px;
     // End Flex Props
     // Sizing Props
@@ -94,12 +90,12 @@ export interface Region {
     value: string;
 }
 
-const REGIONS: Region[] = [{label: "Cloud Data Plane - US", value: "US"}, {label: "Cloud Data Plane - EU", value: "EU"}];
+const REGIONS: Region[] = [{ label: "Cloud Data Plane - US", value: "US" }, { label: "Cloud Data Plane - EU", value: "EU" }];
 
-export function ProjectWizard(props: { orgId: string}) {
+export function ProjectWizard(props: { orgId: string }) {
 
     const { orgId } = props;
-    const{ currentProjectOrg } = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useOrgOfCurrentProject();
     const { loginStatus, userInfo, loginStatusPending, error } = useChoreoWebViewContext();
 
 
@@ -290,10 +286,8 @@ export function ProjectWizard(props: { orgId: string}) {
                                         />
                                     </CardContainer>
                                 </SubContainer>
-                                <CredContainer>
-                                    {gitProvider === GitProvider.GITHUB && <GithubAutherizer />}
-                                    {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
-                                </CredContainer>
+                                {gitProvider === GitProvider.GITHUB && <GithubAutherizer />}
+                                {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
                             </SectionWrapper>
                         )
                     }
