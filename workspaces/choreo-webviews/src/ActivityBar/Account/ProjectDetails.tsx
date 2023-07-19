@@ -69,11 +69,11 @@ export const ProjectDetails = () => {
             <VSCodeDataGrid aria-label="project">
                 <VSCodeDataGridRow>
                     <GridTitleCell gridColumn="1">Organization</GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">{currentProjectOrg.name}</VSCodeDataGridCell>
+                    <VSCodeDataGridCell gridColumn="2">{currentProjectOrg?.name}</VSCodeDataGridCell>
                 </VSCodeDataGridRow>
                 <VSCodeDataGridRow>
                     <GridTitleCell gridColumn="1">Project</GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">{choreoProject.name}</VSCodeDataGridCell>
+                    <VSCodeDataGridCell gridColumn="2">{choreoProject?.name}</VSCodeDataGridCell>
                 </VSCodeDataGridRow>
             </VSCodeDataGrid>
             <ProjectButtonWrap>

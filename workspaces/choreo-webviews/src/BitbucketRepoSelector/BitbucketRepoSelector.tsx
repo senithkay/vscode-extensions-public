@@ -118,7 +118,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
             let isSelectedRepoAvailable = false;
             const currentOrg = selectedRepo?.org || repoDetails?.[0]?.orgName || '';
             let currentRepo = '';
-            let currentBranch = selectedRepo?.branch || '';
+            const currentBranch = selectedRepo?.branch || '';
 
             if (selectedRepo?.org) {
                 const selectedUserRepos = repoDetails?.filter((repo) => repo.orgName === selectedRepo.org) || [];
