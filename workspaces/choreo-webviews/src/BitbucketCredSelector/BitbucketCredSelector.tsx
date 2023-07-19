@@ -36,6 +36,12 @@ const RefreshBtn = styled(VSCodeButton)`
     padding: 1px;
 `;
 
+const CredSelectorActions = styled.div`
+    display  : flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+`;
+
 export interface BitbucketCredSelectorProps {
     org: Organization;
     selectedCred: FilteredCredentialData;
@@ -96,7 +102,9 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
         <>
             {isFetchingCredentials && <SmallProgressRing />}
             {!isFetchingCredentials && credentials.length === 0 &&
+            <CredSelectorActions>
                 <span>No Credentials available. Please <VSCodeLink onClick={handleConfigureNewCred}>Configure New Credential</VSCodeLink> in bitbucket.</span>
+            </CredSelectorActions>
             }
             {!isFetchingCredentials &&
                 (<>
