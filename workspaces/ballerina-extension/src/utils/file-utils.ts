@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress } from "vscode";
+import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands } from "vscode";
 import axios from "axios";
 import * as fs from 'fs';
 import * as os from 'os';
@@ -57,6 +57,22 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
 
 
     })
+}
+
+export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, repoUrl: string) {
+    try {
+        if (!repoUrl.includes("wso2")) {
+            const errorMsg = `Not a valid repository.`;
+            await window.showWarningMessage(errorMsg);
+            return;
+        }
+        const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
+        const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
+        await commands.executeCommand('git.clone', repoUrl, selectedPath);
+    } catch (error: any) {
+        const errorMsg = `Repository clonning error: ${error.message}`;
+        await window.showErrorMessage(errorMsg);
+    }
 }
 
 async function downloadFile(url, filePath, progressCallback) {
@@ -142,4 +158,20 @@ async function openFileInVSCode(filePath: string): Promise<void> {
     } catch (error) {
         window.showErrorMessage(`Failed to open file: ${error}`);
     }
+}
+
+function getProjectFolderName(repoUrl) {
+    // Remove protocol, domain, and ".git" suffix
+    const path = repoUrl.replace(/^https?:\/\/[^/]+\/|\.git$/g, '');
+
+    // Extract the project folder
+    const folders = path.split('/');
+    const projectFolder = folders[folders.length - 1];
+
+    return projectFolder;
+}
+
+async function openDirectory(directoryPath) {
+    const uri = Uri.file(directoryPath);
+    await commands.executeCommand('vscode.openFolder', uri, false);
 }
