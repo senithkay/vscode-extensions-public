@@ -102,7 +102,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     const handleGhBranchChange = (value: string) => {
-        onRepoSelect(selectedOrg?.orgName, selectedRepo?.repo, value );
+        onRepoSelect(selectedOrg?.orgName, selectedRepo?.repo, value);
     };
 
     const showLoader = isFetchingRepos || isRefetching;
@@ -119,25 +119,35 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     return (
         <>
             {filteredOrgs && filteredOrgs.length > 0 && (
-                <GhRepoSelectorContainer>
-                    <GhRepoSelectorOrgContainer>
-                        <label htmlFor="org-drop-down">Organization</label>
-                        <AutoComplete items={orgs} selectedItem={selectedRepo?.org} onChange={handleGhOrgChange}></AutoComplete>
-                    </GhRepoSelectorOrgContainer>
-                    <GhRepoSelectorRepoContainer>
-                        <label htmlFor="repo-drop-down">Repository</label>
-                        <AutoComplete items={repos} selectedItem={selectedRepo?.repo} onChange={handleGhRepoChange}></AutoComplete>
-                    </GhRepoSelectorRepoContainer>
-                    {!showLoader && <RefreshBtn
-                        appearance="icon"
-                        onClick={() => refetch()}
-                        title="Refresh repository list"
-                        disabled={isRefetching}
-                        id='refresh-repository-btn'
-                    >
-                        <Codicon name="refresh" />
-                    </RefreshBtn>}
-                    {showLoader && <SmallProgressRing />}
+                <>
+                    <GhRepoSelectorContainer>
+                        <GhRepoSelectorOrgContainer>
+                            <label htmlFor="org-drop-down">Organization</label>
+                            <AutoComplete 
+                                items={orgs}
+                                selectedItem={selectedRepo?.org}
+                                onChange={handleGhOrgChange}>
+                            </AutoComplete>
+                        </GhRepoSelectorOrgContainer>
+                        <GhRepoSelectorRepoContainer>
+                            <label htmlFor="repo-drop-down">Repository</label>
+                            <AutoComplete
+                                items={repos}
+                                selectedItem={selectedRepo?.repo}
+                                onChange={handleGhRepoChange}>
+                            </AutoComplete>
+                        </GhRepoSelectorRepoContainer>
+                        {!showLoader && <RefreshBtn
+                            appearance="icon"
+                            onClick={() => refetch()}
+                            title="Refresh repository list"
+                            disabled={isRefetching}
+                            id='refresh-repository-btn'
+                        >
+                            <Codicon name="refresh" />
+                        </RefreshBtn>}
+                        {showLoader && <SmallProgressRing />}
+                    </GhRepoSelectorContainer>
                     <RepoBranchSelector
                         org={selectedRepo.org}
                         repo={selectedRepo.repo}
@@ -145,7 +155,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                         onBranchChange={handleGhBranchChange}
                         credentialID={""}
                     />
-                </GhRepoSelectorContainer>
+                </>
             )}
         </>
     );
