@@ -87,7 +87,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     const handleGhOrgChange = (value: string) => {
         const org = filteredOrgs.find(org => org.orgName === value);
         if (org && org.repositories.length > 0) {
-            onRepoSelect(org.orgName, org.repositories[0]?.name, selectedRepo?.branch);
+            onRepoSelect(org.orgName, !!selectedRepo?.repo ? selectedRepo?.repo : org.repositories[0]?.name, selectedRepo?.branch);
         } else {
             onRepoSelect(org?.orgName);
         }
