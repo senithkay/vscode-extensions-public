@@ -248,8 +248,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return await askProjectDirPath();
     });
 
-    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project, dirPath: string }) => {
-        cloneProject(params.project, params.dirPath );
+    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project, dirPath: string, askOpeningOptions?: boolean }) => {
+        cloneProject(params.project, params.dirPath, params.askOpeningOptions);
     });
 
     messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {

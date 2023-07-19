@@ -175,8 +175,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, params);
     }
 
-    public async cloneChoreoProjectWithDir(project: Project, dirPath: string): Promise<void> {
-        return this._messenger.sendRequest(CloneChoreoProjectWithDir, HOST_EXTENSION, { project, dirPath });
+    public async cloneChoreoProjectWithDir(project: Project, dirPath: string, askOpeningOptions?: boolean): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProjectWithDir, HOST_EXTENSION, { project, dirPath, askOpeningOptions });
     }
 
     public async askProjectDirPath(): Promise<string | undefined> {
