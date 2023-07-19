@@ -117,8 +117,8 @@ function getServiceType(serviceType: string): ServiceTypes {
 function generateClientDecl(targetService: Service, targetType: ServiceTypes, isServiceSource: boolean): string {
     let clientDeclaration: string = `
         @display {
-            label: "${targetService.annotation.label}",
-            id: "${targetService.annotation.id}"
+            label: "${targetService.label}",
+            id: "${targetService.serviceId}"
         }
         ${targetType}:Client ${clientName}${isServiceSource ? '' : ' = check new("")'};
     `;
