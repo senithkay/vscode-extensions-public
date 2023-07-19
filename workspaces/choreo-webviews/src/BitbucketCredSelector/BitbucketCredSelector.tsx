@@ -39,7 +39,7 @@ const RefreshBtn = styled(VSCodeButton)`
 const CredSelectorActions = styled.div`
     display  : flex;
     flex-direction: row;
-    padding: 10px 0;
+    padding: 20px 0;
 `;
 
 export interface BitbucketCredSelectorProps {
