@@ -189,7 +189,7 @@ export function ProjectWizard(props: { orgId: string}) {
                 project: project?.name
             }
         });
-        ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir);
+        ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir, true);
     };
 
     const getRepoString = (): string => {
