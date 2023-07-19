@@ -62,7 +62,7 @@ export const ProjectDetails = () => {
     return (
         <Container>
             <ViewHeader>
-                <ViewTitle>Project Organization</ViewTitle>
+                <ViewTitle>Project Details</ViewTitle>
             </ViewHeader>
             <VSCodeDataGrid aria-label="project">
                 <VSCodeDataGridRow>
