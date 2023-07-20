@@ -8,9 +8,9 @@
  */
 
 import { expect } from 'chai';
-import { existsSync, mkdirSync, readdir, statSync, unlink, rmSync } from 'fs';
+import { existsSync, mkdirSync, rmSync } from 'fs';
 import { before, describe, it } from 'mocha';
-import path, { join } from 'path';
+import { join } from 'path';
 import { By, EditorView, Key, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { wait } from './util';
 
