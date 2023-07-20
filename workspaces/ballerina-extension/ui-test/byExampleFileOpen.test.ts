@@ -24,7 +24,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
     before(async () => {
         // Delete files and folders in this folder
         rmSync(samplesDownloadDirectory, { recursive: true, force: true });
-
+        await wait(2000);
         // Create folder if not present
         if (!existsSync(samplesDownloadDirectory)) {
             mkdirSync(samplesDownloadDirectory);
