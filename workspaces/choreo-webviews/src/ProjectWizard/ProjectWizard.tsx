@@ -343,7 +343,7 @@ export function ProjectWizard(props: { orgId: string }) {
                             Select Directory to Save Project
                         </BrowseBtn>
                         {!!projectDir && <span>{projectDir}</span>}
-                        {!projectDir && <span>Please choose a directory for project workspace {initMonoRepo && <span>The git repositories will be cloned here</span>} </span>}
+                        {!projectDir && <span>Please choose a directory for project workspace. {initMonoRepo && <span>The git repositories will be cloned here</span>} </span>}
                     </SectionWrapper>
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
