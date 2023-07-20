@@ -24,7 +24,7 @@ interface EntityWidgetProps {
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { collapsedMode, selectedNodeId, setHasDiagnostics, setSelectedNodeId } = useContext(DiagramContext);
+    const { collapsedMode, selectedNodeId, setHasDiagnostics, setSelectedNodeId, focusedNodeId, setFocusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
 
@@ -73,16 +73,22 @@ export function EntityWidget(props: EntityWidgetProps) {
         setHasDiagnostics(true);
     }
 
+    const handleOnHeaderWidgetClick = () => {
+        setSelectedNodeId(node.getID());
+        setFocusedNodeId(undefined);
+    }
+
     return (
         <EntityNode
             isAnonymous={node.entityObject.isAnonymous}
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
+            isFocused={node.getID() === focusedNodeId}
         >
             <EntityHeadWidget
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-                onClick={() => { setSelectedNodeId(node.getID()) }}
+                onClick={handleOnHeaderWidgetClick}
                 isCollapsed={isCollapsed}
                 setCollapsedStatus={setCollapsibleStatus}
             />

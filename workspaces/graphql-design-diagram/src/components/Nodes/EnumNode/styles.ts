@@ -16,8 +16,8 @@ interface StyleProps {
 }
 
 export const EnumNode: React.FC<any> = styled.div`
-  background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
-  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+  background-color: ${Colors.SECONDARY};
+  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
   border-radius: 2px !important;
   color: ${Colors.PRIMARY};
   cursor: pointer;

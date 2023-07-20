@@ -12,6 +12,9 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { getComponentName } from "../../utils/common-util";
+
 import { EnumFieldCard } from "./EnumFieldCard/EnumFieldCard";
 import { EnumHeadWidget } from "./EnumHead/EnumHead";
 import { EnumNodeModel } from "./EnumNodeModel";
@@ -24,8 +27,11 @@ interface EnumNodeWidgetProps {
 
 export function EnumNodeWidget(props: EnumNodeWidgetProps) {
     const { node, engine } = props;
+    const { selectedDiagramNode } = useGraphQlContext();
+    const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.enumObject.name;
+
     return (
-        <EnumNode>
+        <EnumNode isSelected={isNodeSelected}>
             <EnumHeadWidget
                 engine={engine}
                 node={node}

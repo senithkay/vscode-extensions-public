@@ -25,7 +25,7 @@ const ANON_RECORD_DISPLAY: string = 'record';
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const { getTypeComposition, currentView, editingEnabled } = useContext(DiagramContext);
+    const { getTypeComposition, currentView, editingEnabled, setFocusedNodeId } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -43,6 +43,13 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
 
     const isClickable = currentView === Views.TYPE;
 
+    const handleOnClickOnEntityName = () => {
+        if (isClickable) {
+            getTypeComposition(node.getID());
+            setFocusedNodeId(undefined);
+        }
+    }
+
     return (
         <CtrlClickGo2Source location={node.entityObject.elementLocation}>
             <EntityHead
@@ -58,7 +65,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                     <EntityName
                         isClickable={isClickable}
                         isAnonymous={node.entityObject.isAnonymous}
-                        onClick={isClickable ? () => { getTypeComposition(node.getID()) } : () => { }}
+                        onClick={handleOnClickOnEntityName}
                     >
                         {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
                     </EntityName>

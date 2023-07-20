@@ -35,6 +35,7 @@
     "@types/lodash.debounce": "^4.0.6",
     "@types/node": "^18.11.19",
     "@types/vscode-webview": "^1.57.0",
+    "@wso2-enterprise/ui-toolkit": "workspace:*",
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "closest": "^0.0.1",
     "dagre": "^0.8.5",

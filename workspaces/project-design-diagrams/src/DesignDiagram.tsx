@@ -74,6 +74,7 @@ export function DesignDiagram(props: DiagramProps) {
     const hasDiagnostics = useRef<boolean>(false);
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
+    const [focusedNodeId, setFocusedNodeId] = useState<string>(undefined);
 
     let diagramBGColor;
     if (consoleView) {
@@ -117,6 +118,7 @@ export function DesignDiagram(props: DiagramProps) {
             hasDiagnostics.current = response.diagnostics.length > 0;
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
+            setFocusedNodeId(undefined);
         });
     };
 
@@ -142,7 +144,9 @@ export function DesignDiagram(props: DiagramProps) {
         showChoreoProjectOverview,
         editLayerAPI,
         deleteComponent,
-        addComponent
+        addComponent,
+        focusedNodeId,
+        setFocusedNodeId
     };
 
     return (

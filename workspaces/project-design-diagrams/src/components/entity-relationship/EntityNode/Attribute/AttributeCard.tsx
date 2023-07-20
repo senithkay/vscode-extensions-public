@@ -26,7 +26,7 @@ interface AttributeProps {
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
-    const { editingEnabled } = useContext(DiagramContext);
+    const { editingEnabled, setFocusedNodeId } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);
@@ -58,6 +58,7 @@ export function AttributeWidget(props: AttributeProps) {
                     <AttributeType
                         isAnonymous={node.entityObject.isAnonymous}
                         isSelected={isSelected || isHovered}
+                        onClick={() => setFocusedNodeId(attribute?.associations[0]?.associate)}
                     >
                         {attributeType}
                     </AttributeType>

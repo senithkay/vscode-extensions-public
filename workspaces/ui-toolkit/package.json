@@ -18,6 +18,11 @@
     "@emotion/styled": "^11.10.5",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
     "@wso2-enterprise/syntax-tree": "workspace:*",
+    "@projectstorm/react-canvas-core": "^6.7.4",
+    "@projectstorm/react-diagrams": "^6.7.4",
+    "@projectstorm/geometry": "^6.7.4",
+    "@projectstorm/react-diagrams-core": "^6.7.4",
+    "@emotion/react": "^11.9.3",
     "classnames": "^2.2.6"
   },
   "devDependencies": {

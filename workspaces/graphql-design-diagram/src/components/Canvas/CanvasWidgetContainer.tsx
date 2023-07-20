@@ -20,7 +20,7 @@ export const Container: React.FC<any> = styled.div`
   height: calc(100vh - ${headerHeight}px);
   background-image: url('${background}');
   background-repeat: repeat;
-  display: ${props => (props.hidden ? 'none' : 'flex')};
+  display: flex;
   font-family: 'GilmerRegular';
 
   > * {

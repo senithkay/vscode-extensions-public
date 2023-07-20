@@ -41,9 +41,13 @@ export const HeaderName: React.FC<any> = styled.span`
   margin-right: 15px;
 `;
 
+interface StyleProps {
+    isSelected?: boolean;
+}
+
 export const NodeContainer: React.FC<any> = styled.div`
   background-color: ${Colors.SECONDARY};
-  border: ${`1px solid ${Colors.PRIMARY}`};
+  border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
   border-bottom-left-radius: 0px;

@@ -12,6 +12,8 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { getComponentName } from "../../utils/common-util";
 import { ServiceNode } from "../GraphqlServiceNode/styles/styles";
 
 import { ServiceClassHeadWidget } from "./ClassHead/ClassHead";
@@ -25,9 +27,12 @@ interface ServiceClassNodeWidgetProps {
 
 export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
     const { node, engine } = props;
+    const { selectedDiagramNode } = useGraphQlContext();
+
+    const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.classObject.serviceName;
 
     return (
-        <ServiceNode>
+        <ServiceNode isSelected={isNodeSelected}>
             <ServiceClassHeadWidget node={node} engine={engine} />
             {node.classObject.functions?.map((classFunction, index) => {
                 return (
