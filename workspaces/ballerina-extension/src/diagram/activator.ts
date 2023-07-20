@@ -9,7 +9,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern, WorkspaceFolder, TextEdit
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern, WorkspaceFolder, TextEdit, TextEditorRevealType, Selection
 } from 'vscode';
 import { render } from './renderer';
 import {
@@ -90,10 +90,10 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 				projectPaths.push(workspaceFolder);
 			}
 		});
-	} else if (workspace && workspace.workspaceFolders) { 
-		projectPaths.push(...workspace.workspaceFolders); 
+	} else if (workspace && workspace.workspaceFolders) {
+		projectPaths.push(...workspace.workspaceFolders);
 	}
-	
+
 
 	if (isCommand) {
 		if (!editor) {
@@ -439,14 +439,24 @@ class DiagramPanel {
 					if (!existsSync(filePath)) {
 						return false;
 					}
-					const showOptions: TextDocumentShowOptions = {
-						preserveFocus: false,
-						preview: false,
-						viewColumn: ViewColumn.Two,
-						selection: new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!)
-					};
-					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
-					return !status ? false : true;
+					workspace.openTextDocument(filePath).then((sourceFile) => {
+						const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
+						if (openedDocument) {
+							const range: Range = new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!);
+							window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter)
+							window.showTextDocument(
+								openedDocument.document,
+								{ preview: false, viewColumn: openedDocument.viewColumn, preserveFocus: false }
+							);
+						} else {
+							window.showTextDocument(sourceFile, { preview: false, preserveFocus: false }).then((textEditor) => {
+								const range: Range = new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!);
+								textEditor.revealRange(range, TextEditorRevealType.InCenter);
+								textEditor.selection = new Selection(range.start, range.start);
+							});
+						}
+					});
+					return true;
 				}
 			},
 			{
