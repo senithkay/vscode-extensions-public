@@ -99,7 +99,9 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     if (!selectedRepo.org) {
-        handleGhOrgChange(selectedOrg.orgName);
+        if (selectedOrg?.orgName) {
+            handleGhOrgChange(selectedOrg.orgName);
+        }
     }
 
     const showLoader = isFetchingRepos || isRefetching;
