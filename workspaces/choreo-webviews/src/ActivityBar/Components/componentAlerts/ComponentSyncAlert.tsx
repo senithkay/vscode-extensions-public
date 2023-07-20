@@ -17,7 +17,7 @@ import { useChoreoComponentsContext } from "../../../context/choreo-components-c
 import { AlertBox } from "../AlertBox";
 
 export const ComponentSyncAlert = () => {
-    const { componentsOutOfSync, hasDirtyLocalComponents, isLoadingComponents } = useChoreoComponentsContext();
+    const { componentsOutOfSync, isLoadingComponents } = useChoreoComponentsContext();
 
     const handleSourceControlClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
@@ -30,11 +30,7 @@ export const ComponentSyncAlert = () => {
         <>
             {!isLoadingComponents && componentsOutOfSync && (
                 <AlertBox
-                    subTitle={`Some components have pending changes that haven't been pushed to the Git repository. ${
-                        hasDirtyLocalComponents
-                            ? "Please commit and push them before pushing to Choreo."
-                            : "Please commit & push them to be visible on Choreo"
-                    }`}
+                    subTitle={`Some components have pending changes that haven't been pushed to your remote Git repository.`}
                     buttonTitle="Open Source Control"
                     iconName="source-control"
                     variant="secondary"

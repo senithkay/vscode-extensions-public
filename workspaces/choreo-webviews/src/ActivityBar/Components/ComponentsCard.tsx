@@ -43,6 +43,7 @@ const Header = styled.div`
     flex-direction: row;
     gap: 2px;
     align-items: center;
+    margin-top: 5px;
 `;
 
 const CodeIconWithMargin = styled(Codicon)`
@@ -81,6 +82,8 @@ export const ComponentsCard = () => {
 
     const componentsView = (
         <Container>
+            <ComponentSyncAlert />
+            <ComponentsPushAlert />
             <Header>
                 <ViewTitle>Components</ViewTitle>
                 <ComponentActionWrap>
@@ -117,8 +120,6 @@ export const ComponentsCard = () => {
             {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
             <Body>
                 <NoComponentsAlert />
-                <ComponentSyncAlert />
-                <ComponentsPushAlert />
                 {components?.map((component) => (
                     <>
                         <ComponentRow

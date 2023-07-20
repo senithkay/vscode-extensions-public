@@ -23,9 +23,9 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--vscode-button-secondaryBackground);
-  margin-bottom: 4px;
-  border-radius: 3px;
+  border: calc(var(--border-width) * 1px) solid var(--vscode-list-inactiveSelectionBackground);
+  margin-bottom: 5px;
+  border-radius: 4px;
 `;
 
 // Header div will lay the items horizontally
@@ -33,15 +33,16 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   gap: 2px;
-  padding: 5px;
+  padding: 6px 5px;
   align-items: center;
   position: relative;
-  background-color: var(--vscode-button-secondaryBackground);
+  background-color: var(--vscode-list-inactiveSelectionBackground);
+  color: var(--vscode-list-inactiveSelectionForeground);
   cursor: pointer;
   user-select: none;
   transition: background-color 0.1s;
   &:hover {
-    background-color: var(--vscode-button-secondaryHoverBackground);
+    background-color: var(--vscode-editor-selectionHighlightBackground);
   }
 `;
 // Body div will lay the items vertically

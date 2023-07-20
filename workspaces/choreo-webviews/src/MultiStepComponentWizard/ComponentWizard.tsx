@@ -108,7 +108,10 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
 
                 await ChoreoWebViewAPI.getInstance().createNonBalComponent(componentParams);
             } else if (implementationType === ChoreoImplementationType.Ballerina) {
-                await projectManager.createLocalComponent(componentParams);
+                const response: any = await projectManager.createLocalComponent(componentParams);
+                if (response.message){
+                    throw new Error(`Failed to create component (${response.message})`);
+                }
             }
         } else {
             if (type === ChoreoComponentType.WebApplication) {
@@ -160,6 +163,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             eventName: CREATE_COMPONENT_FAILURE_EVENT,
             properties: { type: formData?.type?.toString(), mode: formData?.mode, cause: err.message }
         });
+        throw new Error(err)
     }
 };
 
@@ -278,7 +282,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
     if (type === ChoreoComponentType.Service) {
         steps = [ComponentTypeStep, ServiceTypeStep, ComponentDetailsStep, ConfigureRepoStep];
 
-        if (mode === 'fromExisting' && implementationType === ChoreoImplementationType.Docker) {
+        if (implementationType === ChoreoImplementationType.Docker) {
             steps = [...steps, EndpointConfigStep]
         }
     } else if (type === ChoreoComponentType.Webhook) {
