@@ -91,6 +91,14 @@ describe('Open ballerina samples in VSCode from URL', () => {
         const url = 'vscode://wso2.ballerina/open-repo?repoUrl=https://github.com/wso2/choreo-sample-apps';
         await executeURLdownload(driver, url);
         await wait(8000);
+
+        // Find the information message boxes for the file download verification
+        const vscodeVerify = await driver.findElement(By.className('monaco-dialog-box')).findElements(By.linkText('Cancel'));
+        // Iterate over the information message boxes
+        for (const infoNotification of vscodeVerify) {
+            await infoNotification.click();
+        }
+
         expect(existsSync(`${samplesDownloadDirectory}/choreo-sample-apps/README.md`)).to.be.true;
     });
 
