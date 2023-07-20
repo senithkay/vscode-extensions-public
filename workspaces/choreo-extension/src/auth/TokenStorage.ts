@@ -10,9 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { AccessToken, ChoreoTokenType, ITokenStorage } from "@wso2-enterprise/choreo-client";
+import { AccessToken, ITokenStorage } from "@wso2-enterprise/choreo-client";
 import { ExtensionContext } from "vscode";
 import { VSCodeKeychain } from "./VSCodeKeychain";
+import { UserInfo } from "@wso2-enterprise/choreo-core";
 
 export class TokenStorage implements ITokenStorage {
 
@@ -22,32 +23,40 @@ export class TokenStorage implements ITokenStorage {
         this._keyChain = new VSCodeKeychain(_ctx);
     }
 
-    setTokenForOrg(orgId: number, token: AccessToken) {
-        return this.setToken(`choreo.apim.token.org.${orgId}`, token);
+    setToken(orgId: number, token: AccessToken) {
+        return this._setToken(`choreo.apim.token.org.${orgId}`, token);
     }
 
-    deleteTokenForOrg(orgId: number): Promise<void> {
-        return this.deleteToken(`choreo.apim.token.org.${orgId}`);
+    deleteToken(orgId: number): Promise<void> {
+        return this._deleteToken(`choreo.apim.token.org.${orgId}`);
     }
 
-    getTokenForOrg(orgId: number): Promise<AccessToken | undefined> {
-        return this.getToken(`choreo.apim.token.org.${orgId}`);
+    getToken(orgId: number): Promise<AccessToken | undefined> {
+        return this._getToken(`choreo.apim.token.org.${orgId}`);
     }
 
-    async setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void> {
+    public setUser(userInfo: UserInfo): Promise<void> {
+        return this._keyChain.setCurrentUser(userInfo);
+    }
+
+    public getUser(): Promise<UserInfo | undefined> {
+        return this._keyChain.getCurrentUser();
+    }
+
+    private async _setToken(key: string, token: AccessToken): Promise<void> {
         // save to keychain, convert token json to string and encrypt with base64
         const tokenString = JSON.stringify(token);
         const encryptedToken = Buffer.from(tokenString).toString('base64');
-        return this._keyChain.setToken(tokenType, encryptedToken);
+        return this._keyChain.setToken(key, encryptedToken);
         
     }
     
-    async deleteToken(tokenType: ChoreoTokenType): Promise<void> {
-        return this._keyChain.deleteToken(tokenType);
+    private async _deleteToken(key: string): Promise<void> {
+        return this._keyChain.deleteToken(key);
     }
 
-    async getToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
-        const token = await this._keyChain.getToken(tokenType);
+    private async _getToken(key: string): Promise<AccessToken | undefined> {
+        const token = await this._keyChain.getToken(key);
         if (token) {
             const decryptedToken = Buffer.from(token, 'base64').toString();
             return JSON.parse(decryptedToken);

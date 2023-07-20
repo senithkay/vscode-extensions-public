@@ -24,7 +24,6 @@ import {
     UserInfo
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
-import { exchangeAuthToken } from "./auth/auth";
 import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
 
@@ -116,7 +115,7 @@ export class ChoreoExtensionApi {
 
     public async signInWithAuthCode(authCode: string): Promise<void> {
         getLogger().debug("Signin with auth code triggered from ChoreoExtensionApi");
-        return exchangeAuthToken(authCode);
+        return ext.authHandler.exchangeAuthCode(authCode);
     }
 
     public getOrgById(orgId: number): Organization | undefined {

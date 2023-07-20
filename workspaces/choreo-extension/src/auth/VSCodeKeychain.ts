@@ -12,24 +12,26 @@
  */
 import * as vscode from 'vscode';
 import { getLogger } from '../logger/logger';
+import { UserInfo } from '@wso2-enterprise/choreo-core';
 
+const CHOREO_USER_KEY = 'choreo.user';
 export class VSCodeKeychain {
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 	) {}
 
-	async setToken(serviceId: string, token: string): Promise<void> {
+	async setToken(key: string, token: string): Promise<void> {
 		try {
-			return await this.context.secrets.store(serviceId, token);
+			return await this.context.secrets.store(key, token);
 		} catch (e) {
 			// Ignore
 			getLogger().error(`Setting token failed: ${e}`);
 		}
 	}
 
-	async getToken(serviceId: string): Promise<string | null | undefined> {
+	async getToken(key: string): Promise<string | null | undefined> {
 		try {
-			const secret = await this.context.secrets.get(serviceId);
+			const secret = await this.context.secrets.get(key);
 			if (secret && secret !== '[]') {
 				getLogger().trace('Token acquired from secret storage.');
 			}
@@ -41,13 +43,37 @@ export class VSCodeKeychain {
 		}
 	}
 
-	async deleteToken(serviceId: string): Promise<void> {
+	async deleteToken(key: string): Promise<void> {
 		try {
-			return await this.context.secrets.delete(serviceId);
+			return await this.context.secrets.delete(key);
 		} catch (e) {
 			// Ignore
 			getLogger().error(`Deleting token failed: ${e}`);
 			return Promise.resolve(undefined);
 		}
+	}
+
+	async setCurrentUser(user: UserInfo): Promise<void> {
+		try {
+			return await this.context.secrets.store(CHOREO_USER_KEY, JSON.stringify(user));
+		} catch (e) {
+			// Ignore
+			getLogger().error(`Setting current user info failed: ${e}`);
+			return Promise.resolve(undefined);
+		}
+	}
+
+	async getCurrentUser(): Promise<UserInfo | undefined> {
+		try {
+			const userInfo = await this.context.secrets.get(CHOREO_USER_KEY);
+			if (userInfo && userInfo !== '[]') {
+				getLogger().trace('User info acquired from secret storage.');
+				return JSON.parse(userInfo);
+			}
+		} catch (e) {
+			// Ignore
+			getLogger().error(`Getting current user info failed: ${e}`);
+		}
+		return Promise.resolve(undefined);
 	}
 }

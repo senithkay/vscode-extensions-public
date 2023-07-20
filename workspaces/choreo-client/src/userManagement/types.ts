@@ -13,5 +13,5 @@
 import { UserInfo } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoUserManagementClient  {
-    validateUser(): Promise<UserInfo>;
+    validateUser(asgardioToken: string): Promise<UserInfo>;
 }

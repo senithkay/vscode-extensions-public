@@ -12,25 +12,23 @@
  */
 
 import { UserInfo } from "@wso2-enterprise/choreo-core";
-import { IReadOnlyTokenStorage } from "../auth";
 import { IChoreoUserManagementClient } from "./types";
 import { getHttpClient } from "../http-client";
 
 export class ChoreoUserManagementClient implements IChoreoUserManagementClient {
     
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseApiURL: string) {  
+    constructor(private _baseApiURL: string) {  
     }
 
-    private async _getClient() {
-        const token = await this._tokenStore.getToken("asgardio.token");
-        if (!token) {
-            throw new Error('User is not logged in');
+    private async _getClient(asgardioToken: string) {
+        if (!asgardioToken) {
+            throw new Error('Asgardio token is not provided');
         }
-        return getHttpClient(token.accessToken, this._baseApiURL)
+        return getHttpClient(asgardioToken, this._baseApiURL)
     }
 
-    async validateUser(): Promise<UserInfo> {
-        const client = await this._getClient();
+    async validateUser(asgardioToken: string): Promise<UserInfo> {
+        const client = await this._getClient(asgardioToken);
         try {
             const response = await client.get('/validate/user');
             return response.data as UserInfo;
