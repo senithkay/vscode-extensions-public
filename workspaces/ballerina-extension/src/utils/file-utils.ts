@@ -24,6 +24,7 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
     const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
     await updateDirectoryPath(selectedPath);
     const filePath = path.join(selectedPath, fileName);
+    let isSuccess = false;
 
     await window.withProgress({
         location: ProgressLocation.Notification,
@@ -37,12 +38,14 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
         });
 
         try {
-            progress.report({ message: "Verifying the gist file." });
             if (fileName.endsWith('.bal')) {
+                progress.report({ message: "Verifying the gist file." });
                 const response = await axios.get(`https://api.github.com/gists/${gist}`);
                 const gistDetails = response.data;
                 const rawFileLink = gistDetails.files[fileName].raw_url;
                 await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                isSuccess = true;
+                return;
             } else {
                 window.showErrorMessage(`Gist or the file is not valid.`);
                 return;
@@ -52,15 +55,17 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
         }
     });
 
-    const successMsg = `The Ballerina sample file has been downloaded successfully to the following directory: ${filePath}.`;
-    const changePath: MessageItem = { title: 'Change Directory' };
-    openFileInVSCode(filePath);
-    const success = await window.showInformationMessage(
-        successMsg,
-        changePath
-    );
-    if (success === changePath) {
-        await selectFileDownloadPath();
+    if (isSuccess) {
+        const successMsg = `The Ballerina sample file has been downloaded successfully to the following directory: ${filePath}.`;
+        const changePath: MessageItem = { title: 'Change Directory' };
+        openFileInVSCode(filePath);
+        const success = await window.showInformationMessage(
+            successMsg,
+            changePath
+        );
+        if (success === changePath) {
+            await selectFileDownloadPath();
+        }
     }
 }
 
