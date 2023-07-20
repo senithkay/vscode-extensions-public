@@ -291,40 +291,20 @@ export function ResourceBody(props: ResourceBodyProps) {
         return responses;
     }
 
-    // This is added due to the function signature is giving incorrect param list due to following header type param
-    // orders(string? query, @http:Header {name: ""} string? clientId = "")
-    // TODO: Remove this function once it is fixed from lang side.
-    function findAllParams() {
-        const values = model.functionSignature?.parameters;
-        let newParam;
-        if (values && values.length > 0) {
-            for (const [i, param] of values.entries()) {
-                if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
-                    if (param.source.includes("@") && param.source.includes("}")) {
-                        const sourceParams = param.source.split("}");
-                        if (sourceParams.length === 2 && sourceParams[1]) {
-                            const firstParamSource = `${sourceParams[0]}}`;
-                            const secondParamSource = sourceParams[1];
-                            param.source = firstParamSource.trim();
-                            newParam = { ...param };
-                            newParam.source = secondParamSource.trim();
-                            values.push(newParam);
-                        }
-                    }
-                }
-            }
-        }
-        return values;
-    }
-
     async function renderParameters() {
-        const values = findAllParams();
+        const values = model.functionSignature?.parameters;
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
         for (const [i, param] of values.entries()) {
             if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
-                const paramDetails = param.source.split(" ");
-                const recordName = param.source.split(" ")[0];
+                let paramDetails = param.source.split(" ");
+                let annotation = "";
+                if (param.annotations.length > 0) {
+                    annotation = param.annotations[0].source;
+                    const sourceWithoutAnnotation = param.source.replace(annotation, "");
+                    paramDetails = sourceWithoutAnnotation.split(" ");
+                }
+                const recordName = paramDetails[0];
                 let description = paramDetails.length > 0 && paramDetails[1];
                 if (paramDetails.length > 2) {
                     description = paramDetails.slice(1).join(" ");
@@ -342,6 +322,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                 responses.push(
                     <tr key={i} className={classes.signature}>
                         <td>
+                            {annotation && <span className={classes.annotation}>{annotation}</span>}
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>

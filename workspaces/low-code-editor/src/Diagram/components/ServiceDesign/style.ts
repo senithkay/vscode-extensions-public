@@ -226,6 +226,11 @@ export const useStyles = makeStyles(() =>
         },
         gridContainer: {
             marginTop: "5%"
+        },
+        annotation: {
+            display: "block",
+            color: "rgba(0, 0, 0, 0.38)",
+            fontWeight: 400
         }
     }),
 );
