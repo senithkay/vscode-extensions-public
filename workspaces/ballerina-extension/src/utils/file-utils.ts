@@ -19,6 +19,12 @@ interface ProgressMessage {
 }
 
 export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, fileName: string) {
+
+    const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
+    const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
+    await updateDirectoryPath(selectedPath);
+    const filePath = path.join(selectedPath, fileName);
+
     await window.withProgress({
         location: ProgressLocation.Notification,
         title: 'Opening file',
@@ -30,17 +36,13 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
             cancelled = true;
         });
 
-        const gistOwner = "ballerina-github-bot";
-
         try {
             progress.report({ message: "Verifying the gist file." });
             if (fileName.endsWith('.bal')) {
-                const rawFileLink = `https://gist.githubusercontent.com/${gistOwner}/${gist}/raw/${fileName}`;
-                const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
-                const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
-                await updateDirectoryPath(selectedPath);
-                const filePath = path.join(selectedPath, fileName);
-                handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                const response = await axios.get(`https://api.github.com/gists/${gist}`);
+                const gistDetails = response.data;
+                const rawFileLink = gistDetails.files[fileName].raw_url;
+                await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
             } else {
                 window.showErrorMessage(`Gist or the file is not valid.`);
                 return;
@@ -48,9 +50,18 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
         } catch (error) {
             window.showErrorMessage(`The given gist file is not valid.`, error);
         }
+    });
 
-
-    })
+    const successMsg = `The Ballerina sample file has been downloaded successfully to the following directory: ${filePath}.`;
+    const changePath: MessageItem = { title: 'Change Directory' };
+    openFileInVSCode(filePath);
+    const success = await window.showInformationMessage(
+        successMsg,
+        changePath
+    );
+    if (success === changePath) {
+        await selectFileDownloadPath();
+    }
 }
 
 export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, repoUrl: string) {
@@ -125,17 +136,7 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
     } catch (error) {
         window.showErrorMessage(`Failed to download file: ${error}`);
     }
-
-    const successMsg = `The Ballerina sample file has been downloaded successfully to the following directory: ${defaultDownloadsPath}.`;
-    const changePath: MessageItem = { title: 'Change Directory' };
-    openFileInVSCode(defaultDownloadsPath);
-    const success = await window.showInformationMessage(
-        successMsg,
-        changePath
-    );
-    if (success === changePath) {
-        await selectFileDownloadPath();
-    }
+    progress.report({ message: "Download finished" });
 }
 
 
