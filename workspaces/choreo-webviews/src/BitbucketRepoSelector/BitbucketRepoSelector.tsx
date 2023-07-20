@@ -11,7 +11,7 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { FilteredCredentialData, Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ const BBRepoSelectorContainer = styled.div`
     display  : flex;
     flex-wrap: wrap;
     flex-direction: row;
-    gap: 50px;
+    gap: 30px;
     width: "100%";
 `;
 
@@ -33,25 +33,13 @@ const BBRepoSelectorOrgContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
+    margin-right: 80px;
 `;
 
 const BBRepoSelectorRepoContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
-`;
-
-const BBRepoSelectorActions = styled.div`
-    display  : flex;
-    flex-direction: row;
-    gap: 10px;
-`;
-
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
-    margin-top: auto;
-    padding: 4px;
 `;
 
 const RefreshBtn = styled(VSCodeButton)`
@@ -65,7 +53,7 @@ const RepoSelector = styled.div`
     gap: 30px;
 `;
 
-export interface GithubRepoSelectorProps {
+export interface BitbucketRepoSelectorProps {
     selectedCred: FilteredCredentialData;
     selectedRepo?: {
         org: string;
@@ -74,11 +62,13 @@ export interface GithubRepoSelectorProps {
     };
     onRepoSelect: (org?: string, repo?: string, branch?: string) => void;
     refreshRepoList: boolean;
+    setLoadingRepos: (loading: boolean) => void;
+    setLoadingBranches: (loading: boolean) => void;
 }
 
-export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
+export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
 
-    const { selectedRepo, onRepoSelect, selectedCred, refreshRepoList } = props;
+    const { selectedRepo, onRepoSelect, selectedCred, refreshRepoList, setLoadingRepos, setLoadingBranches } = props;
     const { currentProjectOrg } = useChoreoWebViewContext()
     const [repoDetails, setRepoDetails] = useState<UserRepo[]>([]);
     const [bborgs, setBBorgs] = useState<string[]>([]);
@@ -94,7 +84,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         }
     };
 
-    const { refetch, isRefetching } = useQuery({
+    const { isFetching, refetch, isRefetching } = useQuery({
         queryKey: [selectedCred.id],
         queryFn: async () => {
             const userRepos = await useGetRepoData(selectedCred.id || '');
@@ -170,13 +160,13 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         onRepoSelect(selectedRepo?.org, selectedRepo?.repo, value);
     };
 
+    ((isFetching || isRefetching) && selectedCred.id) ? setLoadingRepos(true) : setLoadingRepos(false);
+
     const credentialsAvailable = !!selectedCred.id;
     return (
         <>
-            <BBRepoSelectorActions>
-                {!credentialsAvailable && "Please select a bitbucket credential."}
-            </BBRepoSelectorActions>
-            {bborgs && bborgs.length > 0 && credentialsAvailable && (
+            {!credentialsAvailable && "Please select a bitbucket credential."}
+            {credentialsAvailable && (
                 <>
                     <RepoSelector>
                         <BBRepoSelectorContainer>
@@ -188,17 +178,16 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
                                 <label htmlFor="repo-drop-down">Repository</label>
                                 <AutoComplete items={bbrepos ?? []} selectedItem={selectedRepo?.repo} onChange={handleBBRepoChange}></AutoComplete>
                             </BBRepoSelectorRepoContainer>
+                            <RefreshBtn
+                                appearance="icon"
+                                onClick={() => refetch()}
+                                title="Refresh bitbucket repository list"
+                                disabled={isRefetching}
+                                id='refresh-bb-repository-btn'
+                            >
+                                <Codicon name="refresh" />
+                            </RefreshBtn>
                         </BBRepoSelectorContainer>
-                        {!isRefetching && <RefreshBtn
-                            appearance="icon"
-                            onClick={() => refetch()}
-                            title="Refresh bitbucket repository list"
-                            disabled={isRefetching}
-                            id='refresh-bb-repository-btn'
-                        >
-                            <Codicon name="refresh" />
-                        </RefreshBtn>}
-                        {isRefetching && <SmallProgressRing />}
                     </RepoSelector>
                     <RepoBranchSelector
                         org={selectedRepo.org}
@@ -206,6 +195,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
                         branch={selectedRepo.branch}
                         onBranchChange={handleGhBranchChange}
                         credentialID={selectedCred.id}
+                        setLoadingBranches={setLoadingBranches}
                     />
                 </>
             )}
