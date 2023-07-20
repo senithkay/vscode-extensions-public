@@ -70,13 +70,13 @@ const onDidAcceptProjectList = async (
     const selection = quickPickInstance.selectedItems[0];
 
     // show organization selection quick pick if user selects the first item
-    if (selection?.detail?.includes('Click here to change the organization')) {
+    if (selection?.label?.includes('Change Organization')) {
         await showOrgChangeQuickPick();
         return;
     }
 
     // show project creation wizard if user selects the last item
-    if (selection?.label.includes('Create new')) {
+    if (selection?.label.includes('Create New')) {
         vscode.commands.executeCommand(createNewProjectCmdId);
         return;
     }
@@ -162,11 +162,6 @@ async function getProjectQuickPicks(org: Organization, currentProject?: Project)
     const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle);
     const quickPicks: vscode.QuickPickItem[] = [];
     quickPicks.push({
-        label: 'Showing projects in \'' + org.name + '\' organization',
-        detail: 'Click here to change the organization',
-        alwaysShow: true,
-    });
-    quickPicks.push({
         kind: vscode.QuickPickItemKind.Separator,
         label: 'Projects',
     });
@@ -179,7 +174,7 @@ async function getProjectQuickPicks(org: Organization, currentProject?: Project)
         } else if (location) {
             detail = 'Local copy at ' + path.dirname(location);
         } else {
-            detail = 'Not cloned locally';
+            detail = 'Local copy not found';
         }
         return {
             label: project.name,
@@ -190,10 +185,19 @@ async function getProjectQuickPicks(org: Organization, currentProject?: Project)
     quickPicks.push(...projectItems);
     quickPicks.push({
         kind: vscode.QuickPickItemKind.Separator,
+        label: 'Organization',
+    });
+    quickPicks.push({
+        label: '$(arrow-swap)  Change Organization',
+        detail: 'Currently showing projects in \'' + org.name + '\' organization',
+        alwaysShow: true,
+    });
+    quickPicks.push({
+        kind: vscode.QuickPickItemKind.Separator,
         label: '',
     });
     quickPicks.push({
-        label: '$(add) Create new',
+        label: '$(add)  Create New',
         detail: 'Create and open a new Choreo project',
     });
     return { quickPicks, projects };

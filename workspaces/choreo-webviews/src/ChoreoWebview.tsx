@@ -49,7 +49,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                             return <ChoreoArchitectureView projectId={projectId} orgName={orgName} />;
                         case "ProjectCreateForm":
                             return (
-                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
+                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
                                     <ProjectWizard orgId={orgName} />
                                 </ChoreoWebViewContextProvider>
                             );

@@ -17,7 +17,7 @@ import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@v
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { useQuery } from "@tanstack/react-query";
-import { useOrgOfCurrentProject } from "../../hooks/use-org-of-current-project";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 
 const GhRepoBranhSelectorContainer = styled.div`
     display  : flex;
@@ -57,7 +57,7 @@ export interface GithubRepoBranchSelectorProps {
 
 export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     const { formData, onFormDataChange } = props;
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useChoreoWebViewContext()
     const { org, repo, branch, credentialID } = formData?.repository || {};
     const repoId = `${org}/${repo}`;
 

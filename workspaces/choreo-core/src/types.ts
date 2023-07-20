@@ -482,3 +482,8 @@ export interface GitRepo {
     repoName: string;
     bitbucketCredentialId?: string;
 }
+
+export interface ChoreoWorkspaceMetaData {
+    projectID?: string;
+    orgId?: string | number;
+}

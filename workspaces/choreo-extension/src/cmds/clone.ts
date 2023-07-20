@@ -22,6 +22,7 @@ import { execSync } from 'child_process';
 import { initGit } from '../git/main';
 import { executeWithTaskRetryPrompt } from '../retry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from '../telemetry/utils';
+import * as vscode from 'vscode';
 
 export function checkSSHAccessToGitHub() {
     try {
@@ -207,7 +208,35 @@ function generateWorkspaceItems(userManagedComponents: Component[]) {
     });
 }
 
-export const cloneProject = async (project: Project, dirPath = "") => {
+async function openProject(workspaceFilePath: string, askOpeningOptions?: boolean) {
+    if (askOpeningOptions) {
+        const openInCurrentWorkspace = await vscode.window.showInformationMessage(
+            'Where do you want to open the project?',
+            {
+                modal: true,
+            },
+            'Current Window',
+            'New Window',
+        );
+        if (openInCurrentWorkspace === 'Current Window') {
+            await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceFilePath), {
+                forceNewWindow: false,
+            });
+            await commands.executeCommand("workbench.explorer.fileView.focus");
+        } else if (openInCurrentWorkspace === 'New Window') {
+            await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceFilePath), {
+                forceNewWindow: true,
+            });
+            await commands.executeCommand("workbench.explorer.fileView.focus");
+        }
+    } else {
+        await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
+        await commands.executeCommand("workbench.explorer.fileView.focus");
+    }
+}
+
+export const cloneProject = async (project: Project, dirPath = "",
+                                   askOpeningOptions?: boolean) => {
     sendTelemetryEvent(CLONE_PROJECT_START_EVENT, { project: project?.name });
     await window.withProgress({
         title: `Cloning ${project.name} components to workspace.`,
@@ -284,8 +313,7 @@ export const cloneProject = async (project: Project, dirPath = "") => {
 
                 sendTelemetryEvent(CLONE_PROJECT_SUCCESS_EVENT, { project: project?.name });
                 getLogger().debug("Opening workspace in current window: " + workspaceFilePath);
-                await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
-                await commands.executeCommand("workbench.explorer.fileView.focus");
+                await openProject(workspaceFilePath, askOpeningOptions);
 
                 if (choreoManagedRepos.length > 0) {
                     console.log(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);

@@ -20,8 +20,8 @@ import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSel
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ErrorBanner } from "../Commons/ErrorBanner";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 import { Codicon } from "../Codicon/Codicon";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "../ActivityBar/Components/ProgressIndicator";
 
 const GhRepoSelectorActions = styled.div`
@@ -150,7 +150,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
         setErrorMsg
     } = props;
 
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useChoreoWebViewContext();
     const [refreshRepoList, setRefreshRepoList] = useState(false);
     const [loadingRepos, setLoadingRepos] = useState(false);
     const [loadingBranches, setLoadingBranches] = useState(false);

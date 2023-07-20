@@ -24,7 +24,6 @@ import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
 const WizardContainer = styled.div`
@@ -95,8 +94,7 @@ const REGIONS: Region[] = [{ label: "Cloud Data Plane - US", value: "US" }, { la
 export function ProjectWizard(props: { orgId: string }) {
 
     const { orgId } = props;
-    const { currentProjectOrg } = useOrgOfCurrentProject();
-    const { loginStatus, userInfo, loginStatusPending, error } = useChoreoWebViewContext();
+    const { loginStatus, userInfo, loginStatusPending, error, currentProjectOrg } = useChoreoWebViewContext();
 
 
     const selectedOrg = currentProjectOrg || userInfo?.organizations.find(org => org.id.toString() === orgId);
@@ -186,7 +184,7 @@ export function ProjectWizard(props: { orgId: string }) {
                 project: project?.name
             }
         });
-        ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir);
+        ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir, true);
     };
 
     const getRepoString = (): string => {

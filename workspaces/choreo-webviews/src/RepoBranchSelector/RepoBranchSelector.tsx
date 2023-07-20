@@ -18,7 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../Codicon/Codicon";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 const RepoBranchWrapper = styled.div`
     display  : flex;
@@ -60,7 +60,7 @@ export interface RepoBranchSelectorProps {
 
 export function RepoBranchSelector(props: RepoBranchSelectorProps) {
     const { org, repo, branch, onBranchChange, credentialID, setLoadingBranches } = props;
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useChoreoWebViewContext()
     const repoId = `${org}/${repo}`;
 
     const { isFetching, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery(

@@ -16,10 +16,10 @@ import { FilteredCredentialData, Repo, UserRepo } from "@wso2-enterprise/choreo-
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
 import { Codicon } from "../Codicon/Codicon";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 const BBRepoSelectorContainer = styled.div`
     display  : flex;
@@ -69,7 +69,7 @@ export interface BitbucketRepoSelectorProps {
 export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
 
     const { selectedRepo, onRepoSelect, selectedCred, refreshRepoList, setLoadingRepos, setLoadingBranches } = props;
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useChoreoWebViewContext()
     const [repoDetails, setRepoDetails] = useState<UserRepo[]>([]);
     const [bborgs, setBBorgs] = useState<string[]>([]);
     const [bbrepos, setBBrepos] = useState<string[]>([]);
@@ -109,7 +109,7 @@ export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
             let isSelectedRepoAvailable = false;
             const currentOrg = selectedRepo?.org || repoDetails?.[0]?.orgName || '';
             let currentRepo = '';
-            let currentBranch = selectedRepo?.branch || '';
+            const currentBranch = selectedRepo?.branch || '';
 
             if (selectedRepo?.org) {
                 const selectedUserRepos = repoDetails?.filter((repo) => repo.orgName === selectedRepo.org) || [];
