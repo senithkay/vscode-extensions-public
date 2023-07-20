@@ -244,7 +244,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                             <ListWrapper>
                                 <ListItemWrapper>
                                     <Codicon name="circle-filled" />
-                                    <span>Give Choreo repository permission by installing choreo app. See <VSCodeLink onClick={handleGuideClick}>Installation Guide</VSCodeLink> for more information</span>
+                                    <span>Give repository permissions to Choreo by installing Github Application. See <VSCodeLink onClick={handleGuideClick}>Installation Guide</VSCodeLink> for more information</span>
                                 </ListItemWrapper>
                                 <ListItemWrapper style={{ marginLeft: '25px' }}>
                                     <Codicon name="circle-outline" />
