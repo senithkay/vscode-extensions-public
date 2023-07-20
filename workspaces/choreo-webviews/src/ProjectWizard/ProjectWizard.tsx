@@ -249,7 +249,7 @@ export function ProjectWizard(props: { orgId: string }) {
                 <WizardContainer>
                     <TitleWrapper>
                         <h2>New Choreo Project</h2>
-                        <OrgContainer>Org:   {selectedOrg.name}</OrgContainer>
+                        <OrgContainer>Organization:   {selectedOrg.name}</OrgContainer>
                     </TitleWrapper>
                     <SectionWrapper>
                         <h3>Project Details</h3>
