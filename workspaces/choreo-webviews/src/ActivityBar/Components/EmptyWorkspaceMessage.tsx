@@ -49,7 +49,7 @@ export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) =
                     <div>Please create a new project or open a different project</div>
                 </>
             ) : (
-                <div>You do not have a Choreo project in current the workspace.</div>
+                <div>You do not have a Choreo project in the current the workspace.</div>
             )}
 
             <WideVSCodeButton
