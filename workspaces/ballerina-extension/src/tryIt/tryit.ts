@@ -84,7 +84,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
                                             prompt: "Unable to find running Ballerina services. Please enter the port number of the service",
                                             validateInput: (port) => {
                                                 if (isNaN(Number(port))) {
-                                                    return "Port number should be a number";
+                                                    return "Port should be a number";
                                                 }
                                                 return null;
                                             }
