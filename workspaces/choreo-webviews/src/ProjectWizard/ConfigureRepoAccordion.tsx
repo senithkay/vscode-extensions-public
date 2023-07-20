@@ -187,6 +187,10 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
         }
     }
 
+    const handleGuideClick = async () => {
+        ChoreoWebViewAPI.getInstance().openExternal(`https://wso2.com/choreo/docs/develop-components/deploy-a-containerized-application/#connect-your-repository-to-choreo`);
+    }
+
     const handleRepoRefresh = async () => {
         setRefreshRepoList(!refreshRepoList);
     };
@@ -240,7 +244,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                             <ListWrapper>
                                 <ListItemWrapper>
                                     <Codicon name="circle-filled" />
-                                    <span>Give Choreo permission to read the repository.</span>
+                                    <span>Give repository permissions to Choreo by installing Github Application. See <VSCodeLink onClick={handleGuideClick}>Installation Guide</VSCodeLink> for more information</span>
                                 </ListItemWrapper>
                                 <ListItemWrapper style={{ marginLeft: '25px' }}>
                                     <Codicon name="circle-outline" />
@@ -298,9 +302,9 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                             <>
                                 <ErrorBanner errorMsg={bareRepoError} />
                                 <GhRepoSelectorActions>
-                                    <VSCodeButton onClick={handleRepoInit}>
+                                    <VSCodeLink onClick={handleRepoInit}>
                                         Create File
-                                    </VSCodeButton>
+                                    </VSCodeLink>
                                     <VSCodeButton onClick={checkBareRepoStatus}>
                                         Recheck
                                     </VSCodeButton>

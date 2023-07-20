@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
@@ -84,6 +84,31 @@ const SectionWrapper = styled.div`
         border-color: var(--vscode-focusBorder);
     }
 `;
+
+const TitleWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+`;
+
+const OrgContainer = styled.div`
+    width: fit-content;
+    height: fit-content;
+    padding: 5px;
+    // Border Props
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: transparent;
+    background-color: var(--vscode-welcomePage-tileBackground);
+`;
+
+const BrowseBtn = styled(VSCodeButton)`
+    width: fit-content;
+    padding: 5px;
+`;
+
 export interface Region {
     label: string;
     value: string;
@@ -222,7 +247,10 @@ export function ProjectWizard(props: { orgId: string }) {
             {loginStatus !== "LoggedIn" && <SignIn />}
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
-                    <h2>New Choreo Project</h2>
+                    <TitleWrapper>
+                        <h2>New Choreo Project</h2>
+                        <OrgContainer>Organization:   {selectedOrg.name}</OrgContainer>
+                    </TitleWrapper>
                     <SectionWrapper>
                         <h3>Project Details</h3>
                         <VSCodeTextField
@@ -250,14 +278,14 @@ export function ProjectWizard(props: { orgId: string }) {
                         <SubContainer>
                             <CardContainer>
                                 <ProjectTypeCard
-                                    isMonoRepo={false}
-                                    label="Multi Repository"
+                                    isMonoRepo={true}
+                                    label="Mono Repository"
                                     isCurrentMonoRepo={initMonoRepo}
                                     onChange={handleInitiMonoRepoCheckChange}
                                 />
                                 <ProjectTypeCard
-                                    isMonoRepo={true}
-                                    label="Mono Repository"
+                                    isMonoRepo={false}
+                                    label="Multi Repository"
                                     isCurrentMonoRepo={initMonoRepo}
                                     onChange={handleInitiMonoRepoCheckChange}
                                 />
@@ -311,12 +339,11 @@ export function ProjectWizard(props: { orgId: string }) {
                     }
                     <SectionWrapper>
                         <h3>  Project Location  </h3>
-                        <VSCodeLink>
-                            <i className={`codicon codicon-folder-opened`} style={{ verticalAlign: "bottom", marginRight: "5px" }} />
-                            <span onClick={handleProjecDirSelection}>Browse</span>
-                        </VSCodeLink>
+                        <BrowseBtn onClick={handleProjecDirSelection}>
+                            Select Directory to Save Project
+                        </BrowseBtn>
                         {!!projectDir && <span>{projectDir}</span>}
-                        {!projectDir && <span>Please choose a directory for project workspace. The git repositories will be cloned here</span>}
+                        {!projectDir && <span>Please choose a directory for project workspace. {initMonoRepo && <span>The git repositories will be cloned here</span>} </span>}
                     </SectionWrapper>
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
