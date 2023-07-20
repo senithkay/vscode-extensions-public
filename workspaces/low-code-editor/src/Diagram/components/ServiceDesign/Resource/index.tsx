@@ -291,8 +291,34 @@ export function ResourceBody(props: ResourceBodyProps) {
         return responses;
     }
 
-    async function renderParameters() {
+    // This is added due to the function signature is giving incorrect param list due to following header type param
+    // orders(string? query, @http:Header {name: ""} string? clientId = "") 
+    // TODO: Remove this function once it is fixed from lang side.
+    function findAllParams() {
         const values = model.functionSignature?.parameters;
+        let newParam;
+        if (values && values.length > 0) {
+            for (const [i, param] of values.entries()) {
+                if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
+                    if (param.source.includes("@") && param.source.includes("}")) {
+                        const sourceParams = param.source.split("}");
+                        if (sourceParams.length === 2 && sourceParams[1]) {
+                            const firstParamSource = `${sourceParams[0]}}`;
+                            const secondParamSource = sourceParams[1];
+                            param.source = firstParamSource.trim();
+                            newParam = { ...param };
+                            newParam.source = secondParamSource.trim();
+                            values.push(newParam);
+                        }
+                    }
+                }
+            }
+        }
+        return values;
+    }
+
+    async function renderParameters() {
+        const values = findAllParams();
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
         for (const [i, param] of values.entries()) {
