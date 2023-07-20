@@ -40,7 +40,7 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
                 const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
                 await updateDirectoryPath(selectedPath);
                 const filePath = path.join(selectedPath, fileName);
-                await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                handleDownloadFile(rawFileLink, filePath, progress, cancelled);
             } else {
                 window.showErrorMessage(`Gist or the file is not valid.`);
                 return;
