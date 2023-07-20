@@ -10,7 +10,7 @@ import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult } from "vscode";
 import { BallerinaExtension } from "./core";
 import { getChoreoExtAPI } from "./choreo-features/activate";
-import { handleOpenFile } from "./utils";
+import { handleOpenFile, handleOpenRepo } from "./utils";
 
 export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
     window.registerUriHandler({
@@ -41,6 +41,14 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                         handleOpenFile(ballerinaExtInstance, gistId, fileName);
                     } else {
                         window.showErrorMessage(`Gist ID or the file name not found!`);
+                    }
+                    break;
+                case '/open-repo':
+                    const repoUrl = urlParams.get('repoUrl');
+                    if (repoUrl) {
+                        handleOpenRepo(ballerinaExtInstance, repoUrl);
+                    } else {
+                        window.showErrorMessage(`Repository url not found!`);
                     }
                     break;
             }

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress } from "vscode";
+import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands } from "vscode";
 import axios from "axios";
 import * as fs from 'fs';
 import * as os from 'os';
@@ -34,19 +34,13 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
 
         try {
             progress.report({ message: "Verifying the gist file." });
-            const response = await axios.get(`https://api.github.com/gists/${gist}`);
-
-            const gistDetails = response.data;
-            const responseOwner = gistDetails.owner.login;
-            const validGist = gistOwner === responseOwner;
-
-            if (validGist && fileName.endsWith('.bal')) {
+            if (fileName.endsWith('.bal')) {
                 const rawFileLink = `https://gist.githubusercontent.com/${gistOwner}/${gist}/raw/${fileName}`;
                 const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
                 const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
                 await updateDirectoryPath(selectedPath);
                 const filePath = path.join(selectedPath, fileName);
-                handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
             } else {
                 window.showErrorMessage(`Gist or the file is not valid.`);
                 return;
@@ -57,6 +51,17 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
 
 
     })
+}
+
+export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, repoUrl: string) {
+    try {
+        const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
+        const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
+        await commands.executeCommand('git.clone', repoUrl, selectedPath);
+    } catch (error: any) {
+        const errorMsg = `Repository clonning error: ${error.message}`;
+        await window.showErrorMessage(errorMsg);
+    }
 }
 
 async function downloadFile(url, filePath, progressCallback) {
