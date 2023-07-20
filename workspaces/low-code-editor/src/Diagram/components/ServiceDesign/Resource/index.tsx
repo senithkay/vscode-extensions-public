@@ -292,7 +292,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     }
 
     // This is added due to the function signature is giving incorrect param list due to following header type param
-    // orders(string? query, @http:Header {name: ""} string? clientId = "") 
+    // orders(string? query, @http:Header {name: ""} string? clientId = "")
     // TODO: Remove this function once it is fixed from lang side.
     function findAllParams() {
         const values = model.functionSignature?.parameters;
