@@ -23,6 +23,10 @@ const DisabledVSCodeLink = styled.div`
   opacity: 0.5;
 `;
 
+const LinkWithNoMargin = styled(VSCodeLink)`
+    margin: -1px;
+`;
+
 export const ComponentDetailActions: React.FC<{
     component: Component;
     handleSourceControlClick: () => void;
@@ -45,16 +49,16 @@ export const ComponentDetailActions: React.FC<{
     return (
         <>
             {visibleAction === "sync" && (
-                <VSCodeLink onClick={handleSourceControlClick} title="Open source control view & sync changes">
+                <LinkWithNoMargin onClick={handleSourceControlClick} title="Open source control view & sync changes">
                     Commit & Push
-                </VSCodeLink>
+                </LinkWithNoMargin>
             )}
             {visibleAction === "pull" && (
                 <>
                     {loading || isPulling ? (
                         <DisabledVSCodeLink>{isPulling ? "Pulling..." : "Pull Component"}</DisabledVSCodeLink>
                     ) : (
-                        <VSCodeLink
+                        <LinkWithNoMargin
                             title="Pull code from remote repository"
                             onClick={() => {
                                 pullComponent({
@@ -65,7 +69,7 @@ export const ComponentDetailActions: React.FC<{
                             }}
                         >
                             Pull Component
-                        </VSCodeLink>
+                        </LinkWithNoMargin>
                     )}
                 </>
             )}
@@ -74,14 +78,14 @@ export const ComponentDetailActions: React.FC<{
                     {loading || pushingSingleComponent ? (
                         <DisabledVSCodeLink>{pushingSingleComponent ? "Pushing..." : "Push to Choreo"}</DisabledVSCodeLink>
                     ) : (
-                        <VSCodeLink
+                        <LinkWithNoMargin
                             onClick={() => {
                                 handlePushComponentClick(component.name);
                             }}
                             title="Push component to Choreo"
                         >
                             Push to Choreo
-                        </VSCodeLink>
+                        </LinkWithNoMargin>
                     )}
                 </>
             )}
