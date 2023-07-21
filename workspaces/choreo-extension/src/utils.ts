@@ -13,31 +13,33 @@
 
 import { ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
+import {ProjectRegistry} from "./registry/project-registry";
 
-export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
-    isLocal: boolean, accessibility?: string): boolean {
+export async function enrichDeploymentData(orgId: string, componentId: string, pkgServices: Map<string, Service>,
+                                           apiVersions: ApiVersion[], componentLocation: string): Promise<boolean> {
     const services = [...pkgServices.values()];
-    const componentServices = services.filter((service) => service.elementLocation?.filePath.includes(componentLocation));
+    const componentServices = services.filter((service) =>
+        service.elementLocation?.filePath.includes(componentLocation)
+    );
     for (const service of componentServices) {
         let isInternetExposed = false;
         let isIntranetExposed = false;
-        if (!isLocal && apiVersions.length > 0) {
-            apiVersions.forEach((version: ApiVersion) => {
-                if (version.accessibility === "internal") {
+        if (apiVersions.length > 0) {
+            for (const version of apiVersions) {
+                const epData = await ProjectRegistry.getInstance().getEndpointsForVersion(
+                    componentId, version.id, parseInt(orgId)
+                );
+                // Extracting the visibility of the last endpoint
+                const visibility = epData?.componentEndpoints[epData?.componentEndpoints.length - 1]?.visibility;
+                if (visibility === "Organization") {
                     isIntranetExposed = true;
                 }
-                if (version.accessibility === "external") {
+                if (visibility === "Public") {
                     isInternetExposed = true;
                 }
-            });
-        } else if (isLocal) {
-            if (accessibility === "internal") {
-                isIntranetExposed = true;
-            }
-            if (accessibility === "external") {
-                isInternetExposed = true;
             }
         }
+
         service.deploymentMetadata = {
             gateways: {
                 internet: {

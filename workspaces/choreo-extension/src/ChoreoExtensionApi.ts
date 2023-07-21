@@ -22,7 +22,8 @@ import {
     Component,
     ChoreoComponentType,
     UserInfo,
-    ChoreoWorkspaceMetaData
+    ChoreoWorkspaceMetaData,
+    EndpointData,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { exchangeAuthToken } from "./auth/auth";
@@ -256,7 +257,8 @@ export class ChoreoExtensionApi {
                         organization.id,
                         organization.handle, organization.uuid);
 
-                    choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
+                    for (const choreoComponent of choreoComponents || []) {
+                        const { name, displayType, id, accessibility, apiVersions, local } = choreoComponent;
                         const wsConfig = workspaceFileConfig.folders.find(component =>
                             component.name === name || makeURLSafe(component.name) === name
                         );
@@ -267,14 +269,15 @@ export class ChoreoExtensionApi {
                                     (displayType === ChoreoComponentType.ScheduledTask.toString() || displayType === ChoreoComponentType.ManualTrigger.toString())) {
                                         localModel.functionEntryPoint.type = displayType as any;
                                 }
-                                const response = enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                    componentPath, local, accessibility);
-                                if (response === true) {
+                                const response = await enrichDeploymentData(orgId, id,
+                                    new Map(Object.entries(localModel.services)), apiVersions, componentPath
+                                );
+                                if (response) {
                                     break;
                                 }
                             }
                         }
-                    });
+                    };
                 }
             }
         }
