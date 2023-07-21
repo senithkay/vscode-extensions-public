@@ -159,7 +159,7 @@ async function showOrgChangeQuickPick() {
 }
 
 async function getProjectQuickPicks(org: Organization, currentProject?: Project) {
-    const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle);
+    const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle, true);
     const quickPicks: vscode.QuickPickItem[] = [];
     quickPicks.push({
         kind: vscode.QuickPickItemKind.Separator,
