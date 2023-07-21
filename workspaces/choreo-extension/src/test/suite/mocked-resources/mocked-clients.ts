@@ -14,7 +14,7 @@
 import { randomUUID } from "crypto";
 import { join } from "path";
 import {
-    AccessToken, ChoreoTokenType, ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetComponentDeploymentStatusParams,
+    AccessToken, ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetComponentDeploymentStatusParams,
     GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams, GetComponentBuildStatusParams
 } from "@wso2-enterprise/choreo-client";
 import { BuildStatus, Component, ComponentCount, Deployment, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
@@ -55,13 +55,13 @@ export class MockKeyChainTokenStorage implements ITokenStorage {
     
     private _choreoLoginTime: string = new Date().toISOString();
 
-    async setToken(tokenType: ChoreoTokenType, _token: AccessToken): Promise<void> {
-        console.log(`Set ${tokenType} token.`);
+    async setToken(orgId: number, _token: AccessToken): Promise<void> {
+        console.log(`Set ${orgId} token.`);
     }
-    async deleteToken(tokenType: ChoreoTokenType): Promise<void> {
-        console.log(`Deleted ${tokenType} token.`);
+    async deleteToken(orgId: number): Promise<void> {
+        console.log(`Deleted ${orgId} token.`);
     }
-    async getToken(_tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
+    async getToken(orgId: number): Promise<AccessToken | undefined> {
         return {
             accessToken: randomUUID(),
             loginTime: this._choreoLoginTime,
@@ -78,13 +78,13 @@ export class MockKeyChainTokenStorage implements ITokenStorage {
         };
     }
     async setTokenForOrg(orgId: number, token: AccessToken): Promise<void> {
-        return this.setToken(`choreo.apim.token.org.${orgId}`, token);
+        return this.setToken(orgId, token);
     }
     async deleteTokenForOrg(orgId: number): Promise<void> {
-        return this.deleteToken(`choreo.apim.token.org.${orgId}`);
+        return this.deleteToken(orgId);
     }
     async getTokenForOrg(orgId: number): Promise<AccessToken | undefined> {
-        return this.getToken(`choreo.apim.token.org.${orgId}`);
+        return this.getToken(orgId);
     }
 }
 

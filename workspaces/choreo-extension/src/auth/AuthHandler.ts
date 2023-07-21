@@ -65,8 +65,6 @@ export class AuthHandler {
         if (!authCode) {
             throw new Error("Auth code is not provided.");
         } else {
-            // // To bypass the self signed server error.
-            // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
             try {
                 var currentTime = Date.now();
                 const response = await this._authClient.exchangeAuthCode(authCode);
