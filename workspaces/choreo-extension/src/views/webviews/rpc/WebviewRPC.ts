@@ -359,12 +359,13 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         ext.api.projectUpdated();
     });
 
-    messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<void> {
+    messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<string[]> {
         const { orgId, projectId, componentNames } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
+            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
         }
+        return [];
     });
 
     messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string, componentName: string }): Promise<void> => {

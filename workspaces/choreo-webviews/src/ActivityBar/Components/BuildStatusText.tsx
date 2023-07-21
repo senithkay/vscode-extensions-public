@@ -16,30 +16,30 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
-
-export const mapBuildStatus = (
-    status: string,
-    conclusion: string | null,
-): { text: string; color: string; } => {
-    switch (status) {
-        case 'started':
-            return { text: "Started", color: '--vscode-charts-green' };
-        case 'completed':
-            if (conclusion === 'success') {
-                return { text: "Success", color: '--vscode-charts-green' };
-            }
-            return { text: "Failed", color: '--vscode-errorForeground' };
-        case 'Partially completed':
-            return { text: "Partially Completed", color: '--vscode-charts-green' };
-        case 'in_progress':
-            return { text: "In Progress", color: '--vscode-charts-orange' };
-        case 'failed':
-            return { text: "Failed", color: '--vscode-errorForeground' };
-        case 'queued':
-            return { text: "Queued", color: '--vscode-foreground' };
-        default:
-            return { text: "In Progress", color: '--vscode-charts-orange' };
+export const mapBuildStatus = (buildStatus: BuildStatusType): { text: string; color: string } => {
+    if (buildStatus) {
+        const { status, conclusion } = buildStatus;
+        switch (status) {
+            case "started":
+                return { text: "Started", color: "--vscode-charts-green" };
+            case "completed":
+                if (conclusion === "success") {
+                    return { text: "Success", color: "--vscode-charts-green" };
+                }
+                return { text: "Failed", color: "--vscode-errorForeground" };
+            case "Partially completed":
+                return { text: "Partially Completed", color: "--vscode-charts-green" };
+            case "in_progress":
+                return { text: "In Progress", color: "--vscode-charts-orange" };
+            case "failed":
+                return { text: "Failed", color: "--vscode-errorForeground" };
+            case "queued":
+                return { text: "Queued", color: "--vscode-foreground" };
+            default:
+                return { text: "In Progress", color: "--vscode-charts-orange" };
+        }
     }
+    return { text: "Not Built", color: "--vscode-foreground" };
 };
 
 export const BuildStatusText: React.FC<{
@@ -58,7 +58,7 @@ export const BuildStatusText: React.FC<{
         ChoreoWebViewAPI.getInstance().openExternal(componentDeployLink);
     }, [componentBaseUrl]);
 
-    const buildStatusMappedValue = buildStatus && mapBuildStatus(buildStatus?.status, buildStatus?.conclusion as string);
+    const buildStatusMappedValue = mapBuildStatus(buildStatus);
 
     return (
         <>
@@ -67,16 +67,9 @@ export const BuildStatusText: React.FC<{
             ) : loading ? (
                 "Loading..."
             ) : (
-                <>
-                    {buildStatusMappedValue && (
-                        <>
-                            <VSCodeLink onClick={openBuildInfoInConsole} style={{ color: buildStatusMappedValue.color }}>
-                                {buildStatusMappedValue.text}
-                            </VSCodeLink>
-                        </>
-                    )}
-                    {!buildStatusMappedValue && <div>N/A</div>}
-                </>
+                <VSCodeLink onClick={openBuildInfoInConsole} style={{ color: `var(${buildStatusMappedValue?.color})` }}>
+                    {buildStatusMappedValue?.text ?? "N/A"}
+                </VSCodeLink>
             )}
         </>
     );
