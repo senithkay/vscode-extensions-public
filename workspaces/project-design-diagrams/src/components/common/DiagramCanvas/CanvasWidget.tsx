@@ -218,7 +218,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     onClick={type === Views.TYPE ? handleCanvasClick : undefined}
                 >
                     <Suspense fallback={<CircularProgress data-testid="canvas-loader" />} >
-                        {(type === Views.TYPE && (currentView === type)) ?
+                        {(type === Views.TYPE && currentView === type) ?
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramEngine}
                                 className={diagramClass}
