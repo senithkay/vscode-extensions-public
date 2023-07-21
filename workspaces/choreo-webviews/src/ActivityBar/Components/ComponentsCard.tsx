@@ -121,13 +121,12 @@ export const ComponentsCard = () => {
             <Body>
                 <NoComponentsAlert />
                 {components?.map((component) => (
-                    <>
-                        <ComponentRow
-                            component={component}
-                            expanded={expandedComponents.includes(component.name)}
-                            handleExpandClick={toggleExpandedComponents}
-                        />
-                    </>
+                    <ComponentRow
+                        key={component.name}
+                        component={component}
+                        expanded={expandedComponents.includes(component.name)}
+                        handleExpandClick={toggleExpandedComponents}
+                    />
                 ))}
                 {componentLoadError && <div>{componentLoadError}</div>}
             </Body>
