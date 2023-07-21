@@ -23,7 +23,9 @@ export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProp
 
     useEffect(() => {
         if (focusedNode) {
-            focusToNode(focusedNode, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+            setTimeout(() => {
+                focusToNode(focusedNode, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+            }, 300);
         }
     }, [focusedNode]);
 

@@ -20,13 +20,10 @@ interface RestrictedControlsProps {
 
 export function RestrictedControls(props: RestrictedControlsProps) {
     const { previousScreen } = props;
-    const { setCurrentView, setFocusedNodeId, focusedNodeId } = useContext(DiagramContext);
+    const { setCurrentView } = useContext(DiagramContext);
 
     const goBack = () => {
         setCurrentView(previousScreen);
-        if (focusedNodeId) {
-            setFocusedNodeId(undefined);
-        }
     }
 
     return (
