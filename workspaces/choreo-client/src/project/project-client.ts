@@ -11,7 +11,16 @@
  *  associated services.
  */
 import { GraphQLClient } from 'graphql-request';
-import { Component, Project, Repository, Environment, Deployment, BuildStatus, ProjectDeleteResponse } from "@wso2-enterprise/choreo-core";
+import {
+    Component,
+    Project,
+    Repository,
+    Environment,
+    Deployment,
+    BuildStatus,
+    ProjectDeleteResponse,
+    EndpointData
+} from "@wso2-enterprise/choreo-core";
 import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams, PerformanceForecastDataRequest, GetSwaggerExamplesRequest } from "./types";
 import {
     getRepoMetadataQuery,
@@ -21,6 +30,7 @@ import {
     getComponentsByProjectIdQuery,
     getComponentsWithCellDiagramQuery,
     getDeleteComponentQuery,
+    getEndpointsForVersion,
     getProjectsByOrgIdQuery,
 } from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation, getCreateWebAppBYOCComponentMutation } from './project-mutations';
@@ -266,6 +276,17 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             return data.components;
         } catch (error) {
             throw new Error("Error while fetching components.", { cause: error });
+        }
+    }
+
+    async getEndpointData(componentId: string, version: string, orgId: number): Promise<EndpointData | null> {
+        const query = getEndpointsForVersion(componentId, version);
+        try {
+            const client = await this._getClient(orgId);
+            return await client.request(query);
+        } catch (error) {
+            // throw new Error("Error while fetching endpoint data.", { cause: error });
+            return null;
         }
     }
 

@@ -12,7 +12,26 @@
  */
 
 import { choreoEnvConfig, getConsoleUrl } from "../auth/auth";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType, GitRepo, GitProvider, Endpoint } from "@wso2-enterprise/choreo-core";
+import {
+    BYOCRepositoryDetails,
+    ChoreoComponentCreationParams,
+    Component,
+    ComponentCount,
+    Environment,
+    getLocalComponentDirMetaDataRes,
+    getLocalComponentDirMetaDataRequest,
+    Organization,
+    Project,
+    PushedComponent,
+    serializeError,
+    WorkspaceComponentMetadata,
+    ChoreoServiceType,
+    ComponentDisplayType,
+    GitRepo,
+    GitProvider,
+    Endpoint,
+    getEndpointsForVersion, EndpointData
+} from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -485,6 +504,10 @@ export class ProjectRegistry {
 
     async getDiagramModel(projId: string, orgId: number, orgHandle: string): Promise<Component[]> {
         return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getDiagramModel({ projId, orgHandle, orgId }));
+    }
+
+    async getEndpointsForVersion(componentId: string, version: string, orgId: number): Promise<EndpointData | null> {
+        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getEndpointData(componentId, version, orgId));
     }
 
     async getPerformanceForecast(orgId: number, orgHandle: string, data: string): Promise<AxiosResponse> {
