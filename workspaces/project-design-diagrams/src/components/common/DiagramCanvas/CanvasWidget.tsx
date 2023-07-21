@@ -215,10 +215,10 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 <div
                     onMouseDown={type === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
                     onMouseUp={type === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
-                    onClick={type === Views.TYPE || type === Views.TYPE_COMPOSITION ? handleCanvasClick : undefined}
+                    onClick={type === Views.TYPE ? handleCanvasClick : undefined}
                 >
                     <Suspense fallback={<CircularProgress data-testid="canvas-loader" />} >
-                        {(type === Views.TYPE || type === Views.TYPE_COMPOSITION) && (currentView === type) ?
+                        {(type === Views.TYPE && (currentView === type)) ?
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramEngine}
                                 className={diagramClass}
