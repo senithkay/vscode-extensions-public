@@ -14,6 +14,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { Separator } from './Separator'
 
 const Container = styled.div`
     display: flex;
@@ -26,7 +27,7 @@ const Container = styled.div`
 const WideVSCodeButton = styled(VSCodeButton)`
     width: 100%;
     max-width: 300px;
-    margin: 15px;
+    margin: 10px 0;
 `;
 
 
@@ -45,25 +46,24 @@ export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) =
             {props.projectUnavailable ? (
                 <>
                     <div>This project is not available in Choreo.</div>
-                    <div>Please create a new project or switch to a different project</div>
+                    <div>Please create a new project or open a different project</div>
                 </>
             ) : (
-                <div>You do not have a Choreo project in current workspace.</div>
+                <div>You do not have a Choreo project in the current the workspace.</div>
             )}
 
             <WideVSCodeButton
                 appearance="primary"
                 onClick={openChoreoProject}
             >
-                Open a Choreo Project
+                Open Project
             </WideVSCodeButton>
-            <div>You can open the Project in a new window or in current window.</div>
-            <div>You can also create a new Choreo Project by clicking the button below.</div>
+            <Separator text="OR"/>
             <WideVSCodeButton
                 appearance="primary"
                 onClick={createChoreoProject}
             >
-                Create Choreo Project
+                Create Project
             </WideVSCodeButton>
         </Container>
     );

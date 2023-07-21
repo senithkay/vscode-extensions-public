@@ -176,10 +176,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
-        const { orgHandler } = params.component;
+        const { orgHandler, name } = params.component;
         const org = ext.api.getOrgByHandle(orgHandler);
         if (org) {
-            const answer = await vscode.window.showInformationMessage("Are you sure you want to remove the component? This action will be irreversible and all related details will be lost.", "Delete Component", "Cancel");
+            const answer = await vscode.window.showInformationMessage(`Are you sure you want to delete the component ${name}? `,
+                { modal: true },
+                "Delete Component");
             if (answer === "Delete Component") {
                 await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
                 return params.component;

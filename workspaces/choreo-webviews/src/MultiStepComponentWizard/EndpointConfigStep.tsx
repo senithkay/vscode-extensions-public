@@ -119,7 +119,7 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
                     </>
                 )}
 
-                {formData?.serviceType === ChoreoServiceType.RestApi && <VSCodeTextField
+                {formData.mode === 'fromExisting' && formData?.serviceType === ChoreoServiceType.RestApi && <VSCodeTextField
                     placeholder=""
                     onInput={(e: any) => setOpenApiFilePath(e.target.value)}
                     value={repository?.openApiFilePath}

@@ -66,8 +66,10 @@ export const ComponentContextMenu = (props: {
         ChoreoWebViewAPI.getInstance().openExternal(gitUrl);
     };
 
-    const menuItems: MenuItem[] = [
-        {
+    const menuItems: MenuItem[] = [];
+
+    if (!component.local) {
+        menuItems.push({
             id: "github-remote",
             label: (
                 <>
@@ -78,8 +80,8 @@ export const ComponentContextMenu = (props: {
                 </>
             ),
             onClick: () => onOpenRepo(),
-        },
-    ];
+        });
+    }
     if (!component.local) {
         menuItems.push({
             id: "choreo-console",
@@ -104,5 +106,5 @@ export const ComponentContextMenu = (props: {
         disabled: deletingComponent,
     });
 
-    return <ContextMenu items={menuItems}></ContextMenu>;
+    return <ContextMenu items={menuItems} loading={deletingComponent}></ContextMenu>;
 };

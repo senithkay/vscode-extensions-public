@@ -10,24 +10,37 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useMemo } from "react";
 import { useChoreoComponentsContext } from "../../../context/choreo-components-ctx";
 import { useComponentPushAll } from "../../../hooks/use-component-push-all";
 import { AlertBox } from "../AlertBox";
 
 export const ComponentsPushAlert = () => {
-    const { hasPushableComponents, isLoadingComponents, pushableComponents } = useChoreoComponentsContext();
+    const { isLoadingComponents, localComponents, hasLocalComponents } = useChoreoComponentsContext();
     const { handlePushAllComponentsClick, pushingAllComponents } = useComponentPushAll();
+    const dirtyLocalComponents = useMemo(() => {
+        return localComponents?.some((component) => component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits);
+    }, [localComponents]);
+
+    const buttonDisabled = pushingAllComponents || dirtyLocalComponents;
 
     return (
         <>
-            {!isLoadingComponents && hasPushableComponents && (
+            {!isLoadingComponents && hasLocalComponents && (
                 <AlertBox
-                    subTitle="Some components are not created in Choreo. Please click `Push to Choreo` to create them."
+                    subTitle={`Some components are not created in Choreo. ${
+                        dirtyLocalComponents
+                            ? "Please commit and push them to your remote Git repository before pushing to Choreo."
+                            : "Please click `Push to Choreo` to create them ."
+                    }`}
                     buttonTitle={pushingAllComponents ? "Pushing to Choreo..." : "Push to Choreo"}
-                    buttonDisabled={pushingAllComponents}
+                    buttonDisabled={buttonDisabled}
                     iconName="cloud-upload"
-                    onClick={() => handlePushAllComponentsClick(pushableComponents.map((item) => item.name))}
+                    onClick={() => {
+                        if (!buttonDisabled) {
+                            handlePushAllComponentsClick(localComponents.map((item) => item.name));
+                        }
+                    }}
                 />
             )}
         </>
