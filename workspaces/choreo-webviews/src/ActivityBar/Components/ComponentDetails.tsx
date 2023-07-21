@@ -74,6 +74,7 @@ export const ComponentDetails = (props: {
                     <VSCodeDataGridCell gridColumn="2">
                         <DeploymentStatusText
                             deployment={devDeploymentData}
+                            handler={props.component.handler}
                             loading={isLoadingDeployment}
                             localComponent={props.component.local}
                         />

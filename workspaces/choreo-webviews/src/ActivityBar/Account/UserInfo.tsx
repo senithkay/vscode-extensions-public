@@ -15,7 +15,8 @@ import React from "react";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { useAccountSubscriptionStatus } from '../../hooks/use-account-subscription-status';
+import { useAccountSubscriptionStatus } from "../../hooks/use-account-subscription-status";
+import { Codicon } from "../../Codicon/Codicon";
 
 const Container = styled.div`
     display: flex;
@@ -23,14 +24,17 @@ const Container = styled.div`
     align-items: flex-start;
     gap: 10px;
     justify-content: space-between;
+    max-width: 300px;
+    width: 100%;
 `;
 
 const MiddleContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    margin-left: 10px;  
+    margin-left: 10px;
     gap: 5px;
+    flex: 1;
 `;
 
 // email
@@ -60,7 +64,7 @@ export const UserInfo = () => {
 
     const openBillingPortal = () => {
         ChoreoWebViewAPI.getInstance().openBillingPortal(`${choreoProject.id}`);
-    }
+    };
 
     return (
         <Container>
@@ -68,11 +72,11 @@ export const UserInfo = () => {
             <MiddleContainer>
                 <div>{displayName}</div>
                 <Email>{userEmail}</Email>
-                {showUpgradeButton && (
-                    <VSCodeLink onClick={openBillingPortal}>Upgrade</VSCodeLink>
-                )}
+                {showUpgradeButton && <VSCodeLink onClick={openBillingPortal}>Upgrade</VSCodeLink>}
             </MiddleContainer>
-            <SignOutButton onClick={onSignOut}>Sign Out</SignOutButton>
+            <SignOutButton appearance="icon" title="Sign Out" onClick={onSignOut}>
+                <Codicon name="sign-out" />
+            </SignOutButton>
         </Container>
     );
 };

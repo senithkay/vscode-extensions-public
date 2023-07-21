@@ -26,6 +26,7 @@ const Container = styled.div`
   border: calc(var(--border-width) * 1px) solid var(--vscode-list-inactiveSelectionBackground);
   margin-bottom: 10px;
   border-radius: 3px;
+  box-sizing: border-box;
 `;
 
 // Header div will lay the items horizontally
@@ -56,6 +57,9 @@ const ComponentName = styled.span`
   font-size: 13px;
   cursor: pointer;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Flex = styled.div`
