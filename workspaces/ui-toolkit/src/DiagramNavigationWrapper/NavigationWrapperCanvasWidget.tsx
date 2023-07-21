@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagramEngine, NodeModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, NodeModel  } from "@projectstorm/react-diagrams";
 import React, { useEffect } from "react";
 
 import { CustomCanvasWidget } from "./CustomCanvasWidget";
@@ -23,7 +23,9 @@ export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProp
 
     useEffect(() => {
         if (focusedNode) {
-            focusToNode(focusedNode, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+            setTimeout(() => {
+                focusToNode(focusedNode, diagramEngine.getModel().getZoomLevel(), diagramEngine);
+            }, 300);
         }
     }, [focusedNode]);
 
