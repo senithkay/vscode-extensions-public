@@ -24,11 +24,17 @@ export function useComponentBuildStatus(component: Component) {
         isFetched,
     } = useQuery({
         queryKey: ["project_component_build_status", component?.id],
-        queryFn: (): Promise<BuildStatus | undefined> =>
-            ChoreoWebViewAPI.getInstance().getComponentBuildStatus(component),
+        queryFn: async (): Promise<BuildStatus | undefined> => {
+            const buildStatus = await ChoreoWebViewAPI.getInstance().getComponentBuildStatus(component);
+            return buildStatus || null;
+        },
         refetchOnWindowFocus: true,
         refetchInterval: 15000,
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+        onError: (error: Error) => {
+            if (error.message) {
+                ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
+            }
+        },
         enabled: component?.id !== undefined && !component.local,
     });
 
