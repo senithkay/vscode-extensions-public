@@ -12,7 +12,7 @@
  */
 
 import { choreoEnvConfig, getConsoleUrl } from "../auth/auth";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType, GitRepo, GitProvider, Endpoint } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType, GitRepo, GitProvider, Endpoint, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -298,7 +298,7 @@ export class ProjectRegistry {
                 const repoPath = join(dirname(projectLocation), component.path);
                 if (existsSync(repoPath)) {
                     rmdirSync(repoPath, { recursive: true });
-                    this._removeComponentFromWorkspace(repoPath);
+                    this._removeComponentFromWorkspace(component.name, projectLocation);
                 }
             });
         }
@@ -380,10 +380,9 @@ export class ProjectRegistry {
                 }
 
                 const projectLocation = this.getProjectLocation(projectId);
-
-                if (component.local) {
-                    const choreoPM = new ChoreoProjectManager();
-                    if (projectLocation) {
+                if (projectLocation) {
+                    if (component.local) {
+                        const choreoPM = new ChoreoProjectManager();
                         const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
                         const componentMetadata = localComponentMeta?.find(item => item.displayName === component.name);
                         if (componentMetadata) {
@@ -397,26 +396,25 @@ export class ProjectRegistry {
                                 if (existsSync(repoPath)) {
                                     rmdirSync(repoPath, { recursive: true });
                                 }
-                                this._removeComponentFromWorkspace(repoPath);
                             }
-                            
+                        }
+                    } else if (!component?.isRemoteOnly && component?.repository) {
+                        const { organizationApp, nameApp } = component.repository;
+                        const subPath = component.repository.appSubPath 
+                            || component.repository.byocBuildConfig?.dockerContext 
+                            || component.repository.byocWebAppBuildConfig?.dockerContext
+                            || component.repository.byocWebAppBuildConfig?.outputDirectory;
+                        if (subPath) {
+                            const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
+                            if (existsSync(repoPath)) {
+                                rmdirSync(repoPath, { recursive: true });
+                                successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
+                            }
                         }
                     }
-                } else if (!component?.isRemoteOnly && component?.repository) {
-                    const { organizationApp, nameApp } = component.repository;
-                    const subPath = component.repository.appSubPath 
-                        || component.repository.byocBuildConfig?.dockerContext 
-                        || component.repository.byocWebAppBuildConfig?.dockerContext
-                        || component.repository.byocWebAppBuildConfig?.outputDirectory;
-                    if (projectLocation && subPath) {
-                        const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
-                        if (existsSync(repoPath)) {
-                            rmdirSync(repoPath, { recursive: true });
-                            successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
-                        }
-                        this._removeComponentFromWorkspace(repoPath);
-                    }
+                    this._removeComponentFromWorkspace(component.name, projectLocation);
                 }
+
                 vscode.window.showInformationMessage(successMsg);
             });
         } catch (error: any) {
@@ -885,14 +883,13 @@ export class ProjectRegistry {
         return mergedComponents;
     }
 
-    private _removeComponentFromWorkspace(componentPath: string) {
-        const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
-        if (folder) {
-            const didDelete = workspace.updateWorkspaceFolders(folder.index, 1);
-            if (didDelete) {
-                return;
-            }
-        }
-        window.showErrorMessage("Error: Could not update project workspace.");
+    private _removeComponentFromWorkspace(componentName: string, workspaceFilePath: string) {
+        const contents = readFileSync(workspaceFilePath);
+        const content: WorkspaceConfig = JSON.parse(contents.toString());
+        const updatedContent: WorkspaceConfig = {
+            ...content,
+            folders: content.folders?.filter((item) => item.name !== componentName),
+        };
+        writeFileSync(workspaceFilePath, JSON.stringify(updatedContent, null, 4));
     }
 }

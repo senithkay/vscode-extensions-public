@@ -24,8 +24,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   border: calc(var(--border-width) * 1px) solid var(--vscode-list-inactiveSelectionBackground);
-  margin-bottom: 5px;
-  border-radius: 4px;
+  margin-bottom: 10px;
+  border-radius: 3px;
 `;
 
 // Header div will lay the items horizontally
