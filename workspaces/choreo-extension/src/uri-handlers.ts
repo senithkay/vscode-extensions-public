@@ -30,7 +30,12 @@ export function activateURIHandlers() {
                     getLogger().debug("Initiating Choreo sign in flow from auth code");
                     // TODO: Check if status is equal to STATUS_LOGGING_IN, if not, show error message.
                     // It means that the login was initiated from somewhere else or an old page was opened/refreshed in the browser
-                    ext.api.signInWithAuthCode(authCode);
+                    try {
+                        ext.api.signInWithAuthCode(authCode);
+                    } catch (error: any) {
+                        getLogger().error(`Choreo sign in Failed: ${error.message}`);
+                        window.showErrorMessage(`Sign in failed. Please check the logs for more details.`);
+                    }
                 } else {
                     getLogger().error(`Choreo Login Failed: Authorization code not found!`);
                     window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);

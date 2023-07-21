@@ -18,7 +18,7 @@ import { ChoreoEnvConfig } from "./config";
 import { Organization, UserInfo } from "@wso2-enterprise/choreo-core";
 import { getDefaultSelectedOrg } from "./auth";
 import { ext } from "../extensionVariables";
-import { STATUS_LOGGED_IN } from "../constants";
+import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from "../constants";
 
 
 export function isTokenExpired(token: AccessToken) {
@@ -146,7 +146,9 @@ export class AuthHandler {
     }
 
     public async signout() {
-        ext.api.status = "LoggedOut";
+        // TODO: Revoke tokens by calling the revoke endpoint.
+        this._tokenStorage.clearCurrentUserSession();
+        ext.api.status = STATUS_LOGGED_OUT;
         ext.api.userInfo = undefined;
     }
 

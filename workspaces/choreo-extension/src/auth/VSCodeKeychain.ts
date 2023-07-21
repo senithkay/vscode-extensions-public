@@ -16,9 +16,20 @@ import { UserInfo } from '@wso2-enterprise/choreo-core';
 
 const CHOREO_USER_KEY = 'choreo.user';
 export class VSCodeKeychain {
+
+    private _onUserInfoChange = new vscode.EventEmitter<UserInfo|undefined>();
+
+	public readonly onUserInfoChange = this._onUserInfoChange.event;
+
 	constructor(
 		private readonly context: vscode.ExtensionContext,
-	) {}
+	) {
+		context.secrets.onDidChange(async (event) => {
+			if (event.key === CHOREO_USER_KEY) {		
+				this._onUserInfoChange.fire(await this.getCurrentUser());
+			}
+		});
+	}
 
 	async setToken(key: string, token: string): Promise<void> {
 		try {
@@ -49,6 +60,16 @@ export class VSCodeKeychain {
 		} catch (e) {
 			// Ignore
 			getLogger().error(`Deleting token failed: ${e}`);
+			return Promise.resolve(undefined);
+		}
+	}
+
+	async deleteCurrentUser(): Promise<void> {
+		try {
+			return await this.context.secrets.delete(CHOREO_USER_KEY);
+		} catch (e) {
+			// Ignore
+			getLogger().error(`Deleting current user info failed: ${e}`);
 			return Promise.resolve(undefined);
 		}
 	}
