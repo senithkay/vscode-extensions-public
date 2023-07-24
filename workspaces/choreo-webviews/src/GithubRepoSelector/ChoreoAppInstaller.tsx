@@ -17,10 +17,11 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 export interface ChoreoAppInstallerProps {
     onAppInstallation: () => void;
+    orgId: number;
 }
 
 export function ChoreoAppInstaller(props: ChoreoAppInstallerProps) {
-    const { onAppInstallation } = props;
+    const { onAppInstallation, orgId } = props;
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "authorized" });
 
@@ -37,7 +38,9 @@ export function ChoreoAppInstaller(props: ChoreoAppInstallerProps) {
 
     const handleConfigureNewRepo = async () => {
         setGHStatus({ status: "install-inprogress" });
+        ChoreoWebViewAPI.getInstance().setChoreoInstallOrg(orgId);
         const success =  await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
+        ChoreoWebViewAPI.getInstance().clearChoreoInstallOrg();
         if (success) {
             setGHStatus({ status: "installed" });
             onAppInstallation();
