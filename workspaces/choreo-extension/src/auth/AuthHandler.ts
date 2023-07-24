@@ -19,6 +19,7 @@ import { Organization, UserInfo } from "@wso2-enterprise/choreo-core";
 import { getDefaultSelectedOrg } from "./auth";
 import { ext } from "../extensionVariables";
 import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from "../constants";
+import { lock } from "./lock";
 
 
 export function isTokenExpired(token: AccessToken) {
@@ -98,7 +99,18 @@ export class AuthHandler {
         if (!selectedOrg) {
             throw new Error("No organization found for the user.");
         }
-        return this._getTokenWithAutoRefresh(selectedOrg);
+        return this.getTokenWithAutoRefresh(selectedOrg);
+    }
+
+    public async getTokenWithAutoRefresh(org: Organization) {
+        let token : AccessToken | undefined;
+        await lock.acquire();
+        try {
+            token = await this._getTokenWithAutoRefresh(org);
+        } finally {
+            lock.release();
+        }
+        return token;
     }
 
     private async exchangeChoreoSTSToken(subjectToken: string, orgHandle: string, orgId: number) {
@@ -137,7 +149,7 @@ export class AuthHandler {
         if (!selectedOrg) {
             throw new Error("No organizations found for the user.");
         }
-        const orgAccessToken = await this._getTokenWithAutoRefresh(selectedOrg);
+        const orgAccessToken = await this.getTokenWithAutoRefresh(selectedOrg);
         if (!orgAccessToken?.accessToken) {
             throw new Error("Asgardio token not found in token store!");
         }
@@ -214,7 +226,7 @@ export class AuthHandler {
         if (!org) {
             throw new Error("No organizations found for the user.");
         }
-        const token = await this._getTokenWithAutoRefresh(org);
+        const token = await this.getTokenWithAutoRefresh(org);
         if (!token?.accessToken) {
             throw new Error("Asgardio token not found in token store!");
         }

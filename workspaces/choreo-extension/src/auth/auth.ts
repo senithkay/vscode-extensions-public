@@ -20,7 +20,6 @@ import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
 import { Organization, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT } from '@wso2-enterprise/choreo-core';
 import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from '../constants';
-import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
 
