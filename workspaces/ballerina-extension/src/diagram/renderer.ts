@@ -210,6 +210,17 @@ function renderDiagram(
                     );
                 })
             }
+            function openCellView(nodeId, args) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'openCellView',
+                        [nodeId, args],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function getAllFiles(matchingPattern, ignorePattern) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -297,6 +308,7 @@ function renderDiagram(
                             runCommand,
                             runBackgroundTerminalCommand,
                             openArchitectureView,
+                            openCellView,
                             openExternalUrl,
                             sendTelemetryEvent,
                             getLibrariesList,

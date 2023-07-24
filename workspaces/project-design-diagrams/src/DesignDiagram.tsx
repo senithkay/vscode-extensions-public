@@ -40,6 +40,7 @@ const Container: React.FC<any> = styled.div`
 interface DiagramProps {
     isEditable: boolean;
     isChoreoProject: boolean;
+    isCellView?: boolean;
     selectedNodeId?: string;
     getComponentModel(): Promise<GetComponentModelResponse>;
     showChoreoProjectOverview?: () => Promise<void>;
@@ -59,11 +60,12 @@ export function DesignDiagram(props: DiagramProps) {
         editLayerAPI = undefined,
         consoleView = undefined,
         deleteComponent = undefined,
-        addComponent = undefined
+        addComponent = undefined,
+        isCellView = false,
     } = props;
 
     const currentViewDefaultValue = (consoleView === ConsoleView.COMPONENTS ||
-        consoleView === ConsoleView.PROJECT_HOME) ? Views.CELL_VIEW : Views.L1_SERVICES;
+        consoleView === ConsoleView.PROJECT_HOME || isCellView) ? Views.CELL_VIEW : Views.L1_SERVICES;
     const [currentView, setCurrentView] = useState<Views>(currentViewDefaultValue);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);

@@ -463,6 +463,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.view.cellView",
+                "title": "Cell View",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.view.entityDiagram",
                 "title": "Entity Relationship Diagram",
                 "icon": {

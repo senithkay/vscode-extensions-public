@@ -16,7 +16,7 @@ import { Project, Component, ChoreoComponentCreationParams, TriggerDetails } fro
 
 export interface IProjectManager {
     createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
-    createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string|boolean>;
+    createLocalBalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string|boolean>;
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
@@ -52,6 +52,7 @@ export interface IsRepoClonedRequestParams {
     repository: string;
     branch: string;
     workspaceFilePath: string;
+    gitProvider?: string;
 }
 
 export type RepoCloneRequestParams = IsRepoClonedRequestParams;

@@ -13,7 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { useStyles } from './styles';
-import { CellViewIcon, L1ServicesIcon, L2ServicesIcon, TypesDiagramIcon, Views } from '../../../../resources';
+import { L1ServicesIcon, L2ServicesIcon, TypesDiagramIcon, Views } from '../../../../resources';
 
 const ViewTypePanel = styled.div`
     display: flex;
@@ -47,11 +47,6 @@ const switchables: ViewTypes[] = [
         type: Views.L2_SERVICES,
         label: 'Resources',
         icon: <L2ServicesIcon />
-    },
-    {
-        type: Views.CELL_VIEW,
-        label: 'Cell View',
-        icon: <CellViewIcon />
     },
     {
         type: Views.TYPE,

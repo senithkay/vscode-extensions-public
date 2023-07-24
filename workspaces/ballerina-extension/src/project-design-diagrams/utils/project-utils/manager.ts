@@ -24,7 +24,7 @@ export class BallerinaProjectManager implements IProjectManager {
     isComponentNameAvailable(componentName: string): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
-    createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
+    createLocalBalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
         throw new Error("Method not implemented.");
     }
     getRepoPath(repository: string): Promise<string> {

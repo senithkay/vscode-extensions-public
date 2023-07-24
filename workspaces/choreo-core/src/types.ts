@@ -14,6 +14,8 @@ export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'Log
 
 export type ComponentAccessibility = 'internal' | 'external';
 
+export type ComponentNetworkVisibility = 'Project' | 'Organization' | 'Public';
+
 export interface Owner {
     id: string;
     idpId: string;
@@ -46,6 +48,12 @@ export interface Project {
     orgId: string;
     region: string;
     version: string;
+    description: string;
+    repository?: string,
+    credentialId?: string,
+    branch?: string,
+    gitOrganization?: string;
+    gitProvider?: string,
 }
 
 export interface ComponentCount {
@@ -97,9 +105,6 @@ export interface Component {
     hasUnPushedLocalCommits?: boolean;
     hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
-    isInRemoteRepo?: boolean;
-    deployments?: Deployments;
-    buildStatus?: BuildStatus;
 }
 
 export interface PushedComponent {
@@ -192,6 +197,18 @@ export interface BuildStatus {
     sourceCommitId?: string;
 }
 
+export interface WeAppBuildConfig {
+    id: string;
+    containerId: string;
+    componentId: string;
+    repositoryId: string;
+    dockerContext: string;
+    webAppType: string;
+    buildCommand: string;
+    packageManagerVersion: string;
+    outputDirectory: string;
+}
+
 export interface Repository {
     nameApp: string;
     nameConfig: string;
@@ -201,6 +218,8 @@ export interface Repository {
     organizationConfig: string;
     isUserManage: boolean;
     appSubPath?: string;
+    gitProvider: string;
+    bitbucketCredentialId: string;
     byocBuildConfig?: {
         componentId: string;
         containerId: string;
@@ -210,7 +229,8 @@ export interface Repository {
         isMainContainer: string;
         oasFilePath: string;
         repositoryId: string;
-    }
+    };
+    byocWebAppBuildConfig?: WeAppBuildConfig;
 }
 
 export interface Metadata {
@@ -259,51 +279,91 @@ export interface WorkspaceConfig {
             projectID: string;
             orgId: number;
             monoRepo?: string;
+            branch?: string;
+            gitProvider?: string;
         }
     }
 }
-export interface WorkspaceComponentMetadata {
-    org: {
-        id: number;
-        handle: string;
-    };
-    displayName: string;
-    displayType: ChoreoComponentType;
-    description: string;
-    projectId: string;
-    accessibility: ComponentAccessibility;
-    repository: {
-        orgApp: string;
-        nameApp: string;
-        branchApp: string;
-        appSubPath: string;
-    };
-    byocConfig?: {
-        dockerfilePath: string;
-        dockerContext: string;
-        srcGitRepoUrl: string;
-        srcGitRepoBranch: string;
-    }
-}
-
-export enum ChoreoComponentType {
+export enum ComponentDisplayType {
     RestApi = 'restAPI',
     ManualTrigger = 'manualTrigger',
     ScheduledTask = 'scheduledTask',
     Webhook = 'webhook',
     Websocket = 'webSocket',
     Proxy = 'proxy',
-    ByocMicroservice = 'byocMicroservice',
     ByocCronjob = 'byocCronjob',
     ByocJob = 'byocJob',
     GraphQL = 'graphql',
     ByocWebApp = 'byocWebApp',
+    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
     ByocRestApi = 'byocRestApi',
     ByocWebhook = 'byocWebhook',
     MiRestApi = 'miRestApi',
     MiEventHandler = 'miEventHandler',
     Service = 'ballerinaService',
     ByocService = 'byocService',
+    MiApiService = 'miApiService',
+}
+
+export interface ComponentWizardWebAppConfig {
+    dockerContext?: string;
+    webAppType?: string;
+    webAppBuildCommand?: string;
+    webAppPackageManagerVersion?: string;
+    webAppOutputDirectory?: string;
+    srcGitRepoUrl?: string,
+    srcGitRepoBranch?: string,
+}
+
+export interface WorkspaceComponentMetadata {
+    org: {
+        id: number;
+        handle: string;
+    };
+    displayName: string;
+    displayType: ComponentDisplayType;
+    description: string;
+    projectId: string;
+    accessibility?: ComponentAccessibility;
+    repository: {
+        orgApp: string;
+        nameApp: string;
+        branchApp: string;
+        appSubPath: string;
+        gitProvider: string;
+        bitbucketCredentialId: string;
+    };
+    byocConfig?: {
+        dockerfilePath: string;
+        dockerContext: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+    },
+    byocWebAppsConfig?: ComponentWizardWebAppConfig;
+    port?: number;
+}
+
+export enum ChoreoImplementationType {
+    Ballerina = "Ballerina",
+    Docker = "Docker",
+    React = 'React',
+    Angular = 'Angular',
+    Vue = 'Vuejs',
+    StaticFiles = 'StaticFiles',
+}
+
+export enum ChoreoServiceType {
+    RestApi = "REST",
+    GraphQL = "GraphQL",
+    GRPC = "GRPC"
+}
+
+export enum ChoreoComponentType {
+    Service = 'service',
+    ScheduledTask = 'scheduledTask',
+    ManualTrigger = 'manualTrigger',
+    Webhook = 'webhook',
+    WebApplication = 'webApplication'
 }
 
 export interface ChoreoComponentCreationParams {
@@ -311,10 +371,22 @@ export interface ChoreoComponentCreationParams {
     projectId: string;
     org: Organization;
     description: string;
-    displayType: ChoreoComponentType;
-    accessibility: ComponentAccessibility;
+    displayType: ComponentDisplayType;
     repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
+    /** Relevant for webhook types */
+    accessibility?: ComponentAccessibility;
+    /** Relevant for webhook types */
     trigger?: TriggerDetails;
+    /** Relevant for non-ballerina types */
+    port?: number;
+    /** Whether its a REST, GraphQL or GRPC type */
+    serviceType?: ChoreoServiceType;
+    /** Relevant for web app types (React, Angular, Vue & static files) */
+    webAppConfig?: ComponentWizardWebAppConfig;
+    /** Relevant for non-ballerina service types */
+    networkVisibility?: ComponentNetworkVisibility;
+    /** Relevant for non-ballerina rest and gql APIs */
+    endpointContext?: string;
 }
 
 export interface TriggerDetails {
@@ -327,11 +399,15 @@ export interface RepositoryDetails {
     repo: string;
     branch: string;
     subPath: string;
+    gitProvider: string;
+    bitbucketCredentialId: string;
 }
 
 export interface BYOCRepositoryDetails extends RepositoryDetails {
     dockerFile: string;
     dockerContext: string;
+    templateSubPath?: string;
+    openApiFilePath?: string;
 }
 
 export interface ProjectDeleteResponse {
@@ -348,6 +424,37 @@ export interface SubscriptionResponse {
     }[];
 }
 
+export interface getLocalComponentDirMetaDataRequest {
+    projectId: string;
+    orgName: string;
+    repoName: string;
+    subPath: string;
+    dockerFilePath?: string;
+    dockerContextPath?: string;
+    openApiFilePath?: string;
+}
+
+export interface getLocalComponentDirMetaDataRes {
+    isRepoPathAvailable: boolean;
+    isBareRepo: boolean;
+    isSubPathValid: boolean;
+    isSubPathEmpty: boolean;
+    hasBallerinaTomlInPath: boolean;
+    hasBallerinaTomlInRoot: boolean;
+    hasEndpointsYaml: boolean;
+    dockerFilePathValid: boolean;
+    isDockerContextPathValid: boolean;
+}
+
+export interface Endpoint {
+    name: string;
+    port: number;
+    type?: string;
+    networkVisibility?: string;
+    context?: string;
+    schemaFilePath?: string;
+}
+
 export enum DeploymentStatus {
     NotDeployed = 'NOT_DEPLOYED',
     Active = 'ACTIVE',
@@ -360,4 +467,31 @@ export enum Status {
     LocalOnly = "LOCAL_ONLY",
     UnavailableLocally= "NOT_AVAILABLE_LOCALLY",
     ChoreoAndLocal= "CHOREO_AND_LOCAL"
+}
+
+export type ComponentCreateMode = "fromScratch" | "fromExisting";
+
+export enum GitProvider {
+    GITHUB = 'github',
+    BITBUCKET = 'bitbucket',
+}
+
+export interface GitRepo {
+    provider: GitProvider;
+    orgName: string;
+    repoName: string;
+    bitbucketCredentialId?: string;
+}
+
+export interface ChoreoWorkspaceMetaData {
+    projectID?: string;
+    orgId?: string | number;
+}
+
+export enum ServiceTypes {
+    HTTP = "http",
+    GRPC = "grpc",
+    GRAPHQL = "graphql",
+    WEBSOCKET = "websocket",
+    OTHER = "other"
 }

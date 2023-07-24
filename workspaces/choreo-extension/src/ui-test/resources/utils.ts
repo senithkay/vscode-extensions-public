@@ -116,19 +116,22 @@ export const deleteProject = async (projectName: string): Promise<void> => {
     const tokenManager = TokenManager.getInstance();
     const accessToken = tokenManager.getVscodeTokenResponse();
     if (accessToken) {
-        const projectClient = new ChoreoProjectClient({ getToken: async () => accessToken }, process.env.PROJECT_API!);
-        const projects = await projectClient.getProjects({ orgId: Number(process.env.TEST_USER_ORG_ID!) });
+        const projectClient = new ChoreoProjectClient(
+            { 
+                getToken: async () => accessToken,
+            }, process.env.PROJECT_API!);
+        const projects = await projectClient.getProjects({ orgId: Number(process.env.TEST_USER_ORG_ID!), orgHandle: process.env.TEST_USER_ORG_HANDLE! });
         const projectObj = projects.find(item => item.name.includes(projectName));
         if (projectObj) {
             const components = await projectClient.getComponents({
-                orgHandle: process.env.TEST_USER_ORG_HANDLE!,
+                orgId: Number(process.env.TEST_USER_ORG_ID!), orgHandle: process.env.TEST_USER_ORG_HANDLE!,
                 orgUuid: process.env.TEST_USER_ORG_ID!,
                 projId: projectObj.id
             });
             for (const component of components) {
-                await projectClient.deleteComponent({ component, orgHandler: process.env.TEST_USER_ORG_HANDLE!, projectId: projectObj.id });
+                await projectClient.deleteComponent({ component, orgId: Number(process.env.TEST_USER_ORG_ID!), orgHandle: process.env.TEST_USER_ORG_HANDLE!, projectId: projectObj.id });
             }
-            await projectClient.deleteProject({ orgId: Number(process.env.TEST_USER_ORG_ID!), projectId: projectObj.id });
+            await projectClient.deleteProject({ orgId: Number(process.env.TEST_USER_ORG_ID!), orgHandle: process.env.TEST_USER_ORG_HANDLE!, projectId: projectObj.id });
         }
     }
 };

@@ -531,6 +531,13 @@ class DiagramPanel {
 				}
 			},
 			{
+				methodName: "openCellView",
+				handler: async (args: any[]): Promise<boolean> => {
+					commands.executeCommand(PALETTE_COMMANDS.SHOW_CELL_VIEW, args[0]);
+					return Promise.resolve(true);
+				}
+			},
+			{
 				methodName: "openExternalUrl",
 				handler: async (args: any[]): Promise<boolean> => {
 					openExternalUrl(args[0]);

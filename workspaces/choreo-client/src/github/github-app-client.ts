@@ -13,7 +13,7 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import { IReadOnlyTokenStorage } from "../auth";
 import { GHAppAuthStatus, GHAppConfig, GithubOrgnization, IChoreoGithubAppClient } from "./types";
-import { EventEmitter, env, Uri, window } from 'vscode';
+import { EventEmitter, env, Uri, window, ProgressLocation, Disposable } from 'vscode';
 
 const extensionId = 'wso2.choreo';
 
@@ -27,21 +27,21 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         this.onGHAppAuthCallback((status) => {
             this._status = status;
         });
-        this.checkAuthStatus();
+        // this.checkAuthStatus();
     }
 
     async checkAuthStatus(): Promise<void> {
         try {
             // Check if the token is valid by trying to get the authorized repositories
-            await this.getAuthorizedRepositories();
+            // await this.getAuthorizedRepositories();
             this._onGHAppAuthCallback.fire({ status: 'authorized' });
         } catch (error) {
             this._onGHAppAuthCallback.fire({ status: 'not-authorized' });
         }
     }
-    
-    private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
+
+    private async _getClient(orgId: number) {
+        const token = await this._tokenStore.getToken(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }
@@ -52,7 +52,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         });
         return client;
     }
-    
+
     get status(): Promise<GHAppAuthStatus> {
         return Promise.resolve(this._status);
     }
@@ -60,7 +60,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     private async _getAuthState(): Promise<string> {
         const callbackUri = await env.asExternalUri(
             Uri.parse(`${env.uriScheme}://${extensionId}/ghapp`)
-        );    
+        );
         const state = {
             origin: "vscode.choreo.ext",
             callbackUri: callbackUri.toString()
@@ -69,7 +69,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     }
 
     async triggerAuthFlow(): Promise<boolean> {
-        this._onGHAppAuthCallback.fire({ status: 'auth-inprogress'});
+        this._onGHAppAuthCallback.fire({ status: 'auth-inprogress' });
         const { authUrl, clientId, redirectUrl } = this._appConfig;
         const state = await this._getAuthState()
         const ghURL = Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=${state}`);
@@ -77,19 +77,41 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     }
 
     async triggerInstallFlow(): Promise<boolean> {
-        const { installUrl }  = this._appConfig;
+        const { installUrl } = this._appConfig;
         const state = await this._getAuthState()
         const ghURL = Uri.parse(`${installUrl}?state=${state}`);
-        const success = await env.openExternal(ghURL);
-        window.showInformationMessage(`Please check your browser for Choreo Github App installation page.`, "Copy URL").then((selection) => {
-            if (selection === "Copy URL") {
-                env.clipboard.writeText(ghURL.toString());
-            }
+        await env.openExternal(ghURL);
+        this.fireGHAppAuthCallback({ status: "install-inprogress" });
+        await window.withProgress({
+            title: 'Installing Choreo Github App',
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+            cancellationToken.onCancellationRequested(async () => {
+                this.fireGHAppAuthCallback({ status: "error" });
+                window.showInformationMessage(`Cancelled app installation.`);
+            });
+            await this.waitForInstallation();
         });
-        return success;
+        return true;
     }
 
-    async obatainAccessToken(authCode: string): Promise<void> {
+    public async waitForInstallation(): Promise<boolean> {
+        if (this._status.status === 'installed') {
+            return true;
+        } else if (this._status.status === 'error') {
+            return false;
+        } else {   
+            return new Promise<boolean>(resolve => {
+                const subscription: Disposable = this.onGHAppAuthCallback(() => {
+                    subscription.dispose();
+                    resolve(this.waitForInstallation());
+                });
+            });
+        }
+    }
+
+    async obatainAccessToken(authCode: string, choreoOrgId: number): Promise<void> {
         const mutation = gql`
             mutation {
                 obtainUserToken(authorizationCode:"${authCode}") {
@@ -99,7 +121,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             }
         `;
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(mutation);
             if(!data.obtainUserToken?.success) {
                 this._onGHAppAuthCallback.fire({ status: 'error', error: data.obtainUserToken?.message});
@@ -109,14 +131,38 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            this._onGHAppAuthCallback.fire({ status: 'error', error: error?.message});
-            throw new Error("Error while obtaining access token. " , { cause: error });
+            this._onGHAppAuthCallback.fire({ status: 'error', error: error?.message });
+            throw new Error("Error while obtaining access token. ", { cause: error });
         }
-        
     }
 
+    async getCredentials(org_uuid: string, choreoOrgId: number) {
+        
+        const query = gql`
+            query {
+                commonCredentials(orgUuid: "${org_uuid}") {
+                    id,
+                    name,
+                    createdAt,
+                    organizationUuid,
+                    type,
+                    referenceToken
+                }
+            }
+        `;
 
-    async getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
+        try {
+            const client = await this._getClient(choreoOrgId);
+            const data = await client.request(query);
+            return data.commonCredentials;
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this._onGHAppAuthCallback.fire({ status: 'error', error: (error as any).message });
+            throw new Error("Error while fetching credentials. ", { cause: JSON.stringify(error) });
+        }
+    }
+
+    async getAuthorizedRepositories(choreoOrgId: number): Promise<GithubOrgnization[]> {
         const query = gql`
             query {
                 userRepos {
@@ -128,34 +174,57 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             }
         `;
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(query);
             return data.userRepos;
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            this._onGHAppAuthCallback.fire({ status: 'error', error: (error as any).message});
-            throw new Error("Error while fetching authorized repositories. " , { cause: error });
+            this._onGHAppAuthCallback.fire({ status: 'error', error: (error as any).message });
+            throw new Error("Error while fetching authorized repositories. ", { cause: error });
         }
     }
 
-    async getRepoBranches(orgName: string, repoName: string): Promise<string[]> {
+    async getUserRepos(bitbucketCredentialId: string, choreoOrgId: number) {
         const query = gql`
             query {
-                repoBranchList(repositoryOrganization: "${orgName}", repositoryName: "${repoName}") {
+                userRepos(secretRef :"${bitbucketCredentialId}") {
+                    orgName
+                    repositories {
+                        name
+                    }
+                }
+            }
+        `;
+
+        try {
+            const client = await this._getClient(choreoOrgId);
+            const data = await client.request(query);
+            return data.userRepos;
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this._onGHAppAuthCallback.fire({ status: 'error', error: (error as any).message });
+            throw new Error("Error while fetching authorized repositories. ", { cause: error });
+        }
+    }
+
+    async getRepoBranches(choreoOrgId: number, orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]> {
+        const query = gql`
+            query {
+                repoBranchList(secretRef: "${bitbucketCredentialId}", repositoryOrganization: "${orgName}", repositoryName: "${repoName}") {
                     name
                 }
             }
         `;
         try {
-            const client = await this._getClient();
+            const client = await this._getClient(choreoOrgId);
             const data = await client.request(query);
             return data.repoBranchList.map((branch: { name: string }) => branch.name);
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            throw new Error("Error while fetching branches for repository. " , { cause: error });
+            throw new Error("Error while fetching branches for repository. ", { cause: error });
         }
     }
-    
+
     fireGHAppAuthCallback(status: GHAppAuthStatus): void {
         this._onGHAppAuthCallback.fire(status);
     }

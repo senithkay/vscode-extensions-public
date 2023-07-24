@@ -11,15 +11,18 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeProgressRing, VSCodeLink, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
-import React, { useContext, useEffect, useState } from "react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import React from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { Codicon } from "../Codicon/Codicon";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
+    flex-wrap: wrap;
     flex-direction: row;
     gap: 30px;
     width: "100%";
@@ -30,48 +33,43 @@ const GhRepoSelectorOrgContainer = styled.div`
     flex-direction: column;
     gap: 5px;
     width: 200px;
+    margin-right: 80px;
 `;
 
 const GhRepoSelectorRepoContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
-    width: 300px;
 `;
 
-const GhRepoSelectorActions = styled.div`
-    display  : flex;
-    flex-direction: row;
-    gap: 10px;
-`;
-
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
+const RefreshBtn = styled(VSCodeButton)`
+    margin-top: auto;
+    padding: 1px;
 `;
 
 export interface GithubRepoSelectorProps {
     selectedRepo?: {
         org: string;
         repo: string;
+        branch: string;
     };
-    onRepoSelect: (org?: string, repo?: string) => void;
+    onRepoSelect: (org?: string, repo?: string, branch?: string) => void;
+    setLoadingRepos: (loading: boolean) => void;
+    setLoadingBranches: (loading: boolean) => void;
 }
 
 export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
-    const { selectedRepo, onRepoSelect } = props;
+    const { selectedRepo, onRepoSelect, setLoadingRepos, setLoadingBranches } = props;
 
-    const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
-
-    const { choreoProject } = useContext(ChoreoWebViewContext);
+    const { userInfo, currentProjectOrg } = useChoreoWebViewContext();
 
     const { isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching } = useQuery({
-        queryKey: [`repoData${choreoProject?.id}`],
+        queryKey: [`repoData`, userInfo?.userId],
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
             try {
-                return ghClient.getAuthorizedRepositories();
+                return ghClient.getAuthorizedRepositories(currentProjectOrg?.id);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
                 throw error;
@@ -83,96 +81,78 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const selectedOrg = filteredOrgs?.find(org => org.orgName === selectedRepo?.org) || filteredOrgs?.[0];
 
-
-    useEffect(() => {
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        ghClient.onGHAppAuthCallback((status) => {
-            setGHStatus(status);
-        });
-        ghClient.status.then((status) => {
-            setGHStatus(status);
-        });
-    }, []);
-
-    const handleAuthorizeWithGithub = () => {
-        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
-    };
-
-    const handleConfigureNewRepo = () => {
-        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
-    };
-
-    const handleGhOrgChange = (e: any) => {
-        const org = filteredOrgs.find(org => org.orgName === e.target.value);
+    const handleGhOrgChange = (value: string) => {
+        const org = filteredOrgs.find(org => org.orgName === value);
         if (org && org.repositories.length > 0) {
-            onRepoSelect(org.orgName, org.repositories[0]?.name);
+            onRepoSelect(org.orgName, org.repositories[0]?.name, selectedRepo?.branch);
         } else {
             onRepoSelect(org?.orgName);
         }
     };
 
-    const handleGhRepoChange = (e: any) => {
-        onRepoSelect(selectedOrg?.orgName, e.target.value);
+    const handleGhRepoChange = (value: string) => {
+        onRepoSelect(selectedOrg?.orgName, value, selectedRepo?.branch);
     };
 
-    const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
-    const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
-    const showAuthorizeButton = ghStatus.status === "not-authorized";
-    const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
-    let loaderMessage = "Loading repositories...";
-    if (ghStatus.status === "auth-inprogress") {
-        loaderMessage = "Authorizing with Github...";
-    } else if (ghStatus.status === "install-inprogress") {
-        loaderMessage = "Installing Github App...";
+    const handleGhBranchChange = (value: string) => {
+        onRepoSelect(selectedOrg?.orgName, selectedRepo?.repo, value);
+    };
+
+    if (!selectedRepo.org) {
+        if (selectedOrg?.orgName) {
+            handleGhOrgChange(selectedOrg.orgName);
+        }
     }
+
+    const showLoader = isFetchingRepos || isRefetching;
+    showLoader ? setLoadingRepos(true) : setLoadingRepos(false);
+
+    const repos: string[] = selectedOrg && selectedOrg.repositories.sort((a, b) => {
+        // Vscode test-runner can't seem to scroll and find the necessary repo
+        // Therefore sorting and showing the test repo at the very top of the list
+        if (a.name.includes("vscode")) return -1;
+        if (b.name.includes("vscode")) return 1;
+        return 0;
+    }).map((repo) => (repo.name)) || [];
+    const orgs: string[] = filteredOrgs?.map((org) => (org.orgName)) || [];
+
     return (
         <>
-            <GhRepoSelectorActions>
-                {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
-                {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
-                {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
-                {!showLoader && isRefetching && <SmallProgressRing />}
-                {showLoader && loaderMessage}
-                {showLoader && <VSCodeProgressRing />}
-            </GhRepoSelectorActions>
-            {filteredOrgs && filteredOrgs.length > 0 && (
-                <GhRepoSelectorContainer>
-                    <GhRepoSelectorOrgContainer>
-                        <label htmlFor="org-drop-down">Organization</label>
-                        <VSCodeDropdown id="org-drop-down" value={selectedRepo?.org} onChange={handleGhOrgChange}>
-                            {filteredOrgs.map((org) => (
-                                <VSCodeOption
-                                    key={org.orgName}
-                                    value={org.orgName}
-                                    id={`org-item-${org.orgName}`}
-                                >
-                                    {org.orgName}
-                                </VSCodeOption>
-                            ))}
-                        </VSCodeDropdown>
-                    </GhRepoSelectorOrgContainer>
-                    <GhRepoSelectorRepoContainer>
-                        <label htmlFor="repo-drop-down">Repository</label>
-                        <VSCodeDropdown id="repo-drop-down" value={selectedRepo?.repo} onChange={handleGhRepoChange}>
-                            {selectedOrg && selectedOrg.repositories.sort((a, b) => {
-                                // Vscode test-runner can't seem to scroll and find the necessary repo
-                                // Therefore sorting and showing the test repo at the very top of the list
-                                if (a.name.includes("vscode")) return -1;
-                                if (b.name.includes("vscode")) return 1;
-                                return 0;
-                            }).map((repo) => (
-                                <VSCodeOption
-                                    key={repo.name}
-                                    value={repo.name}
-                                    id={`repo-item-${repo.name}`}
-                                >
-                                    {repo.name}
-                                </VSCodeOption>
-                            ))}
-                        </VSCodeDropdown>
-                    </GhRepoSelectorRepoContainer>
-                </GhRepoSelectorContainer>
-            )}
+            <GhRepoSelectorContainer>
+                <GhRepoSelectorOrgContainer>
+                    <label htmlFor="org-drop-down">Organization</label>
+                    <AutoComplete
+                        items={orgs}
+                        selectedItem={selectedRepo?.org}
+                        onChange={handleGhOrgChange}>
+                    </AutoComplete>
+                </GhRepoSelectorOrgContainer>
+                <GhRepoSelectorRepoContainer>
+                    <label htmlFor="repo-drop-down">Repository</label>
+                    <AutoComplete
+                        items={repos}
+                        selectedItem={selectedRepo?.repo}
+                        onChange={handleGhRepoChange}>
+                    </AutoComplete>
+                </GhRepoSelectorRepoContainer>
+                <RefreshBtn
+                    appearance="icon"
+                    onClick={() => refetch()}
+                    title="Refresh repository list"
+                    disabled={isRefetching}
+                    id='refresh-repository-btn'
+                >
+                    <Codicon name="refresh" />
+                </RefreshBtn>
+            </GhRepoSelectorContainer>
+            <RepoBranchSelector
+                org={selectedRepo.org}
+                repo={selectedRepo.repo}
+                branch={selectedRepo.branch}
+                onBranchChange={handleGhBranchChange}
+                credentialID={""}
+                setLoadingBranches={setLoadingBranches}
+            />
         </>
     );
 }

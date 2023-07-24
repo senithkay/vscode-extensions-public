@@ -10,20 +10,26 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
+import { ExtensionContext, StatusBarItem } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
-import { ProjectsTreeProvider } from "./views/project-tree/ProjectTreeProvider";
+import { TokenStorage } from "./auth/TokenStorage";
+import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, ChoreoSubscriptionClient, ChoreoUserManagementClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";
+import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
+import { AuthHandler } from "./auth/AuthHandler";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;
     public isPluginStartup!: boolean;
     public api!: ChoreoExtensionApi;
     public statusBarItem!: StatusBarItem;
+    public authHandler!: AuthHandler;
 
-    // views
-    public projectsTreeView!: TreeView<TreeItem>;
-    public projectsTreeProvider!: ProjectsTreeProvider;
-    public accountTreeView!: TreeView<TreeItem>;
+    public clients!: {
+        projectClient: ChoreoProjectClient,
+        githubAppClient: ChoreoGithubAppClient,
+        subscriptionClient: ChoreoSubscriptionClient,
+        componentManagementClient: ComponentManagementClient,
+    };
 }
 
 export const ext = new ExtensionVariables();

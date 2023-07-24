@@ -14,7 +14,7 @@ import React from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";
-import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType } from "@wso2-enterprise/choreo-core";
 import { ComponentWizardState } from "./types";
 
 
@@ -44,26 +44,23 @@ const TypeCardContainer = styled.div`
 export interface ComponentTypeCardProps {
     formData: Partial<ComponentWizardState>;
     onFormDataChange: (updater: (prevFormData: Partial<ComponentWizardState>) => Partial<ComponentWizardState>) => void;
-    type: ChoreoComponentType;
+    value: string | ChoreoComponentType | ChoreoServiceType | ChoreoImplementationType;
+    formKey: keyof ComponentWizardState;
     label: string;
     description: string;
 }
 
 export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
-    const { type, label, description, formData, onFormDataChange } = props;
+    const { value, label, description, formData, formKey, onFormDataChange } = props;
 
-    const isSelected = formData.type === type;
+    const isSelected = formData[formKey] === value;
 
-    const setSelectedType = (type: ChoreoComponentType) => {
-        onFormDataChange(prevFormData => ({ ...prevFormData, type }));
-    };
-    
-    const onSelection = () => {
-        setSelectedType(type);
+    const setSelectedType = () => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, [formKey]: value }));
     };
 
     return (
-        <TypeCardContainer className={cn({ "active": isSelected})} onClick={onSelection} title={description}>
+        <TypeCardContainer className={cn({ "active": isSelected})} onClick={setSelectedType} title={description}>
             <h4>{label}</h4>
         </TypeCardContainer>
     );

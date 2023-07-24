@@ -10,73 +10,82 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId, choreoProjectOverviewCloseCmdId } from "../constants";
+import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoArchitectureViewCmdId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
-import { ProjectOverview } from "../views/webviews/ProjectOverview";
-import { OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
-import { sendTelemetryEvent } from "../telemetry/utils";
+import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
 
 export function activateWizards() {
-    const createProjectCmd = commands.registerCommand(createNewProjectCmdId, () => {
-        if (!projectWizard || !projectWizard.getWebview()) {
-            projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation);
+    const createProjectCmd = commands.registerCommand(createNewProjectCmdId, async (orgId: string) => {
+        if (orgId) {
+            // TODO: Handle multiple project creation scenarios for different orgs
+            if (!projectWizard || !projectWizard.getWebview()) {
+                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, orgId);
+            }
+            projectWizard.getWebview()?.reveal();
+        } else {
+            const orgs = ext.api.userInfo?.organizations;
+            if (!orgs) {
+                window.showErrorMessage('Failed to load organizations.');
+                return;
+            }
+            const quickPicks: QuickPickItem[] = orgs.map(org => ({ label: org.name, description: org.handle }));
+            const options: QuickPickOptions = { canPickMany: false, ignoreFocusOut: true, title: "Select Organization" };
+            const selected = await window.showQuickPick(quickPicks, options);
+            if (selected) {
+                const selectedOrgItem = orgs.find(org => org.name === selected.label);
+
+                if (!projectWizard || !projectWizard.getWebview()) {
+                    projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, `${selectedOrgItem?.id}`);
+                }
+                projectWizard.getWebview()?.reveal();
+            }
         }
-        projectWizard.getWebview()?.reveal();
     });
 
-    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, () => {
-        if (!componentWizard || !componentWizard.getWebview()) {
-            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
+    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async (mode?: ComponentCreateMode) => {
+        if (mode) {
+            if (componentWizard) {
+                componentWizard.dispose();
+            }
+            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, mode);
+            componentWizard.getWebview()?.reveal();
+            return;
         }
-        componentWizard.getWebview()?.reveal();
+
+        // if no mode passed, show quick pick
+        const options: QuickPickOptions = {
+			canPickMany: false,
+			ignoreFocusOut: true,
+			title: "Create a new Choreo Component",
+		};
+		const items:QuickPickItem[] = [{
+            label: "$(add) From scratch",
+            picked: true,
+            detail:  "Create a new Choreo component from scratch",
+        }, {
+            label: "$(add) From existing",
+            detail: "Create a new Choreo component from your existing code"
+        }];
+		const selected = await window.showQuickPick(items, options);
+
+        if(selected){
+            if (componentWizard) {
+                componentWizard.dispose();
+            }
+            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, selected.label === "$(add) From scratch" ? 'fromScratch' : 'fromExisting');
+            componentWizard.getWebview()?.reveal();
+        }      
     });
 
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
 
-    // Register Project Overview Wizard
-    const projectOverview = commands.registerCommand(choreoProjectOverview, async (project: Project) => {
-        let selectedProjectId = project ? project?.id : undefined;
-        const isChoreoProject = await ext.api.isChoreoProject();
-        if (!selectedProjectId && isChoreoProject) {
-            const choreoProject = await ext.api.getChoreoProject();
-            if (choreoProject) {
-                selectedProjectId = choreoProject.id;
-                project = choreoProject;
-            }
-        }
-        if (selectedProjectId && !isChoreoProject) {
-            sendTelemetryEvent(OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, { "project": project?.name });
-        } else if (selectedProjectId && isChoreoProject) {
-            const choreoProject = await ext.api.getChoreoProject();
-            const isCurrentProject = choreoProject?.id === selectedProjectId;
-            if (!isCurrentProject) {
-                sendTelemetryEvent(OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, { "project": project?.name });
-            }
-        }
-        if (!selectedProjectId) {
-            return;
-        }
-        ext.api.selectedProjectId = selectedProjectId;
-        const org: Organization | undefined = ext.api.selectedOrg;
-        if (org !== undefined) {
-            ProjectOverview.render(ext.context.extensionUri, project, org);
-        }
-    });
-
-    const projectOverviewClose = commands.registerCommand(choreoProjectOverviewCloseCmdId, () => {
-        if (ProjectOverview.currentPanel) {
-            ProjectOverview.currentPanel.dispose();
-        }
-    });
-
-    ext.context.subscriptions.push(projectOverview);
-    ext.context.subscriptions.push(projectOverviewClose);
 
     // Register Cell Diagram Wizard
     const choreoArchitectureView = commands.registerCommand(choreoArchitectureViewCmdId, (orgName: string, projectId: string) => {
@@ -84,4 +93,7 @@ export function activateWizards() {
     });
 
     ext.context.subscriptions.push(choreoArchitectureView);
+
+    commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
+    commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
 }
