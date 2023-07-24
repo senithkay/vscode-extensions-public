@@ -321,6 +321,7 @@ export function ProjectWizard(props: { orgId: string }) {
                         (
                             <SectionWrapper>
                                 <ConfigureRepoAccordion
+                                    selectedOrg={selectedOrg}
                                     gitProvider={gitProvider}
                                     selectedCredential={selectedCredential}
                                     selectedGHOrgName={selectedGHOrgName}

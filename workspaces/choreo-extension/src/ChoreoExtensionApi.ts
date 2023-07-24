@@ -57,6 +57,8 @@ export class ChoreoExtensionApi {
 
     private _selectedProjectId: string | undefined;
 
+    private _choreoInstallationOrgId: number | undefined;
+
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
     public onStatusChanged = this._onStatusChanged.event;
 
@@ -112,6 +114,18 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
+    public setChoreoInstallOrg(selectedOrgId: number ) {
+        this._choreoInstallationOrgId = selectedOrgId;
+    }
+
+    public getChoreoInstallOrg(): number | undefined {
+        return this._choreoInstallationOrgId;
+    }
+
+    public clearChoreoInstallOrg() {
+        this._choreoInstallationOrgId = undefined;
+    }
+    
     public refreshComponentList() {
         this._onRefreshComponentList.fire(null);
     }
