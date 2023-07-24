@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     ComponentViewInfo,
@@ -32,6 +32,7 @@ export interface IDataMapperContext {
     stSymbolInfo: STSymbolInfo;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
+    goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
     diagnostics: Diagnostic[];
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     collapsedFields: string[];
@@ -59,6 +60,7 @@ export class DataMapperContext implements IDataMapperContext {
         public stSymbolInfo: STSymbolInfo,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => Promise<void>,
+        public goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void,
         public diagnostics: Diagnostic[],
         public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,
         public collapsedFields: string[],

@@ -1,18 +1,19 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
 import { CtrlClickHandler } from "../../../CtrlClickHandler";
-import { GoToSourceNodeMenu } from "../../../NodeActionMenu/GoToSourceNodeMenu";
+import { FilterNodeAndGoToSourceMenu } from "../../../NodeActionMenu/FilterNodeAndGoToSourceMenu";
+import { NodeCategory } from "../../../NodeFilter";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { EnumIcon } from "../../../resources/assets/icons/EnumIcon";
 import { HeaderName } from "../../../resources/styles/styles";
@@ -49,7 +50,10 @@ export function EnumHeadWidget(props: EnumHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <GoToSourceNodeMenu location={node?.enumObject?.position} />
+                <FilterNodeAndGoToSourceMenu
+                    location={node?.enumObject?.position}
+                    nodeType={{ name: displayName, type: NodeCategory.ENUM }}
+                />
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}

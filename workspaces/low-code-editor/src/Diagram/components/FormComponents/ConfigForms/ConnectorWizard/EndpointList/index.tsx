@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js
 
 // NOTE: This component contains three updates in the language server extension.
@@ -93,7 +93,9 @@ export function EndpointList(props: FormGeneratorProps) {
         ) {
             const blockVisibleEndpoints: VisibleEndpoint[] = targetBlock?.VisibleEndpoints;
             blockVisibleEndpoints?.forEach((endpoint) => {
-                if (endpoint.position && endpoint.position.endLine < targetPosition.startLine) {
+                const isTopLevelEndpoint = endpoint.isModuleVar || endpoint.isClassField;
+                const isAboveTarget = endpoint.position && endpoint.position.endLine < targetPosition.startLine;
+                if (isTopLevelEndpoint || isAboveTarget) {
                     const connector = getConnectorFromVisibleEp(endpoint);
                     endpointElementList.push(getListComponent(connector, endpoint.name, endpoint.isClassField));
                     isEndpointExists = true;

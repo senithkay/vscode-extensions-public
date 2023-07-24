@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
@@ -16,12 +16,13 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExitToApp from "@material-ui/icons/ExitToApp";
 import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
+import { ExpressionFunctionBody, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
 import { FUNCTION_BODY_QUERY } from "../../utils/constants";
+import { isRepresentFnBody } from "../../utils/dm-utils";
 import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 import {
@@ -124,6 +125,11 @@ export interface QueryExprAsSFVNodeWidgetProps {
 
 export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) {
     const { node, engine } = props;
+    const { stNode: selectedST } = node.context.selection.selectedST;
+    let exprFnBody: ExpressionFunctionBody;
+    if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
+        exprFnBody = selectedST.functionBody;
+    }
     const classes = useStyles();
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
@@ -140,10 +146,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
             if (specificField && STKindChecker.isFunctionDefinition(specificField)) {
                 isExprBodyQuery = true;
             }
-        } else if (
-            STKindChecker.isExpressionFunctionBody(node.parentNode) ||
-            STKindChecker.isLetExpression(node.parentNode)
-        ) {
+        } else if (exprFnBody && isRepresentFnBody(node.parentNode, exprFnBody)) {
             isExprBodyQuery = true;
         }
         node.context.changeSelection(ViewOption.EXPAND,

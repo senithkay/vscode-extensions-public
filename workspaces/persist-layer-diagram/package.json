@@ -22,7 +22,6 @@
 		"@projectstorm/react-diagrams-routing": "^6.7.4",
 		"@types/lodash": "^4.14.189",
 		"@types/node": "^18.11.19",
-		"@wso2-enterprise/design-diagram-commons": "workspace:*",
 		"closest": "^0.0.1",
 		"dagre": "^0.8.5",
 		"file-loader": "^5.0.2",
@@ -33,7 +32,8 @@
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2",
 		"resize-observer-polyfill": "^1.5.1",
-		"typescript": "^4.9.4"
+		"typescript": "^4.9.4",
+		"@wso2-enterprise/ui-toolkit": "workspace:*"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.20.12",

@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -16,7 +16,12 @@ import classnames from "classnames";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
-import { getDefaultValue, getExprBodyFromLetExpression, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
+import {
+    getDefaultValue,
+    getFieldLabel,
+    getFieldName,
+    getInnermostExpressionBody
+} from "../../../utils/dm-utils";
 import { OutputSearchHighlight } from "../Search";
 
 import { useStyles } from "./styles";
@@ -63,13 +68,14 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     const portIn = getPort(`${fieldId}.IN`);
     let body: STNode;
 
-    if (field?.value && STKindChecker.isLetExpression(field.value)) {
-        body = getExprBodyFromLetExpression(field.value)
-    } else if (field?.value && STKindChecker.isQueryExpression(field.value)) {
-        body = field.value.selectClause.expression;
-    } else {
-        body = field.value;
+    if (field?.value) {
+        body = getInnermostExpressionBody(field.value);
+        if (STKindChecker.isQueryExpression(field.value)) {
+            const selectClause = field.value?.selectClause || field.value?.resultClause;
+            body = selectClause.expression;
+        }
     }
+
     const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);

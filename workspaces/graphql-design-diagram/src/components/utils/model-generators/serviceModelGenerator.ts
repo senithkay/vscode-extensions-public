@@ -1,17 +1,18 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import { DiagramModel } from "@projectstorm/react-diagrams";
 
 import { GraphqlBaseLinkModel } from "../../Link/BaseLink/GraphqlBaseLinkModel";
 import { DefaultLinkModel } from "../../Link/DefaultLink/DefaultLinkModel";
 import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlServiceLinkModel";
+import { NodeCategory, NodeType } from "../../NodeFilter";
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
 import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel, GRAPHQL_SERVICE_NODE } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
@@ -39,19 +40,22 @@ import {
 } from "../../resources/model";
 import { OperationTypes } from "../../TypeFilter";
 
+import { diagramGeneratorForNodeFiltering, diagramGeneratorForOperationTypeFiltering } from "./filteredModelGenerator";
 
 // all nodes in the diagram
 let diagramNodes: Map<string, GraphqlDesignNode>;
 // all links in the diagram
 let nodeLinks: GraphqlBaseLinkModel[];
 
-export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes): DiagramModel {
+export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes, filteredNode: NodeType): DiagramModel {
     diagramNodes = new Map<string, GraphqlDesignNode>();
     nodeLinks = [];
 
-
-    if (typeFilter !== OperationTypes.All_Operations) {
-        filteredModelMapper(graphqlModel, typeFilter);
+    if (filteredNode && filteredNode.type !== NodeCategory.GRAPHQL_SERVICE) {
+        diagramGeneratorForNodeFiltering(graphqlModel, filteredNode);
+    } else if (typeFilter !== OperationTypes.All_Operations) {
+        diagramGeneratorForOperationTypeFiltering(graphqlModel, typeFilter);
+        removeUnlinkedModels();
     } else {
         // generate the graphql service node
         graphqlServiceModelMapper(graphqlModel.graphqlService);
@@ -83,22 +87,16 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel, typeFilt
         }
 
         generateLinks(graphqlModel);
+        removeUnlinkedModels();
 
     }
-
-    removeUnlinkedModels();
 
     const model = new DiagramModel();
     model.addAll(...Array.from(diagramNodes.values()), ...nodeLinks);
     return model;
 }
 
-
-function filteredModelMapper(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes) {
-    const updatedModel: GraphqlDesignModel = updatedGraphqlModel(graphqlModel, typeFilter);
-    // generate the graphql service node for filtered model
-    graphqlServiceModelMapper(updatedModel.graphqlService);
-
+export function generateDiagramNodesForFilteredNodes(updatedModel: GraphqlDesignModel) {
     if (updatedModel.enums) {
         enumModelMapper(updatedModel.enums);
     }
@@ -117,13 +115,11 @@ function filteredModelMapper(graphqlModel: GraphqlDesignModel, typeFilter: Opera
     if (updatedModel.hierarchicalResources) {
         hierarchicalResourceModelMapper(updatedModel.hierarchicalResources);
     }
-
-    generateLinksForFilteredNodes(updatedModel);
-
+    return updatedModel;
 }
 
-function updatedGraphqlModel(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes): GraphqlDesignModel {
-    const updatedModel: GraphqlDesignModel = { ...graphqlModel };
+export function updatedGraphqlModel(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes): GraphqlDesignModel {
+    let updatedModel: GraphqlDesignModel = { ...graphqlModel };
 
     updatedModel.graphqlService = filterFromOperationType(typeFilter, graphqlModel.graphqlService);
 
@@ -133,7 +129,11 @@ function updatedGraphqlModel(graphqlModel: GraphqlDesignModel, typeFilter: Opera
     // get the interactions of the current linkedNodeList
     const updatedNodeList = getRelatedNodes(graphqlModel, linkedNodeList);
 
+    updatedModel = createFilteredNodeModel(updatedNodeList, graphqlModel, updatedModel);
+    return updatedModel;
+}
 
+export function createFilteredNodeModel(updatedNodeList: string[], graphqlModel: GraphqlDesignModel, updatedModel: GraphqlDesignModel){
     // iterate with the current model and obtain only the ones with the updatedNodeList
     const unionMap = new Map<string, UnionComponent>();
     const enumMap = new Map<string, EnumComponent>();
@@ -194,7 +194,7 @@ function getTypesOfRootNodeFunctions(updatedModel: GraphqlDesignModel) {
     return typeList;
 }
 
-function getRelatedNodes(graphqlModel: GraphqlDesignModel, typeList: string[]) {
+export function getRelatedNodes(graphqlModel: GraphqlDesignModel, typeList: string[]) {
     typeList.forEach((type) => {
         if (Object.keys(graphqlModel.records).includes(type)) {
             Object.values(graphqlModel.records).forEach((record: RecordComponent) => {
@@ -285,7 +285,7 @@ function removeUnlinkedModels() {
     });
 }
 
-function graphqlServiceModelMapper(service: Service) {
+export function graphqlServiceModelMapper(service: Service) {
     const serviceNode: GraphqlServiceNodeModel = new GraphqlServiceNodeModel(service);
     diagramNodes.set(service.serviceName, serviceNode);
 }
@@ -388,9 +388,12 @@ function generateLinks(graphqlModel: GraphqlDesignModel) {
 }
 
 
-function generateLinksForFilteredNodes(graphqlModel: GraphqlDesignModel) {
+export function generateLinksForFilteredNodes(graphqlModel: GraphqlDesignModel) {
     generateLinksForGraphqlService(graphqlModel.graphqlService);
+    generateLinksForSupportingNodes(graphqlModel);
+}
 
+export function generateLinksForSupportingNodes(graphqlModel: GraphqlDesignModel) {
     if (graphqlModel.unions) {
         generateLinksForUnions(graphqlModel.unions);
     }

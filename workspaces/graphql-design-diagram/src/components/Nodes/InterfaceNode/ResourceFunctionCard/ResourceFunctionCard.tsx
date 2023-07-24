@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef, useState } from "react";
@@ -13,10 +13,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
-import { ResourceFunction, ServiceClassField } from "../../../resources/model";
+import { ResourceFunction } from "../../../resources/model";
 import { FieldName, FieldType, NodeFieldContainer } from "../../../resources/styles/styles";
 import { InterfaceNodeModel } from "../InterfaceNodeModel";
 
@@ -28,6 +29,7 @@ interface ResourceFunctionCardProps {
 
 export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
     const { engine, node, functionElement } = props;
+    const { setSelectedNode } = useGraphQlContext();
 
     const functionPorts = useRef<PortModel[]>([]);
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
@@ -47,6 +49,10 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
         setAnchorElement(null);
     };
 
+    const updateSelectedNode = () => {
+        setSelectedNode(functionElement.returns);
+    }
+
     const classes = popOverStyle();
 
     return (
@@ -58,7 +64,9 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
             <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
                 {functionElement.identifier}
             </FieldName>
-            <FieldType>{functionElement.returns}</FieldType>
+            <div onClick={updateSelectedNode}>
+                <FieldType>{functionElement.returns}</FieldType>
+            </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
                 engine={engine}
@@ -84,7 +92,7 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
                         horizontal: 'center'
                     }}
                 >
-                    <ParametersPopup parameters={functionElement.parameters}/>
+                    <ParametersPopup parameters={functionElement.parameters} />
                 </Popover>
             )}
         </NodeFieldContainer>

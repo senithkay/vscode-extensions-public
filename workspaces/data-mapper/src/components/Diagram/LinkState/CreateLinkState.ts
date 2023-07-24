@@ -11,6 +11,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from '../Node/LinkConnector';
 import { ModuleVariableNode } from "../Node/ModuleVariable";
+import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
 
@@ -34,6 +35,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 						if (element instanceof MappingConstructorNode
 							|| element instanceof ListConstructorNode
 							|| element instanceof PrimitiveTypeNode
+							|| element instanceof UnionTypeNode
 						) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
@@ -90,18 +92,24 @@ export class CreateLinkState extends State<DiagramEngine> {
 						if ((element instanceof RecordFieldPortModel)
 						|| ((element instanceof IntermediatePortModel) && (element.getParent() instanceof LinkConnectorNode))) {
 							if (element.portType === "IN") {
-								element.fireEvent({}, "mappingFinishedTo");
-								if (this.sourcePort.canLinkToPort(element)) {
+								let isDisabled = false;
+								if (element instanceof RecordFieldPortModel) {
+									isDisabled = element.isDisabled();
+								}
+								if (!isDisabled) {
+									element.fireEvent({}, "mappingFinishedTo");
+									if (this.sourcePort.canLinkToPort(element)) {
 
-									this.link?.setTargetPort(element);
-									this.engine.getModel().addAll(this.link)
-									if (this.sourcePort instanceof RecordFieldPortModel) {
-										this.sourcePort.linkedPorts.forEach((linkedPort) => {
-											linkedPort.fireEvent({}, "enableNewLinking")
-										})
+										this.link?.setTargetPort(element);
+										this.engine.getModel().addAll(this.link)
+										if (this.sourcePort instanceof RecordFieldPortModel) {
+											this.sourcePort.linkedPorts.forEach((linkedPort) => {
+												linkedPort.fireEvent({}, "enableNewLinking")
+											})
+										}
+										this.clearState();
+										this.eject();
 									}
-									this.clearState();
-									this.eject();
 								}
 							} else {
 								// Selected another input port, change selected port
