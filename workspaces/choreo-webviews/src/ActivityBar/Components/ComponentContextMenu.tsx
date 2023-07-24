@@ -52,7 +52,7 @@ export const ComponentContextMenu = (props: {
         ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
     }, [componentBaseUrl]);
 
-    const gitBaseUrl = repository.gitProvider === GitProvider.GITHUB ? "https://github.com" : "https://bitbucket.org";
+    const gitBaseUrl = repository.gitProvider === GitProvider.BITBUCKET ? "https://bitbucket.org" : "https://github.com";
     let gitUrl = `${gitBaseUrl}/${repository?.organizationApp}/${repository?.nameApp}`;
     gitUrl = repository.gitProvider === GitProvider.GITHUB ? `${gitUrl}/tree` : `${gitUrl}/src`;
     gitUrl = component.local
