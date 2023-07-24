@@ -14,6 +14,8 @@ import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
 import { getHttpClient } from '../http-client';
 import { AccessToken, AuthClientConfig, IAuthClient } from './types';
+import { isRequestTraceEnabled } from '../utils';
+import { decodeJwt } from "jose";
 
 const ACCESS_TOKEN_ERROR = "Error while exchanging the access token!";
 const REFRESH_TOKEN_ERROR = "Error while exchanging the refresh token!";
@@ -60,7 +62,7 @@ export class ChoreoAuthClient implements IAuthClient {
     }
 
     async exchangeVSCodeToken(apimAccessToken: string, orgHandle: string): Promise<AccessToken> {
-        const params = new URLSearchParams({
+        const params = {
             client_id: this._config.vscodeClientId,
             grant_type: ExchangeGrantType,
             subject_token_type: JWTTokenType,
@@ -68,10 +70,16 @@ export class ChoreoAuthClient implements IAuthClient {
             scope: `${ApimScope} ${this._config.apimScopes}`,
             subject_token: apimAccessToken,
             orgHandle,
-        });
+        };
+        if (isRequestTraceEnabled()) {
+            const { subject_token, ...restParams } = params;
+            console.log(`Invoke token exchange with params: ${JSON.stringify(restParams)}`);
+            const decodedToken = decodeJwt(subject_token);
+            console.log(`Decoded token: ${JSON.stringify(decodedToken)}`);
+        }
         try {
             const response = await getHttpClient()
-                .post(this._config.apimTokenUrl, params.toString(), { headers: CommonReqHeaders });
+                .post(this._config.apimTokenUrl, (new URLSearchParams(params)).toString(), { headers: CommonReqHeaders });
             return {
                 accessToken: response.data.access_token,
                 refreshToken: response.data.refresh_token,
@@ -92,7 +100,7 @@ export class ChoreoAuthClient implements IAuthClient {
     
         try {
             const response = await getHttpClient()
-                .post(this._config.tokenUrl, params.toString(), { headers: CommonReqHeaders });
+                .post(this._config.apimTokenUrl, params.toString(), { headers: CommonReqHeaders });
             return {
                 accessToken: response.data.access_token,
                 refreshToken: response.data.refresh_token,

@@ -10,8 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useCallback } from "react";
 import { Deployment, DeploymentStatus } from "@wso2-enterprise/choreo-core";
+import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const DeploymentStatusMapping = {
     [DeploymentStatus.Active]: "Deployed",
@@ -25,8 +28,13 @@ export const DeploymentStatusText: React.FC<{
     localComponent: boolean;
     deployment: Deployment;
     loading: boolean;
+    handler: string;
 }> = (props) => {
-    const { deployment, localComponent, loading } = props;
+    const { deployment, localComponent, loading, handler } = props;
+    const { choreoUrl, choreoProject, currentProjectOrg } = useChoreoWebViewContext();
+
+    const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}/components/${handler}`;
+    const componentDeployLink = `${componentBaseUrl}/deploy`;
 
     const deploymentStatusText: DeploymentStatus =
         (deployment?.deploymentStatus as DeploymentStatus) || DeploymentStatus.NotDeployed;
@@ -46,6 +54,11 @@ export const DeploymentStatusText: React.FC<{
             deploymentStatusColor = "--vscode-charts-lines";
             break;
     }
+
+    const openBuildInfoInConsole = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().openExternal(componentDeployLink);
+    }, [componentBaseUrl]);
+
     return (
         <>
             {localComponent ? (
@@ -53,7 +66,9 @@ export const DeploymentStatusText: React.FC<{
             ) : loading ? (
                 "Loading..."
             ) : (
-                <div style={{ color: `var(${deploymentStatusColor})` }}>{DeploymentStatusMapping[deploymentStatusText]} </div>
+                <VSCodeLink onClick={openBuildInfoInConsole} style={{ color: `var(${deploymentStatusColor})` }}>
+                    {DeploymentStatusMapping[deploymentStatusText]}
+                </VSCodeLink>
             )}
         </>
     );

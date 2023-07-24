@@ -249,7 +249,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
     }
 
-    public async pushLocalComponentsToChoreo(params: PushLocalComponentsToChoreoParams): Promise<void> {
+    public async pushLocalComponentsToChoreo(params: PushLocalComponentsToChoreoParams): Promise<string[]> {
         return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, params);
     }
 

@@ -15,6 +15,7 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { BuildStatus, Component } from "@wso2-enterprise/choreo-core";
 
 export function useComponentBuildStatus(component: Component) {
+    const latestApiVersion = component?.apiVersions?.find(item => item.latest);
     const {
         data: buildData,
         isLoading: isLoadingBuild,
@@ -23,7 +24,7 @@ export function useComponentBuildStatus(component: Component) {
         error: buildLoadError,
         isFetched,
     } = useQuery({
-        queryKey: ["project_component_build_status", component?.id],
+        queryKey: ["project_component_build_status", component?.id, latestApiVersion?.id],
         queryFn: async (): Promise<BuildStatus | undefined> => {
             const buildStatus = await ChoreoWebViewAPI.getInstance().getComponentBuildStatus(component);
             return buildStatus || null;
@@ -35,7 +36,7 @@ export function useComponentBuildStatus(component: Component) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
             }
         },
-        enabled: component?.id !== undefined && !component.local,
+        enabled: component?.id !== undefined && !component.local && !!latestApiVersion,
     });
 
     return { buildData, isLoadingBuild, isRefetchingBuild, refreshBuild, buildLoadError, isFetched };

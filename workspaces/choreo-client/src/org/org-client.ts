@@ -12,25 +12,23 @@
  */
 
 import { Organization } from "@wso2-enterprise/choreo-core";
-import { IReadOnlyTokenStorage } from "../auth";
 import { IChoreoOrgClient } from "./types";
 import { getHttpClient } from "../http-client";
 
 export class ChoreoOrgClient implements IChoreoOrgClient {
     
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _orgApiURL: string) {  
+    constructor(private _orgApiURL: string) {  
     }
 
-    private async _getOrgClient(orgId: number) {
-        const token = await this._tokenStore.getTokenForOrg(orgId);
-        if (!token) {
-            throw new Error('User is not logged in');
+    private async _getOrgClient(choreoAccessToken: string) {
+        if (!choreoAccessToken) {
+            throw new Error('No access token provided');
         }
-        return getHttpClient(token.accessToken, this._orgApiURL)
+        return getHttpClient(choreoAccessToken, this._orgApiURL)
     }
 
-    async getOrganizations(orgId: number): Promise<Organization[]> {
-        const client = await this._getOrgClient(orgId);
+    async getOrganizations(choreoAccessToken: string): Promise<Organization[]> {
+        const client = await this._getOrgClient(choreoAccessToken);
         try {
             const response = await client.get('');
             return response.data as Organization[];

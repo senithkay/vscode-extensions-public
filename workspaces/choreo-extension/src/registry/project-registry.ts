@@ -79,8 +79,8 @@ export class ProjectRegistry {
         });
     }
 
-    async getProjects(orgId: number, orgHandle: string ): Promise<Project[]> {
-        if (!this._dataProjects.has(orgId) && ext.api.status === "LoggedIn") {
+    async getProjects(orgId: number, orgHandle: string, forceRefresh: boolean = false): Promise<Project[]> {
+        if ((forceRefresh || !this._dataProjects.has(orgId)) && ext.api.status === "LoggedIn") {
             try {
                 const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
                 this._dataProjects.set(orgId, projects);
@@ -562,7 +562,7 @@ export class ProjectRegistry {
         return preferredRepository;
     }
 
-    pushLocalComponentsToChoreo(projectId: string, componentNames: string[] = []): Thenable<void> {
+    pushLocalComponentsToChoreo(projectId: string, componentNames: string[] = []): Thenable<string[]> {
         return window.withProgress({
             title: `Pushing local components to Choreo`,
             location: ProgressLocation.Notification,
@@ -574,6 +574,7 @@ export class ProjectRegistry {
             });
 
             const projectLocation: string | undefined = this.getProjectLocation(projectId);
+            const successComponentNames: string[] = [];
             const failedComponents: string[] = [];
             const failedComponentsDueToMaxLimit: string[] = [];
             if (projectLocation !== undefined) {
@@ -593,6 +594,7 @@ export class ProjectRegistry {
                                 await this._createComponent(componentMetadata);
                             }
                             choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                            successComponentNames.push(componentMetadata.displayName);
                         } catch (error: any) {
                             if (error.cause?.response?.metadata?.additionalData === "REACHED_MAXIMUM_NUMBER_OF_FREE_COMPONENTS") {
                                 const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
@@ -618,8 +620,8 @@ export class ProjectRegistry {
                     window.showErrorMessage(errorMessage);
                 }
             }
+            return successComponentNames;
         });
-
     }
 
     getConsoleUrl() {
