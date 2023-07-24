@@ -13,7 +13,7 @@ import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-languagecli
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
-import { Colors } from '../../../../resources';
+import { Colors, Views } from '../../../../resources';
 import { extractAttributeType } from '../entity-util';
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 
@@ -26,7 +26,7 @@ interface AttributeProps {
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
-    const { editingEnabled } = useContext(DiagramContext);
+    const { editingEnabled, setFocusedNodeId, currentView } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);
@@ -41,6 +41,12 @@ export function AttributeWidget(props: AttributeProps) {
     const handleOnHover = (task: string) => {
         setIsHovered(task === 'SELECT' ? true : false);
         node.handleHover(attributePorts.current, task);
+    }
+
+    const onClickOnType = () => {
+        if (currentView ===  Views.TYPE) {
+            setFocusedNodeId(attribute?.associations[0]?.associate);
+        }
     }
 
     return (
@@ -58,6 +64,7 @@ export function AttributeWidget(props: AttributeProps) {
                     <AttributeType
                         isAnonymous={node.entityObject.isAnonymous}
                         isSelected={isSelected || isHovered}
+                        onClick={onClickOnType}
                     >
                         {attributeType}
                     </AttributeType>

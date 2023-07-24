@@ -35,7 +35,7 @@ export function getFormattedPosition(position: Position): NodePosition {
 }
 
 export function getComponentName(name: string): string {
-    return name.replace(/[!\[\]]/g, "");
+    return name?.replace(/[!\[\]]/g, "");
 }
 
 export function getNodeListOfModel(model: GraphqlDesignModel) {

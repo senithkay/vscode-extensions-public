@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) (2021-2023), WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,14 +10,14 @@
 import { BallerinaExtension, ExecutorPosition, ExecutorPositionsResponse, ExtendedLangClient, LANGUAGE } from '../core';
 import {
     CancellationToken, CodeLens, CodeLensProvider, commands, debug, DebugConfiguration, Event, EventEmitter,
+    ExtensionContext,
     ProviderResult, Range, TextDocument, Uri, window, workspace, WorkspaceFolder
 } from 'vscode';
 import { BAL_TOML, clearTerminal, PALETTE_COMMANDS } from '../project';
-import fileUriToPath from 'file-uri-to-path';
 import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
-import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
+import { constructDebugConfig } from '../debugger';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { traversNode } from '@wso2-enterprise/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
@@ -66,12 +66,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             }
         });
 
-        commands.registerCommand(INTERNAL_DEBUG_COMMAND, async (args: any) => {
+        commands.registerCommand(INTERNAL_DEBUG_COMMAND, async () => {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_SOURCE_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(this.activeTextEditorUri!, false, this.ballerinaExtension.getBallerinaCmd(),
-                this.ballerinaExtension.getBallerinaHome(), args);
+            startDebugging(this.activeTextEditorUri!, false);
         });
 
         commands.registerCommand(SOURCE_DEBUG_COMMAND, async () => {
@@ -80,12 +79,11 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return;
         });
 
-        commands.registerCommand(TEST_DEBUG_COMMAND, async (...args: any[]) => {
+        commands.registerCommand(TEST_DEBUG_COMMAND, async () => {
             sendTelemetryEvent(this.ballerinaExtension, TM_EVENT_TEST_DEBUG_CODELENS, CMP_EXECUTOR_CODELENS);
             clearTerminal();
             commands.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
-            startDebugging(window.activeTextEditor!.document.uri, true, this.ballerinaExtension.getBallerinaCmd(),
-                this.ballerinaExtension.getBallerinaHome(), args);
+            startDebugging(window.activeTextEditor!.document.uri, true);
         });
     }
 
@@ -109,14 +107,16 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         try {
             const response = await langClient!.getExecutorPositions({
-                    documentIdentifier: {
-                        uri: fileUri
-                    }
-                }) as ExecutorPositionsResponse;
+                documentIdentifier: {
+                    uri: fileUri
+                }
+            }) as ExecutorPositionsResponse;
             if (response.executorPositions) {
                 response.executorPositions.forEach(position => {
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
-                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
+                    if (position.kind === EXEC_POSITION_TYPE.SOURCE) {
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
+                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
+                    }
                 });
             }
         } catch (error) {
@@ -125,10 +125,10 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         // Open in diagram code lenses
         try {
             const syntaxTreeResponse = await langClient!.getSyntaxTree({
-                    documentIdentifier: {
-                        uri: fileUri
-                    }
-                });
+                documentIdentifier: {
+                    uri: fileUri
+                }
+            });
             const response = syntaxTreeResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess && response.syntaxTree) {
                 const syntaxTree = response.syntaxTree;
@@ -162,60 +162,9 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 }
 
-async function startDebugging(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string, args: any[])
+async function startDebugging(uri: Uri, testDebug: boolean)
     : Promise<boolean> {
     const workspaceFolder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(uri);
-    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug, ballerinaCmd,
-        ballerinaHome, args);
+    const debugConfig: DebugConfiguration = await constructDebugConfig(uri, testDebug);
     return debug.startDebugging(workspaceFolder, debugConfig);
-}
-
-async function constructDebugConfig(uri: Uri, testDebug: boolean, ballerinaCmd: string, ballerinaHome: string,
-    args: any): Promise<DebugConfiguration> {
-
-    let programArgs = [];
-    let commandOptions = [];
-    let env = {};
-    const debugConfigs: DebugConfiguration[] = workspace.getConfiguration(DEBUG_REQUEST.LAUNCH).configurations;
-    if (debugConfigs.length > 0) {
-        let debugConfig: DebugConfiguration | undefined;
-        for (let i = 0; i < debugConfigs.length; i++) {
-            if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
-                (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
-                debugConfig = debugConfigs[i];
-                break;
-            }
-        }
-        if (debugConfig) {
-            if (debugConfig.programArgs) {
-                programArgs = debugConfig.programArgs;
-            }
-            if (debugConfig.commandOptions) {
-                commandOptions = debugConfig.commandOptions;
-            }
-            if (debugConfig.env) {
-                env = debugConfig.env;
-            }
-        }
-    }
-
-    const debugConfig: DebugConfiguration = {
-        type: LANGUAGE.BALLERINA,
-        name: testDebug ? DEBUG_CONFIG.TEST_DEBUG_NAME : DEBUG_CONFIG.SOURCE_DEBUG_NAME,
-        request: DEBUG_REQUEST.LAUNCH,
-        script: fileUriToPath(uri.toString()),
-        networkLogs: false,
-        debugServer: '10001',
-        debuggeePort: '5010',
-        'ballerina.home': ballerinaHome,
-        'ballerina.command': ballerinaCmd,
-        debugTests: testDebug,
-        tests: testDebug ? args : [],
-        configEnv: !testDebug ? args : undefined,
-        programArgs,
-        commandOptions,
-        env,
-        capabilities: { supportsReadOnlyEditors: true }
-    };
-    return debugConfig;
 }

@@ -318,7 +318,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                 id={id}
                                 isRequired={isRequired}
                                 name={name}
-                                placeholder="Select config or Enter a value"
+                                placeholder={props.isNestedArray ? "Enter comma seperated array" : "Select config or Enter a value"}
                                 setTextFieldValue={setStringType}
                                 type={isMarkedSensitive ? "password" : "text"}
                                 disabled={textInputDisabledState}

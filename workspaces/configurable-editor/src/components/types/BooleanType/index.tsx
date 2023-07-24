@@ -288,7 +288,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                             <TextFieldInput
                                 id={id}
                                 isRequired={isRequired}
-                                placeholder="Select config or Enter a value"
+                                placeholder={props.isNestedArray ? "Enter comma seperated array" : "Select config or Enter a value"}
                                 setTextFieldValue={setBooleanValue}
                                 type={isMarkedSensitive ? "password" : "text"}
                                 disabled={textInputDisabledState}

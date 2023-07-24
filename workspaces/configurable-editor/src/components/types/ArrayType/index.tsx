@@ -13,7 +13,7 @@ import { ConfigElementProps } from "../../ConfigElement";
 import { ConfigType, SchemaConstants } from "../../model";
 import { getType } from "../../utils";
 
-import NestedArray, { NestedArrayProps }  from "./NestedArray";
+import NestedArray  from "./NestedArray";
 import ObjectArray, { ObjectArrayProps } from "./ObjectArray";
 import SimpleArray, { SimpleArrayProps } from "./SimpleArray";
 
@@ -22,15 +22,23 @@ import SimpleArray, { SimpleArrayProps } from "./SimpleArray";
  */
 export interface ArrayTypeProps extends ConfigElementProps {
     arrayType?: ConfigType;
+    isNestedArray?: boolean;
     setArrayType?: (id: string, objectValue: any) => void;
 }
 
 export const ArrayType = (props: ArrayTypeProps): ReactElement => {
-    const arrayType = getType(props.schema[SchemaConstants.ITEMS][SchemaConstants.TYPE]);
-
-    const arrayTypeProps: NestedArrayProps | ObjectArrayProps | SimpleArrayProps = {
+    let arrayType: ConfigType;
+    let isNestedArray: boolean;
+    if (props.schema[SchemaConstants.ITEMS][SchemaConstants.TYPE] === ConfigType.ARRAY) {
+        arrayType = getType(props.schema[SchemaConstants.ITEMS][SchemaConstants.ITEMS][SchemaConstants.TYPE]);
+        isNestedArray = true;
+    } else {
+        arrayType = getType(props.schema[SchemaConstants.ITEMS][SchemaConstants.TYPE]);
+    }
+    const arrayTypeProps: ObjectArrayProps | SimpleArrayProps = {
         ...props,
         arrayType,
+        isNestedArray,
         setArrayElement: props.setConfigElement,
     };
     switch (arrayType) {
@@ -38,14 +46,16 @@ export const ArrayType = (props: ArrayTypeProps): ReactElement => {
             return(
                 <ObjectArray {...arrayTypeProps} />
             );
-        case ConfigType.NESTEDARRAY:
-            return(
-                <NestedArray {...arrayTypeProps} />
-            );
         default:
-            return(
-                <SimpleArray {...arrayTypeProps} />
-            );
+            if (isNestedArray) {
+                return(
+                    <NestedArray {...arrayTypeProps} />
+                );
+            } else {
+                return(
+                    <SimpleArray {...arrayTypeProps} />
+                );
+            }
     }
 };
 

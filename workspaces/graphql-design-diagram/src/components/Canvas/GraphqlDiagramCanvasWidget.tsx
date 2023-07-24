@@ -10,14 +10,14 @@
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { toJpeg } from 'html-to-image';
 
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlOverlayLayerModel } from "../OverlayLoader";
 import { getComponentName } from "../utils/common-util";
-import { createGraphqlDiagramEngine, focusToNode } from "../utils/engine-util";
+import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { ContainerController } from "./ContainerController";
@@ -50,19 +50,9 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         diagramEngine.setModel(model);
         setDiagramModel(model);
         autoDistribute();
+        setSelectedNode(undefined);
 
     }, [model]);
-
-    useEffect(() => {
-        if (selectedDiagramNode) {
-            const selectedNewModel = diagramEngine.getModel().getNode(getComponentName(selectedDiagramNode));
-            if (selectedNewModel) {
-                const zoomLevel = diagramEngine.getModel().getZoomLevel();
-                focusToNode(selectedNewModel, zoomLevel, diagramEngine);
-            }
-            setSelectedNode(undefined);
-        }
-    }, [selectedDiagramNode]);
 
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
@@ -108,13 +98,24 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
             });
     };
 
+    const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (selectedDiagramNode && event.target === diagramEngine.getCanvas()) {
+            setSelectedNode(undefined);
+        }
+    };
+
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            <CanvasWidgetContainer>
-                <CanvasWidget engine={diagramEngine} />
-                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
-            </CanvasWidgetContainer>
+            <div onClick={handleCanvasClick}>
+                <CanvasWidgetContainer>
+                    <NavigationWrapperCanvasWidget
+                        diagramEngine={diagramEngine}
+                        focusedNode={diagramEngine?.getModel()?.getNode(getComponentName(selectedDiagramNode))}
+                    />
+                    <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
+                </CanvasWidgetContainer>
+            </div>
             }
         </>
     );

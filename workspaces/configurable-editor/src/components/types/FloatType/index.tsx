@@ -324,7 +324,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             pattern: "[-+]?[0-9]*[.]([0-9]+)",
                                         }
                                 }
-                                placeholder="Select config or Enter a value"
+                                placeholder={props.isNestedArray ? "Enter comma seperated array" : "Select config or Enter a value"}
                                 setTextFieldValue={setFloatConfig}
                                 type={isMarkedSensitive ? "password" : ((connectionClick || selectedValueRef !== "") ? "text" : "number")}
                                 disabled={textInputDisabledState}

@@ -15,6 +15,7 @@ import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { extractAttributeType } from '../entity-util';
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
+import { useDiagramContext } from "../../DiagramContext/DiagramContext";
 
 interface AttributeProps {
     node: EntityModel;
@@ -25,6 +26,7 @@ interface AttributeProps {
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
+    const { setFocusedNodeId, setSelectedNodeId } = useDiagramContext();
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);
@@ -41,6 +43,11 @@ export function AttributeWidget(props: AttributeProps) {
         node.handleHover(attributePorts.current, task);
     }
 
+    const handleOnAttributeTypeClick = () => {
+        setFocusedNodeId(attribute?.associations[0]?.associate);
+        setSelectedNodeId(undefined);
+    }
+
     return (
         <AttributeContainer
             isSelected={isSelected || isHovered}
@@ -54,6 +61,7 @@ export function AttributeWidget(props: AttributeProps) {
             {attribute.isReadOnly && <PrimaryKeyIcon styles={{ left: '20px', position: 'absolute' }} />}
             <AttributeName>{attribute.name}</AttributeName>
             <AttributeType
+                onClick={handleOnAttributeTypeClick}
                 isAnonymous={node.entityObject.isAnonymous}
                 isSelected={isSelected || isHovered}
                 styles={{

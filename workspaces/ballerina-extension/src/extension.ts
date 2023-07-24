@@ -29,7 +29,7 @@ import { activate as activateLibraryBrowser } from './library-browser';
 import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, log } from './utils';
-import { activateChoreoFeatures } from './choreo-features/activate';
+import { activateUriHandlers } from './uri-handlers';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -77,6 +77,8 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
     debug('Active the Ballerina VS Code extension.');
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EXTENSION_ACTIVATE, CMP_EXTENSION_CORE);
     ballerinaExtInstance.setContext(context);
+    // Enable URI handlers
+    activateUriHandlers(ballerinaExtInstance);
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
         // Enable package overview
@@ -101,8 +103,6 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
         activateNotebook(ballerinaExtInstance);
         activateLibraryBrowser(ballerinaExtInstance);
         activateDesignDiagramView(ballerinaExtInstance);
-        // Enable Choreo Related Features
-        activateChoreoFeatures(ballerinaExtInstance);
         activateERDiagram(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
@@ -115,12 +115,21 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
         isPluginStartup = false;
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
+        const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
+        
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();
+            ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
+
+            cmds.forEach((cmd) => {
+                const cmdID: string = cmd.command;
+                commands.registerCommand(cmdID, () => {
+                    ballerinaExtInstance.showMessageInstallBallerina();
+                });
+            });
         }
         // When plugins fails to start, provide a warning upon each command execution
-        if (!ballerinaExtInstance.langClient) {
-            const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
+        else if (!ballerinaExtInstance.langClient) {
             cmds.forEach((cmd) => {
                 const cmdID: string = cmd.command;
                 commands.registerCommand(cmdID, () => {
