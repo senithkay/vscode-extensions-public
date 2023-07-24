@@ -169,7 +169,50 @@
           "scope": "window"
         }
       }
-    }
+    },
+    "walkthroughs": [
+      {
+        "id": "choreo",
+        "title": "Getting started with Choreo",
+        "description": "Use the Choreo VSCode extension to speedup and empower your developer experience with Choreo projects. Refer to the Choreo panel on the left activity bar to conveniently access features.",
+        "steps": [
+          {
+            "id": "openProject",
+            "title": "Open a project",
+            "description": "Sign in to begin your developer experience with the Choreo VSCode extension. \n[Sign in](command:wso2.choreo.sign.in)\n **Working with existing projects** \nOnce signed in, conveniently switch between your Choreo projects from the [Choreo activity panel](command:choreo.activity.project.focus). For projects that are not yet in your local environment, you can opt to clone the project to a location of your preference. \n[Open Project](command:wso2.choreo.project.open)\n **Working with new projects** \n Create new projects, mono-repo and multi-repo, directly from the Choreo extension. Upon configuring basic project details and repository (for mono-repos), proceed to clone the project to your local environment. \n[Create new project](command:wso2.choreo.project.create)",
+            "media": {
+              "markdown": "resources/walkthrough/openProject.md"
+            }
+          },
+          {
+            "id": "createComponent",
+            "title": "Create a component",
+            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n **Create from existing** \nCreate new components from existing. implementations by simply providing the source directory or the docker file. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)\n **Create from scratch** \nCreate new components from default templates available for Choreo users. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromScratch%27%20%7D%22)",
+            "media": {
+              "image": "resources/walkthrough/createComponent.gif",
+              "altText": "Create Component"
+            }
+          },
+          {
+            "id": "visualizeProjects",
+            "title": "Visualize Choreo projects",
+            "description": "Visualize different aspects of your Choreo projects for a range of valuable information, all from a single click. \n **Architecture View** \n A high-level view of your project components, their compositions, and their dependencies with one another and external endpoints. \n[Open Architecture View](command:ballerina.view.architectureView)\n **Cell View** \n An enriched version of the architecture view, the cell view provides insights into the accessibility of your project components. \n[Open Cell View](command:ballerina.view.cellView)",
+            "media": {
+              "markdown": "resources/walkthrough/visualize.md"
+            }
+          },
+          {
+            "id": "publishProject",
+            "title": "Publish your project",
+            "description": "To leverage the capabilities of Choreo, sync your local changes with Choreo.",
+            "media": {
+              "image": "resources/walkthrough/PushToChoreo.gif",
+              "altText": "Push to Choreo"
+            }
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
