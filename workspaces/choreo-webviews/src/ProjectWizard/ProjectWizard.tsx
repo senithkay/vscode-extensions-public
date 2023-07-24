@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
@@ -24,7 +24,6 @@ import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
 const WizardContainer = styled.div`
@@ -64,15 +63,12 @@ const SubContainer = styled.div`
     gap: 20px;
 `;
 
-const CredContainer = styled.div`
-    height: 26px;
-`;
-
 const SectionWrapper = styled.div`
     // Flex Props
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    position: relative;
     gap: 10px;
     // End Flex Props
     // Sizing Props
@@ -88,18 +84,42 @@ const SectionWrapper = styled.div`
         border-color: var(--vscode-focusBorder);
     }
 `;
+
+const TitleWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+`;
+
+const OrgContainer = styled.div`
+    width: fit-content;
+    height: fit-content;
+    padding: 5px;
+    // Border Props
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: transparent;
+    background-color: var(--vscode-welcomePage-tileBackground);
+`;
+
+const BrowseBtn = styled(VSCodeButton)`
+    width: fit-content;
+    padding: 5px;
+`;
+
 export interface Region {
     label: string;
     value: string;
 }
 
-const REGIONS: Region[] = [{label: "Cloud Data Plane - US", value: "US"}, {label: "Cloud Data Plane - EU", value: "EU"}];
+const REGIONS: Region[] = [{ label: "Cloud Data Plane - US", value: "US" }, { label: "Cloud Data Plane - EU", value: "EU" }];
 
-export function ProjectWizard(props: { orgId: string}) {
+export function ProjectWizard(props: { orgId: string }) {
 
     const { orgId } = props;
-    const{ currentProjectOrg } = useOrgOfCurrentProject();
-    const { loginStatus, userInfo, loginStatusPending, error } = useChoreoWebViewContext();
+    const { loginStatus, userInfo, loginStatusPending, error, currentProjectOrg } = useChoreoWebViewContext();
 
 
     const selectedOrg = currentProjectOrg || userInfo?.organizations.find(org => org.id.toString() === orgId);
@@ -189,7 +209,7 @@ export function ProjectWizard(props: { orgId: string}) {
                 project: project?.name
             }
         });
-        ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir);
+        ChoreoWebViewAPI.getInstance().cloneChoreoProjectWithDir(project, projectDir, true);
     };
 
     const getRepoString = (): string => {
@@ -227,7 +247,10 @@ export function ProjectWizard(props: { orgId: string}) {
             {loginStatus !== "LoggedIn" && <SignIn />}
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
-                    <h2>New Choreo Project</h2>
+                    <TitleWrapper>
+                        <h2>New Choreo Project</h2>
+                        <OrgContainer>Organization:   {selectedOrg.name}</OrgContainer>
+                    </TitleWrapper>
                     <SectionWrapper>
                         <h3>Project Details</h3>
                         <VSCodeTextField
@@ -255,14 +278,14 @@ export function ProjectWizard(props: { orgId: string}) {
                         <SubContainer>
                             <CardContainer>
                                 <ProjectTypeCard
-                                    isMonoRepo={false}
-                                    label="Multi Repository"
+                                    isMonoRepo={true}
+                                    label="Mono Repository"
                                     isCurrentMonoRepo={initMonoRepo}
                                     onChange={handleInitiMonoRepoCheckChange}
                                 />
                                 <ProjectTypeCard
-                                    isMonoRepo={true}
-                                    label="Mono Repository"
+                                    isMonoRepo={false}
+                                    label="Multi Repository"
                                     isCurrentMonoRepo={initMonoRepo}
                                     onChange={handleInitiMonoRepoCheckChange}
                                 />
@@ -289,10 +312,8 @@ export function ProjectWizard(props: { orgId: string}) {
                                         />
                                     </CardContainer>
                                 </SubContainer>
-                                <CredContainer>
-                                    {gitProvider === GitProvider.GITHUB && <GithubAutherizer />}
-                                    {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
-                                </CredContainer>
+                                {gitProvider === GitProvider.GITHUB && <GithubAutherizer />}
+                                {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
                             </SectionWrapper>
                         )
                     }
@@ -318,12 +339,11 @@ export function ProjectWizard(props: { orgId: string}) {
                     }
                     <SectionWrapper>
                         <h3>  Project Location  </h3>
-                        <VSCodeLink>
-                            <i className={`codicon codicon-folder-opened`} style={{ verticalAlign: "bottom", marginRight: "5px" }} />
-                            <span onClick={handleProjecDirSelection}>Browse</span>
-                        </VSCodeLink>
+                        <BrowseBtn onClick={handleProjecDirSelection}>
+                            Select Directory to Save Project
+                        </BrowseBtn>
                         {!!projectDir && <span>{projectDir}</span>}
-                        {!projectDir && <span>Please choose a directory for project workspace. The git repositories will be cloned here</span>}
+                        {!projectDir && <span>Please choose a directory for project workspace. {initMonoRepo && <span>The git repositories will be cloned here</span>} </span>}
                     </SectionWrapper>
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (

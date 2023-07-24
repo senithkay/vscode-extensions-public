@@ -37,7 +37,7 @@ export function useComponentPushAll() {
                 eventName: PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT,
             });
         },
-        onSuccess: async (_, componentNames) => {
+        onSuccess: async (componentNames) => {
             await queryClient.cancelQueries({ queryKey: ["project_component_list", choreoProject?.id] });
             const previousComponents: Component[] | undefined = queryClient.getQueryData([
                 "project_component_list",
@@ -45,7 +45,7 @@ export function useComponentPushAll() {
             ]);
             const updatedComponents = previousComponents?.map((item) => ({
                 ...item,
-                local: !componentNames.includes(item.name),
+                local: item.local ? !componentNames?.includes(item.name) : false,
             }));
             queryClient.setQueryData(["project_component_list", choreoProject?.id], updatedComponents);
             refreshComponents();

@@ -14,7 +14,6 @@
 import { ProviderResult, Uri, commands, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
-import { choreoProjectOverview, refreshProjectsTreeViewCmdId } from "./constants";
 import { executeWithTaskRetryPrompt } from "./retry";
 
 export function activateURIHandlers() {
@@ -128,15 +127,4 @@ export function activateURIHandlers() {
             }
         },
     });
-}
-
-async function switchToProjectOverview(projectId: string, orgId: number) {
-    const logged = await ext.api.waitForLogin();
-    if (logged) {
-        const project = await ext.api.getProject(projectId, orgId);
-        if (project) {
-            commands.executeCommand(choreoProjectOverview, project);
-            commands.executeCommand(refreshProjectsTreeViewCmdId);
-        }
-    }
 }

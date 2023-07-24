@@ -31,6 +31,7 @@ const Container = styled.div`
 
 const GridTitleCell = styled(VSCodeDataGridCell)`
     opacity: 0.7;
+    padding-left: 22px;
 `;
 
 export const ComponentDetails = (props: {
@@ -73,6 +74,7 @@ export const ComponentDetails = (props: {
                     <VSCodeDataGridCell gridColumn="2">
                         <DeploymentStatusText
                             deployment={devDeploymentData}
+                            handler={props.component.handler}
                             loading={isLoadingDeployment}
                             localComponent={props.component.local}
                         />

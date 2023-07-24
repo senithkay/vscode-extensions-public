@@ -33,12 +33,18 @@ const Seperator = styled(VSCodeDivider)`
 `;
 
 export const UserDetails = () => {
-    const { loginStatusPending } = useChoreoWebViewContext();
+    const { loginStatusPending, choreoProject, currentProjectOrg } = useChoreoWebViewContext();
 
-    return <Container>
-        {(loginStatusPending) && <ProgressIndicator />}
-        <UserInfo />
-        <Seperator />
-        <ProjectDetails />
-    </Container>;
+    return (
+        <Container>
+            {loginStatusPending && <ProgressIndicator />}
+            <UserInfo />
+            {currentProjectOrg && choreoProject && (
+                <>
+                    <Seperator />
+                    <ProjectDetails />
+                </>
+            )}
+        </Container>
+    );
 };

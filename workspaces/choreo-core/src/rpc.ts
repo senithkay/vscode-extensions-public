@@ -12,7 +12,7 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, BuildStatus, Deployment, Endpoint, UserInfo } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, BuildStatus, Deployment, Endpoint, UserInfo, ChoreoWorkspaceMetaData } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -93,7 +93,7 @@ export const GetProjectLocation: RequestType<string, string | undefined> = { met
 export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
 export const OpenChoreoProject: RequestType<string, void> = { method: 'openChoreoProject' };
 export const CloneChoreoProject: RequestType<CloneChoreoProjectParams, void> = { method: 'cloneChoreoProject' };
-export const CloneChoreoProjectWithDir: RequestType<{ project: Project, dirPath: string }, void> = { method: 'cloneChoreoProjectWithDir' };
+export const CloneChoreoProjectWithDir: RequestType<{ project: Project, dirPath: string, askOpeningOptions?: boolean }, void> = { method: 'cloneChoreoProjectWithDir' };
 export const AskProjectDirPath: RequestType<void, string | undefined> = { method: 'askProjectDirPath' };
 export const setPreferredProjectRepository: RequestType<{ projId: string, repo: GitRepo }, void> = { method: 'setPreferredProjectRepository' };
 export const getPreferredProjectRepository: RequestType<string, GitRepo> = { method: 'getPreferredProjectRepository' };
@@ -101,13 +101,14 @@ export const SetExpandedComponents: RequestType<{ projId: string, componentNames
 export const GetExpandedComponents: RequestType<string, string[]> = { method: 'getExpandedComponents' };
 export const CheckProjectDeleted: RequestType<CheckProjectDeletedParams, boolean> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
+export const GetChoreoWorkspaceMetadata: RequestType<void, ChoreoWorkspaceMetaData> = { method: 'getChoreoWorkspaceMetadata' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const ReadEndpointsYaml: RequestType<SubpathAvailableRequest, Endpoint | undefined> = { method: 'readEndpointsYaml' };
 export const OpenBillingPortal: RequestType<string, void> = { method: 'openBillingPortal' };
 export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const getConsoleUrl: RequestType<void, string> = { method: 'getConsoleUrl' };
-export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChoreoParams, void> = { method: 'pushLocalComponentsToChoreo' };
+export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChoreoParams, string[]> = { method: 'pushLocalComponentsToChoreo' };
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const OpenCellView: RequestType<string, void> = { method: 'openCellView' };

@@ -16,7 +16,7 @@ import styled from "@emotion/styled";
 import { OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentRow } from "./ComponentRow";
-import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { ViewTitle } from "./ViewTitle";
@@ -43,6 +43,7 @@ const Header = styled.div`
     flex-direction: row;
     gap: 2px;
     align-items: center;
+    margin-top: 5px;
 `;
 
 const CodeIconWithMargin = styled(Codicon)`
@@ -81,6 +82,8 @@ export const ComponentsCard = () => {
 
     const componentsView = (
         <Container>
+            <ComponentSyncAlert />
+            <ComponentsPushAlert />
             <Header>
                 <ViewTitle>Components</ViewTitle>
                 <ComponentActionWrap>
@@ -117,17 +120,13 @@ export const ComponentsCard = () => {
             {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
             <Body>
                 <NoComponentsAlert />
-                <ComponentSyncAlert />
-                <ComponentsPushAlert />
-                {components?.map((component, index) => (
-                    <>
-                        <ComponentRow
-                            component={component}
-                            expanded={expandedComponents.includes(component.name)}
-                            handleExpandClick={toggleExpandedComponents}
-                        />
-                        {index !== components.length - 1 && <VSCodeDivider />}
-                    </>
+                {components?.map((component) => (
+                    <ComponentRow
+                        key={component.name}
+                        component={component}
+                        expanded={expandedComponents.includes(component.name)}
+                        handleExpandClick={toggleExpandedComponents}
+                    />
                 ))}
                 {componentLoadError && <div>{componentLoadError}</div>}
             </Body>

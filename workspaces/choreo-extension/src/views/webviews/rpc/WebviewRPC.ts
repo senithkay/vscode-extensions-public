@@ -72,6 +72,7 @@ import {
     PushLocalComponentsToChoreoParams,
     SetExpandedComponents,
     GetExpandedComponents,
+    GetChoreoWorkspaceMetadata,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -175,10 +176,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
-        const { orgHandler } = params.component;
+        const { orgHandler, name } = params.component;
         const org = ext.api.getOrgByHandle(orgHandler);
         if (org) {
-            const answer = await vscode.window.showInformationMessage("Are you sure you want to remove the component? This action will be irreversible and all related details will be lost.", "Delete Component", "Cancel");
+            const answer = await vscode.window.showInformationMessage(`Are you sure you want to delete the component ${name}? `,
+                { modal: true },
+                "Delete Component");
             if (answer === "Delete Component") {
                 await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
                 return params.component;
@@ -248,8 +251,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return await askProjectDirPath();
     });
 
-    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project, dirPath: string }) => {
-        cloneProject(params.project, params.dirPath );
+    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project, dirPath: string, askOpeningOptions?: boolean }) => {
+        cloneProject(params.project, params.dirPath, params.askOpeningOptions);
     });
 
     messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {
@@ -286,6 +289,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(isChoreoProject, () => {
         return ext.api.isChoreoProject();
+    });
+
+    messenger.onRequest(GetChoreoWorkspaceMetadata, () => {
+        return ext.api.getChoreoWorkspaceMetadata();
     });
 
     messenger.onRequest(getConsoleUrl, () => {
@@ -352,12 +359,13 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         ext.api.projectUpdated();
     });
 
-    messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<void> {
+    messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<string[]> {
         const { orgId, projectId, componentNames } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
+            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
         }
+        return [];
     });
 
     messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string, componentName: string }): Promise<void> => {

@@ -23,6 +23,10 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  border: calc(var(--border-width) * 1px) solid var(--vscode-list-inactiveSelectionBackground);
+  margin-bottom: 10px;
+  border-radius: 3px;
+  box-sizing: border-box;
 `;
 
 // Header div will lay the items horizontally
@@ -30,23 +34,32 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   gap: 2px;
-  margin: 5px;
+  padding: 6px 5px;
   align-items: center;
   position: relative;
+  background-color: var(--vscode-list-inactiveSelectionBackground);
+  color: var(--vscode-list-inactiveSelectionForeground);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.1s;
+  &:hover {
+    background-color: var(--vscode-editor-selectionHighlightBackground);
+  }
 `;
 // Body div will lay the items vertically
 const Body = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
-  margin-left: 18px;
-  margin-bottom: 10px;
 `;
 
 const ComponentName = styled.span`
   font-size: 13px;
   cursor: pointer;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Flex = styled.div`
@@ -79,15 +92,8 @@ export const ComponentRow = (props: {
 
     return (
         <Container>
-            <Header>
-                <VSCodeButton
-                    appearance="icon"
-                    onClick={() => handleExpandClick(component.name)}
-                    title={expanded ? "Collapse" : "Expand"}
-                    id="expand-components-btn"
-                >
-                    <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
-                </VSCodeButton>
+            <Header onClick={() => handleExpandClick(component.name)}>
+                <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
                 <ComponentName>{props.component.displayName}</ComponentName>
                 {componentTag && (
                     <VSCodeTag title={"Only available locally"} style={{ marginLeft: "3px" }}>

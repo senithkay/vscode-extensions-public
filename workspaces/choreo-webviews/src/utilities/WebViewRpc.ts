@@ -90,6 +90,8 @@ import {
     GetComponentsRequestParams,
     SetExpandedComponents,
     GetExpandedComponents,
+    GetChoreoWorkspaceMetadata,
+    ChoreoWorkspaceMetaData,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -175,8 +177,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, params);
     }
 
-    public async cloneChoreoProjectWithDir(project: Project, dirPath: string): Promise<void> {
-        return this._messenger.sendRequest(CloneChoreoProjectWithDir, HOST_EXTENSION, { project, dirPath });
+    public async cloneChoreoProjectWithDir(project: Project, dirPath: string, askOpeningOptions?: boolean): Promise<void> {
+        return this._messenger.sendRequest(CloneChoreoProjectWithDir, HOST_EXTENSION, { project, dirPath, askOpeningOptions });
     }
 
     public async askProjectDirPath(): Promise<string | undefined> {
@@ -205,6 +207,10 @@ export class ChoreoWebViewAPI {
 
     public async isChoreoProject(): Promise<boolean> {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async getChoreoWorkspaceMetadata(): Promise<ChoreoWorkspaceMetaData> {
+        return this._messenger.sendRequest(GetChoreoWorkspaceMetadata, HOST_EXTENSION, undefined);
     }
 
     public async getConsoleUrl(): Promise<string> {
@@ -243,7 +249,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
     }
 
-    public async pushLocalComponentsToChoreo(params: PushLocalComponentsToChoreoParams): Promise<void> {
+    public async pushLocalComponentsToChoreo(params: PushLocalComponentsToChoreoParams): Promise<string[]> {
         return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, params);
     }
 

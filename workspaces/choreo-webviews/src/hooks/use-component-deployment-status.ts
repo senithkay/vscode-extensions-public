@@ -15,6 +15,7 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { Component, Deployment } from "@wso2-enterprise/choreo-core";
 
 export function useComponentDeploymentStatus(component: Component) {
+    const latestApiVersion = component?.apiVersions?.find(item => item.latest);
     const {
         data: devDeploymentData,
         isLoading: isLoadingDeployment,
@@ -23,13 +24,19 @@ export function useComponentDeploymentStatus(component: Component) {
         error: deploymentLoadError,
         isFetched,
     } = useQuery({
-        queryKey: ["project_component_deployment_status", component?.id],
-        queryFn: (): Promise<Deployment | undefined> =>
-            ChoreoWebViewAPI.getInstance().getComponentDevDeployment(component),
+        queryKey: ["project_component_deployment_status", component?.id, latestApiVersion?.id],
+        queryFn: async (): Promise<Deployment | undefined> => {
+            const deploymentData = await ChoreoWebViewAPI.getInstance().getComponentDevDeployment(component);
+            return deploymentData || null;
+        },
         refetchOnWindowFocus: true,
         refetchInterval: 15000,
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        enabled: component?.id !== undefined && !component.local,
+        onError: (error: Error) => {
+            if (error.message) {
+                ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
+            }
+        },
+        enabled: component?.id !== undefined && !component.local && !!latestApiVersion,
     });
 
     return {

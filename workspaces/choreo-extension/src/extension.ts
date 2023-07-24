@@ -95,69 +95,6 @@ async function openChoreoActivity() {
 	}
 }
 
-export async function showChoreoProjectOverview() {
-	getLogger().debug("Show Choreo Project Overview if a Choreo project is opened.");
-	const isChoreoProject = await ext.api.isChoreoProject();
-	if (isChoreoProject) {
-		if (isChoreoProjectBeingOpened) {
-			getLogger().debug("Choreo project is already being opened. Ignoring Choreo Project Overview.");
-			return;
-		}	
-		sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT);
-		isChoreoProjectBeingOpened = true;
-		getLogger().debug("Choreo project is opened. Showing Choreo Project Overview.");
-		await window.withProgress({
-            title: `Opening Choreo Project Workspace.`,
-            location: ProgressLocation.Notification,
-            cancellable: true
-        }, async (_progress, cancellationToken) => {
-            let cancelled: boolean = false;
-
-            cancellationToken.onCancellationRequested(async () => {
-				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT);
-				getLogger().debug("Choreo Project Overview loading cancelled.");
-                cancelled = true;
-            });
-			// execute choreo project overview cmd
-			try {
-				getLogger().debug("Loading Choreo Project Metadata.	");
-				// first sign in to Choreo
-				const isLoggedIn = await ext.api.waitForLogin();
-				if (!isLoggedIn) {
-					//TODO: Prompt to sign in as the opened Choreo project is not accessible
-					getLogger().debug("Choreo Project Overview loading cancelled as the user is not logged in.");
-					window.showInformationMessage("Current workspace is a Choreo project. Please sign in to Choreo to view the project overview.", "Sign In").then((selection) => {
-						if (selection === "Sign In") {
-							vscode.commands.executeCommand(choreoSignInCmdId);
-						}
-					});
-					return;
-				}
-				// TODO: Check if the Choreo project is accessible by the logged in user using the access token
-				// for current organization, prompt and change the organization if needed
-				if (cancelled) {
-					return;
-				}
-				const project = await ext.api.getChoreoProject();
-				if (cancelled) {
-					return;
-				}
-				getLogger().debug("Choreo Project Metadata loaded. Opening Choreo Project Overview.");
-				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT);
-				if (project) {
-					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
-				}
-			} catch (error: any) {
-				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, { cause: error?.message });
-				getLogger().error("Error while loading Choreo project overview. " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
-			}
-		});
-		isChoreoProjectBeingOpened = false;	
-	}
-}
-
-
 export function getGitExtensionAPI() {
 	getLogger().debug("Getting Git Extension API");
 	const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')!.exports;

@@ -11,13 +11,14 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeButton, VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeDropdown, VSCodeLink, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import { CredentialData, FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import React from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
+import { ProgressIndicator } from "../ActivityBar/Components/ProgressIndicator";
 
 const BranchListContainer = styled.div`
     display: flex;
@@ -26,14 +27,15 @@ const BranchListContainer = styled.div`
     gap: 20px;
 `;
 
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
-`;
-
 const RefreshBtn = styled(VSCodeButton)`
     margin-top: auto;
     padding: 1px;
+`;
+
+const CredSelectorActions = styled.div`
+    display  : flex;
+    flex-direction: row;
+    padding: 20px 0;
 `;
 
 export interface BitbucketCredSelectorProps {
@@ -92,11 +94,14 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
         ChoreoWebViewAPI.getInstance().openExternal(`${consoleUrl}/organizations/${org.handle}/settings/credentials`);
     };
 
+    const showProgressBar = isFetchingCredentials || isRefetching;
+
     return (
         <>
-            {isFetchingCredentials && <SmallProgressRing />}
             {!isFetchingCredentials && credentials.length === 0 &&
+            <CredSelectorActions>
                 <span>No Credentials available. Please <VSCodeLink onClick={handleConfigureNewCred}>Configure New Credential</VSCodeLink> in bitbucket.</span>
+            </CredSelectorActions>
             }
             {!isFetchingCredentials &&
                 (<>
@@ -125,7 +130,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                                 </VSCodeOption>
                             ))}
                         </VSCodeDropdown>
-                        {!isRefetching && <RefreshBtn
+                        <RefreshBtn
                             appearance="icon"
                             onClick={() => refetch()}
                             title="Refresh credentials"
@@ -133,11 +138,11 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                             id='refresh-credentials-btn'
                         >
                             <Codicon name="refresh" />
-                        </RefreshBtn>}
-                        {isRefetching && <SmallProgressRing />}
+                        </RefreshBtn>
                     </BranchListContainer>
                 </>)
             }
+            {showProgressBar && <ProgressIndicator />}
         </>
     );
 }

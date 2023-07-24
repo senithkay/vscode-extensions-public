@@ -35,8 +35,7 @@ export class WebviewWizard {
 
   private static createWebview(type: WizardTypes): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(type,
-      `Create New ${type === WizardTypes.componentCreation ? 'Component' : 'Project'}`,
-      type === WizardTypes.componentCreation ? vscode.ViewColumn.Beside : vscode.ViewColumn.One,
+      `Create New ${type === WizardTypes.componentCreation ? 'Component' : 'Project'}`, vscode.ViewColumn.One,
       { enableScripts: true, retainContextWhenHidden: true }
     );
 

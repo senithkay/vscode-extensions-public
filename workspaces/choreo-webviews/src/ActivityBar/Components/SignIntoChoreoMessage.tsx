@@ -12,7 +12,7 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "./../../context/choreo-web-view-ctx";
 
@@ -22,12 +22,6 @@ const Container = styled.div`
     align-items: flex-start;
     padding: 10px;
     gap: 8px;
-`;
-
-const WideVSCodeButton = styled(VSCodeButton)`
-    width: 100%;
-    max-width: 300px;
-    margin: 15px 0 15px 0;
 `;
 
 export const SignInToChoreoMessage = (props: { showProjectHeader?: boolean }) => {
@@ -40,24 +34,32 @@ export const SignInToChoreoMessage = (props: { showProjectHeader?: boolean }) =>
 
     return (
         <Container>
-            {showProjectHeader && (
+            {showProjectHeader ? (
                 <>
                     {isChoreoProject ? (
                         <>
                             <div>Choreo project detected in your current workspace.</div>
-                            <div>Please sign in to unlock Choreo Features for your project.</div>
+                            <div>
+                                Please&nbsp;<VSCodeLink onClick={signInToChoreo}>sign in</VSCodeLink>&nbsp;to unlock
+                                Choreo features for your project.
+                            </div>
                         </>
                     ) : (
                         <>
                             <div>No Choreo project found in your current workspace.</div>
-                            <div>Please sign in to create and manage your Choreo project.</div>
+                            <div>
+                                Please &nbsp;<VSCodeLink onClick={signInToChoreo}>sign in</VSCodeLink>&nbsp; to create
+                                and manage your Choreo project.
+                            </div>
                         </>
                     )}
                 </>
+            ) : (
+                <div>
+                    Please&nbsp;<VSCodeLink onClick={signInToChoreo}>sign in</VSCodeLink>&nbsp;to enable Choreo
+                    features.
+                </div>
             )}
-            <WideVSCodeButton appearance="primary" onClick={signInToChoreo}>
-                Sign In
-            </WideVSCodeButton>
         </Container>
     );
 };

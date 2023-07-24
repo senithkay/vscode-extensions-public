@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -20,8 +20,9 @@ import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSel
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ErrorBanner } from "../Commons/ErrorBanner";
-import { useOrgOfCurrentProject } from "../hooks/use-org-of-current-project";
 import { Codicon } from "../Codicon/Codicon";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ProgressIndicator } from "../ActivityBar/Components/ProgressIndicator";
 
 const GhRepoSelectorActions = styled.div`
     display  : flex;
@@ -29,22 +30,16 @@ const GhRepoSelectorActions = styled.div`
     gap: 10px;
 `;
 
-const ValidationWrapper = styled.div`
-    display  : flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-    min-height: 25px;
-`;
-
 const RepoStepWrapper = styled.div`
     // Flex Props
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    gap: 10px;
+    position: relative;
     // End Flex Props
     // Sizing Props
     padding: 20px;
+    gap: 10px;
     // End Sizing Props
     // Border Props
     border-radius: 10px;
@@ -93,14 +88,7 @@ const RepoSelectorContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     align-content: space-between;
-    gap: 10px;
-`;
-
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
-    margin-top: auto;
-    padding: 4px;
+    gap: 30px;
 `;
 
 const StepContainer = styled.div`
@@ -162,8 +150,10 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
         setErrorMsg
     } = props;
 
-    const { currentProjectOrg } = useOrgOfCurrentProject();
+    const { currentProjectOrg } = useChoreoWebViewContext();
     const [refreshRepoList, setRefreshRepoList] = useState(false);
+    const [loadingRepos, setLoadingRepos] = useState(false);
+    const [loadingBranches, setLoadingBranches] = useState(false);
 
     useEffect(() => {
         if (selectedGHRepo) {
@@ -195,6 +185,10 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
         } else if (gitProvider === GitProvider.BITBUCKET) {
             ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${selectedGHOrgName}/workspace/create/repository`);
         }
+    }
+
+    const handleGuideClick = async () => {
+        ChoreoWebViewAPI.getInstance().openExternal(`https://wso2.com/choreo/docs/develop-components/deploy-a-containerized-application/#connect-your-repository-to-choreo`);
     }
 
     const handleRepoRefresh = async () => {
@@ -232,6 +226,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
     }
 
     const bareRepoError = 'Get started by creating a new file or uploading an existing file. We recommend every repository include a README, LICENSE, and .gitignore.';
+    const showProgressBar = validationInProgress || loadingRepos || loadingBranches;
 
     return (
         <>
@@ -249,7 +244,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                             <ListWrapper>
                                 <ListItemWrapper>
                                     <Codicon name="circle-filled" />
-                                    <span>Give Choreo permission to read the repository.</span>
+                                    <span>Give repository permissions to Choreo by installing Github Application. See <VSCodeLink onClick={handleGuideClick}>Installation Guide</VSCodeLink> for more information</span>
                                 </ListItemWrapper>
                                 <ListItemWrapper style={{ marginLeft: '25px' }}>
                                     <Codicon name="circle-outline" />
@@ -291,31 +286,25 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                                 <GithubRepoSelector
                                     selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
                                     onRepoSelect={handleRepoSelect}
+                                    setLoadingRepos={setLoadingRepos}
+                                    setLoadingBranches={setLoadingBranches}
                                 />}
                             {gitProvider === GitProvider.BITBUCKET &&
                                 <BitbucketRepoSelector
                                     selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
                                     onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
                                     refreshRepoList={refreshRepoList}
+                                    setLoadingRepos={setLoadingRepos}
+                                    setLoadingBranches={setLoadingBranches}
                                 />}
-                            <ValidationWrapper>
-                                {validationInProgress && (
-                                    <>
-                                        <SmallProgressRing />
-                                        <span>Validating repository...</span>
-                                    </>
-
-                                )}
-                            </ValidationWrapper>
-
                         </RepoSelectorContainer>
                         {isBareRepo && !validationInProgress && (
                             <>
                                 <ErrorBanner errorMsg={bareRepoError} />
                                 <GhRepoSelectorActions>
-                                    <VSCodeButton onClick={handleRepoInit}>
+                                    <VSCodeLink onClick={handleRepoInit}>
                                         Create File
-                                    </VSCodeButton>
+                                    </VSCodeLink>
                                     <VSCodeButton onClick={checkBareRepoStatus}>
                                         Recheck
                                     </VSCodeButton>
@@ -324,6 +313,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                         )}
                     </RepoSubContainer>
                 </RepoStepContent>
+                    {showProgressBar && <ProgressIndicator />}
             </RepoStepWrapper>
         </>
     );
