@@ -75,11 +75,15 @@ export class ChoreoAuthClient implements IAuthClient {
             const { subject_token, ...restParams } = params;
             console.log(`Invoke token exchange with params: ${JSON.stringify(restParams)}`);
             const decodedToken = decodeJwt(subject_token);
-            console.log(`Decoded token: ${JSON.stringify(decodedToken)}`);
+            console.log(`Decoded token: Subject: ${JSON.stringify(decodedToken)}`);
         }
         try {
             const response = await getHttpClient()
                 .post(this._config.apimTokenUrl, (new URLSearchParams(params)).toString(), { headers: CommonReqHeaders });
+            if (isRequestTraceEnabled()) {
+                const decodedToken = decodeJwt(response?.data?.access_token);
+                console.log(`Decoded token: APIM: ${JSON.stringify(decodedToken)}`);
+            }
             return {
                 accessToken: response.data.access_token,
                 refreshToken: response.data.refresh_token,
@@ -93,7 +97,7 @@ export class ChoreoAuthClient implements IAuthClient {
 
     async exchangeRefreshToken(refreshToken: string): Promise<AccessToken> {
         const params = new URLSearchParams({
-            client_id: this._config.clientId,
+            client_id: this._config.vscodeClientId,
             grant_type: RefreshTokenGrantType,
             refresh_token: refreshToken
         });
@@ -101,6 +105,10 @@ export class ChoreoAuthClient implements IAuthClient {
         try {
             const response = await getHttpClient()
                 .post(this._config.apimTokenUrl, params.toString(), { headers: CommonReqHeaders });
+            if (isRequestTraceEnabled()) {
+                const decodedToken = decodeJwt(response?.data?.access_token);
+                console.log(`Decoded token: APIM: Refreshed: ${JSON.stringify(decodedToken)}`);
+            }
             return {
                 accessToken: response.data.access_token,
                 refreshToken: response.data.refresh_token,

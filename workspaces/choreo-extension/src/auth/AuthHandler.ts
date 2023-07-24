@@ -94,22 +94,18 @@ export class AuthHandler {
     }
 
     public async getToken(orgId: number) {
-        const userInfo = await this._tokenStorage.getUser();
-        if (!userInfo || !userInfo.organizations) {
-            throw new Error("No user found in the keychain.");
-        }
-        const selectedOrg = userInfo.organizations.find((org: Organization) => org.id === orgId);
-        if (!selectedOrg) {
-            throw new Error("No organization found for the user.");
-        }
-        return this.getTokenWithAutoRefresh(selectedOrg);
-    }
-
-    public async getTokenWithAutoRefresh(org: Organization) {
         let token : AccessToken | undefined;
         await lock.acquire();
         try {
-            token = await this._getTokenWithAutoRefresh(org);
+            const userInfo = await this._tokenStorage.getUser();
+            if (!userInfo || !userInfo.organizations) {
+                throw new Error("No user found in the keychain.");
+            }
+            const selectedOrg = userInfo.organizations.find((org: Organization) => org.id === orgId);
+            if (!selectedOrg) {
+                throw new Error("No organization found for the user.");
+            }
+            token = await this._getTokenWithAutoRefresh(selectedOrg);
         } finally {
             lock.release();
         }
@@ -156,7 +152,7 @@ export class AuthHandler {
         if (!selectedOrg) {
             throw new Error("No organizations found for the user.");
         }
-        const orgAccessToken = await this.getTokenWithAutoRefresh(selectedOrg);
+        const orgAccessToken = await this.getToken(selectedOrg?.id);
         if (!orgAccessToken?.accessToken) {
             throw new Error("Asgardio token not found in token store!");
         }
@@ -179,7 +175,12 @@ export class AuthHandler {
         const token = await this._tokenStorage.getToken(org.id);
         if (token) {
             if (isTokenExpired(token)) {
-                return this._exchangeRefreshToken(token);
+                const refreshedToken = await this._exchangeRefreshToken(token);
+                if (refreshedToken) {
+                    const updatedToken = await this.exchangeChoreoSTSToken(refreshedToken.accessToken, org.handle, org.id);
+                    this._tokenStorage.setToken(org.id, updatedToken);
+                    return updatedToken;
+                }
             } else {
                 return token;
             }
@@ -233,7 +234,7 @@ export class AuthHandler {
         if (!org) {
             throw new Error("No organizations found for the user.");
         }
-        const token = await this.getTokenWithAutoRefresh(org);
+        const token = await this.getToken(org?.id);
         if (!token?.accessToken) {
             throw new Error("Asgardio token not found in token store!");
         }
