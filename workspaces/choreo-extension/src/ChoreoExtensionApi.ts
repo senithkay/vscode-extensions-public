@@ -22,9 +22,12 @@ import {
     Component,
     ChoreoComponentType,
     UserInfo,
-    ChoreoWorkspaceMetaData
+    ChoreoWorkspaceMetaData,
+    Endpoint,
+    ServiceTypes,
+    ComponentDisplayType
 } from "@wso2-enterprise/choreo-core";
-import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
+import { CMEntryPoint, CMResourceFunction, CMService, ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { exchangeAuthToken } from "./auth/auth";
 import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
@@ -32,9 +35,11 @@ import { ProjectRegistry } from './registry/project-registry';
 import { getLogger } from './logger/logger';
 
 import * as path from "path";
-import { enrichDeploymentData, makeURLSafe } from "./utils";
+
+import { enrichDeploymentData, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
 import { STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
+import * as yaml from 'js-yaml';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -42,6 +47,7 @@ export interface IChoreoExtensionAPI {
     isChoreoProject(): Promise<boolean>;
     getChoreoProject(): Promise<Project | undefined>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
+    getNonBalComponentModels(): Promise<{ [key: string]: ComponentModel }>
     deleteComponent(projectId: string, componentPath: string): Promise<void>;
     getConsoleUrl(): Promise<string>;
 }
@@ -280,6 +286,123 @@ export class ChoreoExtensionApi {
         }
         return Promise.resolve(model);
     }
+
+    getNonBalComponentModels = async (): Promise<{ [key: string]: ComponentModel }> => {
+        let nonBalMap: { [key: string]: ComponentModel } = {};
+        const choreoProject = await this.getChoreoProject();
+        if (choreoProject) {
+            const { id: projectID, orgId } = choreoProject;
+            const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(projectID);
+
+            if (workspaceFileLocation) {
+                const organization = this.getOrgById(parseInt(orgId));
+                if (!organization) {
+                    throw new Error(`Organization with id ${orgId} not found under user ${this.userInfo?.displayName}`);
+                }
+
+                const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(
+                    projectID,
+                    organization.id,
+                    organization.handle,
+                    organization.uuid
+                );
+
+                const nonBalComponents = choreoComponents?.filter((item) => item.displayType?.startsWith("byoc"));
+                nonBalComponents?.forEach((component) => {
+                    const { organizationApp, nameApp, appSubPath } = component.repository ?? {};
+                    if (organizationApp && nameApp && appSubPath) {
+                        const componentPath = path.join(
+                            path.dirname(workspaceFileLocation),
+                            "repos",
+                            organizationApp,
+                            nameApp,
+                            appSubPath
+                        );
+                        const endpointsPath = path.join(componentPath, ".choreo", "endpoints.yaml");
+
+                        if (existsSync(endpointsPath)) {
+                            const serviceBaseId = `${component.name}`;
+                            const endpointsContent = yaml.load(readFileSync(endpointsPath, "utf8"));
+                            const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
+
+                            const services: { [key: string]: CMService } = {};
+
+                            if (endpoints && Array.isArray(endpoints)) {
+                                for (const endpoint of endpoints) {
+                                    const endpointName = `${component.name}-${endpoint.name}`;
+                                    let resources: CMResourceFunction[] = [];
+
+                                    const serviceId = `${component.name}-${endpoint.name}`;
+
+                                    if (endpoint.schemaFilePath) {
+                                        const openApiPath = path.join(componentPath, endpoint.schemaFilePath);
+                                        resources = getResourcesFromOpenApiFile(openApiPath, serviceId);
+                                    }
+
+                                    const service: CMService = {
+                                        dependencies: [],
+                                        path: "",
+                                        remoteFunctions: [],
+                                        serviceId,
+                                        serviceType: endpoint?.type || ServiceTypes.HTTP,
+                                        resources,
+                                        annotation: { id: serviceId, label: endpointName },
+                                        elementLocation: {
+                                            filePath: endpointsPath,
+                                            startPosition: { line: 0, offset: 0 },
+                                            endPosition: { line: 0, offset: 0 },
+                                        },
+                                        deploymentMetadata: {
+                                            gateways: {
+                                                internet: { isExposed: endpoint?.networkVisibility === "Public" },
+                                                intranet: { isExposed: endpoint?.networkVisibility === "Organization" },
+                                            },
+                                        },
+                                    };
+                                    services[serviceId] = service;
+                                }
+                            }
+
+                            nonBalMap[serviceBaseId] = {
+                                hasCompilationErrors: false,
+                                entities: new Map(),
+                                packageId: { name: component.name, org: organization.name, version: component.version },
+                                services: services as any,
+                            };
+                        } else {
+                            nonBalMap[component.name] = {
+                                hasCompilationErrors: false,
+                                entities: new Map(),
+                                packageId: { name: component.name, org: organization.name, version: component.version },
+                                services: new Map(),
+                                functionEntryPoint: {
+                                    annotation: { id: component.name, label: "" },
+                                    dependencies: [],
+                                    interactions: [],
+                                    parameters: [],
+                                    returns: [],
+                                },
+                            };
+
+                            if (component.displayType === ComponentDisplayType.ByocCronjob) {
+                                nonBalMap[component.name].functionEntryPoint = {
+                                    ...(nonBalMap[component.name].functionEntryPoint as CMEntryPoint),
+                                    type: "scheduledTask",
+                                };
+                            } else if (component.displayType === ComponentDisplayType.ByocJob) {
+                                nonBalMap[component.name].functionEntryPoint = {
+                                    ...(nonBalMap[component.name].functionEntryPoint as CMEntryPoint),
+                                    type: "manualTrigger",
+                                };
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        return nonBalMap;
+    };
 
     public async deleteComponent(projectId: string, componentPath: string) {
         const choreoProject = await this.getChoreoProject();

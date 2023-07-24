@@ -14,8 +14,8 @@ import CodeIcon from "@mui/icons-material/Code";
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";
 import { useStyles } from "../styles/styles";
 
-export function Go2SourceButton(props: { location: Location }) {
-    const { location } = props;
+export function Go2SourceButton(props: { location: Location, isBalPackage?: boolean }) {
+    const { location, isBalPackage = true } = props;
     const classes = useStyles();
     const { editLayerAPI } = useContext(DiagramContext);
 
@@ -24,7 +24,7 @@ export function Go2SourceButton(props: { location: Location }) {
             <ListItemIcon>
                 <CodeIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText className={classes.listItemText}>Go to source</ListItemText>
+            <ListItemText className={classes.listItemText}>{isBalPackage ? "Go to source" : "Configure Endpoint"}</ListItemText>
         </MenuItem>
     );
 }

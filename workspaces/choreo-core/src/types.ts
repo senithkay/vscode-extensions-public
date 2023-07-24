@@ -487,3 +487,11 @@ export interface ChoreoWorkspaceMetaData {
     projectID?: string;
     orgId?: string | number;
 }
+
+export enum ServiceTypes {
+    HTTP = "http",
+    GRPC = "grpc",
+    GRAPHQL = "graphql",
+    WEBSOCKET = "websocket",
+    OTHER = "other"
+}

@@ -11,8 +11,10 @@
  *  associated services.
  */
 
-import { ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
+import { existsSync, readFileSync } from "fs";
+import * as yaml from 'js-yaml';
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
     isLocal: boolean, accessibility?: string): boolean {
@@ -116,3 +118,23 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
 export function makeURLSafe(input: string): string {
     return input.trim().replace(/\s+/g, '-').toLowerCase();
 }
+
+export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: string) => {
+    const resourceList: CMResourceFunction[] = [];
+    if (existsSync(openApiFilePath)) {
+        const apiSchema: any = yaml.load(readFileSync(openApiFilePath, "utf8"));
+        const paths = apiSchema.paths;
+        for (const pathKey of Object.keys(paths)) {
+            for (const pathMethod of Object.keys(paths[pathKey])) {
+                resourceList.push({
+                    identifier: `${pathMethod} ${pathKey}`,
+                    interactions: [],
+                    resourceId: { action: pathMethod, path: pathKey, serviceId },
+                    parameters: [],
+                    returns: [],
+                });
+            }
+        }
+    }
+    return resourceList;
+};
