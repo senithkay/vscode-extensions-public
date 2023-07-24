@@ -52,6 +52,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         data: workspaceMetaData = {},
         error: getChoreoWorkspaceError,
         isLoading: getChoreoWorkspaceLoading,
+        isFetched: fetchedWorkspaceMetaData,
     } = useQuery({
         queryKey: ["choreo_workspace_metadata"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoWorkspaceMetadata(),
@@ -64,6 +65,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         data: loginStatus = "Initializing",
         error: loginStatusError,
         isLoading: loginStatusLoading,
+        isFetched: fetchedLoginStatus,
     } = useQuery({
         queryKey: ["choreo_login_status"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
@@ -92,9 +94,11 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
             isChoreoProject,
             workspaceMetaData?.projectID,
             userInfo?.userId,
+            fetchedWorkspaceMetaData,
+            fetchedLoginStatus,
         ],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
-        enabled: loginStatus === "LoggedIn" && isChoreoProject,
+        enabled: loginStatus === "LoggedIn" && isChoreoProject && fetchedWorkspaceMetaData && fetchedLoginStatus,
         refetchOnWindowFocus: false,
     });
 

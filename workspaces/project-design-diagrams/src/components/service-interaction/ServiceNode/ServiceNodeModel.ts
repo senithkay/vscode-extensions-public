@@ -21,6 +21,7 @@ export class ServiceNodeModel extends SharedNodeModel {
 	readonly nodeObject: Service;
 	readonly serviceType: ServiceTypes;
 	readonly targetGateways: GatewayType[];
+	readonly isBalService: boolean;
 
 	constructor(serviceObject: Service, level: Level, version: string, targetGateways?: GatewayType[]) {
 		super('serviceNode', serviceObject.serviceId);
@@ -29,7 +30,8 @@ export class ServiceNodeModel extends SharedNodeModel {
 		this.modelVersion = version;
 		this.nodeObject = serviceObject;
 		this.serviceType = this.getServiceType();
-		this.targetGateways = targetGateways;
+		this.targetGateways = targetGateways ?? [];
+		this.isBalService = serviceObject?.elementLocation?.filePath.endsWith('.bal') ?? false;
 
 		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT));
 		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.RIGHT));
@@ -63,6 +65,12 @@ export class ServiceNodeModel extends SharedNodeModel {
 				return ServiceTypes.WEBSOCKET
 			} else if (this.nodeObject.serviceType.includes('ballerinax/trigger.')) {
 				return ServiceTypes.WEBHOOK;
+			} else if (this.nodeObject.serviceType === 'REST') {
+				return ServiceTypes.HTTP;
+			} else if (this.nodeObject.serviceType === 'GraphQL') {
+				return ServiceTypes.GRAPHQL;
+			} else if (this.nodeObject.serviceType === 'GRPC') {
+				return ServiceTypes.GRPC;
 			}
 		}
 		return ServiceTypes.OTHER;
