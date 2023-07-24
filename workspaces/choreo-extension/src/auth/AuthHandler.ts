@@ -175,7 +175,13 @@ export class AuthHandler {
         const token = await this._tokenStorage.getToken(org.id);
         if (token) {
             if (isTokenExpired(token)) {
-                const refreshedToken = await this._exchangeRefreshToken(token);
+                let refreshedToken;
+                try {
+                    refreshedToken = await this._exchangeRefreshToken(token);
+                } catch (error: any) {
+                    getLogger().error("Signing out user due to error in refresh token exchange");
+                    await this.signout();
+                }
                 if (refreshedToken) {
                     const updatedToken = await this.exchangeChoreoSTSToken(refreshedToken.accessToken, org.handle, org.id);
                     this._tokenStorage.setToken(org.id, updatedToken);
