@@ -15,6 +15,8 @@ import { ProviderResult, Uri, commands, window } from "vscode";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { executeWithTaskRetryPrompt } from "./retry";
+import { STATUS_LOGGED_IN, choreoSignInCmdId, choreoSignOutCmdId } from "./constants";
+import { openProjectInVSCode } from "./cmds/open-project";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
@@ -78,52 +80,38 @@ export function activateURIHandlers() {
                 if (!projectId || !orgId) {
                     return;
                 }
-                // TODO Implement new user experience for open in vscode
-                // // if user logged then open the project overview
-                // if (ext.api.status === STATUS_LOGGED_IN) {
-                //     const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
-                //     if (userOrg && ext.api.selectedOrg?.id.toString() === orgId) {
-                //         switchToProjectOverview(projectId, +orgId);
-                //     } else if (userOrg) {
-                //         //show a prompt to switch to the org
-                //         window.showInformationMessage("Do you wish to switch the active organization? The project you are attempting to open belongs to a different organization.", "Switch", "Cancel").then(async (selection) => {
-                //             if (selection === "Switch") {
-                //                 await commands.executeCommand(choreoProjectOverviewCloseCmdId); // close any open project overview
-                //                 await commands.executeCommand(setSelectedOrgCmdId, undefined, userOrg);
-                //                 switchToProjectOverview(projectId, +orgId);
-                //             } 
-                //         });
-                //     } else {
-                //         // This Org is not available for the user. Ask the user if they want to sign in with a different account
-                //         window.showInformationMessage("The project you are attempting to open belongs to a different organization. Do you wish to sign in with a different account?", "Sign In", "Cancel").then(async (selection) => {
-                //             if (selection === "Sign In") {
-                //                 await commands.executeCommand(choreoProjectOverviewCloseCmdId); // close any open project overview
-                //                 await commands.executeCommand(choreoSignOutCmdId);
-                //                 commands.executeCommand(choreoSignInCmdId).then(async () => {
-                //                     const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
-                //                     if (userOrg) {
-                //                         await commands.executeCommand(setSelectedOrgCmdId, undefined, userOrg);
-                //                         switchToProjectOverview(projectId, +orgId);
-                //                     } else {
-                //                         window.showErrorMessage(NOT_AUTHORIZED_MESSAGE);
-                //                     }
-                //                 });
-                //             }
-                //         });
-                //     }
-                // } else {
-                //     // else open the login page
-                //     commands.executeCommand(choreoSignInCmdId).then(async () => {
-                //         const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
-                //         switchToProjectOverview(projectId, +orgId);
-                //         if (userOrg) {
-                //             await commands.executeCommand(setSelectedOrgCmdId, undefined, userOrg);
-                //             switchToProjectOverview(projectId, +orgId);
-                //         } else {
-                //             window.showErrorMessage(NOT_AUTHORIZED_MESSAGE);
-                //         }
-                //     });
-                // }
+                // if user logged then open the project overview
+                if (ext.api.status === STATUS_LOGGED_IN) {
+                    const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
+                    if (userOrg) {
+                        openProjectInVSCode(projectId, userOrg);
+                    } else {
+                        // This Org is not available for the user. Ask the user if they want to sign in with a different account
+                        window.showInformationMessage("The project you are attempting to open belongs to a different organization. Do you wish to sign in with a different account?", "Sign In", "Cancel").then(async (selection) => {
+                            if (selection === "Sign In") {
+                                await commands.executeCommand(choreoSignOutCmdId);
+                                commands.executeCommand(choreoSignInCmdId).then(async () => {
+                                    const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
+                                    if (userOrg) {
+                                        openProjectInVSCode(projectId, userOrg);
+                                    } else {
+                                        window.showErrorMessage("You are not authorized to view this project");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    // else open the login page
+                    commands.executeCommand(choreoSignInCmdId).then(async () => {
+                        const userOrg = ext.api.userInfo?.organizations?.find((org) => org.id.toString() === orgId);
+                        if (userOrg) {
+                            openProjectInVSCode(projectId, userOrg);
+                        } else {
+                            window.showErrorMessage("You are not authorized to view this project");
+                        }
+                    });
+                }
             }
         },
     });

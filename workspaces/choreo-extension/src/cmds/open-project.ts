@@ -202,3 +202,53 @@ async function getProjectQuickPicks(org: Organization, currentProject?: Project)
     });
     return { quickPicks, projects };
 }
+
+
+export const openProjectInVSCode = async (
+    projectId: string,
+    organization: Organization) => {
+
+    const currentProject = await ext.api.getChoreoProject();
+
+    // if the selected project is already opened, show a message and return
+    if (projectId === currentProject?.id) {
+        vscode.window.showInformationMessage('The project is already opened in current window.');
+        return;
+    }
+
+    const projects = await ProjectRegistry.getInstance().getProjects(organization.id, organization.handle, true);
+    const selectedProject = projects.find(project => project.id === projectId);
+    if (selectedProject) {
+        const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);
+        if (projectLocation) {
+            // ask user where to open the project, current window or a new window
+            const openInCurrentWorkspace = await vscode.window.showInformationMessage(
+                'Where do you want to open the project?',
+                {
+                    modal: true,
+                },
+                'Current Window',
+                'New Window',
+            );
+            if (openInCurrentWorkspace === 'Current Window') {
+                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
+                    forceNewWindow: false,
+                });
+            } else if (openInCurrentWorkspace === 'New Window') {
+                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
+                    forceNewWindow: true,
+                });
+            }
+        } else {
+            // Project is not cloned yet, clone the project and open it
+            // show a quick pick to ask user whether to clone the project or not
+            const cloneSelection = await vscode.window.showQuickPick([
+                { label: 'Select folder to clone the project' },
+                { label: 'Cancel' },
+            ], { title: 'The project is not cloned yet. Do you want to clone and open it?' });
+            if (cloneSelection?.label === 'Select folder to clone the project') {
+                cloneProject(selectedProject);
+            }
+        }
+    }
+};
