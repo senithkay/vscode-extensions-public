@@ -90,6 +90,11 @@
         "command": "wso2.choreo.sign.in.with.apim.token",
         "title": "Sign In with APIM token response",
         "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.getStarted",
+        "title": "Get Started",
+        "category": "Choreo"
       }
     ],
     "viewsContainers": {
@@ -172,7 +177,7 @@
     },
     "walkthroughs": [
       {
-        "id": "choreo",
+        "id": "choreo.getStarted",
         "title": "Getting started with Choreo",
         "description": "Use the Choreo VSCode extension to speedup and empower your developer experience with Choreo projects. Refer to the Choreo panel on the left activity bar to conveniently access features.",
         "steps": [
