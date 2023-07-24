@@ -16,7 +16,7 @@ import { getLogger } from "../logger/logger";
 import { AccessToken, ChoreoAuthClient, ChoreoOrgClient, ChoreoUserManagementClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoEnvConfig } from "./config";
 import { Organization, UserInfo } from "@wso2-enterprise/choreo-core";
-import { getDefaultSelectedOrg } from "./auth";
+import { getDefaultSelectedOrg, promptToOpenSignupPage } from "./auth";
 import { ext } from "../extensionVariables";
 import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from "../constants";
 import { lock } from "./lock";
@@ -131,6 +131,10 @@ export class AuthHandler {
             }
             throw new Error(errMsg);
         }
+    }
+
+    public getSignUpUrl() {
+        return this._authClient.getSignUpURL();
     }
 
     public async signin(refreshOrgs: boolean = false) {
@@ -248,7 +252,7 @@ export class AuthHandler {
         } catch (error: any) {
             if (error.cause?.response?.status === 404) {
                 getLogger().error("User not found. Prompt to open signup page.");
-                throw new Error("User not found. Prompt to open signup page.");
+                promptToOpenSignupPage();
             }
             getLogger().error("Error while validating the user. " + error?.message, error);
             throw new Error("Error while validating the user. " + error?.message);

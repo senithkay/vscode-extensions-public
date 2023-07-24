@@ -94,7 +94,7 @@ export async function initiateInbuiltAuth() {
 
 export async function promptToOpenSignupPage() {
     // TODO: need to show this when user logging in for the very first time. (Also convert showInformationMessage to modal)
-    const signUpURL = ext.clients.authClient.getSignUpURL();
+    const signUpURL = ext.authHandler.getSignUpUrl();
     await vscode.window.showInformationMessage("Please complete signup in the Choreo Console", "Sign Up").then((selection) => {
         if (selection === "Sign Up") {
             return vscode.env.openExternal(vscode.Uri.parse(signUpURL));
