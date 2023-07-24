@@ -1,17 +1,18 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useEffect, useRef } from "react";
 
 import { DataMapper } from "@wso2-enterprise/ballerina-data-mapper";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ComponentViewInfo,
     ConfigOverlayFormStatus,
     DiagramEditorLangClientInterface,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -25,9 +26,10 @@ import {
 import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
-import { useHistoryContext } from "../../../DiagramViewManager/context/history";
+import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
+import { extractFilePath, isPathEqual } from "../../../DiagramViewManagerClone/utils";
 import { RecordEditor } from "../FormComponents/ConfigForms";
-import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
+import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
 
@@ -48,7 +50,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
     const {
         props: { currentFile, stSymbolInfo, importStatements, fullST },
         api: {
-            code: { modifyDiagram, updateFileContent },
+            code: { modifyDiagram, updateFileContent, gotoSource },
             ls: { getDiagramEditorLangClient },
             library,
             navigation: {
@@ -58,7 +60,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
         }
     } = useContext(Context);
 
-    const { historyClearAndPopulateWith, history } = useHistoryContext();
+    const { history, historyPush, historyUpdateCurrentEntry } = useHistoryContext();
 
     const [functionST, setFunctionST] =
         React.useState<FunctionDefinition>(undefined);
@@ -101,8 +103,11 @@ export function DataMapperOverlay(props: DataMapperProps) {
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
             const st = fns.find((mem) => mem.functionName.value === funcName);
-            if (history.length === 0) historyClearAndPopulateWith({ file: currentFile.path, position: st.position });
-            setFunctionST(st);
+            if (isPathEqual(history[history.length - 1].file, currentFile.path) && history[history.length - 1].name === funcName) {
+                historyUpdateCurrentEntry({ ...history[history.length - 1], position: st.position })
+            } else {
+                historyPush({ file: currentFile.path, position: st.position, fromDataMapper: true, dataMapperDepth: 0 });
+            }
             return;
         }
         setFunctionST(undefined);
@@ -126,6 +131,16 @@ export function DataMapperOverlay(props: DataMapperProps) {
         );
     };
 
+    const handleInternalNavigation = (info: ComponentViewInfo) => {
+        historyPush({
+            file: extractFilePath(info.filePath),
+            position: info.position,
+            fromDataMapper: true,
+            dataMapperDepth: history[history.length - 1].dataMapperDepth + 1,
+            name: info.name
+        });
+    }
+
     return (
         <DiagramOverlayContainer>
             <div className={dataMapperClasses.dataMapperContainer}>
@@ -143,13 +158,14 @@ export function DataMapperOverlay(props: DataMapperProps) {
                     ballerinaVersion={ballerinaVersion}
                     applyModifications={modifyDiagram}
                     updateFileContent={updateFileContent}
+                    goToSource={gotoSource}
                     onClose={onClose}
                     onSave={onSave}
                     importStatements={importStatements}
                     recordPanel={renderRecordPanel}
                     syntaxTree={fullST}
                     updateActiveFile={updateActiveFile}
-                    updateSelectedComponent={updateSelectedComponent}
+                    updateSelectedComponent={handleInternalNavigation}
                 />
             </div>
         </DiagramOverlayContainer>

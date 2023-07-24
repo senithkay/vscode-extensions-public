@@ -13,5 +13,5 @@
 import { Organization } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoOrgClient  {
-    getOrganizations(orgId: number): Promise<Organization[]>;
+    getOrganizations(choreoAccessToken: string): Promise<Organization[]>;
 }

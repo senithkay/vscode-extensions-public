@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import styled from '@emotion/styled';
 import { Colors } from '../../../resources';
@@ -21,13 +21,14 @@ interface StyleProps {
     isSelected?: boolean;
     isClickable?: boolean;
     shouldShade?: boolean;
+    isFocused?: boolean;
 }
 
 export const EntityNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
+        props.isAnonymous ? ANON_RECORD_PRIMARY : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY_LIGHT}`};
     border-radius: 5px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
     cursor: ${(props: StyleProps) => props.isEditMode ? `pointer` : `auto`};

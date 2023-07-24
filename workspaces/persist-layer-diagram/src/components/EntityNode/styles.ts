@@ -1,20 +1,10 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 LLC. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import styled from '@emotion/styled';
@@ -29,13 +19,14 @@ interface StyleProps {
     isSelected?: boolean;
     isClickable?: boolean;
     isCollapsed?: boolean;
+    isFocused?: boolean;
 }
 
 export const EntityNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.NODE_BACKGROUND};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.NODE_BORDER}`};
+        props.isAnonymous ? ANON_RECORD_PRIMARY : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
     border-radius: 6px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
     display: flex;
@@ -104,6 +95,7 @@ export const AttributeType: React.FC<any> = styled.span`
     padding-inline: 8px;
     text-align: center;
     white-space: nowrap;
+    cursor: pointer;
 `;
 
 export const InclusionPortsContainer = styled.div`

@@ -1,5 +1,21 @@
 # Change log
 
+## **4.4.0** (2023-07-21)
+For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.4.0/).
+
+### Added
+
+- New release now supports opening ballerina gist files and repositories using the vscode URL command.
+
+### Improved
+
+- The GraphQL designer, Entity-relationship diagram and the Type diagram, now provide support for users to navigate to a specific node based on their selection in the field type.
+- Ballerina debugger - Improved user experience.
+
+### Bug Fixes
+
+- Swagger View - Fix incorrect service display on Swagger View.
+
 ## **4.3.0** (2023-06-16)
 For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.3.0/).
 

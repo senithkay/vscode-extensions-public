@@ -11,16 +11,18 @@
  *  associated services.
  */
 import { ProgressLocation, commands, window } from "vscode";
-import { getTokenWithAutoRefresh, initiateInbuiltAuth as openAuthURL, signOut, signin } from "./auth";
+import { choreoEnvConfig, initiateInbuiltAuth as openAuthURL } from "./auth";
 import { ext } from '../extensionVariables';
 import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 import * as vscode from 'vscode';
+import { AuthHandler } from "./AuthHandler";
 
-export async function activateAuth() {
+export async function activateAuth(context: vscode.ExtensionContext) {
     ext.api.status = STATUS_INITIALIZING;
+    ext.authHandler = new AuthHandler(context, choreoEnvConfig);
     await initFromExistingChoreoSession();
 
     commands.registerCommand(choreoSignInCmdId, async () => {
@@ -38,13 +40,13 @@ export async function activateAuth() {
                     cancellationToken.onCancellationRequested(async () => {
                         getLogger().warn("Signing in to Choreo cancelled");
                         sendTelemetryEvent(SIGN_IN_CANCEL_EVENT);
-                        await signOut();
+                        ext.authHandler.signout();
                     });
                     await ext.api.waitForLogin();
                 });
             } else {
                 getLogger().error("Unable to open external link for authentication.");
-                await signOut();
+                ext.authHandler.signout();
                 window.showErrorMessage("Unable to open external link for authentication.");
             }
         } catch (error: any) {
@@ -60,7 +62,7 @@ export async function activateAuth() {
         try {
             getLogger().debug("Signing out from Choreo");
             sendTelemetryEvent(SIGN_OUT_START_EVENT);
-            await signOut();
+            ext.authHandler.signout();
             sendTelemetryEvent(SIGN_OUT_SUCCESS_EVENT);
             window.showInformationMessage('Successfully signed out from Choreo!');
         } catch (error: any) {
@@ -86,8 +88,8 @@ export async function activateAuth() {
 
             if (apimResponse) {
                 const asgardioToken = JSON.parse(apimResponse);
-                await ext.tokenStorage.setToken("asgardio.token", asgardioToken);
-                await signin();
+                // await ext.tokenStorage.setToken("asgardio.token", asgardioToken);
+                ext.authHandler.signout();
             } else {
                 window.showErrorMessage("APIM token response is required to login");
             }
@@ -103,22 +105,10 @@ export async function activateAuth() {
 
 async function initFromExistingChoreoSession() {
     getLogger().debug("Initializing from existing Choreo session");
-    const asgardioToken = await getTokenWithAutoRefresh("asgardio.token");
-    if (asgardioToken?.accessToken && asgardioToken.expirationTime
-        && asgardioToken.loginTime && asgardioToken.refreshToken) {
-        ext.api.status = STATUS_LOGGING_IN;
-        sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_START_EVENT);
-        getLogger().debug("Found existing Choreo session");
-        try {
-            await signin(true);
-            sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT);
-        } catch (error: any) {
-            getLogger().error("Error while signing in from existing Choreo session. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-            sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
-            await signOut();
-        }
-    } else {
-        getLogger().debug("No existing Choreo session found");
-        await signOut();
+    try {
+        await ext.authHandler.signin(true);
+    } catch (error: any) {
+        getLogger().error("Error while initializing from existing Choreo session. " + error?.message);
+        ext.authHandler.signout();
     }
 }

@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useState } from "react";
@@ -19,10 +19,11 @@ import { ServiceSubheader } from "./ServiceMenuActions/ServiceSubheader";
 
 interface ServiceHeaderMenuProps {
     location: Position;
+    nodeName: string;
 }
 
 export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
-    const { location } = props;
+    const { location, nodeName } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
@@ -34,7 +35,7 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <div onClick={() => setTooltipStatus(false)}>
-                        <ServiceSubheader location={location}/>
+                        <ServiceSubheader location={location} nodeName={nodeName} />
                     </div>
                 }
                 PopperProps={{

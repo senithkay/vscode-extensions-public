@@ -15,19 +15,16 @@ import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { TokenStorage } from "./auth/TokenStorage";
 import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, ChoreoSubscriptionClient, ChoreoUserManagementClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
+import { AuthHandler } from "./auth/AuthHandler";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;
     public isPluginStartup!: boolean;
     public api!: ChoreoExtensionApi;
     public statusBarItem!: StatusBarItem;
-
-    public tokenStorage!: TokenStorage;
+    public authHandler!: AuthHandler;
 
     public clients!: {
-        authClient: ChoreoAuthClient,
-        orgClient: ChoreoOrgClient,
-        userManagementClient: ChoreoUserManagementClient,
         projectClient: ChoreoProjectClient,
         githubAppClient: ChoreoGithubAppClient,
         subscriptionClient: ChoreoSubscriptionClient,

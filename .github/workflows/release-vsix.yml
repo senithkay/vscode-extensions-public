@@ -55,6 +55,7 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           version: ${{ inputs.version }}
+          packages: ${{ inputs.packages }}
 
       - uses: actions/setup-node@v3
         with:
@@ -88,6 +89,8 @@ jobs:
             file=$(ls choreo*.vsix)
             fileName=${file#*-}
             version=choreo-${fileName%.*}  
+          elif [[ "${{ github.event.inputs.packages }}" == "true" ]]; then
+            version=packages-$(date +%Y%m%d%H%M)
           fi
           echo "version=$version" >> $GITHUB_OUTPUT
 
@@ -104,7 +107,6 @@ jobs:
           workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "choreo-core" "project-design-diagrams")
           for workspace in "${workspaces[@]}"; do
             cd $workspace
-            pnpm version ${{ inputs.version }} --no-git-tag-version
             pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }} --no-git-checks
             cd ..
           done
@@ -140,7 +142,7 @@ jobs:
 
   Notify:
     needs: [Release]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/ballerina-plugin-vscode'}}
     runs-on: ubuntu-latest
     steps:
       - name: "Release Notification"

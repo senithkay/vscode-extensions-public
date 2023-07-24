@@ -46,7 +46,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     private async _getClient(orgId: number) {
-        const token = await this._tokenStore.getTokenForOrg(orgId);
+        const token = await this._tokenStore.getToken(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }
@@ -205,7 +205,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     async getPerformanceForecastData(params: PerformanceForecastDataRequest): Promise<AxiosResponse> {
         const { orgId, data } = params;
-        const token = await this._tokenStore.getTokenForOrg(orgId);
+        const token = await this._tokenStore.getToken(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }
@@ -230,7 +230,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     async getSwaggerExamples(params: GetSwaggerExamplesRequest): Promise<AxiosResponse> {
         const { orgId, data } = params;
-        const token = await this._tokenStore.getTokenForOrg(orgId);
+        const token = await this._tokenStore.getToken(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }

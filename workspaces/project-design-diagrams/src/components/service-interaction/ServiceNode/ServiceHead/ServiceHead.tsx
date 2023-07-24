@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
@@ -17,7 +17,9 @@ import { ServiceNodeModel } from '../ServiceNodeModel';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 import { UnSupportedMessage } from '../../../common/UnSupportedMessage/UnSupportedMessage';
 import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views, WebhookIcon } from '../../../../resources';
-import { ServiceHead, ServiceName } from '../styles/styles';
+import { LoadingIconWrapper, ServiceHead, ServiceName } from '../styles/styles';
+import { ResourceLoadingIcon } from "../../../../resources/assets/icons/ResourceLoadingIcon";
+
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -77,11 +79,18 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     isSelected={isSelected}
                     onMouseOver={() => { handleOnHover('SELECT') }}
                     onMouseLeave={() => { handleOnHover('UNSELECT') }}
+                    dataInProgress={node.nodeObject.dataInProgress}
                 >
-                    {
+                    {/*Render this Icon on console side when the data is being fetched*/}
+                    {node.nodeObject.dataInProgress ?
+                        (
+                            <LoadingIconWrapper>
+                                <ResourceLoadingIcon />
+                            </LoadingIconWrapper>) :
+                        (
                         node.nodeObject.isNoData ? (
-                            <WarningIcon />
-                        ) :
+                                <WarningIcon />
+                            ) :
                             node.serviceType === ServiceTypes.GRPC ?
                                 <GrpcIcon /> :
                                 node.serviceType === ServiceTypes.GRAPHQL ?
@@ -91,7 +100,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                                         node.serviceType === ServiceTypes.WEBHOOK ?
                                             <WebhookIcon /> :
                                             <MiscellaneousServicesIcon fontSize='medium' />
-                    }
+                    )}
                     <ServicePortWidget
                         port={node.getPort(`left-${node.getID()}`)}
                         engine={engine}

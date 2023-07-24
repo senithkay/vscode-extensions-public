@@ -1,15 +1,16 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
+    ExpressionFunctionBody,
     NodePosition,
     QueryExpression,
     STKindChecker,
@@ -27,14 +28,16 @@ import {
     LET_EXPRESSION_SOURCE_PORT_PREFIX,
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     OFFSETS,
-    PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+    PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+    UNION_TYPE_TARGET_PORT_PREFIX
 } from "../../utils/constants";
 import {
     getDefaultValue,
     getExprBodyFromLetExpression,
     getFieldNames,
+    getInnermostExpressionBody,
     getMethodCallElements,
-    getTypeFromStore
+    getTypeFromStore, isRepresentFnBody
 } from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -44,6 +47,7 @@ import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
 import { RequiredParamNode } from "../RequiredParam";
+import { UnionTypeNode } from "../UnionType";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -143,8 +147,14 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     private getTargetType(): void {
-        const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode)
-                                    && this.parentNode.fieldName.position as NodePosition;
+        const innerMostExpr = getInnermostExpressionBody(this.parentNode);
+        const selectedST = this.context.selection.selectedST.stNode;
+        let exprFuncBody : ExpressionFunctionBody;
+        if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
+            exprFuncBody = selectedST.functionBody;
+        }
+        const fieldNamePosition = STKindChecker.isSpecificField(innerMostExpr)
+                                    && innerMostExpr.fieldName.position as NodePosition;
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode || node instanceof ListConstructorNode) {
@@ -162,8 +172,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (STKindChecker.isExpressionFunctionBody(this.parentNode)) {
-            const exprPosition = this.parentNode.expression.position;
+        } else if (isRepresentFnBody(this.parentNode, exprFuncBody)) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ListConstructorNode) {
                     const ports = Object.entries(node.getPorts());
@@ -172,8 +181,19 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         if (port instanceof RecordFieldPortModel
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isQueryExpression(port.editableRecordField.value)
-                            && isPositionsEquals(port.editableRecordField.value.position, exprPosition)
+                            && isPositionsEquals(port.editableRecordField.value.position, this.value.position)
                             && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                } else if (node instanceof UnionTypeNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port.portName === `${UNION_TYPE_TARGET_PORT_PREFIX}`
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;
@@ -200,7 +220,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (STKindChecker.isBracedExpression(this.parentNode)) {
+        } else if (STKindChecker.isBracedExpression(innerMostExpr)) {
             // To draw link between query node and output node
             // when having indexed query expressions at function body level
             this.getModel().getNodes().forEach((node) => {
@@ -211,9 +231,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         if (port instanceof RecordFieldPortModel
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isQueryExpression(port.editableRecordField.value)
-                            && STKindChecker.isBracedExpression(this.parentNode)
-                            && STKindChecker.isQueryExpression(this.parentNode.expression)
-                            && isPositionsEquals(port.editableRecordField.value.position, this.parentNode.expression.position)
+                            && STKindChecker.isBracedExpression(innerMostExpr)
+                            && STKindChecker.isQueryExpression(innerMostExpr.expression)
+                            && isPositionsEquals(port.editableRecordField.value.position, innerMostExpr.expression.position)
                             && port.portName === `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.typeDef.name ? `${node.typeDef.typeName}.${node.typeDef.name}` : node.typeName}`
                             && port.portType === 'IN'
                         ) {

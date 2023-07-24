@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
@@ -19,6 +19,7 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Container } from "../Canvas/CanvasWidgetContainer";
 import { GraphqlDiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlDiagramContainer } from "../GraphqlDiagramContainer/GraphqlDiagramContainer";
+import { NodeType } from "../NodeFilter";
 import { GraphqlDesignModel } from "../resources/model";
 import { getModelForGraphqlService } from "../utils/ls-util";
 
@@ -66,6 +67,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     } = props;
 
     const [modelData, setModelData] = useState<GraphqlModelData>(undefined);
+    const [selectedDiagramNode, setSelectedDiagramNode] = useState<string>(undefined);
+    const [filteredNode, setFilteredNode] = useState<NodeType>(undefined);
 
     useEffect(() => {
         if (fullST) {
@@ -82,8 +85,19 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn }
         };
         const graphqlModel: GraphqlDesignServiceResponse = await getModelForGraphqlService(request, langClientPromise);
-        setModelData({designModel: graphqlModel.graphqlDesignModel, isIncompleteModel: graphqlModel.isIncompleteModel});
+        setModelData({
+            designModel: graphqlModel.graphqlDesignModel,
+            isIncompleteModel: graphqlModel.isIncompleteModel
+        });
     };
+
+    const setSelectedNode = (node: string) => {
+        setSelectedDiagramNode(node);
+    }
+
+    const updateNodeFiltering = (node: NodeType) => {
+        setFilteredNode(node);
+    }
 
     const ctxt = {
         model,
@@ -95,7 +109,11 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         goToSource,
         recordEditor,
         langClientPromise,
-        currentFile
+        currentFile,
+        setSelectedNode,
+        selectedDiagramNode,
+        setFilteredNode: updateNodeFiltering,
+        filteredNode
     };
 
     return (
@@ -106,7 +124,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             {modelData?.isIncompleteModel && <GraphqlUnsupportedOverlay />}
             {!modelData?.designModel &&
                 <Container className="dotted-background">
-                    <TextPreLoader position="absolute" text="Fetching data..."/>
+                    <TextPreLoader position="absolute" text="Fetching data..." />
                 </Container>
             }
         </>

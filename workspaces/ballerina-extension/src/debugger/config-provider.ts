@@ -1,34 +1,46 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) (2021-2023), WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import {
-    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands,
-    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri
+    DebugConfigurationProvider, WorkspaceFolder, DebugConfiguration, debug, ExtensionContext, window, commands, DebugAdapterInlineImplementation,
+    DebugSession, DebugAdapterExecutable, DebugAdapterDescriptor, DebugAdapterDescriptorFactory, DebugAdapterServer, Uri, workspace, RelativePattern, ConfigurationTarget, WorkspaceConfiguration
 } from 'vscode';
 import * as child_process from "child_process";
 import { getPortPromise } from 'portfinder';
 import * as path from "path";
-import { ballerinaExtInstance, BallerinaExtension, LANGUAGE, OLD_BALLERINA_VERSION_DEBUGGER_RUNINTERMINAL,
-    UNSUPPORTED_DEBUGGER_RUNINTERMINAL_KIND, INVALID_DEBUGGER_RUNINTERMINAL_KIND } from '../core';
+import {
+    ballerinaExtInstance, BallerinaExtension, LANGUAGE, OLD_BALLERINA_VERSION_DEBUGGER_RUNINTERMINAL,
+    UNSUPPORTED_DEBUGGER_RUNINTERMINAL_KIND, INVALID_DEBUGGER_RUNINTERMINAL_KIND
+} from '../core';
 import { BallerinaProject, ExtendedLangClient } from '../core/extended-language-client';
 import { BALLERINA_HOME } from '../core/preferences';
 import {
     TM_EVENT_START_DEBUG_SESSION, CMP_DEBUGGER, sendTelemetryEvent, sendTelemetryException,
     CMP_NOTEBOOK, TM_EVENT_START_NOTEBOOK_DEBUG
 } from '../telemetry';
-import { log, debug as debugLog, isSupportedVersion, VERSION } from "../utils";
+import { log, debug as debugLog } from "../utils";
 import { decimal, ExecutableOptions } from 'vscode-languageclient/node';
 import { BAL_NOTEBOOK, getTempFile, NOTEBOOK_CELL_SCHEME } from '../notebook';
 import fileUriToPath from 'file-uri-to-path';
+import { readFileSync } from 'fs';
+import { dirname, sep } from 'path';
+import { parseTomlToConfig } from '../config-generator/utils';
+import { LoggingDebugSession, OutputEvent, TerminatedEvent } from 'vscode-debugadapter';
+import { DebugProtocol } from 'vscode-debugprotocol';
+import { PALETTE_COMMANDS, PROJECT_TYPE } from '../project/cmds/cmd-runner';
+import { Disposable } from 'monaco-languageclient';
+import { getCurrentBallerinaFile, getCurrentBallerinaProject } from '../utils/project-utils';
 
 const BALLERINA_COMMAND = "ballerina.command";
 const EXTENDED_CLIENT_CAPABILITIES = "capabilities";
+const BALLERINA_TOML_REGEX = `**${sep}Ballerina.toml`;
+const BALLERINA_FILE_REGEX = `**${sep}*.bal`;
 
 export enum DEBUG_REQUEST {
     LAUNCH = 'launch'
@@ -39,6 +51,18 @@ export enum DEBUG_CONFIG {
     TEST_DEBUG_NAME = 'Ballerina Test'
 }
 
+export interface BALLERINA_TOML {
+    package: PACKAGE;
+    "build-options": any;
+}
+
+export interface PACKAGE {
+    org: string;
+    name: string;
+    version: string;
+    distribution: string;
+}
+
 class DebugConfigProvider implements DebugConfigurationProvider {
     resolveDebugConfiguration(_folder: WorkspaceFolder, config: DebugConfiguration)
         : Thenable<DebugConfiguration> {
@@ -46,11 +70,11 @@ class DebugConfigProvider implements DebugConfigurationProvider {
             commands.executeCommand('workbench.action.debug.configure');
             return Promise.resolve({ request: '', type: '', name: '' });
         }
-        return getModifiedConfigs(config);
+        return getModifiedConfigs(_folder, config);
     }
 }
 
-async function getModifiedConfigs(config: DebugConfiguration) {
+async function getModifiedConfigs(workspaceFolder: WorkspaceFolder, config: DebugConfiguration) {
     let debuggeePort = config.debuggeePort;
     if (!debuggeePort) {
         debuggeePort = await getPortPromise({ port: 5010, stopPort: 10000 });
@@ -69,17 +93,13 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         config.request = DEBUG_REQUEST.LAUNCH;
     }
 
-    if (!window.activeTextEditor) {
-        ballerinaExtInstance.showMessageInvalidFile();
-        return Promise.reject();
-    }
+    config.noDebug = Boolean(config.noDebug);
 
-    const activeDoc = window.activeTextEditor.document;
+    const activeTextEditor = window.activeTextEditor;
 
-    config.script = activeDoc.uri.fsPath;
-    if (activeDoc.fileName.endsWith(BAL_NOTEBOOK)) {
+    if (activeTextEditor && activeTextEditor.document.fileName.endsWith(BAL_NOTEBOOK)) {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_START_NOTEBOOK_DEBUG, CMP_NOTEBOOK);
-        let activeTextEditorUri = activeDoc.uri;
+        let activeTextEditorUri = activeTextEditor.document.uri;
         if (activeTextEditorUri.scheme === NOTEBOOK_CELL_SCHEME) {
             activeTextEditorUri = Uri.file(getTempFile());
             config.script = fileUriToPath(activeTextEditorUri.toString(true));
@@ -88,27 +108,41 @@ async function getModifiedConfigs(config: DebugConfiguration) {
         }
     }
 
-    if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME) {
-        if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
-            await ballerinaExtInstance.langClient.getBallerinaProject({
-                documentIdentifier: {
-                    uri: activeDoc.uri.toString()
-                }
-            }).then((response) => {
-                const project = response as BallerinaProject;
-                if (project.kind === undefined) {
+    if (!config.script) {
+        const tomls = await workspace.findFiles(workspaceFolder ? new RelativePattern(workspaceFolder, BALLERINA_TOML_REGEX) : BALLERINA_TOML_REGEX);
+        const projects: { project: BallerinaProject; balFile: Uri; relativePath: string }[] = [];
+        for (const toml of tomls) {
+            const projectRoot = dirname(toml.fsPath);
+            const balFiles = await workspace.findFiles(new RelativePattern(projectRoot, BALLERINA_FILE_REGEX), undefined, 1);
+            if (balFiles.length > 0) {
+
+                const tomlContent: string = readFileSync(toml.fsPath, 'utf8');
+                const tomlObj: BALLERINA_TOML = parseTomlToConfig(tomlContent) as BALLERINA_TOML;
+                const relativePath = workspace.asRelativePath(projectRoot);
+                projects.push({ project: { packageName: tomlObj.package.name }, balFile: balFiles[0], relativePath });
+            }
+        }
+
+        if (projects.length > 0) {
+            if (projects.length === 1) {
+                config.script = projects[0].balFile.fsPath;
+            } else {
+                const selectedProject = await window.showQuickPick(projects.map((project) => {
+                    return {
+                        label: project.project.packageName,
+                        description: project.relativePath
+                    };
+                }), { placeHolder: "Select a Ballerina project to debug", canPickMany: false });
+                if (selectedProject) {
+                    config.script = projects[projects.indexOf(projects.find((project) => {
+                        return project.project.packageName === selectedProject.label;
+                    }))].balFile.fsPath;
+                } else {
                     return Promise.reject();
                 }
-                if (!project.kind || (config.request === 'launch' && project.kind === 'BALA_PROJECT')) {
-                    ballerinaExtInstance.showMessageInvalidProject();
-                    return Promise.reject();
-                }
-            }, error => {
-                log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
-                sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
-            });
-        } else if (!activeDoc.fileName.endsWith('.bal')) {
-            ballerinaExtInstance.showMessageInvalidFile();
+            }
+        } else {
+            ballerinaExtInstance.showMessageInvalidProject();
             return Promise.reject();
         }
 
@@ -150,6 +184,34 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     return config;
 }
 
+export async function constructDebugConfig(uri: Uri, testDebug: boolean, args?: any): Promise<DebugConfiguration> {
+
+    const launchConfig: WorkspaceConfiguration = workspace.getConfiguration('launch').length > 0 ? workspace.getConfiguration('launch') :
+        workspace.getConfiguration('launch', uri);
+    const debugConfigs: DebugConfiguration[] = launchConfig.configurations;
+
+    if (debugConfigs.length == 0) {
+        const initialConfigurations: DebugConfiguration[] = ballerinaExtInstance.extension.packageJSON.contributes.debuggers[0].initialConfigurations;
+
+        debugConfigs.push(...initialConfigurations);
+        launchConfig.update('configurations', debugConfigs, ConfigurationTarget.WorkspaceFolder, true);
+    }
+
+    let debugConfig: DebugConfiguration | undefined;
+    for (let i = 0; i < debugConfigs.length; i++) {
+        if ((testDebug && debugConfigs[i].name == DEBUG_CONFIG.TEST_DEBUG_NAME) ||
+            (!testDebug && debugConfigs[i].name == DEBUG_CONFIG.SOURCE_DEBUG_NAME)) {
+            debugConfig = debugConfigs[i];
+            break;
+        }
+    }
+
+    debugConfig.script = uri.fsPath;
+    debugConfig.debugTests = testDebug;
+    debugConfig.tests = testDebug ? args : undefined;
+    return debugConfig;
+}
+
 export function activateDebugConfigProvider(ballerinaExtInstance: BallerinaExtension) {
     let context = <ExtensionContext>ballerinaExtInstance.context;
 
@@ -166,6 +228,12 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     }
     createDebugAdapterDescriptor(session: DebugSession, executable: DebugAdapterExecutable | undefined):
         Thenable<DebugAdapterDescriptor> {
+        if (session.configuration.noDebug && ballerinaExtInstance.enabledRunFast()) {
+            return new Promise((resolve) => {
+                resolve(new DebugAdapterInlineImplementation(new FastRunDebugAdapter()));
+            });
+        }
+
         const port = session.configuration.debugServer;
         const configEnv = session.configuration.configEnv;
         const cwd = this.getCurrentWorkingDir();
@@ -206,4 +274,54 @@ class BallerinaDebugAdapterDescriptorFactory implements DebugAdapterDescriptorFa
     getCurrentWorkingDir(): string {
         return path.join(this.ballerinaExtInstance.ballerinaHome, "bin");
     }
+}
+
+class FastRunDebugAdapter extends LoggingDebugSession {
+
+    notificationHandler: Disposable | null = null;
+    root: string | null = null;
+
+    protected launchRequest(response: DebugProtocol.LaunchResponse, args: DebugProtocol.LaunchRequestArguments, request?: DebugProtocol.Request): void {
+        const langClient = ballerinaExtInstance.langClient;
+        const notificationHandler = langClient.onNotification('$/logTrace', (params: any) => {
+            if (params.verbose === "stopped") { // even if a single channel (stderr,stdout) stopped, we stop the debug session
+                notificationHandler!.dispose();
+                this.sendEvent(new TerminatedEvent());
+            } else {
+                const category = params.verbose === 'err' ? 'stderr' : 'stdout';
+                this.sendEvent(new OutputEvent(params.message, category));
+            }
+        });
+        this.notificationHandler = notificationHandler;
+        getCurrentRoot().then((root) => {
+            this.root = root;
+            runFast(root).then((didRan) => {
+                response.success = didRan;
+                this.sendResponse(response);
+            });
+        });
+    }
+
+    protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+        const notificationHandler = this.notificationHandler;
+        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: this.root! }] }).then((didStop) => {
+            response.success = didStop;
+            notificationHandler!.dispose();
+            this.sendResponse(response);
+        });
+    }
+
+}
+
+async function runFast(root: string) {
+    if (window.activeTextEditor && window.activeTextEditor.document.isDirty) {
+        await commands.executeCommand(PALETTE_COMMANDS.SAVE_ALL);
+    }
+    return await ballerinaExtInstance.langClient.executeCommand({ command: "RUN", arguments: [{ key: "path", value: root }] });
+}
+
+async function getCurrentRoot(): Promise<string> {
+    const file = getCurrentBallerinaFile();
+    const currentProject = await getCurrentBallerinaProject(file);
+    return (currentProject.kind !== PROJECT_TYPE.SINGLE_FILE) ? currentProject.path! : file;
 }

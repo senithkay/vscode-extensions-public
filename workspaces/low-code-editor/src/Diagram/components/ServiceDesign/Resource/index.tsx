@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js, jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
@@ -297,8 +297,14 @@ export function ResourceBody(props: ResourceBodyProps) {
         const responses = [];
         for (const [i, param] of values.entries()) {
             if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
-                const paramDetails = param.source.split(" ");
-                const recordName = param.source.split(" ")[0];
+                let paramDetails = param.source.split(" ");
+                let annotation = "";
+                if (param.annotations.length > 0) {
+                    annotation = param.annotations[0].source;
+                    const sourceWithoutAnnotation = param.source.replace(annotation, "");
+                    paramDetails = sourceWithoutAnnotation.split(" ");
+                }
+                const recordName = paramDetails[0];
                 let description = paramDetails.length > 0 && paramDetails[1];
                 if (paramDetails.length > 2) {
                     description = paramDetails.slice(1).join(" ");
@@ -316,6 +322,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                 responses.push(
                     <tr key={i} className={classes.signature}>
                         <td>
+                            {annotation && <span className={classes.annotation}>{annotation}</span>}
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>

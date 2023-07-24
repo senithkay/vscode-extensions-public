@@ -22,7 +22,7 @@ export class ComponentManagementClient implements IComponentMgtClient {
     }
 
     private async _getClient(orgId: number) {
-        const token = await this._tokenStore.getTokenForOrg(orgId);
+        const token = await this._tokenStore.getToken(orgId);
         if (!token) {
             throw new Error('User is not logged in');
         }

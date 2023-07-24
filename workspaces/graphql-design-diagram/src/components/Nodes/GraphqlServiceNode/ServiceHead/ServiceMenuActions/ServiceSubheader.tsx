@@ -1,20 +1,22 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-implicit-dependencies no-submodule-imports
-import React, { useContext } from "react";
+import React from "react";
 
 import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { FilterNodeMenuItem } from "../../../../NodeActionMenu/FilterNodeMenuItem";
 import { GoToSourceMenuItem } from "../../../../NodeActionMenu/GoToSourceMenuItem";
+import { NodeCategory } from "../../../../NodeFilter";
 import { FunctionType, Position } from "../../../../resources/model";
 
 import { AddFunctionWidget } from "./AddFunctionWidget";
@@ -22,11 +24,12 @@ import { useStyles } from "./styles";
 
 interface ServiceSubheaderProps {
     location: Position;
+    nodeName: string;
 }
 
 export function ServiceSubheader(props: ServiceSubheaderProps) {
-    const { location } = props;
-    const { servicePanel } = useContext(DiagramContext);
+    const { location, nodeName } = props;
+    const { servicePanel } = useGraphQlContext();
     const classes = useStyles();
 
     return (
@@ -47,6 +50,7 @@ export function ServiceSubheader(props: ServiceSubheaderProps) {
                     <>
                         <Divider />
                         <GoToSourceMenuItem location={location} />
+                        <FilterNodeMenuItem nodeType={{ name: nodeName, type: NodeCategory.GRAPHQL_SERVICE }} />
                     </>
                     }
                 </MenuList>

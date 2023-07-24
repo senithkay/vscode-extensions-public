@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import { BallerinaProject } from "../../core/extended-language-client";
 import { Terminal, window, workspace } from "vscode";
@@ -20,8 +20,6 @@ export enum PALETTE_COMMANDS {
     DOC = 'ballerina.project.doc',
     FOCUS_EXPLORER = 'ballerinaExplorerTreeView.focus',
     RUN_CMD = 'ballerina.project.run.cmd',
-    RUN_FAST = 'ballerina.project.run.fast',
-    STOP = 'ballerina.project.stop',
     RUN = 'ballerina.project.run',
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
@@ -40,6 +38,7 @@ export enum PALETTE_COMMANDS {
     SHOW_CELL_VIEW = 'ballerina.view.cellView',
     REFRESH_SHOW_ARCHITECTURE_VIEW = "ballerina.view.architectureView.refresh",
     RUN_CONFIG = 'ballerina.project.run.config',
+    CONFIG_CREATE_COMMAND = 'ballerina.project.config.create',
     SHOW_ENTITY_DIAGRAM = 'ballerina.view.entityDiagram'
 }
 

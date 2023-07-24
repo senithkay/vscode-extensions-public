@@ -1,26 +1,15 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- * WSO2 LLC. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import React, { useEffect, useState } from 'react';
 import { ComponentModel, GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import CircularProgress from '@mui/material/CircularProgress';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { modelMapper, generateEngine } from './utils';
@@ -29,6 +18,7 @@ import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from './re
 import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 
 interface PersistDiagramProps {
     getPersistModel: () => Promise<GetPersistERModelResponse>;
@@ -45,6 +35,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>(undefined);
     const [collapsedMode, setIsCollapsedMode] = useState<boolean>(false);
+    const [focusedNodeId, setFocusedNodeId] = useState<string>(undefined);
 
     const styles = useStyles();
 
@@ -54,6 +45,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
         if (nodeId !== selectedNodeId) {
             setSelectedNodeId(nodeId);
         }
+        setFocusedNodeId(undefined);
     }, [props]);
 
     useEffect(() => {
@@ -108,17 +100,29 @@ export function PersistDiagram(props: PersistDiagramProps) {
         selectedNodeId,
         setSelectedNodeId,
         setHasDiagnostics,
-        hasDiagnostics
+        hasDiagnostics,
+        focusedNodeId,
+        setFocusedNodeId
     }
+
+    const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (focusedNodeId && event.target === diagramEngine.getCanvas()) {
+            setFocusedNodeId(undefined);
+        }
+    };
 
     return (
         <Container>
             <PersistDiagramContext {...ctx}>
                 <HeaderWidget collapsedMode={collapsedMode} setIsCollapsedMode={switchCollapseMode} />
-                <DiagramContainer>
+                <DiagramContainer onClick={handleCanvasClick}>
                     {diagramEngine?.getModel() && diagramModel ?
                         <>
-                            <CanvasWidget engine={diagramEngine} className={styles.canvas} />
+                            <NavigationWrapperCanvasWidget
+                                diagramEngine={diagramEngine}
+                                className={styles.canvas}
+                                focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
+                            />
                             <DiagramControls
                                 engine={diagramEngine}
                                 refreshDiagram={refreshDiagram}

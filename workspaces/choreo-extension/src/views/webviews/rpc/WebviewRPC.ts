@@ -73,6 +73,8 @@ import {
     SetExpandedComponents,
     GetExpandedComponents,
     GetChoreoWorkspaceMetadata,
+    SetChoreoInstallOrg,
+    ClearChoreoInstallOrg,
     getEndpointsForVersion,
     EndpointData,
 } from "@wso2-enterprise/choreo-core";
@@ -178,10 +180,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
-        const { orgHandler, name } = params.component;
+        const { orgHandler, displayName } = params.component;
         const org = ext.api.getOrgByHandle(orgHandler);
         if (org) {
-            const answer = await vscode.window.showInformationMessage(`Are you sure you want to delete the component ${name}? `,
+            const answer = await vscode.window.showInformationMessage(`Are you sure you want to delete the component ${displayName}? `,
                 { modal: true },
                 "Delete Component");
             if (answer === "Delete Component") {
@@ -363,16 +365,25 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         };
     });
 
+    messenger.onRequest(SetChoreoInstallOrg, (orgId: number) => {
+        ext.api.setChoreoInstallOrg(orgId);
+    });
+
+    messenger.onRequest(ClearChoreoInstallOrg, () => {
+        ext.api.clearChoreoInstallOrg();
+    });
+
     messenger.onRequest(UpdateProjectOverview, (projectId: string) => {
         ext.api.projectUpdated();
     });
 
-    messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<void> {
+    messenger.onRequest(PushLocalComponentsToChoreo, async function (params: PushLocalComponentsToChoreoParams): Promise<string[]> {
         const { orgId, projectId, componentNames } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
+            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
         }
+        return [];
     });
 
     messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string, componentName: string }): Promise<void> => {

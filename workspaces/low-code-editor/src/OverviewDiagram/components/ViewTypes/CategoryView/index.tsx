@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
@@ -77,17 +77,6 @@ export function CategoryView(props: CategoryViewProps) {
             });
         });
     }
-    // tslint:disable-next-line: jsx-key
-    // const views = components.map(comp => <ComponentView info={comp} updateSelection={updateSelection} />)
-
-    // return (
-    //     <div>
-    //         <h3>{heading}</h3>
-    //         <div className="component-container">
-    //             {views}
-    //         </div>
-    //     </div>
-    // );
 
     const renderFileFilterBar = () => {
         const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
@@ -148,7 +137,7 @@ export function CategoryView(props: CategoryViewProps) {
                         ),
                     }}
                 />
-                <TopLevelActionButton />
+                <TopLevelActionButton fileList={[]} />
             </div>
         );
     };
