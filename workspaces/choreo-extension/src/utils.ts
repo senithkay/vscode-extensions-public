@@ -40,16 +40,17 @@ export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersi
                 isInternetExposed = true;
             }
         }
-        service.deploymentMetadata = {
-            gateways: {
-                internet: {
-                    isExposed: isInternetExposed
-                },
-                intranet: {
-                    isExposed: isIntranetExposed
-                }
-            }
-        };
+        // TODO: Fix this
+        // service.deploymentMetadata = {
+        //     gateways: {
+        //         internet: {
+        //             isExposed: isInternetExposed
+        //         },
+        //         intranet: {
+        //             isExposed: isIntranetExposed
+        //         }
+        //     }
+        // };
     }
     return componentServices.length > 0;
 }
