@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import {
     BinaryExpression,
     ConstDeclaration,
@@ -46,7 +46,7 @@ class ModelTypeSetupVisitor implements Visitor {
             (node.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
         } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.FIELD_ACCESS) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
-        }  else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.SPECIFIC_FIELD_NAME) {
+        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.SPECIFIC_FIELD_NAME) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.SPECIFIC_FIELD_NAME;
         }
     }
@@ -136,7 +136,11 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitQueryExpression(node: QueryExpression) {
         (node.queryPipeline.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
-        (node.selectClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        if (node.selectClause) {
+            (node.selectClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        } else if ((node as any).resultClause) {
+            ((node as any).resultClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        }
         if (node?.queryConstructType) {
             (node.queryConstructType.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
         }
@@ -151,7 +155,7 @@ class ModelTypeSetupVisitor implements Visitor {
     }
 
     public beginVisitOrderKey(node: OrderKey) {
-        if (node?.orderDirection){
+        if (node?.orderDirection) {
             (node.orderDirection.viewState as StatementEditorViewState).modelType = ModelType.ORDER_DIRECTION_KEYWORDS;
         }
     }

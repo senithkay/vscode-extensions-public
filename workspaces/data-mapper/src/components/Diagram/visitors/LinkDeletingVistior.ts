@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import {
     BinaryExpression,
     ListConstructor,
@@ -18,7 +18,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
-import { getExprBodyFromLetExpression } from "../utils/dm-utils";
+import { getExprBodyFromLetExpression, getInnermostExpressionBody } from "../utils/dm-utils";
 
 export class LinkDeletingVisitor implements Visitor {
     /** NodePosition of the specific field or mapping construct that needs to be removed */
@@ -84,10 +84,13 @@ export class LinkDeletingVisitor implements Visitor {
     private findDeletePosition(node: MappingConstructor, isChildOfList: boolean) {
         if (this.deletePosition === null) {
             const deleteIndex = node.fields.findIndex((field: STNode) => {
-                if (STKindChecker.isSpecificField(field) && STKindChecker.isMappingConstructor(field.valueExpr)) {
-                    // If its a nested map constructor, then compare with the value expression position
-                    if (isPositionsEquals(this.fieldPosition, (field.valueExpr.position as NodePosition))) {
-                        return true;
+                if (STKindChecker.isSpecificField(field)) {
+                    const innerExprBody = getInnermostExpressionBody(field.valueExpr);
+                    if (STKindChecker.isMappingConstructor(innerExprBody)) {
+                        // If its a nested map constructor, then compare with the value expression position
+                        if (isPositionsEquals(this.fieldPosition, (innerExprBody.position as NodePosition))) {
+                            return true;
+                        }
                     }
                 }
                 // Else if its a normal field access elements
@@ -105,9 +108,12 @@ export class LinkDeletingVisitor implements Visitor {
                 const isLastElement = deleteIndex + 1 === node.fields.length;
 
                 let updatedDeletePosition = this.fieldPosition;
-                if (STKindChecker.isSpecificField(selected) && STKindChecker.isMappingConstructor(selected.valueExpr)) {
-                    // If its a nested map constructor, then select the delete position as the selected node position
-                    updatedDeletePosition = (selected.position as NodePosition);
+                if (STKindChecker.isSpecificField(selected)) {
+                    const innerExpr = getInnermostExpressionBody(selected.valueExpr);
+                    if (STKindChecker.isMappingConstructor(innerExpr)) {
+                        // If its a nested map constructor, then select the delete position as the selected node position
+                        updatedDeletePosition = (selected.position as NodePosition);
+                    }
                 }
 
                 if (node.fields.length === 1) {
@@ -178,8 +184,9 @@ export class LinkDeletingVisitor implements Visitor {
                 }
             } else {
                 for (const item of node.expressions) {
-                    if (STKindChecker.isMappingConstructor(item)) {
-                        this.findDeletePosition(item, true);
+                    const innerExpr = getInnermostExpressionBody(item);
+                    if (STKindChecker.isMappingConstructor(innerExpr)) {
+                        this.findDeletePosition(innerExpr, true);
                     }
                 }
             }

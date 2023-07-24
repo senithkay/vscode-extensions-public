@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import React, { ReactElement, useEffect, useState } from "react";
 
@@ -324,7 +324,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             pattern: "[-+]?[0-9]*[.]([0-9]+)",
                                         }
                                 }
-                                placeholder="Select config or Enter a value"
+                                placeholder={props.isNestedArray ? "Enter comma seperated array" : "Select config or Enter a value"}
                                 setTextFieldValue={setFloatConfig}
                                 type={isMarkedSensitive ? "password" : ((connectionClick || selectedValueRef !== "") ? "text" : "number")}
                                 disabled={textInputDisabledState}

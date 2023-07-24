@@ -55,6 +55,7 @@ export interface CMService extends CMNode {
     serviceType: string;
     deploymentMetadata?: CMDeploymentMetadata;
     isNoData?: boolean;
+    dataInProgress?: boolean;
 }
 
 export interface CMAnnotation extends CMNode {

@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 
@@ -42,6 +42,8 @@ import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./Confi
 import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
+import { DataMapperError, ErrorNodeKind } from "./Error/DataMapperError";
+import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
@@ -82,7 +84,17 @@ const useStyles = makeStyles((theme: Theme) =>
         dmUnsupportedMessage: {
             zIndex: 1,
             position: 'absolute'
-        }
+        },
+        errorBanner: {
+            borderColor: '#FF0000'
+        },
+        errorMessage: {
+            zIndex: 1,
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+        },
     }),
 );
 
@@ -102,6 +114,7 @@ export interface DataMapperProps {
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => Promise<void>;
     updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
+    goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
     onSave: (fnName: string) => void;
     onClose: () => void;
     library: {
@@ -161,7 +174,7 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
             const targetST = state.prevST[action.index];
             return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
         }
-        case ViewOption.RESET:  {
+        case ViewOption.RESET: {
             return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
         }
         case ViewOption.INITIALIZE: {
@@ -174,8 +187,6 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 };
 
 function DataMapperC(props: DataMapperProps) {
-
-
     const {
         fnST,
         targetPosition,
@@ -187,6 +198,7 @@ function DataMapperC(props: DataMapperProps) {
         stSymbolInfo,
         applyModifications,
         updateFileContent,
+        goToSource,
         library,
         onClose,
         onSave,
@@ -194,7 +206,7 @@ function DataMapperC(props: DataMapperProps) {
         recordPanel,
         syntaxTree,
         updateActiveFile,
-        updateSelectedComponent
+        updateSelectedComponent,
     } = props;
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -204,7 +216,7 @@ function DataMapperC(props: DataMapperProps) {
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: { stNode: fnST, fieldPath: fnST && fnST.functionName.value },
         prevST: [],
-        state: DMState.NOT_INITIALIZED
+        state: DMState.NOT_INITIALIZED,
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([]);
     const [inputs, setInputs] = useState<DataMapperInputParam[]>();
@@ -217,6 +229,8 @@ function DataMapperC(props: DataMapperProps) {
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
+    const [hasInternalError, setHasInternalError] = useState(false);
+    const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -281,12 +295,18 @@ function DataMapperC(props: DataMapperProps) {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
             if (selection.selectedST) {
-                traversNode(fnST, new ViewStateSetupVisitor());
-                const selectedSTFindingVisitor = new SelectedSTFindingVisitor([...selection.prevST, selection.selectedST]);
-                traversNode(fnST, selectedSTFindingVisitor);
-                const { selectedST, prevST } = selectedSTFindingVisitor.getST();
+                try {
+                    traversNode(fnST, new ViewStateSetupVisitor());
+                    const selectedSTFindingVisitor = new SelectedSTFindingVisitor([...selection.prevST, selection.selectedST]);
+                    traversNode(fnST, selectedSTFindingVisitor);
+                    const { selectedST, prevST } = selectedSTFindingVisitor.getST();
 
-                dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST, selectedST: selectedST || defaultSt } });
+                    dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST, selectedST: selectedST || defaultSt } });
+                } catch (e) {
+                    setHasInternalError(true);
+                    // tslint:disable-next-line:no-console
+                    console.error(e);
+                }
             } else {
                 dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST: [], selectedST: defaultSt } });
             }
@@ -328,6 +348,7 @@ function DataMapperC(props: DataMapperProps) {
                     stSymbolInfo,
                     handleSelectedST,
                     applyModifications,
+                    goToSource,
                     diagnostics,
                     enableStatementEditor,
                     collapsedFields,
@@ -354,12 +375,19 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         if (dmContext && selection?.selectedST?.stNode) {
-            const nodeInitVisitor = new NodeInitVisitor(dmContext, selection)
-            traversNode(selection.selectedST.stNode, nodeInitVisitor);
-            const nodes = nodeInitVisitor.getNodes();
-            if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
-                setDmNodes(nodes);
+            const nodeInitVisitor = new NodeInitVisitor(dmContext, selection);
+            try {
+                traversNode(selection.selectedST.stNode, nodeInitVisitor);
+                const nodes = nodeInitVisitor.getNodes();
+                if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
+                    setDmNodes(nodes);
+                }
+            } catch (e) {
+                setHasInternalError(true);
+                // tslint:disable-next-line:no-console
+                console.error(e);
             }
+
         } else {
             setDmNodes([]);
         }
@@ -429,6 +457,10 @@ function DataMapperC(props: DataMapperProps) {
         resetSearchStore();
     }, [fnName]);
 
+    const handleErrors = (kind: ErrorNodeKind) => {
+        setErrorKind(kind);
+    };
+
     const cPanelProps = {
         fnST,
         targetPosition,
@@ -446,60 +478,74 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     return (
-        <LSClientContext.Provider value={langClientPromise}>
-            <CurrentFileContext.Provider value={currentFile}>
-                {selection.state === DMState.INITIALIZED && (
-                    <div className={classes.root}>
-                        {(!!showDMOverlay || showLocalVarConfigPanel) &&
-                            <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
-                        }
-                        {fnST && (
-                            <DataMapperHeader
-                                selection={selection}
-                                dmSupported={dMSupported}
-                                changeSelection={handleSelectedST}
-                                onConfigOpen={onConfigOpen}
+        <DataMapperErrorBoundary hasError={hasInternalError}>
+            <LSClientContext.Provider value={langClientPromise}>
+                <CurrentFileContext.Provider value={currentFile}>
+                    {selection.state === DMState.INITIALIZED && (
+                        <div className={classes.root}>
+                            {(!!showDMOverlay || showLocalVarConfigPanel) &&
+                                <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                            }
+                            {fnST && (
+                                <DataMapperHeader
+                                    selection={selection}
+                                    dmSupported={dMSupported}
+                                    changeSelection={handleSelectedST}
+                                    onConfigOpen={onConfigOpen}
+                                />
+                            )}
+                            {!dMSupported && (
+                                <>
+                                    {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
+                                    <div className={classes.dmUnsupportedMessage}>
+                                        <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
+                                    </div>
+                                </>
+                            )}
+                            {errorKind && (
+                                <>
+                                    <div className={classes.overlay} />
+                                    <div className={classes.errorMessage}>
+                                        <WarningBanner
+                                            message={<DataMapperError errorNodeKind={errorKind} />}
+                                            className={classes.errorBanner}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                            <DataMapperDiagram
+                                nodes={dmNodes}
+                                onError={handleErrors}
                             />
-                        )}
-                        {!dMSupported && (
-                            <>
-                                {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
-                                <div className={classes.dmUnsupportedMessage}>
-                                    <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
-                                </div>
-                            </>
-                        )}
-                        <DataMapperDiagram
-                            nodes={dmNodes}
-                        />
-                        {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
-                        {!!currentEditableField && dMSupported && (
-                            <StatementEditorComponent
-                                expressionInfo={currentEditableField}
-                                langClientPromise={langClientPromise}
-                                applyModifications={applyModifications}
-                                updateFileContent={updateFileContent}
-                                currentFile={currentFile}
-                                library={library}
-                                onCancel={cancelStatementEditor}
-                                onClose={closeStatementEditor}
-                                importStatements={importStatements}
-                            />
-                        )}
-                        {showLocalVarConfigPanel && (
-                            <LocalVarConfigPanel
-                                handleLocalVarConfigPanel={handleLocalVarConfigPanel}
-                                applyModifications={applyModifications}
-                                enableStatementEditor={enableStatementEditor}
-                                fnDef={selection.selectedST.stNode}
-                                langClientPromise={langClientPromise}
-                                filePath={filePath}
-                            />
-                        )}
-                    </div>
-                )}
-            </CurrentFileContext.Provider>
-        </LSClientContext.Provider>
+                            {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
+                            {!!currentEditableField && dMSupported && (
+                                <StatementEditorComponent
+                                    expressionInfo={currentEditableField}
+                                    langClientPromise={langClientPromise}
+                                    applyModifications={applyModifications}
+                                    updateFileContent={updateFileContent}
+                                    currentFile={currentFile}
+                                    library={library}
+                                    onCancel={cancelStatementEditor}
+                                    onClose={closeStatementEditor}
+                                    importStatements={importStatements}
+                                />
+                            )}
+                            {showLocalVarConfigPanel && (
+                                <LocalVarConfigPanel
+                                    handleLocalVarConfigPanel={handleLocalVarConfigPanel}
+                                    applyModifications={applyModifications}
+                                    enableStatementEditor={enableStatementEditor}
+                                    fnDef={selection.selectedST.stNode}
+                                    langClientPromise={langClientPromise}
+                                    filePath={filePath}
+                                />
+                            )}
+                        </div>
+                    )}
+                </CurrentFileContext.Provider>
+            </LSClientContext.Provider>
+        </DataMapperErrorBoundary>
     )
 }
 

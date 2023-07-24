@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import {
     AssignmentStatement,
     BinaryExpression,
@@ -72,7 +72,7 @@ class DeleteConfigSetupVisitor implements Visitor {
     }
 
     public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
-        if (node.initializer){
+        if (node.initializer) {
             (node.initializer.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }
@@ -141,14 +141,18 @@ class DeleteConfigSetupVisitor implements Visitor {
 
     public beginVisitRecordFieldWithDefaultValue(node: RecordFieldWithDefaultValue) {
         (node.fieldName.viewState as StatementEditorViewState).templateExprDeletable = false;
-        if (node.expression){
+        if (node.expression) {
             (node.expression.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }
 
     public beginVisitQueryExpression(node: QueryExpression) {
         (node.queryPipeline.viewState as StatementEditorViewState).exprNotDeletable = true;
-        (node.selectClause.viewState as StatementEditorViewState).exprNotDeletable = true;
+        if (node.selectClause) {
+            (node.selectClause.viewState as StatementEditorViewState).exprNotDeletable = true;
+        } else if ((node as any).resultClause) {
+            ((node as any).resultClause.viewState as StatementEditorViewState).exprNotDeletable = true;
+        }
     }
 
     public beginVisitQueryPipeline(node: QueryPipeline) {

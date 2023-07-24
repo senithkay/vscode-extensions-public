@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import React, { createContext, ReactNode, useState } from 'react';
 import { CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
@@ -28,6 +28,8 @@ interface DiagramContextProps {
     deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
     consoleView: ConsoleView;
     addComponent?: () => void;
+    focusedNodeId?: string;
+    setFocusedNodeId?: (id: string) => void;
 }
 
 interface IDiagramContext {
@@ -49,6 +51,8 @@ interface IDiagramContext {
     setConnectorTarget?: (source: EntryPoint | Service) => void;
     deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
     addComponent?: () => void;
+    focusedNodeId?: string;
+    setFocusedNodeId?: (id: string) => void;
 }
 
 interface LinkedNodes {
@@ -74,7 +78,9 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         getTypeComposition,
         setConnectorTarget,
         deleteComponent,
-        addComponent
+        addComponent,
+        focusedNodeId,
+        setFocusedNodeId
     } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
@@ -91,7 +97,9 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         setIsMultiRootWs,
         refreshDiagram,
         getTypeComposition,
-        addComponent
+        addComponent,
+        focusedNodeId,
+        setFocusedNodeId
     }
 
     if (editingEnabled) {

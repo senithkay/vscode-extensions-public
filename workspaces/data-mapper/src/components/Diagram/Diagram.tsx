@@ -2,14 +2,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda no-console
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import * as React from 'react';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
@@ -32,6 +32,7 @@ import { container } from "tsyringe";
 
 import FitToScreenIcon from "../../assets/icons/fitToScreen";
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
+import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
 
 import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
 import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
@@ -53,12 +54,14 @@ import { ModuleVariableNode } from "./Node/ModuleVariable";
 import { PrimitiveTypeNode } from './Node/PrimitiveType';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { RequiredParamNode } from './Node/RequiredParam';
+import { UnionTypeNode } from "./Node/UnionType";
+import { UnsupportedExprNodeKind, UnsupportedIONode } from "./Node/UnsupportedIO";
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
-
+import { getErrorKind } from "./utils/dm-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -89,6 +92,7 @@ interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
 	links?: DataMapperLinkModel[];
 	hideCanvas?: boolean;
+	onError?: (kind: ErrorNodeKind) => void;
 }
 
 const defaultModelOptions = { zoom: 90 }
@@ -145,7 +149,7 @@ function initDiagramEngine() {
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const classes = useStyles();
 
-	const { nodes, hideCanvas } = props;
+	const { nodes, hideCanvas, onError } = props;
 
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel(defaultModelOptions));
@@ -180,7 +184,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					node.initLinks();
 					engine.repaintCanvas();
 				} catch (e) {
-					console.error(e)
+					const errorNodeKind = getErrorKind(node);
+					onError(errorNodeKind);
 				}
 			}
 			newModel.setLocked(true);
@@ -195,7 +200,9 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			nodes.forEach((node) => {
 				if (node instanceof MappingConstructorNode
 					|| node instanceof ListConstructorNode
-					|| node instanceof PrimitiveTypeNode) {
+					|| node instanceof PrimitiveTypeNode
+					|| node instanceof UnionTypeNode
+					|| (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
 						if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
 							node.setPosition(OFFSETS.TARGET_NODE.X, 0);
 						} else {

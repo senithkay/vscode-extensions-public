@@ -1,20 +1,22 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { toJpeg } from 'html-to-image';
 
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlOverlayLayerModel } from "../OverlayLoader";
+import { getComponentName } from "../utils/common-util";
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
@@ -41,12 +43,14 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(createGraphqlDiagramEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
+    const { selectedDiagramNode, setSelectedNode } = useGraphQlContext();
 
     useEffect(() => {
         model.addLayer(new GraphqlOverlayLayerModel());
         diagramEngine.setModel(model);
         setDiagramModel(model);
         autoDistribute();
+        setSelectedNode(undefined);
 
     }, [model]);
 
@@ -94,13 +98,24 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
             });
     };
 
+    const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if (selectedDiagramNode && event.target === diagramEngine.getCanvas()) {
+            setSelectedNode(undefined);
+        }
+    };
+
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            <CanvasWidgetContainer>
-                <CanvasWidget engine={diagramEngine} />
-                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
-            </CanvasWidgetContainer>
+            <div onClick={handleCanvasClick}>
+                <CanvasWidgetContainer>
+                    <NavigationWrapperCanvasWidget
+                        diagramEngine={diagramEngine}
+                        focusedNode={diagramEngine?.getModel()?.getNode(getComponentName(selectedDiagramNode))}
+                    />
+                    <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
+                </CanvasWidgetContainer>
+            </div>
             }
         </>
     );

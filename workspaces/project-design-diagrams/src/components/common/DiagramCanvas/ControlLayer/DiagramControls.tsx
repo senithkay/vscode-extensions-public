@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import React, { useContext } from 'react';
 import AddIcon from '@mui/icons-material/Add';
@@ -13,10 +13,10 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import WarningIcon from '@mui/icons-material/Warning';
-import { CanvasControlButton } from '@wso2-enterprise/design-diagram-commons';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import { ControlPanel } from '../styles/styles';
 import CachedIcon from "@mui/icons-material/Cached";
+import { DiagramContext } from '../../DiagramContext/DiagramContext';
+import { CanvasControlButton } from './ControlButtons/ControlButton';
+import { ControlPanel } from '../styles/styles';
 import '../styles/styles.css';
 
 interface ControlProps {

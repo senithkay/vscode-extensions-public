@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import * as React from 'react';
 
@@ -38,9 +38,6 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
-		const mappingConstruct = STKindChecker.isLetExpression(event.model.value.expression)
-			? getExprBodyFromLetExpression(event.model.value.expression)
-			: event.model.value.expression;
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -49,9 +46,9 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 					<EditableMappingConstructorWidget
 						engine={this.engine}
 						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
+						editableRecordField={event.model.recordField}
 						typeName={event.model.typeName}
-						value={mappingConstruct}
+						value={event.model.innermostExpr}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}

@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import React, { ReactElement, useEffect, useState } from "react";
 
 import { Box,  Card, CardActions, CardContent, Collapse, FormLabel, Typography } from "@material-ui/core";
@@ -152,31 +152,29 @@ export const ConfigForm = (props: ConfigFormProps) => {
         defaultableFields.push(
             (
                 <Box key="defaultable fields" className={classes.innerBoxCard}>
-                    <Card variant="outlined">
-                        <Box>
-                            <Box className={classes.innerBoxHead}>
-                                <FormLabel
-                                    component="div"
-                                    className={classes.mainLabelText}
-                                >
-                                    Defaultable Configurables
-                                </FormLabel>
-                                <ExpandMore
-                                    expand={expanded}
-                                    onClick={handleExpandClick}
-                                />
-                            </Box>
-                            <Collapse
-                                in={expanded}
-                                timeout="auto"
-                                unmountOnExit={false}
+                    <Box>
+                        <Box className={classes.innerBoxHead}>
+                            <FormLabel
+                                component="div"
+                                className={classes.mainLabelText}
                             >
-                                <Box p={2} borderTop="1px solid #E0E2E9">
-                                    {defaultableElements.map(ConfigElement)}
-                                </Box>
-                            </Collapse>
+                                Defaultable Configurables
+                            </FormLabel>
+                            <ExpandMore
+                                expand={expanded}
+                                onClick={handleExpandClick}
+                            />
                         </Box>
-                    </Card>
+                        <Collapse
+                            in={expanded}
+                            timeout="auto"
+                            unmountOnExit={false}
+                        >
+                            <Box p={2} borderTop="1px solid #E0E2E9">
+                                {defaultableElements.map(ConfigElement)}
+                            </Box>
+                        </Collapse>
+                    </Box>
                 </Box>
             ),
         );
