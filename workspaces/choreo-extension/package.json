@@ -179,9 +179,18 @@
           {
             "id": "openProject",
             "title": "Open a project",
-            "description": "Sign in to begin your developer experience with the Choreo VSCode extension. \n[Sign in](command:wso2.choreo.sign.in)\n **Working with existing projects** \nOnce signed in, conveniently switch between your Choreo projects from the [Choreo activity panel](command:choreo.activity.project.focus). For projects that are not yet in your local environment, you can opt to clone the project to a location of your preference. \n[Open Project](command:wso2.choreo.project.open)\n **Working with new projects** \n Create new projects, mono-repo and multi-repo, directly from the Choreo extension. Upon configuring basic project details and repository (for mono-repos), proceed to clone the project to your local environment. \n[Create new project](command:wso2.choreo.project.create)",
+            "description": "Sign in to begin your developer experience with the Choreo VSCode extension. \n[Sign in](command:wso2.choreo.sign.in)\nOnce signed in, conveniently switch between your Choreo projects from the [Choreo activity panel](command:choreo.activity.project.focus). For projects that are not yet in your local environment, you can opt to clone the project to a location of your preference. \n[Open Project](command:wso2.choreo.project.open)",
             "media": {
-              "markdown": "resources/walkthrough/openProject.md"
+              "image": "resources/walkthrough/openProject.gif",
+              "altText": "Open Project"
+            }
+          },
+          {
+            "id": "createProject",
+            "title": "Create a project",
+            "description": "Create new projects, mono-repo and multi-repo, directly from the Choreo extension. Upon configuring basic project details and repository (for mono-repos), proceed to clone the project to your local environment. \n[Create new project](command:wso2.choreo.project.create)",
+            "media": {
+              "markdown": "resources/walkthrough/createProject.md"
             }
           },
           {
