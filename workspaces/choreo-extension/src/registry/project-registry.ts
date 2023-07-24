@@ -79,8 +79,8 @@ export class ProjectRegistry {
         });
     }
 
-    async getProjects(orgId: number, orgHandle: string ): Promise<Project[]> {
-        if (!this._dataProjects.has(orgId) && ext.api.status === "LoggedIn") {
+    async getProjects(orgId: number, orgHandle: string, forceRefresh: boolean = false): Promise<Project[]> {
+        if ((forceRefresh || !this._dataProjects.has(orgId)) && ext.api.status === "LoggedIn") {
             try {
                 const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
                 this._dataProjects.set(orgId, projects);

@@ -18,22 +18,12 @@ export interface AccessToken {
     refreshToken? : string;
 }
 
-export type AsgardioToken = "asgardio.token";
-
-// org scoped token type which starts with text "choreo.apim.token" and ends with org id (e.g. choreo.apim.token.org.1234)
-export type ChoreoAPIMToken = `choreo.apim.token.org.${string}`;
-
-export type ChoreoTokenType = AsgardioToken | ChoreoAPIMToken;
-
 export interface IReadOnlyTokenStorage {
-    getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
-    getTokenForOrg(orgId: number): Promise<AccessToken|undefined>;
+    getToken(orgId: number): Promise<AccessToken|undefined>;
 }
 export interface ITokenStorage extends IReadOnlyTokenStorage {
-    setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void>;
-    setTokenForOrg(orgId: number, token: AccessToken): Promise<void>;
-    deleteToken(tokenType: ChoreoTokenType): Promise<void>;
-    deleteTokenForOrg(orgId: number): Promise<void>;
+    setToken(orgId: number, token: AccessToken): Promise<void>;
+    deleteToken(orgId: number): Promise<void>;
 }
 
 export interface AuthClientConfig {
