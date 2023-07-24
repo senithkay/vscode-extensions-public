@@ -9,7 +9,7 @@
   },
   "icon": "resources/icons/choreo.png",
   "engines": {
-    "vscode": "^1.73.0"
+    "vscode": "^1.77.0"
   },
   "categories": [
     "Other"
