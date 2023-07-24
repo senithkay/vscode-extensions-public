@@ -73,7 +73,7 @@
         "command": "wso2.choreo.project.open",
         "title": "Open Choreo Project",
         "category": "Choreo",
-        "icon": "$(arrow-swap)"
+        "icon": "$(link-external)"
       },
       {
         "command": "wso2.choreo.project.open.external",
@@ -119,7 +119,7 @@
       "view/title": [
         {
           "command": "wso2.choreo.project.open",
-          "when": "view == choreo.activity.project",
+          "when": "view == choreo.activity.project && choreoLoginStatus == 'LoggedIn'",
           "group": "navigation"
         }
       ],
