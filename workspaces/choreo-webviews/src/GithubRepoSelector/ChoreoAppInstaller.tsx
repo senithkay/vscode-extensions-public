@@ -38,9 +38,9 @@ export function ChoreoAppInstaller(props: ChoreoAppInstallerProps) {
 
     const handleConfigureNewRepo = async () => {
         setGHStatus({ status: "install-inprogress" });
-        ChoreoWebViewAPI.getInstance().setChoreoInstallOrg(orgId);
+        await ChoreoWebViewAPI.getInstance().setChoreoInstallOrg(orgId);
         const success =  await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
-        ChoreoWebViewAPI.getInstance().clearChoreoInstallOrg();
+        await ChoreoWebViewAPI.getInstance().clearChoreoInstallOrg();
         if (success) {
             setGHStatus({ status: "installed" });
             onAppInstallation();
