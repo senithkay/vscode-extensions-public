@@ -27,7 +27,10 @@ export function isTokenExpired(token: AccessToken) {
         throw new Error("Invalid token.");
     }
     let tokenDuration = (new Date().getTime() - new Date(token.loginTime).getTime()) / 1000;
-    return tokenDuration > (token?.expirationTime - (60 * 5));
+    // Invalidate the token 1 hour before the actual expiry time
+    // This is due to an issue in the backend where the token is invalidated before the actual expiry time
+    // We will remove this once the issue is fixed in the backend
+    return tokenDuration > (60 * 60);
 }
 
 

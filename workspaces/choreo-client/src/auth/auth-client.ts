@@ -100,7 +100,7 @@ export class ChoreoAuthClient implements IAuthClient {
     
         try {
             const response = await getHttpClient()
-                .post(this._config.tokenUrl, params.toString(), { headers: CommonReqHeaders });
+                .post(this._config.apimTokenUrl, params.toString(), { headers: CommonReqHeaders });
             return {
                 accessToken: response.data.access_token,
                 refreshToken: response.data.refresh_token,
