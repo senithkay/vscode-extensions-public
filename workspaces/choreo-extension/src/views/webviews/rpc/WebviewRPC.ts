@@ -75,6 +75,8 @@ import {
     GetChoreoWorkspaceMetadata,
     SetChoreoInstallOrg,
     ClearChoreoInstallOrg,
+    getEndpointsForVersion,
+    EndpointData,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -190,6 +192,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             }
             return null;
         }
+    });
+
+    messenger.onRequest(getEndpointsForVersion, async (params: { componentId: string, versionId: string, orgId: number }) : Promise<EndpointData | null> => {
+        return await ProjectRegistry.getInstance().getEndpointsForVersion(
+            params.componentId, params.versionId, params.orgId
+        );
     });
 
     messenger.onRequest(PullComponent, async (params: { projectId: string, componentId: string }) => {
