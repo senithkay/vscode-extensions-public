@@ -33,7 +33,9 @@ export async function enrichDeploymentData(orgId: string, componentId: string, p
                 const epData = await ProjectRegistry.getInstance().getEndpointsForVersion(
                     componentId, version.id, parseInt(orgId)
                 );
-                epData?.componentEndpoints.forEach((endpoint) => {
+                // TODO: Handle multiple endpoints
+                if (epData?.componentEndpoints && epData.componentEndpoints.length === 1) {
+                    const endpoint = epData.componentEndpoints[0];
                     const visibility = endpoint.visibility;
                     if (visibility === "Organization") {
                         isIntranetExposed = true;
@@ -41,7 +43,7 @@ export async function enrichDeploymentData(orgId: string, componentId: string, p
                     if (visibility === "Public") {
                         isInternetExposed = true;
                     }
-                });
+                }
             }
         }
 
