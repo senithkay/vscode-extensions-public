@@ -443,7 +443,7 @@ class DiagramPanel {
 						const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
 						if (openedDocument) {
 							const range: Range = new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!);
-							window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter)
+							window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter);
 							window.showTextDocument(
 								openedDocument.document,
 								{ preview: false, viewColumn: openedDocument.viewColumn, preserveFocus: false }
