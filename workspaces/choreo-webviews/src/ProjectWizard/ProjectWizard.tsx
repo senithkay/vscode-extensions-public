@@ -27,6 +27,7 @@ import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSel
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import debounce from "lodash.debounce";
+import { useQuery } from "@tanstack/react-query";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -140,7 +141,13 @@ export function ProjectWizard(props: { orgId: string }) {
     const [validationInProgress, setValidationInProgress] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState("");
     const [selectedRegion, setSelectedRegion] = useState("Cloud Data Plane - US");
-    const [isProjectNameAvailable, setIsProjectNameAvailable] = useState(false);
+    const [isProjectNameTaken, setIsProjectNameTaken] = useState(false);
+    
+    const { data: projects } = useQuery(
+        [selectedOrg],
+        async () =>
+            await ChoreoWebViewAPI.getInstance().getAllProjects(selectedOrg.id)
+    );
 
     const regionLabels = REGIONS.map(region => region.label);
 
@@ -242,21 +249,16 @@ export function ProjectWizard(props: { orgId: string }) {
         setGitProvider(type);
     }
 
-    const debouncedIsProjectNameAvailable = debounce(async () => {
-        const projectAvailable = await ChoreoWebViewAPI.getInstance().isProjectNameAvailable({
-            projectName: projectName,
-            orgId: selectedOrg.id,
-            orgHandle: selectedOrg.handle,
-        });
-        setIsProjectNameAvailable(projectAvailable);
+    const checkProjectNameTaken = debounce(async () => {
+        setIsProjectNameTaken(projects.some((project) => project.name === projectName));
     }, 500);
 
     if (projectName) {
-        debouncedIsProjectNameAvailable();
+        checkProjectNameTaken();
     }
 
     const projectNameError = 'Project name is already taken.';
-    const isValid: boolean = projectName.length > 0 && !!projectDir && !isProjectNameAvailable &&(!initMonoRepo || (!!selectedGHOrgName &&
+    const isValid: boolean = projectName.length > 0 && !!projectDir && !isProjectNameTaken &&(!initMonoRepo || (!!selectedGHOrgName &&
         !!selectedGHRepo)) && !validationInProgress && !isBareRepo;
 
     return (
@@ -282,7 +284,7 @@ export function ProjectWizard(props: { orgId: string }) {
                         >
                             Project Name <RequiredFormInput />
                         </VSCodeTextField>
-                        {isProjectNameAvailable && (
+                        {isProjectNameTaken && (
                             <ErrorBanner errorMsg={projectNameError} />
                         )}
                         <VSCodeTextArea

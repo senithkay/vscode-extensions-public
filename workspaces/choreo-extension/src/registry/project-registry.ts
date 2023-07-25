@@ -109,11 +109,6 @@ export class ProjectRegistry {
         return false;
     }
 
-    async isProjectNameAvailable(projectName: string, orgId: number, orgHandle: string): Promise<boolean> {
-        const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
-        return projects.some((project) => project.name === projectName); 
-    }
-
     async createNonBalLocalComponent(args: ChoreoComponentCreationParams): Promise<void> {
         const projectLocation = this.getProjectLocation(args.projectId);
         if (projectLocation) {
