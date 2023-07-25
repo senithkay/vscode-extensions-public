@@ -26,6 +26,12 @@ export interface IsBareRepoRequestParams {
       projectID: string;
 }
 
+export interface IsProjectNameAvailableParams{
+   projectName: string;
+   orgId: number;
+   orgHandle: string;
+}
+
 export interface SendTelemetryEventParams {
    eventName: string,
    properties?: { [key: string]: string; },
@@ -100,6 +106,7 @@ export const getPreferredProjectRepository: RequestType<string, GitRepo> = { met
 export const SetExpandedComponents: RequestType<{ projId: string, componentNames: string[] }, void> = { method: 'setExpandedComponents' };
 export const GetExpandedComponents: RequestType<string, string[]> = { method: 'getExpandedComponents' };
 export const CheckProjectDeleted: RequestType<CheckProjectDeletedParams, boolean> = { method: 'CheckProjectDeleted' };
+export const isProjectNameAvailable: RequestType<{ projectName: string, orgId: number, orgHandle: string }, boolean> = { method: 'isProjectNameAvailable' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const GetChoreoWorkspaceMetadata: RequestType<void, ChoreoWorkspaceMetaData> = { method: 'getChoreoWorkspaceMetadata' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };

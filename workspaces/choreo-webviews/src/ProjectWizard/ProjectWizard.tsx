@@ -25,6 +25,8 @@ import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner } from "../Commons/ErrorBanner";
+import debounce from "lodash.debounce";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -138,6 +140,7 @@ export function ProjectWizard(props: { orgId: string }) {
     const [validationInProgress, setValidationInProgress] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState("");
     const [selectedRegion, setSelectedRegion] = useState("Cloud Data Plane - US");
+    const [isProjectNameAvailable, setIsProjectNameAvailable] = useState(false);
 
     const regionLabels = REGIONS.map(region => region.label);
 
@@ -239,7 +242,21 @@ export function ProjectWizard(props: { orgId: string }) {
         setGitProvider(type);
     }
 
-    const isValid: boolean = projectName.length > 0 && !!projectDir && (!initMonoRepo || (!!selectedGHOrgName &&
+    const debouncedIsProjectNameAvailable = debounce(async () => {
+        const projectAvailable = await ChoreoWebViewAPI.getInstance().isProjectNameAvailable({
+            projectName: projectName,
+            orgId: selectedOrg.id,
+            orgHandle: selectedOrg.handle,
+        });
+        setIsProjectNameAvailable(projectAvailable);
+    }, 500);
+
+    if (projectName) {
+        debouncedIsProjectNameAvailable();
+    }
+
+    const projectNameError = 'Project name is already taken.';
+    const isValid: boolean = projectName.length > 0 && !!projectDir && !isProjectNameAvailable &&(!initMonoRepo || (!!selectedGHOrgName &&
         !!selectedGHRepo)) && !validationInProgress && !isBareRepo;
 
     return (
@@ -265,6 +282,9 @@ export function ProjectWizard(props: { orgId: string }) {
                         >
                             Project Name <RequiredFormInput />
                         </VSCodeTextField>
+                        {isProjectNameAvailable && (
+                            <ErrorBanner errorMsg={projectNameError} />
+                        )}
                         <VSCodeTextArea
                             placeholder="Description"
                             onInput={(e: any) => setProjectDescription(e.target.value)}
