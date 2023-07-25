@@ -282,11 +282,10 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     async getEndpointData(componentId: string, version: string, orgId: number): Promise<EndpointData | null> {
         const query = getEndpointsForVersion(componentId, version);
         try {
-            const client = await this._getClient(orgId);
+            const client = await this._getClient(`${orgId}` as any);
             return await client.request(query);
         } catch (error) {
-            // throw new Error("Error while fetching endpoint data.", { cause: error });
-            return null;
+            throw new Error("Error while fetching endpoint data.", { cause: error });
         }
     }
 
