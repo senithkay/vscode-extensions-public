@@ -42,7 +42,6 @@ interface IDiagramContext {
     refreshDiagram: () => void;
     setIsMultiRootWs: (status: boolean) => void;
     setCurrentView: (view: Views) => void;
-    showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
     editLayerAPI?: EditLayerAPI;
     newComponentID?: string;
@@ -77,7 +76,6 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         setCurrentView,
         refreshDiagram,
         getTypeComposition,
-        showChoreoProjectOverview,
         setConnectorTarget,
         deleteComponent,
         addComponent,
@@ -99,7 +97,6 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         setIsMultiRootWs,
         refreshDiagram,
         getTypeComposition,
-        showChoreoProjectOverview,
         addComponent,
         focusedNodeId,
         setFocusedNodeId

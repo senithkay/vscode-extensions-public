@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -11,10 +11,54 @@
  *  associated services.
  */
 
-import React, { useState } from 'react';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from '@vscode/webview-ui-toolkit/react';
+import React, { useState } from "react";
+import {
+    VSCodeDataGrid,
+    VSCodeDataGridRow,
+    VSCodeDataGridCell,
+    VSCodeButton,
+    VSCodeProgressRing,
+} from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../Codicon/Codicon";
+import styled from "@emotion/styled";
 
+const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
+    text-align: left;
+    width: 220px;
+    display: flex;
+    align-items: center;
+`;
+
+const ContextOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 10;
+`;
+
+const ExpandedMenu = styled.div`
+    position: absolute;
+    right: 0;
+    top: 24px;
+    z-index: 15;
+    background: var(--vscode-editor-background);
+    box-shadow: var(--vscode-widget-shadow) 0px 0px 8px;
+`;
+
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 3px);
+    width: calc(var(--design-unit) * 3px);
+    margin-top: auto;
+    padding: 4px;
+`;
+
+const Container = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
 
 export interface MenuItem {
     id: number | string;
@@ -25,17 +69,19 @@ export interface MenuItem {
 
 interface Props {
     items: MenuItem[];
-    index: number
+    loading?: boolean;
 }
 
-export const ContextMenu: React.FC<Props> = ({ items, index }) => {
+export const ContextMenu: React.FC<Props> = ({ items, loading }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleClick = () => {
+    const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
         setIsOpen(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
         setIsOpen(false);
     };
 
@@ -45,58 +91,41 @@ export const ContextMenu: React.FC<Props> = ({ items, index }) => {
     };
 
     return (
-        <>
-            <VSCodeButton
-                appearance="icon"
-                onClick={handleClick}
-                title="More Actions"
-                id={`component-list-menu-btn-${index}`}
-            >
-                <Codicon name="ellipsis" />
-            </VSCodeButton>
+        <Container>
+            {loading ? (
+                <SmallProgressRing />
+            ) : (
+                <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id="component-list-menu-btn">
+                    <Codicon name="ellipsis" />
+                </VSCodeButton>
+            )}
+
             {isOpen && (
-                <div
-                    style={{
-                        position: 'absolute',
-                        right: 10,
-                        zIndex: 9999,
-                        background: 'var(--vscode-editor-background)',
-                        border: '1px solid var(--vscode-menu-border)',
-                    }}
-                >
+                <ExpandedMenu>
                     <VSCodeDataGrid aria-label="Context Menu">
                         {items.map((item) => (
                             <VSCodeDataGridRow
                                 key={item.id}
-                                onClick={item.disabled ? undefined : () => handleItemClick(item)}
+                                onClick={(event) => {
+                                    if (!item.disabled) {
+                                        event.stopPropagation();
+                                        handleItemClick(item);
+                                        setIsOpen(false);
+                                    }
+                                }}
                                 style={{
-                                    cursor: item.disabled ? 'not-allowed' : 'pointer',
+                                    cursor: item.disabled ? "not-allowed" : "pointer",
                                     opacity: item.disabled ? 0.5 : 1,
                                 }}
                                 id={`component-list-menu-${item.id}`}
                             >
-                                <VSCodeDataGridCell style={{ textAlign: 'left', width: 220 }}>
-                                    {item.label}
-                                </VSCodeDataGridCell>
+                                <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
                             </VSCodeDataGridRow>
                         ))}
                     </VSCodeDataGrid>
-                </div>
+                </ExpandedMenu>
             )}
-            {isOpen && (
-                <div
-                    onClick={handleClose}
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        zIndex: 9998,
-                    }}
-                />
-            )}
-        </>
+            {isOpen && <ContextOverlay onClick={handleClose} />}
+        </Container>
     );
 };
-

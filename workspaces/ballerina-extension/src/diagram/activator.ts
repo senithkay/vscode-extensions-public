@@ -443,7 +443,7 @@ class DiagramPanel {
 						const openedDocument = window.visibleTextEditors.find((editor) => editor.document.fileName === filePath);
 						if (openedDocument) {
 							const range: Range = new Range(position.startLine, position.startColumn, position.startLine!, position.startColumn!);
-							window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter)
+							window.visibleTextEditors[0].revealRange(range, TextEditorRevealType.InCenter);
 							window.showTextDocument(
 								openedDocument.document,
 								{ preview: false, viewColumn: openedDocument.viewColumn, preserveFocus: false }
@@ -527,6 +527,13 @@ class DiagramPanel {
 				methodName: "openArchitectureView",
 				handler: async (args: any[]): Promise<boolean> => {
 					commands.executeCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, args[0]);
+					return Promise.resolve(true);
+				}
+			},
+			{
+				methodName: "openCellView",
+				handler: async (args: any[]): Promise<boolean> => {
+					commands.executeCommand(PALETTE_COMMANDS.SHOW_CELL_VIEW, args[0]);
 					return Promise.resolve(true);
 				}
 			},

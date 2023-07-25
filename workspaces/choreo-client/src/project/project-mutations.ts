@@ -14,15 +14,21 @@ import { gql } from 'graphql-request';
 import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
-    const { name, description, orgId, orgHandle, version = "1.0.0", region = "US" } = params;
+    const { name, description, orgId, orgHandle, version = "1.0.0", region, repository, credentialId, branch } = params;
     return gql`
         mutation{ 
             createProject(project: {
-                name: "${name}", description: "${description}",
-                orgId: ${orgId}, orgHandler: "${orgHandle}",
-                version: "${version}", region: "${region}",
+                name: "${name}",
+                description: "${description}",
+                orgId: ${orgId},
+                orgHandler: "${orgHandle}",
+                version: "${version}",
+                region: "${region}",
+                repository: "${repository}",
+                branch: "${branch}",
+                secretRef: "${credentialId}"
             }){ 
-                id, orgId, name, version, createdDate, handler, region, description,
+                id, orgId, name, version, createdDate, handler, region, description, repository, gitProvider, branch
             } 
         }
     `;
@@ -42,7 +48,7 @@ export function deleteProjectMutation(params: DeleteProjectParams) {
 
 export function getCreateComponentMutation(params: CreateComponentParams) {
     const { name, displayName, displayType, description, orgId, orgHandle, projectId,
-        accessibility, srcGitRepoUrl, repositorySubPath, repositoryBranch } = params;
+        accessibility, srcGitRepoUrl, repositorySubPath, repositoryBranch, bitbucketCredentialId } = params;
     return gql`mutation
         { createComponent(component: {  
             name: "${name}",  
@@ -64,15 +70,19 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
             repositorySubPath: "${repositorySubPath}", 
             repositoryType: "UserManagedNonEmpty",
             repositoryBranch: "${repositoryBranch}",
-            enableCellDiagram: true,})
+            enableCellDiagram: true,
+            secretRef: "${bitbucketCredentialId}"})
             {  id, orgId, projectId, handler }
         }
     `;
 }
 
 export function getCreateBYOCComponentMutation(params: CreateByocComponentParams) {
-    const { name, displayName, componentType, description, orgId, orgHandler, projectId,
-        accessibility, byocConfig } = params;
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId,
+        accessibility, byocConfig, port } = params;
+    if(!byocConfig){
+        throw new Error('byocConfig not found')
+    }
     const { dockerfilePath, dockerContext, srcGitRepoUrl, srcGitRepoBranch } = byocConfig;
     return gql`mutation
         { createByocComponent(component: {  
@@ -80,11 +90,11 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
                 displayName: "${displayName}",        
                 description: "${description}", 
                 orgId: ${orgId},  
-                orgHandler: "${orgHandler}",
+                orgHandler: "${orgHandle}",
                 projectId: "${projectId}",  
                 labels: "", 
                 componentType: "${componentType}", 
-                port: 8090,
+                port: ${port ?? 8090},
                 oasFilePath: "",
                 accessibility: "${accessibility}",
                 byocConfig: {
@@ -99,3 +109,44 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
     `;
 }
 
+export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponentParams) {
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId,
+        accessibility, byocWebAppsConfig } = params;
+    if(!byocWebAppsConfig){
+        throw new Error('byocWebAppsConfig not found');
+    }
+    const { 
+        dockerContext, 
+        srcGitRepoUrl, 
+        srcGitRepoBranch, 
+        webAppBuildCommand, 
+        webAppOutputDirectory, 
+        webAppPackageManagerVersion, 
+        webAppType 
+    } = byocWebAppsConfig;
+    return gql`mutation
+        { createByocComponent(component: {  
+                name: "${name}", 
+                displayName: "${displayName}",        
+                description: "${description}", 
+                orgId: ${orgId},  
+                orgHandler: "${orgHandle}",
+                projectId: "${projectId}",  
+                labels: "", 
+                componentType: "${componentType}", 
+                oasFilePath: "",
+                accessibility: "${accessibility}",
+                byocWebAppsConfig: {
+                    dockerContext: "${dockerContext}",
+                    srcGitRepoUrl: "${srcGitRepoUrl}",
+                    srcGitRepoBranch: "${srcGitRepoBranch}",
+                    webAppType: "${webAppType}"
+                    webAppBuildCommand: "${webAppBuildCommand}"
+                    webAppPackageManagerVersion: "${webAppPackageManagerVersion}"
+                    webAppOutputDirectory: "${webAppOutputDirectory}"
+                }
+            })
+            {  id, organizationId, projectId, handle }
+        }
+    `;
+}

@@ -13,7 +13,7 @@ import { join } from "path";
 import toml from "toml";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service, CMResourceFunction } from "@wso2-enterprise/ballerina-languageclient";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ExtendedLangClient } from "../../../core";
 import { STResponse, terminateActivation } from "../../activator";
@@ -24,8 +24,8 @@ import { deleteBallerinaPackage, deleteComponentOnly } from "../component-utils"
 const ballerinaToml = "Ballerina.toml";
 
 export function getComponentModel(langClient: ExtendedLangClient, isChoreoProject: boolean): Promise<GetComponentModelResponse> {
-    return new Promise((resolve, reject) => {
-        let ballerinaFiles: string[] = [];
+    return new Promise(async (resolve, reject) => {
+        const ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;
         if (workspaceFolders !== undefined) {
             workspaceFolders.forEach(folder => {
@@ -40,9 +40,11 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
             });
         }
 
-        langClient.getPackageComponentModels({
-            documentUris: ballerinaFiles
-        }).then(async (response) => {
+        try {
+            const choreoExt = await getChoreoExtAPI();
+            const nonBalComponentsMap = await choreoExt.getNonBalComponentModels();
+            
+            const response = await langClient.getPackageComponentModels({ documentUris: ballerinaFiles });
             let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
             if (!response.diagnostics?.length) {
                 for (let [_key, packageModel] of packageModels) {
@@ -59,15 +61,18 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
                 addMissingPackageData(ballerinaFiles, response);
             }
 
-            const choreoExt = await getChoreoExtAPI();
             if (packageModels.size && choreoExt && isChoreoProject) {
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
-            resolve(response);
-        }).catch((error) => {
+
+            resolve({
+                diagnostics: response.diagnostics,
+                componentModels: { ...response.componentModels, ...nonBalComponentsMap },
+            });
+        } catch(error) {
             reject(error);
             terminateActivation(ERROR_MESSAGE);
-        });
+        }
     });
 }
 

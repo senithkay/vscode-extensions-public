@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "4.4.0",
+    "version": "4.4.1",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -460,6 +460,11 @@
             {
                 "command": "ballerina.view.architectureView",
                 "title": "Architecture View",
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.view.cellView",
+                "title": "Cell View",
                 "category": "Ballerina"
             },
             {

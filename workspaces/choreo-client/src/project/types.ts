@@ -10,64 +10,66 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Project, Component, Repository, Deployment, BuildStatus } from "@wso2-enterprise/choreo-core";
+import { Project, Component, Repository, Deployment, BuildStatus, ComponentWizardWebAppConfig } from "@wso2-enterprise/choreo-core";
 
-export interface CreateProjectParams {
-    name: string;
-    description: string;
+export interface ChoreoOrgIdParams {
     orgId: number;
     orgHandle: string;
-    version?: string;
-    region?: string;
 }
 
-export interface DeleteProjectParams {
-    orgId: number;
+export interface CreateProjectParams extends ChoreoOrgIdParams {
+    name: string;
+    description: string;
+    version?: string;
+    region?: string;
+    credentialId?: string;
+    repository?: string;
+    branch?: string;
+}
+
+export interface DeleteProjectParams extends ChoreoOrgIdParams {
     projectId: string;
 }
 
-export interface CreateComponentParams {
+export interface CreateComponentParams extends ChoreoOrgIdParams {
     name: string;
     displayName: string;
     displayType: string;
     description: string;
-    orgId: number;
-    orgHandle: string;
     projectId: string;
     accessibility: string;
     srcGitRepoUrl: string;
     repositorySubPath: string;
     repositoryType: string;
     repositoryBranch: string;
+    bitbucketCredentialId: string;
 }
 
-export interface CreateByocComponentParams {
+export interface CreateByocComponentParams extends ChoreoOrgIdParams {
     name: string;
     displayName: string;
     description: string;
-    orgId: number;
-    orgHandler: string;
     projectId: string;
     accessibility: string;
     labels: string;
     componentType: string;
-    port: number;
+    port?: number;
     oasFilePath: string;
-    byocConfig: {
+    byocConfig?: {
         dockerfilePath: string;
         dockerContext: string;
         srcGitRepoUrl: string;
         srcGitRepoBranch: string;
-    }
+    },
+    byocWebAppsConfig?: ComponentWizardWebAppConfig
 }
 
-export interface GetProjectEnvParams {
+export interface GetProjectEnvParams extends ChoreoOrgIdParams {
     orgUuid: string;
     projId: string;
 }
 
-export interface DeleteComponentParams {
-    orgHandler: string;
+export interface DeleteComponentParams extends ChoreoOrgIdParams {
     component: Component;
     projectId: string;
 }
@@ -77,6 +79,7 @@ export interface RepoParams {
     repoApp: string;
     branchApp: string;
     subPath: string;
+    credentialId: string;
 }
 
 export interface ComponentMutationParams {
@@ -92,18 +95,14 @@ export interface LinkRepoMutationParams {
     repoPath: string;
 }
 
-export interface GetProjectsParams {
-    orgId: number;
-}
+export type GetProjectsParams = ChoreoOrgIdParams
 
-export interface GetComponentsParams {
-    orgHandle: string;
+export interface GetComponentsParams extends ChoreoOrgIdParams {
     projId: string;
     orgUuid: string;
 }
 
-export interface GetComponentDeploymentStatusParams {
-    orgHandle: string;
+export interface GetComponentDeploymentStatusParams extends ChoreoOrgIdParams  {
     projId: string;
     orgUuid: string;
     component: Component;
@@ -111,13 +110,12 @@ export interface GetComponentDeploymentStatusParams {
     versionId: string;
 }
 
-export interface GetComponentBuildStatusParams {
+export interface GetComponentBuildStatusParams extends ChoreoOrgIdParams  {
     componentId: string;
     versionId: string;
 }
 
-export interface GetDiagramModelParams {
-    orgHandle: string;
+export interface GetDiagramModelParams extends ChoreoOrgIdParams {
     projId: string;
 }
 
@@ -137,7 +135,7 @@ export interface GitHubRepoValidationResponse {
     hasPomXmlInRoot: boolean;
   }
   
-  export interface GitHubRepoValidationRequestParams {
+  export interface GitHubRepoValidationRequestParams extends ChoreoOrgIdParams {
     organization: string;
     repo: string;
     branch: string;
@@ -146,7 +144,16 @@ export interface GitHubRepoValidationResponse {
     dockerContextPath?: string;
     openApiPath?: string;
     componentId?: string;
+    credentialId: string;
   }
+
+export interface PerformanceForecastDataRequest extends ChoreoOrgIdParams {
+    data: string;
+}
+
+export interface GetSwaggerExamplesRequest extends ChoreoOrgIdParams {
+    data: string;
+}
 
 export interface IChoreoProjectClient {
     // queries

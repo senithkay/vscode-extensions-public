@@ -18,17 +18,12 @@ export interface AccessToken {
     refreshToken? : string;
 }
 
-export type ChoreoToken = "choreo.token";
-export type ChoreoVscodeToken = "choreo.vscode.token";
-
-export type ChoreoTokenType = ChoreoToken | ChoreoVscodeToken;
-
 export interface IReadOnlyTokenStorage {
-    getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
+    getToken(orgId: number): Promise<AccessToken|undefined>;
 }
 export interface ITokenStorage extends IReadOnlyTokenStorage {
-    setToken(tokenType: ChoreoTokenType, token: AccessToken): Promise<void>;
-    deleteToken(tokenType: ChoreoTokenType): Promise<void>;
+    setToken(orgId: number, token: AccessToken): Promise<void>;
+    deleteToken(orgId: number): Promise<void>;
 }
 
 export interface AuthClientConfig {

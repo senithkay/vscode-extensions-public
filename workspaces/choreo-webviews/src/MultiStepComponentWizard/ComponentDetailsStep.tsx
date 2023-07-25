@@ -13,13 +13,13 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ErrorBanner, ErrorIcon } from "../Commons/ErrorBanner";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-// import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ConfigCardList } from "./ConfigCardList";
 
 const StepContainer = styled.div`
     display: flex;
@@ -36,6 +36,7 @@ const DropDownContainer = styled.div`
     flex-direction: column;
 `;
 
+
 function sanitizeFolderName(folderName: string): string {
     // Replace any characters that are not letters, numbers, spaces, or underscores with an empty string
     const sanitized = folderName.replace(/[^a-zA-Z0-9\s_]/g, '');
@@ -43,8 +44,8 @@ function sanitizeFolderName(folderName: string): string {
     // Remove any leading or trailing spaces
     const trimmed = sanitized.trim();
 
-    // Replace any consecutive spaces with a single space
-    const final = trimmed.replace(/\s+/g, ' ');
+    // Replace any consecutive spaces with a dash
+    const final = trimmed.replace(/\s+/g, '-');
 
     return final;
 }
@@ -71,13 +72,6 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
         onFormDataChange(prevFormData => ({ ...prevFormData, accessibility }));
     };
 
-    const showAccessibility = formData?.type === ChoreoComponentType.Service
-        || formData?.type === ChoreoComponentType.ByocService
-        || formData?.type === ChoreoComponentType.RestApi
-        || formData?.type === ChoreoComponentType.ByocRestApi
-        || formData?.type === ChoreoComponentType.Webhook
-        || formData?.type === ChoreoComponentType.GraphQL;
-
     return (
         <StepContainer>
             <VSCodeTextField
@@ -99,15 +93,72 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             >
                 Description
             </VSCodeTextArea>
-            {showAccessibility && (
-                <DropDownContainer>
-                    <label htmlFor="access-mode">Access Mode</label>
-                    <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
-                        <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
-                        <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
-                    </VSCodeDropdown>
-                </DropDownContainer>
-            )}
+            <div>
+                {[ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) && <>
+                    <p>How do you want to implement it?</p>
+                    <ConfigCardList 
+                        formKey='implementationType'
+                        formData={formData}
+                        onFormDataChange={onFormDataChange}
+                        items={[
+                            {
+                                label: "Ballerina",
+                                description: "Component impelmented using Ballerina Language",
+                                value: ChoreoImplementationType.Ballerina
+                            },
+                            {
+                                label: "Docker",
+                                description: "Component impelmented using other language and built using Docker",
+                                value: ChoreoImplementationType.Docker
+                            }
+                        ]}
+                    />
+                </>}
+                {formData.type === ChoreoComponentType.WebApplication && <>
+                    <p>Web Application Type</p>
+                    <ConfigCardList 
+                        formKey='implementationType'
+                        formData={formData}
+                        onFormDataChange={onFormDataChange}
+                        items={[
+                            {
+                                label: "React SPA",
+                                description: "Create a React SPA web application component in Choreo",
+                                value: ChoreoImplementationType.React
+                            },
+                            {
+                                label: "Angular SPA",
+                                description: "Create a Angular SPA web application component in Choreo",
+                                value: ChoreoImplementationType.Angular
+                            },
+                            {
+                                label: "Vue SPA",
+                                description: "Create a Vue SPA web application component in Choreo",
+                                value: ChoreoImplementationType.Vue
+                            },
+                            {
+                                label: "Static Website",
+                                description: "Create a static website component in Choreo",
+                                value: ChoreoImplementationType.StaticFiles
+                            },
+                            {
+                                label: "Dockerfile",
+                                description: "Create a Docker based web application component in Choreo",
+                                value: ChoreoImplementationType.Docker
+                            },
+                        ]}
+                    />
+                </>}
+                {formData?.type === ChoreoComponentType.Webhook && (
+                    <DropDownContainer>
+                        <label htmlFor="access-mode">Access Mode</label>
+                        <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
+                            <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                            <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                        </VSCodeDropdown>
+                    </DropDownContainer>
+                )}
+            </div>
         </StepContainer>
     );
 };
@@ -116,13 +167,6 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
     title: 'Component Details',
     component: ComponentDetailsStepC,
     validationRules: [
-        {
-            field: 'type',
-            message: 'Please select a component type',
-            rule: async (value: any) => {
-                return value !== undefined;
-            }
-        },
         {
             field: 'name',
             message: 'Component name is already taken',
@@ -140,6 +184,34 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
             rule: async (value: any) => {
                 return value !== undefined && value !== '';
             }
+        },
+        {
+            field: 'implementationType',
+            message: 'Type is required',
+            rule: async (implementationType, formData) => {
+                if (
+                    formData.type === ChoreoComponentType.WebApplication &&
+                    ![
+                        ChoreoImplementationType.React,
+                        ChoreoImplementationType.Angular,
+                        ChoreoImplementationType.Vue,
+                        ChoreoImplementationType.StaticFiles,
+                        ChoreoImplementationType.Docker,
+                    ].includes(implementationType)
+                ) {
+                    return false;
+                }
+                if (
+                    [ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) &&
+                    ![
+                        ChoreoImplementationType.Ballerina,
+                        ChoreoImplementationType.Docker,
+                    ].includes(implementationType)
+                ) {
+                    return false;
+                }
+                return true;
+            },
         },
     ]
 };

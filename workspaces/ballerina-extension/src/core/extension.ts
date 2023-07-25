@@ -276,7 +276,7 @@ export class BallerinaExtension {
         this.sdkVersion.show();
 
         window.onDidChangeActiveTextEditor((editor) => {
-            this.sdkVersion.text = this.sdkVersion.text.replace(SDK_PREFIX, '')
+            this.sdkVersion.text = this.sdkVersion.text.replace(SDK_PREFIX, '');
             if (!editor) {
                 this.updateStatusBar(this.sdkVersion.text);
                 this.sdkVersion.show();
@@ -300,7 +300,7 @@ export class BallerinaExtension {
         // message to display on Unknown errors.
         // ask to enable debug logs.
         // we can ask the user to report the issue.
-        this.updateStatusBar("Error");;
+        this.updateStatusBar("Error");
         this.sdkVersion.backgroundColor = new ThemeColor("statusBarItem.errorBackground");
         window.showErrorMessage(UNKNOWN_ERROR);
     }

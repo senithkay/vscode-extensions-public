@@ -23,7 +23,9 @@
     "@projectstorm/geometry": "^6.7.4",
     "@projectstorm/react-diagrams-core": "^6.7.4",
     "@emotion/react": "^11.9.3",
-    "classnames": "^2.2.6"
+    "classnames": "^2.2.6",
+    "@emotion/css": "^11.10.5",
+    "@headlessui/react": "^1.7.15"
   },
   "devDependencies": {
     "typescript": "^4.9.4",

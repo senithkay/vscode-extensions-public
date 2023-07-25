@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { Event } from "vscode";
 
 export interface GHAppConfig {
@@ -24,12 +25,14 @@ export interface IChoreoGithubAppClient {
     checkAuthStatus(): Promise<void>;
     status: Promise<GHAppAuthStatus>;
     triggerAuthFlow(): Promise<boolean>;
-    obatainAccessToken(authCode: string): Promise<void>;
+    obatainAccessToken(authCode: string, choreoOrgId: number): Promise<void>;
     triggerInstallFlow(): Promise<boolean>;
-    getAuthorizedRepositories(): Promise<GithubOrgnization[]>;
-    getRepoBranches(orgName: string, repoName: string): Promise<string[]>;
+    getAuthorizedRepositories(choreoOrgId: number): Promise<GithubOrgnization[]>;
+    getRepoBranches(choreoOrgId: number, orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]>;
     onGHAppAuthCallback: Event<GHAppAuthStatus>;
     fireGHAppAuthCallback(status: GHAppAuthStatus): void;
+    getCredentials(org_uuid: string, orgId: number): Promise<CredentialData[]>;
+    getUserRepos(bitbucketCredentialId: string, choreoOrgId: number): Promise<UserRepo[]>;
 }
 
 export type GHAppAuthStatus = {
@@ -46,4 +49,27 @@ export interface GithubRepository {
 export interface GithubOrgnization {
     orgName: string;
     repositories: GithubRepository[];
+}
+
+export interface CredentialData {
+    id: string;
+    createdAt: Date;
+    name: string;
+    organizationUuid: string;
+    type: GitProvider;
+    reference_token: string;
+}
+
+export interface FilteredCredentialData {
+    id: string;
+    name: string;
+}
+
+export interface Repo {
+    name: string;
+}
+
+export interface UserRepo {
+    orgName: string;
+    repositories: Repo[];
 }
