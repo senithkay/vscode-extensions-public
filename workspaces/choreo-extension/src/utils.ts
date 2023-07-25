@@ -28,17 +28,20 @@ export async function enrichDeploymentData(orgId: string, componentId: string, p
         let isIntranetExposed = false;
         if (apiVersions.length > 0) {
             // Get the latest version of the API
-            const version = apiVersions[apiVersions.length - 1];
-            const epData = await ProjectRegistry.getInstance().getEndpointsForVersion(
-                componentId, version.id, parseInt(orgId)
-            );
-            // Extracting the visibility of the last endpoint
-            const visibility = epData?.componentEndpoints[epData?.componentEndpoints.length - 1]?.visibility;
-            if (visibility === "Organization") {
-                isIntranetExposed = true;
-            }
-            if (visibility === "Public") {
-                isInternetExposed = true;
+            const version = apiVersions.find((apiVersion) => apiVersion.latest);
+            if (version) {
+                const epData = await ProjectRegistry.getInstance().getEndpointsForVersion(
+                    componentId, version.id, parseInt(orgId)
+                );
+                // Extracting the visibility of the last endpoint
+                const visibility = epData?.componentEndpoints[epData?.componentEndpoints.length - 1]?.
+                    visibility;
+                if (visibility === "Organization") {
+                    isIntranetExposed = true;
+                }
+                if (visibility === "Public") {
+                    isInternetExposed = true;
+                }
             }
         }
 
