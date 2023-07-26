@@ -86,13 +86,14 @@ const onDidAcceptProjectList = async (
         vscode.commands.executeCommand(createNewProjectCmdId);
         return;
     }
+    
+    const selectedProject = projects.find(project => project.name === selection?.label);
     // if the selected project is already opened, show a message and return
-    if (selection?.label === currentProject?.name) {
+    if (selectedProject?.id === currentProject?.id) {
         vscode.window.showInformationMessage('The project is already opened in current window.');
         return;
     }
 
-    const selectedProject = projects.find(project => project.name === selection?.label);
     if (selectedProject) {
         const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);
         if (projectLocation) {
