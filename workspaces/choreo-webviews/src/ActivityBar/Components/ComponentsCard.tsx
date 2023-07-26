@@ -24,6 +24,7 @@ import { useChoreoComponentsContext } from "../../context/choreo-components-ctx"
 import { NoComponentsAlert } from "./componentAlerts/NoComponentsAlert";
 import { ComponentSyncAlert } from "./componentAlerts/ComponentSyncAlert";
 import { ComponentsPushAlert } from "./componentAlerts/ComponentsPushAlert";
+import { ErrorBanner } from "../../Commons/ErrorBanner";
 
 const Container = styled.div`
     display: flex;
@@ -128,7 +129,7 @@ export const ComponentsCard = () => {
                         handleExpandClick={toggleExpandedComponents}
                     />
                 ))}
-                {componentLoadError && <div>{componentLoadError}</div>}
+                {componentLoadError?.message && <ErrorBanner errorMsg={componentLoadError?.message}/>}
             </Body>
         </Container>
     );

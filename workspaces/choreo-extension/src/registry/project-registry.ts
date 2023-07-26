@@ -50,7 +50,6 @@ import * as yaml from 'js-yaml';
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
-const PROJECT_REPOSITORIES = "project-repositories-v2";
 const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories-v2";
 const EXPANDED_COMPONENTS = "expanded-components";
 
@@ -279,7 +278,7 @@ export class ProjectRegistry {
         } catch (error: any) {
             const errorMetadata = error?.cause?.response?.metadata;
             getLogger().error("Error while fetching components. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-            throw new Error("Failed to fetch component list. " + errorMetadata?.errorCode || error?.message);
+            throw new Error(`Failed to fetch component list. ${errorMetadata?.errorCode ?? error?.message}`);
         }
     }
 
@@ -558,16 +557,16 @@ export class ProjectRegistry {
     }
 
     setExpandedComponents(projectId: string, expandedComponentNames: string[]) {
-        let projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        let projectExpandedComponents: Record<string, string[]> | undefined = ext.context.workspaceState.get(EXPANDED_COMPONENTS);
         if (projectExpandedComponents === undefined) {
             projectExpandedComponents = {};
         }
         projectExpandedComponents[projectId] = expandedComponentNames;
-        ext.context.globalState.update(EXPANDED_COMPONENTS, projectExpandedComponents);
+        ext.context.workspaceState.update(EXPANDED_COMPONENTS, projectExpandedComponents);
     }
 
     getExpandedComponents(projectId: string): string[] {
-        const projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        const projectExpandedComponents: Record<string, string[]> | undefined = ext.context.workspaceState.get(EXPANDED_COMPONENTS);
         const componentNames = projectExpandedComponents?.[projectId];
         return componentNames ?? [];
     }
@@ -655,8 +654,9 @@ export class ProjectRegistry {
 
     async fetchComponentsFromCache(projectId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {
         try {
-            if (!this._dataComponents.get(projectId)?.length) {
-                await this.getComponents(projectId, orgId, orgHandle, orgUuid);
+            if (!this._dataComponents.has(projectId)) {
+                const components = await this.getComponents(projectId, orgId, orgHandle, orgUuid);
+                return components;
             }
             return this._dataComponents.get(projectId);
         } catch (e) {
