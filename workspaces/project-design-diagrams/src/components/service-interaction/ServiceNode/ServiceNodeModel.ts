@@ -65,12 +65,14 @@ export class ServiceNodeModel extends SharedNodeModel {
 				return ServiceTypes.WEBSOCKET
 			} else if (this.nodeObject.serviceType.includes('ballerinax/trigger.')) {
 				return ServiceTypes.WEBHOOK;
-			} else if (this.nodeObject.serviceType === 'REST') {
+			} else if (this.nodeObject.serviceType === 'REST' || this.nodeObject.serviceType === ServiceTypes.HTTP) {
 				return ServiceTypes.HTTP;
-			} else if (this.nodeObject.serviceType === 'GraphQL') {
+			} else if (this.nodeObject.serviceType === ServiceTypes.GRAPHQL) {
 				return ServiceTypes.GRAPHQL;
-			} else if (this.nodeObject.serviceType === 'GRPC') {
+			} else if (this.nodeObject.serviceType === ServiceTypes.GRPC) {
 				return ServiceTypes.GRPC;
+			} else if (this.nodeObject.serviceType === ServiceTypes.WEBAPP) {
+				return ServiceTypes.WEBAPP;
 			}
 		}
 		return ServiceTypes.OTHER;
