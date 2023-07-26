@@ -325,8 +325,26 @@ export class ChoreoExtensionApi {
 
                 const nonBalComponents = choreoComponents?.filter((item) => item.displayType?.startsWith("byoc"));
                 nonBalComponents?.forEach((component) => {
+
+                    const defaultService: CMService = {
+                        dependencies: [],
+                        path: "",
+                        remoteFunctions: [],
+                        serviceId: component.id || component.name,
+                        serviceType: ServiceTypes.OTHER,
+                        resources: [],
+                        annotation: { id: component.id || component.name, label: component.displayName },
+                    };
+
+                    const defaultComponentModel: ComponentModel = {
+                        hasCompilationErrors: false,
+                        entities: new Map(),
+                        packageId: { name: component.name, org: organization.name, version: component.version },
+                        services: { [component.name]: defaultService } as any,
+                    };
+
                     const componentPath = getComponentDirPath(component, workspaceFileLocation);
-                    if (componentPath) {
+                    if (component.displayType === ComponentDisplayType.ByocService && componentPath) {
                         const endpointsPath = path.join(componentPath, ".choreo", "endpoints.yaml");
                         if (existsSync(endpointsPath)) {
                             const serviceBaseId = `${component.name}`;
@@ -347,9 +365,7 @@ export class ChoreoExtensionApi {
                                     }
 
                                     const service: CMService = {
-                                        dependencies: [],
-                                        path: "",
-                                        remoteFunctions: [],
+                                        ...defaultService,
                                         serviceId,
                                         serviceType: endpoint?.type || ServiceTypes.HTTP,
                                         resources,
@@ -371,62 +387,38 @@ export class ChoreoExtensionApi {
                             }
 
                             nonBalMap[serviceBaseId] = {
-                                hasCompilationErrors: false,
-                                entities: new Map(),
-                                packageId: { name: component.name, org: organization.name, version: component.version },
+                                ...defaultComponentModel,
                                 services: services as any,
                             };
-                        } else if([ComponentDisplayType.ByocWebAppDockerLess, ComponentDisplayType.ByocWebApp].includes(component.displayType as ComponentDisplayType)) {
-                            const service: CMService = {
-                                dependencies: [],
-                                path: "",
-                                remoteFunctions: [],
-                                serviceId: component.id || component.name,
-                                serviceType: ServiceTypes.WEBAPP,
-                                resources: [],
-                                annotation: { id: component.id || component.name, label: component.name },
-                                deploymentMetadata: { gateways: { internet: { isExposed: true }, intranet: { isExposed: false } }},
-                            };
-
-                            nonBalMap[component.name] = {
-                                hasCompilationErrors: false,
-                                entities: new Map(),
-                                packageId: { name: component.name, org: organization.name, version: component.version },
-                                services: { [component.name]: service } as any,
-                            };
-                        } else if([ComponentDisplayType.ByocCronjob, ComponentDisplayType.ByocJob].includes(component.displayType as ComponentDisplayType)) {
-                            nonBalMap[component.name] = {
-                                hasCompilationErrors: false,
-                                entities: new Map(),
-                                packageId: { name: component.name, org: organization.name, version: component.version },
-                                services: new Map(),
-                                functionEntryPoint: {
-                                    annotation: { id: component.name, label: "" },
-                                    dependencies: [],
-                                    interactions: [],
-                                    parameters: [],
-                                    returns: [],
-                                    type: component.displayType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask"
-                                },
-                            };
-                        } else {
-                            const service: CMService = {
-                                dependencies: [],
-                                path: "",
-                                remoteFunctions: [],
-                                serviceId: component.id || component.name,
-                                serviceType: ServiceTypes.OTHER,
-                                resources: [],
-                                annotation: { id: component.id || component.name, label: component.name },
-                            };
-
-                            nonBalMap[component.name] = {
-                                hasCompilationErrors: false,
-                                entities: new Map(),
-                                packageId: { name: component.name, org: organization.name, version: component.version },
-                                services: { [component.name]: service } as any,
-                            };
+                        }  else {
+                            nonBalMap[component.name] = defaultComponentModel;
                         }
+                    } else if([ComponentDisplayType.ByocWebAppDockerLess, ComponentDisplayType.ByocWebApp].includes(component.displayType as ComponentDisplayType)) {
+                        const service: CMService = {
+                            ...defaultService,
+                            serviceType: ServiceTypes.WEBAPP,
+                            deploymentMetadata: { gateways: { internet: { isExposed: true }, intranet: { isExposed: false } }},
+                        };
+
+                        nonBalMap[component.name] = {
+                            ...defaultComponentModel,
+                            services: { [component.name]: service } as any,
+                        };
+                    } else if([ComponentDisplayType.ByocCronjob, ComponentDisplayType.ByocJob].includes(component.displayType as ComponentDisplayType)) {
+                        nonBalMap[component.name] = {
+                            ...defaultComponentModel,
+                            services: new Map(),
+                            functionEntryPoint: {
+                                annotation: { id: component.name, label: "" },
+                                dependencies: [],
+                                interactions: [],
+                                parameters: [],
+                                returns: [],
+                                type: component.displayType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask"
+                            },
+                        };
+                    } else {
+                        nonBalMap[component.name] = defaultComponentModel;
                     }
                 });
             }
