@@ -79,7 +79,7 @@ export const ProjectDetails = () => {
                     <Codicon name="link-external" />
                     <IconLabel>Open Project</IconLabel>
                 </VSCodeButton>
-                <VSCodeButton appearance="icon" onClick={addNewProject} title="Crete new choreo project">
+                <VSCodeButton appearance="icon" onClick={addNewProject} title="Create new choreo project">
                     <Codicon name="add" />
                     <IconLabel>Create Project</IconLabel>
                 </VSCodeButton>

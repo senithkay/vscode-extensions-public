@@ -24,6 +24,7 @@ export const createNewComponentCmdId = 'wso2.choreo.component.create';
 export const choreoArchitectureViewCmdId = 'wso2.choreo.architecture.view';
 export const choreoSignInWithApimTokenCmdId = 'wso2.choreo.sign.in.with.apim.token';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
+export const openWalkthroughCmdId = 'wso2.choreo.getStarted';
 
 // Choreo login status
 export const STATUS_LOGGED_IN = "LoggedIn";

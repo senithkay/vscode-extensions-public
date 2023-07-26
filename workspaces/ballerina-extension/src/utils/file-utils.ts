@@ -109,10 +109,10 @@ async function downloadFile(url, filePath, progressCallback) {
         window.showErrorMessage(`File download failed.`, error);
         throw error;
     }
-};
+}
 
 async function selectFileDownloadPath() {
-    const folderPath = await window.showOpenDialog({ title: 'Ballerina samples download directory', canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Folder' })
+    const folderPath = await window.showOpenDialog({ title: 'Ballerina samples download directory', canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Folder' });
     if (folderPath && folderPath.length > 0) {
         const newlySelectedFolder = folderPath[0].fsPath;
         try {

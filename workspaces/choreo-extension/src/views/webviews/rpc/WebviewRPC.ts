@@ -73,6 +73,10 @@ import {
     SetExpandedComponents,
     GetExpandedComponents,
     GetChoreoWorkspaceMetadata,
+    SetChoreoInstallOrg,
+    ClearChoreoInstallOrg,
+    getEndpointsForVersion,
+    EndpointData,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -176,10 +180,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
-        const { orgHandler, name } = params.component;
+        const { orgHandler, displayName } = params.component;
         const org = ext.api.getOrgByHandle(orgHandler);
         if (org) {
-            const answer = await vscode.window.showInformationMessage(`Are you sure you want to delete the component ${name}? `,
+            const answer = await vscode.window.showInformationMessage(`Are you sure you want to delete the component ${displayName}? `,
                 { modal: true },
                 "Delete Component");
             if (answer === "Delete Component") {
@@ -188,6 +192,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             }
             return null;
         }
+    });
+
+    messenger.onRequest(getEndpointsForVersion, async (params: { componentId: string, versionId: string, orgId: number }) : Promise<EndpointData | null> => {
+        return await ProjectRegistry.getInstance().getEndpointsForVersion(
+            params.componentId, params.versionId, params.orgId
+        );
     });
 
     messenger.onRequest(PullComponent, async (params: { projectId: string, componentId: string }) => {
@@ -353,6 +363,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             componentModels: componentModels,
             diagnostics: diagnostics
         };
+    });
+
+    messenger.onRequest(SetChoreoInstallOrg, (orgId: number) => {
+        ext.api.setChoreoInstallOrg(orgId);
+    });
+
+    messenger.onRequest(ClearChoreoInstallOrg, () => {
+        ext.api.clearChoreoInstallOrg();
     });
 
     messenger.onRequest(UpdateProjectOverview, (projectId: string) => {

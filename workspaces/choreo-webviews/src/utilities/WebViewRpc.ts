@@ -92,6 +92,8 @@ import {
     GetExpandedComponents,
     GetChoreoWorkspaceMetadata,
     ChoreoWorkspaceMetaData,
+    SetChoreoInstallOrg,
+    ClearChoreoInstallOrg,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -318,6 +320,14 @@ export class ChoreoWebViewAPI {
             this._instance = new ChoreoWebViewAPI(vscode);
         }
         return this._instance;
+    }
+
+    public setChoreoInstallOrg(orgId: number) {
+        return this._messenger.sendRequest(SetChoreoInstallOrg, HOST_EXTENSION, orgId);
+    }
+
+    public clearChoreoInstallOrg() {
+        return this._messenger.sendRequest(ClearChoreoInstallOrg, HOST_EXTENSION, undefined);
     }
 
     public updateProjectOverview(projectId: string) {

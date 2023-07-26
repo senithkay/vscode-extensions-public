@@ -13,7 +13,7 @@
 import { ProgressLocation, commands, window } from "vscode";
 import { choreoEnvConfig, initiateInbuiltAuth as openAuthURL } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
+import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId, openWalkthroughCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
@@ -101,6 +101,10 @@ export async function activateAuth(context: vscode.ExtensionContext) {
             }
         }
     });
+
+    vscode.commands.registerCommand(openWalkthroughCmdId, () => {
+        vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `wso2.choreo#choreo.getStarted`, false);
+    })
 }
 
 async function initFromExistingChoreoSession() {

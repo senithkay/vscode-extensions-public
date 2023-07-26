@@ -12,7 +12,7 @@
  */
 import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -25,6 +25,8 @@ import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner } from "../Commons/ErrorBanner";
+import { useQuery } from "@tanstack/react-query";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -138,6 +140,16 @@ export function ProjectWizard(props: { orgId: string }) {
     const [validationInProgress, setValidationInProgress] = useState(false);
     const [selectedBranch, setSelectedBranch] = useState("");
     const [selectedRegion, setSelectedRegion] = useState("Cloud Data Plane - US");
+    
+    const { data: projects } = useQuery(
+        [selectedOrg],
+        async () =>
+            await ChoreoWebViewAPI.getInstance().getAllProjects(selectedOrg.id)
+    );
+
+    const isProjectNameTaken = useMemo(() => {
+        return projects?.some((project) => project.name === projectName)
+    }, [projectName, projects]);
 
     const regionLabels = REGIONS.map(region => region.label);
 
@@ -239,7 +251,9 @@ export function ProjectWizard(props: { orgId: string }) {
         setGitProvider(type);
     }
 
-    const isValid: boolean = projectName.length > 0 && !!projectDir && (!initMonoRepo || (!!selectedGHOrgName &&
+
+    const projectNameError = 'Project name is already taken.';
+    const isValid: boolean = projectName.length > 0 && !!projectDir && !isProjectNameTaken &&(!initMonoRepo || (!!selectedGHOrgName &&
         !!selectedGHRepo)) && !validationInProgress && !isBareRepo;
 
     return (
@@ -265,6 +279,9 @@ export function ProjectWizard(props: { orgId: string }) {
                         >
                             Project Name <RequiredFormInput />
                         </VSCodeTextField>
+                        {isProjectNameTaken && (
+                            <ErrorBanner errorMsg={projectNameError} />
+                        )}
                         <VSCodeTextArea
                             placeholder="Description"
                             onInput={(e: any) => setProjectDescription(e.target.value)}
@@ -321,6 +338,7 @@ export function ProjectWizard(props: { orgId: string }) {
                         (
                             <SectionWrapper>
                                 <ConfigureRepoAccordion
+                                    selectedOrg={selectedOrg}
                                     gitProvider={gitProvider}
                                     selectedCredential={selectedCredential}
                                     selectedGHOrgName={selectedGHOrgName}

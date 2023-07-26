@@ -17,7 +17,7 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { ChoreoAppInstaller } from "../GithubRepoSelector/ChoreoAppInstaller";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
-import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { Codicon } from "../Codicon/Codicon";
@@ -116,6 +116,7 @@ const ListWrapper = styled.div`
 `;
 
 export interface ConfigureRepoAccordionProps {
+    selectedOrg: Organization;
     gitProvider: GitProvider;
     selectedCredential: FilteredCredentialData;
     selectedGHOrgName: string;
@@ -129,12 +130,12 @@ export interface ConfigureRepoAccordionProps {
     selectedBranch: string;
     setSelectedBranch: (branch: string) => void;
     setErrorMsg: (msg: string) => void;
-
 }
 
 export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
 
     const {
+        selectedOrg,
         gitProvider,
         selectedCredential,
         selectedGHOrgName,
@@ -248,7 +249,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                                 </ListItemWrapper>
                                 <ListItemWrapper style={{ marginLeft: '25px' }}>
                                     <Codicon name="circle-outline" />
-                                    <ChoreoAppInstaller onAppInstallation={handleAppInstallSuccess} />
+                                    <ChoreoAppInstaller onAppInstallation={handleAppInstallSuccess} orgId={selectedOrg.id} />
                                 </ListItemWrapper>
                             </ListWrapper>
                             <ListItemWrapper>

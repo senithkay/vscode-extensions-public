@@ -12,7 +12,24 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, BuildStatus, Deployment, Endpoint, UserInfo, ChoreoWorkspaceMetaData } from './types';
+import {
+   Organization,
+   ChoreoLoginStatus,
+   ChoreoWorkspaceMetaData,
+   Project,
+   Component,
+   PushedComponent,
+   ComponentCount,
+   ChoreoComponentCreationParams,
+   getLocalComponentDirMetaDataRequest,
+   getLocalComponentDirMetaDataRes,
+   GitRepo,
+   BuildStatus,
+   Deployment,
+   Endpoint,
+   UserInfo,
+   EndpointData
+} from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -106,12 +123,15 @@ export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> =
 export const ReadEndpointsYaml: RequestType<SubpathAvailableRequest, Endpoint | undefined> = { method: 'readEndpointsYaml' };
 export const OpenBillingPortal: RequestType<string, void> = { method: 'openBillingPortal' };
 export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
+export const SetChoreoInstallOrg: RequestType<number, void> = { method: 'setChoreoInstallOrg' };
+export const ClearChoreoInstallOrg: RequestType<void, void> = { method: 'clearChoreoInstallOrg' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const getConsoleUrl: RequestType<void, string> = { method: 'getConsoleUrl' };
 export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChoreoParams, string[]> = { method: 'pushLocalComponentsToChoreo' };
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const OpenCellView: RequestType<string, void> = { method: 'openCellView' };
+export const getEndpointsForVersion: RequestType<{componentId: string, versionId: string, orgId: number}, EndpointData | null> = { method: 'getEndpointsForVersion' };
 export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };

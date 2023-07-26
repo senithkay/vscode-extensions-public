@@ -46,7 +46,8 @@ export function activateURIHandlers() {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get("code");
                 const installationId = urlParams.get("installationId");
-                const orgId = ext.api.getOrgIdOfCurrentProject();
+                const choreoIstOrgId = ext.api.getChoreoInstallOrg();
+                const orgId = choreoIstOrgId ?? ext.api.getOrgIdOfCurrentProject();
                 if (!orgId) {
                     // TODO!IMPORTANT: Handle project creation when no project is open
                     getLogger().error(`Choreo Github Auth Failed: No Choreo org id found`);

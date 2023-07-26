@@ -25,7 +25,8 @@ import {
     ChoreoWorkspaceMetaData,
     Endpoint,
     ServiceTypes,
-    ComponentDisplayType
+    ComponentDisplayType,
+    EndpointData,
 } from "@wso2-enterprise/choreo-core";
 import { CMEntryPoint, CMResourceFunction, CMService, ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { existsSync, readFileSync } from 'fs';
@@ -56,6 +57,8 @@ export class ChoreoExtensionApi {
     private _status: ChoreoLoginStatus;
 
     private _selectedProjectId: string | undefined;
+
+    private _choreoInstallationOrgId: number | undefined;
 
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
     public onStatusChanged = this._onStatusChanged.event;
@@ -110,6 +113,18 @@ export class ChoreoExtensionApi {
     public set selectedProjectId(selectedProjectId: string) {
         this._selectedProjectId = selectedProjectId;
         this._onChoreoProjectChanged.fire(selectedProjectId);
+    }
+
+    public setChoreoInstallOrg(selectedOrgId: number ) {
+        this._choreoInstallationOrgId = selectedOrgId;
+    }
+
+    public getChoreoInstallOrg(): number | undefined {
+        return this._choreoInstallationOrgId;
+    }
+
+    public clearChoreoInstallOrg() {
+        this._choreoInstallationOrgId = undefined;
     }
 
     public refreshComponentList() {
@@ -261,7 +276,8 @@ export class ChoreoExtensionApi {
                         organization.id,
                         organization.handle, organization.uuid);
 
-                    choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
+                    for (const choreoComponent of choreoComponents || []) {
+                        const { name, displayType, id, accessibility, apiVersions, local } = choreoComponent;
                         const wsConfig = workspaceFileConfig.folders.find(component =>
                             component.name === name || makeURLSafe(component.name) === name
                         );
@@ -272,14 +288,15 @@ export class ChoreoExtensionApi {
                                     (displayType === ChoreoComponentType.ScheduledTask.toString() || displayType === ChoreoComponentType.ManualTrigger.toString())) {
                                         localModel.functionEntryPoint.type = displayType as any;
                                 }
-                                const response = enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                    componentPath, local, accessibility);
-                                if (response === true) {
+                                const response = await enrichDeploymentData(orgId, id,
+                                    new Map(Object.entries(localModel.services)), apiVersions, componentPath
+                                );
+                                if (response) {
                                     break;
                                 }
                             }
                         }
-                    });
+                    };
                 }
             }
         }
