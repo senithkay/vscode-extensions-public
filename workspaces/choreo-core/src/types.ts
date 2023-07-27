@@ -527,9 +527,11 @@ export interface ChoreoWorkspaceMetaData {
 }
 
 export enum ServiceTypes {
-    HTTP = "http",
-    GRPC = "grpc",
-    GRAPHQL = "graphql",
-    WEBSOCKET = "websocket",
+    HTTP = "HTTP",
+    GRPC = "GRPC",
+    WEBSOCKET = "Websocket",
+    GRAPHQL = "GraphQL",
+    WEBHOOK = "Webhook",
+    WEBAPP = "WebApp",
     OTHER = "other"
 }
