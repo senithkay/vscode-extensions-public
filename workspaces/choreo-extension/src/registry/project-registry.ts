@@ -243,6 +243,38 @@ export class ProjectRegistry {
             throw new Error("Error: Could not detect a project workspace.");
         }
     }
+    
+    getSourceFiles(projectLocation: string, component: Component): { path: string; label: string;}[] {
+        const componentPath = getComponentDirPath(component, projectLocation);
+        const repo = component.repository;
+        if (componentPath) {
+            if (component.displayType?.startsWith("byoc")) {
+                const files = [];
+                const dockerFilePath = repo?.byocBuildConfig?.dockerfilePath;
+                if (dockerFilePath && repo?.organizationApp && repo?.nameApp) {
+                    const dockerFileFullPath = join(dirname(projectLocation), "repos", repo?.organizationApp, repo?.nameApp, dockerFilePath);
+                    if (existsSync(dockerFileFullPath)) {
+                        files.push({ path: dockerFileFullPath, label: "Dockerfile" });
+                    }
+                }
+
+                const endpointsYamlPath = join(componentPath, '.choreo', 'endpoints.yaml');
+                if (existsSync(endpointsYamlPath)){
+                    files.push({ path: endpointsYamlPath, label: "Endpoints" });
+                }
+                return files;
+            } else {
+                if (existsSync(join(componentPath, "service.bal"))) {
+                    return [{ path: join(componentPath, "service.bal"), label: "Source" }];
+                } else if (existsSync(join(componentPath, "main.bal"))) {
+                    return [{ path: join(componentPath, "main.bal"), label: "Source" }];
+                } else if (existsSync(join(componentPath, "sample.bal"))) {
+                    return [{ path: join(componentPath, "sample.bal"), label: "Source" }];
+                }
+            }
+        }
+        return [];
+    }
 
     async getComponents(projId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
@@ -255,6 +287,7 @@ export class ProjectRegistry {
                 components.map(async (component) => {
                     const componentPath = projectLocation ? getComponentDirPath(component, projectLocation) : '';
                     const isRemoteOnly = componentPath ? !existsSync(componentPath) : false;
+                    const filePaths = projectLocation ? this.getSourceFiles(projectLocation, component): undefined;
                     let hasUnPushedLocalCommits = false;
                     let hasDirtyLocalRepo = false;
 
@@ -270,6 +303,7 @@ export class ProjectRegistry {
                         hasUnPushedLocalCommits,
                         hasDirtyLocalRepo,
                         isRemoteOnly,
+                        filePaths
                     } as Component;
                 })
             );

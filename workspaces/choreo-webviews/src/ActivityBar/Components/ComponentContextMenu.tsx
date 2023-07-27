@@ -68,6 +68,19 @@ export const ComponentContextMenu = (props: {
 
     const menuItems: MenuItem[] = [];
 
+    component.filePaths?.forEach(file => {
+        menuItems.push({
+            id: "open-source",
+            label: (
+                <>
+                    <InlineIcon name="code" />
+                    &nbsp; View {file.label}
+                </>
+            ),
+            onClick: () => ChoreoWebViewAPI.getInstance().goToSource(file.path),
+        });
+    }) 
+
     if (!component.local) {
         menuItems.push({
             id: "github-remote",
@@ -94,6 +107,7 @@ export const ComponentContextMenu = (props: {
             onClick: () => openComponentUrl(),
         });
     }
+
     menuItems.push({
         id: "delete",
         label: (

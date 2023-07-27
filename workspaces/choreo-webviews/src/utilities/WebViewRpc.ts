@@ -94,6 +94,7 @@ import {
     ChoreoWorkspaceMetaData,
     SetChoreoInstallOrg,
     ClearChoreoInstallOrg,
+    GoToSource,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -257,6 +258,10 @@ export class ChoreoWebViewAPI {
 
     public async pushLocalComponentToChoreo(params: {projectId: string, componentName: string}): Promise<void> {
         return this._messenger.sendRequest(PushLocalComponentToChoreo, HOST_EXTENSION, params);
+    }
+
+    public async goToSource(filePath: string): Promise<void> {
+        return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
     }
 
     public async openArchitectureView(): Promise<void> {
