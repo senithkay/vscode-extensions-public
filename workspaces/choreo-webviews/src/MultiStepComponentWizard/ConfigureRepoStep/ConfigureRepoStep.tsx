@@ -327,17 +327,6 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         checkRepoCloneStatus();
     }, [selectedRepoString, choreoProject]);
 
-    useEffect(() => {
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        ghClient.onGHAppAuthCallback((status) => {
-            setGHStatus(status);
-        });
-        ghClient.checkAuthStatus();
-        ghClient.status.then((status) => {
-            setGHStatus(status);
-        });
-    }, []);
-
     const changeGitProvider = (type: GitProvider) => {
         setGitProvider(type);
     }
