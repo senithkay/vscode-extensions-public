@@ -12,7 +12,7 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { FilteredCredentialData, Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -54,7 +54,7 @@ const RepoSelector = styled.div`
 `;
 
 export interface BitbucketRepoSelectorProps {
-    selectedCred: FilteredCredentialData;
+    selectedCredID: string;
     selectedRepo?: {
         org: string;
         repo: string;
@@ -68,7 +68,7 @@ export interface BitbucketRepoSelectorProps {
 
 export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
 
-    const { selectedRepo, onRepoSelect, selectedCred, refreshRepoList, setLoadingRepos, setLoadingBranches } = props;
+    const { selectedRepo, onRepoSelect, selectedCredID, refreshRepoList, setLoadingRepos, setLoadingBranches } = props;
     const { currentProjectOrg } = useChoreoWebViewContext()
     const [repoDetails, setRepoDetails] = useState<UserRepo[]>([]);
     const [bborgs, setBBorgs] = useState<string[]>([]);
@@ -85,12 +85,12 @@ export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
     };
 
     const { isFetching, refetch, isRefetching } = useQuery({
-        queryKey: [selectedCred.id],
+        queryKey: [selectedCredID],
         queryFn: async () => {
-            const userRepos = await useGetRepoData(selectedCred.id || '');
+            const userRepos = await useGetRepoData(selectedCredID || '');
             return userRepos;
         },
-        enabled: !!selectedCred.id,
+        enabled: !!selectedCredID,
         onSuccess: (data) => {
             if (data) {
                 setRepoDetails(data);
@@ -160,9 +160,9 @@ export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
         onRepoSelect(selectedRepo?.org, selectedRepo?.repo, value);
     };
 
-    ((isFetching || isRefetching) && selectedCred.id) ? setLoadingRepos(true) : setLoadingRepos(false);
+    ((isFetching || isRefetching) && selectedCredID) ? setLoadingRepos(true) : setLoadingRepos(false);
 
-    const credentialsAvailable = !!selectedCred.id;
+    const credentialsAvailable = !!selectedCredID;
     return (
         <>
             {!credentialsAvailable && "Please select a bitbucket credential."}
@@ -194,7 +194,7 @@ export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
                         repo={selectedRepo.repo}
                         branch={selectedRepo.branch}
                         onBranchChange={handleGhBranchChange}
-                        credentialID={selectedCred.id}
+                        credentialID={selectedCredID}
                         setLoadingBranches={setLoadingBranches}
                     />
                 </>

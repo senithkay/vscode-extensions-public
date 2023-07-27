@@ -34,12 +34,13 @@ const WizardActionsContainer = styled.div`
     align-items: flex-end;
     gap: 10px;
     width: 100%;
-    margin-top: 15px;
+    margin: 15px 0;
 `;
 
 const StepContainer = styled.div`
     min-height: 40%;
     padding: 15px;
+    width: calc(100% - 20px);
 `;
 
 export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, saveButtonText, cancelButtonText, onCancel, closeOnSave, loading }: WizardProps<T>) => {

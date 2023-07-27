@@ -18,7 +18,6 @@ import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { ChoreoAppInstaller } from "../GithubRepoSelector/ChoreoAppInstaller";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
 import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
-import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { Codicon } from "../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
@@ -118,7 +117,7 @@ const ListWrapper = styled.div`
 export interface ConfigureRepoAccordionProps {
     selectedOrg: Organization;
     gitProvider: GitProvider;
-    selectedCredential: FilteredCredentialData;
+    selectedCredential: string;
     selectedGHOrgName: string;
     setSelectedGHOrgName: (orgName: string) => void;
     selectedGHRepo: string;
@@ -213,7 +212,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                 repo: selectedGHRepo,
                 organization: selectedGHOrgName,
                 branch: selectedBranch.length > 0 ? selectedBranch : "main",
-                credentialId: selectedCredential.id
+                credentialId: selectedCredential
             });
             if (repoMetaData?.isBareRepo) {
                 setIsBareRepo(true);
@@ -259,7 +258,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                         </StepContainer>
                     )}
                     {gitProvider === GitProvider.BITBUCKET && (
-                        selectedCredential.id ? (
+                        selectedCredential ? (
                             <StepContainer>
                                 <ListItemWrapper>
                                     <Codicon name="circle-filled" />
@@ -293,7 +292,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                             {gitProvider === GitProvider.BITBUCKET &&
                                 <BitbucketRepoSelector
                                     selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo, branch: selectedBranch }}
-                                    onRepoSelect={handleRepoSelect} selectedCred={selectedCredential}
+                                    onRepoSelect={handleRepoSelect} selectedCredID={selectedCredential}
                                     refreshRepoList={refreshRepoList}
                                     setLoadingRepos={setLoadingRepos}
                                     setLoadingBranches={setLoadingBranches}

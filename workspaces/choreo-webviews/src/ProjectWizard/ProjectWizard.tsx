@@ -330,7 +330,7 @@ export function ProjectWizard(props: { orgId: string }) {
                                     </CardContainer>
                                 </SubContainer>
                                 {gitProvider === GitProvider.GITHUB && <GithubAutherizer />}
-                                {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
+                                {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCredID={selectedCredential.id} onCredSelect={setSelectedCredential} />}
                             </SectionWrapper>
                         )
                     }
@@ -340,7 +340,7 @@ export function ProjectWizard(props: { orgId: string }) {
                                 <ConfigureRepoAccordion
                                     selectedOrg={selectedOrg}
                                     gitProvider={gitProvider}
-                                    selectedCredential={selectedCredential}
+                                    selectedCredential={selectedCredential.id}
                                     selectedGHOrgName={selectedGHOrgName}
                                     selectedGHRepo={selectedGHRepo}
                                     setSelectedGHOrgName={setSelectedGHOrgName}

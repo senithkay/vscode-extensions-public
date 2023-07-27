@@ -93,9 +93,9 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
 
     return (
         <GhRepoBranhSelectorContainer>
-            <label htmlFor="branch-drop-down">Branch</label>
             {!updatingBranchList && repoBranches && repoBranches.length > 0 && (
                 <>
+                    <label htmlFor="branch-drop-down">Branch</label>
                     <BranchListContainer>
                         <VSCodeDropdown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
                             {repoBranches.map((branch) => (
