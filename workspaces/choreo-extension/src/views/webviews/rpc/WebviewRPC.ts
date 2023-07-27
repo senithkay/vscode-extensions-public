@@ -77,6 +77,7 @@ import {
     ClearChoreoInstallOrg,
     getEndpointsForVersion,
     EndpointData,
+    IsBallerinaExtInstalled,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -444,6 +445,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(FireRefreshComponentList, () => {
         ext.api.refreshComponentList();
+    });
+
+    messenger.onRequest(IsBallerinaExtInstalled, () => {
+        const ext = vscode.extensions.getExtension("wso2.ballerina");
+        return !!ext;
     });
 
     messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {

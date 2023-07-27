@@ -25,6 +25,7 @@ export interface IChoreoWebViewContext {
     loadingProject?: boolean;
     choreoUrl: string;
     currentProjectOrg?: Organization;
+    isBalExtInstalled?: boolean;
 }
 
 const defaultContext: IChoreoWebViewContext = {
@@ -32,6 +33,7 @@ const defaultContext: IChoreoWebViewContext = {
     loginStatusPending: true,
     userInfo: undefined,
     choreoUrl: "",
+    isBalExtInstalled: false,
 };
 
 export const ChoreoWebViewContext = React.createContext(defaultContext);
@@ -47,6 +49,12 @@ interface Props {
 
 export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, ctxOrgId }) => {
     const queryClient = useQueryClient();
+
+    const { data: isBalExtInstalled } = useQuery({
+        queryKey: ["is_bal_installed"],
+        queryFn: () => ChoreoWebViewAPI.getInstance().isBallerinaExtInstalled(),
+        refetchOnWindowFocus: false,
+    });
 
     const {
         data: workspaceMetaData = {},
@@ -138,6 +146,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
                 loginStatusPending: loginStatusLoading || userInfoLoading,
                 loadingProject: getChoreoWorkspaceLoading || (isChoreoProject === true && choreoProjectLoading),
                 currentProjectOrg,
+                isBalExtInstalled,
             }}
         >
             {children}
