@@ -586,7 +586,7 @@ export class ProjectRegistry {
         return preferredRepository;
     }
 
-    pushLocalComponentsToChoreo(projectId: string, componentNames: string[] = []): Thenable<string[]> {
+    pushLocalComponentsToChoreo(projectId: string, componentNames: string[] = [], org: Organization): Thenable<string[]> {
         return window.withProgress({
             title: `Pushing local components to Choreo`,
             location: ProgressLocation.Notification,
@@ -641,7 +641,15 @@ export class ProjectRegistry {
                     if (failedComponentsDueToMaxLimit.length > 0 ){
                         errorMessage += `(${failedComponentsDueToMaxLimit.join(',')}) Due to reaching maximum number of components`;
                     }
-                    window.showErrorMessage(errorMessage);
+                    if (failedComponentsDueToMaxLimit.length > 0) {
+                        window.showErrorMessage(errorMessage, "Upgrade").then(selection => {
+                            if (selection === 'Upgrade') {
+                                this.openBillingPortal(org.uuid);
+                            }
+                        });
+                    } else {
+                        window.showErrorMessage(errorMessage);
+                    }
                 }
             }
             return successComponentNames;
@@ -721,7 +729,7 @@ export class ProjectRegistry {
         }
     }
 
-    async pushLocalComponentToChoreo(projectId: string, componentName: string): Promise<void> {
+    async pushLocalComponentToChoreo(projectId: string, componentName: string, org: Organization): Promise<void> {
         const choreoPM = new ChoreoProjectManager();
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
         if (projectLocation !== undefined) {
@@ -738,10 +746,18 @@ export class ProjectRegistry {
                     vscode.window.showInformationMessage(`The component ${componentMetadata.displayName} has been successfully pushed to Choreo.`);
                 } catch (error: any) {
                     if (error.cause?.response?.metadata?.additionalData === "REACHED_MAXIMUM_NUMBER_OF_FREE_COMPONENTS") {
-                        throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo due to reaching maximum number of components`);
+                        const errorMessage = `Failed to push ${componentMetadata.displayName} to Choreo due to reaching maximum number of components`;
+                        window.showErrorMessage(errorMessage, "Upgrade").then(selection => {
+                            if (selection === 'Upgrade') {
+                                this.openBillingPortal(org.uuid);
+                            }
+                        });
+                        throw new Error(errorMessage);
                     } else {
+                        const errorMessage = `Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message}`;
                         getLogger().error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message} ${error?.cause ? "\nCause: " + error.cause.message : ""}`);
-                        throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message}`);
+                        window.showErrorMessage(errorMessage);
+                        throw new Error(errorMessage);
                     }
                 }
             }

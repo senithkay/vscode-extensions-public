@@ -381,7 +381,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgId, projectId, componentNames } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
+            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames, org);
         }
         return [];
     });
@@ -392,7 +392,13 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             location: ProgressLocation.Notification,
             cancellable: false
         }, async (_progress, cancellationToken) => {
-            await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName);
+            const currentOrgId = ext.api.getOrgIdOfCurrentProject();
+            if (currentOrgId) {
+                const org = ext.api.getOrgById(currentOrgId);
+                if (org){
+                    await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
+                }
+            }
         });
     });
 
