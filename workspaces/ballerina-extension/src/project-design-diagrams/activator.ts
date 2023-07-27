@@ -56,7 +56,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         }
     });
 
-    commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, async () => {
+    commands.registerCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW, async () => {
         if (designDiagramWebview) {
             designDiagramWebview.webview.postMessage({ command: "refresh" });
         }
