@@ -45,7 +45,7 @@ import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
-import { makeURLSafe } from "../utils";
+import { getComponentDirPath, makeURLSafe } from "../utils";
 import * as yaml from 'js-yaml';
 
 // Key to store the project locations in the global state
@@ -249,10 +249,11 @@ export class ProjectRegistry {
             let components = await executeWithTaskRetryPrompt(() =>
                 ext.clients.projectClient.getComponents({ projId, orgId, orgHandle, orgUuid })
             );
+            const projectLocation = this.getProjectLocation(projId);
             components = this._addLocalComponents(projId, components);
             components = await Promise.all(
                 components.map(async (component) => {
-                    const componentPath = this.getComponentDirPath(component);
+                    const componentPath = projectLocation ? getComponentDirPath(component, projectLocation) : '';
                     const isRemoteOnly = componentPath ? !existsSync(componentPath) : false;
                     let hasUnPushedLocalCommits = false;
                     let hasDirtyLocalRepo = false;
@@ -326,26 +327,6 @@ export class ProjectRegistry {
 
         const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
         vscode.window.showInformationMessage(successMsg);
-    }
-
-
-    private getComponentDirPath(component: Component) {
-        const projectLocation = this.getProjectLocation(component.projectId);
-        const repository = component.repository;
-        if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
-            const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
-            if (appSubPath) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
-            } else if (byocWebAppBuildConfig) {
-                if (byocWebAppBuildConfig?.dockerContext) {
-                    return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.dockerContext);
-                } else if (byocWebAppBuildConfig?.outputDirectory) {
-                    return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.outputDirectory);
-                }
-            } else if (byocBuildConfig) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
-            }
-        }
     }
 
     public async getComponentBuildStatus(orgId: number, orgHandle: string, component: Component) {
@@ -466,7 +447,7 @@ export class ProjectRegistry {
                     }
                 });
 
-                const componentPath = this.getComponentDirPath(componentToBePulled);
+                const componentPath = getComponentDirPath(componentToBePulled, projectLocation);
                 if (componentPath && !existsSync(componentPath)){
                     const selection = await window.showErrorMessage("Error: Directory for the component does not exist", "Delete Component");
                     if(selection === "Delete Component"){

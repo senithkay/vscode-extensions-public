@@ -16,6 +16,7 @@ import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
 import { existsSync, readFileSync } from "fs";
 import * as yaml from 'js-yaml';
 import { ProjectRegistry } from "./registry/project-registry";
+import { dirname, join } from "path";
 
 export async function enrichDeploymentData(orgId: string, componentId: string, pkgServices: Map<string, Service>,
                                            apiVersions: ApiVersion[], componentLocation: string): Promise<boolean> {
@@ -145,3 +146,21 @@ export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: 
     }
     return resourceList;
 };
+
+export const getComponentDirPath = (component: Component, projectLocation: string) => {
+    const repository = component.repository;
+    if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
+        const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
+        if (appSubPath) {
+            return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
+        } else if (byocWebAppBuildConfig) {
+            if (byocWebAppBuildConfig?.dockerContext) {
+                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.dockerContext);
+            } else if (byocWebAppBuildConfig?.outputDirectory) {
+                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.outputDirectory);
+            }
+        } else if (byocBuildConfig) {
+            return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
+        }
+    }
+}
