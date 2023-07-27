@@ -129,7 +129,9 @@ export const ComponentsCard = () => {
                         handleExpandClick={toggleExpandedComponents}
                     />
                 ))}
-                {componentLoadError?.message && <ErrorBanner errorMsg={componentLoadError?.message}/>}
+                {components?.length === 0 && componentLoadError?.message && (
+                    <ErrorBanner errorMsg={componentLoadError?.message} />
+                )}
             </Body>
         </Container>
     );
