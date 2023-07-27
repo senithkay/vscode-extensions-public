@@ -24,7 +24,6 @@ const Container = styled.div`
     align-items: flex-start;
     gap: 10px;
     justify-content: space-between;
-    max-width: 300px;
     width: 100%;
 `;
 
