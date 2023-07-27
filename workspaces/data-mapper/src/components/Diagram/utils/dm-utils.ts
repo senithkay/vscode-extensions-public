@@ -555,8 +555,12 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
+			const selectedST = dmNode.context.selection.selectedST.stNode;
+			const isQueryExpr = STKindChecker.isSpecificField(selectedST)
+				&& STKindChecker.isQueryExpression(selectedST.valueExpr);
 			paramNode = dmNode.context.functionST.functionSignature.parameters.find((param) =>
-					STKindChecker.isRequiredParam(param)
+					!isQueryExpr
+					&& STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
 
@@ -588,10 +592,9 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				}) as LetClauseNode | JoinClauseNode | LetExpressionNode | ModuleVariableNode)?.value;
 			}
 
-			const selectedST = dmNode.context.selection.selectedST.stNode;
 			if (!paramNode) {
-				if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
-					paramNode = selectedST.valueExpr.queryPipeline.fromClause;
+				if (isQueryExpr) {
+					paramNode = (selectedST.valueExpr as QueryExpression).queryPipeline.fromClause;
 				} else if (STKindChecker.isSpecificField(selectedST)
 					&& STKindChecker.isBracedExpression(selectedST.valueExpr)
 					&& STKindChecker.isQueryExpression(selectedST.valueExpr.expression)) {
