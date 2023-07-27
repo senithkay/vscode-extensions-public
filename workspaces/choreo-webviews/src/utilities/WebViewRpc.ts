@@ -94,6 +94,9 @@ import {
     ChoreoWorkspaceMetaData,
     SetChoreoInstallOrg,
     ClearChoreoInstallOrg,
+    SetWebviewCache,
+    RestoreWebviewCache,
+    ClearWebviewCache,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -356,5 +359,17 @@ export class ChoreoWebViewAPI {
 
     public async fireRefreshComponents(): Promise<void> {
         return this._messenger.sendRequest(FireRefreshComponentList, HOST_EXTENSION, null);
+    }
+
+    public async setWebviewCache(cacheKey: IDBValidKey, data: unknown): Promise<void> {
+        return this._messenger.sendRequest(SetWebviewCache, HOST_EXTENSION, { cacheKey, data });
+    }
+
+    public async restoreWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(RestoreWebviewCache, HOST_EXTENSION, cacheKey);
+    }
+
+    public async clearWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(ClearWebviewCache, HOST_EXTENSION, cacheKey);
     }
 }

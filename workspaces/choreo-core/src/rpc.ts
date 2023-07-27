@@ -90,6 +90,11 @@ export interface PushLocalComponentsToChoreoParams {
    componentNames: string[];
 }
 
+export interface SetWebviewCacheRequestParam {
+   cacheKey: IDBValidKey;
+   data: unknown;
+}
+
 // request types 
 export const SendProjectTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendProjectTelemetryEvent' };
 export const SendTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendTelemetryEvent' };
@@ -142,6 +147,9 @@ export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boo
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
+export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };
+export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: 'restoreWebviewCache' };
+export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clearWebviewCache' };
 
 export interface OpenDialogOptions {
    title: string,

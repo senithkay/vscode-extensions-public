@@ -77,6 +77,9 @@ import {
     ClearChoreoInstallOrg,
     getEndpointsForVersion,
     EndpointData,
+    SetWebviewCache,
+    RestoreWebviewCache,
+    ClearWebviewCache,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -438,6 +441,18 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(FireRefreshComponentList, () => {
         ext.api.refreshComponentList();
+    });
+
+    messenger.onRequest(SetWebviewCache, async (params) => {
+        await ext.context.workspaceState.update(params.cacheKey, params.data);
+    });
+
+    messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
+        return ext.context.workspaceState.get(cacheKey);
+    });
+
+    messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
+        await ext.context.workspaceState.update(cacheKey, undefined);
     });
 
     messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
