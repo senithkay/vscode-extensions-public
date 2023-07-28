@@ -25,7 +25,11 @@ import {
     generateQueryExpression
 } from '../Link/link-utils';
 import { RecordFieldPortModel } from '../Port';
-import { getBalRecFieldName, getFilteredUnionOutputTypes } from '../utils/dm-utils';
+import {
+    getBalRecFieldName,
+    getFilteredUnionOutputTypes,
+    getLocalVariableNames
+} from '../utils/dm-utils';
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
@@ -153,7 +157,11 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     isOptionalSource = true;
                 }
 
-                const querySrc = generateQueryExpression(linkModel.value.source, targetRecord, isOptionalSource);
+                const moduleVariables = Array.from(context.stSymbolInfo.moduleVariables.keys());
+                const localVariables = getLocalVariableNames(context.functionST);
+
+                const querySrc = generateQueryExpression(linkModel.value.source, targetRecord, isOptionalSource,
+                    [...moduleVariables, ...localVariables]);
                 const position = linkModel.value.position as NodePosition;
                 const applyModification = context.applyModifications;
                 void applyModification([{
