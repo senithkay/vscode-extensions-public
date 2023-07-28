@@ -74,7 +74,6 @@ export function activateWizards() {
         // if no mode passed, show quick pick
         const options: QuickPickOptions = {
             canPickMany: false,
-            ignoreFocusOut: true,
             title: "Create a new Choreo Component",
         };
         const items: QuickPickItem[] = [{
