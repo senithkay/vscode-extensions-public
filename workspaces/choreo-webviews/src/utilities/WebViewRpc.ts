@@ -94,6 +94,7 @@ import {
     ChoreoWorkspaceMetaData,
     SetChoreoInstallOrg,
     ClearChoreoInstallOrg,
+    IsBallerinaExtInstalled,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -356,5 +357,9 @@ export class ChoreoWebViewAPI {
 
     public async fireRefreshComponents(): Promise<void> {
         return this._messenger.sendRequest(FireRefreshComponentList, HOST_EXTENSION, null);
+    }
+
+    public async isBallerinaExtInstalled(): Promise<boolean> {
+        return this._messenger.sendRequest(IsBallerinaExtInstalled, HOST_EXTENSION, undefined);
     }
 }
