@@ -77,6 +77,7 @@ import {
     ClearChoreoInstallOrg,
     getEndpointsForVersion,
     EndpointData,
+    GoToSource,
     IsBallerinaExtInstalled,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
@@ -94,6 +95,7 @@ import { executeWithTaskRetryPrompt } from "../../../retry";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
+import { existsSync } from "fs";
 
 const manager = new ChoreoProjectManager();
 
@@ -401,6 +403,13 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                 }
             }
         });
+    });
+
+    messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
+        if (existsSync(filePath)) {
+            const sourceFile = await vscode.workspace.openTextDocument(filePath);
+            await window.showTextDocument(sourceFile);
+        }
     });
 
     ext.api.onStatusChanged((newStatus) => {
