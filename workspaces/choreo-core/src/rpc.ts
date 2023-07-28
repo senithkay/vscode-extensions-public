@@ -143,6 +143,7 @@ export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationPara
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
 export const GoToSource: RequestType<string, void> = { method: 'goToSource' };
+export const IsBallerinaExtInstalled: RequestType<void, boolean> = { method: 'isBallerinaExtInstalled' };
 
 export interface OpenDialogOptions {
    title: string,

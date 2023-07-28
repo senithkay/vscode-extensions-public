@@ -54,7 +54,7 @@ export const ComponentContextMenu = (props: {
 
     const gitBaseUrl = repository.gitProvider === GitProvider.BITBUCKET ? "https://bitbucket.org" : "https://github.com";
     let gitUrl = `${gitBaseUrl}/${repository?.organizationApp}/${repository?.nameApp}`;
-    gitUrl = repository.gitProvider === GitProvider.GITHUB ? `${gitUrl}/tree` : `${gitUrl}/src`;
+    gitUrl = repository.gitProvider === GitProvider.BITBUCKET ? `${gitUrl}/src` : `${gitUrl}/tree`;
     gitUrl = component.local
         ? `${gitUrl}/${repository?.branchApp}`
         : `${gitUrl}/${repository?.branchApp}/${repository.appSubPath ?? ""}`;

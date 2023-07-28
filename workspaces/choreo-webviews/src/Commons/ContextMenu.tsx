@@ -27,6 +27,7 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
     width: 220px;
     display: flex;
     align-items: center;
+    padding: 6px 10px;
 `;
 
 const ContextOverlay = styled.div`
@@ -44,7 +45,7 @@ const ExpandedMenu = styled.div`
     top: 24px;
     z-index: 15;
     background: var(--vscode-editor-background);
-    box-shadow: var(--vscode-widget-shadow) 0px 0px 8px;
+    box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
 `;
 
 const SmallProgressRing = styled(VSCodeProgressRing)`
