@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React from 'react';
 
 import { CircularProgress } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -30,7 +30,7 @@ import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 
-export interface FlowAliasLabelWidgetProps {
+export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
 }
 
@@ -99,21 +99,22 @@ export enum LinkState {
 }
 
 // now we can render all what we want in the label
-export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetProps> = (props) => {
+export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const [linkStatus, setLinkStatus] = React.useState<LinkState>(LinkState.LinkNotSelected);
     const [canUseQueryExpr, setCanUseQueryExpr] = React.useState(false);
     const [codeActions, setCodeActions] = React.useState([]);
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
     const classes = useStyles();
-    const diagnostic = props.model?.link && props.model.link.hasError() ? props.model.link.diagnostics[0] : null;
+    const { link, context, value, field, editorLabel, deleteLink } = props.model;
+    const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
 
     React.useEffect(() => {
         async function genModel() {
-            const actions = (await handleCodeActions(props.model.context.filePath, props.model.link?.diagnostics, props.model.context.langClientPromise))
+            const actions = (await handleCodeActions(context.filePath, link?.diagnostics, context.langClientPromise))
             setCodeActions(actions)
         }
 
-        if (props.model.value) {
+        if (value) {
             void genModel();
         }
     }, [props.model]);
@@ -124,8 +125,8 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
             evt.stopPropagation();
         }
         setDeleteInProgress(true);
-        if (props.model.deleteLink) {
-            props.model.deleteLink();
+        if (deleteLink) {
+            deleteLink();
         }
     };
 
@@ -134,27 +135,27 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
             evt.preventDefault();
             evt.stopPropagation();
         }
-        props.model.context.enableStatementEditor({
-            valuePosition: props.model.field.position as NodePosition,
-            value: props.model.field.source,
-            label: props.model.editorLabel
+        context.enableStatementEditor({
+            valuePosition: field.position as NodePosition,
+            value: field.source,
+            label: editorLabel
         });
     };
 
-    const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: Type) => {
-        if (link.value
-            && (STKindChecker.isFieldAccess(link.value) || STKindChecker.isSimpleNameReference(link.value))) {
+    const applyQueryExpression = (linkModel: DataMapperLinkModel, targetRecord: Type) => {
+        if (linkModel.value
+            && (STKindChecker.isFieldAccess(linkModel.value) || STKindChecker.isSimpleNameReference(linkModel.value))) {
 
                 let isOptionalSource = false;
-                const sourcePort = link.getSourcePort();
+                const sourcePort = linkModel.getSourcePort();
 
                 if (sourcePort instanceof RecordFieldPortModel && sourcePort.field.optional) {
                     isOptionalSource = true;
                 }
 
-                const querySrc = generateQueryExpression(link.value.source, targetRecord, isOptionalSource);
-                const position = link.value.position as NodePosition;
-                const applyModification = props.model.context.applyModifications;
+                const querySrc = generateQueryExpression(linkModel.value.source, targetRecord, isOptionalSource);
+                const position = linkModel.value.position as NodePosition;
+                const applyModification = context.applyModifications;
                 void applyModification([{
                     type: "INSERT",
                     config: {
@@ -169,8 +170,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
     };
 
     React.useEffect(() => {
-        if (props.model?.link) {
-            const link = props.model.link;
+        if (link) {
             link.registerListener({
                 selectionChanged(event) {
                     setLinkStatus(event.isSelected ? LinkState.LinkSelected : LinkState.LinkNotSelected);
@@ -215,15 +215,14 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
     ];
 
     const onClickConvertToQuery = () => {
-        const link = props.model.link;
         const targetPort = link.getTargetPort();
 
         if (targetPort instanceof RecordFieldPortModel) {
-            const field = targetPort.field;
-            if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
-                applyQueryExpression(link, field.memberType);
-            } else if (field.typeName === PrimitiveBalType.Union){
-                const [type] = getFilteredUnionOutputTypes(field);
+            const targetPortField = targetPort.field;
+            if (targetPortField.typeName === PrimitiveBalType.Array && targetPortField?.memberType) {
+                applyQueryExpression(link, targetPortField.memberType);
+            } else if (targetPortField.typeName === PrimitiveBalType.Union){
+                const [type] = getFilteredUnionOutputTypes(targetPortField);
                 if (type.typeName === PrimitiveBalType.Array && type.memberType) {
                     applyQueryExpression(link, type.memberType);
                 }
@@ -244,7 +243,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
         elements.push(
             <CodeActionWidget
                 codeActions={codeActions}
-                context={props.model.context}
+                context={context}
                 additionalActions={additionalActions}
             />
         );
@@ -255,7 +254,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
         elements.push(
             <DiagnosticWidget
                 diagnostic={diagnostic}
-                value={props.model.value}
+                value={value}
                 onClick={onClickEdit}
                 isLabelElement={true}
             />
@@ -318,4 +317,4 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
                 {elements}
             </div>
         );
-};
+}
