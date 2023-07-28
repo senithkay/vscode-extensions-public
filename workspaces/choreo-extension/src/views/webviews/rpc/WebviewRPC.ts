@@ -77,6 +77,9 @@ import {
     ClearChoreoInstallOrg,
     getEndpointsForVersion,
     EndpointData,
+    SetWebviewCache,
+    RestoreWebviewCache,
+    ClearWebviewCache,
     GoToSource,
     IsBallerinaExtInstalled,
 } from "@wso2-enterprise/choreo-core";
@@ -456,6 +459,18 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         ext.api.refreshComponentList();
     });
 
+    messenger.onRequest(SetWebviewCache, async (params) => {
+        await ext.context.workspaceState.update(params.cacheKey, params.data);
+    });
+
+    messenger.onRequest(RestoreWebviewCache, async (cacheKey) => {
+        return ext.context.workspaceState.get(cacheKey);
+    });
+
+    messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
+        await ext.context.workspaceState.update(cacheKey, undefined);
+    });
+    
     messenger.onRequest(IsBallerinaExtInstalled, () => {
         const ext = vscode.extensions.getExtension("wso2.ballerina");
         return !!ext;

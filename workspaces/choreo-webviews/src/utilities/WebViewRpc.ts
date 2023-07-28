@@ -94,6 +94,9 @@ import {
     ChoreoWorkspaceMetaData,
     SetChoreoInstallOrg,
     ClearChoreoInstallOrg,
+    SetWebviewCache,
+    RestoreWebviewCache,
+    ClearWebviewCache,
     GoToSource,
     IsBallerinaExtInstalled,
 } from "@wso2-enterprise/choreo-core";
@@ -364,6 +367,18 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(FireRefreshComponentList, HOST_EXTENSION, null);
     }
 
+    public async setWebviewCache(cacheKey: IDBValidKey, data: unknown): Promise<void> {
+        return this._messenger.sendRequest(SetWebviewCache, HOST_EXTENSION, { cacheKey, data });
+    }
+
+    public async restoreWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(RestoreWebviewCache, HOST_EXTENSION, cacheKey);
+    }
+
+    public async clearWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(ClearWebviewCache, HOST_EXTENSION, cacheKey);
+    }
+    
     public async isBallerinaExtInstalled(): Promise<boolean> {
         return this._messenger.sendRequest(IsBallerinaExtInstalled, HOST_EXTENSION, undefined);
     }
