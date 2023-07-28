@@ -80,6 +80,8 @@ import {
     SetWebviewCache,
     RestoreWebviewCache,
     ClearWebviewCache,
+    GoToSource,
+    IsBallerinaExtInstalled,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -96,6 +98,7 @@ import { executeWithTaskRetryPrompt } from "../../../retry";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
+import { existsSync } from "fs";
 
 const manager = new ChoreoProjectManager();
 
@@ -384,7 +387,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgId, projectId, componentNames } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames);
+            return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, componentNames, org);
         }
         return [];
     });
@@ -395,8 +398,21 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             location: ProgressLocation.Notification,
             cancellable: false
         }, async (_progress, cancellationToken) => {
-            await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName);
+            const currentOrgId = ext.api.getOrgIdOfCurrentProject();
+            if (currentOrgId) {
+                const org = ext.api.getOrgById(currentOrgId);
+                if (org){
+                    await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
+                }
+            }
         });
+    });
+
+    messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
+        if (existsSync(filePath)) {
+            const sourceFile = await vscode.workspace.openTextDocument(filePath);
+            await window.showTextDocument(sourceFile);
+        }
     });
 
     ext.api.onStatusChanged((newStatus) => {
@@ -453,6 +469,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
         await ext.context.workspaceState.update(cacheKey, undefined);
+    });
+    
+    messenger.onRequest(IsBallerinaExtInstalled, () => {
+        const ext = vscode.extensions.getExtension("wso2.ballerina");
+        return !!ext;
     });
 
     messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {

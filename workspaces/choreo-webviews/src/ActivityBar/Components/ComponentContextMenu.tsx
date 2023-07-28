@@ -54,7 +54,7 @@ export const ComponentContextMenu = (props: {
 
     const gitBaseUrl = repository.gitProvider === GitProvider.BITBUCKET ? "https://bitbucket.org" : "https://github.com";
     let gitUrl = `${gitBaseUrl}/${repository?.organizationApp}/${repository?.nameApp}`;
-    gitUrl = repository.gitProvider === GitProvider.GITHUB ? `${gitUrl}/tree` : `${gitUrl}/src`;
+    gitUrl = repository.gitProvider === GitProvider.BITBUCKET ? `${gitUrl}/src` : `${gitUrl}/tree`;
     gitUrl = component.local
         ? `${gitUrl}/${repository?.branchApp}`
         : `${gitUrl}/${repository?.branchApp}/${repository.appSubPath ?? ""}`;
@@ -67,6 +67,19 @@ export const ComponentContextMenu = (props: {
     };
 
     const menuItems: MenuItem[] = [];
+
+    component.filePaths?.forEach(file => {
+        menuItems.push({
+            id: "open-source",
+            label: (
+                <>
+                    <InlineIcon name="code" />
+                    &nbsp; View {file.label}
+                </>
+            ),
+            onClick: () => ChoreoWebViewAPI.getInstance().goToSource(file.path),
+        });
+    }) 
 
     if (!component.local) {
         menuItems.push({
@@ -94,6 +107,7 @@ export const ComponentContextMenu = (props: {
             onClick: () => openComponentUrl(),
         });
     }
+
     menuItems.push({
         id: "delete",
         label: (

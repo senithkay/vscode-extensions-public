@@ -9,15 +9,14 @@
   "types": "lib/index.d.ts",
   "typings": "lib/index",
   "scripts": {
-    "build": "tsc --pretty"
+    "build": "tsc --pretty",
+    "storybook": "start-storybook"
   },
   "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@emotion/styled": "^11.10.5",
-    "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
-    "@wso2-enterprise/syntax-tree": "workspace:*",
     "@projectstorm/react-canvas-core": "^6.7.4",
     "@projectstorm/react-diagrams": "^6.7.4",
     "@projectstorm/geometry": "^6.7.4",
@@ -30,7 +29,15 @@
   "devDependencies": {
     "typescript": "^4.9.4",
     "@types/react": "^17.0.37",
-    "@types/react-dom": "17.0.14"
+    "@types/react-dom": "17.0.14",
+    "@storybook/addon-actions": "^6.5.9",
+    "@storybook/addon-essentials": "^6.5.9",
+    "@storybook/addon-links": "^6.5.9",
+    "@storybook/builder-webpack5": "^6.5.9",
+    "@storybook/manager-webpack5": "^6.5.9",
+    "@storybook/react": "^6.5.9",
+    "@storybook/theming": "^6.5.9",
+    "glob": "^7.2.0"
   },
   "author": "wso2",
   "license": "UNLICENSED",

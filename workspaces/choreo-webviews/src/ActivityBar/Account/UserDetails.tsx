@@ -59,7 +59,7 @@ export const UserDetails = () => {
                 </>
             )}
             <Seperator />
-            <VSCodeButton style={{ width: '100%' }} appearance="icon" onClick={openWalkthrough} title="Open Choreo Walkthrough">
+            <VSCodeButton appearance="icon" onClick={openWalkthrough} title="Open Choreo Walkthrough">
                 <Codicon name="info" />
                 <IconLabel>Feature Walkthrough</IconLabel>
             </VSCodeButton>

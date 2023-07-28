@@ -150,6 +150,8 @@ export const FireRefreshComponentList: RequestType<void, void> = { method: 'fire
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };
 export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: 'restoreWebviewCache' };
 export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clearWebviewCache' };
+export const GoToSource: RequestType<string, void> = { method: 'goToSource' };
+export const IsBallerinaExtInstalled: RequestType<void, boolean> = { method: 'isBallerinaExtInstalled' };
 
 export interface OpenDialogOptions {
    title: string,

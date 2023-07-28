@@ -105,6 +105,10 @@ export interface Component {
     hasUnPushedLocalCommits?: boolean;
     hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
+    filePaths?: {
+        path: string;
+        label: string;
+    }[];
 }
 
 export interface StateReason {
@@ -235,7 +239,7 @@ export interface BuildStatus {
     sourceCommitId?: string;
 }
 
-export interface WeAppBuildConfig {
+export interface WebAppBuildConfig {
     id: string;
     containerId: string;
     componentId: string;
@@ -268,7 +272,7 @@ export interface Repository {
         oasFilePath: string;
         repositoryId: string;
     };
-    byocWebAppBuildConfig?: WeAppBuildConfig;
+    byocWebAppBuildConfig?: WebAppBuildConfig;
 }
 
 export interface Metadata {
