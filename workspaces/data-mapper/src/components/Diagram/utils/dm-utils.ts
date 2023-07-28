@@ -983,6 +983,16 @@ export function getTypeFromStore(position: NodePosition): Type {
 	return recordTypeDescriptors.getTypeDescriptor(position);
 }
 
+export function findTypeByNameFromStore(typeName: string): Type {
+	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
+	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
+		if (type?.name && type.name === typeName) {
+			return type;
+		}
+	}
+	return undefined;
+}
+
 export function getFnDefFromStore(position: LinePosition): FnDefInfo {
 	const functionDefinitionStore = FunctionDefinitionStore.getInstance();
 	return functionDefinitionStore.getFnDefinitions(position);
@@ -1291,7 +1301,6 @@ export function genVariableName(originalName: string, variables: string[]): stri
 	}
 	return modifiedName;
 }
-
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)

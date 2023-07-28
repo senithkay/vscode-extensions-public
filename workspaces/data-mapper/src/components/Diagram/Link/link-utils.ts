@@ -1,7 +1,13 @@
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { RecordFieldPortModel } from "../Port";
-import {genVariableName, getBalRecFieldName, getDefaultValue, getLinebreak} from "../utils/dm-utils";
+import {
+    findTypeByNameFromStore,
+    genVariableName,
+    getBalRecFieldName,
+    getDefaultValue,
+    getLinebreak
+} from "../utils/dm-utils";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
@@ -21,6 +27,9 @@ export function generateQueryExpression(srcExpr: string, targetType: Type, isOpt
     itemName = genVariableName(itemName, variableNames);
     let selectExpr = '';
 
+    if (!targetType?.typeName && targetType?.typeInfo) {
+        targetType = findTypeByNameFromStore(targetType.typeInfo.name) || targetType;
+    }
     if (targetType.typeName === PrimitiveBalType.Record) {
         const srcFields = targetType.fields;
         selectExpr = `{
