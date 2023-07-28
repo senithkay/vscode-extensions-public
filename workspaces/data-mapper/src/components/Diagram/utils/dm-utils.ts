@@ -846,6 +846,8 @@ export function getTypeName(field: Type): string {
 		return field.memberType.typeName === PrimitiveBalType.Union ? `(${typeName})[]` : `${typeName}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
 		return field.members?.map(item => getTypeName(item)).join('|');
+	} else if (field?.typeInfo) {
+		return field.typeInfo.name;
 	}
 	return field.typeName;
 }
