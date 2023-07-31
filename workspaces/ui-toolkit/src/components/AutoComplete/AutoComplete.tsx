@@ -11,8 +11,10 @@
  *  associated services.
  */
 import React, { useRef, useState } from 'react'
-import { Combobox } from '@headlessui/react'
+
 import { css, cx } from "@emotion/css";
+import { Combobox } from '@headlessui/react'
+
 import { Dropdown } from "./Dropdown";
 
 const ComboboxButtonContainerActive = cx(css`
@@ -97,9 +99,14 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
     const handleComboButtonClick = () => {
         setIsUpButton(!isUpButton);
     };
-    const handleQueryChange = (query: string) => {
-        setQuery(query);
+    const handleQueryChange = (q: string) => {
+        setQuery(q);
     };
+
+    const handleInputQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setQuery(event.target.value);
+    };
+    const displayItemValue = (item: string) => item;
 
     const filteredResults =
         query === ''
@@ -115,9 +122,9 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                     <div>
                         <Combobox.Input
                             ref={inputRef}
-                            displayValue={(item: string) => item}
-                            onChange={(event) => handleQueryChange(event.target.value)}
-                            className= {SearchableInput}
+                            displayValue={displayItemValue}
+                            onChange={handleInputQueryChange}
+                            className={SearchableInput}
                             onBlur={handleTextFieldOutFocused}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
@@ -129,7 +136,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                         >
                             {isUpButton ? (
                                 <i className={`codicon codicon-chevron-up ${DropdownIcon}`} onClick={handleComboButtonClick}/>
-                            ): (
+                            ) : (
                                 <i className={`codicon codicon-chevron-down ${DropdownIcon}`} onClick={handleComboButtonClick}/>
                             )}
 
