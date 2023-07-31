@@ -6,8 +6,10 @@ import {
     genVariableName,
     getBalRecFieldName,
     getDefaultValue,
-    getLinebreak
+    getLinebreak,
+    getTypeName
 } from "../utils/dm-utils";
+import { getSupportedUnionTypes } from "../utils/union-type-utils";
 
 import { DataMapperLinkModel } from "./model/DataMapperLink";
 
@@ -38,6 +40,12 @@ export function generateQueryExpression(srcExpr: string, targetType: Type, isOpt
                 `${getBalRecFieldName(field.name)}: ${(index !== srcFields.length - 1) ? `,${getLinebreak()}\t\t\t` : ''}`
             ).join("")}
         }`
+    } else if (targetType.typeName === PrimitiveBalType.Union) {
+        const firstTypeName = getSupportedUnionTypes(targetType)[0];
+        const firstType = targetType?.members && targetType.members.find(member => {
+            return getTypeName(member) === firstTypeName;
+        });
+        selectExpr = firstType && firstType?.typeName ? getDefaultValue(firstType.typeName) : "\"\"";
     } else {
         selectExpr = getDefaultValue(targetType?.typeName);
     }
