@@ -38,6 +38,7 @@ import {
     getFieldName,
     getInnermostExpressionBody,
     getLinebreak,
+    getShortenedTypeName,
     getTypeName,
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
@@ -369,7 +370,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             }
             const defaultValue = getDefaultValue(type);
             let targetPosition: NodePosition;
-            let newElementSource: string = `${getLinebreak()}${isUnionType ? `<${typeNameStr}>` : ''}${defaultValue}`;
+            let newElementSource: string =
+                `${getLinebreak()}${isUnionType ? `<${getShortenedTypeName(typeNameStr)}>` : ''}${defaultValue}`;
             if (fieldsAvailable) {
                 targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position as NodePosition;
                 newElementSource = `,${newElementSource}`

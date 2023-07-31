@@ -25,6 +25,7 @@ import { TypeDescriptor } from "../Node/commons/DataMapperNode";
 import {
 	getExprBodyFromLetExpression,
 	getInnermostMemberTypeFromArrayType,
+	getShortenedTypeName,
 	getTypeName
 } from "./dm-utils";
 
@@ -110,7 +111,7 @@ export function getUnsupportedTypesFromTypeDesc(typeDesc: STNode): string[] {
 	} else if (STKindChecker.isParenthesisedTypeDesc(typeDesc)) {
 		unsupportedTypes.push(...getUnsupportedTypesFromTypeDesc(typeDesc.typedesc));
 	} else if (isUnsupportedTypeDesc(typeDesc)) {
-		unsupportedTypes.push(typeDesc.source);
+		unsupportedTypes.push(getShortenedTypeName(typeDesc.source));
 	}
 	return unsupportedTypes;
 }

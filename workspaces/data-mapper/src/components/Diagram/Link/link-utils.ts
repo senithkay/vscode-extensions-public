@@ -2,7 +2,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 
 import { RecordFieldPortModel } from "../Port";
 import {
-    findTypeByNameFromStore,
+    findTypeByInfoFromStore,
     genVariableName,
     getBalRecFieldName,
     getDefaultValue,
@@ -28,7 +28,8 @@ export function generateQueryExpression(srcExpr: string, targetType: Type, isOpt
     let selectExpr = '';
 
     if (!targetType?.typeName && targetType?.typeInfo) {
-        targetType = findTypeByNameFromStore(targetType.typeInfo.name) || targetType;
+        // targetType = findTypeByNameFromStore(targetType.typeInfo.name) || targetType;
+        targetType = findTypeByInfoFromStore(targetType.typeInfo) || targetType;
     }
     if (targetType.typeName === PrimitiveBalType.Record) {
         const srcFields = targetType.fields;

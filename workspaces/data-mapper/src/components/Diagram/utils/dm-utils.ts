@@ -8,9 +8,9 @@
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
 import {
-	AnydataType,
 	keywords,
 	LinePosition,
+	NonPrimitiveBal,
 	PrimitiveBalType,
 	STModification,
 	STSymbolInfo,
@@ -836,23 +836,32 @@ export function getTypeName(field: Type): string {
 	if (!field) {
 		return '';
 	}
+	let typeName = '';
 	const importStatements = useDMStore.getState().imports;
 	if (field.typeName === PrimitiveBalType.Record) {
-		if (field?.typeInfo && importStatements.some(item => item.includes(`${field?.typeInfo?.orgName}/${field.typeInfo.moduleName}`))){
-			// If record is from an imported package
-			return `${field?.typeInfo?.moduleName}:${field.typeInfo.name}`;
+		typeName = 'record';
+		if (field?.typeInfo) {
+			const { orgName, moduleName, name } = field.typeInfo;
+			typeName = name;
+			const importStatement = importStatements.find(item => item.includes(`${orgName}/${moduleName}`));
+			if (importStatement) {
+				// If record is from an imported package
+				const importAlias = extractImportAlias(moduleName, importStatement);
+				typeName = `${importAlias || moduleName}:${name}`;
+			}
 		}
-
-		return field?.typeInfo?.name || 'record';
 	} else if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
-		const typeName = `${getTypeName(field.memberType)}`;
-		return field.memberType.typeName === PrimitiveBalType.Union ? `(${typeName})[]` : `${typeName}[]`;
+		typeName = `${getTypeName(field.memberType)}`;
+		typeName = field.memberType.typeName === PrimitiveBalType.Union ? `(${typeName})[]` : `${typeName}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
-		return field.members?.map(item => getTypeName(item)).join('|');
+		typeName = field.members?.map(item => getTypeName(item)).join('|');
 	} else if (field?.typeInfo) {
-		return field.typeInfo.name;
+		typeName =  field.typeInfo.name;
+	} else {
+		typeName = field.typeName;
 	}
-	return field.typeName;
+
+	return getShortenedTypeName(typeName);
 }
 
 export function getDefaultValue(typeName: string): string {
@@ -993,6 +1002,20 @@ export function findTypeByNameFromStore(typeName: string): Type {
 	return undefined;
 }
 
+export function findTypeByInfoFromStore(typeInfo: NonPrimitiveBal): Type {
+	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
+	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
+		if (type?.typeInfo
+			&& type.typeInfo.orgName === typeInfo.orgName
+			&& type.typeInfo.moduleName === typeInfo.moduleName
+			&& type.typeInfo.name === typeInfo.name
+			&& type.typeInfo.version === typeInfo.version) {
+				return type;
+		}
+	}
+	return undefined;
+}
+
 export function getFnDefFromStore(position: LinePosition): FnDefInfo {
 	const functionDefinitionStore = FunctionDefinitionStore.getInstance();
 	return functionDefinitionStore.getFnDefinitions(position);
@@ -1086,6 +1109,16 @@ export function isDefaultValue(field: Type, value: string): boolean {
 	}
 	const defaultValue = getDefaultValue(field?.typeName);
 	return defaultValue === value?.trim();
+}
+
+export function getShortenedTypeName(typeName: string): string {
+	return typeName.slice(typeName.lastIndexOf('.') + 1);
+}
+
+export function extractImportAlias(moduleName: string, importStatement: string): string {
+	const regex = new RegExp(`${moduleName}\\s+as\\s+(\\w+)`);
+	const matches = importStatement.match(regex);
+	return matches ? matches[1] : null;
 }
 
 function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
