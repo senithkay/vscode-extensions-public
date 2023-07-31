@@ -9,22 +9,25 @@
   "types": "lib/index.d.ts",
   "typings": "lib/index",
   "scripts": {
+    "prebuild": "pnpm run lint",
     "build": "tsc --pretty",
-    "storybook": "start-storybook"
+    "storybook": "start-storybook",
+    "lint": "tslint --project .",
+    "lint:fix": "tslint --fix --project ."
   },
   "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@emotion/css": "^11.10.5",
+    "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.5",
+    "@headlessui/react": "^1.7.15",
+    "@projectstorm/geometry": "^6.7.4",
     "@projectstorm/react-canvas-core": "^6.7.4",
     "@projectstorm/react-diagrams": "^6.7.4",
-    "@projectstorm/geometry": "^6.7.4",
     "@projectstorm/react-diagrams-core": "^6.7.4",
-    "@emotion/react": "^11.9.3",
+    "@vscode/webview-ui-toolkit": "^1.2.0",
     "classnames": "^2.2.6",
-    "@emotion/css": "^11.10.5",
-    "@headlessui/react": "^1.7.15"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "typescript": "^4.9.4",
@@ -37,7 +40,8 @@
     "@storybook/manager-webpack5": "^6.5.9",
     "@storybook/react": "^6.5.9",
     "@storybook/theming": "^6.5.9",
-    "glob": "^7.2.0"
+    "glob": "^7.2.0",
+    "tslint": "^6.1.3"
   },
   "author": "wso2",
   "license": "UNLICENSED",
