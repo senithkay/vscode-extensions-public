@@ -29,9 +29,10 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"env": {
-				"WEB_VIEW_DEV_MODE": "true",
-				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
-				"REQUEST_TRACE_ENABLED": "true"
+				// "WEB_VIEW_DEV_MODE": "true",
+				// "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+				"REQUEST_TRACE_ENABLED": "true",
+				"NODE_OPTIONS": "--experimental-vm-modules"
 			},
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
