@@ -54,7 +54,7 @@ export const ComponentDetails = (props: {
         <Container>
             {!component.repository && (
                 <ErrorBannerWrap>
-                    <ErrorBanner errorMsg="Component repository details are not found." />
+                    <ErrorBanner errorMsg="Git repository of the component is no longer accessible to Choreo." />
                 </ErrorBannerWrap>
             )}
             <VSCodeDataGrid aria-label="Components">

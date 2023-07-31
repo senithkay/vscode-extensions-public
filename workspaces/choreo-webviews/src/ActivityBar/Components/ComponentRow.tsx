@@ -109,7 +109,7 @@ export const ComponentRow = (props: {
                     </VSCodeButton>
                 )}
                 {!component.repository && !expanded && (
-                    <VSCodeButton appearance="icon" disabled title="Repository Unavailable" style={{ cursor: "default" }}>
+                    <VSCodeButton appearance="icon" disabled title="Repository not accessible" style={{ cursor: "default" }}>
                         <Codicon name="alert" />
                     </VSCodeButton>
                 )}
