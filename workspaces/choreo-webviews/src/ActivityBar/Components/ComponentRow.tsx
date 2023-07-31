@@ -108,6 +108,11 @@ export const ComponentRow = (props: {
                         <Codicon name="info" />
                     </VSCodeButton>
                 )}
+                {!component.repository && !expanded && (
+                    <VSCodeButton appearance="icon" disabled title="Repository Unavailable" style={{ cursor: "default" }}>
+                        <Codicon name="alert" />
+                    </VSCodeButton>
+                )}
                 <ComponentContextMenu
                     component={component}
                     deletingComponent={deletingComponent}
