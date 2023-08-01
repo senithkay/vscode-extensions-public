@@ -69,10 +69,15 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
     }
 }
 
-export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, repoUrl: string) {
+export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, repoUrl: string, specificFileName?: string) {
     try {
         const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
         const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
+        if (specificFileName) {
+            const repoFolderName = path.basename(new URL(repoUrl).pathname);
+            const filePath = path.join(selectedPath, findTheRepoFolderName(repoFolderName, selectedPath), specificFileName);
+            writeClonedFilePathToTemp(filePath);
+        }
         await commands.executeCommand('git.clone', repoUrl, selectedPath);
     } catch (error: any) {
         const errorMsg = `Repository clonning error: ${error.message}`;
@@ -153,4 +158,52 @@ async function openFileInVSCode(filePath: string): Promise<void> {
     } catch (error) {
         window.showErrorMessage(`Failed to open file: ${error}`);
     }
+}
+
+function writeClonedFilePathToTemp(selectedPath) {
+    const tempFilePath = path.join(os.tmpdir(), 'fileOpenPath.txt');
+    fs.writeFileSync(tempFilePath, selectedPath, 'utf-8');
+}
+
+// Function to open the stored cloned file path from the temporary file
+export async function readStoredClonedFilePathFromTemp() {
+    try {
+        const tempFilePath = path.join(os.tmpdir(), 'fileOpenPath.txt');
+        const pathValue = fs.readFileSync(tempFilePath, 'utf-8').trim();
+        if (pathValue) {
+            try {
+                // Open the specific file
+                const document = await workspace.openTextDocument(pathValue);
+                await window.showTextDocument(document);
+                writeClonedFilePathToTemp("");
+            } catch (error) {
+                window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
+            }
+        }
+    } catch (error) {
+        return null;
+    }
+}
+
+// Function to check if a folder with the given name exists
+function folderExists(folderPath) {
+    try {
+        const stats = fs.statSync(folderPath);
+        return stats.isDirectory();
+    } catch (error) {
+        return false;
+    }
+}
+
+// Function to find the next available folder name with the number
+function findTheRepoFolderName(baseFolderName, basePath) {
+    let folderName = baseFolderName;
+    let count = 1;
+
+    while (folderExists(path.join(basePath, folderName))) {
+        folderName = `${baseFolderName}-${count}`;
+        count++;
+    }
+
+    return folderName;
 }

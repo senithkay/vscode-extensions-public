@@ -10,9 +10,10 @@ import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult } from "vscode";
 import { BallerinaExtension } from "./core";
 import { getChoreoExtAPI } from "./choreo-features/activate";
-import { handleOpenFile, handleOpenRepo } from "./utils";
+import { handleOpenFile, handleOpenRepo, readStoredClonedFilePathFromTemp } from "./utils";
 
 export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
+    readStoredClonedFilePathFromTemp();
     window.registerUriHandler({
         handleUri(uri: Uri): ProviderResult<void> {
             const urlParams = new URLSearchParams(uri.query);
@@ -45,8 +46,9 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                     break;
                 case '/open-repo':
                     const repoUrl = urlParams.get('repoUrl');
+                    const openFile = urlParams.get('openFile');
                     if (repoUrl) {
-                        handleOpenRepo(ballerinaExtInstance, repoUrl);
+                        handleOpenRepo(ballerinaExtInstance, repoUrl, openFile);
                     } else {
                         window.showErrorMessage(`Repository url not found!`);
                     }
