@@ -38,10 +38,11 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                 case '/open-file':
                     const gistId = urlParams.get('gist');
                     const fileName = urlParams.get('file');
-                    if (gistId && fileName) {
-                        handleOpenFile(ballerinaExtInstance, gistId, fileName);
-                    } else {
-                        window.showErrorMessage(`Gist ID or the file name not found!`);
+                    const rawFile = urlParams.get('rawFile');
+                    if ((gistId && fileName) || rawFile) {
+                        handleOpenFile(ballerinaExtInstance, gistId, fileName, rawFile);
+                    }else {
+                        window.showErrorMessage(`Gist or the file not found!`);
                     }
                     break;
                 case '/open-repo':

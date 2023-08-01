@@ -18,11 +18,12 @@ interface ProgressMessage {
     increment?: number;
 }
 
-export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, fileName: string) {
+export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, rawFile?: string) {
 
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
     await updateDirectoryPath(selectedPath);
+    const fileName = file || path.basename(new URL(rawFile).pathname);
     const filePath = path.join(selectedPath, fileName);
     let isSuccess = false;
 
@@ -39,10 +40,12 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
 
         try {
             if (fileName.endsWith('.bal')) {
-                progress.report({ message: "Verifying the gist file." });
-                const response = await axios.get(`https://api.github.com/gists/${gist}`);
-                const gistDetails = response.data;
-                const rawFileLink = gistDetails.files[fileName].raw_url;
+                let rawFileLink = rawFile;
+                if (gist) {
+                    const response = await axios.get(`https://api.github.com/gists/${gist}`);
+                    const gistDetails = response.data;
+                    rawFileLink = gistDetails.files[fileName].raw_url;
+                }
                 await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
                 isSuccess = true;
                 return;
@@ -51,7 +54,7 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
                 return;
             }
         } catch (error) {
-            window.showErrorMessage(`The given gist file is not valid.`, error);
+            window.showErrorMessage(`The given file is not valid.`, error);
         }
     });
 
