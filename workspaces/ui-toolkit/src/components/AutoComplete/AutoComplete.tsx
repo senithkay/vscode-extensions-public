@@ -111,7 +111,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
     const filteredResults =
         query === ''
             ? items
-            : items.filter((item) =>
+            : items.filter(item =>
                 item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
             );
 

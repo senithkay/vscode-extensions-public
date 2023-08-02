@@ -47,7 +47,7 @@ const ComboboxOption: React.FC<any> = styled.div`
     user-select: none;
     color: var(--vscode-editor-foreground);
     background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
-            'var(--vscode-editor-background)')};
+        'var(--vscode-editor-background)')};
     list-style: none;
 `;
 

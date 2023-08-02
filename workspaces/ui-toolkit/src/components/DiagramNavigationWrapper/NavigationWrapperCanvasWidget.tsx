@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
+// eslint-disable-next-line react-hooks/exhaustive-deps
 import React, { useEffect } from "react";
 
 import { DiagramEngine, NodeModel } from "@projectstorm/react-diagrams";
@@ -25,10 +25,11 @@ export function NavigationWrapperCanvasWidget(props: NavigationWrapperCanvasProp
     useEffect(() => {
         if (focusedNode) {
             setTimeout(() => {
+                // eslint-disable-next-line no-use-before-define
                 focusToNode(focusedNode, diagramEngine.getModel().getZoomLevel(), diagramEngine);
             }, 300);
         }
-    }, [focusedNode]);
+    }, [diagramEngine, focusedNode]);
 
     return (
         <CustomCanvasWidget engine={diagramEngine} isNodeFocused={!!focusedNode} className={className} />
