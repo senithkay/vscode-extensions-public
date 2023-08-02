@@ -851,12 +851,18 @@ export function getTypeName(field: Type): string {
 			}
 		}
 	} else if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
-		typeName = `${getTypeName(field.memberType)}`;
+		typeName = getTypeName(field.memberType);
 		typeName = field.memberType.typeName === PrimitiveBalType.Union ? `(${typeName})[]` : `${typeName}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
 		typeName = field.members?.map(item => getTypeName(item)).join('|');
 	} else if (field?.typeInfo) {
-		typeName =  field.typeInfo.name;
+		typeName = field.typeInfo.name;
+		// const referredType = findTypeByInfoFromStore(field.typeInfo);
+		// typeName =  referredType
+		// 	? referredType.typeName === PrimitiveBalType.Union
+		// 		? `(${getTypeName(referredType)})`
+		// 		: getTypeName(referredType)
+		// 	: field.typeInfo.name;
 	} else {
 		typeName = field.typeName;
 	}
@@ -1004,15 +1010,17 @@ export function findTypeByNameFromStore(typeName: string): Type {
 
 export function findTypeByInfoFromStore(typeInfo: NonPrimitiveBal): Type {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
+
 	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
-		if (type?.typeInfo
-			&& type.typeInfo.orgName === typeInfo.orgName
-			&& type.typeInfo.moduleName === typeInfo.moduleName
-			&& type.typeInfo.name === typeInfo.name
-			&& type.typeInfo.version === typeInfo.version) {
-				return type;
+		if (isTypeMatch(type, typeInfo)) {
+			return type;
+		} else if (type.typeName === PrimitiveBalType.Array && type.memberType) {
+			if (isTypeMatch(type.memberType, typeInfo)) {
+				return type.memberType;
+			}
 		}
 	}
+
 	return undefined;
 }
 
@@ -1169,6 +1177,16 @@ async function createValueExprSource(lhs: string, rhs: string, fieldNames: strin
 	}
 
 	return `${rhs}: ${lhs}`;
+}
+
+function isTypeMatch(type: Type, typeInfo: NonPrimitiveBal): boolean {
+	return (
+		type.typeInfo &&
+		type.typeInfo.orgName === typeInfo.orgName &&
+		type.typeInfo.moduleName === typeInfo.moduleName &&
+		type.typeInfo.name === typeInfo.name &&
+		type.typeInfo.version === typeInfo.version
+	);
 }
 
 function updateValueExprSource(value: string, targetPosition: NodePosition,

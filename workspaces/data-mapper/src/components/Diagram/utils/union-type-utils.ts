@@ -23,6 +23,7 @@ import { useDMStore } from "../../../store/store";
 import { TypeDescriptor } from "../Node/commons/DataMapperNode";
 
 import {
+	findTypeByInfoFromStore,
 	getExprBodyFromLetExpression,
 	getInnermostMemberTypeFromArrayType,
 	getShortenedTypeName,
@@ -132,6 +133,9 @@ export function getUnsupportedTypesFromType(unionType: Type): string[] {
 }
 
 export function getSupportedUnionTypes(typeDef: Type, typeDesc?: STNode): string[] {
+	if (!typeDef.typeName && typeDef.typeInfo) {
+		typeDef = findTypeByInfoFromStore(typeDef.typeInfo) || typeDef;
+	}
 	const unsupportedTypes = typeDesc
 		? getUnsupportedTypesFromTypeDesc(typeDesc)
 		: getUnsupportedTypesFromType(typeDef);

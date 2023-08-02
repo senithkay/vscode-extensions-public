@@ -33,6 +33,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    findTypeByInfoFromStore,
     getDefaultValue,
     getExprBodyFromTypeCastExpression,
     getFieldName,
@@ -365,7 +366,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             const fieldsAvailable = !!listConstructor.expressions.length;
             let type = typeNameStr;
             if (isUnionType) {
-                const unionType = field.type.memberType;
+                let unionType = field.type.memberType;
+                if (!field.type.memberType.typeName && field.type.memberType.typeInfo) {
+                    unionType = findTypeByInfoFromStore(field.type.memberType.typeInfo);
+                }
                 type  = unionType.members.find(member => typeNameStr === getTypeName(member)).typeName;
             }
             const defaultValue = getDefaultValue(type);
@@ -430,7 +434,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         || field.type?.memberType?.originalTypeName === AnydataType
         || field.type?.originalTypeName === AnydataType;
 
-    const isUnionType = field.type?.memberType?.typeName === PrimitiveBalType.Union;
+    const isUnionType = useMemo(() => {
+        if (field.type?.memberType.typeName) {
+            return field.type?.memberType?.typeName === PrimitiveBalType.Union;
+        }
+        const referredType = findTypeByInfoFromStore(field.type?.memberType?.typeInfo);
+        return referredType && referredType.typeName === PrimitiveBalType.Union;
+    }, [field]);
 
     const onCloseElementSetAnchor = () => addElementSetAnchorEl(null);
 
