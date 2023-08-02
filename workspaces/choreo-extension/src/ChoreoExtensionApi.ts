@@ -85,7 +85,7 @@ export class ChoreoExtensionApi {
                 this._userInfo = userInfo;
             } else {
                 getLogger().debug("User info not found in global state");
-            }   
+            }
         }
         return this._userInfo;
     }
@@ -114,7 +114,7 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
-    public setChoreoInstallOrg(selectedOrgId: number ) {
+    public setChoreoInstallOrg(selectedOrgId: number) {
         this._choreoInstallationOrgId = selectedOrgId;
     }
 
@@ -152,7 +152,7 @@ export class ChoreoExtensionApi {
         }
         return undefined;
     }
-    
+
     public async waitForLogin(): Promise<boolean> {
         switch (this._status) {
             case STATUS_LOGGED_IN:
@@ -185,7 +185,7 @@ export class ChoreoExtensionApi {
         return false;
     }
 
-    public getChoreoProjectId(): string|undefined {
+    public getChoreoProjectId(): string | undefined {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile && this.isChoreoProject()) {
             const workspaceFilePath = workspaceFile.fsPath;
@@ -196,7 +196,7 @@ export class ChoreoExtensionApi {
         }
     }
 
-    public getOrgIdOfCurrentProject(): number|undefined {
+    public getOrgIdOfCurrentProject(): number | undefined {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile && this.isChoreoProject()) {
             const workspaceFilePath = workspaceFile.fsPath;
@@ -248,8 +248,14 @@ export class ChoreoExtensionApi {
         return Promise.resolve(undefined);
     }
 
-    public async getPerformanceForecastData(orgId: number, orgHandle: string, data: string): Promise<AxiosResponse> {
-        return ProjectRegistry.getInstance().getPerformanceForecast(orgId, orgHandle, data);
+    public async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
+        const orgId = ext.api.getOrgIdOfCurrentProject();
+
+        if (!orgId) {
+            throw Error("Current project is not a Choreo project");
+        }
+        const orgHandle = ext.api.getOrgById(orgId)?.handle;
+        return ProjectRegistry.getInstance().getPerformanceForecast(orgId!, orgHandle!, data);
     }
 
     public async getSwaggerExamples(orgId: number, orgHandle: string, spec: any): Promise<AxiosResponse> {
@@ -284,7 +290,7 @@ export class ChoreoExtensionApi {
                             for (const localModel of model.values()) {
                                 if (localModel.functionEntryPoint?.elementLocation?.filePath.includes(componentPath) &&
                                     (displayType === ChoreoComponentType.ScheduledTask.toString() || displayType === ChoreoComponentType.ManualTrigger.toString())) {
-                                        localModel.functionEntryPoint.type = displayType as any;
+                                    localModel.functionEntryPoint.type = displayType as any;
                                 }
                                 const response = enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
                                     componentPath, local, accessibility);
@@ -425,7 +431,7 @@ export class ChoreoExtensionApi {
             if (!organization) {
                 throw new Error(`Organization with id ${orgId} not found under user ${this.userInfo?.displayName}`);
             }
-            const {  handle, id, uuid } = organization;
+            const { handle, id, uuid } = organization;
             const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, id, handle, uuid);
             const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
             const toDelete = components.find(component =>
