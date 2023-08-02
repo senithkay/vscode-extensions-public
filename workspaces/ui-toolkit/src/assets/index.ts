@@ -7,5 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export {};
-// TODO: Add asset exports here by removing the above export {} statement
+// Add icons here
+export { CellViewIcon } from './icons/CellViewIcon';
+
+// Add images here
