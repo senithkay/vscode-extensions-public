@@ -83,7 +83,7 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
         }
         await commands.executeCommand('git.clone', repoUrl, selectedPath);
     } catch (error: any) {
-        const errorMsg = `Repository clonning error: ${error.message}`;
+        const errorMsg = `Repository cloning error: ${error.message}`;
         await window.showErrorMessage(errorMsg);
     }
 }
