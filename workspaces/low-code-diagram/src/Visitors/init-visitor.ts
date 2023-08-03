@@ -257,7 +257,6 @@ export class InitVisitor implements Visitor {
         if (isSTActionInvocation(node) && node.expression) {
             if (STKindChecker.isCheckAction(node.expression) && STKindChecker.isRemoteMethodCallAction(node.expression.expression)) {
                 this.setActionInvocationInfo(node, node.expression.expression);
-                node.viewState.isAction = true;
             } else if (STKindChecker.isRemoteMethodCallAction(node.expression)) {
                 this.setActionInvocationInfo(node, node.expression);
             } else {
@@ -445,7 +444,7 @@ export class InitVisitor implements Visitor {
             stmtViewState.action = node.expression.viewState.action;
         }
         // service level endpoint initialize with assignment statement
-        if (STKindChecker.isCheckExpression(node.expression) && node.expression.typeData.isEndpoint 
+        if (STKindChecker.isCheckExpression(node.expression) && node.expression.typeData.isEndpoint
             && STKindChecker.isFieldAccess(node.varRef) && STKindChecker.isSimpleNameReference(node.varRef.fieldName)) {
             const stmtViewState: StatementViewState = node.viewState;
             stmtViewState.isEndpoint = true;
