@@ -257,6 +257,7 @@ export class InitVisitor implements Visitor {
         if (isSTActionInvocation(node) && node.expression) {
             if (STKindChecker.isCheckAction(node.expression) && STKindChecker.isRemoteMethodCallAction(node.expression.expression)) {
                 this.setActionInvocationInfo(node, node.expression.expression);
+                node.viewState.isAction = true;
             } else if (STKindChecker.isRemoteMethodCallAction(node.expression)) {
                 this.setActionInvocationInfo(node, node.expression);
             } else {
@@ -438,11 +439,17 @@ export class InitVisitor implements Visitor {
     }
 
     public endVisitAssignmentStatement(node: AssignmentStatement, parent?: STNode) {
-        // this.initStatement(node, parent);
         if (node.expression && isSTActionInvocation(node)) {
             const stmtViewState: StatementViewState = node.viewState;
             stmtViewState.isAction = true;
             stmtViewState.action = node.expression.viewState.action;
+        }
+        // service level endpoint initialize with assignment statement
+        if (STKindChecker.isCheckExpression(node.expression) && node.expression.typeData.isEndpoint 
+            && STKindChecker.isFieldAccess(node.varRef) && STKindChecker.isSimpleNameReference(node.varRef.fieldName)) {
+            const stmtViewState: StatementViewState = node.viewState;
+            stmtViewState.isEndpoint = true;
+            stmtViewState.endpoint.epName = node.varRef.fieldName.name.value;
         }
     }
 
@@ -582,14 +589,19 @@ export class InitVisitor implements Visitor {
 
     private setActionInvocationInfo(node: ActionStatement, remoteCall: RemoteMethodCallAction) {
         const stmtViewState: StatementViewState = node.viewState as StatementViewState;
-        const simpleName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
-        stmtViewState.action.endpointName = simpleName?.name?.value ? simpleName.name.value : simpleName.source;
+        let endpointName = "";
+        if (STKindChecker.isFieldAccess(remoteCall.expression) && STKindChecker.isSimpleNameReference(remoteCall.expression.fieldName)) {
+            endpointName = remoteCall.expression.fieldName.name.value;
+        } else if (STKindChecker.isSimpleNameReference(remoteCall.expression)) {
+            endpointName = remoteCall.expression.name?.value;
+        }
+        stmtViewState.action.endpointName = endpointName || remoteCall.expression.source;
         const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
         stmtViewState.action.actionName = actionName.name.value;
 
         if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
             const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
-            stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
+            stmtViewState.isCallerAction = callerParam && callerParam.name === endpointName;
         }
     }
 
