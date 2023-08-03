@@ -178,10 +178,10 @@ export async function readStoredClonedFilePathFromTemp() {
                 // Open the specific file
                 const document = await workspace.openTextDocument(pathValue);
                 await window.showTextDocument(document);
-                writeClonedFilePathToTemp("");
             } catch (error) {
                 window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
             }
+            writeClonedFilePathToTemp("");
         }
     } catch (error) {
         return null;
