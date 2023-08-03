@@ -23,6 +23,14 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
     await updateDirectoryPath(selectedPath);
+    let domainCheck = true;
+    // Domain verification for raw file download
+    if (rawFile) {
+        const gitDomain = "raw.githubusercontent.com";
+        const url = new URL(rawFile);
+        const mainDomain = url.hostname;
+        domainCheck = mainDomain === gitDomain;
+    }
     const fileName = file || path.basename(new URL(rawFile).pathname);
     const filePath = path.join(selectedPath, fileName);
     let isSuccess = false;
@@ -39,7 +47,7 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
         });
 
         try {
-            if (fileName.endsWith('.bal')) {
+            if (fileName.endsWith('.bal') && domainCheck) {
                 let rawFileLink = rawFile;
                 if (gist) {
                     const response = await axios.get(`https://api.github.com/gists/${gist}`);
