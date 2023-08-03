@@ -11,8 +11,9 @@
  *  associated services.
  */
 import React from "react";
-import classNames from "classnames";
+
 import styled from "@emotion/styled";
+import classNames from "classnames";
 
 export interface ComponentCardColors {
     foreground?: string;
@@ -30,7 +31,7 @@ const ComponentContainer = styled.div`
   height: 50px;
   cursor: pointer;
   border-radius: 5px;
-  border: 1px solid ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};   
+  border: 1px solid ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
   display: flex;
   align-items: center;
   padding: 10px;
@@ -40,7 +41,7 @@ const ComponentContainer = styled.div`
   margin-bottom: 16px;
   transition: 0.3s;
   color: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
-  
+
   .icon svg g {
     fill: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};;
   }
