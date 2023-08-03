@@ -857,12 +857,6 @@ export function getTypeName(field: Type): string {
 		typeName = field.members?.map(item => getTypeName(item)).join('|');
 	} else if (field?.typeInfo) {
 		typeName = field.typeInfo.name;
-		// const referredType = findTypeByInfoFromStore(field.typeInfo);
-		// typeName =  referredType
-		// 	? referredType.typeName === PrimitiveBalType.Union
-		// 		? `(${getTypeName(referredType)})`
-		// 		: getTypeName(referredType)
-		// 	: field.typeInfo.name;
 	} else {
 		typeName = field.typeName;
 	}
@@ -1120,7 +1114,7 @@ export function isDefaultValue(field: Type, value: string): boolean {
 }
 
 export function getShortenedTypeName(typeName: string): string {
-	return typeName.slice(typeName.lastIndexOf('.') + 1);
+	return typeName && typeName.slice(typeName.lastIndexOf('.') + 1);
 }
 
 export function extractImportAlias(moduleName: string, importStatement: string): string {
