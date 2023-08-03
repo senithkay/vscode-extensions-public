@@ -44,7 +44,7 @@ function activateRunCmdCommand() {
             } else {
                 const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
                 if (document) {
-                    currentProject = await getCurrentBallerinaProject(document.toString());
+                    currentProject = await getCurrentBallerinaProject(document.fsPath);
                 } else {
                     for (let editor of window.visibleTextEditors) {
                         if (editor.document.languageId === LANGUAGE.BALLERINA) {
