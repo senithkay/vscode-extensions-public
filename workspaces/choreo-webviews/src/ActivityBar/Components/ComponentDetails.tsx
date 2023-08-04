@@ -18,8 +18,8 @@ import { useComponentDeploymentStatus } from "../../hooks/use-component-deployme
 import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../../Commons/ErrorBanner";
+import { DataGrid } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
   display: flex;
@@ -28,11 +28,6 @@ const Container = styled.div`
   justify-content: space-around;
   align-items: flex-start;
   gap: 10px;
-`;
-
-const GridTitleCell = styled(VSCodeDataGridCell)`
-    opacity: 0.7;
-    padding-left: 22px;
 `;
 
 const ErrorBannerWrap = styled.div`
@@ -57,54 +52,46 @@ export const ComponentDetails = (props: {
                     <ErrorBanner errorMsg="Git repository of the component is no longer accessible to Choreo." />
                 </ErrorBannerWrap>
             )}
-            <VSCodeDataGrid aria-label="Components">
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Version
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        {component.version}
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Build
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        <BuildStatusText
-                            buildStatus={buildData}
-                            handler={props.component.handler}
-                            loading={isLoadingBuild}
-                            localComponent={props.component.local}
-                        />
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Deployment
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        <DeploymentStatusText
-                            deployment={devDeploymentData}
-                            handler={props.component.handler}
-                            loading={isLoadingDeployment}
-                            localComponent={props.component.local}
-                        />
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Action
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        <ComponentDetailActions
-                            component={component}
-                            handleSourceControlClick={handleSourceControlClick}
-                            loading={loading}
-                        />
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-            </VSCodeDataGrid>
+            <DataGrid
+                data={[
+                    [
+                        { gridColumn: '1', isHeader: true, content: 'Version' },
+                        { gridColumn: '2', content: component.version },
+                    ],
+                    [
+                        { gridColumn: '1', isHeader: true, content: 'Build' },
+                        { gridColumn: '2', content:
+                                <BuildStatusText
+                                    buildStatus={buildData}
+                                    handler={props.component.handler}
+                                    loading={isLoadingBuild}
+                                    localComponent={props.component.local}
+                                />
+                        },
+                    ],
+                    [
+                        { gridColumn: '1', isHeader: true, content: 'Deployment' },
+                        { gridColumn: '2', content:
+                                <DeploymentStatusText
+                                    deployment={devDeploymentData}
+                                    handler={props.component.handler}
+                                    loading={isLoadingDeployment}
+                                    localComponent={props.component.local}
+                                />
+                        },
+                    ],
+                    [
+                        { gridColumn: '1', isHeader: true, content: 'Action' },
+                        { gridColumn: '2', content:
+                                <ComponentDetailActions
+                                    component={component}
+                                    handleSourceControlClick={handleSourceControlClick}
+                                    loading={loading}
+                                />
+                        },
+                    ],
+                ]}
+            />
         </Container>
     );
 };
