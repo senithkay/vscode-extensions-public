@@ -24,6 +24,7 @@ export enum PALETTE_COMMANDS {
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord',
+    PASTE_XML_AS_RECORD = 'ballerina.pasteXMLAsRecord',
     CHOREO_SIGNIN = 'ballerina.choreo.signin',
     CHOREO_ANON_SIGNIN = 'ballerina.choreo.anonymous.signin',
     CHOREO_SIGNOUT = 'ballerina.choreo.signout',
