@@ -293,7 +293,7 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         <>
             {loginStatus === "LoggedIn" ?
                 <Wizard
-                    title={mode === 'fromScratch' ? "Create component from scratch" : "Create component from existing source"}
+                    title={mode === 'fromScratch' ? "Create a new component" : "Bring in an existing component"}
                     steps={steps}
                     state={state}
                     setState={setState}

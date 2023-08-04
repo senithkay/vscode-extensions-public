@@ -69,12 +69,12 @@ export class CustomTransformLayerWidget extends React.Component<React.PropsWithC
                 return {
                     transform: this.getTransform()
                 };
-            } else {
-                return {
-                    transform: this.getTransform(),
-                    transition: 'transform 0.5s ease-in-out'
-                };
             }
+            return {
+                transform: this.getTransform(),
+                transition: 'transform 0.5s ease-in-out'
+            };
+
         }
         return {};
     }

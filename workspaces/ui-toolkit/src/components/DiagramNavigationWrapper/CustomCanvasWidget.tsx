@@ -57,7 +57,7 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
 
     registerCanvas() {
         this.props.engine.setCanvas(this.ref.current);
-        this.props.engine.iterateListeners((list) => {
+        this.props.engine.iterateListeners(list => {
             list.rendered && list.rendered();
         });
     }
@@ -93,29 +93,29 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
             <S.Canvas
                 className={this.props.className}
                 ref={this.ref}
-                onWheel={(event) => {
+                onWheel={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
-                onMouseDown={(event) => {
+                onMouseDown={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
-                onMouseUp={(event) => {
+                onMouseUp={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
-                onMouseMove={(event) => {
+                onMouseMove={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
-                onTouchStart={(event) => {
+                onTouchStart={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
-                onTouchEnd={(event) => {
+                onTouchEnd={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
-                onTouchMove={(event) => {
+                onTouchMove={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });
                 }}
             >
-                {model.getLayers().map((layer) => {
+                {model.getLayers().map(layer => {
                     return (
                         <CustomTransformLayerWidget
                             layer={layer}
