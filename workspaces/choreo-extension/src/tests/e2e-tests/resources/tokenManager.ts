@@ -15,7 +15,7 @@ export class TokenManager {
         return TokenManager.instance;
     }
 
-    public setApimTokenResponse(value: AccessToken): void {
+    public setAsgardioTokenResponse(value: AccessToken): void {
         this.apimTokenResponse = value;
     }
 

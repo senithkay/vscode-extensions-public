@@ -22,7 +22,7 @@ export const openProjectCmdId = 'wso2.choreo.project.open';
 export const openProjectInConsoleCmdId = 'wso2.choreo.project.open.external';
 export const createNewComponentCmdId = 'wso2.choreo.component.create';
 export const choreoArchitectureViewCmdId = 'wso2.choreo.architecture.view';
-export const choreoSignInWithApimTokenCmdId = 'wso2.choreo.sign.in.with.apim.token';
+export const choreoSignInWithAuthCodeCmdId = 'wso2.choreo.sign.in.with.authCode';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 export const openWalkthroughCmdId = 'wso2.choreo.getStarted';
 

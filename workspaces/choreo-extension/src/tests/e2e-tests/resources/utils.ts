@@ -1,6 +1,6 @@
-import { STAGE_CHANGES_COMMAND, COMMIT_STAGED_COMMAND, GIT_PUSH_COMMAND, SIGN_IN_WITH_APIM_TOKEN, SIGN_OUT_COMMAND } from "./constants";
+import { STAGE_CHANGES_COMMAND, COMMIT_STAGED_COMMAND, GIT_PUSH_COMMAND, SIGN_IN_WITH_AUTH_CODE, SIGN_OUT_COMMAND } from "./constants";
 import { expect } from "chai";
-import { By, EditorView, VSBrowser, Workbench, InputBox, TextEditor, } from 'vscode-extension-tester';
+import { By, EditorView, VSBrowser, InputBox, TextEditor, Workbench, } from 'vscode-extension-tester';
 import { chromium } from "playwright";
 import { ChoreoAuthClient, ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { TokenManager } from "./tokenManager";
@@ -15,8 +15,8 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
     const tokenManager = TokenManager.getInstance();
 
     if (!tokenManager.getApimTokenResponse() || !tokenManager.getVscodeTokenResponse()) {
-        await workbench.executeCommand(SIGN_OUT_COMMAND);
-        await wait(5000);
+        // await workbench.executeCommand(SIGN_OUT_COMMAND);
+        await wait(500000);
 
         const client = new ChoreoAuthClient({
             apimClientId: process.env.APIM_CLIENT_ID!,
@@ -39,7 +39,7 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
             const page = await browser.newPage();
             await page.goto(authUrlWithTestIdp);
             await page.waitForSelector('button[type="submit"]');
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('networkidle', { timeout: 60*1000 });
 
             await page.type('#usernameUserInput', process.env.TEST_IDP_USERNAME!);
             await page.type('#password', process.env.TEST_IDP_PASSWORD!);
@@ -55,21 +55,21 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
             expect(code).not.null;
 
             if (code) {
-                const apimToken = await client.exchangeAuthCode(code);
-                tokenManager.setApimTokenResponse(apimToken);
-
-                const vscodeToken = await client.exchangeVSCodeToken(apimToken.accessToken, process.env.TEST_USER_ORG_HANDLE!);
-                tokenManager.setVscodeTokenResponse(vscodeToken);
-
-                await workbench.executeCommand(SIGN_IN_WITH_APIM_TOKEN);
+                await workbench.executeCommand(SIGN_IN_WITH_AUTH_CODE);
                 await wait(1000);
                 const inputBox = new InputBox();
-                await inputBox.setText(JSON.stringify(apimToken));
+                await inputBox.setText(code);
                 await inputBox.confirm();
             }
         }
     }
 };
+
+// change user profile to TestUser
+export const changeUserProfile = async (workbench: Workbench) => {
+    await workbench.executeCommand("");
+    
+}
 
 export const commitAndPushChanges = async (workbench: Workbench, editor: EditorView, commitMsg: string): Promise<void> => {
     await wait(5000);

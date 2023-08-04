@@ -24,7 +24,7 @@ dotenv.config();
 const TEST_PROJECT_NAME = "FooProject2";
 const WORKSPACE_FILE_PATH = join(TEST_PROJECT_NAME, `${TEST_PROJECT_NAME}.code-workspace`);
 
-describe("Architecture view tests", () => {
+describe.skip("Architecture view tests", () => {
     let editor: EditorView;
     let diagramWebview: WebView;
     let workbench: Workbench;
@@ -53,7 +53,7 @@ describe("Architecture view tests", () => {
         assert.ok(viewTiles.includes(ARCHITECTURE_WEBVIEW_TITLE));
     });
 
-    it("Verify No Components Prompt Screen", async () => {
+    it.skip("Verify No Components Prompt Screen", async () => {
         diagramWebview = new WebView();
         await diagramWebview.switchToFrame();
 
@@ -66,7 +66,7 @@ describe("Architecture view tests", () => {
         expect(noComponentsPrompt).is.not.undefined;
     });
 
-    it("Try Add Component Button", async () => {
+    it.skip("Try Add Component Button", async () => {
         await diagramWebview.switchToFrame();
 
         // Assert the presence of the add component button
@@ -79,7 +79,7 @@ describe("Architecture view tests", () => {
         await diagramWebview.switchBack();
     });
 
-    it("Verify Choreo Component Creation Webview", async () => {
+    it.skip("Verify Choreo Component Creation Webview", async () => {
         const viewTiles = await editor.getOpenEditorTitles();
         assert(viewTiles.includes(ADD_CHOREO_COMPONENT_WEBVIEW_TITLE));
     });

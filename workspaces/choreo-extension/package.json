@@ -85,8 +85,8 @@
         "category": "Choreo"
       },
       {
-        "command": "wso2.choreo.sign.in.with.apim.token",
-        "title": "Sign In with APIM token response",
+        "command": "wso2.choreo.sign.in.with.authCode",
+        "title": "Sign In with Auth Code",
         "category": "Choreo"
       },
       {

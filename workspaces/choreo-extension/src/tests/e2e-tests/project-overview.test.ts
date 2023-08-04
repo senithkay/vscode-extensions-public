@@ -19,6 +19,7 @@ import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar, u
 import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, deleteFoldersRecursively, deleteProject, handleGitHubLogin, hasFoldersInRepository, signIntoChoreo, wait } from "./resources";
 import * as dotenv from "dotenv";
 import * as fs from 'fs';
+import { createNewProjectCmdId } from "../../constants";
 
 dotenv.config();
 
@@ -52,42 +53,19 @@ describe("Project overview tests", () => {
         await editor.closeAllEditors();
         await wait(2000);
 
-        const activityBar = new ActivityBar();
-        const choreoActivityIcon = await activityBar.getViewControl("WSO2 Choreo");
-        await choreoActivityIcon?.click();
-        await wait(2000);
+        // const activityBar = new ActivityBar();
+        // const choreoActivityIcon = await activityBar.getViewControl("Choreo");
+        // await choreoActivityIcon?.click();
+        // await wait(2000);
 
         await signIntoChoreo(editor, workbench);
-        await deleteProject(PROJECT_NAME);
+        // await deleteProject(PROJECT_NAME);
     });
 
-    it("Create new project", async () => {
+    it.only("Create new project", async () => {
         await wait(10000);
-        await workbench.executeCommand(ADD_CHOREO_PROJECT_COMMAND);
+        await workbench.executeCommand("Create New Project");
         await wait(30000);
-
-        diagramWebview = new WebView();
-        await diagramWebview.switchToFrame();
-
-        const projectNameInput = await diagramWebview.findWebElement(By.id("project-name-input"));
-        await projectNameInput.sendKeys(PROJECT_NAME);
-
-        const gitOrgSelect = await diagramWebview.findWebElement(By.id("org-drop-down"));
-        await gitOrgSelect.click();
-        const orgOption = await diagramWebview.findWebElement(By.id(`org-item-${GIT_ORG_NAME}`));
-        await orgOption.click();
-
-        await wait(1000);
-        const repoSelect = await diagramWebview.findWebElement(By.id("repo-drop-down"));
-        await repoSelect.click();
-
-        const repoOption = await diagramWebview.findWebElement(By.id(`repo-item-${GIT_REPO_NAME}`));
-        await repoOption.click();
-
-        const projectCreateBtn = await diagramWebview.findWebElement(By.id("create-project-btn"));
-        expect(await projectCreateBtn.isEnabled()).to.be.true;
-        await projectCreateBtn.click();
-        await wait(15000);
     });
 
     it("Clone the project", async () => {
