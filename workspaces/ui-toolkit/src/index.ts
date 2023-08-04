@@ -9,3 +9,4 @@
 export * from './components/ComponentCard/ComponentCard';
 export * from './components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget';
 export * from './components/AutoComplete/AutoComplete';
+export * from './components/DataGrid/DataGrid';
