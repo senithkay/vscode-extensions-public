@@ -15,8 +15,8 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
     const tokenManager = TokenManager.getInstance();
 
     if (!tokenManager.getApimTokenResponse() || !tokenManager.getVscodeTokenResponse()) {
-        // await workbench.executeCommand(SIGN_OUT_COMMAND);
-        await wait(500000);
+        await workbench.executeCommand(SIGN_OUT_COMMAND);
+        await wait(5000);
 
         const client = new ChoreoAuthClient({
             apimClientId: process.env.APIM_CLIENT_ID!,
