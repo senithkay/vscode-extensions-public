@@ -56,9 +56,7 @@ export function DataGrid(props: GridProps) {
                                 <GridTitleCell>{cell.content}</GridTitleCell>
                             ) : (
                                 <GridCell>
-                                    <>
-                                        {cell.content}
-                                    </>
+                                    {cell.content}
                                 </GridCell>
                             )}
                         </GridCellWrapper>

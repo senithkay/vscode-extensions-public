@@ -12,8 +12,8 @@
  */
 /* tslint:disable:variable-name */
 import React from 'react';
-
-import { DataGrid } from './DataGrid';
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { DataGrid } from "./DataGrid";
 
 export default {
     title: 'DataGrid',
@@ -31,7 +31,11 @@ export const Data_Grid_Comp = () =>
                     ],
                     [
                         { gridColumn: '1', isHeader: true, content: 'Header2' },
-                        { gridColumn: '2', content: (<div style={{display: "flex", flexDirection: "column"}}><>WSO2</><>Colombo</></div>) },
+                        { gridColumn: '2', content: (
+                            <VSCodeLink onClick={null} style={{ color: `blue` }}>
+                                Link
+                            </VSCodeLink>
+                        ) },
                     ]
                 ]}
             />
