@@ -19,7 +19,7 @@ interface CellData {
     content: ReactNode | string;
 }
 
-export interface DynamicTableProps {
+export interface GridProps {
     data: CellData[][];
 }
 
@@ -44,7 +44,8 @@ const GridCellWrapper = styled(VSCodeDataGridCell)`
   text-overflow: ellipsis;
 `;
 
-export const DataGrid: React.FC<DynamicTableProps> = ({ data }) => {
+export function DataGrid(props: GridProps) {
+    const { data } = props;
     return (
         <VSCodeDataGrid aria-label="Components">
             {data.map((row, rowIndex) => (
@@ -66,4 +67,4 @@ export const DataGrid: React.FC<DynamicTableProps> = ({ data }) => {
             ))}
         </VSCodeDataGrid>
     );
-};
+}
