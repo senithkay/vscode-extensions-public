@@ -11,7 +11,7 @@ import { WebView, VSBrowser, By, EditorView } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { wait, getDiagramExplorer, waitForWebview } from './util';
+import { wait, waitForWebview } from './util';
 import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
 import { Service } from './utils/Service';
 

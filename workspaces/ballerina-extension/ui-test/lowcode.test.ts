@@ -12,7 +12,7 @@ import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, VSBrowser, WebView } from 'vscode-extension-tester';
 import { DIAGRAM_LOADING_TIME } from './constants';
-import { getDiagramExplorer, wait } from './util';
+import { wait } from './util';
 
 describe('VSCode Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');

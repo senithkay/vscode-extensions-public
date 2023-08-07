@@ -30,21 +30,6 @@ export function waitForWebview(name: string) {
     return waitUntil(By.xpath("//div[@title='" + name + "']"));
 }
 
-export async function getDiagramExplorer() {
-    const activityBar = new ActivityBar();
-    // test side bar low code activity
-    const lowCodeActivity = await activityBar.getViewControl('Ballerina Low-Code');
-    expect(lowCodeActivity).is.not.undefined;
-    lowCodeActivity!.openView();
-    const sideBar = new SideBarView();
-    // test tree views
-    expect(await sideBar.getTitlePart().getTitle()).is.equal("BALLERINA LOW-CODE: DIAGRAM EXPLORER");
-    const diagramExplorer = await sideBar.getContent().getSection('Diagram Explorer') as CustomTreeSection;
-    expect(diagramExplorer).is.not.undefined;
-    await wait(5000);
-    return diagramExplorer;
-}
-
 export function areVariablesIncludedInString(variables, str) {
     for (const variable of variables) {
         if (!str.includes(variable)) {
