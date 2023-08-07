@@ -18,18 +18,29 @@ interface ProgressMessage {
     increment?: number;
 }
 
+const usernamesArray = ['ballerina-platform', 'ballerinax', 'wso2'];
+const gitDomain = "raw.githubusercontent.com";
+const gistOwner = "ballerina-github-bot";
+
 export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, rawFile?: string) {
 
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
     await updateDirectoryPath(selectedPath);
     let domainCheck = true;
+    let validGist = false;
+    let validRepo = false;
     // Domain verification for raw file download
     if (rawFile) {
-        const gitDomain = "raw.githubusercontent.com";
         const url = new URL(rawFile);
         const mainDomain = url.hostname;
         domainCheck = mainDomain === gitDomain;
+        if (domainCheck) {
+            const username = getGithubUsername(rawFile);
+            if (usernamesArray.includes(username)) {
+                validRepo = true;
+            }
+        }
     }
     const fileName = file || path.basename(new URL(rawFile).pathname);
     const filePath = path.join(selectedPath, fileName);
@@ -53,10 +64,26 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
                     const response = await axios.get(`https://api.github.com/gists/${gist}`);
                     const gistDetails = response.data;
                     rawFileLink = gistDetails.files[fileName].raw_url;
+                    const responseOwner = gistDetails.owner.login;
+                    validGist = gistOwner === responseOwner;
                 }
-                await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
-                isSuccess = true;
-                return;
+                const message = `The sample file cannot be verified. Source: ${rawFileLink}`;
+                const downloadAnyway = { title: "Download anyway" };
+                if (!validGist && !validRepo) {
+                    const result = await window.showInformationMessage(message, { detail: "", modal: true }, downloadAnyway);
+                    if (result === downloadAnyway) {
+                        await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                        isSuccess = true;
+                        return;
+                    } else {
+                        window.showErrorMessage(`File download canceled.`);
+                        return;
+                    }
+                } else {
+                    await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                    isSuccess = true;
+                    return;
+                }
             } else {
                 window.showErrorMessage(`Gist or the file is not valid.`);
                 return;
@@ -84,12 +111,28 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
     try {
         const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
         const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
-        if (specificFileName) {
-            const repoFolderName = path.basename(new URL(repoUrl).pathname);
-            const filePath = path.join(selectedPath, findTheRepoFolderName(repoFolderName, selectedPath), specificFileName);
-            writeClonedFilePathToTemp(filePath);
+        const username = getGithubUsername(repoUrl);
+        let validRepo = true;
+        if (!usernamesArray.includes(username)) {
+            const message = `The sample repository cannot be verified. Source: ${repoUrl}`;
+            const cloneAnyway = { title: "Clone anyway" };
+            const result = await window.showInformationMessage(message, { detail: "", modal: true }, cloneAnyway);
+            if (result === cloneAnyway) {
+                validRepo = true;
+            } else {
+                validRepo = false;
+                window.showErrorMessage(`Repository clone canceled.`);
+                return;
+            }
         }
-        await commands.executeCommand('git.clone', repoUrl, selectedPath);
+        if (validRepo) {
+            if (specificFileName) {
+                const repoFolderName = path.basename(new URL(repoUrl).pathname);
+                const filePath = path.join(selectedPath, findTheRepoFolderName(repoFolderName, selectedPath), specificFileName);
+                writeClonedFilePathToTemp(filePath);
+            }
+            await commands.executeCommand('git.clone', repoUrl, selectedPath);
+        }
     } catch (error: any) {
         const errorMsg = `Repository cloning error: ${error.message}`;
         await window.showErrorMessage(errorMsg);
@@ -218,3 +261,11 @@ function findTheRepoFolderName(baseFolderName, basePath) {
 
     return folderName;
 }
+
+// Function to extract the organization/username
+function getGithubUsername(url) {
+    const urlParts = url.split('/');
+    const username = urlParts[3];
+    return username;
+}
+
