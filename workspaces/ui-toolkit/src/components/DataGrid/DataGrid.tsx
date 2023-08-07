@@ -24,25 +24,25 @@ export interface GridProps {
 }
 
 const GridTitleCell = styled(VSCodeDataGridCell)`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  opacity: 0.7;
-  color: var(--foreground); // Override the default color to match the theme
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    opacity: 0.7;
+    color: var(--foreground); // Override the default color to match the theme
 `;
 
 const GridCell = styled(VSCodeDataGridCell)`
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--foreground); // Override the default color to match the theme
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--foreground); // Override the default color to match the theme
 `;
 
 const GridCellWrapper = styled(VSCodeDataGridCell)`
-  padding-left: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+    padding-left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `;
 
 export function DataGrid(props: GridProps) {
