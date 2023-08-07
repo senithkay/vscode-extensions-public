@@ -34,12 +34,12 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
 
         if (authUrl) {
             const authUrlWithTestIdp = `${authUrl}&fidp=choreoe2etest`;
-
+            const timeout = 60 * 1000;
             const browser = await chromium.launch({ headless: process.env.CI ? true : false });
             const page = await browser.newPage();
-            await page.goto(authUrlWithTestIdp);
+            await page.goto(authUrlWithTestIdp, { timeout });
             await page.waitForSelector('button[type="submit"]');
-            await page.waitForLoadState('networkidle', { timeout: 60*1000 });
+            await page.waitForLoadState('networkidle', { timeout });
 
             await page.type('#usernameUserInput', process.env.TEST_IDP_USERNAME!);
             await page.type('#password', process.env.TEST_IDP_PASSWORD!);
