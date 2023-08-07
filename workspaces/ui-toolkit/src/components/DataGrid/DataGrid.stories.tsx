@@ -22,22 +22,42 @@ export default {
 
 export const Data_Grid_Comp = () =>
     (
-        <div style={{width: 300, height: 300}}>
-            <DataGrid
-                data={[
-                    [
-                        { gridColumn: '1', isHeader: true, content: 'Header1' },
-                        { gridColumn: '2', content: 'Content' }
-                    ],
-                    [
-                        { gridColumn: '1', isHeader: true, content: 'Header2' },
-                        { gridColumn: '2', content: (
-                            <VSCodeLink onClick={null} style={{ color: `blue` }}>
-                                Link
-                            </VSCodeLink>
-                        ) },
-                    ]
-                ]}
-            />
-        </div>
+        <>
+            <div style={{width: 300, height: 300}}>
+                <DataGrid
+                    data={[
+                        [
+                            { gridColumn: '1', isHeader: true, content: 'Header1' },
+                            { gridColumn: '2', content: 'Content' }
+                        ],
+                        [
+                            { gridColumn: '1', isHeader: true, content: 'Header2' },
+                            { gridColumn: '2', content: (
+                                <VSCodeLink onClick={null} style={{ color: `blue` }}>
+                                        Link
+                                </VSCodeLink>
+                            ) },
+                        ]
+                    ]}
+                />
+            </div>
+            <div style={{width: 300, height: 300}}>
+                <DataGrid
+                    data={[
+                        [
+                            { gridColumn: '1', isHeader: true, content: 'Header1' },
+                            { gridColumn: '2', isHeader: true, content: 'Header2' }
+                        ],
+                        [
+                            { gridColumn: '1', content: 'Content1' },
+                            { gridColumn: '2', content: (
+                                <VSCodeLink onClick={null} style={{ color: `blue` }}>
+                                        Link
+                                </VSCodeLink>
+                            ) },
+                        ]
+                    ]}
+                />
+            </div>
+        </>
     );

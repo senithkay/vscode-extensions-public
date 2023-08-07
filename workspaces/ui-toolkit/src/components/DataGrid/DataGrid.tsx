@@ -28,13 +28,14 @@ const GridTitleCell = styled(VSCodeDataGridCell)`
   white-space: nowrap;
   text-overflow: ellipsis;
   opacity: 0.7;
-  padding-left: 22px;
+  color: var(--foreground); // Override the default color to match the theme
 `;
 
 const GridCell = styled(VSCodeDataGridCell)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  color: var(--foreground); // Override the default color to match the theme
 `;
 
 const GridCellWrapper = styled(VSCodeDataGridCell)`
@@ -47,7 +48,7 @@ const GridCellWrapper = styled(VSCodeDataGridCell)`
 export function DataGrid(props: GridProps) {
     const { data } = props;
     return (
-        <VSCodeDataGrid aria-label="Components">
+        <VSCodeDataGrid>
             {data.map((row, rowIndex) => (
                 <VSCodeDataGridRow key={`grid_row_${rowIndex}`}>
                     {row.map((cell, cellIndex) => (

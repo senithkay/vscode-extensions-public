@@ -36,6 +36,10 @@ const ErrorBannerWrap = styled.div`
     flex-direction: column;
 `
 
+const DataGridWrapper = styled.div`
+    padding-left: 9px;
+`
+
 export const ComponentDetails = (props: {
     component: Component,
     handleSourceControlClick: () => void,
@@ -52,46 +56,48 @@ export const ComponentDetails = (props: {
                     <ErrorBanner errorMsg="Git repository of the component is no longer accessible to Choreo." />
                 </ErrorBannerWrap>
             )}
-            <DataGrid
-                data={[
-                    [
-                        { gridColumn: '1', isHeader: true, content: 'Version' },
-                        { gridColumn: '2', content: component.version },
-                    ],
-                    [
-                        { gridColumn: '1', isHeader: true, content: 'Build' },
-                        { gridColumn: '2', content:
-                                <BuildStatusText
-                                    buildStatus={buildData}
-                                    handler={props.component.handler}
-                                    loading={isLoadingBuild}
-                                    localComponent={props.component.local}
-                                />
-                        },
-                    ],
-                    [
-                        { gridColumn: '1', isHeader: true, content: 'Deployment' },
-                        { gridColumn: '2', content:
-                                <DeploymentStatusText
-                                    deployment={devDeploymentData}
-                                    handler={props.component.handler}
-                                    loading={isLoadingDeployment}
-                                    localComponent={props.component.local}
-                                />
-                        },
-                    ],
-                    [
-                        { gridColumn: '1', isHeader: true, content: 'Action' },
-                        { gridColumn: '2', content:
-                                <ComponentDetailActions
-                                    component={component}
-                                    handleSourceControlClick={handleSourceControlClick}
-                                    loading={loading}
-                                />
-                        },
-                    ],
-                ]}
-            />
+            <DataGridWrapper>
+                <DataGrid
+                    data={[
+                        [
+                            { gridColumn: '1', isHeader: true, content: 'Version' },
+                            { gridColumn: '2', content: component.version },
+                        ],
+                        [
+                            { gridColumn: '1', isHeader: true, content: 'Build' },
+                            { gridColumn: '2', content:
+                                    <BuildStatusText
+                                        buildStatus={buildData}
+                                        handler={props.component.handler}
+                                        loading={isLoadingBuild}
+                                        localComponent={props.component.local}
+                                    />
+                            },
+                        ],
+                        [
+                            { gridColumn: '1', isHeader: true, content: 'Deployment' },
+                            { gridColumn: '2', content:
+                                    <DeploymentStatusText
+                                        deployment={devDeploymentData}
+                                        handler={props.component.handler}
+                                        loading={isLoadingDeployment}
+                                        localComponent={props.component.local}
+                                    />
+                            },
+                        ],
+                        [
+                            { gridColumn: '1', isHeader: true, content: 'Action' },
+                            { gridColumn: '2', content:
+                                    <ComponentDetailActions
+                                        component={component}
+                                        handleSourceControlClick={handleSourceControlClick}
+                                        loading={loading}
+                                    />
+                            },
+                        ],
+                    ]}
+                />
+            </DataGridWrapper>
         </Container>
     );
 };
