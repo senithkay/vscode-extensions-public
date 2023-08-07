@@ -34,7 +34,7 @@ export const Data_Grid_Comp = () =>
                             { gridColumn: '1', isHeader: true, content: 'Header2' },
                             { gridColumn: '2', content: (
                                 <VSCodeLink onClick={null} style={{ color: `blue` }}>
-                                        Link
+                                    Link
                                 </VSCodeLink>
                             ) },
                         ]
@@ -52,7 +52,7 @@ export const Data_Grid_Comp = () =>
                             { gridColumn: '1', content: 'Content1' },
                             { gridColumn: '2', content: (
                                 <VSCodeLink onClick={null} style={{ color: `blue` }}>
-                                        Link
+                                    Link
                                 </VSCodeLink>
                             ) },
                         ]
