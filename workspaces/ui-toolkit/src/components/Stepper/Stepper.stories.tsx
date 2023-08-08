@@ -23,6 +23,7 @@ export default {
 export const Stepper_Comp = () =>
     (
         <div style={{width: 1000, height: 1000}}>
-            <Stepper />
+            <Stepper steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]} currentStep={3}/>
+            <Stepper steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]} currentStep={1}/>
         </div>
     );
