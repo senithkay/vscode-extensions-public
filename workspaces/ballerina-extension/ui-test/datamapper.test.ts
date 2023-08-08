@@ -14,7 +14,7 @@ import { By, VSBrowser, WebView, EditorView, TextEditor } from 'vscode-extension
 import { DIAGRAM_LOADING_TIME } from './constants';
 import { wait } from './util';
 
-describe.skip('VSCode Data mapper Webview UI Tests', () => {
+describe('VSCode Data mapper Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     const FILE_NAME = 'data_mapper.bal';
     let ORIGINAL_CONTENT = '';
@@ -43,7 +43,7 @@ describe.skip('VSCode Data mapper Webview UI Tests', () => {
         await wait(10000);  // wait for code lenses to appear
 
         // Click on `Design` code lens to open up data mapper
-        const lens = await new TextEditor().getCodeLens('Design');
+        const lens = await new TextEditor().getCodeLens('Visualize');
         await lens?.click();
 
         await wait(DIAGRAM_LOADING_TIME)
@@ -116,11 +116,15 @@ describe.skip('VSCode Data mapper Webview UI Tests', () => {
         const saveButton = await webview.findWebElement(By.xpath("//button[@data-testid='save-btn']"));
         await saveButton.click();
 
+        // Click continue button to proceed with the transform function creation
+        const continueButton = await webview.findWebElement(By.xpath("//button[@data-testid='dm-save-popover-continue-btn']"));
+        await continueButton.click();
+
         // Await for the transform function to be created
         await wait(5000);
     });
 
-    it('Create mapping between data mapper nodes', async () => {
+    it.skip('Create mapping between data mapper nodes', async () => {
         await webview.switchToFrame()
 
         // Create mapping between Input.st1 and Output.st1
@@ -133,7 +137,7 @@ describe.skip('VSCode Data mapper Webview UI Tests', () => {
         await wait(5000);
     });
 
-    it('Verify data mapper generated code is correct', async () => {
+    it.skip('Verify data mapper generated code is correct', async () => {
         await webview.switchBack()
 
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
@@ -158,5 +162,5 @@ describe.skip('VSCode Data mapper Webview UI Tests', () => {
 
         await textEditor.setText(ORIGINAL_CONTENT);
         await textEditor.save();
-    })
+    });
 });
