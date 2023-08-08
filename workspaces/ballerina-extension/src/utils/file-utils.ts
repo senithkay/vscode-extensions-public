@@ -18,31 +18,31 @@ interface ProgressMessage {
     increment?: number;
 }
 
-const usernamesArray = ['ballerina-platform', 'ballerinax', 'wso2'];
-const gitDomain = "raw.githubusercontent.com";
+const allowedOrgList = ['ballerina-platform', 'ballerina-guides', 'ballerinax', 'wso2'];
+const gitDomain = "github.com";
 const gistOwner = "ballerina-github-bot";
 
-export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, rawFile?: string) {
+export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, gitFile?: string) {
 
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
     await updateDirectoryPath(selectedPath);
-    let domainCheck = true;
+    let validDomain = false;
     let validGist = false;
     let validRepo = false;
-    // Domain verification for raw file download
-    if (rawFile) {
-        const url = new URL(rawFile);
+    // Domain verification for git file download
+    if (gitFile) {
+        const url = new URL(gitFile);
         const mainDomain = url.hostname;
-        domainCheck = mainDomain === gitDomain;
-        if (domainCheck) {
-            const username = getGithubUsername(rawFile);
-            if (usernamesArray.includes(username)) {
+        validDomain = mainDomain === gitDomain;
+        if (validDomain) {
+            const username = getGithubUsername(gitFile);
+            if (allowedOrgList.includes(username)) {
                 validRepo = true;
             }
         }
     }
-    const fileName = file || path.basename(new URL(rawFile).pathname);
+    const fileName = file || path.basename(new URL(gitFile).pathname);
     const filePath = path.join(selectedPath, fileName);
     let isSuccess = false;
 
@@ -58,8 +58,8 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
         });
 
         try {
-            if (fileName.endsWith('.bal') && domainCheck) {
-                let rawFileLink = rawFile;
+            if (fileName.endsWith('.bal')) {
+                let rawFileLink = gitFile && getGitHubRawFileUrl(gitFile);
                 if (gist) {
                     const response = await axios.get(`https://api.github.com/gists/${gist}`);
                     const gistDetails = response.data;
@@ -67,25 +67,16 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
                     const responseOwner = gistDetails.owner.login;
                     validGist = gistOwner === responseOwner;
                 }
-                const message = `The sample file cannot be verified. Source: ${rawFileLink}`;
-                const downloadAnyway = { title: "Download anyway" };
-                if (!validGist && !validRepo) {
-                    const result = await window.showInformationMessage(message, { detail: "", modal: true }, downloadAnyway);
-                    if (result === downloadAnyway) {
-                        await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
-                        isSuccess = true;
-                        return;
-                    } else {
-                        window.showErrorMessage(`File download canceled.`);
-                        return;
-                    }
-                } else {
+                if (validGist || validRepo) {
                     await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
                     isSuccess = true;
                     return;
+                } else {
+                    window.showErrorMessage(`File url is not valid.`);
+                    return;
                 }
             } else {
-                window.showErrorMessage(`Gist or the file is not valid.`);
+                window.showErrorMessage(`Not a ballerina file.`);
                 return;
             }
         } catch (error) {
@@ -112,31 +103,37 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
         const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
         const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
         const username = getGithubUsername(repoUrl);
-        let validRepo = true;
-        if (!usernamesArray.includes(username)) {
-            const message = `The sample repository cannot be verified. Source: ${repoUrl}`;
-            const cloneAnyway = { title: "Clone anyway" };
-            const result = await window.showInformationMessage(message, { detail: "", modal: true }, cloneAnyway);
+        if (allowedOrgList.includes(username)) {
+            const message = `Repository will be cloned to the following directory.`;
+            const cloneAnyway: MessageItem = { title: "Clone Now" };
+            const changePath: MessageItem = { title: 'Change Directory' };
+            const result = await window.showInformationMessage(message, { detail: `${selectedPath}`, modal: true }, cloneAnyway, changePath);
             if (result === cloneAnyway) {
-                validRepo = true;
+                cloneRepo(repoUrl, selectedPath, specificFileName);
+            } else if (result === changePath) {
+                const newPath = await selectFileDownloadPath();
+                cloneRepo(repoUrl, newPath, specificFileName);
             } else {
-                validRepo = false;
                 window.showErrorMessage(`Repository clone canceled.`);
                 return;
             }
-        }
-        if (validRepo) {
-            if (specificFileName) {
-                const repoFolderName = path.basename(new URL(repoUrl).pathname);
-                const filePath = path.join(selectedPath, findTheRepoFolderName(repoFolderName, selectedPath), specificFileName);
-                writeClonedFilePathToTemp(filePath);
-            }
-            await commands.executeCommand('git.clone', repoUrl, selectedPath);
+        } else {
+            window.showErrorMessage(`Unauthorized repository.`);
+            return;
         }
     } catch (error: any) {
         const errorMsg = `Repository cloning error: ${error.message}`;
         await window.showErrorMessage(errorMsg);
     }
+}
+
+async function cloneRepo(repoUrl: string, selectedPath: string, specificFileName: string) {
+    if (specificFileName) {
+        const repoFolderName = path.basename(new URL(repoUrl).pathname);
+        const filePath = path.join(selectedPath, findTheRepoFolderName(repoFolderName, selectedPath), specificFileName);
+        writeClonedFilePathToTemp(filePath);
+    }
+    await commands.executeCommand('git.clone', repoUrl, selectedPath);
 }
 
 async function downloadFile(url, filePath, progressCallback) {
@@ -269,3 +266,13 @@ function getGithubUsername(url) {
     return username;
 }
 
+function getGitHubRawFileUrl(githubFileUrl) {
+    const urlParts = githubFileUrl.split('/');
+    const username = urlParts[3];
+    const repository = urlParts[4];
+    const branch = urlParts[6];
+    const filePath = urlParts.slice(7).join('/');
+
+    const rawFileUrl = `https://raw.githubusercontent.com/${username}/${repository}/${branch}/${filePath}`;
+    return rawFileUrl;
+}
