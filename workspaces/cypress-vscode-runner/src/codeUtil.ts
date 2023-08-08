@@ -374,11 +374,10 @@ export class CodeUtil {
         const literalVersion = runOptions.vscodeVersion === undefined || runOptions.vscodeVersion === 'latest' ? this.availableVersions[0] : runOptions.vscodeVersion;
 
         const finalEnv: NodeJS.ProcessEnv = {};
-        Object.assign(finalEnv, process.env);
+        Object.assign(finalEnv, {});
         const key = 'PATH';
         finalEnv[key] = [this.downloadFolder, process.env[key]].join(path.delimiter);
-        delete finalEnv['ELECTRON_RUN_AS_NODE'];
-                
+        
         const browser = new VSBrowser(literalVersion, this.releaseType);
         const launchArgs = await browser.getLaunchArgs()
         

@@ -7,6 +7,9 @@ const version = "1.81.0";
 const quality = "stable";
 const resourcesFolder = path.join(__dirname, "test-resources");
 
+const filteredArgs = ['--headless', '--window-size'];
+const filteredEnv = ['ELECTRON_RUN_AS_NODE', 'NODE_OPTIONS', 'NODE_TLS_REJECT_UNAUTHORIZED'];
+
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
@@ -18,8 +21,10 @@ module.exports = defineConfig({
 
                   launchOptions.args.push(...options.args);
                   launchOptions.env = Object.assign({}, launchOptions.env, options.env);
-
-                  delete launchOptions.env['NODE_OPTIONS'];
+                  launchOptions.args = launchOptions.args.filter((arg) => !filteredArgs.includes(arg));
+                  for (const env of filteredEnv) {
+                      delete launchOptions.env[env];
+                  }
                   console.log("Launch Options", launchOptions);
                   return launchOptions;
               });

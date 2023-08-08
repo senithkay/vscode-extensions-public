@@ -36,8 +36,8 @@ export class VSBrowser {
             '--no-sandbox', 
             '--enable-logging',
             `--log-file=${path.join(this.storagePath, 'settings', 'chromium-log')}`, 
-            '--disable-dev-shm-usage',
-            `--crash-reporter-directory=${path.join(this.storagePath, 'settings', 'crash-reports')}`
+            `--crash-reporter-directory=${path.join(this.storagePath, 'settings', 'crash-reports')}`,
+            '--enable-blink-features=ShadowDOMV0'
         ];
 
         if (this.extensionsFolder) {
