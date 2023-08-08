@@ -1,15 +1,15 @@
 import { CodeUtil, ReleaseQuality } from "./codeUtil";
 import { BrowserLaunchOptions, CypressBrowser } from "./types";
 
-const codeUtil = new CodeUtil("test-resources", ReleaseQuality.Stable);
-
-export async function getCypressBrowser(): Promise<CypressBrowser> {
-    await codeUtil.downloadVSCode();
+export async function getCypressBrowser(folder: string, version: string, quality: ReleaseQuality): Promise<CypressBrowser> {
+    const codeUtil = new CodeUtil(folder, quality);
+    await codeUtil.downloadVSCode(version);
     const browser = await codeUtil.getCypressBrowser();
     return browser;
 }
 
-export async function getCypressBrowserOptions(): Promise<BrowserLaunchOptions> {
-    const options = await codeUtil.getCypressBrowserOptions();
+export async function getCypressBrowserOptions(folder: string, version: string, quality: ReleaseQuality): Promise<BrowserLaunchOptions> {
+    const codeUtil = new CodeUtil(folder, quality);
+    const options = await codeUtil.getCypressBrowserOptions({ vscodeVersion: version, resources: []});
     return options;
 }

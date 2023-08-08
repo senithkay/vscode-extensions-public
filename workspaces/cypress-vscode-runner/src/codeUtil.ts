@@ -373,22 +373,23 @@ export class CodeUtil {
         }
         const literalVersion = runOptions.vscodeVersion === undefined || runOptions.vscodeVersion === 'latest' ? this.availableVersions[0] : runOptions.vscodeVersion;
 
-        // add chromedriver to process' path
         const finalEnv: NodeJS.ProcessEnv = {};
         Object.assign(finalEnv, process.env);
         const key = 'PATH';
         finalEnv[key] = [this.downloadFolder, process.env[key]].join(path.delimiter);
-
+        delete finalEnv['ELECTRON_RUN_AS_NODE'];
+                
+        const browser = new VSBrowser(literalVersion, this.releaseType);
+        const launchArgs = await browser.getLaunchArgs()
+        
         process.env = finalEnv;
         process.env.TEST_RESOURCES = this.downloadFolder;
         process.env.EXTENSIONS_FOLDER = this.extensionsFolder;
-        
-        const browser = new VSBrowser(literalVersion, this.releaseType);
-        const launchArgs = await browser.getLaunchArgs();
-        // child_process.spawnSync(this.executablePath, launchArgs, { env: finalEnv, stdio: 'inherit',  });
+        process.env.VSCODE_APPDATA = path.join(browser.getStoragePath(), 'settings');
+
         return {
             args: launchArgs,
-            env: {},
+            env: process.env,
             extensions: [],
             preferences: {},
         }
@@ -408,7 +409,7 @@ export class CodeUtil {
             displayName: 'VS Code',
             version: literalVersion,
             path: this.executablePath,
-            majorVersion: literalVersion.split('.')[0],
+            majorVersion: '108',
             channel: this.releaseType,
             isHeaded: process.env.CI === 'true' ? false : true,
             isHeadless: process.env.CI === 'true' ? true : false,

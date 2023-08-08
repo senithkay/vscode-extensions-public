@@ -25,10 +25,20 @@ export class VSBrowser {
         VSBrowser._instance = this;
     }
 
+    public getStoragePath(): string {
+        return this.storagePath;
+    }
+
     async getLaunchArgs() {
         const userSettings = await this.writeSettings();
         
-        const args = ['--no-sandbox', '--disable-dev-shm-usage', `--user-data-dir=${path.join(this.storagePath, 'settings')}`];
+        const args = [
+            '--no-sandbox', 
+            '--enable-logging',
+            `--log-file=${path.join(this.storagePath, 'settings', 'chromium-log')}`, 
+            '--disable-dev-shm-usage',
+            `--crash-reporter-directory=${path.join(this.storagePath, 'settings', 'crash-reports')}`
+        ];
 
         if (this.extensionsFolder) {
             args.push(`--extensions-dir=${this.extensionsFolder}`);
@@ -46,7 +56,7 @@ export class VSBrowser {
 
 
     private async writeSettings() {
-        const userSettings = path.join(this.storagePath, 'settings', 'User');
+        const userSettings = path.join(this.storagePath, 'settings', 'Code', 'User');
         if (fs.existsSync(userSettings)) {
             fs.removeSync(path.join(this.storagePath, 'settings'));
         }
