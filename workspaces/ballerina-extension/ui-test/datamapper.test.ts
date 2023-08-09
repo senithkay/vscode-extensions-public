@@ -10,15 +10,16 @@
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, VSBrowser, WebView, EditorView, TextEditor } from 'vscode-extension-tester';
-import { DIAGRAM_LOADING_TIME } from './constants';
-import { wait } from './util';
+import { By, VSBrowser, WebView, EditorView, TextEditor, until, WebDriver } from 'vscode-extension-tester';
+import { switchToIFrame, wait } from './util';
 
 describe('VSCode Data mapper Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     const FILE_NAME = 'data_mapper.bal';
     let ORIGINAL_CONTENT = '';
     let webview: WebView;
+    let browser: VSBrowser;
+    let driver: WebDriver;
 
     const NEW_JSON_FOR_RECORD_NAME = 'ImportedRecord';
     const NEW_JSON_FOR_RECORD = `{"st1":"string"}`;
@@ -33,12 +34,14 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         const editorView = new EditorView();
         await editorView.closeAllEditors();
 
-        await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        browser = VSBrowser.instance;
+        driver = browser.driver;
+        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await wait(10000);
 
         ORIGINAL_CONTENT = await new TextEditor().getText();
     });
-
+    
     it('Open data mapper using code lens', async () => {
         await wait(10000);  // wait for code lenses to appear
 
@@ -46,17 +49,19 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         const lens = await new TextEditor().getCodeLens('Visualize');
         await lens?.click();
 
-        await wait(DIAGRAM_LOADING_TIME)
+        // Wait for the data mapper to load
+        await switchToIFrame('Overview Diagram', driver);
+        await driver.wait(until.elementLocated(By.xpath("//*[@data-testid='data-mapper-form']")), 30000);
 
         // Close code editor as it blocks the vscode-extension-tester:Webview from detecting elements
+        webview = new WebView();
+        await webview.switchBack();
         await new EditorView().closeEditor(FILE_NAME);
-        await wait(3000);
     });
 
     it('Configure data mapper transform function', async () => {
-        webview = new WebView()
-
-        await webview.switchToFrame()
+        webview = new WebView();
+        await webview.switchToFrame();
 
         // Click on add new record button for imports
         const inputNewRecord = await webview.findWebElement(By.xpath("//*[@data-testid='dm-inputs']//button[@data-testid='new-record']"));
@@ -70,7 +75,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
 
         // Insert a name for the new record to be created
         const importJsonNameInput = await webview.findWebElement(By.xpath("//*[@data-testid='import-record-name']/*/input"));
-        await importJsonNameInput.sendKeys(NEW_JSON_FOR_RECORD_NAME)
+        await importJsonNameInput.sendKeys(NEW_JSON_FOR_RECORD_NAME);
 
         // Insert the json that needs to be converted as a record
         const importJsonJsonInput = await webview.findWebElement(By.xpath("//*[@class='textarea-wrapper']//textarea[1]"));
@@ -78,14 +83,14 @@ describe('VSCode Data mapper Webview UI Tests', () => {
 
         // Save the new record type
         const importJsonJsonSave = await webview.findWebElement(By.xpath("//button//*[contains(text(),'Save')]"));
-        await importJsonJsonSave.click()
+        await importJsonJsonSave.click();
 
         // Wait until the new record gets added
         await wait(5000);
 
         // Click existing records option for input type
         const inputExistingRecord = await webview.findWebElement(By.xpath("//*[@data-testid='dm-inputs']//button[@data-testid='exiting-record']"));
-        await inputExistingRecord.click()
+        await inputExistingRecord.click();
 
         // Await LS call to complete, to fetch all record types
         await wait(5000);
@@ -125,7 +130,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
     });
 
     it.skip('Create mapping between data mapper nodes', async () => {
-        await webview.switchToFrame()
+        await webview.switchToFrame();
 
         // Create mapping between Input.st1 and Output.st1
         const inputSt1 = await webview.findWebElement(By.xpath("//div[@data-name='input.st1.OUT']"));
@@ -138,7 +143,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
     });
 
     it.skip('Verify data mapper generated code is correct', async () => {
-        await webview.switchBack()
+        await webview.switchBack();
 
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await wait(5000);
@@ -150,17 +155,17 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         expect(text.replace(/\s/g, '')).to.include(EXPECTED_TRANSFORM_FUNCTION.replace(/\s/g, ''));
     });
 
-    after(async () => {
-        await webview.switchBack()
+    // after(async () => {
+    //     await webview.switchBack()
 
-        await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
-        await wait(5000);
-        await new EditorView().openEditor(FILE_NAME);
+    //     await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+    //     await wait(5000);
+    //     await new EditorView().openEditor(FILE_NAME);
 
-        // Revert content back to the original state
-        const textEditor = new TextEditor();
+    //     // Revert content back to the original state
+    //     const textEditor = new TextEditor();
 
-        await textEditor.setText(ORIGINAL_CONTENT);
-        await textEditor.save();
-    });
+    //     await textEditor.setText(ORIGINAL_CONTENT);
+    //     await textEditor.save();
+    // });
 });
