@@ -23,14 +23,12 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  border: calc(var(--border-width) * 1px) solid var(--vscode-list-inactiveSelectionBackground);
   margin-bottom: 10px;
-  border-radius: 3px;
   box-sizing: border-box;
 `;
 
 // Header div will lay the items horizontally
-const Header = styled.div`
+const Header = styled.div<{ expanded: boolean }>`
   display: flex;
   flex-direction: row;
   gap: 2px;
@@ -42,6 +40,7 @@ const Header = styled.div`
   cursor: pointer;
   user-select: none;
   transition: background-color 0.1s;
+  border-radius: ${props => props.expanded ? '3px 3px 0 0' : '3px'};
   &:hover {
     background-color: var(--vscode-editor-selectionHighlightBackground);
   }
@@ -51,6 +50,9 @@ const Body = styled.div`
   display: flex;
   flex-direction: column;
   gap: 5px;
+  border: calc(var(--border-width) * 1px) solid var(--vscode-list-inactiveSelectionBackground);
+  border-top: 0;
+  border-radius: 0 0 3px 3px;
 `;
 
 const ComponentName = styled.span`
@@ -92,7 +94,7 @@ export const ComponentRow = (props: {
 
     return (
         <Container>
-            <Header onClick={() => handleExpandClick(component.name)}>
+            <Header onClick={() => handleExpandClick(component.name)} expanded={expanded}>
                 <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
                 <ComponentName>{props.component.displayName}</ComponentName>
                 {componentTag && (
@@ -104,6 +106,11 @@ export const ComponentRow = (props: {
                 {actionRequired && (
                     <VSCodeButton appearance="icon" disabled title="Action Required" style={{ cursor: "default" }}>
                         <Codicon name="info" />
+                    </VSCodeButton>
+                )}
+                {!component.repository && !expanded && (
+                    <VSCodeButton appearance="icon" disabled title="Repository not accessible" style={{ cursor: "default" }}>
+                        <Codicon name="alert" />
                     </VSCodeButton>
                 )}
                 <ComponentContextMenu

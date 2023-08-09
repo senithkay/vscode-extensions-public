@@ -73,13 +73,29 @@ export const ProjectDetails = () => {
                     <GridTitleCell gridColumn="1">Project</GridTitleCell>
                     <VSCodeDataGridCell gridColumn="2">{choreoProject?.name}</VSCodeDataGridCell>
                 </VSCodeDataGridRow>
+                {choreoProject?.repository && (
+                    <VSCodeDataGridRow>
+                        <GridTitleCell gridColumn="1">Repository</GridTitleCell>
+                        <VSCodeDataGridCell gridColumn="2">{choreoProject?.repository}</VSCodeDataGridCell>
+                    </VSCodeDataGridRow>
+                )}
+                {choreoProject?.branch && (
+                    <VSCodeDataGridRow>
+                        <GridTitleCell gridColumn="1">Branch</GridTitleCell>
+                        <VSCodeDataGridCell gridColumn="2">{choreoProject?.branch}</VSCodeDataGridCell>
+                    </VSCodeDataGridRow>
+                )}
+                <VSCodeDataGridRow>
+                    <GridTitleCell gridColumn="1">Version</GridTitleCell>
+                    <VSCodeDataGridCell gridColumn="2">{choreoProject?.version}</VSCodeDataGridCell>
+                </VSCodeDataGridRow>
             </VSCodeDataGrid>
             <ProjectButtonWrap>
                 <VSCodeButton appearance="icon" onClick={changeProject} title="Open a different choreo project">
                     <Codicon name="link-external" />
                     <IconLabel>Open Project</IconLabel>
                 </VSCodeButton>
-                <VSCodeButton appearance="icon" onClick={addNewProject} title="Crete new choreo project">
+                <VSCodeButton appearance="icon" onClick={addNewProject} title="Create new choreo project">
                     <Codicon name="add" />
                     <IconLabel>Create Project</IconLabel>
                 </VSCodeButton>

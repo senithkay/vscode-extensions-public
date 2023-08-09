@@ -45,6 +45,7 @@ export enum ServiceTypes {
     WEBSOCKET = "Websocket",
     GRAPHQL = "GraphQL",
     WEBHOOK = "Webhook",
+    WEBAPP = "WebApp",
     OTHER = "other"
 }
 

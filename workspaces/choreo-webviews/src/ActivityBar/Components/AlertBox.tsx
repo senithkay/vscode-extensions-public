@@ -13,6 +13,7 @@ const Container = styled.div<{variant: 'primary' | 'secondary'}>`
     padding: 1rem;
     gap: 12px;
     margin-bottom: 15px;
+    width: -webkit-fill-available;
 `;
 
 const WideVSCodeButton = styled(VSCodeButton)`

@@ -13,10 +13,12 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { UserInfo } from "./UserInfo";
-import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { ProjectDetails } from "./ProjectDetails";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "../Components/ProgressIndicator";
+import { Codicon } from "../../Codicon/Codicon";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const Container = styled.div`
     display: flex;
@@ -27,10 +29,21 @@ const Container = styled.div`
     width: 100%;
 `;
 
+const IconLabel = styled.div`
+    margin-left: 5px;
+    @media (max-width: 280px) {
+        display: none;
+    }
+`;
+
 // seperator with a margin of 10px on top and bottom
 const Seperator = styled(VSCodeDivider)`
     margin: 10px 0;
 `;
+
+const openWalkthrough = () => {
+    ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.getStarted");
+};
 
 export const UserDetails = () => {
     const { loginStatusPending, choreoProject, currentProjectOrg } = useChoreoWebViewContext();
@@ -45,6 +58,11 @@ export const UserDetails = () => {
                     <ProjectDetails />
                 </>
             )}
+            <Seperator />
+            <VSCodeButton appearance="icon" onClick={openWalkthrough} title="Open Choreo Walkthrough">
+                <Codicon name="info" />
+                <IconLabel>Feature Walkthrough</IconLabel>
+            </VSCodeButton>
         </Container>
     );
 };

@@ -12,7 +12,7 @@
  */
 // 
 import * as vscode from 'vscode';
-import { createNewProjectCmdId, openProjectCmdId } from '../constants';
+import { STATUS_LOGGED_IN, createNewProjectCmdId, openProjectCmdId } from '../constants';
 import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
 import { cloneProject } from './clone';
@@ -20,7 +20,13 @@ import path = require('path');
 import { Organization, Project } from '@wso2-enterprise/choreo-core';
 
 export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
-    context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, () => {
+    context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, async () => {
+        const isLoggedIn = await ext.api.waitForLogin();
+        // show a message if user is not logged in
+        if (!isLoggedIn) {
+            vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
+            return;
+        }
         const currentOrgId = ext.api.getOrgIdOfCurrentProject();
         if (currentOrgId) {
             const currentOrg = ext.api.getOrgById(currentOrgId);
@@ -63,9 +69,9 @@ export async function showSwitchProjectQuickPick(org: Organization) {
 }
 
 const onDidAcceptProjectList = async (
-        quickPickInstance: vscode.QuickPick<vscode.QuickPickItem>,
-        currentProject: Project | undefined,
-        projects: Project[]) => {
+    quickPickInstance: vscode.QuickPick<vscode.QuickPickItem>,
+    currentProject: Project | undefined,
+    projects: Project[]) => {
     quickPickInstance.hide();
     const selection = quickPickInstance.selectedItems[0];
 
@@ -80,13 +86,14 @@ const onDidAcceptProjectList = async (
         vscode.commands.executeCommand(createNewProjectCmdId);
         return;
     }
+    
+    const selectedProject = projects.find(project => project.name === selection?.label);
     // if the selected project is already opened, show a message and return
-    if (selection?.label === currentProject?.name) {
+    if (selectedProject?.id === currentProject?.id) {
         vscode.window.showInformationMessage('The project is already opened in current window.');
         return;
     }
 
-    const selectedProject = projects.find(project => project.name === selection?.label);
     if (selectedProject) {
         const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);
         if (projectLocation) {

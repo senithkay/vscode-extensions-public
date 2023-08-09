@@ -1,4 +1,4 @@
-import { BezierCurve } from "@projectstorm/geometry";
+import { BezierCurve, Point } from "@projectstorm/geometry";
 import { DefaultLinkModel } from "@projectstorm/react-diagrams";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -32,16 +32,20 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 	getSVGPath(): string {
 		if (this.points.length === 2) {
 			const curve = new BezierCurve();
-			curve.setSource(this.getFirstPoint().getPosition());
-			curve.setTarget(this.getLastPoint().getPosition());
+			const sourcePoint: Point = new Point(this.getFirstPoint().getPosition().x + 8,
+				this.getFirstPoint().getPosition().y);
+			const targetPoint: Point = new Point(this.getLastPoint().getPosition().x - 8,
+				this.getLastPoint().getPosition().y);
+			curve.setSource(sourcePoint);
+			curve.setTarget(targetPoint);
 
 			if (this.sourcePort instanceof IntermediatePortModel) {
-				curve.setSourceControl(this.getFirstPoint().getPosition());
-				curve.setTargetControl(this.getLastPoint().getPosition());
+				curve.setSourceControl(sourcePoint);
+				curve.setTargetControl(targetPoint);
 			} else {
-				const srcControl = this.getFirstPoint().getPosition().clone();
+				const srcControl = sourcePoint.clone();
 				srcControl.translate(220, 0);
-				const targetControl = this.getLastPoint().getPosition().clone();
+				const targetControl = targetPoint.clone();
 				targetControl.translate(-220, 0);
 				curve.setSourceControl(srcControl);
 				curve.setTargetControl(targetControl);

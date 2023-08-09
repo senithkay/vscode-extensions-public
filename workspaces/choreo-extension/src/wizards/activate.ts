@@ -23,6 +23,12 @@ let componentWizard: WebviewWizard;
 
 export function activateWizards() {
     const createProjectCmd = commands.registerCommand(createNewProjectCmdId, async (orgId: string) => {
+        const isLoggedIn = await ext.api.waitForLogin();
+        // show a message if user is not logged in
+        if (!isLoggedIn) {
+            window.showInformationMessage('You are not logged in. Please log in to continue.');
+            return;
+        }
         if (orgId) {
             // TODO: Handle multiple project creation scenarios for different orgs
             if (!projectWizard || !projectWizard.getWebview()) {
@@ -50,6 +56,12 @@ export function activateWizards() {
     });
 
     const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async (mode?: ComponentCreateMode) => {
+        const isLoggedIn = await ext.api.waitForLogin();
+        // show a message if user is not logged in
+        if (!isLoggedIn) {
+            window.showInformationMessage('You are not logged in. Please log in to continue.');
+            return;
+        }
         if (mode) {
             if (componentWizard) {
                 componentWizard.dispose();
@@ -61,27 +73,26 @@ export function activateWizards() {
 
         // if no mode passed, show quick pick
         const options: QuickPickOptions = {
-			canPickMany: false,
-			ignoreFocusOut: true,
-			title: "Create a new Choreo Component",
-		};
-		const items:QuickPickItem[] = [{
+            canPickMany: false,
+            title: "Create Component",
+        };
+        const items: QuickPickItem[] = [{
             label: "$(add) From scratch",
             picked: true,
-            detail:  "Create a new Choreo component from scratch",
+            detail: "Create a new Choreo component",
         }, {
             label: "$(add) From existing",
-            detail: "Create a new Choreo component from your existing code"
+            detail: "Bring in an existing component"
         }];
-		const selected = await window.showQuickPick(items, options);
+        const selected = await window.showQuickPick(items, options);
 
-        if(selected){
+        if (selected) {
             if (componentWizard) {
                 componentWizard.dispose();
             }
             componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, selected.label === "$(add) From scratch" ? 'fromScratch' : 'fromExisting');
             componentWizard.getWebview()?.reveal();
-        }      
+        }
     });
 
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd);

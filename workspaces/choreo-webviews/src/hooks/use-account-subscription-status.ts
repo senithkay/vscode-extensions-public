@@ -15,11 +15,12 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 export function useAccountSubscriptionStatus() {
-    const { choreoProject } = useChoreoWebViewContext();
+    const { currentProjectOrg } = useChoreoWebViewContext();
 
     const { data: isSubscribed = false, isFetched: fetchedSubscription } = useQuery({
-        queryKey: ["overview_project_subscription", choreoProject?.id, choreoProject?.orgId],
+        queryKey: ["overview_project_subscription", currentProjectOrg?.uuid],
         queryFn: () => ChoreoWebViewAPI.getInstance().hasChoreoSubscription(),
+        enabled: !!currentProjectOrg?.uuid
     });
 
     const showUpgradeButton = !isSubscribed && fetchedSubscription;
