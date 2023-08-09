@@ -40,6 +40,7 @@ const WizardActionsContainer = styled.div`
 
 const StepContainer = styled.div`
     width: 100%;
+    margin-top: 20px;
 `;
 
 const StepperContainer = styled.div`
