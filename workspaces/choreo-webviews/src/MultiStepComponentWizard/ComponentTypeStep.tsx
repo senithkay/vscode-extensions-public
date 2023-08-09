@@ -23,7 +23,29 @@ const StepContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     gap: 20px;
-    min-height: calc(100vh - 210px);
+    min-height: calc(100vh - 110px);
+`;
+
+const SectionWrapper = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    gap: 10px;
+    // End Flex Props
+    // Sizing Props
+    padding: 20px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: transparent;
+    background-color: var(--vscode-welcomePage-tileBackground);
+    &.active {
+        border-color: var(--vscode-focusBorder);
+    }
 `;
 
 export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
@@ -62,12 +84,15 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
 
     return (
         <StepContainer>
-            <ConfigCardList 
-                formKey='type'
-                formData={formData}
-                onFormDataChange={onFormDataChange}
-                items={items}
-            />
+            <SectionWrapper>
+                <h3>Component Type</h3>
+                <ConfigCardList 
+                    formKey='type'
+                    formData={formData}
+                    onFormDataChange={onFormDataChange}
+                    items={items}
+                />
+            </SectionWrapper>
         </StepContainer>
     );
 };

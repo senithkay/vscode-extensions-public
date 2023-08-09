@@ -29,7 +29,7 @@ const StepContainer = styled.div`
     gap: 20px;
     width: 100%;
     min-width: 400px;
-    min-height: calc(100vh - 210px);
+    min-height: calc(100vh - 110px);
 `;
 
 const DropDownContainer = styled.div`
@@ -37,6 +37,27 @@ const DropDownContainer = styled.div`
     flex-direction: column;
 `;
 
+const SectionWrapper = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    gap: 10px;
+    // End Flex Props
+    // Sizing Props
+    padding: 20px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: transparent;
+    background-color: var(--vscode-welcomePage-tileBackground);
+    &.active {
+        border-color: var(--vscode-focusBorder);
+    }
+`;
 
 function sanitizeFolderName(folderName: string): string {
     // Replace any characters that are not letters, numbers, spaces, or underscores with an empty string
@@ -75,91 +96,94 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
 
     return (
         <StepContainer>
-            <VSCodeTextField
-                autofocus
-                placeholder="Name"
-                onInput={(e: any) => setComponentName(e.target.value)}
-                value={formData?.name || ''}
-                id='component-name-input'
-            >
-                Component Name <RequiredFormInput />
-                {stepValidationErrors["name"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
-            </VSCodeTextField>
-            {stepValidationErrors["name"] && <ErrorBanner errorMsg={stepValidationErrors["name"]} />}
-            <VSCodeTextArea
-                autofocus
-                placeholder="Description"
-                onInput={(e: any) => setDescription(e.target.value)}
-                value={formData?.description || ''}
-            >
-                Description
-            </VSCodeTextArea>
-            <div>
-                {[ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) && <>
-                    <p>How do you want to implement it?</p>
-                    <ConfigCardList 
-                        formKey='implementationType'
-                        formData={formData}
-                        onFormDataChange={onFormDataChange}
-                        items={[
-                            {
-                                label: "Ballerina",
-                                description: "Component impelmented using Ballerina Language",
-                                value: ChoreoImplementationType.Ballerina
-                            },
-                            {
-                                label: "Docker",
-                                description: "Component impelmented using other language and built using Docker",
-                                value: ChoreoImplementationType.Docker
-                            }
-                        ]}
-                    />
-                </>}
-                {formData.type === ChoreoComponentType.WebApplication && <>
-                    <p>Web Application Type</p>
-                    <ConfigCardList 
-                        formKey='implementationType'
-                        formData={formData}
-                        onFormDataChange={onFormDataChange}
-                        items={[
-                            {
-                                label: "React SPA",
-                                description: "Create a React SPA web application component in Choreo",
-                                value: ChoreoImplementationType.React
-                            },
-                            {
-                                label: "Angular SPA",
-                                description: "Create a Angular SPA web application component in Choreo",
-                                value: ChoreoImplementationType.Angular
-                            },
-                            {
-                                label: "Vue SPA",
-                                description: "Create a Vue SPA web application component in Choreo",
-                                value: ChoreoImplementationType.Vue
-                            },
-                            {
-                                label: "Static Website",
-                                description: "Create a static website component in Choreo",
-                                value: ChoreoImplementationType.StaticFiles
-                            },
-                            {
-                                label: "Dockerfile",
-                                description: "Create a Docker based web application component in Choreo",
-                                value: ChoreoImplementationType.Docker
-                            },
-                        ]}
-                    />
-                </>}
-                {formData?.type === ChoreoComponentType.Webhook && (
-                    <DropDownContainer>
-                        <label htmlFor="access-mode">Access Mode</label>
-                        <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
-                            <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
-                            <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
-                        </VSCodeDropdown>
-                    </DropDownContainer>
-                )}
-            </div>
+            <SectionWrapper>
+                <h3>Component Details</h3>
+                <VSCodeTextField
+                    autofocus
+                    placeholder="Name"
+                    onInput={(e: any) => setComponentName(e.target.value)}
+                    value={formData?.name || ''}
+                    id='component-name-input'
+                >
+                    Component Name <RequiredFormInput />
+                    {stepValidationErrors["name"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
+                </VSCodeTextField>
+                {stepValidationErrors["name"] && <ErrorBanner errorMsg={stepValidationErrors["name"]} />}
+                <VSCodeTextArea
+                    autofocus
+                    placeholder="Description"
+                    onInput={(e: any) => setDescription(e.target.value)}
+                    value={formData?.description || ''}
+                >
+                    Description
+                </VSCodeTextArea>
+                <div>
+                    {[ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) && <>
+                        <p>How do you want to implement it?</p>
+                        <ConfigCardList
+                            formKey='implementationType'
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
+                            items={[
+                                {
+                                    label: "Ballerina",
+                                    description: "Component impelmented using Ballerina Language",
+                                    value: ChoreoImplementationType.Ballerina
+                                },
+                                {
+                                    label: "Docker",
+                                    description: "Component impelmented using other language and built using Docker",
+                                    value: ChoreoImplementationType.Docker
+                                }
+                            ]}
+                        />
+                    </>}
+                    {formData.type === ChoreoComponentType.WebApplication && <>
+                        <p>Web Application Type</p>
+                        <ConfigCardList
+                            formKey='implementationType'
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
+                            items={[
+                                {
+                                    label: "React SPA",
+                                    description: "Create a React SPA web application component in Choreo",
+                                    value: ChoreoImplementationType.React
+                                },
+                                {
+                                    label: "Angular SPA",
+                                    description: "Create a Angular SPA web application component in Choreo",
+                                    value: ChoreoImplementationType.Angular
+                                },
+                                {
+                                    label: "Vue SPA",
+                                    description: "Create a Vue SPA web application component in Choreo",
+                                    value: ChoreoImplementationType.Vue
+                                },
+                                {
+                                    label: "Static Website",
+                                    description: "Create a static website component in Choreo",
+                                    value: ChoreoImplementationType.StaticFiles
+                                },
+                                {
+                                    label: "Dockerfile",
+                                    description: "Create a Docker based web application component in Choreo",
+                                    value: ChoreoImplementationType.Docker
+                                },
+                            ]}
+                        />
+                    </>}
+                    {formData?.type === ChoreoComponentType.Webhook && (
+                        <DropDownContainer>
+                            <label htmlFor="access-mode">Access Mode</label>
+                            <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
+                                <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                                <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                            </VSCodeDropdown>
+                        </DropDownContainer>
+                    )}
+                </div>
+            </SectionWrapper>
         </StepContainer>
     );
 };

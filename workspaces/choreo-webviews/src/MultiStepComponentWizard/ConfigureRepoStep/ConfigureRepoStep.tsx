@@ -436,7 +436,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         <StepContainer>
             {!isMonoRepo && (<>
                 <SectionWrapper>
-                    <h3>Git Provider Details</h3>
+                    <h3>Configure Repository</h3>
+                    <h4>Git Provider Details</h4>
                     <SubContainer>
                         <CardContainer>
                             <ProviderTypeCard
