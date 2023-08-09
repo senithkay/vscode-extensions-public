@@ -201,7 +201,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
                 <CardActions>
                     <ButtonContainer justifyContent="flex-end" size="small">
                         <Button
-                            variant="outlined"
+                            variant="contained"
                             color="secondary"
                             size="small"
                             onClick={handleDefaultButtonClick}
