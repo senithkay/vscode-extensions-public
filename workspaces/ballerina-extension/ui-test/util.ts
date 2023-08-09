@@ -8,7 +8,7 @@
  */
 
 import { expect } from "chai";
-import { SideBarView, CustomTreeSection, ActivityBar, By, until, VSBrowser, Locator, WebElement, WebElementPromise } from "vscode-extension-tester";
+import { SideBarView, CustomTreeSection, ActivityBar, By, until, VSBrowser, Locator, WebElement, WebElementPromise, WebDriver } from "vscode-extension-tester";
 
 export function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -52,4 +52,13 @@ export function areVariablesIncludedInString(variables, str) {
         }
     }
     return true;
+}
+
+export const clickDialogButton = async (driver: WebDriver, text: string) => {
+    // Find the path input boxes
+    const inputs = await driver.findElements(By.linkText(text));
+    // Iterate over the path input boxes
+    for (const input of inputs) {
+        await input.click();
+    }
 }
