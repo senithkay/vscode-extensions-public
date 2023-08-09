@@ -20,8 +20,8 @@ export default {
     component: Stepper,
 };
 
-const colors={completedStepColor: "green", currentStepPrimaryColor: "blue",
-    currentStepSecondaryColor: "grey", incompletedStepColor: "grey"
+const colors={completedStepColor: "#388a34", currentStepPrimaryColor: "#0066bf",
+    currentStepSecondaryColor: "#d6ebff", incompletedStepColor: "#d6ebff"
 };
 export const Stepper_Comp = () =>
     (
