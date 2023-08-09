@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -17,6 +17,11 @@ import { xml2json } from 'xml-js';
 import { forEach } from "lodash";
 
 const MSG_NOT_SUPPORT = "Paste XML as a Ballerina record feature is not supported";
+
+interface XMLJson {
+    recordName: string;
+    xmlJson: any;
+}
 
 export function activatePasteXMLAsRecord() {
 
@@ -84,16 +89,17 @@ export function activatePasteXMLAsRecord() {
                                 }
                             }
                         }
+
+                        const codeBlock = response.codeBlock.replace(/(\s*)string\s+xmldataAttribute_/g, (match, p1) => `${p1}@xmldata:Attribute${p1}string `);
                         const editor = window.activeTextEditor;
                         editor?.edit(editBuilder => {
                             if (editor.selection.isEmpty) {
                                 const startPosition = editor.selection.active;
-                                editBuilder.insert(startPosition, response.codeBlock);
+                                editBuilder.insert(startPosition, codeBlock);
                             } else {
-                                editBuilder.replace(editor.selection, response.codeBlock);
+                                editBuilder.replace(editor.selection, codeBlock);
                             }
                         });
-                    },
                         error => {
                             window.showErrorMessage(error.message);
                             sendTelemetryException(ballerinaExtInstance, error, CMP_JSON_TO_RECORD);
@@ -105,13 +111,6 @@ export function activatePasteXMLAsRecord() {
                 });
     });
 }
-
-interface XMLJson {
-    recordName: string;
-    xmlJson: any;
-}
-
-
 
 export function simplifyJSON(xmlJson: any): XMLJson {
     const xmlJsonObj = JSON.parse(xmlJson);
@@ -131,6 +130,14 @@ export function simplifyJSON(xmlJson: any): XMLJson {
         });
     };
     iterate(subJson);
+
+    if (subJson._attributes) {
+        forEach(subJson._attributes, (value, key) => {
+            subJson[`xmldataAttribute_${key}`] = value;
+        });
+        delete subJson._attributes;
+    }
+
     return {
         recordName: xmlJsonObjKeys[0],
         xmlJson: JSON.stringify(subJson)
