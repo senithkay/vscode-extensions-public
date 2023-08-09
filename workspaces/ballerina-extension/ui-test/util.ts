@@ -38,12 +38,31 @@ export function waitUntilTextContains(
     );
 }
 
-export async function waitTillCodeLensVisible(
+export async function waitUntilCodeLensVisible(
     codeLensTitle: string,
     driver: WebDriver,
     timeout: number = DEFAULT_TIME_OUT
 ) {
     return driver.wait(until.elementLocated(By.xpath("//a[@title='" + codeLensTitle + "']")), timeout);
+}
+
+export async function waitForMultipleElementsLocated(
+    driver: WebDriver,
+    locators: By[],
+    timeout: number = DEFAULT_TIME_OUT
+) {
+    const promises = locators.map(locator =>
+        driver.wait(until.elementLocated(locator), timeout)
+    );
+    await Promise.all(promises);
+}
+
+export async function waitForElementToDisappear(
+    driver: WebDriver,
+    elementLocator: By,
+    timeout: number = DEFAULT_TIME_OUT
+) {
+    return await driver.wait(until.stalenessOf(driver.findElement(elementLocator)), timeout);
 }
 
 export function areVariablesIncludedInString(variables, str) {

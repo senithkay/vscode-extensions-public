@@ -11,7 +11,14 @@ import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, VSBrowser, WebView, EditorView, TextEditor, until, WebDriver } from 'vscode-extension-tester';
-import { clickOnActivity, switchToIFrame, wait, waitTillCodeLensVisible, waitUntil } from './util';
+import {
+    clickOnActivity,
+    switchToIFrame,
+    waitForElementToDisappear,
+    waitUntilCodeLensVisible,
+    waitUntil,
+    waitForMultipleElementsLocated
+} from './util';
 import { EXPLORER_ACTIVITY } from "./constants";
 
 describe('VSCode Data mapper Webview UI Tests', () => {
@@ -45,7 +52,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
     
     it('Open data mapper using code lens', async () => {
         // wait till 'Visualize' code lens to appear
-        await waitTillCodeLensVisible('Visualize code block', driver);
+        await waitUntilCodeLensVisible('Visualize code block', driver);
 
         // Click on `Visualize` code lens to open up data mapper
         const lens = await new TextEditor().getCodeLens('Visualize');
@@ -68,7 +75,9 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         const importJsonBtn = await webview.findWebElement(By.xpath("//button[@data-testid='import-json']"));
         await importJsonBtn.click();
 
-        await wait(3000);
+        // Wait for record form to load
+        const recordForm = By.xpath("//*[@data-testid='record-form']");
+        await waitUntil(recordForm);
 
         // Insert a name for the new record to be created
         const importJsonNameInput = await webview.findWebElement(By.xpath("//*[@data-testid='import-record-name']/*/input"));
@@ -83,14 +92,16 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         await importJsonJsonSave.click();
 
         // Wait until the new record gets added
-        await wait(5000);
+        const recordLoader = By.xpath("//*[@data-testid='test-preloader-vertical']");
+        await waitForElementToDisappear(driver, recordLoader);
 
         // Click existing records option for input type
         const inputExistingRecord = await webview.findWebElement(By.xpath("//*[@data-testid='dm-inputs']//button[@data-testid='exiting-record']"));
         await inputExistingRecord.click();
 
         // Await LS call to complete, to fetch all record types
-        await wait(5000);
+        const lastInputCompletionItem = By.xpath("//*[@data-option-index='2']");
+        await waitUntil(lastInputCompletionItem);
 
         // Select `Input` record as the input type
         const inputSelectionItem = await webview.findWebElement(By.xpath("//li/*/*[contains(text(),'Input')]"));
@@ -105,7 +116,8 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         await outputExistingRecord.click();
 
         // Await LS call to complete, to fetch all record types
-        await wait(5000);
+        const lastOutputCompletionItem = By.xpath("//*[@data-option-index='2']");
+        await waitUntil(lastOutputCompletionItem);
 
         // Select `Output` record as the output type
         const outputSelectionItem = await webview.findWebElement(By.xpath("//li/*/*[contains(text(),'Output')]"));
@@ -123,10 +135,15 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         await continueButton.click();
 
         // Await for the transform function to be created
-        await wait(5000);
+        const inputNode1 = By.xpath("//*[@data-testid='input-node']");
+        const inputNode2 = By.xpath("//*[@data-testid='"
+            + `${NEW_JSON_FOR_RECORD_NAME.charAt(0).toLowerCase() + NEW_JSON_FOR_RECORD_NAME.slice(1)}-node` + "']");
+        const outputNode = By.xpath("//*[@data-testid='mappingConstructor.Output-node']");
+        await waitForMultipleElementsLocated(driver, [inputNode1, inputNode2, outputNode]);
     });
 
     it('Create mapping between data mapper nodes', async () => {
+        webview = new WebView();
         // Create mapping between Input.st1 and Output.st1
         const inputSt1 = await webview.findWebElement(By.xpath("//div[@data-name='input.st1.OUT']"));
         await inputSt1.click();
@@ -134,7 +151,8 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         await outputSt1.click();
 
         // Await for the mapping change to take place
-        await wait(5000);
+        const link = By.xpath("//*[@data-testid='link-from-input.st1.OUT-to-mappingConstructor.Output.st1.IN']");
+        await waitUntil(link);
     });
 
     it('Verify data mapper generated code is correct', async () => {
