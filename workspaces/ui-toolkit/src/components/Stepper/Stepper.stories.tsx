@@ -20,8 +20,7 @@ export default {
     component: Stepper,
 };
 
-const colors={completedStepColor: "#388a34", currentStepPrimaryColor: "#0066bf",
-    currentStepSecondaryColor: "#d6ebff", incompletedStepColor: "#d6ebff"
+const colors={completedStepColor: "#006ab1", incompletedStepColor: "#c8c8c8"
 };
 export const Stepper_Comp = () =>
     (
@@ -33,7 +32,7 @@ export const Stepper_Comp = () =>
             />
             <Stepper
                 steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
-                currentStep={1}
+                currentStep={0}
                 colors={colors}
                 showStepStatus
             />

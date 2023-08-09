@@ -27,7 +27,6 @@ export interface Step {
 
 export interface StepCompColors {
     currentStepPrimaryColor?: string;
-    currentStepSecondaryColor?: string;
     completedStepColor?: string;
     incompletedStepColor?: string;
 }
@@ -43,15 +42,13 @@ export interface StepCardProps {
     step: Step;
     currentStep: number;
     totalSteps: number;
-    primaryColor?: string;
-    secondaryColor?: string;
+    color?: string;
     showStepStatus?: boolean;
 }
 
 export interface HeaderProps {
     hideBar?: boolean;
     primaryColor?: string;
-    secondaryColor?: string;
 }
 
 const DivWithCircle = styled.div`
@@ -69,6 +66,7 @@ const StpperContainer = styled.div`
     display: flex;
     flex-direction: row;
     flex-grow: initial;
+    justify-content: center;
 `;
 
 export const StepCard = styled.div`
@@ -83,8 +81,8 @@ export const Footer = styled.div`
 
 export const StepSubTitle = styled.div`
     opacity: 0.5;
-    font-size: 10px;
-    padding-top: 10px;
+    font-size: 8px;
+    padding-top: 15px;
 `;
 
 export const StepTitle = styled.div`
@@ -95,7 +93,27 @@ export const StepTitle = styled.div`
 export const StepStatus = styled.div`
     color: ${(props: StepperStyleProps) => props.color};
     padding-top: 5px;
-    font-size: 11px;
+    font-size: 9px;
+`;
+
+export const StepCircle = styled.div`
+    background-color: ${(props: StepperStyleProps) => props.color};
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    position: relative;
+    left: 12px;
+    top: 20px;
+    transform: translate(-50%, -50%);
+`;
+
+export const HorizontalBar = styled.div`
+    background-color: ${(props: StepperStyleProps) => props.color};
+    width: calc(100% - 60px);
+    height: 2px;
+    position: relative;
+    top: 20px;
+    left: 18px;
 `;
 
 export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
@@ -114,18 +132,16 @@ export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
                     showStepStatus: showStepStatus
                 };
                 if (id < currentStep) {
-                    stepCard.primaryColor = colors?.completedStepColor ? colors.completedStepColor :
-                        'var(--vscode-charts-green)';
+                    stepCard.color = colors?.completedStepColor ? colors.completedStepColor :
+                        'var(--vscode-textLink-foreground)';
                     return <CompletedStepCard key={`step${id}`} {...stepCard} />;
                 } else if (id === currentStep) {
-                    stepCard.primaryColor = colors?.currentStepPrimaryColor ? colors.currentStepPrimaryColor :
-                        'var(--vscode-editorSuggestWidget-highlightForeground)';
-                    stepCard.secondaryColor = colors?.currentStepSecondaryColor ? colors.currentStepSecondaryColor :
-                        'var(--vscode-editorSuggestWidget-selectedBackground)';
+                    stepCard.color = colors?.incompletedStepColor ? colors?.incompletedStepColor :
+                        'var(--vscode-editorOverviewRuler-selectionHighlightForeground)';
                     return <CurrentStepCard key={`step${id}`} {...stepCard} />;
                 }
-                stepCard.primaryColor = colors?.incompletedStepColor ? colors?.incompletedStepColor :
-                    'var(--vscode-editorSuggestWidget-selectedBackground)';
+                stepCard.color = colors?.incompletedStepColor ? colors?.incompletedStepColor :
+                    'var(--vscode-editorOverviewRuler-selectionHighlightForeground)';
                 return <InCompletedStepCard key={`step${id}`} {...stepCard} />;
             })}
         </StpperContainer>

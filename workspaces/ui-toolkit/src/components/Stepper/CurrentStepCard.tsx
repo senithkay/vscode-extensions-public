@@ -11,43 +11,36 @@
  *  associated services.
  */
 import React from "react";
-import { Footer, Header, HeaderProps, StepCard, StepCardProps, StepStatus, StepSubTitle, StepTitle, StepperStyleProps } from "./Stepper";
+import {
+    Footer,
+    Header,
+    HeaderProps,
+    StepCard,
+    StepCardProps,
+    StepStatus,
+    StepSubTitle,
+    StepTitle,
+    StepperStyleProps,
+    HorizontalBar
+} from "./Stepper";
 import styled from "@emotion/styled";
 
 const CurrentStepCircle = styled.div`
     background-color: var(--vscode-editor-foreground);
-    width: 36px;
-    height: 36px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     border: 2px solid ${(props: StepperStyleProps) => props.color};
     position: relative;
-    left: 20px;
+    left: 12px;
     top: 20px;
     transform: translate(-50%, -50%);
 `;
 
-const HorizontalLeftInprogressBar = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: calc(50% - 30px);
-    height: 2px;
-    position: relative;
-    top: 20px;
-    left: 10px;
-`;
-
-const HorizontalRightInprogressBar = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: calc(50% - 30px);
-    height: 2px;
-    position: relative;
-    top: 20px;
-    left: 10px;
-`;
-
 const InnerCircle = styled.div`
     background-color: ${(props: StepperStyleProps) => props.color};
-    width: 25px;
-    height: 25px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     position: absolute;
     top: 50%;
@@ -62,8 +55,7 @@ export const CurrentStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => 
         </CurrentStepCircle>
         {props.hideBar ? null : (
             <>
-                <HorizontalLeftInprogressBar color={props.primaryColor}/>
-                <HorizontalRightInprogressBar color={props.secondaryColor}/>
+                <HorizontalBar color={props.primaryColor}/>
             </>
         )}        
     </Header>
@@ -71,7 +63,7 @@ export const CurrentStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => 
 
 export const CurrentStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <CurrentStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.primaryColor} secondaryColor={props.secondaryColor}/>
+        <CurrentStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
         <Footer>
             <StepSubTitle>
                 {`STEP ${props.step.id + 1}`}
@@ -79,7 +71,7 @@ export const CurrentStepCard: React.FC<StepCardProps> = (props: StepCardProps) =
             <StepTitle>
                 {props.step.title}
             </StepTitle>
-            {props.showStepStatus && <StepStatus color={props.primaryColor}>Inprogress</StepStatus>}
+            {props.showStepStatus && <StepStatus color={props.color}>Inprogress</StepStatus>}
         </Footer>
     </StepCard>
 );
