@@ -12,7 +12,7 @@ import { existsSync, mkdirSync, rmSync } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, Key, VSBrowser, WebDriver } from 'vscode-extension-tester';
-import { clickDialogButton, wait } from './util';
+import { wait } from './util';
 
 describe('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -43,10 +43,10 @@ describe('Open ballerina samples in VSCode from URL', () => {
         const url = 'vscode://wso2.ballerina/open-file?gist=18e6c62b7ef307d7064ed4ef39e4d0d8&file=functions.bal';
         await executeURLdownload(driver, url);
 
-        clickDialogButton(driver, 'Open');
+        await clickDialogButton(driver, 'Open');
         await wait(5000);
 
-        clickDialogButton(driver, 'Change Directory');
+        await clickDialogButton(driver, 'Change Directory');
         await wait(3000);
 
         await driver.actions()
@@ -63,13 +63,13 @@ describe('Open ballerina samples in VSCode from URL', () => {
 
         await wait(3000);
 
-        clickDialogButton(driver, 'OK');
+        await clickDialogButton(driver, 'OK');
         await wait(3000);
 
         // Check if the file has been downloaded to the new location
         await executeURLdownload(driver, url);
 
-        clickDialogButton(driver, 'Open');
+        await clickDialogButton(driver, 'Open');
         await wait(3000);
 
         expect(existsSync(`${samplesDownloadDirectory}/functions.bal`), "Second assert with functions.bal").to.be.true;
@@ -81,7 +81,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         const url = 'vscode://wso2.ballerina/open-file?gist=8ada14df03d5d8841d03ce4b92819b2b&file=hello_world.bal';
         await executeURLdownload(driver, url);
 
-        clickDialogButton(driver, 'Open');
+        await clickDialogButton(driver, 'Open');
         await wait(3000);
 
         expect(existsSync(`${samplesDownloadDirectory}/hello_world.bal`)).to.be.true;
@@ -99,7 +99,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         const url = 'vscode://wso2.ballerina/open-file?repoFileUrl=https://github.com/wso2/choreo-sample-apps/blob/main/ballerina/greeter/service.bal';
         await executeURLdownload(driver, url);
 
-        clickDialogButton(driver, 'Open');
+        await clickDialogButton(driver, 'Open');
         await wait(3000);
 
         expect(existsSync(`${samplesDownloadDirectory}/service.bal`)).to.be.true;
@@ -118,7 +118,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await executeURLdownload(driver, url);
         await wait(3000);
 
-        clickDialogButton(driver, 'Clone Now');
+        await clickDialogButton(driver, 'Clone Now');
         await wait(8000);
 
         // Find the information message boxes for the file download verification
@@ -150,4 +150,13 @@ const executeURLdownload = async (driver, url: string) => {
         await infoNotification.click();
     }
     await wait(6000);
+}
+
+const clickDialogButton = async (driver, text: string) => {
+    // Find the path input boxes
+    const inputs = await driver.findElements(By.linkText(text));
+    // Iterate over the path input boxes
+    for (const input of inputs) {
+        await input.click();
+    }
 }
