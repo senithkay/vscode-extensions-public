@@ -44,14 +44,12 @@ export interface StepCardProps {
     currentStep: number;
     totalSteps: number;
     primaryColor?: string;
-    secondaryColor?: string;
     showStepStatus?: boolean;
 }
 
 export interface HeaderProps {
     hideBar?: boolean;
     primaryColor?: string;
-    secondaryColor?: string;
 }
 
 const DivWithCircle = styled.div`
@@ -120,8 +118,6 @@ export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
                 } else if (id === currentStep) {
                     stepCard.primaryColor = colors?.currentStepPrimaryColor ? colors.currentStepPrimaryColor :
                         'var(--vscode-editorSuggestWidget-highlightForeground)';
-                    stepCard.secondaryColor = colors?.currentStepSecondaryColor ? colors.currentStepSecondaryColor :
-                        'var(--vscode-editorSuggestWidget-selectedBackground)';
                     return <CurrentStepCard key={`step${id}`} {...stepCard} />;
                 }
                 stepCard.primaryColor = colors?.incompletedStepColor ? colors?.incompletedStepColor :

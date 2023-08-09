@@ -26,18 +26,9 @@ const CurrentStepCircle = styled.div`
     transform: translate(-50%, -50%);
 `;
 
-const HorizontalLeftInprogressBar = styled.div`
+const HorizontalInprogressBar = styled.div`
     background-color: ${(props: StepperStyleProps) => props.color};
-    width: calc(50% - 30px);
-    height: 2px;
-    position: relative;
-    top: 20px;
-    left: 10px;
-`;
-
-const HorizontalRightInprogressBar = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: calc(50% - 30px);
+    width: calc(100% - 60px);
     height: 2px;
     position: relative;
     top: 20px;
@@ -62,8 +53,7 @@ export const CurrentStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => 
         </CurrentStepCircle>
         {props.hideBar ? null : (
             <>
-                <HorizontalLeftInprogressBar color={props.primaryColor}/>
-                <HorizontalRightInprogressBar color={props.secondaryColor}/>
+                <HorizontalInprogressBar color={props.primaryColor}/>
             </>
         )}        
     </Header>
@@ -71,7 +61,7 @@ export const CurrentStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => 
 
 export const CurrentStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <CurrentStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.primaryColor} secondaryColor={props.secondaryColor}/>
+        <CurrentStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.primaryColor}/>
         <Footer>
             <StepSubTitle>
                 {`STEP ${props.step.id + 1}`}
