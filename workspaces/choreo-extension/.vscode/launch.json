@@ -47,11 +47,11 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Debug UI Tests",
+			"name": "Debug E2E Tests",
 			"program": "/usr/local/bin/npm",
 			"args": [
 			  "run",
-			  "ui-test"
+			  "e2e-test"
 			],
 			"cwd": "${workspaceFolder}",
 			"runtimeArgs": [
