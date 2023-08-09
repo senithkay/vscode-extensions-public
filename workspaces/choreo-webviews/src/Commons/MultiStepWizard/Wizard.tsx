@@ -34,11 +34,10 @@ const WizardActionsContainer = styled.div`
     align-items: flex-end;
     gap: 10px;
     width: 100%;
-    margin: 15px 0;
+    padding: 15px 0;
 `;
 
 const StepContainer = styled.div`
-    min-height: 40%;
     padding: 15px;
     width: calc(100% - 20px);
 `;
@@ -189,7 +188,7 @@ export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, sa
 
     return (
         <WizardContainer>
-            <h1>{title}</h1>
+            <h2>{title}</h2>
             <h4>{steps[state.currentStep]?.title}</h4>
             <VSCodeDivider />
             <StepContainer>

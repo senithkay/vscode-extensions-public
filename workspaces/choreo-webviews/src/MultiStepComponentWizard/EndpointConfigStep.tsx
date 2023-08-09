@@ -22,11 +22,11 @@ import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } fr
 const StepContainer = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-content: center;
     gap: 20px;
     width: 100%;
-    min-width: 400px;
+    min-height: calc(100vh - 210px);
 `;
 
 const DropDownContainer = styled.div`

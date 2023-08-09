@@ -23,6 +23,7 @@ const StepContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     gap: 20px;
+    min-height: calc(100vh - 210px);
 `;
 
 export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {

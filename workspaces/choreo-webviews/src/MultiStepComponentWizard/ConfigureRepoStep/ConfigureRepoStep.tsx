@@ -32,8 +32,6 @@ const StepContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     gap: 20px;
-    overflow: auto;
-    height: 100%;
 `;
 
 const GhRepoSelectorActions = styled.div`
