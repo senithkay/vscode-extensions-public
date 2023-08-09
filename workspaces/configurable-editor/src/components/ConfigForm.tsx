@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactElement, useEffect, useState, useRef } from "react";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 
 import { Box,  Card, CardActions, CardContent, Collapse, FormLabel, Typography } from "@material-ui/core";
 
@@ -71,7 +71,7 @@ export const generateDocURL = (env: string, configSchema: ConfigSchema) => {
 export const ConfigForm = (props: ConfigFormProps) => {
     const classes = useStyles();
     const defaultableFields: ReactElement[] = [];
-    const configValue = useRef<ConfigElementProps[]>([]); 
+    const configValue = useRef<ConfigElementProps[]>([]);
     const [expanded, setExpanded] = useState(true);
 
     useEffect(() => {
@@ -99,7 +99,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
     generateDocURL(env, configSchema);
     // Set the existing config values to the config property obtained.
     setExistingValues(configElements, existingConfigs, getMetaData(configSchema));
-    
+
     const handleSetConfigValue = (id: string, value: any) => {
         const existingConfigIndex = configValue.current.findIndex(
             (property) => property.id === id
