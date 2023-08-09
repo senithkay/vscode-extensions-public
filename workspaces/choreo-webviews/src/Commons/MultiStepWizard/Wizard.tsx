@@ -18,6 +18,7 @@ import { createElement } from "react";
 import { ValidationRule, WizardProps } from "./types";
 import { useChoreoWebViewContext, IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { Stepper } from "@wso2-enterprise/ui-toolkit";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -41,11 +42,16 @@ const StepContainer = styled.div`
     width: 100%;
 `;
 
+const StepperContainer = styled.div`
+    padding-top: 10px;
+`;
+
 export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, saveButtonText, cancelButtonText, onCancel, closeOnSave, loading }: WizardProps<T>) => {
     const context = useChoreoWebViewContext();
 
     // const allValidationRules: ValidationRule<T>[] = [steps.map((step) => step.validationRules).flat(), validationRules].flat();
     const currentStepValidationRules = steps[state.currentStep].validationRules;
+    const stepperSteps = steps.map(step => step.title);
 
     useEffect(() => {
         const validateStep = async () => {
@@ -188,6 +194,9 @@ export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, sa
     return (
         <WizardContainer>
             <h2>{title}</h2>
+            <StepperContainer>
+                <Stepper currentStep={state.currentStep} steps={stepperSteps} showStepStatus></Stepper>
+            </StepperContainer>
             <StepContainer>
                 {renderStep()}
             </StepContainer>
