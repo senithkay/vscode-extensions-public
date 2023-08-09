@@ -11,45 +11,25 @@
  *  associated services.
  */
 import React from "react";
-import { Footer, Header, HeaderProps, StepCard, StepCardProps, StepSubTitle, StepTitle, StepperStyleProps } from "./Stepper";
+import { Footer, Header, HeaderProps, HorizontalBar, StepCard, StepCardProps, StepCircle, StepSubTitle, StepTitle } from "./Stepper";
 import styled from "@emotion/styled";
-
-const InCompletedCircle = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    position: relative;
-    left: 20px;
-    top: 20px;
-    transform: translate(-50%, -50%);
-`;
-
-const InCompleteHorizontalBar = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: calc(100% - 60px);
-    height: 2px;
-    position: relative;
-    top: 20px;
-    left: 10px;
-`;
 
 const PendingStatus = styled.div`
     opacity: 0.5;
     padding-top: 5px;
-    font-size: 11px;
+    font-size: 9px;
 `;
 
 const InCompletedStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
     <Header>
-        <InCompletedCircle color={props.primaryColor}/>
-        {props.hideBar ? null : <InCompleteHorizontalBar color={props.primaryColor}/>}
+        <StepCircle color={props.primaryColor}/>
+        {props.hideBar ? null : <HorizontalBar color={props.primaryColor}/>}
     </Header>
 );
 
 export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <InCompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.primaryColor}/>
+        <InCompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
         <Footer>
             <StepSubTitle>
                 {`STEP ${props.step.id + 1}`}
@@ -57,7 +37,7 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
             <StepTitle>
                 {props.step.title}
             </StepTitle>
-            {props.showStepStatus && <PendingStatus color={props.primaryColor}>Pending</PendingStatus>}
+            {props.showStepStatus && <PendingStatus color={props.color}>Pending</PendingStatus>}
         </Footer>
     </StepCard>
 );

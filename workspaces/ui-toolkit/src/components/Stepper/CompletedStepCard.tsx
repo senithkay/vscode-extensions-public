@@ -11,57 +11,37 @@
  *  associated services.
  */
 import React from "react";
-import { StepCard, Footer, StepTitle, StepSubTitle, StepStatus, Header, StepCardProps, HeaderProps, StepperStyleProps } from "./Stepper";
+import { StepCard, Footer, StepTitle, StepSubTitle, StepStatus, Header, StepCardProps, HeaderProps, StepCircle, HorizontalBar } from "./Stepper";
 import styled from "@emotion/styled";
-
-const CompletedCircle = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    position: relative;
-    left: 20px;
-    top: 20px;
-    transform: translate(-50%, -50%);
-`;
 
 const RightSign = styled.div`
     position: relative;
-    top: 25%;
-    left: 40%;
-    width: 8px;
-    height: 15px;
+    top: 15%;
+    left: 35%;
+    width: 5px;
+    height: 12px;
     border: 2px solid white;
     border-bottom: none;
     border-right: none;
     transform: rotate(225deg);
 `;
 
-const CompletedHorizontalBar = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: calc(100% - 60px);
-    height: 2px;
-    position: relative;
-    top: 20px;
-    left: 10px;
-`;
-
 export const CircleWithRightSign: React.FC<HeaderProps> = (props: HeaderProps) => (
-    <CompletedCircle  color={props.primaryColor}>
+    <StepCircle  color={props.primaryColor}>
         <RightSign />
-    </CompletedCircle>
+    </StepCircle>
 );
 
 export const CompletedStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
     <Header>
         <CircleWithRightSign primaryColor={props.primaryColor} />
-        {props.hideBar ? null : <CompletedHorizontalBar color={props.primaryColor} />}
+        {props.hideBar ? null : <HorizontalBar color={props.primaryColor} />}
     </Header>
 );
 
 export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <CompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.primaryColor}/>
+        <CompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
         <Footer>
             <StepSubTitle>
                 {`STEP ${props.step.id + 1}`}
@@ -69,7 +49,7 @@ export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps)
             <StepTitle>
                 {props.step.title}
             </StepTitle>
-            {props.showStepStatus && <StepStatus color={props.primaryColor}>Completed</StepStatus>}
+            {props.showStepStatus && <StepStatus color={props.color}>Completed</StepStatus>}
         </Footer>
     </StepCard>
 );

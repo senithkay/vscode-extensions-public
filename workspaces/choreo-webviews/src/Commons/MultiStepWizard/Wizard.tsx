@@ -44,7 +44,7 @@ const StepContainer = styled.div`
 `;
 
 const StepperContainer = styled.div`
-    padding-top: 10px;
+    width: 100%;
 `;
 
 export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, saveButtonText, cancelButtonText, onCancel, closeOnSave, loading }: WizardProps<T>) => {
