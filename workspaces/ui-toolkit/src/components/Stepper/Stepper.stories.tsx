@@ -35,6 +35,7 @@ export const Stepper_Comp = () =>
                 steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
                 currentStep={1}
                 colors={colors}
+                showStepStatus
             />
         </div>
     );

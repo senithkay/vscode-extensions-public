@@ -69,9 +69,7 @@ export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps)
             <StepTitle>
                 {props.step.title}
             </StepTitle>
-            <StepStatus color={props.primaryColor}>
-                Completed
-            </StepStatus>
+            {props.showStepStatus && <StepStatus color={props.primaryColor}>Completed</StepStatus>}
         </Footer>
     </StepCard>
 );

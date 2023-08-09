@@ -57,9 +57,7 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
             <StepTitle>
                 {props.step.title}
             </StepTitle>
-            <PendingStatus>
-                Pending
-            </PendingStatus>
+            {props.showStepStatus && <PendingStatus color={props.primaryColor}>Pending</PendingStatus>}
         </Footer>
     </StepCard>
 );

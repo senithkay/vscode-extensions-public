@@ -35,6 +35,7 @@ export interface StepCompColors {
 export interface StepperProps {
     steps: string[];
     currentStep: number;
+    showStepStatus?: boolean;
     colors?: StepCompColors;
 }
 
@@ -44,6 +45,7 @@ export interface StepCardProps {
     totalSteps: number;
     primaryColor?: string;
     secondaryColor?: string;
+    showStepStatus?: boolean;
 }
 
 export interface HeaderProps {
@@ -67,7 +69,6 @@ const StpperContainer = styled.div`
     display: flex;
     flex-direction: row;
     flex-grow: initial;
-    height: 300px;
 `;
 
 export const StepCard = styled.div`
@@ -98,7 +99,7 @@ export const StepStatus = styled.div`
 `;
 
 export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
-    const { steps, currentStep, colors } = props;
+    const { steps, currentStep, showStepStatus, colors } = props;
 
     return (
         <StpperContainer>
@@ -109,7 +110,8 @@ export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
                         id: id,
                         title: step
                     },
-                    totalSteps: steps.length
+                    totalSteps: steps.length,
+                    showStepStatus: showStepStatus
                 };
                 if (id < currentStep) {
                     stepCard.primaryColor = colors?.completedStepColor ? colors.completedStepColor :
