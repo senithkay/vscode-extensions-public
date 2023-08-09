@@ -56,6 +56,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                 projectId: choreoProject.id,
                 subPath: repository?.subPath,
             }),
+            { refetchOnWindowFocus: false }
     );
 
     const setFolderName = (fName: string) => {

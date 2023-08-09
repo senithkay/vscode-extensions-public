@@ -24,7 +24,6 @@ export function useComponentPush(component: Component) {
                 projectId: component.projectId,
                 componentName,
             }),
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         onSuccess: async (_, name) => {
             await queryClient.cancelQueries({
                 queryKey: ["project_component_list", component.projectId],

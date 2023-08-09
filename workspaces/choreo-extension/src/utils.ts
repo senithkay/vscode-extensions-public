@@ -15,42 +15,49 @@ import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-
 import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
 import { existsSync, readFileSync } from "fs";
 import * as yaml from 'js-yaml';
+import { ProjectRegistry } from "./registry/project-registry";
+import { dirname, join } from "path";
 
-export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
-    isLocal: boolean, accessibility?: string): boolean {
+export async function enrichDeploymentData(orgId: string, componentId: string, pkgServices: Map<string, Service>,
+                                           apiVersions: ApiVersion[], componentLocation: string): Promise<boolean> {
     const services = [...pkgServices.values()];
-    const componentServices = services.filter((service) => service.elementLocation?.filePath.includes(componentLocation));
+    const componentServices = services.filter((service) =>
+        service.elementLocation?.filePath.includes(componentLocation)
+    );
     for (const service of componentServices) {
         let isInternetExposed = false;
         let isIntranetExposed = false;
-        if (!isLocal && apiVersions.length > 0) {
-            apiVersions.forEach((version: ApiVersion) => {
-                if (version.accessibility === "internal") {
-                    isIntranetExposed = true;
+        if (apiVersions.length > 0) {
+            // Get the latest version of the API
+            const version = apiVersions.find((apiVersion) => apiVersion.latest);
+            if (version) {
+                const epData = await ProjectRegistry.getInstance().getEndpointsForVersion(
+                    componentId, version.id, parseInt(orgId)
+                );
+                // TODO: Handle multiple endpoints
+                if (epData?.componentEndpoints && epData.componentEndpoints.length === 1) {
+                    const endpoint = epData.componentEndpoints[0];
+                    const visibility = endpoint.visibility;
+                    if (visibility === "Organization") {
+                        isIntranetExposed = true;
+                    }
+                    if (visibility === "Public") {
+                        isInternetExposed = true;
+                    }
                 }
-                if (version.accessibility === "external") {
-                    isInternetExposed = true;
-                }
-            });
-        } else if (isLocal) {
-            if (accessibility === "internal") {
-                isIntranetExposed = true;
-            }
-            if (accessibility === "external") {
-                isInternetExposed = true;
             }
         }
-        // TODO: Fix this
-        // service.deploymentMetadata = {
-        //     gateways: {
-        //         internet: {
-        //             isExposed: isInternetExposed
-        //         },
-        //         intranet: {
-        //             isExposed: isIntranetExposed
-        //         }
-        //     }
-        // };
+
+        service.deploymentMetadata = {
+            gateways: {
+                internet: {
+                    isExposed: isInternetExposed
+                },
+                intranet: {
+                    isExposed: isIntranetExposed
+                }
+            }
+        };
     }
     return componentServices.length > 0;
 }
@@ -139,3 +146,21 @@ export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: 
     }
     return resourceList;
 };
+
+export const getComponentDirPath = (component: Component, projectLocation: string) => {
+    const repository = component.repository;
+    if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
+        const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
+        if (appSubPath) {
+            return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
+        } else if (byocWebAppBuildConfig) {
+            if (byocWebAppBuildConfig?.dockerContext) {
+                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.dockerContext);
+            } else if (byocWebAppBuildConfig?.outputDirectory) {
+                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.outputDirectory);
+            }
+        } else if (byocBuildConfig) {
+            return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
+        }
+    }
+}

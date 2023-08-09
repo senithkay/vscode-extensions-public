@@ -28,8 +28,29 @@ export function ComponentView(props: ComponentViewProps) {
     const { info, updateSelection, type } = props;
     const classes = useStyles();
 
+    const isComponentAllowed = () => {
+        switch (type) {
+            case 'classes':
+            case 'objects':
+            case 'types':
+            case 'enums':
+            case 'listeners':
+            case 'constants':
+            case 'moduleVariables':
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    const handleComponentClick = () => {
+        updateSelection(info);
+    };
+
+    const isAllowed = isComponentAllowed();
+
     return (
-        <ComponentCard type={type} info={info} updateSelection={updateSelection}>
+        <ComponentCard isAllowed={isAllowed} onClick={handleComponentClick}>
             <div className="icon">
                 {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}
             </div>

@@ -146,7 +146,7 @@ export async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance
     } else {
         const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
         if (document) {
-            currentProject = await getCurrentBallerinaProject(document.toString());
+            currentProject = await getCurrentBallerinaProject(document.fsPath);
         }
     }
 

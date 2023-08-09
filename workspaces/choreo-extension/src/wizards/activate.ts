@@ -74,16 +74,15 @@ export function activateWizards() {
         // if no mode passed, show quick pick
         const options: QuickPickOptions = {
             canPickMany: false,
-            ignoreFocusOut: true,
-            title: "Create a new Choreo Component",
+            title: "Create Component",
         };
         const items: QuickPickItem[] = [{
             label: "$(add) From scratch",
             picked: true,
-            detail: "Create a new Choreo component from scratch",
+            detail: "Create a new Choreo component",
         }, {
             label: "$(add) From existing",
-            detail: "Create a new Choreo component from your existing code"
+            detail: "Bring in an existing component"
         }];
         const selected = await window.showQuickPick(items, options);
 

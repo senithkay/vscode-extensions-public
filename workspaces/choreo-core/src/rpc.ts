@@ -12,7 +12,24 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo, BuildStatus, Deployment, Endpoint, UserInfo, ChoreoWorkspaceMetaData } from './types';
+import {
+   Organization,
+   ChoreoLoginStatus,
+   ChoreoWorkspaceMetaData,
+   Project,
+   Component,
+   PushedComponent,
+   ComponentCount,
+   ChoreoComponentCreationParams,
+   getLocalComponentDirMetaDataRequest,
+   getLocalComponentDirMetaDataRes,
+   GitRepo,
+   BuildStatus,
+   Deployment,
+   Endpoint,
+   UserInfo,
+   EndpointData
+} from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -73,6 +90,11 @@ export interface PushLocalComponentsToChoreoParams {
    componentNames: string[];
 }
 
+export interface SetWebviewCacheRequestParam {
+   cacheKey: IDBValidKey;
+   data: unknown;
+}
+
 // request types 
 export const SendProjectTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendProjectTelemetryEvent' };
 export const SendTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendTelemetryEvent' };
@@ -114,6 +136,7 @@ export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChore
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const OpenCellView: RequestType<string, void> = { method: 'openCellView' };
+export const getEndpointsForVersion: RequestType<{componentId: string, versionId: string, orgId: number}, EndpointData | null> = { method: 'getEndpointsForVersion' };
 export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
@@ -124,6 +147,11 @@ export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boo
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
+export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };
+export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: 'restoreWebviewCache' };
+export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clearWebviewCache' };
+export const GoToSource: RequestType<string, void> = { method: 'goToSource' };
+export const IsBallerinaExtInstalled: RequestType<void, boolean> = { method: 'isBallerinaExtInstalled' };
 
 export interface OpenDialogOptions {
    title: string,
