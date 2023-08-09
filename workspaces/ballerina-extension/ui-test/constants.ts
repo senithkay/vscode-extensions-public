@@ -7,6 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+// timeouts
 export const DIAGRAM_LOADING_TIME = 10000;
 export const PROJECT_RUN_TIME = 25000;
 export const DEFAULT_UI_LOAD_TIME = 500;
+
+// activities
+export const EXPLORER_ACTIVITY = 'Explorer';

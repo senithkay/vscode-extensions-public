@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { expect } from "chai";
 import {
     By,
     until,
@@ -15,7 +14,8 @@ import {
     Locator,
     WebElement,
     WebElementPromise,
-    WebDriver
+    WebDriver,
+    ActivityBar
 } from "vscode-extension-tester";
 
 export function wait(ms: number) {
@@ -47,7 +47,7 @@ export function areVariablesIncludedInString(variables, str) {
     return true;
 }
 
-export const switchToIFrame = async (frameName: string, driver: WebDriver): Promise<WebElement> => {
+export async function switchToIFrame(frameName: string, driver: WebDriver): Promise<WebElement> {
     let allIFrames: WebElement[] = [];
     while (allIFrames.length === 0) {
         allIFrames = await driver.findElements(By.xpath("//iframe"));
@@ -69,4 +69,10 @@ export const switchToIFrame = async (frameName: string, driver: WebDriver): Prom
     }
 
     throw new Error(`IFrame of ${frameName} not found`);
-};
+}
+
+export async function clickOnActivity(activityName: string) {
+    const activityBar = new ActivityBar();
+    const viewControl = await activityBar.getViewControl(activityName);
+    viewControl.click();
+}

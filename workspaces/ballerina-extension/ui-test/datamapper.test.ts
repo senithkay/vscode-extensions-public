@@ -11,7 +11,8 @@ import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, VSBrowser, WebView, EditorView, TextEditor, until, WebDriver } from 'vscode-extension-tester';
-import { switchToIFrame, wait } from './util';
+import { clickOnActivity, switchToIFrame, wait } from './util';
+import { EXPLORER_ACTIVITY } from "./constants";
 
 describe('VSCode Data mapper Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -37,6 +38,8 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        await clickOnActivity(EXPLORER_ACTIVITY);
+
         await wait(10000);
 
         ORIGINAL_CONTENT = await new TextEditor().getText();
@@ -51,17 +54,11 @@ describe('VSCode Data mapper Webview UI Tests', () => {
 
         // Wait for the data mapper to load
         await switchToIFrame('Overview Diagram', driver);
-        await driver.wait(until.elementLocated(By.xpath("//*[@data-testid='data-mapper-form']")), 30000);
-
-        // Close code editor as it blocks the vscode-extension-tester:Webview from detecting elements
-        webview = new WebView();
-        await webview.switchBack();
-        await new EditorView().closeEditor(FILE_NAME);
+        await driver.wait(until.elementLocated(By.xpath("//*[@data-testid='data-mapper-form']")), 10000);
     });
 
     it('Configure data mapper transform function', async () => {
         webview = new WebView();
-        await webview.switchToFrame();
 
         // Click on add new record button for imports
         const inputNewRecord = await webview.findWebElement(By.xpath("//*[@data-testid='dm-inputs']//button[@data-testid='new-record']"));
@@ -129,9 +126,7 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         await wait(5000);
     });
 
-    it.skip('Create mapping between data mapper nodes', async () => {
-        await webview.switchToFrame();
-
+    it('Create mapping between data mapper nodes', async () => {
         // Create mapping between Input.st1 and Output.st1
         const inputSt1 = await webview.findWebElement(By.xpath("//div[@data-name='input.st1.OUT']"));
         await inputSt1.click();
@@ -142,11 +137,9 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         await wait(5000);
     });
 
-    it.skip('Verify data mapper generated code is correct', async () => {
+    it('Verify data mapper generated code is correct', async () => {
         await webview.switchBack();
 
-        await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
-        await wait(5000);
         await new EditorView().openEditor(FILE_NAME);
 
         // Check if generated code equals expected code
@@ -155,17 +148,15 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         expect(text.replace(/\s/g, '')).to.include(EXPECTED_TRANSFORM_FUNCTION.replace(/\s/g, ''));
     });
 
-    // after(async () => {
-    //     await webview.switchBack()
+    after(async () => {
+        await webview.switchBack();
 
-    //     await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
-    //     await wait(5000);
-    //     await new EditorView().openEditor(FILE_NAME);
+        await new EditorView().openEditor(FILE_NAME);
 
-    //     // Revert content back to the original state
-    //     const textEditor = new TextEditor();
+        // Revert content back to the original state
+        const textEditor = new TextEditor();
 
-    //     await textEditor.setText(ORIGINAL_CONTENT);
-    //     await textEditor.save();
-    // });
+        await textEditor.setText(ORIGINAL_CONTENT);
+        await textEditor.save();
+    });
 });
