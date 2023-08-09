@@ -22,7 +22,7 @@ const allowedOrgList = ['ballerina-platform', 'ballerina-guides', 'ballerinax', 
 const gitDomain = "github.com";
 const gistOwner = "ballerina-github-bot";
 
-export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, gitFile?: string) {
+export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, repoFileUrl?: string) {
 
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
@@ -31,18 +31,18 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
     let validGist = false;
     let validRepo = false;
     // Domain verification for git file download
-    if (gitFile) {
-        const url = new URL(gitFile);
+    if (repoFileUrl) {
+        const url = new URL(repoFileUrl);
         const mainDomain = url.hostname;
         validDomain = mainDomain === gitDomain;
         if (validDomain) {
-            const username = getGithubUsername(gitFile);
+            const username = getGithubUsername(repoFileUrl);
             if (allowedOrgList.includes(username)) {
                 validRepo = true;
             }
         }
     }
-    const fileName = file || path.basename(new URL(gitFile).pathname);
+    const fileName = file || path.basename(new URL(repoFileUrl).pathname);
     const filePath = path.join(selectedPath, fileName);
     let isSuccess = false;
 
@@ -59,7 +59,7 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
 
         try {
             if (fileName.endsWith('.bal')) {
-                let rawFileLink = gitFile && getGitHubRawFileUrl(gitFile);
+                let rawFileLink = repoFileUrl && getGitHubRawFileUrl(repoFileUrl);
                 if (gist) {
                     const response = await axios.get(`https://api.github.com/gists/${gist}`);
                     const gistDetails = response.data;

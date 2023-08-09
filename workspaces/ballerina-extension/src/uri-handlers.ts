@@ -38,9 +38,9 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                 case '/open-file':
                     const gistId = urlParams.get('gist');
                     const fileName = urlParams.get('file');
-                    const gitFile = urlParams.get('gitFile');
-                    if ((gistId && fileName) || gitFile) {
-                        handleOpenFile(ballerinaExtInstance, gistId, fileName, gitFile);
+                    const repoFileUrl = urlParams.get('repoFileUrl');
+                    if ((gistId && fileName) || repoFileUrl) {
+                        handleOpenFile(ballerinaExtInstance, gistId, fileName, repoFileUrl);
                     }else {
                         window.showErrorMessage(`Gist or the file not found!`);
                     }

@@ -95,14 +95,14 @@ describe('Open ballerina samples in VSCode from URL', () => {
 
     it('Open URL to download github sample file', async () => {
         // Use Developer URL to excecute a URL
-        const url = 'vscode://wso2.ballerina/open-file?gitFile=https://github.com/wso2/choreo-sample-apps/blob/main/ballerina/greeter/service.bal';
+        const url = 'vscode://wso2.ballerina/open-file?repoFileUrl=https://github.com/wso2/choreo-sample-apps/blob/main/ballerina/greeter/service.bal';
         await executeURLdownload(driver, url);
         expect(existsSync(`${samplesDownloadDirectory}/service.bal`)).to.be.true;
     });
 
     it('Open URL to download not valid github sample file', async () => {
         // Use Developer URL to excecute a URL
-        const url = 'vscode://wso2.ballerina/open-file?gitFile=https://github.com/jclark/semtype/blob/master/main.bal';
+        const url = 'vscode://wso2.ballerina/open-file?repoFileUrl=https://github.com/jclark/semtype/blob/master/main.bal';
         await executeURLdownload(driver, url);
         expect(existsSync(`${samplesDownloadDirectory}/main.bal`)).to.be.not.true;
     });
