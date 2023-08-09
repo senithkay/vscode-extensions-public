@@ -203,9 +203,25 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
 
 async function openFileInVSCode(filePath: string): Promise<void> {
     const uri = Uri.file(filePath);
+    const message = `Would you like to open the downloaded file?`;
+    const newWindow: MessageItem = { title: "Open in New Window" };
+    const sameWindow: MessageItem = { title: 'Open' };
+    const result = await window.showInformationMessage(message, { modal: true }, sameWindow, newWindow);
+    if (!result) {
+        return; // User cancelled
+    }
     try {
-        const document = await workspace.openTextDocument(uri);
-        await window.showTextDocument(document);
+        switch (result) {
+            case newWindow:
+                await commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: true });
+                break;
+            case sameWindow:
+                const document = await workspace.openTextDocument(uri);
+                await window.showTextDocument(document, { preview: false });
+                break;
+            default:
+                break;
+        }
     } catch (error) {
         window.showErrorMessage(`Failed to open file: ${error}`);
     }
