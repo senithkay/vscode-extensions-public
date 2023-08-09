@@ -8,7 +8,15 @@
  */
 
 import { expect } from "chai";
-import { SideBarView, CustomTreeSection, ActivityBar, By, until, VSBrowser, Locator, WebElement, WebElementPromise } from "vscode-extension-tester";
+import {
+    By,
+    until,
+    VSBrowser,
+    Locator,
+    WebElement,
+    WebElementPromise,
+    WebDriver
+} from "vscode-extension-tester";
 
 export function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -38,3 +46,27 @@ export function areVariablesIncludedInString(variables, str) {
     }
     return true;
 }
+
+export const switchToIFrame = async (frameName: string, driver: WebDriver): Promise<WebElement> => {
+    let allIFrames: WebElement[] = [];
+    while (allIFrames.length === 0) {
+        allIFrames = await driver.findElements(By.xpath("//iframe"));
+    }
+    for (const iframeItem of allIFrames) {
+        try {
+            await driver.switchTo().frame(iframeItem);
+            try {
+                const frameElement = await driver.wait(until.elementLocated(By.xpath(`//iframe[@title='${frameName}']`)), 10000);
+                await driver.switchTo().frame(frameElement);
+                return frameElement;
+            } catch {
+                // Go back to root level if unable to find the frame name
+                await driver.switchTo().parentFrame();
+            }
+        } catch {
+            // no need to handle this catch block
+        }
+    }
+
+    throw new Error(`IFrame of ${frameName} not found`);
+};
