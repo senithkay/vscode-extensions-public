@@ -54,7 +54,7 @@ export function areVariablesIncludedInString(variables, str) {
     return true;
 }
 
-export const clickDialogButton = async (driver: WebDriver, text: string) => {
+export async function clickDialogButton(driver, text) {
     // Find the path input boxes
     const inputs = await driver.findElements(By.linkText(text));
     // Iterate over the path input boxes
