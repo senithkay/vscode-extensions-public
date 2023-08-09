@@ -11,7 +11,7 @@ import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, VSBrowser, WebView, EditorView, TextEditor, until, WebDriver } from 'vscode-extension-tester';
-import { clickOnActivity, switchToIFrame, wait } from './util';
+import { clickOnActivity, switchToIFrame, wait, waitTillCodeLensVisible, waitUntil } from './util';
 import { EXPLORER_ACTIVITY } from "./constants";
 
 describe('VSCode Data mapper Webview UI Tests', () => {
@@ -40,21 +40,21 @@ describe('VSCode Data mapper Webview UI Tests', () => {
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await clickOnActivity(EXPLORER_ACTIVITY);
 
-        await wait(10000);
-
         ORIGINAL_CONTENT = await new TextEditor().getText();
     });
     
     it('Open data mapper using code lens', async () => {
-        await wait(10000);  // wait for code lenses to appear
+        // wait till 'Visualize' code lens to appear
+        await waitTillCodeLensVisible('Visualize code block', driver);
 
-        // Click on `Design` code lens to open up data mapper
+        // Click on `Visualize` code lens to open up data mapper
         const lens = await new TextEditor().getCodeLens('Visualize');
         await lens?.click();
 
         // Wait for the data mapper to load
         await switchToIFrame('Overview Diagram', driver);
-        await driver.wait(until.elementLocated(By.xpath("//*[@data-testid='data-mapper-form']")), 10000);
+        const dataMapperForm = By.xpath("//*[@data-testid='data-mapper-form']");
+        await waitUntil(dataMapperForm);
     });
 
     it('Configure data mapper transform function', async () => {
