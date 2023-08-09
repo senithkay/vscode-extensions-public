@@ -15,7 +15,7 @@ import assert = require("assert");
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { join } from "path";
-import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar, until } from 'vscode-extension-tester';
+import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar, until, WebDriver, SideBarView, CustomEditor, CustomTreeSection, WelcomeContentSection, WebElement } from 'vscode-extension-tester';
 import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, deleteFoldersRecursively, deleteProject, handleGitHubLogin, hasFoldersInRepository, signIntoChoreo, wait } from "./resources";
 import * as dotenv from "dotenv";
 import * as fs from 'fs';
@@ -29,9 +29,12 @@ const GIT_ORG_NAME = "choreo-test-apps";
 const COMPONENT_NAME = `test_component_${new Date().getTime()}`;
 
 describe("Project overview tests", () => {
+    // todo: Delete following if not used
     let editor: EditorView;
     let diagramWebview: WebView;
     let workbench: Workbench;
+
+    const driver = VSBrowser.instance.driver;
 
     before(async () => {
         expect(process.env.TEST_IDP_USERNAME).to.be.a("string");
@@ -44,28 +47,19 @@ describe("Project overview tests", () => {
         }
 
         await VSBrowser.instance.waitForWorkbench();
+        await wait(5000);   // Wait for the extensions to activate
 
-        workbench = new Workbench();
-        VSBrowser.instance.openResources();
-        await wait(6000);
-
-        editor = new EditorView();
-        await editor.closeAllEditors();
-        await wait(2000);
-
-        // const activityBar = new ActivityBar();
-        // const choreoActivityIcon = await activityBar.getViewControl("Choreo");
-        // await choreoActivityIcon?.click();
-        // await wait(2000);
-
-        await signIntoChoreo(editor, workbench);
+        await signIntoChoreo();
+        
+        await wait(20000);
         // await deleteProject(PROJECT_NAME);
     });
 
     it.only("Create new project", async () => {
-        await wait(10000);
-        await workbench.executeCommand("Create New Project");
-        await wait(30000);
+        diagramWebview = new WebView();
+        // await wait(10000);
+        // await workbench.executeCommand("Create New Project");
+        // await wait(30000);
     });
 
     it("Clone the project", async () => {
