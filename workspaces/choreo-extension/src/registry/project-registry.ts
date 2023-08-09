@@ -414,12 +414,14 @@ export class ProjectRegistry {
                 const projectLocation = this.getProjectLocation(projectId);
                 if(projectLocation && org){
                     for (const component of allComponents) {
-                        await ext.clients.projectClient.deleteComponent({
-                            component,
-                            orgId: orgId,
-                            orgHandle: component.orgHandler,
-                            projectId: projectId,
-                        });
+                        if (!component.local && component.id) {
+                            await ext.clients.projectClient.deleteComponent({
+                                component,
+                                orgId: orgId,
+                                orgHandle: component.orgHandler,
+                                projectId: projectId,
+                            });
+                        }
 
                         this.deleteLocalComponentFiles(component, projectLocation);
                         this._removeComponentFromWorkspace(component.name, projectLocation);
