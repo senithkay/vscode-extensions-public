@@ -103,7 +103,8 @@ export function activatePasteXMLAsRecord() {
                         error => {
                             window.showErrorMessage(error.message);
                             sendTelemetryException(ballerinaExtInstance, error, CMP_JSON_TO_RECORD);
-                        });
+                        }
+                    });
             },
                 error => {
                     window.showErrorMessage(error.message);
