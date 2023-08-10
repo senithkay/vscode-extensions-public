@@ -29,11 +29,11 @@ export interface ArrayTypeProps extends ConfigElementProps {
 export const ArrayType = (props: ArrayTypeProps): ReactElement => {
     let arrayType: ConfigType;
     let isNestedArray: boolean;
-    if (props.schema[SchemaConstants.ITEMS][SchemaConstants.TYPE] === ConfigType.ARRAY) {
-        arrayType = getType(props.schema[SchemaConstants.ITEMS][SchemaConstants.ITEMS][SchemaConstants.TYPE]);
+    if (props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE] === ConfigType.ARRAY) {
+        arrayType = getType(props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
         isNestedArray = true;
     } else {
-        arrayType = getType(props.schema[SchemaConstants.ITEMS][SchemaConstants.TYPE]);
+        arrayType = getType(props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
     }
     const arrayTypeProps: ObjectArrayProps | SimpleArrayProps = {
         ...props,
