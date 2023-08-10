@@ -8,6 +8,5 @@
     
     [authConfig]	# Type of OBJECT
     # For more information refer https://lib.ballerina.io/ballerina/http/
-    
-isAdmin = false	# Type of BOOLEAN
 
+isAdmin = false	# Type of BOOLEAN
