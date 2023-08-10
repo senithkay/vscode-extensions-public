@@ -80,7 +80,7 @@
             "name": "Debug Ballerina UI Tests",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/workspaces/ballerina-extension/node_modules/.bin/extest",
+            "program": "${workspaceFolder}/workspaces/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js",
             "args": [
                 "run-tests",
                 "${workspaceFolder}/workspaces/ballerina-extension/out/ui-test/*.js",
@@ -89,7 +89,22 @@
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "preLaunchTask": "npm: test-compile"
+            "preLaunchTask": "compile:ballerina-tests"
+        },
+        {
+            "name": "Debug Choreo UI Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/workspaces/choreo-extension/node_modules/vscode-extension-tester/out/cli.js",
+            "args": [
+                "run-tests",
+                "${workspaceFolder}/workspaces/choreo-extension/dist/tests/e2e-tests/*.js",
+                "--mocha_config",
+                "${workspaceFolder}/workspaces/choreo-extension/src/tests/e2e-tests/.mocharc.js"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "preLaunchTask": "compile:choreo-tests"
         }
     ]
 }
