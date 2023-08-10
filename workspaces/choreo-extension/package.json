@@ -307,7 +307,6 @@
     "jschardet": "^3.0.0",
     "which": "^3.0.0",
     "@vscode/extension-telemetry": "~0.7.7",
-    "dotenv": "^16.0.3",
-    "cypress": "~12.17.3"
+    "dotenv": "^16.0.3"
   }
 }
