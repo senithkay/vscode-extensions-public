@@ -15,11 +15,11 @@ import {
     clickOnActivity,
     switchToIFrame,
     waitForElementToDisappear,
-    waitUntilCodeLensVisible,
     waitUntil,
     waitForMultipleElementsLocated
 } from './util';
 import { EXPLORER_ACTIVITY } from "./constants";
+import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 
 describe('VSCode Data mapper Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -51,11 +51,9 @@ describe('VSCode Data mapper Webview UI Tests', () => {
     });
     
     it('Open data mapper using code lens', async () => {
-        // wait till 'Visualize' code lens to appear
-        await waitUntilCodeLensVisible('Visualize code block', driver);
-
-        // Click on `Visualize` code lens to open up data mapper
-        const lens = await new TextEditor().getCodeLens('Visualize');
+        // Wait and click on `Visualize` code lens to open up data mapper
+        const editorView = new ExtendedEditorView(new EditorView());
+        const lens = await editorView.getCodeLens('Visualize');
         await lens?.click();
 
         // Wait for the data mapper to load
