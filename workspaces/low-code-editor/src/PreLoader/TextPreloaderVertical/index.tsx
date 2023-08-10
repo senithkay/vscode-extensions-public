@@ -34,7 +34,10 @@ export function TextPreloaderVertical(props: TextPreloaderVerticalProps) {
     };
 
     return (
-        <div className={loaderPosition}>
+        <div
+            className={loaderPosition}
+            data-testid={"test-preloader-vertical"}
+        >
             <Lottie options={defaultOptions} height={`100%`} width={`100%`} />
         </div>
     );

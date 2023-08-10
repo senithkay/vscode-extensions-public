@@ -41,7 +41,7 @@ describe.skip("Architecture view tests", () => {
         await editor.closeAllEditors();
         await wait(2000);
 
-        await signIntoChoreo(editor, workbench);
+        // await signIntoChoreo(editor, workbench);
     });
 
     it("Generate Architecture View", async () => {

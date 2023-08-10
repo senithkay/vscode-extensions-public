@@ -1,3 +1,4 @@
 {
-    "extensions.autoUpdate": false
+    "extensions.autoUpdate": false,
+    "Advanced.ChoreoEnvironment": "dev"
 }
