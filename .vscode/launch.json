@@ -85,7 +85,9 @@
                 "run-tests",
                 "${workspaceFolder}/workspaces/ballerina-extension/out/ui-test/*.js",
                 "--mocha_config",
-                "${workspaceFolder}/workspaces/ballerina-extension/ui-test/.mocharc.js"
+                "${workspaceFolder}/workspaces/ballerina-extension/ui-test/.mocharc.js",
+                "-o",
+                "${workspaceFolder}/workspaces/ballerina-extension/ui-test/settings.json"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
@@ -100,7 +102,9 @@
                 "run-tests",
                 "${workspaceFolder}/workspaces/choreo-extension/dist/tests/e2e-tests/*.js",
                 "--mocha_config",
-                "${workspaceFolder}/workspaces/choreo-extension/src/tests/e2e-tests/.mocharc.js"
+                "${workspaceFolder}/workspaces/choreo-extension/src/tests/e2e-tests/.mocharc.js",
+                "-o",
+                "${workspaceFolder}/workspaces/choreo-extension/src/tests/e2e-tests/settings.json"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
