@@ -35,9 +35,19 @@ export class VSBrowser {
         const args = [
             '--no-sandbox', 
             '--enable-logging',
+            '--log-level=0',
             `--log-file=${path.join(this.storagePath, 'settings', 'chromium-log')}`, 
             `--crash-reporter-directory=${path.join(this.storagePath, 'settings', 'crash-reports')}`,
-            '--enable-blink-features=ShadowDOMV0'
+            '--enable-blink-features=ShadowDOMV0',
+            '--disable-renderer-backgrounding',
+            '--ignore-certificate-errors',
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+            '--autoplay-policy=no-user-gesture-required',
+            '--disable-site-isolation-trials',
+            '--disable-dev-shm-usage',
+            '--disable-ipc-flooding-protection',
+            '--enable-precise-memory-info'
         ];
 
         if (this.extensionsFolder) {

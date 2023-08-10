@@ -12,6 +12,7 @@ const filteredEnv = ['ELECTRON_RUN_AS_NODE', 'NODE_OPTIONS', 'NODE_TLS_REJECT_UN
 
 module.exports = defineConfig({
   e2e: {
+    testIsolation: false,
     setupNodeEvents(on, config) {
       on('before:browser:launch', (browser, launchOptions) => {
           
