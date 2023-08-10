@@ -23,7 +23,7 @@ const StepContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     gap: 20px;
-    min-height: calc(100vh - 250px);
+    min-height: calc(100vh - 210px);
 `;
 
 const SectionWrapper = styled.div`

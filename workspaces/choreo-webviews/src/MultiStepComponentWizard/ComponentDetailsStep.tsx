@@ -29,7 +29,7 @@ const StepContainer = styled.div`
     gap: 20px;
     width: 100%;
     min-width: 400px;
-    min-height: calc(100vh - 250px);
+    min-height: calc(100vh - 210px);
 `;
 
 const DropDownContainer = styled.div`
