@@ -12,7 +12,28 @@
  */
 
 import { choreoEnvConfig, getConsoleUrl } from "../auth/auth";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType, GitRepo, GitProvider, Endpoint, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import {
+    BYOCRepositoryDetails,
+    ChoreoComponentCreationParams,
+    Component,
+    ComponentCount,
+    Environment,
+    getLocalComponentDirMetaDataRes,
+    getLocalComponentDirMetaDataRequest,
+    Organization,
+    Project,
+    PushedComponent,
+    serializeError,
+    WorkspaceComponentMetadata,
+    ChoreoServiceType,
+    ComponentDisplayType,
+    GitRepo,
+    GitProvider,
+    Endpoint,
+    getEndpointsForVersion,
+    EndpointData,
+    WorkspaceConfig
+} from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -24,12 +45,11 @@ import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
-import { makeURLSafe } from "../utils";
+import { getComponentDirPath, makeURLSafe } from "../utils";
 import * as yaml from 'js-yaml';
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
-const PROJECT_REPOSITORIES = "project-repositories-v2";
 const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories-v2";
 const EXPANDED_COMPONENTS = "expanded-components";
 
@@ -222,17 +242,51 @@ export class ProjectRegistry {
             throw new Error("Error: Could not detect a project workspace.");
         }
     }
+    
+    getSourceFiles(projectLocation: string, component: Component): { path: string; label: string;}[] {
+        const componentPath = getComponentDirPath(component, projectLocation);
+        const repo = component.repository;
+        if (componentPath) {
+            if (component.displayType?.startsWith("byoc")) {
+                const files = [];
+                const dockerFilePath = repo?.byocBuildConfig?.dockerfilePath;
+                if (dockerFilePath && repo?.organizationApp && repo?.nameApp) {
+                    const dockerFileFullPath = join(dirname(projectLocation), "repos", repo?.organizationApp, repo?.nameApp, dockerFilePath);
+                    if (existsSync(dockerFileFullPath)) {
+                        files.push({ path: dockerFileFullPath, label: "Dockerfile" });
+                    }
+                }
+
+                const endpointsYamlPath = join(componentPath, '.choreo', 'endpoints.yaml');
+                if (existsSync(endpointsYamlPath)){
+                    files.push({ path: endpointsYamlPath, label: "Endpoints" });
+                }
+                return files;
+            } else {
+                if (existsSync(join(componentPath, "service.bal"))) {
+                    return [{ path: join(componentPath, "service.bal"), label: "Source" }];
+                } else if (existsSync(join(componentPath, "main.bal"))) {
+                    return [{ path: join(componentPath, "main.bal"), label: "Source" }];
+                } else if (existsSync(join(componentPath, "sample.bal"))) {
+                    return [{ path: join(componentPath, "sample.bal"), label: "Source" }];
+                }
+            }
+        }
+        return [];
+    }
 
     async getComponents(projId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
             let components = await executeWithTaskRetryPrompt(() =>
                 ext.clients.projectClient.getComponents({ projId, orgId, orgHandle, orgUuid })
             );
+            const projectLocation = this.getProjectLocation(projId);
             components = this._addLocalComponents(projId, components);
             components = await Promise.all(
                 components.map(async (component) => {
-                    const componentPath = this.getComponentDirPath(component);
+                    const componentPath = projectLocation ? getComponentDirPath(component, projectLocation) : '';
                     const isRemoteOnly = componentPath ? !existsSync(componentPath) : false;
+                    const filePaths = projectLocation ? this.getSourceFiles(projectLocation, component): undefined;
                     let hasUnPushedLocalCommits = false;
                     let hasDirtyLocalRepo = false;
 
@@ -248,6 +302,7 @@ export class ProjectRegistry {
                         hasUnPushedLocalCommits,
                         hasDirtyLocalRepo,
                         isRemoteOnly,
+                        filePaths
                     } as Component;
                 })
             );
@@ -258,7 +313,7 @@ export class ProjectRegistry {
         } catch (error: any) {
             const errorMetadata = error?.cause?.response?.metadata;
             getLogger().error("Error while fetching components. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-            throw new Error("Failed to fetch component list. " + errorMetadata?.errorCode || error?.message);
+            throw new Error(`Failed to fetch component list. ${errorMetadata?.errorCode ?? error?.message}`);
         }
     }
 
@@ -305,26 +360,6 @@ export class ProjectRegistry {
 
         const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
         vscode.window.showInformationMessage(successMsg);
-    }
-
-
-    private getComponentDirPath(component: Component) {
-        const projectLocation = this.getProjectLocation(component.projectId);
-        const repository = component.repository;
-        if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
-            const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
-            if (appSubPath) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
-            } else if (byocWebAppBuildConfig) {
-                if (byocWebAppBuildConfig?.dockerContext) {
-                    return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.dockerContext);
-                } else if (byocWebAppBuildConfig?.outputDirectory) {
-                    return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.outputDirectory);
-                }
-            } else if (byocBuildConfig) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
-            }
-        }
     }
 
     public async getComponentBuildStatus(orgId: number, orgHandle: string, component: Component) {
@@ -400,8 +435,8 @@ export class ProjectRegistry {
                         }
                     } else if (!component?.isRemoteOnly && component?.repository) {
                         const { organizationApp, nameApp } = component.repository;
-                        const subPath = component.repository.appSubPath 
-                            || component.repository.byocBuildConfig?.dockerContext 
+                        const subPath = component.repository.appSubPath
+                            || component.repository.byocBuildConfig?.dockerContext
                             || component.repository.byocWebAppBuildConfig?.dockerContext
                             || component.repository.byocWebAppBuildConfig?.outputDirectory;
                         if (subPath) {
@@ -445,7 +480,7 @@ export class ProjectRegistry {
                     }
                 });
 
-                const componentPath = this.getComponentDirPath(componentToBePulled);
+                const componentPath = getComponentDirPath(componentToBePulled, projectLocation);
                 if (componentPath && !existsSync(componentPath)){
                     const selection = await window.showErrorMessage("Error: Directory for the component does not exist", "Delete Component");
                     if(selection === "Delete Component"){
@@ -483,6 +518,10 @@ export class ProjectRegistry {
 
     async getDiagramModel(projId: string, orgId: number, orgHandle: string): Promise<Component[]> {
         return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getDiagramModel({ projId, orgHandle, orgId }));
+    }
+
+    async getEndpointsForVersion(componentId: string, version: string, orgId: number): Promise<EndpointData | null> {
+        return executeWithTaskRetryPrompt(() => ext.clients.projectClient.getEndpointData(componentId, version, orgId));
     }
 
     async getPerformanceForecast(orgId: number, orgHandle: string, data: string): Promise<AxiosResponse> {
@@ -533,16 +572,16 @@ export class ProjectRegistry {
     }
 
     setExpandedComponents(projectId: string, expandedComponentNames: string[]) {
-        let projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        let projectExpandedComponents: Record<string, string[]> | undefined = ext.context.workspaceState.get(EXPANDED_COMPONENTS);
         if (projectExpandedComponents === undefined) {
             projectExpandedComponents = {};
         }
         projectExpandedComponents[projectId] = expandedComponentNames;
-        ext.context.globalState.update(EXPANDED_COMPONENTS, projectExpandedComponents);
+        ext.context.workspaceState.update(EXPANDED_COMPONENTS, projectExpandedComponents);
     }
 
     getExpandedComponents(projectId: string): string[] {
-        const projectExpandedComponents: Record<string, string[]> | undefined = ext.context.globalState.get(EXPANDED_COMPONENTS);
+        const projectExpandedComponents: Record<string, string[]> | undefined = ext.context.workspaceState.get(EXPANDED_COMPONENTS);
         const componentNames = projectExpandedComponents?.[projectId];
         return componentNames ?? [];
     }
@@ -562,7 +601,7 @@ export class ProjectRegistry {
         return preferredRepository;
     }
 
-    pushLocalComponentsToChoreo(projectId: string, componentNames: string[] = []): Thenable<string[]> {
+    pushLocalComponentsToChoreo(projectId: string, componentNames: string[] = [], org: Organization): Thenable<string[]> {
         return window.withProgress({
             title: `Pushing local components to Choreo`,
             location: ProgressLocation.Notification,
@@ -617,7 +656,15 @@ export class ProjectRegistry {
                     if (failedComponentsDueToMaxLimit.length > 0 ){
                         errorMessage += `(${failedComponentsDueToMaxLimit.join(',')}) Due to reaching maximum number of components`;
                     }
-                    window.showErrorMessage(errorMessage);
+                    if (failedComponentsDueToMaxLimit.length > 0) {
+                        window.showErrorMessage(errorMessage, "Upgrade").then(selection => {
+                            if (selection === 'Upgrade') {
+                                this.openBillingPortal(org.uuid);
+                            }
+                        });
+                    } else {
+                        window.showErrorMessage(errorMessage);
+                    }
                 }
             }
             return successComponentNames;
@@ -630,8 +677,9 @@ export class ProjectRegistry {
 
     async fetchComponentsFromCache(projectId: string, orgId: number, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {
         try {
-            if (!this._dataComponents.get(projectId)?.length) {
-                await this.getComponents(projectId, orgId, orgHandle, orgUuid);
+            if (!this._dataComponents.has(projectId)) {
+                const components = await this.getComponents(projectId, orgId, orgHandle, orgUuid);
+                return components;
             }
             return this._dataComponents.get(projectId);
         } catch (e) {
@@ -696,7 +744,7 @@ export class ProjectRegistry {
         }
     }
 
-    async pushLocalComponentToChoreo(projectId: string, componentName: string): Promise<void> {
+    async pushLocalComponentToChoreo(projectId: string, componentName: string, org: Organization): Promise<void> {
         const choreoPM = new ChoreoProjectManager();
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
         if (projectLocation !== undefined) {
@@ -713,10 +761,18 @@ export class ProjectRegistry {
                     vscode.window.showInformationMessage(`The component ${componentMetadata.displayName} has been successfully pushed to Choreo.`);
                 } catch (error: any) {
                     if (error.cause?.response?.metadata?.additionalData === "REACHED_MAXIMUM_NUMBER_OF_FREE_COMPONENTS") {
-                        throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo due to reaching maximum number of components`);
+                        const errorMessage = `Failed to push ${componentMetadata.displayName} to Choreo due to reaching maximum number of components`;
+                        window.showErrorMessage(errorMessage, "Upgrade").then(selection => {
+                            if (selection === 'Upgrade') {
+                                this.openBillingPortal(org.uuid);
+                            }
+                        });
+                        throw new Error(errorMessage);
                     } else {
+                        const errorMessage = `Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message}`;
                         getLogger().error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message} ${error?.cause ? "\nCause: " + error.cause.message : ""}`);
-                        throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message}`);
+                        window.showErrorMessage(errorMessage);
+                        throw new Error(errorMessage);
                     }
                 }
             }

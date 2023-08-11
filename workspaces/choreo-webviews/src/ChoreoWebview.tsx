@@ -22,6 +22,7 @@ import { ProjectView } from "./ActivityBar/ProjectView";
 import { AccountView } from "./ActivityBar/AccountView";
 import { ChoreoComponentsContextProvider } from "./context/choreo-components-ctx";
 import { ChoreoWebViewContextProvider } from "./context/choreo-web-view-ctx";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 export const Main: React.FC<any> = styled.main`
     display: flex;
@@ -42,42 +43,44 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
     const { type, orgName, projectId, choreoUrl, componentCreateMode } = props;
     return (
         <ChoreoWebviewQueryClientProvider>
-            <Main>
-                {(() => {
-                    switch (type) {
-                        case "ChoreoArchitectureView":
-                            return <ChoreoArchitectureView projectId={projectId} orgName={orgName} />;
-                        case "ProjectCreateForm":
-                            return (
-                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
-                                    <ProjectWizard orgId={orgName} />
-                                </ChoreoWebViewContextProvider>
-                            );
-                        case "ComponentCreateForm":
-                            return (
-                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    <ComponentWizard componentCreateMode={componentCreateMode} />
-                                </ChoreoWebViewContextProvider>
-                            );
-                        case "ActivityBarAccountView":
-                            return (
-                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    <AccountView />
-                                </ChoreoWebViewContextProvider>
-                            );
-                        case "ActivityBarProjectView":
-                            return (
-                                <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                    <ChoreoComponentsContextProvider>
-                                        <ProjectView />
-                                    </ChoreoComponentsContextProvider>
-                                </ChoreoWebViewContextProvider>
-                            );
-                        default:
-                            return null;
-                    }
-                })()}
-            </Main>
+            <ErrorBoundary>
+                <Main>
+                    {(() => {
+                        switch (type) {
+                            case "ChoreoArchitectureView":
+                                return <ChoreoArchitectureView projectId={projectId} orgName={orgName} />;
+                            case "ProjectCreateForm":
+                                return (
+                                    <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
+                                        <ProjectWizard orgId={orgName} />
+                                    </ChoreoWebViewContextProvider>
+                                );
+                            case "ComponentCreateForm":
+                                return (
+                                    <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
+                                        <ComponentWizard componentCreateMode={componentCreateMode} />
+                                    </ChoreoWebViewContextProvider>
+                                );
+                            case "ActivityBarAccountView":
+                                return (
+                                    <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
+                                        <AccountView />
+                                    </ChoreoWebViewContextProvider>
+                                );
+                            case "ActivityBarProjectView":
+                                return (
+                                    <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
+                                        <ChoreoComponentsContextProvider>
+                                            <ProjectView />
+                                        </ChoreoComponentsContextProvider>
+                                    </ChoreoWebViewContextProvider>
+                                );
+                            default:
+                                return null;
+                        }
+                    })()}
+                </Main>
+            </ErrorBoundary>
         </ChoreoWebviewQueryClientProvider>
     );
 }

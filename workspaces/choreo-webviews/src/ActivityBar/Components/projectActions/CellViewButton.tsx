@@ -18,25 +18,23 @@ import { ProjectActionButton } from "../ProjectActionButton";
 import { CellViewIcon } from "../../../icons";
 
 export const CellViewButton = () => {
-    
-    const { choreoProject } = useChoreoWebViewContext();
+    const { choreoProject, isBalExtInstalled } = useChoreoWebViewContext();
 
     const handleClick = () => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
             eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
-            properties: {
-                project: choreoProject?.name
-            }
+            properties: { project: choreoProject?.name },
         });
         ChoreoWebViewAPI.getInstance().openCellView();
-    }
-    
+    };
+
     return (
         <ProjectActionButton
             onClick={handleClick}
             label="Cell View"
             icon={<CellViewIcon />}
-            tooltip="Open Cell View"
+            tooltip={isBalExtInstalled ? "Open Architecture Diagram" : "Please install Ballerina VSCode extension"}
+            disabled={!isBalExtInstalled}
         />
     );
-}
+};
