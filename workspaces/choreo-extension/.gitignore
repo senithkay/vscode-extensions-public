@@ -5,3 +5,4 @@ resources/jslibs/main.js
 test-resources
 src/test/data/test_vscode
 .env
+playwright-report
