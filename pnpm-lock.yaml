@@ -10,7 +10,6 @@ importers:
       '@sentry/webpack-plugin': ^1.18.8
       '@types/chai': ^4.2.18
       '@types/lodash': ^4.14.189
-      '@types/mocha': ^10.0.0
       '@types/node': ^18.11.19
       '@types/tcp-port-used': ^1.0.0
       '@types/vscode': ^1.73.0
@@ -98,7 +97,6 @@ importers:
     devDependencies:
       '@sentry/webpack-plugin': 1.20.0
       '@types/chai': 4.3.4
-      '@types/mocha': 10.0.1
       '@types/node': 18.13.0
       '@types/tcp-port-used': 1.0.1
       '@types/vscode': 1.75.0
@@ -366,7 +364,6 @@ importers:
       '@types/chai': ^4.2.18
       '@types/glob': ^8.0.0
       '@types/lodash': ^4.14.189
-      '@types/mocha': ^10.0.0
       '@types/node': ^18.11.19
       '@types/sinon': ^10.0.0
       '@types/vscode': ^1.73.0
@@ -427,7 +424,6 @@ importers:
     devDependencies:
       '@istanbuljs/nyc-config-typescript': 1.0.2_nyc@15.1.0
       '@types/glob': 8.0.1
-      '@types/mocha': 10.0.1
       '@types/node': 18.13.0
       '@types/sinon': 10.0.13
       '@types/vscode': 1.75.0
@@ -11275,10 +11271,6 @@ packages:
 
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
-
-  /@types/mocha/10.0.1:
-    resolution: {integrity: sha512-/fvYntiO1GeICvqbQ3doGDIP97vWmvFt83GKguJ6prmQM2iXZfFcq6YE8KteFyRtX2/h5Hf91BYvPodJKFYv5Q==}
-    dev: true
 
   /@types/mousetrap/1.6.11:
     resolution: {integrity: sha512-F0oAily9Q9QQpv9JKxKn0zMKfOo36KHCW7myYsmUyf2t0g+sBTbG3UleTPoguHdE1z3GLFr3p7/wiOio52QFjQ==}
