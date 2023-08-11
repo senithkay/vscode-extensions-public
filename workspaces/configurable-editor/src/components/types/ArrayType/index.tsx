@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
 import React, { ReactElement } from "react";
 
 import { ConfigElementProps } from "../../ConfigElement";
@@ -24,16 +23,26 @@ export interface ArrayTypeProps extends ConfigElementProps {
     arrayType?: ConfigType;
     isNestedArray?: boolean;
     setArrayType?: (id: string, objectValue: any) => void;
+    isMapType?: boolean;
 }
 
 export const ArrayType = (props: ArrayTypeProps): ReactElement => {
     let arrayType: ConfigType;
     let isNestedArray: boolean;
-    if (props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE] === ConfigType.ARRAY) {
-        arrayType = getType(props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
-        isNestedArray = true;
+    if (props?.isMapType)  {
+        if (props.schema?.[SchemaConstants.ADDITIONAL_PROPERTIES]?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE] === ConfigType.ARRAY) {
+            arrayType = getType(props.schema?.[SchemaConstants.ADDITIONAL_PROPERTIES]?.[SchemaConstants.ITEMS]?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
+            isNestedArray = true;
+        } else {
+            arrayType = getType(props.schema?.[SchemaConstants.ADDITIONAL_PROPERTIES]?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
+        }
     } else {
-        arrayType = getType(props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
+        if (props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE] === ConfigType.ARRAY) {
+            arrayType = getType(props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
+            isNestedArray = true;
+        } else {
+            arrayType = getType(props.schema?.[SchemaConstants.ITEMS]?.[SchemaConstants.TYPE]);
+        }
     }
     const arrayTypeProps: ObjectArrayProps | SimpleArrayProps = {
         ...props,
