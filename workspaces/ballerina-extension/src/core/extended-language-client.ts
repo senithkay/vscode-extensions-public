@@ -728,7 +728,7 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE> {
-        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.JSON_TO_RECORD_CONVERT);
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.XML_TO_RECORD_CONVERT);
         const isSupported = true;
         return isSupported ? this.sendRequest(EXTENDED_APIS.XML_TO_RECORD_CONVERT, params) :
             Promise.resolve(NOT_SUPPORTED);
