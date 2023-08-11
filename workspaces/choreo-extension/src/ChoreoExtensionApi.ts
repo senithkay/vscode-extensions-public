@@ -25,7 +25,8 @@ import {
     ChoreoWorkspaceMetaData,
     Endpoint,
     ServiceTypes,
-    ComponentDisplayType
+    ComponentDisplayType,
+    EndpointData,
 } from "@wso2-enterprise/choreo-core";
 import { CMEntryPoint, CMResourceFunction, CMService, ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { existsSync, readFileSync } from 'fs';
@@ -35,7 +36,7 @@ import { getLogger } from './logger/logger';
 
 import * as path from "path";
 
-import { enrichDeploymentData, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
+import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
 import { STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
@@ -85,7 +86,7 @@ export class ChoreoExtensionApi {
                 this._userInfo = userInfo;
             } else {
                 getLogger().debug("User info not found in global state");
-            }   
+            }
         }
         return this._userInfo;
     }
@@ -114,7 +115,7 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
-    public setChoreoInstallOrg(selectedOrgId: number ) {
+    public setChoreoInstallOrg(selectedOrgId: number) {
         this._choreoInstallationOrgId = selectedOrgId;
     }
 
@@ -125,7 +126,7 @@ export class ChoreoExtensionApi {
     public clearChoreoInstallOrg() {
         this._choreoInstallationOrgId = undefined;
     }
-    
+
     public refreshComponentList() {
         this._onRefreshComponentList.fire(null);
     }
@@ -152,7 +153,7 @@ export class ChoreoExtensionApi {
         }
         return undefined;
     }
-    
+
     public async waitForLogin(): Promise<boolean> {
         switch (this._status) {
             case STATUS_LOGGED_IN:
@@ -185,7 +186,7 @@ export class ChoreoExtensionApi {
         return false;
     }
 
-    public getChoreoProjectId(): string|undefined {
+    public getChoreoProjectId(): string | undefined {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile && this.isChoreoProject()) {
             const workspaceFilePath = workspaceFile.fsPath;
@@ -196,7 +197,7 @@ export class ChoreoExtensionApi {
         }
     }
 
-    public getOrgIdOfCurrentProject(): number|undefined {
+    public getOrgIdOfCurrentProject(): number | undefined {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile && this.isChoreoProject()) {
             const workspaceFilePath = workspaceFile.fsPath;
@@ -248,8 +249,14 @@ export class ChoreoExtensionApi {
         return Promise.resolve(undefined);
     }
 
-    public async getPerformanceForecastData(orgId: number, orgHandle: string, data: string): Promise<AxiosResponse> {
-        return ProjectRegistry.getInstance().getPerformanceForecast(orgId, orgHandle, data);
+    public async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
+        const orgId = ext.api.getOrgIdOfCurrentProject();
+
+        if (!orgId) {
+            throw Error("Current project is not a Choreo project");
+        }
+        const orgHandle = ext.api.getOrgById(orgId)?.handle;
+        return ProjectRegistry.getInstance().getPerformanceForecast(orgId!, orgHandle!, data);
     }
 
     public async getSwaggerExamples(orgId: number, orgHandle: string, spec: any): Promise<AxiosResponse> {
@@ -275,7 +282,8 @@ export class ChoreoExtensionApi {
                         organization.id,
                         organization.handle, organization.uuid);
 
-                    choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
+                    for (const choreoComponent of choreoComponents || []) {
+                        const { name, displayType, id, accessibility, apiVersions, local } = choreoComponent;
                         const wsConfig = workspaceFileConfig.folders.find(component =>
                             component.name === name || makeURLSafe(component.name) === name
                         );
@@ -284,16 +292,17 @@ export class ChoreoExtensionApi {
                             for (const localModel of model.values()) {
                                 if (localModel.functionEntryPoint?.elementLocation?.filePath.includes(componentPath) &&
                                     (displayType === ChoreoComponentType.ScheduledTask.toString() || displayType === ChoreoComponentType.ManualTrigger.toString())) {
-                                        localModel.functionEntryPoint.type = displayType as any;
+                                    localModel.functionEntryPoint.type = displayType as any;
                                 }
-                                const response = enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                    componentPath, local, accessibility);
-                                if (response === true) {
+                                const response = await enrichDeploymentData(orgId, id,
+                                    new Map(Object.entries(localModel.services)), apiVersions, componentPath
+                                );
+                                if (response) {
                                     break;
                                 }
                             }
                         }
-                    });
+                    };
                 }
             }
         }
@@ -322,17 +331,27 @@ export class ChoreoExtensionApi {
 
                 const nonBalComponents = choreoComponents?.filter((item) => item.displayType?.startsWith("byoc"));
                 nonBalComponents?.forEach((component) => {
-                    const { organizationApp, nameApp, appSubPath } = component.repository ?? {};
-                    if (organizationApp && nameApp && appSubPath) {
-                        const componentPath = path.join(
-                            path.dirname(workspaceFileLocation),
-                            "repos",
-                            organizationApp,
-                            nameApp,
-                            appSubPath
-                        );
-                        const endpointsPath = path.join(componentPath, ".choreo", "endpoints.yaml");
 
+                    const defaultService: CMService = {
+                        dependencies: [],
+                        path: "",
+                        remoteFunctions: [],
+                        serviceId: component.id || component.name,
+                        serviceType: ServiceTypes.OTHER,
+                        resources: [],
+                        annotation: { id: component.id || component.name, label: component.displayName },
+                    };
+
+                    const defaultComponentModel: ComponentModel = {
+                        hasCompilationErrors: false,
+                        entities: new Map(),
+                        packageId: { name: component.name, org: organization.name, version: component.version },
+                        services: { [component.name]: defaultService } as any,
+                    };
+
+                    const componentPath = getComponentDirPath(component, workspaceFileLocation);
+                    if (component.displayType === ComponentDisplayType.ByocService && componentPath) {
+                        const endpointsPath = path.join(componentPath, ".choreo", "endpoints.yaml");
                         if (existsSync(endpointsPath)) {
                             const serviceBaseId = `${component.name}`;
                             const endpointsContent = yaml.load(readFileSync(endpointsPath, "utf8"));
@@ -342,7 +361,6 @@ export class ChoreoExtensionApi {
 
                             if (endpoints && Array.isArray(endpoints)) {
                                 for (const endpoint of endpoints) {
-                                    const endpointName = `${component.name}-${endpoint.name}`;
                                     let resources: CMResourceFunction[] = [];
 
                                     const serviceId = `${component.name}-${endpoint.name}`;
@@ -353,13 +371,11 @@ export class ChoreoExtensionApi {
                                     }
 
                                     const service: CMService = {
-                                        dependencies: [],
-                                        path: "",
-                                        remoteFunctions: [],
+                                        ...defaultService,
                                         serviceId,
                                         serviceType: endpoint?.type || ServiceTypes.HTTP,
                                         resources,
-                                        annotation: { id: serviceId, label: endpointName },
+                                        annotation: { id: serviceId, label: endpoint.name },
                                         elementLocation: {
                                             filePath: endpointsPath,
                                             startPosition: { line: 0, offset: 0 },
@@ -377,38 +393,38 @@ export class ChoreoExtensionApi {
                             }
 
                             nonBalMap[serviceBaseId] = {
-                                hasCompilationErrors: false,
-                                entities: new Map(),
-                                packageId: { name: component.name, org: organization.name, version: component.version },
+                                ...defaultComponentModel,
                                 services: services as any,
                             };
-                        } else {
-                            nonBalMap[component.name] = {
-                                hasCompilationErrors: false,
-                                entities: new Map(),
-                                packageId: { name: component.name, org: organization.name, version: component.version },
-                                services: new Map(),
-                                functionEntryPoint: {
-                                    annotation: { id: component.name, label: "" },
-                                    dependencies: [],
-                                    interactions: [],
-                                    parameters: [],
-                                    returns: [],
-                                },
-                            };
-
-                            if (component.displayType === ComponentDisplayType.ByocCronjob) {
-                                nonBalMap[component.name].functionEntryPoint = {
-                                    ...(nonBalMap[component.name].functionEntryPoint as CMEntryPoint),
-                                    type: "scheduledTask",
-                                };
-                            } else if (component.displayType === ComponentDisplayType.ByocJob) {
-                                nonBalMap[component.name].functionEntryPoint = {
-                                    ...(nonBalMap[component.name].functionEntryPoint as CMEntryPoint),
-                                    type: "manualTrigger",
-                                };
-                            }
+                        }  else {
+                            nonBalMap[component.name] = defaultComponentModel;
                         }
+                    } else if([ComponentDisplayType.ByocWebAppDockerLess, ComponentDisplayType.ByocWebApp].includes(component.displayType as ComponentDisplayType)) {
+                        const service: CMService = {
+                            ...defaultService,
+                            serviceType: ServiceTypes.WEBAPP,
+                            deploymentMetadata: { gateways: { internet: { isExposed: true }, intranet: { isExposed: false } }},
+                        };
+
+                        nonBalMap[component.name] = {
+                            ...defaultComponentModel,
+                            services: { [component.name]: service } as any,
+                        };
+                    } else if([ComponentDisplayType.ByocCronjob, ComponentDisplayType.ByocJob].includes(component.displayType as ComponentDisplayType)) {
+                        nonBalMap[component.name] = {
+                            ...defaultComponentModel,
+                            services: new Map(),
+                            functionEntryPoint: {
+                                annotation: { id: component.name, label: "" },
+                                dependencies: [],
+                                interactions: [],
+                                parameters: [],
+                                returns: [],
+                                type: component.displayType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask"
+                            },
+                        };
+                    } else {
+                        nonBalMap[component.name] = defaultComponentModel;
                     }
                 });
             }
@@ -425,7 +441,7 @@ export class ChoreoExtensionApi {
             if (!organization) {
                 throw new Error(`Organization with id ${orgId} not found under user ${this.userInfo?.displayName}`);
             }
-            const {  handle, id, uuid } = organization;
+            const { handle, id, uuid } = organization;
             const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, id, handle, uuid);
             const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
             const toDelete = components.find(component =>
