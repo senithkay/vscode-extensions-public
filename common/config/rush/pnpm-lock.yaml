@@ -379,7 +379,6 @@ importers:
   ../../workspaces/choreo-extension:
     specifiers:
       '@istanbuljs/nyc-config-typescript': ^1.0.2
-      '@playwright/test': ~1.36.2
       '@types/byline': ^4.2.33
       '@types/chai': ^4.2.18
       '@types/glob': ^8.0.0
@@ -426,6 +425,7 @@ importers:
       mocha: ^10.2.0
       nock: ~13.3.2
       nyc: ^15.1.0
+      playwright: ~1.36.2
       simple-git: ^3.15.1
       sinon: ^15.0.1
       source-map-support: ^0.5.21
@@ -469,7 +469,6 @@ importers:
       which: 3.0.0
     devDependencies:
       '@istanbuljs/nyc-config-typescript': 1.0.2_nyc@15.1.0
-      '@playwright/test': 1.36.2
       '@types/byline': 4.2.33
       '@types/glob': 8.1.0
       '@types/js-yaml': 4.0.5
@@ -493,6 +492,7 @@ importers:
       mocha: 10.2.0
       nock: 13.3.2
       nyc: 15.1.0
+      playwright: 1.36.2
       sinon: 15.0.2
       source-map-support: 0.5.21
       ts-loader: 9.4.2_cbz6r35m2it77sxuzifyafc6zi
@@ -7070,17 +7070,6 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
-  /@playwright/test/1.36.2:
-    resolution: {integrity: sha512-2rVZeyPRjxfPH6J0oGJqE8YxiM1IBRyM8hyrXYK7eSiAqmbNhxwcLa7dZ7fy9Kj26V7FYia5fh9XJRq4Dqme+g==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dependencies:
-      '@types/node': 20.4.7
-      playwright-core: 1.36.2
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
   /@pmmmwh/react-refresh-webpack-plugin/0.5.10_eamahzwwmqth5cpkxuccgzmpoa:
     resolution: {integrity: sha512-j0Ya0hCFZPd4x40qLzbhGsh9TMtdb+CJQiso+WxLOPNasohq9cc5SNUcwsZaRH6++Xh91Xkm/xHCkuIiIu0LUA==}
     engines: {node: '>= 10.13'}
@@ -13018,7 +13007,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.76.1_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
+      webpack-cli: 4.10.0_webpack@5.76.1
 
   /@webpack-cli/configtest/2.0.1_fb7mrl2klm6f4z637cevkjqm2a:
     resolution: {integrity: sha512-njsdJXJSiS2iNbQVS0eT8A/KPnmyH4pv1APj2K0d1wrZcBLw+yppxOy4CGqa0OxDJkzfL/XELDhD8rocnIwB5A==}
@@ -13036,7 +13025,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.8.1
-      webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
+      webpack-cli: 4.10.0_webpack@5.76.1
 
   /@webpack-cli/info/2.0.1_fb7mrl2klm6f4z637cevkjqm2a:
     resolution: {integrity: sha512-fE1UEWTwsAxRhrJNikE7v4EotYflkEhBL7EbajfkPlf6E37/2QshOy/D48Mw8G5XMFlQtS6YV42vtbG9zBpIQA==}
@@ -13070,7 +13059,6 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.76.1
-    dev: true
 
   /@webpack-cli/serve/2.0.1_tazbt6kain5u2tv436vgfvja4a:
     resolution: {integrity: sha512-0G7tNyS+yW8TdgHwZKlDWYXFA6OJQnoLCQvYKkQP0Q2X205PSQ6RNUj0M+1OB/9gRQaUZ/ccYfaxd0nhaWKfjw==}
@@ -27959,6 +27947,15 @@ packages:
     hasBin: true
     dev: true
 
+  /playwright/1.36.2:
+    resolution: {integrity: sha512-4Fmlq3KWsl85Bl4InJw1NC21aeQV0iSZuFvTDcy1F8zVmXmgQRe89GxF8zMSRt/KIS+2tUolak7EXVl9aC+JdA==}
+    engines: {node: '>=16'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.36.2
+    dev: true
+
   /please-upgrade-node/3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}
     dependencies:
@@ -35927,7 +35924,6 @@ packages:
       rechoir: 0.7.1
       webpack: 5.76.1_webpack-cli@4.10.0
       webpack-merge: 5.8.0
-    dev: true
 
   /webpack-cli/5.0.1_ddmenyhdwz6ocoybpsmzbonb6y:
     resolution: {integrity: sha512-S3KVAyfwUqr0Mo/ur3NzIp6jnerNpo7GUO6so51mxLi1spqsA17YcMXy0WOIJtBSnj748lthxC6XLbNKh/ZC+A==}
@@ -36393,7 +36389,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.7_webpack@5.76.1
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
+      webpack-cli: 4.10.0_webpack@5.76.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'
