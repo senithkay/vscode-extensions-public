@@ -1,6 +1,7 @@
 import { join } from "path";
 
-export const TEST_DATA_ROOT = join(__dirname, '..', '..', '..', 'src', 'test', 'data');
+// todo: delete unused commands from this file
+export const CHOREO_PROJECTS_PATH = join(__dirname, '..', '..', '..', '..','src', 'tests', 'e2e-tests', 'test-projects');
 
 export const ARCHITECTURE_VIEW_COMMAND = 'Ballerina: Architecture View';
 export const ARCHITECTURE_WEBVIEW_TITLE = 'Architecture View';
@@ -14,3 +15,5 @@ export const OPEN_PROJECT_COMMAND = 'Choreo: Project Overview';
 export const STAGE_CHANGES_COMMAND = 'Git: Stage All Changes';
 export const COMMIT_STAGED_COMMAND = 'Git: Commit Staged';
 export const GIT_PUSH_COMMAND = 'Git: Push';
+export const DELETE_PROJECT = "Choreo: Delete Choreo Project";
+export const OPEN_CHOREO_PROJECT = "Choreo: Open Choreo Project";

@@ -102,6 +102,8 @@ export class ProjectRegistry {
     async getProjects(orgId: number, orgHandle: string, forceRefresh: boolean = false): Promise<Project[]> {
         if ((forceRefresh || !this._dataProjects.has(orgId)) && ext.api.status === "LoggedIn") {
             try {
+                // todo: check if the you get an error if you create a project with the same name
+                // just after deleting a project with the same name
                 const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
                 this._dataProjects.set(orgId, projects);
                 return projects;
@@ -437,6 +439,8 @@ export class ProjectRegistry {
                     writeFileSync(projectLocation, JSON.stringify({folders: content.folders}, null, 4));
                     ext.api.refreshWorkspaceMetadata();
                     vscode.window.showInformationMessage("Project has been successfully deleted successfully");
+                    this._dataComponents.delete(projectId);
+                    this._dataProjects.delete(orgId);
                 }
             });
         } catch (error: any) {

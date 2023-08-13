@@ -357,7 +357,7 @@ export function ProjectWizard(props: { orgId: string }) {
                     }
                     <SectionWrapper>
                         <h3>  Project Location  </h3>
-                        <BrowseBtn onClick={handleProjecDirSelection}>
+                        <BrowseBtn onClick={handleProjecDirSelection} id="select-project-dir-btn">
                             Select Directory to Save Project
                         </BrowseBtn>
                         {!!projectDir && <span>{projectDir}</span>}

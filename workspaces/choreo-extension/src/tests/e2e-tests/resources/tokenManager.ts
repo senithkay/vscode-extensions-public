@@ -1,5 +1,5 @@
 import { AccessToken } from "@wso2-enterprise/choreo-client";
-
+// todo: delete if not needed
 export class TokenManager {
     private static instance: TokenManager;
     private apimTokenResponse?: AccessToken;

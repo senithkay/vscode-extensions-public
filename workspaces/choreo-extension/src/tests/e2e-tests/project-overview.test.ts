@@ -15,52 +15,141 @@ import assert = require("assert");
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { join } from "path";
-import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar, until, WebDriver, SideBarView, CustomEditor, CustomTreeSection, WelcomeContentSection, WebElement } from 'vscode-extension-tester';
-import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, deleteFoldersRecursively, deleteProject, handleGitHubLogin, hasFoldersInRepository, signIntoChoreo, wait } from "./resources";
-import * as dotenv from "dotenv";
+import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar, until, WebDriver, SideBarView, CustomEditor, CustomTreeSection, WelcomeContentSection, WebElement, Key, } from 'vscode-extension-tester';
+import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, CHOREO_PROJECTS_PATH, commitAndPushChanges, deleteFoldersRecursively, handleGitHubLogin, hasFoldersInRepository, signIntoChoreo, switchToIFrame, wait, waitUntil, waitAndClickById, waitAndTypeById, setQuickInputFieldValue, waitAndTypeInAutoComplete, clickPromptButton, removeDir, createDir, dismissAllNotifications, waitUntilById, openChoreoActivity, deleteCurrentlyOpenedProject, deleteProjectIfAlreadyExist } from "./resources";
 import * as fs from 'fs';
-import { createNewProjectCmdId } from "../../constants";
 
-dotenv.config();
-
-const PROJECT_NAME = "test_vscode";
-const GIT_REPO_NAME = "vscode-test-1";
-const GIT_ORG_NAME = "choreo-test-apps";
+const PROJECT_NAME = "test_vscode_project";
+const GIT_REPO_NAME = "vscode-ext-tests-dev";   // todo: take this to env
+const GIT_ORG_NAME = "choreo-test-apps";    // todo: take this to env
 const COMPONENT_NAME = `test_component_${new Date().getTime()}`;
 
+// todo: change title & file name as Choreo project test
 describe("Project overview tests", () => {
     // todo: Delete following if not used
     let editor: EditorView;
     let diagramWebview: WebView;
     let workbench: Workbench;
 
-    const driver = VSBrowser.instance.driver;
-
     before(async () => {
-        expect(process.env.TEST_IDP_USERNAME).to.be.a("string");
-        expect(process.env.TEST_IDP_PASSWORD).to.be.a("string");
-        expect(process.env.TEST_GITHUB_USERNAME).to.be.a("string");
-        expect(process.env.TEST_GITHUB_PAT).to.be.a("string");
-
-        if (fs.existsSync(join(TEST_DATA_ROOT, PROJECT_NAME))) {
-            fs.rmSync(join(TEST_DATA_ROOT, PROJECT_NAME), { recursive: true, force: true });
-        }
-
+        removeDir(join(CHOREO_PROJECTS_PATH, PROJECT_NAME));
+        await wait(5000);   // wait for new instance of vscode to open and extensions to initialize
         await VSBrowser.instance.waitForWorkbench();
-        await wait(5000);   // Wait for the extensions to activate
-
-        await signIntoChoreo();
-        
-        await wait(20000);
+        await openChoreoActivity()
+;       await signIntoChoreo();
+        await deleteProjectIfAlreadyExist(PROJECT_NAME, CHOREO_PROJECTS_PATH);
         // await deleteProject(PROJECT_NAME);
+
+        // delete if project already available
     });
+    
 
     it.only("Create new project", async () => {
-        diagramWebview = new WebView();
+        await new Workbench().executeCommand(ADD_CHOREO_PROJECT_COMMAND);
+        await setQuickInputFieldValue({inputValue:process.env.TEST_USER_ORG_HANDLE!, title: "Select Organization" });
+        await switchToIFrame("Create New Project");
+        await waitUntil(By.xpath('//h3[contains(text(), "Project Details")]'));
+        await waitAndTypeById("project-name-input", PROJECT_NAME);
+        await waitAndClickById("GitHub-card");
+        await waitAndTypeInAutoComplete(By.xpath("//*[@id='git-org-selector' and @data-loading='false']"), GIT_ORG_NAME, 60000);
+        await waitAndTypeInAutoComplete(By.xpath("//*[@id='git-repo-selector' and @data-loading='false']"), GIT_REPO_NAME);
+        await waitAndTypeInAutoComplete(By.xpath("//*[@id='git-branch-selector' and @data-loading='false']"), "main");
+        await waitAndClickById("select-project-dir-btn");
+        await VSBrowser.instance.driver.switchTo().defaultContent();
+        createDir(join(CHOREO_PROJECTS_PATH));
+        await setQuickInputFieldValue({inputValue:CHOREO_PROJECTS_PATH, title: "Select a folder to create the Workspace" });
+        await dismissAllNotifications();
+        await switchToIFrame("Create New Project");
+        await waitAndClickById("create-project-btn");
+        await handleGitHubLogin();
+        await VSBrowser.instance.driver.switchTo().defaultContent();
+        await clickPromptButton("Current Window");
+
+        // After opening the newly created project in a new window
+        await wait(5000);   // wait for new instance of vscode to open and extensions to initialize
+        await VSBrowser.instance.waitForWorkbench();
+        await openChoreoActivity();
+        await switchToIFrame("Account");
+        await waitUntilById("current-project-section", 20000);
+        await VSBrowser.instance.driver.switchTo().defaultContent();
+        const editorView = new EditorView();
+        await editorView.getTabByTitle("Architecture View");
+        await editorView.closeAllEditors();
+
+
+        // delete
+        // deleteCurrentlyOpenedProject();
+
+
+
+        await wait(20000);
+
+        /*
+        const dialog = await DialogHandler.getOpenDialog();
+        await dialog.selectPath('/my/awesome/folder');
+        // confirm
+        await dialog.confirm();
+        // or cancel
+        await dialog.cancel();
+        /*
+
         // await wait(10000);
         // await workbench.executeCommand("Create New Project");
         // await wait(30000);
+
+        /*
+        await wait(10000);
+        await workbench.executeCommand(ADD_CHOREO_PROJECT_COMMAND);
+        await wait(30000);
+
+        diagramWebview = new WebView();
+        await diagramWebview.switchToFrame();
+
+        const projectNameInput = await diagramWebview.findWebElement(By.id("project-name-input"));
+        await projectNameInput.sendKeys(PROJECT_NAME);
+
+        const gitOrgSelect = await diagramWebview.findWebElement(By.id("org-drop-down"));
+        await gitOrgSelect.click();
+        const orgOption = await diagramWebview.findWebElement(By.id(`org-item-${GIT_ORG_NAME}`));
+        await orgOption.click();
+
+        await wait(1000);
+        const repoSelect = await diagramWebview.findWebElement(By.id("repo-drop-down"));
+        await repoSelect.click();
+
+        const repoOption = await diagramWebview.findWebElement(By.id(`repo-item-${GIT_REPO_NAME}`));
+        await repoOption.click();
+
+        const projectCreateBtn = await diagramWebview.findWebElement(By.id("create-project-btn"));
+        expect(await projectCreateBtn.isEnabled()).to.be.true;
+        await projectCreateBtn.click();
+        await wait(15000);
+        */
+       
+        // Cloning
+        /*
+        await diagramWebview.switchToFrame();
+
+        const componentMenus = await diagramWebview.findWebElements(By.id("component-list-menu-btn-0"));
+        expect(componentMenus).to.have.lengthOf(0);
+
+        const cloneButton = await diagramWebview.findWebElement(By.id("clone-project"));
+        expect(await cloneButton.isEnabled()).to.be.true;
+        await cloneButton.click();
+        await diagramWebview.switchBack();
+
+        const inputBox = new InputBox();
+        await inputBox.setText(TEST_DATA_ROOT);
+        await inputBox.sendKeys('\uE007');
+        await wait(5000);
+
+        await handleGitHubLogin();
+
+        await wait(20000);
+        */
     });
+
+    // when new project is opened, we can verify whether architecture diagram is shown automatically
 
     it("Clone the project", async () => {
         await diagramWebview.switchToFrame();
@@ -74,7 +163,7 @@ describe("Project overview tests", () => {
         await diagramWebview.switchBack();
 
         const inputBox = new InputBox();
-        await inputBox.setText(TEST_DATA_ROOT);
+        await inputBox.setText(CHOREO_PROJECTS_PATH);
         await inputBox.sendKeys('\uE007');
         await wait(5000);
 
@@ -156,10 +245,10 @@ describe("Project overview tests", () => {
         editor = new EditorView();
         await editor.closeAllEditors();
 
-        await deleteProject(PROJECT_NAME);
+        // await deleteProject(PROJECT_NAME);
         
-        if (hasFoldersInRepository(join(TEST_DATA_ROOT, PROJECT_NAME, 'repos', GIT_ORG_NAME, GIT_REPO_NAME))) {
-            deleteFoldersRecursively(join(TEST_DATA_ROOT, PROJECT_NAME, 'repos', GIT_ORG_NAME, GIT_REPO_NAME));
+        if (hasFoldersInRepository(join(CHOREO_PROJECTS_PATH, PROJECT_NAME, 'repos', GIT_ORG_NAME, GIT_REPO_NAME))) {
+            deleteFoldersRecursively(join(CHOREO_PROJECTS_PATH, PROJECT_NAME, 'repos', GIT_ORG_NAME, GIT_REPO_NAME));
             await commitAndPushChanges(workbench, editor, "delete everything");
         }
     });

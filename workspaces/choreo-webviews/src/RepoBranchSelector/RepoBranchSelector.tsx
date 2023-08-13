@@ -96,7 +96,13 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
         <RepoBranchWrapper>
             <label htmlFor="branch-drop-down">Branch</label>
             <BranchSelectorContainer>
-                <AutoComplete items={repoBranches ?? []} selectedItem={branch} onChange={handleBranchChange}></AutoComplete>
+                <AutoComplete
+                    items={repoBranches ?? []}
+                    selectedItem={branch}
+                    onChange={handleBranchChange}
+                    id="git-branch-selector"
+                    loading={isFetching}
+                />                
                 <RefreshBtn
                     appearance="icon"
                     onClick={() => refetch()}
