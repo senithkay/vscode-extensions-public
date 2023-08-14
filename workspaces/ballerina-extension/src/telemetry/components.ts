@@ -24,6 +24,7 @@ export const CMP_PACKAGE_VIEW = "component.package.view";
 export const CMP_STRING_SPLIT = "component.string.split";
 export const CMP_EXECUTOR_CODELENS = "component.executor.codelens";
 export const CMP_JSON_TO_RECORD = "component.jsonToRecord";
+export const CMP_XML_TO_RECORD = "component.xmlToRecord";
 export const CMP_LS_CLIENT_COMPLETIONS = "component.ls.client.completions";
 export const CMP_LS_CLIENT_DIAGNOSTICS = "component.ls.client.diagnostics";
 export const CMP_GIT_STATUS = "component.git.status";
