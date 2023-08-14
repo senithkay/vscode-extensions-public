@@ -24,6 +24,7 @@ import { isPositionsEquals } from "../../../utils/st-utils";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 
 import {
+    findTypeByInfoFromStore,
     getBalRecFieldName,
     getInnermostExpressionBody
 } from "./dm-utils";
@@ -51,6 +52,9 @@ export function getEnrichedRecordType(type: Type,
     let nextNode: STNode;
     let originalType: Type = type;
 
+    if (!type.typeName && type?.typeInfo) {
+        type = findTypeByInfoFromStore(type.typeInfo) || type;
+    }
     if (type.typeName === PrimitiveBalType.Union && type?.resolvedUnionType && !Array.isArray(type?.resolvedUnionType)) {
         originalType = type;
         type = type.resolvedUnionType;
