@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -12,45 +12,48 @@
  */
 import React from "react";
 
-import { QueryClient } from '@tanstack/react-query';
-import { get, set, del } from "idb-keyval";
+import { QueryClient } from "@tanstack/react-query";
 import { PersistedClient, Persister, PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { ChoreoWebViewAPI } from "../WebViewRpc";
 
 /**
- * Creates an Indexed DB persister
+ * Persist data within vscode workspace cache
  */
-export function createIDBPersister(idbValidKey: IDBValidKey = "choreoWebviewData") {
-  return {
-    persistClient: async (client: PersistedClient) => {
-      set(idbValidKey, client);
-    },
-    restoreClient: async () => {
-      return await get<PersistedClient>(idbValidKey);
-    },
-    removeClient: async () => {
-      await del(idbValidKey);
-    },
-  } as Persister;
-}
+const workspaceStatePersister = (idbValidKey: IDBValidKey = "choreoWebviewData") => {
+    return {
+        persistClient: async (client: PersistedClient) => {
+            ChoreoWebViewAPI.getInstance().setWebviewCache(idbValidKey, client);
+        },
+        restoreClient: async () => {
+            return await ChoreoWebViewAPI.getInstance().restoreWebviewCache(idbValidKey);
+        },
+        removeClient: async () => {
+            await ChoreoWebViewAPI.getInstance().clearWebviewCache(idbValidKey);
+        },
+    } as Persister;
+};
 
 const queryClient = new QueryClient({
     defaultOptions: {
-      queries: {
-        cacheTime: 1000 * 60 * 60 * 24, // 24 hours
-        retry: false
-      },
+        queries: {
+            cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+            retry: false,
+        },
     },
 });
 
-const persister = createIDBPersister();
+const persister = workspaceStatePersister();
 
 export const ChoreoWebviewQueryClientProvider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{ persister }}
-    >
-      {children}
-    </PersistQueryClientProvider>
-  );
+    return (
+        <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{
+                persister,
+                buster: "choreo-webview-cache-v1",
+            }}
+        >
+            {children}
+        </PersistQueryClientProvider>
+    );
 };

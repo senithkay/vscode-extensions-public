@@ -73,7 +73,8 @@ export class FromClauseNode extends DataMapperNodeModel {
         // tslint:disable-next-line: prefer-conditional-expression
         if (STKindChecker.isBinaryExpression(this.value.expression)
             && STKindChecker.isElvisToken(this.value.expression.operator)) {
-            type = getOptionalArrayField(getTypeFromStore(this.value.expression.lhsExpr.position as NodePosition));
+            const exprType = getTypeFromStore(this.value.expression.lhsExpr.position as NodePosition);
+            type = exprType && getOptionalArrayField(exprType);
         } else {
             type = getTypeFromStore(this.value.expression.position as NodePosition);
         }

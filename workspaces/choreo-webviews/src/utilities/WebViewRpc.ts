@@ -94,6 +94,11 @@ import {
     ChoreoWorkspaceMetaData,
     SetChoreoInstallOrg,
     ClearChoreoInstallOrg,
+    SetWebviewCache,
+    RestoreWebviewCache,
+    ClearWebviewCache,
+    GoToSource,
+    IsBallerinaExtInstalled,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -259,6 +264,10 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(PushLocalComponentToChoreo, HOST_EXTENSION, params);
     }
 
+    public async goToSource(filePath: string): Promise<void> {
+        return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
+    }
+
     public async openArchitectureView(): Promise<void> {
         return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
@@ -356,5 +365,21 @@ export class ChoreoWebViewAPI {
 
     public async fireRefreshComponents(): Promise<void> {
         return this._messenger.sendRequest(FireRefreshComponentList, HOST_EXTENSION, null);
+    }
+
+    public async setWebviewCache(cacheKey: IDBValidKey, data: unknown): Promise<void> {
+        return this._messenger.sendRequest(SetWebviewCache, HOST_EXTENSION, { cacheKey, data });
+    }
+
+    public async restoreWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(RestoreWebviewCache, HOST_EXTENSION, cacheKey);
+    }
+
+    public async clearWebviewCache(cacheKey: IDBValidKey): Promise<unknown> {
+        return this._messenger.sendRequest(ClearWebviewCache, HOST_EXTENSION, cacheKey);
+    }
+    
+    public async isBallerinaExtInstalled(): Promise<boolean> {
+        return this._messenger.sendRequest(IsBallerinaExtInstalled, HOST_EXTENSION, undefined);
     }
 }

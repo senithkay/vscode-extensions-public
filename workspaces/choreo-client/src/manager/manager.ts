@@ -132,7 +132,33 @@ export class ChoreoProjectManager implements IProjectManager {
                             || folder.metadata?.byocWebAppsConfig?.dockerContext
                             || folder.metadata?.byocWebAppsConfig?.webAppOutputDirectory,
                         gitProvider: folder.metadata.repository.gitProvider,
-                        bitbucketCredentialId: folder.metadata.repository.bitbucketCredentialId
+                        bitbucketCredentialId: folder.metadata.repository.bitbucketCredentialId,
+                        byocBuildConfig: folder.metadata.byocConfig
+                            ? {
+                                  dockerfilePath: folder.metadata.byocConfig?.dockerfilePath ?? "",
+                                  dockerContext: folder.metadata.byocConfig?.dockerContext ?? "",
+                                  componentId: "",
+                                  containerId: "",
+                                  id: "",
+                                  isMainContainer: "",
+                                  oasFilePath: "",
+                                  repositoryId: "",
+                              }
+                            : undefined,
+                        byocWebAppBuildConfig: folder?.metadata?.byocWebAppsConfig
+                            ? {
+                                  buildCommand: folder?.metadata?.byocWebAppsConfig?.webAppBuildCommand ?? "",
+                                  outputDirectory: folder?.metadata?.byocWebAppsConfig?.webAppOutputDirectory ?? "",
+                                  packageManagerVersion:
+                                      folder?.metadata?.byocWebAppsConfig?.webAppPackageManagerVersion ?? "",
+                                  dockerContext: folder?.metadata?.byocWebAppsConfig?.dockerContext ?? "",
+                                  webAppType: folder?.metadata?.byocWebAppsConfig?.webAppType ?? "",
+                                  id: "",
+                                  containerId: "",
+                                  componentId: "",
+                                  repositoryId: "",
+                              }
+                            : undefined,
                     },
                     apiVersions: []
                 });
