@@ -10,7 +10,7 @@
 import { By, EditorView, VSBrowser, WebDriver, WebView, Workbench, until } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe } from 'mocha';
-import { clickOnActivity, waitForWebview, waitUntilCodeLensVisible, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText } from './util';
+import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -44,14 +44,13 @@ describe('Swagger view UI Tests', () => {
         await driver.wait(until.elementLocated(By.className("codelens-decoration")), 30000);;
 
         // Click on `Run` code lens to run service
-        await waitUntilCodeLensVisible('Try running this service', driver);
         const editorView = new ExtendedEditorView(new EditorView());
-        const runLens = await editorView.getCodeLense("Run");
+        const runLens = await editorView.getCodeLens("Run");
         await runLens.click();
         await verifyTerminalText(RUN_OUTPUT);
 
         // Click on `Try it` code lens to open up swagger
-        const lens = await editorView.getCodeLense("Try it");
+        const lens = await editorView.getCodeLens("Try it");
         await lens.click();
         
         // switch to swagger window
