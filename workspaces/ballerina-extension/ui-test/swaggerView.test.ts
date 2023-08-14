@@ -14,6 +14,7 @@ import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultiple
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
+import { SwaggerView } from './utils/SwaggerView';
 
 export const RUN_OUTPUT = 'Running executable';
 export const REQUEST_RECIEVED_OUTPUT = 'request received';
@@ -56,23 +57,17 @@ describe('Swagger view UI Tests', () => {
         // switch to swagger window
         await waitForWebview("Swagger");
         const swaggerWebView = await new EditorView().openEditor('Swagger', 1) as WebView;
+        const swaggerView = new SwaggerView(swaggerWebView);
         await swaggerWebView.switchToFrame();
 
         // expand get
-        await waitUntil(By.className("operation-tag-content"), 30000 );
-        const operationTag = By.className("operation-tag-content");
-        const getTab = await swaggerWebView.findWebElement(operationTag);
-        await getTab.click();
-        const tryItOutButton = By.className("try-out__btn");
-        await waitForMultipleElementsLocated(driver, [tryItOutButton]);
+        await swaggerView.expandGet();
 
         // click try it
-        const tryIt = (await swaggerWebView.findWebElements(By.className("try-out__btn")))[0];
-        await tryIt.click();
+        await swaggerView.clickTryItOut(driver);
 
         // cilck execute
-        const execute = (await swaggerWebView.findWebElements(By.className("opblock-control__btn")))[0];
-        await execute.click();
+        await swaggerView.clickExecute();
 
         // Verify request receival
         await swaggerWebView.switchBack();
@@ -80,12 +75,8 @@ describe('Swagger view UI Tests', () => {
         await swaggerWebView.switchToFrame();
 
         // check response
-        await waitUntil(By.className("highlight-code"), 30000 );
-        const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
-        const reponseBox = await codeBlock.findElement(By.css("code"));
-        const reponse = await reponseBox.findElement(By.css("span"));
-        await waitUntilTextContains(reponse, '"Hello, World!"', 10000);
-        expect(await reponse.getText()).is.equal('"Hello, World!"');
+        const response = await swaggerView.getResponse();
+        expect(response).is.equal('"Hello, World!"');
     });
 
     after(async () => {
