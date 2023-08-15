@@ -38,14 +38,6 @@ export function waitUntilTextContains(
     );
 }
 
-export async function waitUntilCodeLensVisible(
-    codeLensTitle: string,
-    driver: WebDriver,
-    timeout: number = DEFAULT_TIME_OUT
-) {
-    return driver.wait(until.elementLocated(By.xpath("//a[@title='" + codeLensTitle + "']")), timeout);
-}
-
 export async function waitForMultipleElementsLocated(
     driver: WebDriver,
     locators: By[],

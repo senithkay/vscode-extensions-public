@@ -10,10 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, {Fragment} from 'react'
-import { Combobox, Transition } from '@headlessui/react'
-import styled from "@emotion/styled";
+import React, { Fragment } from 'react'
+
 import { css, cx } from "@emotion/css";
+import styled from "@emotion/styled";
+import { Combobox, Transition } from '@headlessui/react'
 
 export interface ComboboxOptionProps {
     active?: boolean;
@@ -23,7 +24,7 @@ export interface DropdownContainerProps {
     widthOffset?: number;
 }
 
-const DropdownContainer:React.FC<any> = styled.div`
+const DropdownContainer: React.FC<any> = styled.div`
     position: absolute;
     max-height: 100px;
     width: ${(props: DropdownContainerProps) => `calc(var(--input-min-width) + ${props.widthOffset}px)`};
@@ -46,7 +47,7 @@ const ComboboxOption: React.FC<any> = styled.div`
     user-select: none;
     color: var(--vscode-editor-foreground);
     background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
-            'var(--vscode-editor-background)')};
+        'var(--vscode-editor-background)')};
     list-style: none;
 `;
 
@@ -97,13 +98,21 @@ export interface DropdownProps {
 export function Dropdown(props: DropdownProps) {
     const { query, filteredResults, notItemsFoundMessage, widthOffset = 108, onQueryChange } = props;
 
-    const handleQueryChange = (query: string) => {
-        onQueryChange(query);
+    const handleQueryChange = (q: string) => {
+        onQueryChange(q);
     };
+    const ComboboxOptionContainer = ({ active }: ComboboxOptionProps) => {
+        return active ? OptionContainer : ActiveOptionContainer;
+    };
+
+    const handleAfterLeave = () => {
+        handleQueryChange('');
+    };
+
     return (
         <Transition
             as={Fragment}
-            afterLeave={() => handleQueryChange('')}
+            afterLeave={handleAfterLeave}
         >
             <DropdownContainer widthOffset={widthOffset}>
                 <Combobox.Options>
@@ -112,12 +121,11 @@ export function Dropdown(props: DropdownProps) {
                             {notItemsFoundMessage || 'No options'}
                         </NothingFound>
                     ) : (
-                        filteredResults.map((item: string) => {
+                        filteredResults.map((item: string, i: number) => {
                             return (
-                                <ComboboxOption>
+                                <ComboboxOption key={i}>
                                     <Combobox.Option
-                                        className={({ active }) => active ?
-                                            OptionContainer : ActiveOptionContainer}
+                                        className={ComboboxOptionContainer}
                                         value={item}
                                         key={item}
                                     >
