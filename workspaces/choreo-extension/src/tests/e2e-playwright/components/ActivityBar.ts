@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { Page } from "playwright";
 
 export class ChoreoActivity {
@@ -16,14 +15,17 @@ export class ChoreoActivity {
         this.signIn();
     }
 
-    private async signIn() {
-        const accountWebView = this._page
+    private async _getAccountView() {
+        return this._page
             // find webview frames
             .frameLocator('[class="webview ready"]')
             .nth(1)
             // find inner frame with title "Account"
             .frameLocator('[title="Account"]');
-        
+    }
+
+    public async signIn() {
+        const accountWebView = await this._getAccountView();
         const signIndButton = accountWebView
             .locator('vscode-button')
             .getByText('Sign In');

@@ -7,6 +7,9 @@
 		"lib": [
 			"ES2021"
 		],
+		"types": [
+			"mocha"
+		],
 		"sourceMap": true,
 		"rootDir": "src",
 		"strict": true, /* enable all strict type-checking options */
@@ -17,6 +20,9 @@
 		"skipLibCheck": true,
 		"baseUrl": "."
 	},
+	"include": [
+		"src/**/*"
+	],
 	"exclude": [
 		"build",
 		"webview-ui"
