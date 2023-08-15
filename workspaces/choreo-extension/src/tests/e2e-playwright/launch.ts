@@ -11,9 +11,17 @@ export const startVSCode = async () => {
     const browser = await getCypressBrowser(resourcesFolder, vscodeVersion, ReleaseQuality.Stable);
     const browserOptions = await getCypressBrowserOptions(resourcesFolder, vscodeVersion, ReleaseQuality.Stable);
 
+    const args = [...browserOptions.args];
+
+    // run in headless mode if running in CI
+    if (process.env.CI) {
+        args.push('--headless');
+        args.push('--disable-gpu');
+    }
+
     const vscode = await _electron.launch({
         executablePath: browser.path,
-        args: browserOptions.args,
+        args,
         env: browserOptions.env,
     });
 
