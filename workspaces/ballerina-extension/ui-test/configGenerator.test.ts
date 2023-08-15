@@ -19,7 +19,7 @@ import {
     VSBrowser,
     WebDriver
 } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, wait } from './util';
+import { areVariablesIncludedInString, wait, waitUntil } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
@@ -75,15 +75,11 @@ describe('VSCode Config Generation UI Tests', () => {
     it('Click on run anyway button to just ignore the config generation', async () => {
         // Open the popup message
         const editorView = new ExtendedEditorView(new EditorView());
-        expect(await editorView.getAction("Run")).is.not.undefined;
-        (await editorView.getAction("Run"))!.click();
-        await wait(5000);
-        // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.linkText('Run Anyway'));
-        // Iterate over the information message boxes
-        for (const infoNotification of infoNotifications) {
-            await infoNotification.click();
-        }
+        const runBtn = await editorView.getAction("Run");
+        await runBtn.click();
+
+        const infoNotification = await waitUntil(By.linkText('Run Anyway'));
+        await infoNotification.click();
 
         // Check if the terminal is open
         await driver.wait(until.elementIsVisible(new TerminalView()), 10000);
@@ -96,15 +92,12 @@ describe('VSCode Config Generation UI Tests', () => {
         const editorView = new ExtendedEditorView(new EditorView());
         expect(await editorView.getAction("Run")).is.not.undefined;
         (await editorView.getAction("Run"))!.click();
-        await wait(3000);
 
-        // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.linkText('Create Config.toml'));
-        // Iterate over the information message boxes
-        for (const infoNotification of infoNotifications) {
-            await infoNotification.click();
-        }
-        await wait(5000);
+        const infoNotification = await waitUntil(By.linkText('Create Config.toml'));
+        await infoNotification.click();
+
+        await waitUntil(By.xpath("//*[contains(text(), 'Successfully updated')]"));
+
         // Check if the config file has been generated
         expect(existsSync(configFilePath)).to.be.true;
 
@@ -114,5 +107,13 @@ describe('VSCode Config Generation UI Tests', () => {
         // Compare the generated config file with the expected config file
         expect(areVariablesIncludedInString(expectedConfigs, generatedConfigContent)).to.true;
 
+    });
+
+    after(async () => {
+        // Check if the file exists
+        if (existsSync(configFilePath)) {
+            // If the file exists, delete it
+            unlinkSync(configFilePath);
+        }
     });
 });
