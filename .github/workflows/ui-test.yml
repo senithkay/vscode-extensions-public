@@ -29,10 +29,10 @@ jobs:
         run: |
           node common/scripts/install-run-rush.js install
           cd workspaces/choreo-extension 
-          pnpm run ui-test-setup
+          pnpm run extest-setup
           export $(dbus-launch)
           export DISPLAY=:98.0
-          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
+          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run e2e-test
         env:
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
