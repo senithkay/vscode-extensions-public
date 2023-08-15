@@ -117,3 +117,7 @@ export async function clickOnActivity(activityName: string) {
     const viewControl = await activityBar.getViewControl(activityName);
     viewControl.click();
 }
+
+export async function getLabelElement(driver: WebDriver, targetSubstring: string) {
+   return await driver.findElement(By.xpath(`//*[contains(text(), "${targetSubstring}")]`));
+}
