@@ -4,18 +4,55 @@ on:
   workflow_dispatch:
 
 jobs:
-  Test:
-    name: Integration Tests
-    timeout-minutes: 120
+  Build:
+    name: Build repo
+    timeout-minutes: 45
     runs-on: ubuntu-latest
+    outputs:
+      runBalPluginTests: ${{ steps.testMatrix.outputs.runBalPluginTests }}
+      testArray: ${{ steps.testMatrix.outputs.testArray }}
     steps:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
-  
+
       - name: Build
         uses: ./.github/actions/build
+        with:
+          isPreRelease: ${{ inputs.isPreRelease }}
+          enableCache: ${{ inputs.enableCache }}
+          ballerina: ${{ inputs.ballerina }}
+          choreo: ${{ inputs.choreo }}
+          version: ${{ inputs.version }}
+
+  UiTest_Choreo:
+    name: Integration Tests
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: install packages
         run: |
@@ -25,7 +62,7 @@ jobs:
           sudo apt-get install libsecret-1.0
           sudo apt install dbus-x11
 
-      - name: run tests
+      - name: Run tests
         run: |
           cd workspaces/choreo-extension 
           pnpm run extest-setup
@@ -62,4 +99,48 @@ jobs:
         with:
           path: workspaces/choreo-extension/test-resources/screenshots/
           name: Integration-test-screenshots-${{ github.run_attempt }}
+        if: failure()
+
+  UiTest_Ballerina:
+    name: Run UI tests
+    needs: Build_Stage
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
+
+      - name: Run tests
+        run: |
+          cd workspaces/ballerina-extension
+          sudo apt-get install xvfb
+          pnpm run ui-test-setup
+          export DISPLAY=:98.0
+          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
+
+      - name: Publish UI Test Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/ballerina-extension/test-resources/screenshots/
+          name: Ui-test-screenshots-${{ github.run_attempt }}
         if: failure()
