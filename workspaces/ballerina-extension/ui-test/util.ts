@@ -46,6 +46,12 @@ export async function waitUntilCodeLensVisible(
     return driver.wait(until.elementLocated(By.xpath("//a[@title='" + codeLensTitle + "']")), timeout);
 }
 
+export function getElementByXPath(
+    testID: string
+) {
+    return By.xpath("//*[@data-testid='"+ testID+ "']");
+}
+
 export async function waitForMultipleElementsLocated(
     driver: WebDriver,
     locators: By[],
