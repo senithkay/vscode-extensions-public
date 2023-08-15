@@ -1,7 +1,7 @@
 import { before, describe } from "mocha";
 import { join } from "path";
 import { By, EditorView, Key, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
-import { getElementByXPath, switchToIFrame, wait, waitUntil, waitUntilCodeLensVisible } from "./util";
+import { getElementByXPath, switchToIFrame, wait, waitUntil } from "./util";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 
 describe('VSCode Graphql Designer Webview UI Tests', () => {
@@ -23,9 +23,8 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
 
     it('Open graphql designer using code lens', async () => {
         const extendedEditorView = new ExtendedEditorView(new EditorView());
-        await waitUntilCodeLensVisible('Visualize code block', driver, 30000);
-        const lens = await extendedEditorView.getCodeLense('Visualize');
-        await lens?.click();
+        const lens = await extendedEditorView.getCodeLens('Visualize');
+        await lens.click();
 
         await switchToIFrame('Overview Diagram', driver);
         await waitUntil(getElementByXPath("graphql-canvas-widget"));
