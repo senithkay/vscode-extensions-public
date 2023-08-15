@@ -70,11 +70,11 @@ export function ServiceField(props: ServiceFieldProps) {
                 port={node.getPort(`left-${path}`)}
                 engine={engine}
             />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }} data-testid={`service-field-${functionElement.identifier}`}>
                 {functionElement.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
-                <FieldType>{functionElement.returnType}</FieldType>
+                <FieldType data-testid={`service-field-type-${functionElement.returnType}`}>{functionElement.returnType}</FieldType>
             </div>
             {isHovered &&
             <ChildActionMenu

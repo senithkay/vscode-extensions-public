@@ -39,6 +39,7 @@ export function TypeFilter(props: TypeFilterProps) {
             <FormControl style={{margin: "10px", width: "130px"}} variant="outlined">
                 <InputLabel id="demo-simple-select-label" >Operation Type</InputLabel>
                 <Select
+                    data-testid="operation-filter"
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={type}
@@ -49,8 +50,8 @@ export function TypeFilter(props: TypeFilterProps) {
                 >
                     <MenuItem value={OperationTypes.All_Operations}>All Operations</MenuItem>
                     <MenuItem value={OperationTypes.Queries}>Queries</MenuItem>
-                    <MenuItem value={OperationTypes.Mutations}>Mutations</MenuItem>
-                    <MenuItem value={OperationTypes.Subscriptions}>Subscriptions</MenuItem>
+                    <MenuItem value={OperationTypes.Mutations}  data-testid="operation-mutation">Mutations</MenuItem>
+                    <MenuItem value={OperationTypes.Subscriptions}  data-testid="operation-subscription">Subscriptions</MenuItem>
                 </Select>
             </FormControl>
         </Box>

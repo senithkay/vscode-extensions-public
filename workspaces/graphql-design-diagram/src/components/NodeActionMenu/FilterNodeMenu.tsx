@@ -71,6 +71,7 @@ export function FilterNodeMenu(props: FilterNodeMenuProps) {
                 placement="right"
             >
                 <MoreVertIcon
+                    data-testid="filter-node-menu"
                     cursor="pointer"
                     onClick={() => setTooltipStatus(true)}
                     sx={{

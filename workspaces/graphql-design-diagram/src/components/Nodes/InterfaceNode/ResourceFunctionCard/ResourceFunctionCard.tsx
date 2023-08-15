@@ -61,11 +61,11 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
                 port={node.getPort(`left-${path}`)}
                 engine={engine}
             />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }} data-testid={`interface-func-${functionElement.identifier}`}>
                 {functionElement.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
-                <FieldType>{functionElement.returns}</FieldType>
+                <FieldType data-testid={`interface-func-type-${functionElement.returns}`}>{functionElement.returns}</FieldType>
             </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
