@@ -22,6 +22,7 @@ import {
 	FieldAccess,
 	FromClause,
 	FunctionCall,
+	FunctionDefinition,
 	IdentifierToken,
 	JoinClause,
 	LetClause,
@@ -46,6 +47,7 @@ import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DMNode } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
+import { getLetExpression, getLetExpressions } from "../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
@@ -70,6 +72,7 @@ import { ModuleVariable, ModuleVariableNode, MODULE_VAR_SOURCE_NODE_TYPE } from 
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
+import { FromClauseBindingPatternFindingVisitor } from "../visitors/FromClauseBindingPatternFindingVisitor";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
 
@@ -555,8 +558,12 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			valueExpr = valueExpr.expression;
 		}
 		if (valueExpr && STKindChecker.isSimpleNameReference(valueExpr)) {
+			const selectedST = dmNode.context.selection.selectedST.stNode;
+			const isQueryExpr = STKindChecker.isSpecificField(selectedST)
+				&& STKindChecker.isQueryExpression(selectedST.valueExpr);
 			paramNode = dmNode.context.functionST.functionSignature.parameters.find((param) =>
-					STKindChecker.isRequiredParam(param)
+					!isQueryExpr
+					&& STKindChecker.isRequiredParam(param)
 					&& param.paramName?.value === (valueExpr as SimpleNameReference).name.value
 				) as RequiredParam;
 
@@ -588,10 +595,9 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				}) as LetClauseNode | JoinClauseNode | LetExpressionNode | ModuleVariableNode)?.value;
 			}
 
-			const selectedST = dmNode.context.selection.selectedST.stNode;
 			if (!paramNode) {
-				if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
-					paramNode = selectedST.valueExpr.queryPipeline.fromClause;
+				if (isQueryExpr) {
+					paramNode = (selectedST.valueExpr as QueryExpression).queryPipeline.fromClause;
 				} else if (STKindChecker.isSpecificField(selectedST)
 					&& STKindChecker.isBracedExpression(selectedST.valueExpr)
 					&& STKindChecker.isQueryExpression(selectedST.valueExpr.expression)) {
@@ -843,6 +849,8 @@ export function getTypeName(field: Type): string {
 		return field.memberType.typeName === PrimitiveBalType.Union ? `(${typeName})[]` : `${typeName}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
 		return field.members?.map(item => getTypeName(item)).join('|');
+	} else if (field?.typeInfo) {
+		return field.typeInfo.name;
 	}
 	return field.typeName;
 }
@@ -973,6 +981,16 @@ export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken
 export function getTypeFromStore(position: NodePosition): Type {
 	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 	return recordTypeDescriptors.getTypeDescriptor(position);
+}
+
+export function findTypeByNameFromStore(typeName: string): Type {
+	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
+	for (const type of recordTypeDescriptors.typeDescriptors.values()) {
+		if (type?.name && type.name === typeName) {
+			return type;
+		}
+	}
+	return undefined;
 }
 
 export function getFnDefFromStore(position: LinePosition): FnDefInfo {
@@ -1249,6 +1267,39 @@ export function getErrorKind(node: DataMapperNodeModel): ErrorNodeKind {
 		default:
 			return ErrorNodeKind.Other;
 	}
+}
+
+export function getLocalVariableNames(fnDef: FunctionDefinition): string[] {
+	const paramNames = fnDef.functionSignature.parameters.map(param => {
+		return !STKindChecker.isCommaToken(param) && param?.paramName.value;
+	}).filter(param => param !== undefined);
+
+	const letVarDeclNames: string[] = [];
+	const letExpression = getLetExpression(fnDef);
+	const letExpressions = letExpression ? getLetExpressions(letExpression) : [];
+	for (const expr of letExpressions) {
+		for (const decl of expr?.letVarDeclarations) {
+			if (STKindChecker.isLetVarDecl(decl)) {
+				letVarDeclNames.push(decl.typedBindingPattern.bindingPattern.source.trim());
+			}
+		}
+	}
+
+	const visitor = new FromClauseBindingPatternFindingVisitor();
+	traversNode(fnDef, visitor);
+	const fromClauseBindingPatterns = visitor.getBindingPatterns().map(pattern => pattern.source.trim());
+
+	return [...paramNames, ...letVarDeclNames, ...fromClauseBindingPatterns];
+}
+
+export function genVariableName(originalName: string, variables: string[]): string {
+	let modifiedName: string = originalName;
+	let index = 0;
+	while (variables.includes(modifiedName)) {
+		index++;
+		modifiedName = originalName + index;
+	}
+	return modifiedName;
 }
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {

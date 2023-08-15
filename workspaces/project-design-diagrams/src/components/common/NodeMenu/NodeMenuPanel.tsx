@@ -44,23 +44,27 @@ export function NodeMenuPanel(props: MenuProps) {
     return (
         <Paper sx={{ maxWidth: "100%" }}>
             <MenuList>
-                <Go2SourceButton location={location} isBalPackage={!isNonBalService}/>
-                {node instanceof ServiceNodeModel && !isNonBalService && <GoToDesign element={node.nodeObject} />}
-                {resource && node && <GoToDesign element={resource} />}
-                {annotation && (annotation.elementLocation || node?.nodeObject.elementLocation) &&
-                    <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
-                }
-                {node && location && deleteComponent &&
-                    <DeleteComponentButton
-                        canDelete={node instanceof ServiceNodeModel ? !node.isLinked : true}
-                        handleDialogStatus={handleDeleteComponentDialog}
-                    />
-                }
-                {node && linkingEnabled && isModelLinkingCompatible && !isNonBalService && (
+                <Go2SourceButton location={location} isBalPackage={!isNonBalService} />
+                {!isNonBalService && (
                     <>
-                        <Divider />
-                        <LinkingButton node={node} />
-                        <AddConnectorButton node={node.nodeObject} />
+                        {node instanceof ServiceNodeModel && <GoToDesign element={node.nodeObject} />}
+                        {resource && node && <GoToDesign element={resource} />}
+                        {annotation && (annotation.elementLocation || node?.nodeObject.elementLocation) && (
+                            <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
+                        )}
+                        {node && location && deleteComponent && (
+                            <DeleteComponentButton
+                                canDelete={node instanceof ServiceNodeModel ? !node.isLinked : true}
+                                handleDialogStatus={handleDeleteComponentDialog}
+                            />
+                        )}
+                        {node && linkingEnabled && isModelLinkingCompatible && (
+                            <>
+                                <Divider />
+                                <LinkingButton node={node} />
+                                <AddConnectorButton node={node.nodeObject} />
+                            </>
+                        )}
                     </>
                 )}
             </MenuList>

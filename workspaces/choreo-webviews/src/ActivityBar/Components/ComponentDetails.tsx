@@ -19,6 +19,7 @@ import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
 import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
+import { ErrorBanner } from "../../Commons/ErrorBanner";
 
 const Container = styled.div`
   display: flex;
@@ -34,6 +35,12 @@ const GridTitleCell = styled(VSCodeDataGridCell)`
     padding-left: 22px;
 `;
 
+const ErrorBannerWrap = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+`
+
 export const ComponentDetails = (props: {
     component: Component,
     handleSourceControlClick: () => void,
@@ -45,6 +52,11 @@ export const ComponentDetails = (props: {
 
     return (
         <Container>
+            {!component.repository && (
+                <ErrorBannerWrap>
+                    <ErrorBanner errorMsg="Git repository of the component is no longer accessible to Choreo." />
+                </ErrorBannerWrap>
+            )}
             <VSCodeDataGrid aria-label="Components">
                 <VSCodeDataGridRow>
                     <GridTitleCell gridColumn="1">

@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -232,8 +232,10 @@
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../choreo-webviews/build/*.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
-    "extest-setup": "npx extest get-vscode -c 1.80.2 && npx extest get-chromedriver -c 1.80.2 && npx extest install-vsix -f $(ls vsix/*.vsix) && npx extest install-vsix -f $(ls ../../ballerina-*.vsix)",
+    "extest-setup": "npx extest get-vscode -c 1.81.0 && npx extest get-chromedriver -c 1.81.0 && npx extest install-vsix -f $(ls vsix/*.vsix) && npx extest install-vsix -f $(ls ../../ballerina-*.vsix)",
     "e2e-test": "pnpm run compile-tests && npx extest run-tests 'dist/tests/e2e-tests/*.test.js' --mocha_config src/tests/e2e-tests/.mocharc.js -o src/tests/e2e-tests/settings.json",
+    "e2e-playwright": "pnpm run compile-tests && node ./dist/tests/e2e-playwright/runner.js",
+    "e2e-pw-record": "pnpm run compile-tests && node ./dist/tests/e2e-playwright/recorder.js",
     "integration-test": "pnpm run compile-tests && npx extest run-tests 'dist/tests/integration-tests/*.test.js' --mocha_config src/tests/integration-tests/.mocharc.js -o src/tests/integration-tests/settings.json",
     "pretest": "pnpm run clean && pnpm run compile-tests && pnpm run lint && pnpm run copy-webview-lib",
     "lint": "eslint src --ext ts",
@@ -249,7 +251,6 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/byline": "^4.2.33",
     "@types/glob": "^8.0.0",
-    "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.19",
     "@types/sinon": "^10.0.0",
     "@types/vscode": "^1.73.0",
@@ -275,9 +276,11 @@
     "webpack-cli": "^4.10.0",
     "webpack-permissions-plugin": "^1.0.9",
     "yarn": "^1.22.19",
-    "playwright": "^1.34.0",
     "nock": "~13.3.2",
-    "@types/nock": "~11.1.0"
+    "@types/nock": "~11.1.0",
+    "@wso2-enterprise/cypress-vscode-runner": "workspace:*",
+    "playwright": "~1.36.2",
+    "@types/mocha": "~10.0.1"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",

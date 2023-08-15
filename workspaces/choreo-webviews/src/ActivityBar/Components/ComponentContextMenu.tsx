@@ -40,7 +40,6 @@ export const ComponentContextMenu = (props: {
     handleDeleteComponentClick: (component: Component) => void;
 }) => {
     const { component, deletingComponent, handleDeleteComponentClick } = props;
-    const { repository } = component;
     const { choreoUrl, currentProjectOrg } = useChoreoWebViewContext();
 
     const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
@@ -52,23 +51,38 @@ export const ComponentContextMenu = (props: {
         ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
     }, [componentBaseUrl]);
 
-    const gitBaseUrl = repository.gitProvider === GitProvider.BITBUCKET ? "https://bitbucket.org" : "https://github.com";
-    let gitUrl = `${gitBaseUrl}/${repository?.organizationApp}/${repository?.nameApp}`;
-    gitUrl = repository.gitProvider === GitProvider.GITHUB ? `${gitUrl}/tree` : `${gitUrl}/src`;
-    gitUrl = component.local
-        ? `${gitUrl}/${repository?.branchApp}`
-        : `${gitUrl}/${repository?.branchApp}/${repository.appSubPath ?? ""}`;
-
-    const onOpenRepo = () => {
-        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-            eventName: OPEN_GITHUB_REPO_PAGE_EVENT,
-        });
-        ChoreoWebViewAPI.getInstance().openExternal(gitUrl);
-    };
 
     const menuItems: MenuItem[] = [];
 
-    if (!component.local) {
+    component.filePaths?.forEach(file => {
+        menuItems.push({
+            id: "open-source",
+            label: (
+                <>
+                    <InlineIcon name="code" />
+                    &nbsp; View {file.label}
+                </>
+            ),
+            onClick: () => ChoreoWebViewAPI.getInstance().goToSource(file.path),
+        });
+    }) 
+
+    if (!component.local && component.repository) {
+        const { repository } = component;
+        const gitBaseUrl = repository.gitProvider === GitProvider.BITBUCKET ? "https://bitbucket.org" : "https://github.com";
+        let gitUrl = `${gitBaseUrl}/${repository?.organizationApp}/${repository?.nameApp}`;
+        gitUrl = repository.gitProvider === GitProvider.BITBUCKET ? `${gitUrl}/src` : `${gitUrl}/tree`;
+        gitUrl = component.local
+            ? `${gitUrl}/${repository?.branchApp}`
+            : `${gitUrl}/${repository?.branchApp}/${repository.appSubPath ?? ""}`;
+
+        const onOpenRepo = () => {
+            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                eventName: OPEN_GITHUB_REPO_PAGE_EVENT,
+            });
+            ChoreoWebViewAPI.getInstance().openExternal(gitUrl);
+        };
+
         menuItems.push({
             id: "github-remote",
             label: (
@@ -94,6 +108,7 @@ export const ComponentContextMenu = (props: {
             onClick: () => openComponentUrl(),
         });
     }
+
     menuItems.push({
         id: "delete",
         label: (

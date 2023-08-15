@@ -11,31 +11,27 @@
  *  associated services.
  */
 import React from "react";
-import classNames from "classnames";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 import styled from "@emotion/styled";
+import classNames from "classnames";
 
-export interface ComponentViewInfo {
-    filePath: string;
-    position: NodePosition;
-    fileName?: string;
-    moduleName?: string;
-    uid?: string;
-    name?: string;
+export interface ComponentCardColors {
+    foreground?: string;
+    hoverBackground?: string;
+    hoverBorder?: string;
 }
-
 export interface ComponentCardProps {
-    type: string;
-    info: ComponentViewInfo;
+    isAllowed: boolean;
     children: React.ReactNode;
-    updateSelection: (info: ComponentViewInfo) => void;
+    onClick: () => void;
+    colors?: ComponentCardColors;
 }
 
 const ComponentContainer = styled.div`
   height: 50px;
   cursor: pointer;
   border-radius: 5px;
-  border: 1px solid var(--vscode-editor-foreground);   
+  border: 1px solid ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
   display: flex;
   align-items: center;
   padding: 10px;
@@ -44,10 +40,10 @@ const ComponentContainer = styled.div`
   margin-right: 16px;
   margin-bottom: 16px;
   transition: 0.3s;
-  color: var(--vscode-editor-foreground);
-  
+  color: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
+
   .icon svg g {
-    fill: var(--vscode-editor-foreground);
+    fill: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};;
   }
 
   &.not-allowed {
@@ -55,11 +51,11 @@ const ComponentContainer = styled.div`
   }
 
   &:hover {
-    border: 1px solid var(--vscode-editorGroup.border);
-    background-color: var(--vscode-editorGroup.background);
-    color: var(--vscode-editor-foreground);
+    border: 1px solid ${(props: ComponentCardColors) => props.hoverBorder ? props.hoverBorder : 'var(--vscode-editorGroup.border)'};
+    background-color: ${(props: ComponentCardColors) => props.hoverBackground ? props.hoverBackground : 'var(--vscode-editorGroup.background)'};
+    color: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
     .icon svg g {
-      fill: var(--vscode-editor-foreground);
+      fill: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
     }
   }
 
@@ -91,32 +87,13 @@ const ComponentContainer = styled.div`
 `;
 
 export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
-    const { type, info, children, updateSelection } = props;
-
-    const isComponentAllowed = (type: string) => {
-        switch (type) {
-            case 'classes':
-            case 'objects':
-            case 'types':
-            case 'enums':
-            case 'listeners':
-            case 'constants':
-            case 'moduleVariables':
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    const handleComponentClick = () => {
-        updateSelection(info);
-    };
+    const { isAllowed, children, onClick, colors } = props;
 
     return (
         <ComponentContainer
-            className={classNames("component", { 'not-allowed': !isComponentAllowed(type) })}
-            onClick={isComponentAllowed(type) ? handleComponentClick : undefined}
-            title={info.name.length ? info.name : '/'}
+            className={classNames("component", { 'not-allowed': !isAllowed })}
+            onClick={onClick}
+            {...colors}
         >
             {children}
         </ComponentContainer>

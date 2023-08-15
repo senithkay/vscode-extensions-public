@@ -38,20 +38,6 @@ export function waitUntilTextContains(
     );
 }
 
-export async function waitUntilCodeLensVisible(
-    codeLensTitle: string,
-    driver: WebDriver,
-    timeout: number = DEFAULT_TIME_OUT
-) {
-    return driver.wait(until.elementLocated(By.xpath("//a[@title='" + codeLensTitle + "']")), timeout);
-}
-
-export function getElementByXPath(
-    testID: string
-) {
-    return By.xpath("//*[@data-testid='"+ testID+ "']");
-}
-
 export async function waitForMultipleElementsLocated(
     driver: WebDriver,
     locators: By[],
@@ -61,6 +47,12 @@ export async function waitForMultipleElementsLocated(
         driver.wait(until.elementLocated(locator), timeout)
     );
     await Promise.all(promises);
+}
+
+export function getElementByXPath(
+    testID: string
+) {
+    return By.xpath("//*[@data-testid='"+ testID+ "']");
 }
 
 export async function waitForElementToDisappear(
