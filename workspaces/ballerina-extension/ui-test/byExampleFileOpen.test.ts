@@ -14,7 +14,7 @@ import { join } from 'path';
 import { By, EditorView, InputBox, Key, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { waitUntil } from './util';
 
-describe.only('Open ballerina samples in VSCode from URL', () => {
+describe('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
