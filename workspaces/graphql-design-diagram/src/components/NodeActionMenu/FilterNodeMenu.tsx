@@ -30,6 +30,7 @@ export function FilterNodeMenu(props: FilterNodeMenuProps) {
     return (
         <>
             <Tooltip
+                data-testid="filter-node-menu"
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
@@ -71,15 +72,13 @@ export function FilterNodeMenu(props: FilterNodeMenuProps) {
                 placement="right"
             >
                 <MoreVertIcon
-                    data-testid="filter-node-menu"
                     cursor="pointer"
                     onClick={() => setTooltipStatus(true)}
                     sx={{
                         fontSize: '18px',
                         margin: '0px',
                         position: 'absolute',
-                        right: 0.5,
-                        zIndex: 1
+                        right: 0.5
                     }}
                 />
             </Tooltip>
