@@ -14,9 +14,11 @@ import {
     Locator,
     WebElement,
     WebDriver,
-    ActivityBar
+    ActivityBar,
+    BottomBarPanel,
 } from "vscode-extension-tester";
 import { DEFAULT_TIME_OUT } from "./constants";
+import { fail } from "assert";
 
 export function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -111,5 +113,17 @@ export async function clickOnActivity(activityName: string) {
 }
 
 export async function getLabelElement(driver: WebDriver, targetSubstring: string) {
-   return await driver.findElement(By.xpath(`//*[contains(text(), "${targetSubstring}")]`));
+    return await driver.findElement(By.xpath(`//*[contains(text(), "${targetSubstring}")]`));
+}
+
+export function waitForWebview(name: string) {
+    return waitUntil(By.xpath("//div[@title='" + name + "']"));
+}
+
+export async function verifyTerminalText(text: string) {
+    const terminal = await new BottomBarPanel().openTerminalView();
+
+    await waitUntilTextContains(terminal, text, 60000).catch((e) => {
+        fail(e);
+    });
 }

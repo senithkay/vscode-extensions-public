@@ -15,3 +15,6 @@ export const DEFAULT_UI_LOAD_TIME = 500;
 
 // activities
 export const EXPLORER_ACTIVITY = 'Explorer';
+
+// palette commands
+export const DND_PALETTE_COMMAND = 'notifications.toggleDoNotDisturbMode';
