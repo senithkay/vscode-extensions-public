@@ -430,8 +430,8 @@
       "versionPolicyName": "choreo-extension"
     },
     {
-      "packageName": "@wso2-enterprise/cypress-vscode-runner",
-      "projectFolder": "workspaces/cypress-vscode-runner",
+      "packageName": "@wso2-enterprise/playwright-vscode-tester",
+      "projectFolder": "workspaces/playwright-vscode-tester",
       "versionPolicyName": "choreo-extension"
     },
     {

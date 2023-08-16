@@ -1,4 +1,4 @@
-/var/folders/zy/bmcl4x494957rx75lt3h5lq00000gn/T/extest-code/Contents/MacOS/Electron 
+<Repo-Root>/workspaces/choreo-extension/test-resources/Visual Studio Code.app/Contents/MacOS/Electron
 --allow-pre-commit-input
 --disable-background-networking
 --disable-client-side-phishing-detection
@@ -19,4 +19,4 @@
 --remote-debugging-port=0
 --test-type=webdriver
 --use-mock-keychain
---user-data-dir=/Users/kavith/git/ballerina-plugin-vscode/workspaces/choreo-extension/test-resources/settings
+--user-data-dir=<Repo-Root>/workspaces/choreo-extension/test-resources/settings

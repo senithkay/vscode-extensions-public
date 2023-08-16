@@ -1,4 +1,4 @@
-/Users/kavith/git/ballerina-plugin-vscode/workspaces/choreo-extension/test-resources/Visual Studio Code.app/Contents/MacOS/Electron 
+<Repo-Root>/workspaces/choreo-extension/test-resources/Visual Studio Code.app/Contents/MacOS/Electron
 about:blank 
 --test-type 
 --ignore-certificate-errors 
@@ -54,8 +54,8 @@ about:blank
 --remote-debugging-address=127.0.0.1 
 --no-sandbox 
 --enable-logging 
---log-file=/Users/kavith/git/ballerina-plugin-vscode/workspaces/choreo-extension/test-resources/settings/chromium-log 
+--log-file=<Repo-Root>/workspaces/choreo-extension/test-resources/settings/chromium-log 
 --disable-dev-shm-usage 
---crash-reporter-directory=/Users/kavith/git/ballerina-plugin-vscode/workspaces/choreo-extension/test-resources/settings/crash-reports 
+--crash-reporter-directory=<Repo-Root>/workspaces/choreo-extension/test-resources/settings/crash-reports 
 --user-data-dir=/Users/kavith/Library/Application Support/Cypress/cy/production/browsers/vscode-stable/run-2730 
 --disk-cache-dir=/Users/kavith/Library/Application Support/Cypress/cy/production/browsers/vscode-stable/run-2730/CypressCache
