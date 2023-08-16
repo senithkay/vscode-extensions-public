@@ -8,11 +8,11 @@
  */
 
 import { expect } from 'chai';
-import { existsSync, readFileSync, writeFile } from 'fs';
+import { existsSync, readFileSync, unlinkSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, VSBrowser, WebDriver } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, wait } from './util';
+import { areVariablesIncludedInString, wait, waitUntil } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
@@ -63,18 +63,14 @@ describe('VSCode Config Generation Edit UI Tests', () => {
 
     it('Click on run button to add configs to the file', async () => {
         const editorView = new ExtendedEditorView(new EditorView());
-        expect(await editorView.getAction("Run")).is.not.undefined;
-        (await editorView.getAction("Run"))!.click();
-        await wait(5000);
+        const runBtn = await editorView.getAction("Run");
+        await runBtn.click();
 
-        // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.linkText('Add to config'));
-        // Iterate over the information message boxes
-        for (const infoNotification of infoNotifications) {
-            await infoNotification.click();
-        }
-        await wait(5000);
+        const infoNotification = await waitUntil(By.linkText('Add to config'));
+        await infoNotification.click();
 
+        await waitUntil(By.xpath("//*[contains(text(), 'Successfully updated')]"));
+    
         // Read the updated config file and expected config file
         const generatedConfigContent = readFileSync(configFilePath, 'utf8').replace(/\s/g, '');
 
@@ -82,4 +78,14 @@ describe('VSCode Config Generation Edit UI Tests', () => {
         expect(areVariablesIncludedInString(expectedConfigs, generatedConfigContent)).to.true;
 
     });
+
+    
+    after(async () => {
+        // Check if the file exists
+        if (existsSync(configFilePath)) {
+            // If the file exists, delete it
+            unlinkSync(configFilePath);
+        }
+    });
+
 });
