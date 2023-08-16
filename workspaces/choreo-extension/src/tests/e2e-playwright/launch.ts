@@ -1,8 +1,7 @@
 import { _electron } from 'playwright';
-import { getCypressBrowser, getCypressBrowserOptions } from "@wso2-enterprise/cypress-vscode-runner";
+import { getCypressBrowser, getCypressBrowserOptions, ReleaseQuality } from "@wso2-enterprise/playwright-vscode-tester";
 
 import path = require('path');
-import { ReleaseQuality } from '@wso2-enterprise/cypress-vscode-runner/out/codeUtil';
 
 const resourcesFolder = path.join(__dirname, '..', '..', '..', 'test-resources');
 const vscodeVersion = '1.81.1';
@@ -11,10 +10,25 @@ export const startVSCode = async () => {
     const browser = await getCypressBrowser(resourcesFolder, vscodeVersion, ReleaseQuality.Stable);
     const browserOptions = await getCypressBrowserOptions(resourcesFolder, vscodeVersion, ReleaseQuality.Stable);
 
+    const args = [...browserOptions.args];
+
+    // run in headless mode if running in CI
+    if (process.env.CI) {
+        args.push('--headless');
+        args.push('--disable-gpu');
+    }
+
     const vscode = await _electron.launch({
         executablePath: browser.path,
-        args: browserOptions.args,
+        args,
         env: browserOptions.env,
+        recordVideo: {
+            dir: path.join(resourcesFolder, 'videos'),
+            size: {
+                width: 1280,
+                height: 720,
+            },
+        },
     });
 
     // Get the first window that the app opens, wait if necessary.

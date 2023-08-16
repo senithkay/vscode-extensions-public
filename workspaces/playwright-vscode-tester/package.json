@@ -1,8 +1,8 @@
 {
-  "name": "@wso2-enterprise/cypress-vscode-runner",
+  "name": "@wso2-enterprise/playwright-vscode-tester",
   "version": "1.0.0",
   "description": "Utils needed to run vscode with Cypress for e2e testing",
-  "main": "out/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "tsc --pretty",
     "watch": "tsc --pretty --watch"
