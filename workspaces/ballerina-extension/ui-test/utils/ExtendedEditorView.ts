@@ -13,4 +13,10 @@ export class ExtendedEditorView {
         await waitUntil(element);
         return await this.editorView.findElement(element);
     }
+
+    async getCodeLens(title: string, index: number = 0) {
+        const element = By.xpath("//a[text()='" + title + "']");
+        await waitUntil(element, 30000);
+        return (await this.editorView.findElements(element))[index];
+    }
 }

@@ -73,7 +73,11 @@
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "preLaunchTask": "compile:ballerina-tests"
+            "preLaunchTask": "compile:ballerina-tests",
+            "env": {
+                "WEB_VIEW_WATCH_MODE": "false",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000"
+            }
         },
         {
             "name": "Debug Choreo UI Tests",
@@ -96,6 +100,22 @@
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "preLaunchTask": "compile:choreo-tests"
-        }
+        },
+        {
+			"name": "Debug Choreo Playwright-E2E Tests",
+			"type": "node",
+			"program": "${workspaceFolder}/workspaces/choreo-extension/node_modules/mocha/bin/_mocha",
+			"args": [
+                "--config",
+                "${workspaceFolder}/workspaces/choreo-extension/src/tests/e2e-playwright/.mocharc.js",
+				"${workspaceFolder}/workspaces/choreo-extension/dist/tests/e2e-playwright/suite/**/*.test.js"
+			],
+			"request": "launch",
+			"outFiles": [
+				"${workspaceFolder}/workspaces/choreo-extension/dist/**/*.js"
+			],
+			"console": "integratedTerminal",
+			"preLaunchTask": "compile:choreo-tests"
+		}
     ]
 }

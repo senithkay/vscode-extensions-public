@@ -430,6 +430,11 @@
       "versionPolicyName": "choreo-extension"
     },
     {
+      "packageName": "@wso2-enterprise/playwright-vscode-tester",
+      "projectFolder": "workspaces/playwright-vscode-tester",
+      "versionPolicyName": "choreo-extension"
+    },
+    {
       "packageName": "choreo",
       "projectFolder": "workspaces/choreo-extension",
       "versionPolicyName": "choreo-extension"

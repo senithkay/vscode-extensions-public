@@ -5,3 +5,4 @@ resources/jslibs/main.js
 test-resources
 src/tests/e2e-tests/test-projects
 .env
+playwright-report

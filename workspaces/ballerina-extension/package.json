@@ -629,6 +629,7 @@
         "test-compile": "tsc -p ./",
         "test": "pnpm run test-compile && node ./out/test/runTest.js",
         "ui-test-setup": "npx extest get-vscode -c 1.80.1 && npx extest get-chromedriver -c 1.80.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
+        "preui-test": "node -e \"const fs = require('fs'); if (fs.existsSync('test-resou')) { fs.unlinkSync('test-resou'); }\"",
         "ui-test": "pnpm run test-compile && npx extest run-tests 'out/ui-test/*.test.js' --mocha_config ui-test/.mocharc.js -o ui-test/settings.json",
         "test-coverage": "cross-env COVER_CONFIG=html pnpm run test",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
@@ -673,7 +674,6 @@
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.18.8",
         "@types/chai": "^4.2.18",
-        "@types/mocha": "^10.0.0",
         "@types/node": "^18.11.19",
         "@types/tcp-port-used": "^1.0.0",
         "@types/vscode": "^1.73.0",
@@ -705,7 +705,8 @@
         "webpack": "^5.56.0",
         "webpack-cli": "^4.10.0",
         "webpack-merge-and-include-globally": "^2.3.4",
-        "yarn": "^1.22.19"
+        "yarn": "^1.22.19",
+        "@types/mocha": "~10.0.1"
     },
     "extensionPack": [
         "be5invis.toml"
