@@ -2,6 +2,21 @@ name: Run UI tests
 
 on: 
   workflow_dispatch:
+    inputs: 
+      ballerina:
+        default: true
+        type: boolean  
+      choreo:
+        default: true
+        type: boolean
+  workflow_call:
+    inputs: 
+      ballerina:
+        default: true
+        type: boolean  
+      choreo:
+        default: true
+        type: boolean      
 
 jobs:
   Build:
