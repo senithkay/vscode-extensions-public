@@ -101,7 +101,6 @@ export function RepoBranchSelector(props: RepoBranchSelectorProps) {
                     selectedItem={branch}
                     onChange={handleBranchChange}
                     id="git-branch-selector"
-                    loading={isFetching}
                 />                
                 <RefreshBtn
                     appearance="icon"

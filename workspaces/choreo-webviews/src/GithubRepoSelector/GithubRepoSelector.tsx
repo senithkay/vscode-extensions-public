@@ -126,7 +126,6 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                         selectedItem={selectedRepo?.org}
                         onChange={handleGhOrgChange}
                         id="git-org-selector"
-                        loading={isFetchingRepos}
                     >
                     </AutoComplete>
                 </GhRepoSelectorOrgContainer>
@@ -137,7 +136,6 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                         selectedItem={selectedRepo?.repo}
                         onChange={handleGhRepoChange}
                         id="git-repo-selector"
-                        loading={isFetchingRepos}
                     >
                     </AutoComplete>
                 </GhRepoSelectorRepoContainer>

@@ -71,11 +71,10 @@ export interface AutoCompleteProps {
     selectedItem?: string;
     widthOffset?: number;
     onChange: (item: string, index?: number) => void;
-    loading?: boolean;
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { id, selectedItem, items, notItemsFoundMessage, widthOffset = 108 , onChange, loading } = props;
+    const { id, selectedItem, items, notItemsFoundMessage, widthOffset = 108 , onChange } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -131,7 +130,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                             onBlur={handleTextFieldOutFocused}
                             onFocus={handleTextFieldFocused}
                             onClick={handleTextFieldClick}
-                            data-loading={loading}
                         />
                         <Combobox.Button
                             id={`autocomplete-dropdown-button-${items[0]}`}
