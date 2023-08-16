@@ -49,7 +49,7 @@ export async function waitForMultipleElementsLocated(
     await Promise.all(promises);
 }
 
-export function getElementByXPath(
+export function getElementByXPathUsingTestID(
     testID: string
 ) {
     return By.xpath("//*[@data-testid='"+ testID+ "']");
