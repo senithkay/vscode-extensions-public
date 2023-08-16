@@ -13,6 +13,7 @@ import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, Key, VSBrowser, WebDriver, Window, Workbench } from 'vscode-extension-tester';
 import { areVariablesIncludedInString, wait, waitUntil } from './util';
+import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
 const expectedConfigs = [
@@ -71,10 +72,12 @@ describe('VSCode Config Creation Using Command UI Tests', () => {
     });
 
     it('Open command palette to select config create command', async () => {
-       
+        const editorView = new ExtendedEditorView(new EditorView());
+        expect(await editorView.getAction("Run")).is.not.undefined;
+
         await workbench.executeCommand("Ballerina: Create Config.toml");
 
-        await waitUntil(By.xpath("//*[contains(text(), 'Successfully updated')]"));
+        await waitUntil(By.xpath("//*[contains(text(), 'Successfully updated')]"), 30000);
 
         // Check if the config file has been generated
         expect(existsSync(configFilePath)).to.be.true;
