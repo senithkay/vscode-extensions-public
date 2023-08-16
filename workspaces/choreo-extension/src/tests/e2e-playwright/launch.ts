@@ -1,8 +1,7 @@
 import { _electron } from 'playwright';
-import { getCypressBrowser, getCypressBrowserOptions } from "@wso2-enterprise/playwright-vscode-tester";
+import { getCypressBrowser, getCypressBrowserOptions, ReleaseQuality } from "@wso2-enterprise/playwright-vscode-tester";
 
 import path = require('path');
-import { ReleaseQuality } from '@wso2-enterprise/playwright-vscode-tester/out/codeUtil';
 
 const resourcesFolder = path.join(__dirname, '..', '..', '..', 'test-resources');
 const vscodeVersion = '1.81.1';
