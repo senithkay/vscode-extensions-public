@@ -37,19 +37,10 @@ jobs:
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
           TEST_USER_ORG_HANDLE: choreouser
-          TEST_USER_ORG_ID: 3678
-          TEST_USER_ORG_UUID: 9f3f5ca2-c1f2-43e7-afbe-a15714138b57
           TEST_GITHUB_USERNAME: choreo-test-user@wso2.com
           TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
-          APIM_CLIENT_ID: ciwnWuwZfbcdzBUcnkhKvi_mcBUa
-          APIM_TOKEN_URL: https://sts.choreo.dev/oauth2/token
-          CLIENT_ID: aVKhTSUMu_QfEwmCtrcuWoLy92oa
-          LOGIN_URL: https://console.choreo.dev/login
-          REDIRECT_URL: https://console.choreo.dev/vscode-auth
-          TOKEN_URL: https://api.asgardeo.io/t/a/oauth2/token
-          VSCODE_CLIENT_ID: GWj5MzWNrOB28jX_wu5ZGu7I1VIa
-          PROJECT_API: https://apis.choreo.dev/projects/1.0.0/graphql
-          APIM_SCOPES: urn:choreosystem:componentsmanagement:component_create
+          TEST_GITHUB_ORG: choreo-test-apps
+          TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
 
       - name: Publish UI Test recording
         uses: actions/upload-artifact@v3

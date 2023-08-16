@@ -41,6 +41,7 @@ export const ComponentsPushAlert = () => {
                             handlePushAllComponentsClick(localComponents.map((item) => item.name));
                         }
                     }}
+                    buttonId="push-all"
                 />
             )}
         </>

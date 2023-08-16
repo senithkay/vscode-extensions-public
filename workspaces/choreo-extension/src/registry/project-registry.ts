@@ -99,24 +99,15 @@ export class ProjectRegistry {
         });
     }
 
-    async getProjects(orgId: number, orgHandle: string, forceRefresh: boolean = false): Promise<Project[]> {
-        if ((forceRefresh || !this._dataProjects.has(orgId)) && ext.api.status === "LoggedIn") {
-            try {
-                // todo: check if the you get an error if you create a project with the same name
-                // just after deleting a project with the same name
-                const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
-                this._dataProjects.set(orgId, projects);
-                return projects;
-            } catch (error: any) {
-                getLogger().error("Error while fetching projects. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                window.showErrorMessage("Error while fetching projects ");
-                return [];
-            }
-        } else {
-            return new Promise((resolve) => {
-                const projects: Project[] | undefined = this._dataProjects.get(orgId);
-                resolve(projects ? projects : []);
-            });
+    async getProjects(orgId: number, orgHandle: string): Promise<Project[]> {
+        try {
+            const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
+            this._dataProjects.set(orgId, projects);
+            return projects;
+        } catch (error: any) {
+            getLogger().error("Error while fetching projects. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            window.showErrorMessage("Error while fetching projects ");
+            return [];
         }
     }
 

@@ -108,6 +108,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                         placeholder=""
                         onInput={(e: any) => updateSubFolderName(e.target.value)}
                         value={repository?.subPath}
+                        id="directory-select-input"
                     >
                         Directory <RequiredFormInput />
                         {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}

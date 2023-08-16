@@ -59,24 +59,6 @@
             "preLaunchTask": "npm: watch-choreo"
         },
         {
-            "name": "Choreo Extension Tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "env": {
-                "WEB_VIEW_DEV_MODE": "true",
-                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
-            },
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/choreo-extension",
-                "--extensionTestsPath=${workspaceFolder}/workspaces/choreo-extension/dist/test/suite/index"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/workspaces/choreo-extension/out/**/*.js",
-                "${workspaceFolder}/workspaces/choreo-extension/dist/**/*.js"
-            ],
-            "preLaunchTask": "tasks: watch-tests"
-        },
-        {
             "name": "Debug Ballerina UI Tests",
             "type": "node",
             "request": "launch",
@@ -106,6 +88,11 @@
                 "-o",
                 "${workspaceFolder}/workspaces/choreo-extension/src/tests/e2e-tests/settings.json"
             ],
+            "envFile": "${workspaceFolder}/workspaces/choreo-extension/.env",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+            },
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "preLaunchTask": "compile:choreo-tests"

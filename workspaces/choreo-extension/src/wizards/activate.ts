@@ -70,7 +70,7 @@ export function activateWizards() {
         }
 
         const answer = await window.showWarningMessage(
-            `Are you sure you want to delete the project ${choreoProject.name}? `,
+            `Please confirm the deletion of project '${choreoProject.name}'. This action is not reversible and will result in the removal of all associated components`,
             { modal: true },
             "Delete Project"
         );
