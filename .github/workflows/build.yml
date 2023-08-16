@@ -92,6 +92,7 @@ jobs:
             [[ "${FOLDERS[@]}" =~ "choreo-webviews" ]]; then
               echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
             fi
+          fi  
 
   ExtTest_Ballerina:
     name: Run Ext test
