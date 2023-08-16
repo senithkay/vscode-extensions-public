@@ -27,11 +27,8 @@ const expectedConfigs = [
 describe('VSCode Config Generation Edit UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
-    let driver: WebDriver;
 
     const configFilePath = `${PROJECT_ROOT}/configServicePackageEdit/Config.toml`;
-    const expectedConfigFilePath = `${PROJECT_ROOT}/configServicePackageEdit/expected-config.toml`;
-
 
     const configContent = `# Configuration file for "configServiceProject"
     # How to use see:
@@ -54,7 +51,6 @@ describe('VSCode Config Generation Edit UI Tests', () => {
             }
         });
         browser = VSBrowser.instance;
-        driver = browser.driver;
         // Close all open tabs
         await new EditorView().closeAllEditors();
 
