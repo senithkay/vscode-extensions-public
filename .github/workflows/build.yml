@@ -82,7 +82,7 @@ jobs:
             [[ "${FOLDERS[@]}" =~ "low-code-ui-components" ]] || 
             [[ "${FOLDERS[@]}" =~ "statement-editor" ]] || 
             [[ "${FOLDERS[@]}" =~ "syntax-tree" ]] || 
-            [[ "${FOLDERS[@]}" =~ "ballerina-extension" ]; then
+            [[ "${FOLDERS[@]}" =~ "ballerina-extension" ]]; then
               echo "runBalExtTests=true" >> $GITHUB_OUTPUT
             fi 
 
