@@ -14,7 +14,7 @@ import { join } from 'path';
 import { By, EditorView, InputBox, Key, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { waitUntil } from './util';
 
-describe('Open ballerina samples in VSCode from URL', () => {
+describe.only('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
@@ -125,6 +125,11 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await cloneDialog.click();
 
         expect(existsSync(`${samplesDownloadDirectory}/choreo-sample-apps/README.md`)).to.be.true;
+    });
+
+    after(async () => {
+        // Delete files and folders in this folder
+        rmSync(samplesDownloadDirectory, { recursive: true, force: true });
     });
 
 });

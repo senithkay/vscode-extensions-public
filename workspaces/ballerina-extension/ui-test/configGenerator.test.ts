@@ -8,7 +8,7 @@
  */
 
 import { expect } from 'chai';
-import { existsSync, readFileSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, unlinkSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import {
@@ -57,6 +57,7 @@ describe('VSCode Config Generation UI Tests', () => {
     let driver: WebDriver;
 
     const configFilePath = `${PROJECT_ROOT}/configServicePackage/Config.toml`;
+    const gitIgnoreFile = `${PROJECT_ROOT}/configServicePackage/.gitignore`;
 
     before(async () => {
         // Check if the file exists
@@ -115,5 +116,14 @@ describe('VSCode Config Generation UI Tests', () => {
             // If the file exists, delete it
             unlinkSync(configFilePath);
         }
+
+        const gitIgnoreContent = `target/\n.vscode/\n`;
+        writeFile(gitIgnoreFile, gitIgnoreContent, (err) => {
+            if (err) {
+                console.error('Error updating gitIgnore file:', err);
+            } else {
+                console.log('gitIgnore file updated successfully!');
+            }
+        });
     });
 });
