@@ -55,6 +55,8 @@ describe('VSCode Config Generation Edit UI Tests', () => {
         await new EditorView().closeAllEditors();
 
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackageEdit/service.bal`);
+        await browser.waitForWorkbench();
+
     });
 
     it('Click on run button to add configs to the file', async () => {

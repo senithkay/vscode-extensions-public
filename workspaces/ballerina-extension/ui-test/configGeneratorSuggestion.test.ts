@@ -55,6 +55,8 @@ describe('VSCode Config Suggestions UI Tests', () => {
         // Close all open tabs
         await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, configFilePath);
+        await browser.waitForWorkbench();
+
     });
 
     it('Click on suggestion to add configs to the file', async () => {
