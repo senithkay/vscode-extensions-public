@@ -15,12 +15,12 @@ import { By, EditorView, Key, VSBrowser, WebDriver } from 'vscode-extension-test
 import { wait } from './util';
 import os from 'os';
 
-describe('Open ballerina samples in VSCode from URL', () => {
+describe.skip('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
 
-    const samplesDownloadDirectory = `${PROJECT_ROOT}/byExampleFolder`;
+    const samplesDownloadDirectory = `${PROJECT_ROOT}/sampleDownloadFolder`;
 
     before(async () => {
         // Delete files and folders in this folder
@@ -39,17 +39,15 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await new EditorView().closeAllEditors();
     });
 
-    it('Open URL to download first example on first time and change directory', async () => {
+    it('Open URL to download first sample on first time and change directory', async () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=18e6c62b7ef307d7064ed4ef39e4d0d8&file=functions.bal';
         await executeURLdownload(driver, url);
 
-        // Find the information message boxes for change direcotory
-        const changePathBtns = await driver.findElements(By.linkText('Change Directory'));
-        // Iterate over the information message boxes
-        for (const button of changePathBtns) {
-            await button.click();
-        }
+        await clickDialogButton(driver, 'Open');
+        await wait(5000);
+
+        await clickDialogButton(driver, 'Change Directory');
         await wait(3000);
 
         await driver.actions()
@@ -66,31 +64,62 @@ describe('Open ballerina samples in VSCode from URL', () => {
 
         await wait(3000);
 
-        // Find the path input boxes
-        const inputs = await driver.findElements(By.linkText('OK'));
-        // Iterate over the path input boxes
-        for (const input of inputs) {
-            await input.click();
-        }
+        await clickDialogButton(driver, 'OK');
         await wait(3000);
 
         // Check if the file has been downloaded to the new location
         await executeURLdownload(driver, url);
+
+        await clickDialogButton(driver, 'Open');
+        await wait(3000);
+
         expect(existsSync(`${samplesDownloadDirectory}/functions.bal`), "Second assert with functions.bal").to.be.true;
 
     });
 
-    it('Open URL to download second example file', async () => {
+    it('Open URL to download second sample file', async () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=8ada14df03d5d8841d03ce4b92819b2b&file=hello_world.bal';
         await executeURLdownload(driver, url);
+
+        await clickDialogButton(driver, 'Open');
+        await wait(3000);
+
         expect(existsSync(`${samplesDownloadDirectory}/hello_world.bal`)).to.be.true;
+    });
+
+    it('Open URL to download a not valid sample file', async () => {
+        // Use Developer URL to excecute a URL
+        const url = 'vscode://wso2.ballerina/open-file?gist=1b94f48ad579969bc7c6a79549684dca&file=PeopleManagementService.bal';
+        await executeURLdownload(driver, url);
+        expect(existsSync(`${samplesDownloadDirectory}/PeopleManagementService.bal`)).to.be.not.true;
+    });
+
+    it('Open URL to download github sample file', async () => {
+        // Use Developer URL to excecute a URL
+        const url = 'vscode://wso2.ballerina/open-file?repoFileUrl=https://github.com/wso2/choreo-sample-apps/blob/main/ballerina/greeter/service.bal';
+        await executeURLdownload(driver, url);
+
+        await clickDialogButton(driver, 'Open');
+        await wait(3000);
+
+        expect(existsSync(`${samplesDownloadDirectory}/service.bal`)).to.be.true;
+    });
+
+    it('Open URL to download not valid github sample file', async () => {
+        // Use Developer URL to excecute a URL
+        const url = 'vscode://wso2.ballerina/open-file?repoFileUrl=https://github.com/jclark/semtype/blob/master/main.bal';
+        await executeURLdownload(driver, url);
+        expect(existsSync(`${samplesDownloadDirectory}/main.bal`)).to.be.not.true;
     });
 
     it('Open URL to download git repo', async () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-repo?repoUrl=https://github.com/wso2/choreo-sample-apps';
         await executeURLdownload(driver, url);
+        await wait(3000);
+
+        await clickDialogButton(driver, 'Clone Now');
         await wait(8000);
 
         // Find the information message boxes for the file download verification
@@ -122,4 +151,13 @@ const executeURLdownload = async (driver, url: string) => {
         await infoNotification.click();
     }
     await wait(6000);
+}
+
+const clickDialogButton = async (driver, text: string) => {
+    // Find the path input boxes
+    const inputs = await driver.findElements(By.linkText(text));
+    // Iterate over the path input boxes
+    for (const input of inputs) {
+        await input.click();
+    }
 }

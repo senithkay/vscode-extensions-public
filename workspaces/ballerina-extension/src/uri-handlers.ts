@@ -10,9 +10,10 @@ import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult } from "vscode";
 import { BallerinaExtension } from "./core";
 import { getChoreoExtAPI } from "./choreo-features/activate";
-import { handleOpenFile, handleOpenRepo } from "./utils";
+import { handleOpenFile, handleOpenRepo, readStoredClonedFilePathFromTemp } from "./utils";
 
 export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
+    readStoredClonedFilePathFromTemp();
     window.registerUriHandler({
         handleUri(uri: Uri): ProviderResult<void> {
             const urlParams = new URLSearchParams(uri.query);
@@ -37,16 +38,18 @@ export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
                 case '/open-file':
                     const gistId = urlParams.get('gist');
                     const fileName = urlParams.get('file');
-                    if (gistId && fileName) {
-                        handleOpenFile(ballerinaExtInstance, gistId, fileName);
-                    } else {
-                        window.showErrorMessage(`Gist ID or the file name not found!`);
+                    const repoFileUrl = urlParams.get('repoFileUrl');
+                    if ((gistId && fileName) || repoFileUrl) {
+                        handleOpenFile(ballerinaExtInstance, gistId, fileName, repoFileUrl);
+                    }else {
+                        window.showErrorMessage(`Gist or the file not found!`);
                     }
                     break;
                 case '/open-repo':
                     const repoUrl = urlParams.get('repoUrl');
+                    const openFile = urlParams.get('openFile');
                     if (repoUrl) {
-                        handleOpenRepo(ballerinaExtInstance, repoUrl);
+                        handleOpenRepo(ballerinaExtInstance, repoUrl, openFile);
                     } else {
                         window.showErrorMessage(`Repository url not found!`);
                     }

@@ -23,8 +23,10 @@ import { useDMStore } from "../../../store/store";
 import { TypeDescriptor } from "../Node/commons/DataMapperNode";
 
 import {
+	findTypeByInfoFromStore,
 	getExprBodyFromLetExpression,
 	getInnermostMemberTypeFromArrayType,
+	getShortenedTypeName,
 	getTypeName
 } from "./dm-utils";
 
@@ -50,12 +52,12 @@ export function resolveUnionType(expr: STNode, unionType: Type): Type {
 	if (STKindChecker.isTypeCastExpression(innerExpr)) {
 		// when the expr is wrapped with a type cast
 		const castedType = innerExpr.typeCastParam?.type;
-		return unionType.members.find((member) => {
+		return unionType?.members.find((member) => {
 			return getResolvedType(member, castedType);
 		});
 	} else if (supportedTypes.length === 1) {
 		// when the specified union type is narrowed down to a single type
-		return unionType.members.find(member => {
+		return unionType?.members.find(member => {
 			const typeName = getTypeName(member);
 			return typeName === supportedTypes[0];
 		});
@@ -74,7 +76,7 @@ export function resolveUnionType(expr: STNode, unionType: Type): Type {
 			}
 		}
 		if (typeName && supportedTypes.includes(typeName)) {
-			return unionType.members.find(member => {
+			return unionType?.members.find(member => {
 				const memberName = getTypeName(member);
 				return memberName === typeName;
 			});
@@ -110,14 +112,14 @@ export function getUnsupportedTypesFromTypeDesc(typeDesc: STNode): string[] {
 	} else if (STKindChecker.isParenthesisedTypeDesc(typeDesc)) {
 		unsupportedTypes.push(...getUnsupportedTypesFromTypeDesc(typeDesc.typedesc));
 	} else if (isUnsupportedTypeDesc(typeDesc)) {
-		unsupportedTypes.push(typeDesc.source);
+		unsupportedTypes.push(getShortenedTypeName(typeDesc.source));
 	}
 	return unsupportedTypes;
 }
 
 export function getUnsupportedTypesFromType(unionType: Type): string[] {
 	const unsupportedTypes: string[] = [];
-	for (const member of unionType.members) {
+	for (const member of unionType?.members || []) {
 		const memberType = getTypeName(member);
 		let type: Type = member;
 		if (member.typeName === PrimitiveBalType.Array) {
@@ -131,6 +133,9 @@ export function getUnsupportedTypesFromType(unionType: Type): string[] {
 }
 
 export function getSupportedUnionTypes(typeDef: Type, typeDesc?: STNode): string[] {
+	if (!typeDef.typeName && typeDef.typeInfo) {
+		typeDef = findTypeByInfoFromStore(typeDef.typeInfo) || typeDef;
+	}
 	const unsupportedTypes = typeDesc
 		? getUnsupportedTypesFromTypeDesc(typeDesc)
 		: getUnsupportedTypesFromType(typeDef);
@@ -147,9 +152,12 @@ export function getSupportedUnionTypes(typeDef: Type, typeDesc?: STNode): string
 }
 
 export function getUnionTypes(unionType: Type): string[] {
-	return unionType.members.map(member => {
-		return getTypeName(member);
-	});
+	if (unionType?.members !== undefined) {
+		return unionType.members.map(member => {
+			return getTypeName(member);
+		});
+	}
+	return [];
 }
 
 function isUnsupportedTypeDesc(typeDesc: STNode): boolean {

@@ -600,7 +600,7 @@ export class NodeInitVisitor implements Visitor {
         ) {
             const inputNodes = getInputNodes(innerExpr);
             valueExpr = STKindChecker.isCheckExpression(innerExpr) ? innerExpr.expression : innerExpr;
-            const fnDefForFnCall = STKindChecker.isFunctionCall(innerExpr) && getFnDefForFnCall(innerExpr);
+            const fnDefForFnCall = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
             if (inputNodes.length > 1
                 || (inputNodes.length === 1 && (isComplexExpression(valueExpr) || fnDefForFnCall))) {
                 const linkConnectorNode = new LinkConnectorNode(
