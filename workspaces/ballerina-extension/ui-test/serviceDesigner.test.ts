@@ -10,21 +10,16 @@
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, VSBrowser, WebView, EditorView, TextEditor, until, WebDriver, Input, Key, WebElement, InputBox, } from 'vscode-extension-tester';
+import { By, VSBrowser, WebView, EditorView, TextEditor, WebDriver } from 'vscode-extension-tester';
 import {
-    clickOnActivity,
     switchToIFrame,
-    waitForElementToDisappear,
     waitUntil,
-    waitForMultipleElementsLocated,
-    getLabelElement,
-    wait
+    getLabelElement
 } from './util';
-import { EXPLORER_ACTIVITY } from "./constants";
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 import { ServiceDesigner } from './utils/ServiceDesigner';
 
-describe.only('VSCode Service Designer Webview UI Tests', () => {
+describe('VSCode Service Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'sampleService');
     const FILE_NAME = 'service.bal';
     let ORIGINAL_CONTENT = `import ballerina/http;
@@ -34,13 +29,14 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
     
     }
     `;
-    let webview: WebView;
     let browser: VSBrowser;
     let driver: WebDriver;
+    let webview: WebView;
 
     before(async () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
+        webview = new WebView();
         await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         const textEditor = new TextEditor();
@@ -52,7 +48,7 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
         // wait till 'Visualize' code lens to appear
         const editorView = new ExtendedEditorView(new EditorView());
         const lens = await editorView.getCodeLens('Visualize');
-        await lens?.click();
+        await lens.click();
 
         // Wait for the service design view to load
         await switchToIFrame('Overview Diagram', driver);
@@ -67,7 +63,7 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
 
     it('Add a new get resource with a new record', async () => {
 
-        const serviceOverview = new ServiceDesigner(driver);
+        const serviceOverview = new ServiceDesigner(driver, webview);
 
         const resourceForm = await serviceOverview.clickAddResource();
 
@@ -77,6 +73,7 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
 
         await resourceForm.saveResource("GET");
 
+        await webview.switchBack();
         await new EditorView().openEditor(FILE_NAME);
 
         const EXPECTED = `import ballerina/http;
@@ -97,8 +94,9 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
 
     it('Add a new post resource with existing record', async () => {
 
+        await switchToIFrame('Overview Diagram', driver);
        
-        const serviceOverview = new ServiceDesigner(driver);
+        const serviceOverview = new ServiceDesigner(driver, webview);
 
         const resourceForm = await serviceOverview.clickAddResource();
 
@@ -110,6 +108,8 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
 
         await resourceForm.saveResource("POST");
 
+        await webview.switchBack();
+    
         await new EditorView().openEditor(FILE_NAME);
 
         const EXPECTED = `resource function post cooking() returns error?|Character {}}`;
@@ -122,7 +122,9 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
 
     it('Add a new put resource different return type', async () => {
 
-        const serviceOverview = new ServiceDesigner(driver);
+        await switchToIFrame('Overview Diagram', driver);
+
+        const serviceOverview = new ServiceDesigner(driver, webview);
 
         const resourceForm = await serviceOverview.clickAddResource();
 
@@ -136,6 +138,8 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
 
         await resourceForm.saveResource("PUT");
 
+        await webview.switchBack();
+
         await new EditorView().openEditor(FILE_NAME);
 
         const EXPECTED = `resource function put selling() returns error?|string|record {|*http:Accepted; Character body;|} {}}`;
@@ -147,11 +151,11 @@ describe.only('VSCode Service Designer Webview UI Tests', () => {
     });
 
     after(async () => {
-        // await new EditorView().openEditor(FILE_NAME);
-        // // Revert content back to the original state
-        // const textEditor = new TextEditor();
-        // await textEditor.setText("");
-        // await textEditor.save();
+        await webview.switchBack();
+        await new EditorView().openEditor(FILE_NAME);
+        const textEditor = new TextEditor();
+        await textEditor.setText("");
+        await textEditor.save();
     });
 
 });

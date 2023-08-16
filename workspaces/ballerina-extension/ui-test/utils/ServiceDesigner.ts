@@ -16,9 +16,9 @@ let driver: WebDriver;
 let resourceSaveBtn: WebElement
 
 export class ServiceDesigner {
-    constructor(webDriver) {
+    constructor(webDriver, webView) {
         driver = webDriver;
-        webview = new WebView();
+        webview = webView;
     }
 
     async clickAddResource() {
@@ -178,6 +178,8 @@ class ResourceForm {
         // Wait for new resource
         const resource = By.xpath(`//*[@class='function-box ${method.toLowerCase()}']`);
         await waitUntil(resource);
+
+        await webview.switchBack();
     }
 
 }
