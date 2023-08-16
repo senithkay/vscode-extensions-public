@@ -39,10 +39,10 @@ describe('VSCode Service Designer Webview UI Tests', () => {
         webview = new WebView();
         await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
-        await browser.waitForWorkbench();
         const textEditor = new TextEditor();
         await textEditor.setText(ORIGINAL_CONTENT);
         await textEditor.save();
+        await browser.waitForWorkbench();
     });
 
     it('Open service designer view using code lens', async () => {
