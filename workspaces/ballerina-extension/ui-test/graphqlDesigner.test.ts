@@ -226,6 +226,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
         await waitUntil(getElementByXPathUsingTestID("union-head-SearchResult"));
 
         const unionNode = await webview.findWebElement(getElementByXPathUsingTestID("union-head-SearchResult"));
+        await waitUntil(By.css(`[data-testid='filter-node-menu']`));
         const moreIcon = await unionNode.findElement(By.css(`[data-testid='filter-node-menu']`));
         await moreIcon.click();
         await waitUntil(getElementByXPathUsingTestID("show-subgraph-menu"));
