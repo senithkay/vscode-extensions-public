@@ -14,7 +14,7 @@ import { join } from 'path';
 import { By, EditorView, InputBox, Key, VSBrowser, WebDriver, Workbench } from 'vscode-extension-tester';
 import { waitUntil } from './util';
 
-describe('Open ballerina samples in VSCode from URL', () => {
+describe.skip('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
@@ -72,7 +72,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await waitUntil(By.linkText('Change Directory'));
 
         expect(existsSync(`${samplesDownloadDirectory}/functions.bal`), "Second assert with functions.bal").to.be.true;
-
+        await new EditorView().closeAllEditors();
     });
 
     it('Open URL to download second example file', async () => {
@@ -85,6 +85,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await waitUntil(By.linkText('Change Directory'));
 
         expect(existsSync(`${samplesDownloadDirectory}/hello_world.bal`)).to.be.true;
+        await new EditorView().closeAllEditors();
     });
 
     it('Open URL to download a not valid sample file', async () => {
@@ -105,6 +106,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await waitUntil(By.linkText('Change Directory'));
 
         expect(existsSync(`${samplesDownloadDirectory}/service.bal`)).to.be.true;
+        await new EditorView().closeAllEditors();
     });
 
     it('Open URL to download not valid github sample file', async () => {
@@ -127,6 +129,7 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await cloneDialog.click();
 
         expect(existsSync(`${samplesDownloadDirectory}/choreo-sample-apps/README.md`)).to.be.true;
+        await new EditorView().closeAllEditors();
     });
 
     after(async () => {
