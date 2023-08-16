@@ -33,6 +33,7 @@ describe.skip('Open ballerina samples in VSCode from URL', () => {
         driver = browser.driver;
         workbench = new Workbench();
         await browser.openResources(samplesDownloadDirectory, samplesDownloadDirectory);
+        await browser.waitForWorkbench();
         await new EditorView().closeAllEditors();
     });
 
