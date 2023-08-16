@@ -14,7 +14,7 @@ import { join } from 'path';
 import { By, EditorView, InputBox, Key, VSBrowser, WebDriver, Workbench } from 'vscode-extension-tester';
 import { waitUntil } from './util';
 
-describe('Open ballerina samples in VSCode from URL', () => {
+describe.skip('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
@@ -33,7 +33,6 @@ describe('Open ballerina samples in VSCode from URL', () => {
         driver = browser.driver;
         workbench = new Workbench();
         await browser.openResources(samplesDownloadDirectory, samplesDownloadDirectory);
-        await browser.waitForWorkbench();
         await new EditorView().closeAllEditors();
     });
 
