@@ -1,7 +1,6 @@
 import { _electron } from 'playwright';
-import { getBrowser, getBrowserLaunchOptions } from "@wso2-enterprise/playwright-vscode-tester";
+import { getBrowser, getBrowserLaunchOptions, ReleaseQuality } from "@wso2-enterprise/playwright-vscode-tester";
 import * as path from "path";
-import { ReleaseQuality } from 'vscode-extension-tester';
 
 const resourcesFolder = path.join(__dirname, '..', '..', '..', 'test-resources');
 const vscodeVersion = '1.81.1';

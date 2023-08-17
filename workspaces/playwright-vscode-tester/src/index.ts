@@ -10,6 +10,8 @@ export async function getBrowser(folder: string, version: string, quality: Relea
 
 export async function getBrowserLaunchOptions(folder: string, version: string, quality: ReleaseQuality): Promise<BrowserLaunchOptions> {
     const codeUtil = new CodeUtil(folder, quality);
-    const options = await codeUtil.getCypressBrowserOptions({ vscodeVersion: version, resources: []});
+    const options = await codeUtil.getCypressBrowserOptions({ vscodeVersion: version, resources: [] });
     return options;
 }
+
+export { ReleaseQuality } from './codeUtil';

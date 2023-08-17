@@ -25,9 +25,9 @@ on:
         required: false
 
 env:
-  ballerina_version: 2201.5.0
-  ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.5.0/ballerina-2201.5.0-swan-lake.zip
-  ballerina_deb_url: https://dist.ballerina.io/downloads/2201.5.0/ballerina-2201.5.0-swan-lake-linux-x64.deb
+  ballerina_version: 2201.7.1
+  ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.7.1/ballerina-2201.7.1-swan-lake.zip
+  ballerina_deb_url: https://dist.ballerina.io/downloads/2201.7.1/ballerina-2201.7.1-swan-lake-linux-x64.deb
 
 jobs:
   Build_Stage:
@@ -35,8 +35,8 @@ jobs:
     timeout-minutes: 45
     runs-on: ubuntu-latest
     outputs:
-      runBalPluginTests: ${{ steps.testMatrix.outputs.runBalPluginTests }}
-      testArray: ${{ steps.testMatrix.outputs.testArray }}
+      runBalExtTests: ${{ steps.testMatrix.outputs.runBalExtTests }}
+      runChoreoExtTests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -73,16 +73,7 @@ jobs:
               fi
             done <<< "$CHANGED_DIRS"
 
-            tests=()
-
             echo "Changed workspaces: $FOLDERS"
-            if [[ "${FOLDERS[@]}" =~ "ballerina-extension" ]]; then
-              echo "runBalPluginTests=true" >> $GITHUB_OUTPUT
-            fi 
-
-            if [[ "${FOLDERS[@]}" =~ "low-code-diagram" ]] || [[ "${FOLDERS[@]}" =~ "low-code-editor" ]]; then
-              tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points");
-            fi 
 
             if [[ "${FOLDERS[@]}" =~ "ballerina-languageclient" ]] || 
             [[ "${FOLDERS[@]}" =~ "expression-editor" ]] || 
@@ -90,35 +81,30 @@ jobs:
             [[ "${FOLDERS[@]}" =~ "low-code-editor-commons" ]] || 
             [[ "${FOLDERS[@]}" =~ "low-code-ui-components" ]] || 
             [[ "${FOLDERS[@]}" =~ "statement-editor" ]] || 
-            [[ "${FOLDERS[@]}" =~ "syntax-tree" ]]; then
-              tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points" "test-se" "test-se-tools" "test-dm");
+            [[ "${FOLDERS[@]}" =~ "syntax-tree" ]] || 
+            [[ "${FOLDERS[@]}" =~ "ballerina-extension" ]]; then
+              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
             fi 
 
-            sortedTests=($(echo "${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-            testArray="["
-            for test in "${sortedTests[@]}"; do
-              testArray+="'$test',"
-            done
-            testArray=${testArray:0: -1}
-            testArray+="]"
-            if [ ${#tests[@]} = 0 ]; then testArray='false'; fi
-          else 
-            testArray=['test-connectors','test-block-level','test-module-level','test-entry-points','test-se','test-se-tools','test-dm'];
+            if [[ "${FOLDERS[@]}" =~ "choreo-client" ]] || 
+            [[ "${FOLDERS[@]}" =~ "choreo-core" ]] || 
+            [[ "${FOLDERS[@]}" =~ "choreo-extension" ]] || 
+            [[ "${FOLDERS[@]}" =~ "choreo-webviews" ]]; then
+              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+            fi
           fi  
-          echo $testArray
-          echo "testArray=$testArray" >> $GITHUB_OUTPUT
 
-  PluginTest_Stage:
-    name: Run Plugin test
+  ExtTest_Ballerina:
+    name: Run Ext test
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests || github.head_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.head_ref == 'main' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
         uses: actions/download-artifact@v3
         with:
-          name: PluginBuild
+          name: ExtBuild
           path: ./
 
       - name: Set up workspace
@@ -153,38 +139,17 @@ jobs:
           balVersion: ${{ steps.set-version.outputs.balVersion }}
           balHome: ${{ steps.set-version.outputs.balHome }}
 
-      - name: Convert lcov to cobertura
-        run: |
-          cd workspaces/ballerina-extension
-          python lcov_cobertura.py coverage/lcov.info -b src/ -o coverage/coverage.xml
-
-      - name: Publish coverage reports
-        uses: actions/upload-artifact@v3
-        with:
-          path: workspaces/ballerina-extension/coverage
-          name: vscode-extension-coverage-${{ github.run_attempt }}
-        if: always()
-    
-      - name: Rename code coverage file
-        run: mv workspaces/ballerina-extension/coverage/coverage.xml workspaces/ballerina-extension/coverage/plugin-coverage.xml
-    
-      - name: Publish partial code coverage
-        uses: actions/upload-artifact@v3
-        with:
-          path: workspaces/ballerina-extension/coverage/plugin-coverage.xml
-          name: CodeCoverages
-
-  UiTest_Stage:
-    name: Run UI tests
+  UiTest_Ballerina:
+    name: Run Ballerina UI tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests || github.head_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.head_ref == 'main' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
         uses: actions/download-artifact@v3
         with:
-          name: PluginBuild
+          name: ExtBuild
           path: ./
 
       - name: Set up workspace
@@ -219,128 +184,70 @@ jobs:
           name: Ui-test-screenshots-${{ github.run_attempt }}
         if: failure()
 
-  # LowCode_Test_Stage:
-  #   name: Run low code tests
-  #   needs: Build_Stage
-  #   if: ${{ !inputs.isPreRelease }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       testStage: ${{ fromJSON(needs.Build_Stage.outputs.testArray) }}
-  #   timeout-minutes: 60
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Restore build
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: PluginBuild
-  #         path: ./
+  UiTest_Choreo:
+    name: Run Choreo UI tests
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.head_ref == 'main' }}
+    needs: Build_Stage
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
 
-  #     - name: Set up workspace
-  #       run: |
-  #         unzip build.zip
-  #         rm build.zip
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
 
-  #     - name: Setup
-  #       uses: gigara/rush-cache@v1
-  #       with:
-  #         pnpm: 7.26.3
-  #         node: 16.x
-  #         rush-install: true
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
 
-  #     - name: Install Cypress Dependencies
-  #       run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
-  #     - uses: ballerina-platform/setup-ballerina@v1
-  #       name: Install Ballerina
-  #       with:
-  #         version: ${{ env.ballerina_version }}
+      - name: install packages
+        run: |
+          sudo apt-get install ffmpeg
+          sudo apt-get install xvfb
+          sudo apt-get install -y gnome-keyring
+          sudo apt-get install libsecret-1.0
+          sudo apt install dbus-x11
 
-  #     - name: Install Chrome Stable Version
-  #       run: |
-  #         wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  #         sudo dpkg -i google-chrome-stable_current_amd64.deb
+      - name: Run tests
+        run: |
+          cd workspaces/choreo-extension 
+          pnpm run extest-setup
+          export $(dbus-launch)
+          export DISPLAY=:98.0
+          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run e2e-test
+        env:
+          TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
+          TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
+          TEST_USER_ORG_HANDLE: choreouser
+          TEST_GITHUB_USERNAME: choreo-test-user@wso2.com
+          TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
+          TEST_GITHUB_ORG: choreo-test-apps
+          TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-dev
 
-  #     - name: Run Integration Tests
-  #       run: |
-  #         cd workspaces/low-code-integration-tests  
-  #         npm run ${{ matrix.testStage  }}
+      - name: Publish UI Test recording
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo-extension/test-resources/ui-test-out.mp4
+          name: Integration-test-recording-${{ github.run_attempt }}
+        if: failure()
 
-  #     - name: Publish test fail screenshots
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: workspaces/low-code-integration-tests/cypress/screenshots
-  #         name: low-code-cypress-screenshots-${{ matrix.testStage  }}-${{ github.run_attempt }}
-  #       if: failure()
-      
-  #     - name: Rename code coverage file
-  #       run: mv workspaces/low-code-integration-tests/.nyc_output/out.json workspaces/low-code-integration-tests/.nyc_output/${{ matrix.testStage  }}.json
-      
-  #     - name: Publish partial code coverage
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: workspaces/low-code-integration-tests/.nyc_output/${{ matrix.testStage  }}.json
-  #         name: CodeCoverages
-
-  #     - name: Publish test videos
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: workspaces/low-code-integration-tests/cypress/videos
-  #         name: low-code-cypress-recordings-${{ matrix.testStage  }}-${{ github.run_attempt }}
-  #       if: failure()
-    
-  #     - name: Publish test failure console logs
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: workspaces/low-code-integration-tests/logs
-  #         name: low-code-cypress-failure-test-logs-${{ matrix.testStage  }}-${{ github.run_attempt }}
-  #       if: failure()
-
-  # Publish_Coverage_Resuls_Stage:
-  #   name: Publish code coverage results
-  #   needs: [Build_Stage, PluginTest_Stage, UiTest_Stage, LowCode_Test_Stage]
-  #   timeout-minutes: 10
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Restore build
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: PluginBuild
-  #         path: ./
-
-  #     - name: Set up workspace
-  #       run: |
-  #         unzip build.zip
-  #         rm build.zip
-
-  #     - name: Setup
-  #       uses: gigara/rush-cache@v1
-  #       with:
-  #         pnpm: 7.26.3
-  #         node: 16.x
-  #         rush-install: true
-
-  #     - name: Download partial code coverages
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: CodeCoverages
-  #         path: ./coverageData
-
-  #     - name: "Publish total code coverage"
-  #       run: |
-  #         npx nyc merge coverageData
-  #         mkdir workspaces/low-code-integration-tests/.nyc_output
-  #         mv coverage.json workspaces/low-code-integration-tests/.nyc_output/out.json
-  #         npx nyc report --reporter html --reporter cobertura -t workspaces/low-code-integration-tests/.nyc_output --report-dir workspaces/low-code-integration-tests/coverage
-  #       if: always()
-
-  #     - run: |
-  #         mkdir totalCoverage
-  #         echo ${{ github.event.number }} | tee ./totalCoverage/number
-  #         mv workspaces/low-code-integration-tests/coverage/cobertura-coverage.xml totalCoverage/lowcode-coverage.xml 
-
-  #     - name: Publish code coverage
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: totalCoverage
-  #         name: CodeCoverages    
+      - name: Publish UI Test Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo-extension/test-resources/screenshots/
+          name: Integration-test-screenshots-${{ github.run_attempt }}
+        if: failure()
