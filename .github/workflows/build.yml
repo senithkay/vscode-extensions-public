@@ -169,6 +169,11 @@ jobs:
         with:
           version: ${{ env.ballerina_version }}
 
+      - name: install packages
+        run: |
+          sudo apt-get install ffmpeg
+          sudo apt-get install xvfb
+
       - name: Runs Tests
         run: |
           cd workspaces/ballerina-extension
