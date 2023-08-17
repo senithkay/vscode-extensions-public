@@ -25,12 +25,12 @@ export class AccountView {
         const driver = VSBrowser.instance.driver;
         try {
             await CommonUtils.switchToIFrame("Account");
-            await CommonUtils.waitAndClickById("sign-in-btn");
-            await driver.switchTo().defaultContent();
+            await CommonUtils.waitAndClickById("sign-in-btn", 20000);
+            await CommonUtils.switchToDefaultFrame();
             await this.handleLoginPrompt();
             await CommonUtils.switchToIFrame("Account");
             await CommonUtils.waitUntilById("user-details", 20000);
-            await driver.switchTo().defaultContent();
+            await CommonUtils.switchToDefaultFrame();
         } catch (err: any) {
             if (err.message.includes("sign-in-btn")) {
                 console.log("Could not find the sign in button. User must be already logged in.", err);
@@ -85,5 +85,14 @@ export class AccountView {
                 // Ignore as Prompt to allow weaker encryption was not shown
             }
         }
+    }
+
+    /** Verify whether current project details are visible in the account section */
+    static async verifyWithinProject() {
+        console.log("Verifying whether current project details are visible");
+        const driver = VSBrowser.instance.driver;
+        await CommonUtils.switchToIFrame("Account");
+        await CommonUtils.waitUntilById("current-project-section", 20000);
+        await CommonUtils.switchToDefaultFrame();
     }
 }

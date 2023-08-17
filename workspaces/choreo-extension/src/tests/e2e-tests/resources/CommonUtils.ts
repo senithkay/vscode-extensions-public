@@ -13,7 +13,18 @@
 
 import { expect } from "chai";
 import * as dotenv from "dotenv";
-import { ActivityBar, By, InputBox, Key, Locator, ScmView, VSBrowser, Workbench, until } from "vscode-extension-tester";
+import {
+    ActivityBar,
+    By,
+    EditorView,
+    InputBox,
+    Key,
+    Locator,
+    ScmView,
+    VSBrowser,
+    Workbench,
+    until,
+} from "vscode-extension-tester";
 import { ENABLE_DND_MODE, GIT_PUSH_COMMAND, STAGE_CHANGES_COMMAND } from "./constants";
 import * as fs from "fs";
 import { join } from "path";
@@ -39,6 +50,8 @@ export class CommonUtils {
                 expect(process.env[envVar]).to.exist;
             });
         });
+
+        expect(process.env.TEST_CHOREO_EXT_ENV).to.be.oneOf(["dev", "stage", "prod"], "Invalid TEST_CHOREO_EXT_ENV");
     }
 
     /** Wait for X number of milliseconds */
@@ -219,7 +232,7 @@ export class CommonUtils {
 
     /** Click buttons in prompts or modals */
     static async clickPromptButton(btnText: string, promptMessageTextContains?: string, timeout: number = 15000) {
-        await VSBrowser.instance.driver.switchTo().defaultContent();
+        await this.switchToDefaultFrame();
         if (promptMessageTextContains) {
             await CommonUtils.waitUntil(By.xpath(`//*[contains(text(), "${promptMessageTextContains}")]`), timeout);
         }
@@ -244,7 +257,7 @@ export class CommonUtils {
     ) {
         console.log(`Switching to iframe: ${frameName}`);
         const driver = VSBrowser.instance.driver;
-        await driver.switchTo().defaultContent();
+        await this.switchToDefaultFrame();
         const allIFrames = await this.waitUntilElements(By.xpath("//iframe"));
         for (const iframeItem of allIFrames) {
             try {
@@ -263,6 +276,16 @@ export class CommonUtils {
         }
 
         throw new Error(`IFrame of ${frameName} not found`);
+    }
+
+    /** Switch back to the detauls IFrame */
+    static async switchToDefaultFrame() {
+        await VSBrowser.instance.driver.switchTo().defaultContent();
+    }
+
+    /** Close all editors within the workspace */
+    static async closeAllEditors() {
+        await new EditorView().closeAllEditors();
     }
 
     /** Remove a directory if it exists, from a given path */

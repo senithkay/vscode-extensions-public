@@ -22,8 +22,7 @@ export class ComponentWizardView {
         const { componentName, gitRepoName } = params;
 
         console.log(`Creating new component: ${componentName}`);
-        const driver = VSBrowser.instance.driver;
-        await driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(ADD_CHOREO_COMPONENT_COMMAND);
         await CommonUtils.setQuickInputFieldValue({ inputValue: "From scratch", title: "Create Component" });
 
@@ -37,14 +36,14 @@ export class ComponentWizardView {
         await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitUntilById("directory-select-input");
         await CommonUtils.waitAndClickById("wizard-save-btn");
-        await driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
 
         await CommonUtils.switchToIFrame("Project");
         await CommonUtils.waitUntilById(`component-card-header-${componentName}`, 20000);
         console.log("Newly created component card is visible");
         await CommonUtils.waitAndClickById("alert-btn-sync-all", 15000);
         console.log("Syncing local component changes with remote repo");
-        await driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
 
         await CommonUtils.commitAndPushChanges(gitRepoName, `Add component ${componentName}`);
 
@@ -59,6 +58,6 @@ export class ComponentWizardView {
         await CommonUtils.waitForIdToDisappear(`${componentName}-tag-Local`, 20000);
         console.log("Component successfully pushed to Choreo");
 
-        await driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
     }
 }

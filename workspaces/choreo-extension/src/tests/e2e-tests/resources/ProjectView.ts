@@ -59,22 +59,13 @@ export class ProjectView {
     /** Delete the currently opened project by running the delete command */
     static async deleteCurrentlyOpenedProject() {
         console.log("Deleting currently opened project");
-        await VSBrowser.instance.driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(DELETE_PROJECT);
         await CommonUtils.clickPromptButton("Delete Project", "Please confirm the deletion of project");
         await CommonUtils.switchToIFrame("Project");
         await CommonUtils.waitUntilById("create-project-btn", 20000);
-        await VSBrowser.instance.driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
         console.log("Deleted the currently opened project");
-    }
-
-    /** Verify whether current project details are visible in the account section */
-    static async verifyWithinProject() {
-        console.log("Verifying whether current project details are visible");
-        const driver = VSBrowser.instance.driver;
-        await CommonUtils.switchToIFrame("Account");
-        await CommonUtils.waitUntilById("current-project-section", 20000);
-        await driver.switchTo().defaultContent();
     }
 
     /** Verify whether the component name is visible within the architecture view */
@@ -87,7 +78,7 @@ export class ProjectView {
         await CommonUtils.waitUntil(
             By.xpath(`//div[contains(@class, 'diagram-container')]//*[text()='${componentName}']`)
         );
-        await VSBrowser.instance.driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
     }
 
     /** Verify whether the component name is visible within the cell view */
@@ -100,7 +91,7 @@ export class ProjectView {
         await CommonUtils.waitUntil(
             By.xpath(`//div[contains(@class, 'cell-diagram-container')]//*[text()='${componentName}']`)
         );
-        await VSBrowser.instance.driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
     }
 
     /** Delete the component from Choreo as well as from the remote repository */
@@ -110,7 +101,7 @@ export class ProjectView {
         await CommonUtils.switchToIFrame("Project");
         await CommonUtils.waitAndClickById(`component-list-menu-${componentName}`);
         await CommonUtils.waitAndClickById("component-list-menu-delete");
-        await VSBrowser.instance.driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
 
         await CommonUtils.clickPromptButton("Delete Component", "Are you sure you want to delete");
 

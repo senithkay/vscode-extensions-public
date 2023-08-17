@@ -28,8 +28,7 @@ export class ProjectWizardView {
         const { projectName, projectPath, gitOrgName, gitRepoName } = params;
 
         console.log(`Creating new project: ${projectName}`);
-        const driver = VSBrowser.instance.driver;
-        await driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(ADD_CHOREO_PROJECT_COMMAND);
         await CommonUtils.setQuickInputFieldValue({
             inputValue: process.env.TEST_USER_ORG_HANDLE!,
@@ -46,7 +45,7 @@ export class ProjectWizardView {
         await CommonUtils.waitForIdToDisappear("project-repo-progress");
         await CommonUtils.waitAndTypeInAutoComplete(By.id("git-branch-selector"), "main");
         await CommonUtils.waitAndClickById("select-project-dir-btn");
-        await driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
         CommonUtils.createDir(join(projectPath));
         await CommonUtils.setQuickInputFieldValue({
             inputValue: projectPath,
@@ -54,7 +53,7 @@ export class ProjectWizardView {
         });
         await CommonUtils.switchToIFrame("Create New Project");
         await CommonUtils.waitAndClickById("create-project-btn");
-        await driver.switchTo().defaultContent();
+        await CommonUtils.switchToDefaultFrame();
         await CommonUtils.handleGitHubLogin();
 
         console.log("Opening newly created project in the current window");

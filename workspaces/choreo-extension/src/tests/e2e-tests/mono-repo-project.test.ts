@@ -13,7 +13,6 @@
 
 import { describe, it } from "mocha";
 import { join } from "path";
-import { EditorView } from "vscode-extension-tester";
 import { CHOREO_PROJECTS_PATH, AccountView, CommonUtils, ProjectView } from "./resources";
 import { ProjectWizardView } from "./resources/ProjectWizardView";
 import { ComponentWizardView } from "./resources/ComponentWizardView";
@@ -44,18 +43,18 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
             gitOrgName: GIT_ORG_NAME,
             gitRepoName: GIT_REPO_NAME,
         });
-        await ProjectView.verifyWithinProject();
+        await AccountView.verifyWithinProject();
     });
 
     it("Create new ballerina service component from scratch", async () => {
-        await new EditorView().closeAllEditors();
+        await CommonUtils.closeAllEditors();
         await ComponentWizardView.createNewComponent({ componentName: COMPONENT_NAME, gitRepoName: GIT_REPO_NAME });
     });
 
     it("Verify component in Architecture & Cell view", async () => {
         await ProjectView.verifyComponentWithinArchitectureView(COMPONENT_NAME);
         await ProjectView.verifyComponentWithinCellView(COMPONENT_NAME);
-        await new EditorView().closeAllEditors();
+        await CommonUtils.closeAllEditors();
     });
 
     it("Delete component in from project & repo", async () => {
