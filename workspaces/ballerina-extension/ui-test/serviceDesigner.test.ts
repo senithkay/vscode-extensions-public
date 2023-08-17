@@ -19,7 +19,6 @@ import {
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 import { ServiceDesigner } from './utils/ServiceDesigner';
 import { ResourceForm } from './utils/ResourceForm';
-import { VSCodeWindow } from './utils/VSCodeWindow';
 
 describe.only('VSCode Service Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'sampleService');
