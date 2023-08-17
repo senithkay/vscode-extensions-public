@@ -238,7 +238,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             completions={completions}
             isEdit={true}
             alternativeName={""}
-            optionList={responseCodes.filter(code => code.code !== 500)}
+            optionList={responseCodes}
             option={defaultResponseCode()}
             isTypeReadOnly={false}
             onChange={onParamChange}

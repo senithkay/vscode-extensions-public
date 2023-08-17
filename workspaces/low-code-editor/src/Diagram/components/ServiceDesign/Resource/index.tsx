@@ -204,7 +204,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
         for (const [i, value] of values.entries()) {
             let code = defaultResponseCode();
-            let recordName = value.trim();
+            let recordName = value.replace("?", "").trim();
             let des = "";
 
             responseCodes.forEach(item => {
@@ -288,7 +288,7 @@ export function ResourceBody(props: ResourceBodyProps) {
             }
         }
 
-        if (values.length === 0) {
+        if (values.length === 0 || values.findIndex(val => val.includes("?")) > -1) {
             const method = model.functionName.value.toUpperCase();
             responses.push(
                 <tr key={0} className={classes.defaultResponse}>
