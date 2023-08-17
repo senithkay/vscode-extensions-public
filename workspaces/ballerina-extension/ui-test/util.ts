@@ -15,7 +15,7 @@ import {
     WebElement,
     WebDriver,
     ActivityBar,
-    BottomBarPanel,
+    BottomBarPanel, WebView, Key,
 } from "vscode-extension-tester";
 import { DEFAULT_TIME_OUT } from "./constants";
 import { fail } from "assert";
@@ -54,25 +54,25 @@ export async function waitForMultipleElementsLocated(
 export function getElementByXPathUsingTestID(
     testID: string
 ) {
-    return By.xpath("//*[@data-testid='"+ testID+ "']");
+    return By.xpath("//*[@data-testid='" + testID + "']");
 }
 
 export function getListElementByXPathUsingText(
     text: string
 ) {
-    return By.xpath("//li[text()='"+ text+ "']");
+    return By.xpath("//li[text()='" + text + "']");
 }
 
 export function getInputElementByXPathUsingValue(
     value: string
 ) {
-    return By.xpath("//input[@value='"+ value + "']");
+    return By.xpath("//input[@value='" + value + "']");
 }
 
 export function getElementByXPathUsingTitle(
     title: string
 ) {
-    return By.xpath("//*[@title='"+ title + "']");
+    return By.xpath("//*[@title='" + title + "']");
 }
 
 export function getElementByCssUsingId(
@@ -81,12 +81,39 @@ export function getElementByCssUsingId(
     return By.css(`[data-testid='${id}']`);
 }
 
-export function waitForElementToAppear(
+export async function waitForElementToAppear(
     testId: string,
 ) {
     waitUntil(getElementByXPathUsingTestID(testId));
 }
 
+export async function clickListItem(webview: WebView, className: string, text: string) {
+    const options = await webview.findWebElement(By.xpath(`//li[contains(@class, '${className}') and contains(text(), '${text}')]`));
+    await waitUntilVisible(options);
+    await options.click();
+}
+
+export async function openNodeMenu(webview: WebView, nodeTestId: string, menuTestId: string) {
+    const options = await webview.findWebElement(By.xpath(`//div[contains(@data-testid, '${nodeTestId}')]/*[contains(@data-testid, '${menuTestId}')]`));
+    await waitUntilVisible(options);
+    await options.click();
+}
+
+export async function clickWebElement(webview: WebView, locator: Locator) {
+    const element = await webview.findWebElement(locator);
+    await element.click();
+}
+
+export async function selectItemFromAutocomplete(webview: WebView, currentSelection: string, valueToSelect: string, clearInput: boolean = false) {
+    const nodeFilter = await webview.findWebElement(getInputElementByXPathUsingValue(currentSelection));
+    await nodeFilter.click();
+    if (clearInput) {
+        await clickWebElement(webview, getElementByXPathUsingTitle("Clear"));
+        await nodeFilter.sendKeys(valueToSelect, Key.DOWN, Key.ENTER);
+    } else {
+        await nodeFilter.sendKeys(valueToSelect, Key.DOWN, Key.ENTER);
+    }
+}
 
 export async function waitForElementToDisappear(
     driver: WebDriver,
@@ -159,4 +186,8 @@ export async function verifyTerminalText(text: string) {
     await waitUntilTextContains(terminal, text, 60000).catch((e) => {
         fail(e);
     });
+}
+
+export function waitUntilVisible(element: WebElement, timeout: number = DEFAULT_TIME_OUT) {
+    return VSBrowser.instance.driver.wait(until.elementIsVisible(element), timeout);
 }

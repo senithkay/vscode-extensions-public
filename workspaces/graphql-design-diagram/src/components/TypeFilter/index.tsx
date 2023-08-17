@@ -48,10 +48,10 @@ export function TypeFilter(props: TypeFilterProps) {
                     disabled={isFilterDisabled}
                     SelectDisplayProps={{ style: { padding: '10px' } }}
                 >
-                    <MenuItem value={OperationTypes.All_Operations}>All Operations</MenuItem>
-                    <MenuItem value={OperationTypes.Queries}>Queries</MenuItem>
-                    <MenuItem value={OperationTypes.Mutations}  data-testid="operation-mutation">Mutations</MenuItem>
-                    <MenuItem value={OperationTypes.Subscriptions}  data-testid="operation-subscription">Subscriptions</MenuItem>
+                    <MenuItem value={OperationTypes.All_Operations} className="operation-type">All Operations</MenuItem>
+                    <MenuItem value={OperationTypes.Queries} className="operation-type">Queries</MenuItem>
+                    <MenuItem value={OperationTypes.Mutations} className="operation-type">Mutations</MenuItem>
+                    <MenuItem value={OperationTypes.Subscriptions}  className="operation-type">Subscriptions</MenuItem>
                 </Select>
             </FormControl>
         </Box>

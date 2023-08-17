@@ -1,12 +1,12 @@
 import { before, describe } from "mocha";
 import { join } from "path";
-import { By, EditorView, Key, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
+import { By, EditorView, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
 import {
     getElementByXPathUsingTestID,
-    getListElementByXPathUsingText, getInputElementByXPathUsingValue,
     switchToIFrame,
-    wait,
-    waitUntil, getElementByXPathUsingTitle, getElementByCssUsingId, waitForElementToAppear
+    waitUntil,
+    waitForElementToAppear,
+    clickListItem, openNodeMenu, clickWebElement, selectItemFromAutocomplete
 } from "./util";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 
@@ -170,29 +170,18 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     });
 
     it('Verify filtering of operations', async () => {
-        const nodeFilter = await webview.findWebElement(getElementByXPathUsingTestID("operation-filter"));
+        await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
 
-        await nodeFilter.click();
-        // Wait for the dropdown to fully expand and the menu items to be visible
-        await waitUntil(getListElementByXPathUsingText("Mutations"));
-
-        const options = await nodeFilter.findElement(getListElementByXPathUsingText("Mutations"));
-        await wait(1000);
-        await options.click();
+        await clickListItem(webview, "operation-type", "Mutations");
 
         await waitForElementToAppear("graphql-root-head-/graphql2");
         await waitForElementToAppear("remote-identifier-createReview");
         await waitForElementToAppear("record-head-Review");
         await waitForElementToAppear("enum-head-Episode");
 
-        await nodeFilter.click();
-        // Wait for the dropdown to fully expand and the menu items to be visible
-        await waitUntil(getListElementByXPathUsingText("Subscriptions"));
+        await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
 
-        const subOption = await nodeFilter.findElement(getListElementByXPathUsingText("Subscriptions"));
-        // wait added to avoid intermittent failure when selecting the dropdown
-        await wait(1000);
-        await subOption.click();
+        await clickListItem(webview, "operation-type", "Subscription");
 
         await waitForElementToAppear("graphql-root-head-/graphql2");
         await waitForElementToAppear("resource-identifier-reviewAdded");
@@ -200,11 +189,8 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
         await waitForElementToAppear("enum-head-Episode");
     });
 
-    it('verify filtering of nodes', async () => {
-        const nodeFilter = await webview.findWebElement(getInputElementByXPathUsingValue("/graphql2"));
-
-        await nodeFilter.click();
-        await nodeFilter.sendKeys("Human", Key.DOWN, Key.ENTER);
+    it('Verify filtering of nodes', async () => {
+        await selectItemFromAutocomplete(webview, "/graphql2", "Human");
 
         await waitForElementToAppear("service-class-head-Human");
         await waitForElementToAppear("service-class-head-Droid");
@@ -213,31 +199,17 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
         await waitForElementToAppear("service-class-head-Starship");
     });
 
-    it('verify subGraph filtering', async () => {
-        const nodeFilter = await webview.findWebElement(getInputElementByXPathUsingValue("Human"));
-        await nodeFilter.clear();
-        const clearBtn = await nodeFilter.findElement(getElementByXPathUsingTitle("Clear"));
-        await clearBtn.click();
+    it('Verify subGraph filtering', async () => {
+        await selectItemFromAutocomplete(webview, "Human", "/graphql2", true);
 
-        await nodeFilter.sendKeys("/graphql2", Key.DOWN, Key.ENTER);
+        await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
 
-        const operationFilter = await webview.findWebElement(getElementByXPathUsingTestID("operation-filter"));
-        await operationFilter.click();
-        await waitUntil(getListElementByXPathUsingText("All Operations"));
-
-        const options = await operationFilter.findElement(getListElementByXPathUsingText("All Operations"));
-        await wait(1000);
-        await options.click();
+        await clickListItem(webview, "operation-type", "All Operations");
 
         await waitForElementToAppear("union-head-SearchResult");
 
-        const unionNode = await webview.findWebElement(getElementByXPathUsingTestID("union-head-SearchResult"));
-        await waitUntil(getElementByCssUsingId("filter-node-menu"));
-        const moreIcon = await unionNode.findElement(getElementByCssUsingId("filter-node-menu"));
-        await moreIcon.click();
-        await waitForElementToAppear("show-subgraph-menu");
-        const showSub = await webview.findWebElement(getElementByXPathUsingTestID("show-subgraph-menu"));
-        await showSub.click();
+        await openNodeMenu(webview, "union-head-SearchResult", "filter-node-menu");
+        await clickWebElement(webview, getElementByXPathUsingTestID("show-subgraph-menu"));
 
         await waitForElementToAppear("union-head-SearchResult");
         await waitForElementToAppear("service-class-head-Droid");
