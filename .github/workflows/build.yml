@@ -95,7 +95,7 @@ jobs:
           fi  
 
   ExtTest_Ballerina:
-    name: Run Ext test
+    name: Run Ballerina extension tests
     needs: Build_Stage
     if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 30
@@ -140,7 +140,7 @@ jobs:
           balHome: ${{ steps.set-version.outputs.balHome }}
 
   UiTest_Ballerina:
-    name: Run Ballerina UI tests
+    name: Run Ballerina e2e tests
     needs: Build_Stage
     if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 45
@@ -185,7 +185,7 @@ jobs:
         if: failure()
 
   UiTest_Choreo:
-    name: Run Choreo UI tests
+    name: Run Choreo e2e tests
     if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.base_ref == 'main' }}
     needs: Build_Stage
     timeout-minutes: 120
