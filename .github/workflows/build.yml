@@ -236,7 +236,8 @@ jobs:
           TEST_GITHUB_USERNAME: choreo-test-user@wso2.com
           TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
           TEST_GITHUB_ORG: choreo-test-apps
-          TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-dev
+          TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
+          TEST_CHOREO_EXT_ENV: prod
 
       - name: Publish UI Test recording
         uses: actions/upload-artifact@v3
