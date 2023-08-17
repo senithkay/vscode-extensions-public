@@ -21,7 +21,7 @@ inputs:
     type: string
     required: false
   balVersion:
-    default: 2201.5.0
+    default: 2201.7.1
     type: string  
   packages:
     description: Update packages version
@@ -168,7 +168,7 @@ runs:
       uses: actions/upload-artifact@v3
       with:
         path: build.zip
-        name: PluginBuild
+        name: ExtBuild
 
     - name: Save VSIX
       uses: actions/upload-artifact@v3
