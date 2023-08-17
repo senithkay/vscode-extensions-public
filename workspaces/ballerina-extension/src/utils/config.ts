@@ -54,3 +54,18 @@ export function isSupportedVersion(ballerinaExtInstance: BallerinaExtension, sup
     }
     return false;
 }
+
+export function isSupportedSLVersion(ballerinaExtInstance: BallerinaExtension, minSupportedVersion: number) {
+    const ballerinaVersion: string = ballerinaExtInstance.ballerinaVersion.toLocaleLowerCase();
+    const isGA: boolean = !ballerinaVersion.includes(VERSION.ALPHA) && !ballerinaVersion.includes(VERSION.BETA) && !ballerinaVersion.includes(VERSION.PREVIEW);
+
+    const regex = /(\d+)\.(\d+)\.(\d+)/;
+    const match = ballerinaVersion.match(regex);
+    const currentVersionNumber = match ? Number(match.slice(1).join("")) : 0;
+
+    if (minSupportedVersion <= currentVersionNumber && isGA) {
+        return true;
+    }
+    return false;
+}
+
