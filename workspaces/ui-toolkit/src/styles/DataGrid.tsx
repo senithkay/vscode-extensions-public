@@ -10,6 +10,7 @@ import styled from "@emotion/styled";
 import { VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 
 export const TruncatedGridTitleCell = styled(VSCodeDataGridCell)`
+    padding-left: 0px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -25,5 +26,5 @@ export const TruncatedGridCell = styled(VSCodeDataGridCell)`
 `;
 
 export const DataGridWrapper = styled.div`
-    padding-left: 9px;
+    padding-left: 21px;
 `
