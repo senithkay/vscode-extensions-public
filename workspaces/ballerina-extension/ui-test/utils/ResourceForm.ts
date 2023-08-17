@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { waitUntil } from "../util";
+import { wait, waitUntil } from "../util";
 import { By, Input, VSBrowser, WebView, until } from "vscode-extension-tester";
 
 
@@ -20,21 +20,20 @@ export class ResourceForm {
     // Select the HTTP Method
     static async selectHttpMethod(webview: WebView, method: string) {
         // Find and click on the MuiSelect component to open the dropdown
-        const selectComponent = await this.Driver().findElement(By.className('MuiSelect-selectMenu'));
+        const selectComponent = await webview.findWebElement(By.className('MuiSelect-selectMenu'));
         await selectComponent.click();
 
         // Find the option based on the optionText
         const option = await selectComponent.findElement(By.xpath(`//*[contains(text(), '${method}')]`));
         await option.click();
 
-        // Wait for changes from LS
-        await this.waitForDisableEnableElement(webview);
     }
 
     // Update the resource path 
     static async updateResourcePath(webview: WebView, path: string) {
         // Resource path input update
-        const resourcePath = await webview.findWebElement(By.xpath("//input[@value='path']")) as Input;
+        // const resourcePath = await webview.findWebElement(By.xpath("//input[@value='path']")) as Input;
+        const resourcePath  = await waitUntil(By.xpath("//input[@value='path']")) as Input;
         await resourcePath.click();
         await resourcePath.sendKeys(path);
         // Wait for changes from LS
@@ -105,14 +104,13 @@ export class ResourceForm {
     static async addResponseParam(webview: WebView, type: string, newType?: boolean, returnType?: string) {
         // Click add response
         const addBtn = By.xpath("//*[@data-test-id='response-add-button']");
-        const responseAddBtn = await waitUntil(addBtn);
+        const responseAddBtn = await webview.findWebElement(addBtn);
         await responseAddBtn.click();
 
         if (returnType) {
             // Get return type input
             const returnTypeInput = await webview.findWebElement(By.xpath("//*[@id='param-type-selector']"));
             await returnTypeInput.click();
-            await returnTypeInput.sendKeys(returnType);
 
             // Find the option based on the optionText
             const option = await webview.findWebElement(By.xpath(`//*[contains(text(), '${returnType}')]`));
@@ -154,7 +152,6 @@ export class ResourceForm {
         const resource = By.xpath(`//*[@class='function-box ${method.toLowerCase()}']`);
         await waitUntil(resource);
 
-        await webview.switchBack();
     }
 
     private static async waitForDisableEnableElement(webview: WebView) {
