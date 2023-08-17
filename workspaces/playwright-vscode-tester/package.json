@@ -9,12 +9,12 @@
   },
   "author": "WSO2",
   "devDependencies": {
-    "typescript": "^4.9.4",
+    "@types/fs-extra": "~11.0.1",
+    "@types/node": "~20.4.7",
+    "@types/unzipper": "~0.10.6",
     "@typescript-eslint/eslint-plugin": "~5.48.2",
     "@typescript-eslint/parser": "~5.48.2",
-    "@types/node": "~20.4.7",
-    "@types/fs-extra": "~11.0.1",
-    "@types/unzipper": "~0.10.6"
+    "typescript": "^4.9.4"
   },
   "repository": {
     "type": "git",
@@ -24,12 +24,14 @@
     "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
+    
     "@vscode/vsce": "~2.20.1",
     "compare-versions": "~6.0.0",
     "fs-extra": "~11.1.1",
-    "got": "~13.0.0",
     "hpagent": "~1.2.0",
     "targz": "~1.0.1",
-    "unzipper": "~0.10.14"
+    "unzipper": "~0.10.14",
+    "playwright-core": "~1.37.0",
+    "got": "v11.8.3"
   }
 }

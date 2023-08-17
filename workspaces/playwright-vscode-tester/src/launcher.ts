@@ -1,13 +1,13 @@
-import { _electron } from 'playwright';
-import { getBrowser, getBrowserLaunchOptions, ReleaseQuality } from "@wso2-enterprise/playwright-vscode-tester";
-import * as path from "path";
+import { _electron } from 'playwright-core';
+import * as path from 'path';
+import { getBrowser, getBrowserLaunchOptions } from './utils';
+import { ReleaseQuality } from './codeUtil';
 
-const resourcesFolder = path.join(__dirname, '..', '..', '..', 'test-resources');
-const vscodeVersion = '1.81.1';
+export const startVSCode = async (resourcesFolder: string, vscodeVersion: string,
+        releaseType: ReleaseQuality = ReleaseQuality.Stable, enableRecorder = false) => {
 
-export const startVSCode = async () => {
-    const browser = await getBrowser(resourcesFolder, vscodeVersion, ReleaseQuality.Stable);
-    const browserOptions = await getBrowserLaunchOptions(resourcesFolder, vscodeVersion, ReleaseQuality.Stable);
+    const browser = await getBrowser(resourcesFolder, vscodeVersion, releaseType);
+    const browserOptions = await getBrowserLaunchOptions(resourcesFolder, vscodeVersion, releaseType);
 
     const args = [...browserOptions.args];
 
@@ -34,11 +34,16 @@ export const startVSCode = async () => {
     const window = await vscode.firstWindow();
 
     // Direct Electron console to Node terminal.
-    // window.on('console', console.log);
+    window.on('console', console.log);
 
     // wait for the window to be ready
     await window.waitForEvent('domcontentloaded');
     // wait for .workbench to be ready
     await window.locator('.monaco-workbench').waitFor({ state: 'visible' });
+
+    if (enableRecorder) {
+        // enable recorder
+        window.pause();
+    }
     return vscode;
 };

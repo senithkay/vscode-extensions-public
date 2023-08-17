@@ -4,9 +4,7 @@
     "target": "es6",
     "outDir": "./lib",
     "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
+      "esnext"
     ],
     "sourceMap": true,
     "rootDir": "./src",
@@ -27,7 +25,7 @@
     "esModuleInterop": true,
   },
   "include": [
-    "src/index.ts",
+    "src/**/*.ts",
   ],
   "exclude": [
     "node_modules",

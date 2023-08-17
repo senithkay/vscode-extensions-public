@@ -14,7 +14,7 @@ import {
     ActivityBar,
     WebDriver,
 } from "vscode-extension-tester";
-import { chromium } from "playwright";
+import { chromium } from "@playwright/test";
 import { ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { TokenManager } from "./tokenManager";
 import * as fs from "fs";

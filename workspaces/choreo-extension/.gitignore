@@ -6,3 +6,7 @@ test-resources
 src/test/data/test_vscode
 .env
 playwright-report
+node_modules/
+/test-results/
+/playwright-report/
+/playwright/.cache/
