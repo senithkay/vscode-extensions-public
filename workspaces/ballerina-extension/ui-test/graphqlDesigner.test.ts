@@ -1,7 +1,13 @@
 import { before, describe } from "mocha";
 import { join } from "path";
 import { By, EditorView, Key, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
-import { getElementByXPathUsingTestID, switchToIFrame, wait, waitUntil } from "./util";
+import {
+    getElementByXPathUsingTestID,
+    getListElementByXPathUsingText, getInputElementByXPathUsingValue,
+    switchToIFrame,
+    wait,
+    waitUntil, getElementByXPathUsingTitle, getElementByCssUsingId, waitForElementToAppear
+} from "./util";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 
 describe('VSCode Graphql Designer Webview UI Tests', () => {
@@ -27,140 +33,140 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
         await lens.click();
 
         await switchToIFrame('Overview Diagram', driver);
-        await waitUntil(getElementByXPathUsingTestID("graphql-canvas-widget"));
+        await waitUntil(getElementByXPathUsingTestID("graphql-canvas-widget-container"), 30000);
     });
 
     it('Verify graphql root node and its fields ', async () => {
-        await waitUntil(getElementByXPathUsingTestID("graphql-root-head-/graphql2"));
+        await waitForElementToAppear("graphql-root-head-/graphql2");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-hero"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-Character!"));
+        await waitForElementToAppear("resource-identifier-hero");
+        await waitForElementToAppear("resource-type-Character!");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-reviews"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-[Review]!"));
+        await waitForElementToAppear("resource-identifier-reviews");
+        await waitForElementToAppear("resource-type-[Review]!");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-characters"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-[Character]!"));
+        await waitForElementToAppear("resource-identifier-characters");
+        await waitForElementToAppear("resource-type-[Character]!");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-droid"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-Droid"));
+        await waitForElementToAppear("resource-identifier-droid");
+        await waitForElementToAppear("resource-type-Droid");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-human"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-Human"));
+        await waitForElementToAppear("resource-identifier-human");
+        await waitForElementToAppear("resource-type-Human");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-starship"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-Starship"));
+        await waitForElementToAppear("resource-identifier-starship");
+        await waitForElementToAppear("resource-type-Starship");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-search"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-[SearchResult!]"));
+        await waitForElementToAppear("resource-identifier-search");
+        await waitForElementToAppear("resource-type-[SearchResult!]");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-starship"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-Starship"));
+        await waitForElementToAppear("resource-identifier-starship");
+        await waitForElementToAppear("resource-type-Starship");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-reviewAdded"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-Review!"));
+        await waitForElementToAppear("resource-identifier-reviewAdded");
+        await waitForElementToAppear("resource-type-Review!");
 
-        await waitUntil(getElementByXPathUsingTestID("remote-identifier-createReview"));
-        await waitUntil(getElementByXPathUsingTestID("remote-type-Review!"));
+        await waitForElementToAppear("remote-identifier-createReview");
+        await waitForElementToAppear("remote-type-Review!");
 
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-profile"));
-        await waitUntil(getElementByXPathUsingTestID("resource-type-profile!"));
+        await waitForElementToAppear("resource-identifier-profile");
+        await waitForElementToAppear("resource-type-profile!");
     });
 
     it('Verify record nodes and fields', async () => {
-        await waitUntil(getElementByXPathUsingTestID("record-head-Review"));
+        await waitForElementToAppear("record-head-Review");
 
-        await waitUntil(getElementByXPathUsingTestID("record-field-name-episode"));
-        await waitUntil(getElementByXPathUsingTestID("record-field-type-Episode!"));
+        await waitForElementToAppear("record-field-name-episode");
+        await waitForElementToAppear("record-field-type-Episode!");
 
-        await waitUntil(getElementByXPathUsingTestID("record-field-name-stars"));
-        await waitUntil(getElementByXPathUsingTestID("record-field-type-Int!"));
+        await waitForElementToAppear("record-field-name-stars");
+        await waitForElementToAppear("record-field-type-Int!");
 
-        await waitUntil(getElementByXPathUsingTestID("record-field-name-commentary"));
-        await waitUntil(getElementByXPathUsingTestID("record-field-type-String"));
+        await waitForElementToAppear("record-field-name-commentary");
+        await waitForElementToAppear("record-field-type-String");
     });
 
     it('Verify enum nodes and fields', async () => {
-        await waitUntil(getElementByXPathUsingTestID("enum-head-Episode"));
+        await waitForElementToAppear("enum-head-Episode");
 
-        await waitUntil(getElementByXPathUsingTestID("enum-field-JEDI"));
-        await waitUntil(getElementByXPathUsingTestID("enum-field-EMPIRE"));
-        await waitUntil(getElementByXPathUsingTestID("enum-field-NEWHOPE"));
+        await waitForElementToAppear("enum-field-JEDI");
+        await waitForElementToAppear("enum-field-EMPIRE");
+        await waitForElementToAppear("enum-field-NEWHOPE");
     });
 
     it('Verify service nodes and fields', async () => {
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Droid"));
+        await waitForElementToAppear("service-class-head-Droid");
 
-        await waitUntil(getElementByXPathUsingTestID("service-field-id"));
-        await waitUntil(getElementByXPathUsingTestID("service-field-type-String"));
+        await waitForElementToAppear("service-field-id");
+        await waitForElementToAppear("service-field-type-String");
 
-        await waitUntil(getElementByXPathUsingTestID("service-field-name"));
-        await waitUntil(getElementByXPathUsingTestID("service-field-type-String"));
+        await waitForElementToAppear("service-field-name");
+        await waitForElementToAppear("service-field-type-String");
 
-        await waitUntil(getElementByXPathUsingTestID("service-field-friends"));
-        await waitUntil(getElementByXPathUsingTestID("service-field-type-[Character!]!"));
+        await waitForElementToAppear("service-field-friends");
+        await waitForElementToAppear("service-field-type-[Character!]!");
 
-        await waitUntil(getElementByXPathUsingTestID("service-field-appearsIn"));
-        await waitUntil(getElementByXPathUsingTestID("service-field-type-[Episode!]!"));
+        await waitForElementToAppear("service-field-appearsIn");
+        await waitForElementToAppear("service-field-type-[Episode!]!");
 
-        await waitUntil(getElementByXPathUsingTestID("service-field-primaryFunction"));
-        await waitUntil(getElementByXPathUsingTestID("service-field-type-String"));
+        await waitForElementToAppear("service-field-primaryFunction");
+        await waitForElementToAppear("service-field-type-String");
 
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Human"));
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Starship"));
+        await waitForElementToAppear("service-class-head-Human");
+        await waitForElementToAppear("service-class-head-Starship");
     });
 
     it('Verify interface nodes and fields', async () => {
-        await waitUntil(getElementByXPathUsingTestID("interface-head-Character"));
+        await waitForElementToAppear("interface-head-Character");
 
-        await waitUntil(getElementByXPathUsingTestID("interface-func-id"));
-        await waitUntil(getElementByXPathUsingTestID("interface-func-type-String!"));
+        await waitForElementToAppear("interface-func-id");
+        await waitForElementToAppear("interface-func-type-String!");
 
-        await waitUntil(getElementByXPathUsingTestID("interface-func-name"));
-        await waitUntil(getElementByXPathUsingTestID("interface-func-type-String!"));
+        await waitForElementToAppear("interface-func-name");
+        await waitForElementToAppear("interface-func-type-String!");
 
-        await waitUntil(getElementByXPathUsingTestID("interface-func-friends"));
-        await waitUntil(getElementByXPathUsingTestID("interface-func-type-[Character!]!"));
+        await waitForElementToAppear("interface-func-friends");
+        await waitForElementToAppear("interface-func-type-[Character!]!");
 
-        await waitUntil(getElementByXPathUsingTestID("interface-func-appearsIn"));
-        await waitUntil(getElementByXPathUsingTestID("interface-func-type-[Episode!]!"));
+        await waitForElementToAppear("interface-func-appearsIn");
+        await waitForElementToAppear("interface-func-type-[Episode!]!");
 
-        await waitUntil(getElementByXPathUsingTestID("interface-implementation-Human"));
-        await waitUntil(getElementByXPathUsingTestID("interface-implementation-Droid"));
+        await waitForElementToAppear("interface-implementation-Human");
+        await waitForElementToAppear("interface-implementation-Droid");
     });
 
     it('Verify union nodes and fields', async () => {
-        await waitUntil(getElementByXPathUsingTestID("union-head-SearchResult"));
+        await waitForElementToAppear("union-head-SearchResult");
 
-        await waitUntil(getElementByXPathUsingTestID("union-field-Human"));
-        await waitUntil(getElementByXPathUsingTestID("union-field-Droid"));
-        await waitUntil(getElementByXPathUsingTestID("union-field-Starship"));
+        await waitForElementToAppear("union-field-Human");
+        await waitForElementToAppear("union-field-Droid");
+        await waitForElementToAppear("union-field-Starship");
     });
 
     it('Verify hierarchical resource nodes and fields', async () => {
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-head-profile"));
+        await waitForElementToAppear("hierarchical-head-profile");
 
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-quote"));
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-type-String!"));
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-name"));
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-type-name!"));
+        await waitForElementToAppear("hierarchical-field-quote");
+        await waitForElementToAppear("hierarchical-field-type-String!");
+        await waitForElementToAppear("hierarchical-field-name");
+        await waitForElementToAppear("hierarchical-field-type-name!");
 
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-head-name"));
+        await waitForElementToAppear("hierarchical-head-name");
 
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-first"));
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-type-String!"));
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-last"));
-        await waitUntil(getElementByXPathUsingTestID("hierarchical-field-type-String!"));
+        await waitForElementToAppear("hierarchical-field-first");
+        await waitForElementToAppear("hierarchical-field-type-String!");
+        await waitForElementToAppear("hierarchical-field-last");
+        await waitForElementToAppear("hierarchical-field-type-String!");
     });
 
     it('Verify links', async () => {
-        await waitUntil(getElementByXPathUsingTestID("right-search-left-SearchResult"));
-        await waitUntil(getElementByXPathUsingTestID("right-hero-left-Character"));
-        await waitUntil(getElementByXPathUsingTestID("right-reviewAdded-left-Review"));
-        await waitUntil(getElementByXPathUsingTestID("right-starship-left-Starship"));
-        await waitUntil(getElementByXPathUsingTestID("right-human-left-Human"));
-        await waitUntil(getElementByXPathUsingTestID("right-appearsIn-left-Episode"));
-        await waitUntil(getElementByXPathUsingTestID("right-Starship-left-Starship"));
+        await waitForElementToAppear("right-search-left-SearchResult");
+        await waitForElementToAppear("right-hero-left-Character");
+        await waitForElementToAppear("right-reviewAdded-left-Review");
+        await waitForElementToAppear("right-starship-left-Starship");
+        await waitForElementToAppear("right-human-left-Human");
+        await waitForElementToAppear("right-appearsIn-left-Episode");
+        await waitForElementToAppear("right-Starship-left-Starship");
     });
 
     it('Verify filtering of operations', async () => {
@@ -168,76 +174,76 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
 
         await nodeFilter.click();
         // Wait for the dropdown to fully expand and the menu items to be visible
-        await waitUntil(By.xpath("//li[text()='Mutations']"));
+        await waitUntil(getListElementByXPathUsingText("Mutations"));
 
-        const options = await nodeFilter.findElement(By.xpath("//li[text()='Mutations']"));
+        const options = await nodeFilter.findElement(getListElementByXPathUsingText("Mutations"));
         await wait(1000);
         await options.click();
 
-        await waitUntil(getElementByXPathUsingTestID("graphql-root-head-/graphql2"));
-        await waitUntil(getElementByXPathUsingTestID("remote-identifier-createReview"));
-        await waitUntil(getElementByXPathUsingTestID("record-head-Review"));
-        await waitUntil(getElementByXPathUsingTestID("enum-head-Episode"));
+        await waitForElementToAppear("graphql-root-head-/graphql2");
+        await waitForElementToAppear("remote-identifier-createReview");
+        await waitForElementToAppear("record-head-Review");
+        await waitForElementToAppear("enum-head-Episode");
 
         await nodeFilter.click();
         // Wait for the dropdown to fully expand and the menu items to be visible
-        await waitUntil(By.xpath("//li[text()='Subscriptions']"));
+        await waitUntil(getListElementByXPathUsingText("Subscriptions"));
 
-        const subOption = await nodeFilter.findElement(By.xpath("//li[text()='Subscriptions']"));
+        const subOption = await nodeFilter.findElement(getListElementByXPathUsingText("Subscriptions"));
         // wait added to avoid intermittent failure when selecting the dropdown
         await wait(1000);
         await subOption.click();
 
-        await waitUntil(getElementByXPathUsingTestID("graphql-root-head-/graphql2"));
-        await waitUntil(getElementByXPathUsingTestID("resource-identifier-reviewAdded"));
-        await waitUntil(getElementByXPathUsingTestID("record-head-Review"));
-        await waitUntil(getElementByXPathUsingTestID("enum-head-Episode"));
+        await waitForElementToAppear("graphql-root-head-/graphql2");
+        await waitForElementToAppear("resource-identifier-reviewAdded");
+        await waitForElementToAppear("record-head-Review");
+        await waitForElementToAppear("enum-head-Episode");
     });
 
     it('verify filtering of nodes', async () => {
-        const nodeFilter = await webview.findWebElement(By.xpath("//input[@value='/graphql2']"));
+        const nodeFilter = await webview.findWebElement(getInputElementByXPathUsingValue("/graphql2"));
 
         await nodeFilter.click();
         await nodeFilter.sendKeys("Human", Key.DOWN, Key.ENTER);
 
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Human"));
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Droid"));
-        await waitUntil(getElementByXPathUsingTestID("interface-head-Character"));
-        await waitUntil(getElementByXPathUsingTestID("enum-head-Episode"));
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Starship"));
+        await waitForElementToAppear("service-class-head-Human");
+        await waitForElementToAppear("service-class-head-Droid");
+        await waitForElementToAppear("interface-head-Character");
+        await waitForElementToAppear("enum-head-Episode");
+        await waitForElementToAppear("service-class-head-Starship");
     });
 
     it('verify subGraph filtering', async () => {
-        const nodeFilter = await webview.findWebElement(By.xpath("//input[@value='Human']"));
+        const nodeFilter = await webview.findWebElement(getInputElementByXPathUsingValue("Human"));
         await nodeFilter.clear();
-        const clearBtn = await nodeFilter.findElement(By.xpath("//*[@title='Clear']"));
+        const clearBtn = await nodeFilter.findElement(getElementByXPathUsingTitle("Clear"));
         await clearBtn.click();
 
         await nodeFilter.sendKeys("/graphql2", Key.DOWN, Key.ENTER);
 
         const operationFilter = await webview.findWebElement(getElementByXPathUsingTestID("operation-filter"));
         await operationFilter.click();
-        await waitUntil(By.xpath("//li[text()='All Operations']"));
+        await waitUntil(getListElementByXPathUsingText("All Operations"));
 
-        const options = await operationFilter.findElement(By.xpath("//li[text()='All Operations']"));
+        const options = await operationFilter.findElement(getListElementByXPathUsingText("All Operations"));
         await wait(1000);
         await options.click();
 
-        await waitUntil(getElementByXPathUsingTestID("union-head-SearchResult"));
+        await waitForElementToAppear("union-head-SearchResult");
 
         const unionNode = await webview.findWebElement(getElementByXPathUsingTestID("union-head-SearchResult"));
-        await waitUntil(By.css(`[data-testid='filter-node-menu']`));
-        const moreIcon = await unionNode.findElement(By.css(`[data-testid='filter-node-menu']`));
+        await waitUntil(getElementByCssUsingId("filter-node-menu"));
+        const moreIcon = await unionNode.findElement(getElementByCssUsingId("filter-node-menu"));
         await moreIcon.click();
-        await waitUntil(getElementByXPathUsingTestID("show-subgraph-menu"));
+        await waitForElementToAppear("show-subgraph-menu");
         const showSub = await webview.findWebElement(getElementByXPathUsingTestID("show-subgraph-menu"));
         await showSub.click();
 
-        await waitUntil(getElementByXPathUsingTestID("union-head-SearchResult"));
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Droid"));
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Human"));
-        await waitUntil(getElementByXPathUsingTestID("service-class-head-Starship"));
-        await waitUntil(getElementByXPathUsingTestID("interface-head-Character"));
-        await waitUntil(getElementByXPathUsingTestID("enum-head-Episode"));
+        await waitForElementToAppear("union-head-SearchResult");
+        await waitForElementToAppear("service-class-head-Droid");
+        await waitForElementToAppear("service-class-head-Human");
+        await waitForElementToAppear("service-class-head-Starship");
+        await waitForElementToAppear("interface-head-Character");
+        await waitForElementToAppear("enum-head-Episode");
     });
 });

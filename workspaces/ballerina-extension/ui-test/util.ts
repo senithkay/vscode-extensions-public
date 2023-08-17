@@ -57,6 +57,37 @@ export function getElementByXPathUsingTestID(
     return By.xpath("//*[@data-testid='"+ testID+ "']");
 }
 
+export function getListElementByXPathUsingText(
+    text: string
+) {
+    return By.xpath("//li[text()='"+ text+ "']");
+}
+
+export function getInputElementByXPathUsingValue(
+    value: string
+) {
+    return By.xpath("//input[@value='"+ value + "']");
+}
+
+export function getElementByXPathUsingTitle(
+    title: string
+) {
+    return By.xpath("//*[@title='"+ title + "']");
+}
+
+export function getElementByCssUsingId(
+    id: string
+) {
+    return By.css(`[data-testid='${id}']`);
+}
+
+export function waitForElementToAppear(
+    testId: string,
+) {
+    waitUntil(getElementByXPathUsingTestID(testId));
+}
+
+
 export async function waitForElementToDisappear(
     driver: WebDriver,
     elementLocator: By,
