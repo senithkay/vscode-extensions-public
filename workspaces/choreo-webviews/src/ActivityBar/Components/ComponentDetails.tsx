@@ -19,7 +19,8 @@ import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
 import { ErrorBanner } from "../../Commons/ErrorBanner";
-import { DataGrid } from "@wso2-enterprise/ui-toolkit";
+import { DataGridWrapper, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeDataGrid, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
 
 const Container = styled.div`
   display: flex;
@@ -34,10 +35,6 @@ const ErrorBannerWrap = styled.div`
     width: 100%;
     display: flex;
     flex-direction: column;
-`
-
-const DataGridWrapper = styled.div`
-    padding-left: 9px;
 `
 
 export const ComponentDetails = (props: {
@@ -57,46 +54,54 @@ export const ComponentDetails = (props: {
                 </ErrorBannerWrap>
             )}
             <DataGridWrapper>
-                <DataGrid
-                    data={[
-                        [
-                            { gridColumn: '1', isHeader: true, content: 'Version' },
-                            { gridColumn: '2', content: component.version },
-                        ],
-                        [
-                            { gridColumn: '1', isHeader: true, content: 'Build' },
-                            { gridColumn: '2', content:
-                                    <BuildStatusText
-                                        buildStatus={buildData}
-                                        handler={props.component.handler}
-                                        loading={isLoadingBuild}
-                                        localComponent={props.component.local}
-                                    />
-                            },
-                        ],
-                        [
-                            { gridColumn: '1', isHeader: true, content: 'Deployment' },
-                            { gridColumn: '2', content:
-                                    <DeploymentStatusText
-                                        deployment={devDeploymentData}
-                                        handler={props.component.handler}
-                                        loading={isLoadingDeployment}
-                                        localComponent={props.component.local}
-                                    />
-                            },
-                        ],
-                        [
-                            { gridColumn: '1', isHeader: true, content: 'Action' },
-                            { gridColumn: '2', content:
-                                    <ComponentDetailActions
-                                        component={component}
-                                        handleSourceControlClick={handleSourceControlClick}
-                                        loading={loading}
-                                    />
-                            },
-                        ],
-                    ]}
-                />
+                <VSCodeDataGrid aria-label="Components">
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Version
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            {component.version}
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Build
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            <BuildStatusText
+                                buildStatus={buildData}
+                                handler={props.component.handler}
+                                loading={isLoadingBuild}
+                                localComponent={props.component.local}
+                            />
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Deployment
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            <DeploymentStatusText
+                                deployment={devDeploymentData}
+                                handler={props.component.handler}
+                                loading={isLoadingDeployment}
+                                localComponent={props.component.local}
+                            />
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Action
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            <ComponentDetailActions
+                                component={component}
+                                handleSourceControlClick={handleSourceControlClick}
+                                loading={loading}
+                            />
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                </VSCodeDataGrid>
             </DataGridWrapper>
         </Container>
     );
