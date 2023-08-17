@@ -97,7 +97,7 @@ jobs:
   ExtTest_Ballerina:
     name: Run Ext test
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.head_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -142,7 +142,7 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina UI tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.head_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -186,7 +186,7 @@ jobs:
 
   UiTest_Choreo:
     name: Run Choreo UI tests
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.head_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.base_ref == 'main' }}
     needs: Build_Stage
     timeout-minutes: 120
     runs-on: ubuntu-latest
