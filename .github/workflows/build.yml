@@ -187,7 +187,7 @@ jobs:
         with:
           path: workspaces/ballerina-extension/test-resources/output.txt
           name: Ballerina-e2e-test-log-${{ github.run_attempt }}
-        if: failure()
+        if: always()
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
@@ -261,9 +261,9 @@ jobs:
       - name: Publish log
         uses: actions/upload-artifact@v3
         with:
-          path: workspaces/ballerina-extension/test-resources/output.txt
-          name: Ballerina-e2e-test-log-${{ github.run_attempt }}
-        if: failure()
+          path: workspaces/choreo-extension/test-resources/output.txt
+          name: Choreo-e2e-test-log-${{ github.run_attempt }}
+        if: always()
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
