@@ -169,19 +169,19 @@ jobs:
         with:
           version: ${{ env.ballerina_version }}
 
-      - name: UI Test
+      - name: Runs Tests
         run: |
           cd workspaces/ballerina-extension
           sudo apt-get install xvfb
-          pnpm run ui-test-setup
+          pnpm run e2e-test-setup
           export DISPLAY=:98.0
-          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
+          sh e2e-test-runner.sh
 
-      - name: Publish UI Test Screenshots
+      - name: Publish e2e test Screenshots
         uses: actions/upload-artifact@v3
         with:
           path: workspaces/ballerina-extension/test-resources/screenshots/
-          name: Ui-test-screenshots-${{ github.run_attempt }}
+          name: Ballerina-e2e-test-recording-${{ github.run_attempt }}
         if: failure()
 
   UiTest_Choreo:
@@ -225,10 +225,10 @@ jobs:
       - name: Run tests
         run: |
           cd workspaces/choreo-extension 
-          pnpm run extest-setup
+          pnpm run e2e-test-setup
           export $(dbus-launch)
           export DISPLAY=:98.0
-          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run e2e-test
+          sh e2e-test-runner.sh
         env:
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
@@ -239,16 +239,16 @@ jobs:
           TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
           TEST_CHOREO_EXT_ENV: prod
 
-      - name: Publish UI Test recording
+      - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
         with:
           path: workspaces/choreo-extension/test-resources/ui-test-out.mp4
-          name: Integration-test-recording-${{ github.run_attempt }}
+          name: Choreo-e2e-test-recording-${{ github.run_attempt }}
         if: failure()
 
-      - name: Publish UI Test Screenshots
+      - name: Publish e2e test Screenshots
         uses: actions/upload-artifact@v3
         with:
           path: workspaces/choreo-extension/test-resources/screenshots/
-          name: Integration-test-screenshots-${{ github.run_attempt }}
+          name: Choreo-e2e-test-screenshots-${{ github.run_attempt }}
         if: failure()
