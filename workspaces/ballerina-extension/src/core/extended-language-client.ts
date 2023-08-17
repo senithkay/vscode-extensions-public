@@ -62,6 +62,7 @@ enum EXTENDED_APIS {
     PACKAGE_METADATA = 'ballerinaPackage/metadata',
     PACKAGE_CONFIG_SCHEMA = 'ballerinaPackage/configSchema',
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
+    XML_TO_RECORD_CONVERT = 'xmlToRecord/convert',
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
@@ -92,6 +93,7 @@ enum EXTENDED_APIS_ORG {
     PACKAGE = 'ballerinaPackage',
     EXAMPLE = 'ballerinaExample',
     JSON_TO_RECORD = 'jsonToRecord',
+    XML_TO_RECORD = 'xmlToRecord',
     SYMBOL = 'ballerinaSymbol',
     CONNECTOR = 'ballerinaConnector',
     TRIGGER = 'ballerinaTrigger',
@@ -177,6 +179,23 @@ export interface JsonToRecordResponse {
 }
 
 export interface JsonToRecordMapperDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
+}
+
+export interface XMLToRecordRequest {
+    xmlValue: string;
+    isRecordTypeDesc?: boolean;
+    isClosed?: boolean;
+    forceFormatRecordFields?: boolean;
+}
+
+export interface XMLToRecordResponse {
+    codeBlock: string;
+    diagnostics?: XMLToRecordConverterDiagnostic[];
+}
+
+export interface XMLToRecordConverterDiagnostic {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
 }
@@ -708,6 +727,13 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
+    async convertXMLToRecord(params: XMLToRecordRequest): Promise<XMLToRecordResponse | NOT_SUPPORTED_TYPE> {
+        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.XML_TO_RECORD_CONVERT);
+        const isSupported = true;
+        return isSupported ? this.sendRequest(EXTENDED_APIS.XML_TO_RECORD_CONVERT, params) :
+            Promise.resolve(NOT_SUPPORTED);
+    }
+
     async getBalShellResult(params: NoteBookCellOutputRequest): Promise<NoteBookCellOutputResponse | NOT_SUPPORTED_TYPE> {
         // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.NOTEBOOK_RESULT);
         const isSupported = true;
@@ -831,6 +857,7 @@ export class ExtendedLangClient extends LanguageClient {
                 },
                 { name: EXTENDED_APIS_ORG.EXAMPLE, list: true },
                 { name: EXTENDED_APIS_ORG.JSON_TO_RECORD, convert: true },
+                { name: EXTENDED_APIS_ORG.XML_TO_RECORD, convert: true },
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true, getSTForResource: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
