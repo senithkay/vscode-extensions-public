@@ -95,9 +95,9 @@ jobs:
           fi  
 
   ExtTest_Ballerina:
-    name: Run Ext test
+    name: Run Ballerina extension tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.head_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -140,9 +140,9 @@ jobs:
           balHome: ${{ steps.set-version.outputs.balHome }}
 
   UiTest_Ballerina:
-    name: Run Ballerina UI tests
+    name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.head_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -185,8 +185,8 @@ jobs:
         if: failure()
 
   UiTest_Choreo:
-    name: Run Choreo UI tests
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.head_ref == 'main' }}
+    name: Run Choreo e2e tests
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.base_ref == 'main' }}
     needs: Build_Stage
     timeout-minutes: 120
     runs-on: ubuntu-latest
@@ -230,7 +230,6 @@ jobs:
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run e2e-test
         env:
-          TEST_CHOREO_EXT_ENV: prod
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
           TEST_USER_ORG_HANDLE: choreouser
@@ -238,6 +237,7 @@ jobs:
           TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
           TEST_GITHUB_ORG: choreo-test-apps
           TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
+          TEST_CHOREO_EXT_ENV: prod
 
       - name: Publish UI Test recording
         uses: actions/upload-artifact@v3
