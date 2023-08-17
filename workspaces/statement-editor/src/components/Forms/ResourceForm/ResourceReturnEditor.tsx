@@ -54,8 +54,8 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
     const [paramComponents, setParamComponents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const [returnSourceOld, setReturnSourceOld] = useState(returnSource.replace("returns", ""));
-    const [updatedSource, setUpdatedSource] = useState(returnSource.replace("returns", ""));
+    const [returnSourceOld, setReturnSourceOld] = useState(returnSource && returnSource.replace("returns", ""));
+    const [updatedSource, setUpdatedSource] = useState(returnSource && returnSource.replace("returns", ""));
 
     const responses = getReturnTypesArray();
 
@@ -86,7 +86,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
     };
 
     const onDelete = (param: ParameterConfig) => {
-        let newSource = "error?";
+        let newSource = "";
         if (responses.length > 1) {
             responses.splice(param.id, 1)
             newSource = responses.join("|");
@@ -201,7 +201,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                             type: code,
                             option: recordName
                         }}
-                        readonly={recordName.trim().includes("error") || editingSegmentId !== -1 || readonly}
+                        readonly={editingSegmentId !== -1 || readonly}
                         onDelete={onDelete}
                         onEditClick={onEdit}
                     />
@@ -215,7 +215,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                         completions={completions}
                         isEdit={true}
                         alternativeName={""}
-                        optionList={responseCodes.filter(c => c.code !== 500)}
+                        optionList={responseCodes}
                         option={defaultResponseCode()}
                         isTypeReadOnly={false}
                         onChange={onParamChange}

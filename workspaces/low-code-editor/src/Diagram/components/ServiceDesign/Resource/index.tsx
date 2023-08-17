@@ -288,6 +288,21 @@ export function ResourceBody(props: ResourceBodyProps) {
             }
         }
 
+        if (values.length === 0) {
+            const method = model.functionName.value.toUpperCase();
+            responses.push(
+                <tr key={0} className={classes.defaultResponse}>
+                    <td>
+                        {method === HTTP_POST ? "201" : "202"}
+                    </td>
+                    <td>
+                        <span>
+                            {"Default Response"}
+                        </span>
+                    </td>
+                </tr>
+            )
+        }
         return responses;
     }
 

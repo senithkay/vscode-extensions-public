@@ -112,7 +112,7 @@ export function ResourceForm(props: FunctionProps) {
                 methodName,
                 resourcePath,
                 getParamString(parametersValue),
-                resourceReturn.replace("returns", "")
+                resourceReturn?.replace("returns", "")
             );
         }
     }, [])
@@ -219,7 +219,7 @@ export function ResourceForm(props: FunctionProps) {
             methodName,
             newPath,
             getParamString(parametersValue),
-            resourceReturn.replace("returns", ""),
+            resourceReturn?.replace("returns", ""),
         );
     };
 
@@ -238,7 +238,7 @@ export function ResourceForm(props: FunctionProps) {
                 value.toLowerCase(),
                 resourcePath,
                 getParamString(parametersValue),
-                resourceReturn.replace("returns", "")
+                resourceReturn?.replace("returns", "")
             );
         } else {
             setResourcePathDiagnostics([{ message: `Duplicated resource. '${value} ${resourcePath}'` }])
@@ -261,7 +261,7 @@ export function ResourceForm(props: FunctionProps) {
                 methodName,
                 sanitizedValue,
                 getParamString(parametersValue),
-                resourceReturn.replace("returns", ""),
+                resourceReturn?.replace("returns", ""),
             );
         } else {
             setResourcePathDiagnostics([{ message: `Duplicated resource. '${methodName} ${sanitizedValue}'` }])
@@ -278,7 +278,7 @@ export function ResourceForm(props: FunctionProps) {
             methodName,
             resourcePath,
             paramString,
-            resourceReturn.replace("returns", ""),
+            resourceReturn?.replace("returns", ""),
         );
     };
 
@@ -298,7 +298,7 @@ export function ResourceForm(props: FunctionProps) {
 
     const getReturnTypeDiagnostics = () => {
         const viewStateDiagnostics: StatementSyntaxDiagnostics[] = model?.viewState?.diagnosticsInRange;
-        const returnValues = resourceReturn.split(" ");
+        const returnValues = resourceReturn?.split(" ");
         const filtered = viewStateDiagnostics.filter(diag => returnValues.some(val => diag.message.includes(val)));
         return filtered;
     }
@@ -310,7 +310,7 @@ export function ResourceForm(props: FunctionProps) {
                     methodName.toLowerCase(),
                     resourcePath,
                     getParamString(parametersValue),
-                    resourceReturn.replace("returns", ""),
+                    resourceReturn?.replace("returns", ""),
                     targetPosition)
             ]);
         } else {
@@ -319,7 +319,7 @@ export function ResourceForm(props: FunctionProps) {
                     methodName.toLowerCase(),
                     resourcePath,
                     getParamString(parametersValue),
-                    resourceReturn.replace("returns", ""),
+                    resourceReturn?.replace("returns", ""),
                     targetPosition
                 )
             ]);
