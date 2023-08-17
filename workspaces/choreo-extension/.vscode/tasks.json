@@ -35,6 +35,11 @@
 				"npm: watch-tests"
 			],
 			"problemMatcher": []
-		}
+		},
+        {
+            "label": "compile:choreo-tests",
+            "type": "npm",
+            "script": "compile-tests",
+        }
 	]
 }

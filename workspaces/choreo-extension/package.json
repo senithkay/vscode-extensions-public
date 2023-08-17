@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -72,6 +72,12 @@
         "title": "Open Choreo Project",
         "category": "Choreo",
         "icon": "$(link-external)"
+      },
+      {
+        "command": "wso2.choreo.project.delete",
+        "title": "Delete Choreo Project",
+        "category": "Choreo",
+        "icon": "$(trash)"
       },
       {
         "command": "wso2.choreo.project.open.external",

@@ -81,8 +81,8 @@ export async function activateAuth(context: vscode.ExtensionContext) {
             ext.api.status = STATUS_LOGGING_IN;
 
             const authCode = await vscode.window.showInputBox({
-                prompt: 'Enter Auth Code Response: ',
-                placeHolder: 'Response',
+                prompt: 'Enter Authentication Code: ',
+                placeHolder: 'Code',
                 ignoreFocusOut: true,
             });
 

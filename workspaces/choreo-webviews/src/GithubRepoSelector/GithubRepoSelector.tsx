@@ -124,7 +124,9 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                     <AutoComplete
                         items={orgs}
                         selectedItem={selectedRepo?.org}
-                        onChange={handleGhOrgChange}>
+                        onChange={handleGhOrgChange}
+                        id="git-org-selector"
+                    >
                     </AutoComplete>
                 </GhRepoSelectorOrgContainer>
                 <GhRepoSelectorRepoContainer>
@@ -132,7 +134,9 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                     <AutoComplete
                         items={repos}
                         selectedItem={selectedRepo?.repo}
-                        onChange={handleGhRepoChange}>
+                        onChange={handleGhRepoChange}
+                        id="git-repo-selector"
+                    >
                     </AutoComplete>
                 </GhRepoSelectorRepoContainer>
                 <RefreshBtn
