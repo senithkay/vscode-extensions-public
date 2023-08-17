@@ -80,8 +80,4 @@ distinct service class Human {
             select new Starship(ship);
         return starship;
     }
-
-    resource function get fieldName() returns string {
-
-    }
 }
