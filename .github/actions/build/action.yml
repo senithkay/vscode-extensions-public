@@ -168,7 +168,7 @@ runs:
       uses: actions/upload-artifact@v3
       with:
         path: build.zip
-        name: PluginBuild
+        name: ExtBuild
 
     - name: Save VSIX
       uses: actions/upload-artifact@v3
