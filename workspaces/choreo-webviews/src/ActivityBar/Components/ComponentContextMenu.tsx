@@ -121,5 +121,5 @@ export const ComponentContextMenu = (props: {
         disabled: deletingComponent,
     });
 
-    return <ContextMenu items={menuItems} loading={deletingComponent}></ContextMenu>;
+    return <ContextMenu items={menuItems} loading={deletingComponent} menuId={component.displayName} />;
 };

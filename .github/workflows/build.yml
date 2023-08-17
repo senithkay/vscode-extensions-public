@@ -230,13 +230,14 @@ jobs:
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run e2e-test
         env:
+          TEST_CHOREO_EXT_ENV: prod
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
           TEST_USER_ORG_HANDLE: choreouser
           TEST_GITHUB_USERNAME: choreo-test-user@wso2.com
           TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
           TEST_GITHUB_ORG: choreo-test-apps
-          TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-dev
+          TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
 
       - name: Publish UI Test recording
         uses: actions/upload-artifact@v3

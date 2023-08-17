@@ -1,4 +1,5 @@
 {
     "extensions.autoUpdate": false,
-    "Advanced.ChoreoEnvironment": "dev"
+    "gitlens.showWelcomeOnInstall": false,
+    "files.simpleDialog.enable": true
 }

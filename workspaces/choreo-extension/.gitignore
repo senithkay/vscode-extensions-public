@@ -3,6 +3,6 @@ resources/jslibs/main.js
 !src/test/lib
 .vscode-test
 test-resources
-src/test/data/test_vscode
+src/tests/e2e-tests/test-projects
 .env
 playwright-report

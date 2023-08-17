@@ -65,7 +65,7 @@ export const ProviderTypeCard: React.FC<ProviderTypeCardProps> = (props) => {
     };
 
     return (
-        <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} >
+        <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} id={`${label}-card`}>
             <IconContainer>
                 {type === GitProvider.BITBUCKET ? <BitBucketIcon /> : <GithubIcon />}
             </IconContainer>

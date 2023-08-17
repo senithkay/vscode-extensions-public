@@ -22,45 +22,28 @@
 			],
 			"preLaunchTask": "${defaultBuildTask}"
 		},
-		{
-			// TODO: This is not working. Need to fix!
-			// Use `Debug UI Tests` launch command instead
-			"name": "Extension Tests",
-			"type": "extensionHost",
-			"request": "launch",
-			"env": {
-				// "WEB_VIEW_DEV_MODE": "true",
-				// "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
-				"REQUEST_TRACE_ENABLED": "true",
-				"NODE_OPTIONS": "--experimental-vm-modules"
-			},
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/dist/test/suite/index"
-			],
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js",
-				"${workspaceFolder}/dist/**/*.js"
-			],
-			"preLaunchTask": "npm: compile-tests"
-		},
-		{
-			"type": "node",
-			"request": "launch",
-			"name": "Debug E2E Tests",
-			"program": "/usr/local/bin/npm",
-			"args": [
-			  "run",
-			  "e2e-test"
-			],
-			"cwd": "${workspaceFolder}",
-			"runtimeArgs": [
-			  "--inspect-brk"
-			],
-			"console": "integratedTerminal",
-			"internalConsoleOptions": "neverOpen",
-			"outputCapture": "std"
-		},
+        {
+            "name": "Debug Choreo UI Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/vscode-extension-tester/out/cli.js",
+            "args": [
+                "run-tests",
+                "${workspaceFolder}/dist/tests/e2e-tests/*.js",
+                "--mocha_config",
+                "${workspaceFolder}/src/tests/e2e-tests/.mocharc.js",
+                "-o",
+                "${workspaceFolder}/src/tests/e2e-tests/settings.json"
+            ],
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "preLaunchTask": "compile:choreo-tests"
+        },
 		{
 			"name": "Debug Playwright-E2E Tests",
 			"type": "node",

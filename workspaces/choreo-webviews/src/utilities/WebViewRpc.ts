@@ -99,6 +99,7 @@ import {
     ClearWebviewCache,
     GoToSource,
     IsBallerinaExtInstalled,
+    RefreshWorkspaceNotification,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -286,6 +287,10 @@ export class ChoreoWebViewAPI {
 
     public onRefreshComponents(callback: () => void) {
         this._messenger.onNotification(RefreshComponentsNotification, callback);
+    }
+
+    public onRefreshWorkspaceMetadata(callback: () => void) {
+        this._messenger.onNotification(RefreshWorkspaceNotification, callback);
     }
 
     public onSelectedOrgChanged(callback: (newOrg: Organization) => void) {
