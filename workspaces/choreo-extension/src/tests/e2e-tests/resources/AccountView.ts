@@ -14,7 +14,7 @@
 import { Workbench, VSBrowser } from "vscode-extension-tester";
 import { SIGN_IN_WITH_AUTH_CODE } from "./constants";
 import { expect } from "chai";
-import { chromium } from "playwright";
+import { chromium } from "@playwright/test";
 import { CommonUtils } from "./CommonUtils";
 
 /** Provides functions to interact with the Account view iframe and authentication related features in the Choreo extension */
