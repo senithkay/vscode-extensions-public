@@ -20,7 +20,7 @@ import { ExtendedEditorView } from './utils/ExtendedEditorView';
 import { ServiceDesigner } from './utils/ServiceDesigner';
 import { ResourceForm } from './utils/ResourceForm';
 
-describe.only('VSCode Service Designer Webview UI Tests', () => {
+describe('VSCode Service Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'sampleService');
     const FILE_NAME = 'service.bal';
     let ORIGINAL_CONTENT = `import ballerina/http;
