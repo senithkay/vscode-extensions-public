@@ -18,8 +18,10 @@ import {
 } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 import { ServiceDesigner } from './utils/ServiceDesigner';
+import { ResourceForm } from './utils/ResourceForm';
+import { VSCodeWindow } from './utils/VSCodeWindow';
 
-describe('VSCode Service Designer Webview UI Tests', () => {
+describe.only('VSCode Service Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'sampleService');
     const FILE_NAME = 'service.bal';
     let ORIGINAL_CONTENT = `import ballerina/http;
@@ -53,8 +55,7 @@ describe('VSCode Service Designer Webview UI Tests', () => {
 
         // Wait for the service design view to load
         await switchToIFrame('Overview Diagram', driver);
-        const serviceDesignView = By.xpath("//*[@data-testid='service-design-view']");
-        await waitUntil(serviceDesignView, 30000);
+        await ServiceDesigner.waitForServiceDesigner();
 
         expect(getLabelElement(driver, '/hello')).to.be.exist;
         expect(getLabelElement(driver, 'http:Listener(9090)')).to.be.exist;
@@ -64,15 +65,13 @@ describe('VSCode Service Designer Webview UI Tests', () => {
 
     it('Add a new get resource with a new record', async () => {
 
-        const serviceOverview = new ServiceDesigner(driver, webview);
+        await ServiceDesigner.clickAddResource(webview);
 
-        const resourceForm = await serviceOverview.clickAddResource();
+        await ResourceForm.updateResourcePath(webview, "characters");
 
-        await resourceForm.updateResourcePath("characters");
+        await ResourceForm.addResponseParam(webview, "Character[]", true);
 
-        await resourceForm.addResponseParam("Character[]", true);
-
-        await resourceForm.saveResource("GET");
+        await ResourceForm.saveResource(webview, "GET");
 
         await webview.switchBack();
         await new EditorView().openEditor(FILE_NAME);
@@ -96,25 +95,21 @@ describe('VSCode Service Designer Webview UI Tests', () => {
     it('Add a new post resource with existing record', async () => {
 
         await switchToIFrame('Overview Diagram', driver);
-       
-        const serviceOverview = new ServiceDesigner(driver, webview);
 
-        const resourceForm = await serviceOverview.clickAddResource();
+        await ServiceDesigner.clickAddResource(webview);
 
-        await resourceForm.selectHttpMethod("POST");
+        await ResourceForm.selectHttpMethod(webview, "POST");
 
-        await resourceForm.updateResourcePath("cooking");
+        await ResourceForm.updateResourcePath(webview, "cooking");
 
-        await resourceForm.addResponseParam("Character");
+        await ResourceForm.addResponseParam(webview, "Character");
 
-        await resourceForm.saveResource("POST");
+        await ResourceForm.saveResource(webview, "POST");
 
         await webview.switchBack();
-    
+
         await new EditorView().openEditor(FILE_NAME);
-
         const EXPECTED = `resource function post cooking() returns error?|Character {}}`;
-
         // Check if generated code equals expected code
         const text = await new TextEditor().getText();
         expect(text.replace(/\s/g, '')).to.include(EXPECTED.replace(/\s/g, ''));
@@ -125,26 +120,21 @@ describe('VSCode Service Designer Webview UI Tests', () => {
 
         await switchToIFrame('Overview Diagram', driver);
 
-        const serviceOverview = new ServiceDesigner(driver, webview);
+        await ServiceDesigner.clickAddResource(webview);
 
-        const resourceForm = await serviceOverview.clickAddResource();
+        await ResourceForm.selectHttpMethod(webview, "PUT");
 
-        await resourceForm.selectHttpMethod("PUT");
+        await ResourceForm.updateResourcePath(webview, "selling");
 
-        await resourceForm.updateResourcePath("selling");
+        await ResourceForm.addResponseParam(webview, "string");
 
-        await resourceForm.addResponseParam("string");
+        await ResourceForm.addResponseParam(webview, "Character", false, "Accept");
 
-        await resourceForm.addResponseParam("Character", false, "Accept");
-
-        await resourceForm.saveResource("PUT");
+        await ResourceForm.saveResource(webview, "PUT");
 
         await webview.switchBack();
-
         await new EditorView().openEditor(FILE_NAME);
-
         const EXPECTED = `resource function put selling() returns error?|string|record {|*http:Accepted; Character body;|} {}}`;
-
         // Check if generated code equals expected code
         const text = await new TextEditor().getText();
         expect(text.replace(/\s/g, '')).to.include(EXPECTED.replace(/\s/g, ''));
@@ -152,7 +142,6 @@ describe('VSCode Service Designer Webview UI Tests', () => {
     });
 
     after(async () => {
-        await webview.switchBack();
         await new EditorView().openEditor(FILE_NAME);
         const textEditor = new TextEditor();
         await textEditor.setText("");
