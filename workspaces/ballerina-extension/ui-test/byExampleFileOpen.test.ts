@@ -11,7 +11,7 @@ import { expect } from 'chai';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, EditorView, InputBox, Key, VSBrowser, WebDriver, Workbench } from 'vscode-extension-tester';
+import { By, EditorView, InputBox, VSBrowser, WebDriver, Workbench } from 'vscode-extension-tester';
 import { waitUntil } from './util';
 
 describe.skip('Open ballerina samples in VSCode from URL', () => {
@@ -20,7 +20,7 @@ describe.skip('Open ballerina samples in VSCode from URL', () => {
     let driver: WebDriver;
     let workbench: Workbench;
 
-    const samplesDownloadDirectory = `${PROJECT_ROOT}/byExampleFolder`;
+    const samplesDownloadDirectory = `${PROJECT_ROOT}/sampleDownloadFolder`;
 
     before(async () => {
         // Delete files and folders in this folder
@@ -76,7 +76,7 @@ describe.skip('Open ballerina samples in VSCode from URL', () => {
         await new EditorView().closeAllEditors();
     });
 
-    it('Open URL to download second example file', async () => {
+    it('Open URL to download second sample file', async () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-file?gist=8ada14df03d5d8841d03ce4b92819b2b&file=hello_world.bal';
         await executeURLdownload(workbench, url);
@@ -117,6 +117,33 @@ describe.skip('Open ballerina samples in VSCode from URL', () => {
         expect(existsSync(`${samplesDownloadDirectory}/main.bal`)).to.be.not.true;
     });
 
+    it('Open URL to download a not valid sample file', async () => {
+        // Use Developer URL to excecute a URL
+        const url = 'vscode://wso2.ballerina/open-file?gist=1b94f48ad579969bc7c6a79549684dca&file=PeopleManagementService.bal';
+        await executeURLdownload(driver, url);
+        expect(existsSync(`${samplesDownloadDirectory}/PeopleManagementService.bal`)).to.be.not.true;
+    });
+
+    it('Open URL to download github sample file', async () => {
+        // Use Developer URL to excecute a URL
+        const url = 'vscode://wso2.ballerina/open-file?repoFileUrl=https://github.com/wso2/choreo-sample-apps/blob/main/ballerina/greeter/service.bal';
+        await executeURLdownload(driver, url);
+
+        // Open Downloaded file
+        const openFile = await waitUntil(By.linkText('Open'));
+        await openFile.click();
+        await waitUntil(By.linkText('Change Directory'));
+
+        expect(existsSync(`${samplesDownloadDirectory}/service.bal`)).to.be.true;
+    });
+
+    it('Open URL to download not valid github sample file', async () => {
+        // Use Developer URL to excecute a URL
+        const url = 'vscode://wso2.ballerina/open-file?repoFileUrl=https://github.com/jclark/semtype/blob/master/main.bal';
+        await executeURLdownload(driver, url);
+        expect(existsSync(`${samplesDownloadDirectory}/main.bal`)).to.be.not.true;
+    });
+
     it('Open URL to download git repo', async () => {
         // Use Developer URL to excecute a URL
         const url = 'vscode://wso2.ballerina/open-repo?repoUrl=https://github.com/wso2/choreo-sample-apps';
@@ -150,3 +177,4 @@ const executeURLdownload = async (workbench, url: string) => {
     const vscodeVerify = await waitUntil(By.className('monaco-dialog-box')).findElement(By.linkText('Open'));
     await vscodeVerify.click();
 }
+
