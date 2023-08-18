@@ -133,9 +133,12 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             <div>
-                                Schema : <span className={classes.schemaButton} onClick={() =>
-                                    recordEditor(setPayloadSchema, typeName, i)
-                                }>{param.typeName?.source.trim()}</span> :{param.paramName?.value}
+                                Schema : <span
+                                    className={classes.schemaButton}
+                                    onClick={() => recordEditor(setPayloadSchema, typeName, i)}
+                                >
+                                    {param.typeName?.source.trim()}
+                                </span> :{param.paramName?.value}
                                 {payloadSchema[i] && payloadSchemaComponent}
                             </div>
                         </td>
