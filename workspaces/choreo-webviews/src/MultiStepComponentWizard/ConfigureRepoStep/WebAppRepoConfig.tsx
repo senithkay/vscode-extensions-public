@@ -14,11 +14,11 @@ import React from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ComponentWizardState } from "../types";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
 import { ErrorBanner } from "../../Commons/ErrorBanner";
+import { TextField } from "@wso2-enterprise/ui-toolkit";
 
 const StepContainer = styled.div`
     display: flex;
@@ -78,49 +78,52 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                 {implementationType && [ChoreoImplementationType.React, ChoreoImplementationType.Angular, ChoreoImplementationType.Vue].includes(implementationType) && (
                     <>
                         <VSCodeTextField
-                        placeholder=""
-                        onInput={(e: any) => setBuildCtxPath(e.target.value)}
-                        value={webAppConfig?.dockerContext ?? ''}
-                    >
-                        Build Context Path
-                        <RepoFileOpenDialogInput
-                            label="Browse"
-                            repo={`${repository?.org}/${repository?.repo}`}
-                            path={webAppConfig?.dockerContext ?? ''}
-                            onOpen={setBuildCtxPath}
-                            canSelectFiles={false}
-                            canSelectFolders={true}
-                            canSelectMany={false}
-                            title="Select Build Context"
-                            filters={{}}
+                            placeholder=""
+                            onInput={(e: any) => setBuildCtxPath(e.target.value)}
+                            value={webAppConfig?.dockerContext ?? ''}
+                        >
+                            Build Context Path
+                            <RepoFileOpenDialogInput
+                                label="Browse"
+                                repo={`${repository?.org}/${repository?.repo}`}
+                                path={webAppConfig?.dockerContext ?? ''}
+                                onOpen={setBuildCtxPath}
+                                canSelectFiles={false}
+                                canSelectFolders={true}
+                                canSelectMany={false}
+                                title="Select Build Context"
+                                filters={{}}
+                            />
+                        </VSCodeTextField>
+                        <TextField
+                            value={props.formData.webAppConfig?.webAppBuildCommand || ''}
+                            id='build-command'
+                            name="Build Command"
+                            placeholder="npm run build"
+                            onChange={(text: string) => setBuildCommand(text)}
+                            autoFocus
+                            required
                         />
-                    </VSCodeTextField>
-                    <VSCodeTextField
-                        autofocus
-                        placeholder="npm run build"
-                        onInput={(e: any) => setBuildCommand(e.target.value)}
-                        value={props.formData.webAppConfig?.webAppBuildCommand || ''}
-                    >
-                        Build Command <RequiredFormInput />
-                    </VSCodeTextField>
-                    <VSCodeTextField
-                        autofocus
-                        placeholder="build"
-                        onInput={(e: any) => setBuildOutputDirectory(e.target.value)}
-                        value={props.formData.webAppConfig?.webAppOutputDirectory || ''}
-                    >
-                        Build output directory <RequiredFormInput />
-                    </VSCodeTextField>
-                    <VSCodeTextField
-                        autofocus
-                        placeholder="18"
-                        onInput={(e: any) => setNodeVersion(e.target.value)}
-                        value={props.formData.webAppConfig?.webAppPackageManagerVersion || ''}
-                    >
-                        Node Version <RequiredFormInput />
-                    </VSCodeTextField>
+                        <TextField
+                            value={props.formData.webAppConfig?.webAppOutputDirectory || ''}
+                            id='build-directory'
+                            name="Build output directory"
+                            placeholder="build"
+                            onChange={(text: string) => setBuildOutputDirectory(text)}
+                            autoFocus
+                            required
+                        />
+                        <TextField
+                            value={props.formData.webAppConfig?.webAppPackageManagerVersion || ''}
+                            id='build-directory'
+                            name="Node Version"
+                            placeholder="18"
+                            onChange={(text: string) => setNodeVersion(text)}
+                            autoFocus
+                            required
+                        />
                     </>
-                )}   
+                )}
 
                 {implementationType === ChoreoImplementationType.StaticFiles && (
                     <VSCodeTextField
@@ -145,15 +148,15 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
 
                 {implementationType === ChoreoImplementationType.Docker && (
                     <MarginTopWrap>
-                        <VSCodeTextField
-                            autofocus
-                            placeholder="Port"
-                            onInput={(e: any) => setPortValue(e.target.value)}
+                        <TextField
                             value={props.formData?.port || ''}
                             id='component-port-input'
-                        >
-                            Port <RequiredFormInput />
-                        </VSCodeTextField>
+                            name="Port"
+                            placeholder="Port"
+                            onChange={(text: string) => setPortValue(text)}
+                            autoFocus
+                            required
+                        />
                     </MarginTopWrap>
                 )}                
             </StepContainer>

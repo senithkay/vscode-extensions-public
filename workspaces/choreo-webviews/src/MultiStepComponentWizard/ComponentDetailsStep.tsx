@@ -12,14 +12,13 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { ErrorBanner, ErrorIcon } from "../Commons/ErrorBanner";
+import { VSCodeDropdown, VSCodeOption, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
-import { RequiredFormInput } from "../Commons/RequiredInput";
 import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
+import { TextField } from "@wso2-enterprise/ui-toolkit";
 
 const StepContainer = styled.div`
     display: flex;
@@ -74,17 +73,16 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
 
     return (
         <StepContainer>
-            <VSCodeTextField
-                autofocus
-                placeholder="Name"
-                onInput={(e: any) => setComponentName(e.target.value)}
+            <TextField
                 value={formData?.name || ''}
                 id='component-name-input'
-            >
-                Component Name <RequiredFormInput />
-                {stepValidationErrors["name"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
-            </VSCodeTextField>
-            {stepValidationErrors["name"] && <ErrorBanner errorMsg={stepValidationErrors["name"]} />}
+                name="Component Name"
+                placeholder="Name"
+                onChange={(text: string) => setComponentName(text)}
+                errorMsg={stepValidationErrors["name"]}
+                autoFocus
+                required
+            />
             <VSCodeTextArea
                 autofocus
                 placeholder="Description"

@@ -272,7 +272,8 @@ export function ProjectWizard(props: { orgId: string }) {
                             placeholder="Name"
                             onChange={(text: string) => setProjectName(text)}
                             errorMsg={isProjectNameTaken && projectNameError}
-                            autoFocus required
+                            autoFocus
+                            required
                         />
                         <VSCodeTextArea
                             placeholder="Description"
