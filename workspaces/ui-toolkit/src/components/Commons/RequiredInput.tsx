@@ -6,9 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export * from './components/ComponentCard/ComponentCard';
-export * from './components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget';
-export * from './components/AutoComplete/AutoComplete';
-export * from './components/TextField/TextField';
 
-export * from './styles';
+import styled from "@emotion/styled";
+import React from "react";
+
+const RequiredElement = styled.span`
+    color: var(--vscode-errorForeground);
+    font-size: 14px;
+`;
+
+export function RequiredFormInput() {
+    return <RequiredElement>*</RequiredElement>;
+}
