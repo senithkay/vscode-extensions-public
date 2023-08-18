@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start xvfb
-xvfb-run --listen-tcp --server-num 98.0 -s "-ac -screen 0 1920x1080x24" pnpm run e2e-test > test-resources/output.txt 2>&1 &
+xvfb-run --listen-tcp --server-num 98.0 -s "-ac -screen 0 1920x1080x24" pnpm run e2e-test > $GITHUB_OUTPUT 2>&1 &
 XVFB_RUN_PID=$!
 
 # Wait for xvfb to start (adjust the sleep time as needed)
