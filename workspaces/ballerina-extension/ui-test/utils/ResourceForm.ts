@@ -32,7 +32,6 @@ export class ResourceForm {
     // Update the resource path 
     static async updateResourcePath(webview: WebView, path: string) {
         // Resource path input update
-        // const resourcePath = await webview.findWebElement(By.xpath("//input[@value='path']")) as Input;
         const resourcePath  = await waitUntil(By.xpath("//input[@value='path']")) as Input;
         await resourcePath.click();
         await resourcePath.sendKeys(path);

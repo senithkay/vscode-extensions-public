@@ -10,7 +10,7 @@
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, VSBrowser, WebView, EditorView, TextEditor, WebDriver } from 'vscode-extension-tester';
+import { By, VSBrowser, WebView, EditorView, TextEditor, WebDriver, until } from 'vscode-extension-tester';
 import {
     switchToIFrame,
     waitUntil,
@@ -44,6 +44,9 @@ describe('VSCode Service Designer Webview UI Tests', () => {
         await textEditor.setText(ORIGINAL_CONTENT);
         await textEditor.save();
         await browser.waitForWorkbench();
+
+        // Re-locate the editor group container element
+        await driver.wait(until.elementLocated(By.css('.editor-group-container')), 30000);
     });
 
     it('Open service designer view using code lens', async () => {

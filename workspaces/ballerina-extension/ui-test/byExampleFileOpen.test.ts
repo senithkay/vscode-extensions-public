@@ -11,7 +11,7 @@ import { expect } from 'chai';
 import { existsSync, mkdirSync, rmSync } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, EditorView, InputBox, VSBrowser, WebDriver, Workbench } from 'vscode-extension-tester';
+import { By, EditorView, InputBox, VSBrowser, WebDriver, Workbench, until } from 'vscode-extension-tester';
 import { waitUntil } from './util';
 
 describe('Open ballerina samples in VSCode from URL', () => {
@@ -35,6 +35,8 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await browser.openResources(samplesDownloadDirectory, samplesDownloadDirectory);
         await browser.waitForWorkbench();
         await new EditorView().closeAllEditors();
+        // Re-locate the editor group container element
+        await driver.wait(until.elementLocated(By.css('.editor-group-container')), 30000);
     });
 
     it('Open URL to download first sample on first time and change directory', async () => {

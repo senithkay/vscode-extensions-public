@@ -72,6 +72,8 @@ describe('VSCode Config Generation UI Tests', () => {
         await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackage/service.bal`);
         await browser.waitForWorkbench();
+        // Re-locate the editor group container element
+        await driver.wait(until.elementLocated(By.css('.editor-group-container')), 30000);
     });
 
     it('Click on run anyway button to just ignore the config generation', async () => {
