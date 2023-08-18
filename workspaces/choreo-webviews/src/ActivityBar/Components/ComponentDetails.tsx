@@ -19,7 +19,7 @@ import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
 import { ErrorBanner } from "../../Commons/ErrorBanner";
-import { DataGridWrapper, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
+import { TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeDataGrid, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
 
 const Container = styled.div`
@@ -30,6 +30,10 @@ const Container = styled.div`
   align-items: flex-start;
   gap: 10px;
 `;
+
+const DataGridWrapper = styled.div`
+    padding-left: 21px;
+`
 
 const ErrorBannerWrap = styled.div`
     width: 100%;

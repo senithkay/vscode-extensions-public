@@ -24,7 +24,3 @@ export const TruncatedGridCell = styled(VSCodeDataGridCell)`
     text-overflow: ellipsis;
     color: var(--foreground); // Override the default color to match the theme
 `;
-
-export const DataGridWrapper = styled.div`
-    padding-left: 21px;
-`
