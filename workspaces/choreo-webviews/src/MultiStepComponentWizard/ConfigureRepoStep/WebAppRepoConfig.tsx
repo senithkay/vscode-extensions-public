@@ -17,7 +17,7 @@ import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ComponentWizardState } from "../types";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
-import { ErrorBanner } from "../../Commons/ErrorBanner";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
 
 const StepContainer = styled.div`
@@ -98,28 +98,25 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                         <TextField
                             value={props.formData.webAppConfig?.webAppBuildCommand || ''}
                             id='build-command'
-                            name="Build Command"
+                            label="Build Command"
                             placeholder="npm run build"
                             onChange={(text: string) => setBuildCommand(text)}
-                            autoFocus
                             required
                         />
                         <TextField
                             value={props.formData.webAppConfig?.webAppOutputDirectory || ''}
                             id='build-directory'
-                            name="Build output directory"
+                            label="Build output directory"
                             placeholder="build"
                             onChange={(text: string) => setBuildOutputDirectory(text)}
-                            autoFocus
                             required
                         />
                         <TextField
                             value={props.formData.webAppConfig?.webAppPackageManagerVersion || ''}
                             id='build-directory'
-                            name="Node Version"
+                            label="Node Version"
                             placeholder="18"
                             onChange={(text: string) => setNodeVersion(text)}
-                            autoFocus
                             required
                         />
                     </>
@@ -151,10 +148,9 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                         <TextField
                             value={props.formData?.port || ''}
                             id='component-port-input'
-                            name="Port"
+                            label="Port"
                             placeholder="Port"
                             onChange={(text: string) => setPortValue(text)}
-                            autoFocus
                             required
                         />
                     </MarginTopWrap>

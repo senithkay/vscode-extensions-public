@@ -21,7 +21,7 @@ export const Text_Field_Comp = () =>
         <>
             <TextField
                 value="Sample Text1"
-                name="TextField1"
+                label="TextField1"
                 autoFocus
                 errorMsg="Test Error"
                 placeholder="placeholder"
@@ -29,7 +29,7 @@ export const Text_Field_Comp = () =>
             />
             <TextField
                 value="Sample Text2"
-                name="TextField2"
+                label="TextField2"
                 required
                 errorMsg="Test Error"
                 placeholder="placeholder"

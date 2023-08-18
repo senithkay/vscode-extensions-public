@@ -268,8 +268,9 @@ export function ProjectWizard(props: { orgId: string }) {
                         <TextField
                             value={projectName}
                             id='project-name-input'
-                            name="Project Name"
+                            label="Project Name"
                             placeholder="Name"
+                            validationMessage="Project name is required"
                             onChange={(text: string) => setProjectName(text)}
                             errorMsg={isProjectNameTaken && projectNameError}
                             autoFocus

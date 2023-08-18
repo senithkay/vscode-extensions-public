@@ -13,18 +13,19 @@ import { RequiredFormInput } from "../Commons/RequiredInput";
 
 export interface TextFieldProps {
     value: string;
-    name?: string;
+    label?: string;
     id?: string;
     autoFocus?: boolean;
     required?: boolean;
     errorMsg?: string;
     placeholder?: string;
+    validationMessage?: string;
     onChange?: (e: string) => void;
 }
 
 export function TextField(props: TextFieldProps) {
-    const { name, value, id, autoFocus, required, onChange,
-        placeholder, errorMsg
+    const { label, value, id, autoFocus, required, onChange,
+        placeholder, validationMessage, errorMsg
     } = props;
     const handleChange = (e: any) => {
         onChange && onChange(e.target.value);
@@ -33,13 +34,13 @@ export function TextField(props: TextFieldProps) {
         <>
             <VSCodeTextField
                 autoFocus={autoFocus}
-                validationMessage="Project name is required"
+                validationMessage={validationMessage}
                 placeholder={placeholder}
                 onInput={handleChange}
                 value={value}
                 id={id}
             >
-                {name} {(required && name) && (<RequiredFormInput />)}
+                {label} {(required && label) && (<RequiredFormInput />)}
             </VSCodeTextField>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />

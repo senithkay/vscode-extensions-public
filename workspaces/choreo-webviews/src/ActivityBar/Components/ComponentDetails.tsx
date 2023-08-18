@@ -18,8 +18,7 @@ import { useComponentDeploymentStatus } from "../../hooks/use-component-deployme
 import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
-import { ErrorBanner } from "../../Commons/ErrorBanner";
-import { TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
 import { VSCodeDataGrid, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
 
 const Container = styled.div`

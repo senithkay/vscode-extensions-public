@@ -76,7 +76,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             <TextField
                 value={formData?.name || ''}
                 id='component-name-input'
-                name="Component Name"
+                label="Component Name"
                 placeholder="Name"
                 onChange={(text: string) => setComponentName(text)}
                 errorMsg={stepValidationErrors["name"]}
