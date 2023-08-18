@@ -247,7 +247,8 @@ jobs:
           pnpm run e2e-test-setup
           export $(dbus-launch)
           export DISPLAY=:98.0
-          sh e2e-test-runner.sh
+          Xvfb -ac :98 -screen 0 1920x1080x16 & ffmpeg -video_size 1920x1080 -framerate 25 -f x11grab -i :98.0 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -crf 1 -y test-resources/e2e-test-out.mp4 && pnpm run e2e-test
+
         env:
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
@@ -256,7 +257,6 @@ jobs:
           TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
           TEST_GITHUB_ORG: choreo-test-apps
           TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
-          TEST_CHOREO_EXT_ENV: prod
 
       - name: Publish log
         uses: actions/upload-artifact@v3
