@@ -152,14 +152,6 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
 
     return (
         <>
-            {!isGraphqlForm && (
-                <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
-                    <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
-                        {truncateDiagnosticMsg(message)}
-                        <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
-                    </FormHelperText>
-                </TooltipCodeSnippet>
-            )}
             {isGraphqlRelated(isGraphqlForm, message) ?
                 (
                     <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
@@ -177,6 +169,7 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                     <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
                         <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
                             {truncateDiagnosticMsg(message)}
+                            {handleCreateNew && <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>}
                         </FormHelperText>
                     </TooltipCodeSnippet>
                 )

@@ -14,6 +14,7 @@ import { activateRunCmdCommand } from "./cmds/run";
 import { activateDocCommand } from "./cmds/doc";
 import { activateAddCommand } from "./cmds/add";
 import { activatePasteJsonAsRecord } from "./cmds/json-to-record";
+import { activatePasteXMLAsRecord } from "./cmds/xml-to-record";
 import { activatePackCommand } from "./cmds/pack";
 import { activateRenameCommand } from "./cmds/rename";
 import { activateExtractCommand } from "./cmds/extract";
@@ -48,6 +49,9 @@ export function activate() {
 
     // activate the pasteJsonAsRecord command
     activatePasteJsonAsRecord();
+
+    // activate the pasteXMLAsRecord command
+    activatePasteXMLAsRecord();
 
     // activate the rename command
     activateRenameCommand();
