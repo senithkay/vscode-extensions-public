@@ -10,11 +10,10 @@
 import { By, EditorView, VSBrowser, WebDriver, WebView, Workbench, until, InputBox } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe } from 'mocha';
-import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText, wait } from './util';
+import { clickOnActivity, waitForWebview, verifyTerminalText } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
-import { SwaggerView } from './utils/SwaggerView';
 import { GraphqlTryItView } from './utils/GraphqlTryitView';
 
 export const RUN_OUTPUT = 'Running executable';
@@ -28,16 +27,13 @@ describe('Swagger view UI Tests', () => {
     let workbench : Workbench;
     
     before(async () => {
-        VSBrowser.instance.waitForWorkbench();
-        const editorView = new EditorView();
-        await editorView.closeAllEditors();
-        
-        workbench = new Workbench();
-        await workbench.executeCommand(DND_PALETTE_COMMAND);
-
         browser = VSBrowser.instance;
         driver = browser.driver;
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        VSBrowser.instance.waitForWorkbench();
+        
+        workbench = new Workbench();
+        await workbench.executeCommand(DND_PALETTE_COMMAND);
         await clickOnActivity(EXPLORER_ACTIVITY);
     });
 
@@ -52,35 +48,24 @@ describe('Swagger view UI Tests', () => {
         await verifyTerminalText(RUN_OUTPUT);
 
         // Click on `Try it` code lens to open up swagger
-        await wait(3000);
         const lens = await editorView.getCodeLens("Try it");
         await lens.click();
 
         // Confirm path
         const inputBox = new InputBox();
-        await wait(2000);
         await inputBox.confirm();
         
         // switch to swagger window
         await waitForWebview("Graphql");
-        console.log("swagger available");
         const graphqlWebView = await new EditorView().openEditor('Graphql') as WebView;
         const graphqlView = new GraphqlTryItView(graphqlWebView);
         await graphqlWebView.switchToFrame();
 
-        // click explorer button
+        
         await graphqlView.clickExplorer();
-
-        // select query variable
         await graphqlView.selectQueryVariable();
-
-        // verify query generation
         await graphqlView.verifyQueryGeneration();
-
-        // click execute button
         await graphqlView.execute();
-
-        // get query response
         const response =  await graphqlView.getResponse();
         expect(response).is.equal('5.833');
     });
