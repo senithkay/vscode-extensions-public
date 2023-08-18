@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Start xvfb
-xvfb-run --listen-tcp --server-num 98.0 -s "-ac -screen 0 1920x1080x24" pnpm run e2e-test > $GITHUB_OUTPUT 2>&1 &
+xvfb-run --listen-tcp --server-num 98.0 -s "-ac -screen 0 1920x1080x24" pnpm run e2e-test > test-resources/output.txt 2>&1 &
 XVFB_RUN_PID=$!
 
 # Wait for xvfb to start (adjust the sleep time as needed)
 sleep 2
 
 # Start recording with ffmpeg
-ffmpeg -f x11grab -i :98.0 test-resources/e2e-test-out.mp4
+ffmpeg -video_size 1024x768 -framerate 25 -f x11grab -i :98.0 test-resources/e2e-test-out.mp4
 
 # Wait for the xvfb-run process to finish
 wait $XVFB_RUN_PID
