@@ -98,7 +98,11 @@ export function ResponseEditor(props: ParamProps) {
     // "record {|*http:Created"
     const withTypeModelValue = withTypeModel.split("*")[1];
 
-    const defaultValue = optionList.find(item => withTypeModelValue ? item.source === withTypeModelValue : item.source === model);
+    const defaultValue = optionList.find(item =>
+        withTypeModelValue ?
+            item.source === withTypeModelValue :
+            (item.source === model || model.includes("error") && item.code === 500)
+    );
 
     const selectedMethodResponse = httpMethodName && httpMethodName === "POST" ? optionsListString[3] : optionsListString[0];
 
