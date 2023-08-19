@@ -10,20 +10,18 @@ export class GraphqlTryItView {
 
     async clickExplorer() {
         const explorerSelector = By.xpath("//button[@title='Toggle Explorer']");
-        await waitUntil(explorerSelector, 10000);
-        const explorerBtn = await this.graphqlView.findWebElement(explorerSelector);
+        const explorerBtn = await waitUntil(explorerSelector, 10000);
         await explorerBtn.click();
     }
 
     async selectQueryVariable() {
         const allBtnSelector = By.className("graphiql-explorer-field-view");
-        await waitUntil(allBtnSelector);
-        const allBtn = await this.graphqlView.findWebElement(allBtnSelector);
+        const allBtn = await waitUntil(allBtnSelector);
         await allBtn.click();
 
         const querySelector = By.xpath("//div[@class='graphiql-explorer-node graphiql-explorer-active']//span");
-        await waitUntil(querySelector, 10000);
-        await (await this.graphqlView.findWebElement(querySelector)).click();
+        const queryBtn = await waitUntil(querySelector, 10000);
+        await queryBtn.click();
     }
 
     async verifyQueryGeneration() {
@@ -34,15 +32,13 @@ export class GraphqlTryItView {
 
     async execute() {
         const executeBtnSelector = By.xpath("//button[@class='execute-button']");
-        await waitUntil(executeBtnSelector, 10000);
-        const executeBtn = await this.graphqlView.findWebElement(executeBtnSelector);
+        const executeBtn = await waitUntil(executeBtnSelector, 10000);
         await executeBtn.click();
     }
 
     async getResponse() {
         const activeSelector = By.xpath("//span[@class='cm-number']");
-        await waitUntil(activeSelector, 10000);
-        const activeResponse = await this.graphqlView.findWebElement(activeSelector);
+        const activeResponse = await waitUntil(activeSelector, 10000);
         const response = await activeResponse.getText();
         return response;
     }
