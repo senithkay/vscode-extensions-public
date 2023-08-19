@@ -24,7 +24,7 @@ import { useChoreoComponentsContext } from "../../context/choreo-components-ctx"
 import { NoComponentsAlert } from "./componentAlerts/NoComponentsAlert";
 import { ComponentSyncAlert } from "./componentAlerts/ComponentSyncAlert";
 import { ComponentsPushAlert } from "./componentAlerts/ComponentsPushAlert";
-import { ErrorBanner } from "../../Commons/ErrorBanner";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     display: flex;
