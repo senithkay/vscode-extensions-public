@@ -112,7 +112,7 @@ export function ResourceForm(props: FunctionProps) {
                 methodName,
                 resourcePath,
                 getParamString(parametersValue),
-                resourceReturn?.replace("returns", "")
+                getReturnString()
             );
         }
     }, [])
@@ -219,7 +219,7 @@ export function ResourceForm(props: FunctionProps) {
             methodName,
             newPath,
             getParamString(parametersValue),
-            resourceReturn?.replace("returns", ""),
+            getReturnString(),
         );
     };
 
@@ -238,7 +238,7 @@ export function ResourceForm(props: FunctionProps) {
                 value.toLowerCase(),
                 resourcePath,
                 getParamString(parametersValue),
-                resourceReturn?.replace("returns", "")
+                getReturnString()
             );
         } else {
             setResourcePathDiagnostics([{ message: `Duplicated resource. '${value} ${resourcePath}'` }])
@@ -261,7 +261,7 @@ export function ResourceForm(props: FunctionProps) {
                 methodName,
                 sanitizedValue,
                 getParamString(parametersValue),
-                resourceReturn?.replace("returns", ""),
+                getReturnString(),
             );
         } else {
             setResourcePathDiagnostics([{ message: `Duplicated resource. '${methodName} ${sanitizedValue}'` }])
@@ -278,7 +278,7 @@ export function ResourceForm(props: FunctionProps) {
             methodName,
             resourcePath,
             paramString,
-            resourceReturn?.replace("returns", ""),
+            getReturnString(),
         );
     };
 
@@ -310,7 +310,7 @@ export function ResourceForm(props: FunctionProps) {
                     methodName.toLowerCase(),
                     resourcePath,
                     getParamString(parametersValue),
-                    resourceReturn?.replace("returns", ""),
+                    getReturnString(),
                     targetPosition)
             ]);
         } else {
@@ -319,12 +319,19 @@ export function ResourceForm(props: FunctionProps) {
                     methodName.toLowerCase(),
                     resourcePath,
                     getParamString(parametersValue),
-                    resourceReturn?.replace("returns", ""),
+                    getReturnString(),
                     targetPosition
                 )
             ]);
         }
         onCancel();
+    }
+
+    const getReturnString = () => {
+        if (resourceReturn?.includes("error?|")) {
+            return resourceReturn?.replace("returns", "").replace("error?", "error");
+        }
+        return resourceReturn?.replace("returns", "");
     }
 
     return (
