@@ -48,7 +48,7 @@ export interface StepCardProps {
 
 export interface HeaderProps {
     hideBar?: boolean;
-    primaryColor?: string;
+    color?: string;
 }
 
 const DivWithCircle = styled.div`

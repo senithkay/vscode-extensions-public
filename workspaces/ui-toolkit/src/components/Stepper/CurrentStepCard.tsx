@@ -50,12 +50,12 @@ const InnerCircle = styled.div`
 
 export const CurrentStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
     <Header>
-        <CurrentStepCircle color={props.primaryColor}>
-            <InnerCircle color={props.primaryColor}/>
+        <CurrentStepCircle color={props.color}>
+            <InnerCircle color={props.color}/>
         </CurrentStepCircle>
         {props.hideBar ? null : (
             <>
-                <HorizontalBar color={props.primaryColor}/>
+                <HorizontalBar color={props.color}/>
             </>
         )}        
     </Header>
@@ -63,7 +63,7 @@ export const CurrentStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => 
 
 export const CurrentStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <CurrentStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
+        <CurrentStepHeader hideBar={(props.totalSteps === props.step.id + 1)} color={props.color}/>
         <Footer>
             <StepSubTitle>
                 {`STEP ${props.step.id + 1}`}

@@ -22,14 +22,14 @@ const PendingStatus = styled.div`
 
 const InCompletedStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
     <Header>
-        <StepCircle color={props.primaryColor}/>
-        {props.hideBar ? null : <HorizontalBar color={props.primaryColor}/>}
+        <StepCircle color={props.color}/>
+        {props.hideBar ? null : <HorizontalBar color={props.color}/>}
     </Header>
 );
 
 export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <InCompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
+        <InCompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} color={props.color}/>
         <Footer>
             <StepSubTitle>
                 {`STEP ${props.step.id + 1}`}

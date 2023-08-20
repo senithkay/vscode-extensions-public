@@ -27,21 +27,21 @@ const RightSign = styled.div`
 `;
 
 export const CircleWithRightSign: React.FC<HeaderProps> = (props: HeaderProps) => (
-    <StepCircle  color={props.primaryColor}>
+    <StepCircle  color={props.color}>
         <RightSign />
     </StepCircle>
 );
 
 export const CompletedStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
     <Header>
-        <CircleWithRightSign primaryColor={props.primaryColor} />
-        {props.hideBar ? null : <HorizontalBar color={props.primaryColor} />}
+        <CircleWithRightSign color={props.color} />
+        {props.hideBar ? null : <HorizontalBar color={props.color} />}
     </Header>
 );
 
 export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <CompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
+        <CompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} color={props.color}/>
         <Footer>
             <StepSubTitle>
                 {`STEP ${props.step.id + 1}`}
