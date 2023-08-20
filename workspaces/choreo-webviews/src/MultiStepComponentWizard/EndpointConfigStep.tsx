@@ -16,7 +16,7 @@ import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-u
 import { ComponentWizardState } from "./types";
 import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
-import { ErrorIcon, ErrorBanner } from "../Commons/ErrorBanner";
+import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`

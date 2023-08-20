@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "4.4.2",
+    "version": "4.5.23081103",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -407,6 +407,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.pasteXMLAsRecord",
+                "title": "Paste XML as Record",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.project.config.create",
                 "title": "Create Config.toml",
                 "category": "Ballerina"
@@ -668,7 +673,8 @@
         "vscode-languageclient": "^8.0.2",
         "vscode-languageserver-protocol": "^3.17.2",
         "vscode-messenger": "^0.4.4",
-        "vscode-test": "^1.6.1"
+        "vscode-test": "^1.6.1",
+        "xml-js": "^1.6.11"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.18.8",
@@ -709,8 +715,5 @@
     },
     "extensionPack": [
         "be5invis.toml"
-    ],
-    "extensionDependencies": [
-        "vscode.git"
     ]
 }

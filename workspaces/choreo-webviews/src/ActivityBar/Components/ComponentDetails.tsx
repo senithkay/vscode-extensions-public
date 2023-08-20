@@ -18,8 +18,8 @@ import { useComponentDeploymentStatus } from "../../hooks/use-component-deployme
 import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
-import { ErrorBanner } from "../../Commons/ErrorBanner";
+import { ErrorBanner, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeDataGrid, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
 
 const Container = styled.div`
   display: flex;
@@ -30,10 +30,9 @@ const Container = styled.div`
   gap: 10px;
 `;
 
-const GridTitleCell = styled(VSCodeDataGridCell)`
-    opacity: 0.7;
-    padding-left: 22px;
-`;
+const DataGridWrapper = styled.div`
+    padding-left: 21px;
+`
 
 const ErrorBannerWrap = styled.div`
     width: 100%;
@@ -57,54 +56,56 @@ export const ComponentDetails = (props: {
                     <ErrorBanner errorMsg="Git repository of the component is no longer accessible to Choreo." />
                 </ErrorBannerWrap>
             )}
-            <VSCodeDataGrid aria-label="Components">
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Version
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        {component.version}
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Build
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        <BuildStatusText
-                            buildStatus={buildData}
-                            handler={props.component.handler}
-                            loading={isLoadingBuild}
-                            localComponent={props.component.local}
-                        />
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Deployment
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        <DeploymentStatusText
-                            deployment={devDeploymentData}
-                            handler={props.component.handler}
-                            loading={isLoadingDeployment}
-                            localComponent={props.component.local}
-                        />
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-                <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">
-                        Action
-                    </GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">
-                        <ComponentDetailActions
-                            component={component}
-                            handleSourceControlClick={handleSourceControlClick}
-                            loading={loading}
-                        />
-                    </VSCodeDataGridCell>
-                </VSCodeDataGridRow>
-            </VSCodeDataGrid>
+            <DataGridWrapper>
+                <VSCodeDataGrid aria-label="Components">
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Version
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            {component.version}
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Build
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            <BuildStatusText
+                                buildStatus={buildData}
+                                handler={props.component.handler}
+                                loading={isLoadingBuild}
+                                localComponent={props.component.local}
+                            />
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Deployment
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            <DeploymentStatusText
+                                deployment={devDeploymentData}
+                                handler={props.component.handler}
+                                loading={isLoadingDeployment}
+                                localComponent={props.component.local}
+                            />
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                    <VSCodeDataGridRow>
+                        <TruncatedGridTitleCell gridColumn="1">
+                            Action
+                        </TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">
+                            <ComponentDetailActions
+                                component={component}
+                                handleSourceControlClick={handleSourceControlClick}
+                                loading={loading}
+                            />
+                        </TruncatedGridCell>
+                    </VSCodeDataGridRow>
+                </VSCodeDataGrid>
+            </DataGridWrapper>
         </Container>
     );
 };
