@@ -101,7 +101,7 @@ export function ParameterSuggestions() {
         }
     }, [currentModel.model, statementModel]);
 
-    const getDocumentationDescription = (docs?:string) => {
+    const getDocumentationDescription = (docs?: string) => {
         const doc = docs || documentation.documentation.description;
         const docRegex = /```ballerina\n(.*?)\n```/gms;
         if (isDescriptionWithExample(doc)) {
