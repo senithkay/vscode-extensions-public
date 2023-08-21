@@ -467,7 +467,6 @@ export const recordStyles = makeStyles((theme: Theme) =>
         inputSuccessTick: {
             color: "#08d608",
             marginBottom: -5
-        
         },
         inputLink: {
             color: 'blue',

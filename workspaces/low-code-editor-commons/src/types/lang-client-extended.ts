@@ -297,6 +297,23 @@ export interface JsonToRecordMapperDiagnostic {
     severity?: DIAGNOSTIC_SEVERITY;
 }
 
+export interface XMLToRecordRequest {
+    xmlValue: string;
+    isRecordTypeDesc?: boolean;
+    isClosed?: boolean;
+    forceFormatRecordFields?: boolean;
+}
+
+export interface XMLToRecordResponse {
+    codeBlock: string;
+    diagnostics?: XMLToRecordConverterDiagnostic[];
+}
+
+export interface XMLToRecordConverterDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
+}
+
 export interface DocumentIdentifier {
     uri: string;
 }

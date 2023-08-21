@@ -21,12 +21,13 @@ import { recordStyles } from "../style";
 export interface RecordConfigTypeProps {
     isDataMapper?: boolean;
     onImportFromJson: () => void;
+    onImportFromXml: () => void;
     onCreateNew: () => void;
     onCancel: () => void;
 }
 
 export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
-    const { isDataMapper, onImportFromJson, onCreateNew, onCancel } = props;
+    const { isDataMapper, onImportFromJson, onImportFromXml, onCreateNew, onCancel } = props;
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
@@ -39,6 +40,10 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
     const importJsonButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.option.importJson",
         defaultMessage: "Import a JSON",
+    });
+    const importXmlButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.option.importXml",
+        defaultMessage: "Import an XML",
     });
 
     return (
@@ -65,6 +70,14 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                         fullWidth={true}
                         onClick={onImportFromJson}
                         dataTestId="import-json"
+                        startIcon={<FileUploadIcon />}
+                    />
+
+                    <LinePrimaryButton
+                        text={importXmlButtonText}
+                        fullWidth={true}
+                        onClick={onImportFromXml}
+                        dataTestId="import-xml"
                         startIcon={<FileUploadIcon />}
                     />
                 </div>

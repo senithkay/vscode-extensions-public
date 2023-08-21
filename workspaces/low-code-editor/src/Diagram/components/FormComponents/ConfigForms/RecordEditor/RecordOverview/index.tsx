@@ -33,13 +33,14 @@ import { RecordItem } from "./RecordItem";
 export interface RecordOverviewProps {
     definitions: TypeDefinition | ModulePart;
     prevST?: STNode;
+    type: "XML"|"JSON"
     undoRedoManager?: UndoRedoManager;
     onComplete: () => void;
     onCancel: () => void;
 }
 
 export function RecordOverview(overviewProps: RecordOverviewProps) {
-    const { definitions, prevST, undoRedoManager, onComplete, onCancel } = overviewProps;
+    const { definitions, prevST, undoRedoManager, type, onComplete, onCancel } = overviewProps;
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
@@ -54,7 +55,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const successMsgText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.overview.doneBtnText",
-        defaultMessage: "JSON Import Successful!"
+        defaultMessage: `${type} Import Successful!`
     });
 
     const successMsgTextDetail = intl.formatMessage({

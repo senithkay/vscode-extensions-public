@@ -218,6 +218,15 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
+        methodName: 'convertXml',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.convertXMLToRecord(args[0]).then(result => {
+                consoleLog(start, 'convertXml');
+                return result;
+            });
+        }
+    }, {
         methodName: 'getSTForSingleStatement',
         handler: (args: any[]) => {
             const start = new Date().getTime();
