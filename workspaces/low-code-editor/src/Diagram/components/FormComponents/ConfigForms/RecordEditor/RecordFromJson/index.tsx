@@ -213,7 +213,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview type="JSON" undoRedoManager={undoRedoManager} prevST={syntaxTree} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
+                <RecordOverview type="JSON" undoRedoManager={undoRedoManager} prevST={fullST} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
                     {!isHeaderHidden && (
