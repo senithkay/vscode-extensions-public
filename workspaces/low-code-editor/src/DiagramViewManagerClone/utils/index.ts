@@ -19,7 +19,7 @@ import {
     LowcodeEvent,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { TextDocumentPositionParams, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { UndoRedoManager } from "../../Diagram/components/FormComponents/UndoRedoManager";
@@ -303,5 +303,14 @@ export function pathIncludesIn(fullPath: string, includedPath: string): boolean 
 export function getFileNameFromPath(filePath: string): string {
     const fileName = extractFilePath(filePath).split('/').pop();
     return fileName as string;
+}
+
+export function getFormTypeFromST(node: STNode): string {
+    if (STKindChecker.isConstDeclaration(node)) {
+        return node.kind;
+    } else if (STKindChecker.isModuleVarDecl(node)) {
+        return node.kind;
+    }
+    return node.kind;
 }
 

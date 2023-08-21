@@ -172,6 +172,7 @@ export function Diagram() {
     };
 
     const handleConnectorWizard = (props: ConnectorWizardProps) => {
+        console.log('handleConnectorWizard >>>', props)
         setConnectorWizardProps({
             ...props,
             onSave: () => {
@@ -384,7 +385,7 @@ export function Diagram() {
                         <GraphqlDiagramOverlay
                             {...dataMapperArgs}
                             // tslint:disable-next-line: jsx-no-lambda no-empty
-                            goToSource={() => {}}
+                            goToSource={() => { }}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (
