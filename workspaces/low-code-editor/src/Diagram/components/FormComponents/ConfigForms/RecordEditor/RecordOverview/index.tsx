@@ -11,6 +11,7 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { IconButton, Link } from "@material-ui/core";
+import CheckIcon from "@material-ui/icons/Check";
 import { DeleteButton, UndoIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModulePart, STKindChecker, STNode, TypeDefinition  } from "@wso2-enterprise/syntax-tree";
@@ -53,7 +54,12 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const successMsgText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.overview.doneBtnText",
-        defaultMessage: "Succcesfully imported the JSON Please use following section to further edit"
+        defaultMessage: "JSON Import Successful!"
+    });
+
+    const successMsgTextDetail = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.overview.doneBtnText",
+        defaultMessage: "Proceed to the section below to make further edits."
     });
 
     const overviewSelectAll = intl.formatMessage({
@@ -167,7 +173,8 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                     />
                     {listRecords?.length > 0 && (
                         <div className={recordClasses.inputLabelWrapper}>
-                            <p className={recordClasses.inputLabel}>{successMsgText}</p>
+                            <p className={recordClasses.inputLabel}><CheckIcon className={recordClasses.inputSuccessTick} /> {successMsgText}</p>
+                            <p className={recordClasses.inputLabelDetail}>{successMsgTextDetail}</p>
                         </div>
                     )}
                     <div className={overlayClasses.recordFormWrapper}>
