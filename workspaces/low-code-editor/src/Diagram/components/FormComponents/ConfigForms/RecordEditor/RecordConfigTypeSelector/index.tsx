@@ -81,7 +81,7 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                         disabled={onImportFromXml === null}
                         startIcon={<FileUploadIcon />}
                     />
-                    {onImportFromXml === null && <p className={recordClasses.ballerinLabel}>To enable XML import you need to update ballerina version 7.2 or later. </p>}
+                    {onImportFromXml === null && <p className={recordClasses.ballerinLabel}>To enable XML import, update Ballerina version to 2201.7.2 or later.</p>}
                 </div>
             </div>
         </>
