@@ -15,6 +15,8 @@ import { BallerinaProjectComponents, ComponentViewInfo, ConnectorWizardProps, Co
 import { ModulePart, ModuleVarDecl, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { ConnectorWizard } from "../Diagram/components/FormComponents/ConfigForms/ConnectorWizard";
+import { FormGenerator, FormGeneratorProps } from "../Diagram/components/FormComponents/FormGenerator";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
@@ -36,8 +38,6 @@ import { extractFilePath, generateClientInfo, getDiagramProviderProps, getFormTy
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
 import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyView";
-import { FormGenerator, FormGeneratorProps } from "../Diagram/components/FormComponents/FormGenerator";
-import { ConnectorWizard } from "../Diagram/components/FormComponents/ConfigForms/ConnectorWizard";
 
 const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
@@ -227,7 +227,7 @@ export function DiagramViewManager(props: EditorProps) {
                             // historyPop();
                             // TODO: Fix connector editing scenario
 
-                            
+
                             const typeSymbol = selectedST.typeData.typeSymbol;
                             const moduleID = typeSymbol?.moduleID;
                             const functions: FunctionDefinitionInfo[] = [];
@@ -248,7 +248,6 @@ export function DiagramViewManager(props: EditorProps) {
                                 isModuleType: true
                             }
 
-                            console.log("config >>>", config);
                             setConnectorConfig({
                                 ...config
                             });

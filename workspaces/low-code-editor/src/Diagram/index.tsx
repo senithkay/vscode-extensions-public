@@ -172,7 +172,6 @@ export function Diagram() {
     };
 
     const handleConnectorWizard = (props: ConnectorWizardProps) => {
-        console.log('handleConnectorWizard >>>', props)
         setConnectorWizardProps({
             ...props,
             onSave: () => {

@@ -147,7 +147,6 @@ export class FindNodeByUidVisitor implements Visitor {
         this.constantIndex++;
         this.stack.push(generateConstructIdStub(node, this.constantIndex));
 
-        console.log('gen uid vs expected >>>', this.getCurrentUid(), this.uid);
         if (this.getCurrentUid() === this.uid) {
             this.selectedNode = node;
         }
