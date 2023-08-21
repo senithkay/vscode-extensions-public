@@ -44,7 +44,7 @@ export function activatePasteXMLAsRecord() {
                     xmlValue: clipboardText,
                     isClosed: false,
                     isRecordTypeDesc: false,
-                    forceFormatRecordFields: false,
+                    forceFormatRecordFields: false
 
                 })
                     .then(lSResponse => {

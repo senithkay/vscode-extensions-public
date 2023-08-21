@@ -8,7 +8,7 @@
  */
 import {
     DIAGNOSTIC_SEVERITY, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, JsonToRecordResponse,
-    PartialSTRequest, STModification, STSymbolInfo
+    PartialSTRequest, STModification, STSymbolInfo, XMLToRecordResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ModulePart,
@@ -23,7 +23,7 @@ import {
 import { isLiteral, removeStatement } from "../../../../../utils";
 import { Field, RecordItemModel, RecordModel, SimpleField } from "../types";
 
-export async function convertToRecord(
+export async function convertJsonToRecordUtil(
     json: string,
     name: string,
     isClosed: boolean,
@@ -45,6 +45,28 @@ export async function convertToRecord(
             resp.diagnostics = [];
         } catch (e) {
             resp.diagnostics = [{ message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR }];
+        }
+    }
+    return resp;
+}
+
+export async function convertXmlToRecordUtil(xml: string, ls?: any): Promise<XMLToRecordResponse> {
+    const langClient: DiagramEditorLangClientInterface = await ls.getDiagramEditorLangClient();
+    const resp: XMLToRecordResponse = await langClient.convertXml(
+        {
+            xmlValue: xml,
+            isClosed: false,
+            forceFormatRecordFields: false,
+            isRecordTypeDesc: false
+        }
+    );
+    if (resp.diagnostics === undefined) {
+        try {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xml, "text/xml");
+            resp.diagnostics = [];
+        } catch (e) {
+            resp.diagnostics = [{ message: "Please enter a valid XML", severity: DIAGNOSTIC_SEVERITY.ERROR }];
         }
     }
     return resp;
