@@ -384,7 +384,7 @@ export function Diagram() {
                         <GraphqlDiagramOverlay
                             {...dataMapperArgs}
                             // tslint:disable-next-line: jsx-no-lambda no-empty
-                            goToSource={() => { }}
+                            goToSource={() => {}}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (

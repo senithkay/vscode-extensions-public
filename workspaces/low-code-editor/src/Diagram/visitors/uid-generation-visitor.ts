@@ -9,9 +9,7 @@
 
 import {
     ClassDefinition,
-    ConstDeclaration,
     FunctionDefinition,
-    ModuleVarDecl,
     NodePosition,
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
@@ -34,8 +32,6 @@ export class UIDGenerationVisitor implements Visitor {
     private moduleClassIndex: number;
     private moduleTypeIndex: number;
     private classMemberIndex: number;
-    private constantIndex: number;
-    private moduleVarIndex: number;
 
     constructor(position: NodePosition) {
         this.stack = [];
@@ -45,8 +41,6 @@ export class UIDGenerationVisitor implements Visitor {
         this.moduleClassIndex = 0;
         this.moduleTypeIndex = 0;
         this.classMemberIndex = 0;
-        this.constantIndex = 0;
-        this.moduleVarIndex = 0;
     }
 
     beginVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
@@ -58,7 +52,6 @@ export class UIDGenerationVisitor implements Visitor {
     endVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
         this.stack.pop();
     }
-
     beginVisitServiceDeclaration(node: ServiceDeclaration): void {
         this.moduleServiceIndex++;
         this.classMemberIndex = 0;
@@ -129,32 +122,6 @@ export class UIDGenerationVisitor implements Visitor {
     }
 
     endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
-        this.stack.pop();
-    }
-
-    beginVisitModuleVarDecl(node: ModuleVarDecl) {
-        this.moduleVarIndex++;
-        this.stack.push(generateConstructIdStub(node, this.moduleVarIndex));
-
-        if (isPositionEqual(node.position, this.position)) {
-            this.setUId();
-        }
-    }
-
-    endVisitModuleVarDecl(node: ModuleVarDecl) {
-        this.stack.pop();
-    }
-
-    beginVisitConstDeclaration(node: ConstDeclaration) {
-        this.constantIndex++;
-        this.stack.push(generateConstructIdStub(node, this.constantIndex));
-
-        if (isPositionEqual(node.position, this.position)) {
-            this.setUId();
-        }
-    }
-
-    endVisitConstDeclaration(node: ConstDeclaration) {
         this.stack.pop();
     }
 

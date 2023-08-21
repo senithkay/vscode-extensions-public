@@ -38,6 +38,8 @@ export function ComponentView(props: ComponentViewProps) {
             case 'types':
             case 'enums':
             case 'listeners':
+            case 'constants':
+            case 'moduleVariables':
                 return false;
             default:
                 return true;
