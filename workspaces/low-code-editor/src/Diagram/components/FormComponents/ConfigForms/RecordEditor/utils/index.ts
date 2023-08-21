@@ -66,7 +66,7 @@ export async function convertXmlToRecordUtil(xml: string, ls?: any): Promise<XML
             const xmlDoc = parser.parseFromString(xml, "text/xml");
             resp.diagnostics = [];
         } catch (e) {
-            resp.diagnostics = [{ message: "Please enter a valid JSON", severity: DIAGNOSTIC_SEVERITY.ERROR }];
+            resp.diagnostics = [{ message: "Please enter a valid XML", severity: DIAGNOSTIC_SEVERITY.ERROR }];
         }
     }
     return resp;

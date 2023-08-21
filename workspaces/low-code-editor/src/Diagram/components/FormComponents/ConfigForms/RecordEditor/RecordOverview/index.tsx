@@ -14,7 +14,7 @@ import { IconButton, Link } from "@material-ui/core";
 import CheckIcon from "@material-ui/icons/Check";
 import { DeleteButton, UndoIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { ModulePart, STKindChecker, STNode, TypeDefinition  } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from 'classnames';
 
 import { PrimaryButtonSquare } from "../../../../../../components/Buttons/PrimaryButtonSquare";
@@ -33,7 +33,7 @@ import { RecordItem } from "./RecordItem";
 export interface RecordOverviewProps {
     definitions: TypeDefinition | ModulePart;
     prevST?: STNode;
-    type: "XML"|"JSON"
+    type: "XML" | "JSON"
     undoRedoManager?: UndoRedoManager;
     onComplete: () => void;
     onCancel: () => void;
@@ -194,7 +194,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                             <DeleteButton /> {deleteSelected}
                         </div>
 
-                        <Tooltip type="info" text={{content: "Undo"}} placement="bottom-end">
+                        <Tooltip type="info" text={{ content: "Undo" }} placement="bottom-end">
                             <IconButton
                                 onClick={handleUndo}
                                 className={classNames(recordClasses.undoButton, recordClasses.marginSpace)}
