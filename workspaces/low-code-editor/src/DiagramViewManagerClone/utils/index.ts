@@ -9,17 +9,19 @@
 import { monaco } from "react-monaco-editor";
 
 import {
+    BallerinaConnectorInfo,
     CommandResponse,
     DiagramDiagnostic,
     DiagramEditorLangClientInterface, DIAGRAM_MODIFIED,
     FileListEntry,
     FunctionDef,
+    FunctionDefinitionInfo,
     getImportStatements,
     InsertorDelete,
     LowcodeEvent,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { ModuleVarDecl, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { TextDocumentPositionParams, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { UndoRedoManager } from "../../Diagram/components/FormComponents/UndoRedoManager";
@@ -31,6 +33,7 @@ import {
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
+import { NewExpressionVisitor } from "./new-expression-visitor";
 
 export async function getSTNodeForReference(
     file: string,
@@ -72,7 +75,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -312,5 +315,23 @@ export function getFormTypeFromST(node: STNode): string {
         return node.kind;
     }
     return node.kind;
+}
+
+export function generateClientInfo(node: ModuleVarDecl): BallerinaConnectorInfo {
+    // TODO: If any issue contact Kanushka
+    const newExpressionVisitor = new NewExpressionVisitor();
+    traversNode(node, newExpressionVisitor);
+    const initializer = newExpressionVisitor.getNewExpressionNode();
+    const functions: FunctionDefinitionInfo[] = [];
+    return {
+        name: initializer?.typeData?.typeSymbol?.members[0]?.name,
+        moduleName: initializer?.typeData?.typeSymbol?.members[0]?.moduleID?.moduleName,
+        package: {
+            organization: initializer?.typeData?.typeSymbol?.members[0]?.moduleID?.orgName,
+            name: initializer?.typeData?.typeSymbol?.members[0]?.moduleID?.moduleName,
+            version: initializer?.typeData?.typeSymbol?.members[0]?.moduleID?.version
+        },
+        functions,
+    }
 }
 

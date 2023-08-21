@@ -12,7 +12,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core";
 import { BallerinaProjectComponents, ComponentViewInfo, ConnectorWizardProps, ConnectorWizardType, FileListEntry, FunctionDefinitionInfo, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, ModuleVarDecl, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
@@ -32,7 +32,7 @@ import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
 import { useGeneratorStyles } from "./style";
 import { theme } from './theme';
-import { extractFilePath, getDiagramProviderProps, getFormTypeFromST } from "./utils";
+import { extractFilePath, generateClientInfo, getDiagramProviderProps, getFormTypeFromST } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
 import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyView";
@@ -224,41 +224,34 @@ export function DiagramViewManager(props: EditorProps) {
                             || STKindChecker.isConstDeclaration(selectedST))) {
 
                         if (selectedST.typeData && selectedST.typeData.isEndpoint) {
-                            historyPop();
+                            // historyPop();
                             // TODO: Fix connector editing scenario
 
-                            // const typeSymbol = selectedST.typeData.typeSymbol;
-                            // const moduleID = typeSymbol?.moduleID;
-                            // const functions: FunctionDefinitionInfo[] = [];
-                            // const config = {
-                            //
-                            //     }
-                            //
-                            // setConnectorConfig({
-                            //     model: selectedST,
-                            //     connectorInfo: {
-                            //         moduleName: moduleID?.moduleName as string,
-                            //         name: typeSymbol?.name as string,
-                            //         package: {
-                            //             name: moduleID?.moduleName as string,
-                            //             organization: moduleID?.orgName as string,
-                            //             version: moduleID?.version as string
-                            //         },
-                            //         functions: functions
-                            //     },
-                            //     wizardType: ConnectorWizardType.ENDPOINT,
-                            //     diagramPosition: { x: 0, y: 0 },
-                            //     targetPosition: selectedST.position,
-                            //     onClose: () => {
-                            //         setConnectorConfig(undefined);
-                            //         historyPop();
-                            //     },
-                            //     onSave: () => {
-                            //         setConnectorConfig(undefined);
-                            //         historyPop();
-                            //     },
-                            //     isModuleType: true
-                            // });
+                            
+                            const typeSymbol = selectedST.typeData.typeSymbol;
+                            const moduleID = typeSymbol?.moduleID;
+                            const functions: FunctionDefinitionInfo[] = [];
+                            const config = {
+                                model: selectedST,
+                                connectorInfo: generateClientInfo(selectedST as ModuleVarDecl),
+                                wizardType: ConnectorWizardType.ENDPOINT,
+                                diagramPosition: { x: 0, y: 0 },
+                                targetPosition: selectedST.position,
+                                onClose: () => {
+                                    setConnectorConfig(undefined);
+                                    historyPop();
+                                },
+                                onSave: () => {
+                                    setConnectorConfig(undefined);
+                                    historyPop();
+                                },
+                                isModuleType: true
+                            }
+
+                            console.log("config >>>", config);
+                            setConnectorConfig({
+                                ...config
+                            });
                         } else {
                             setFormConfig({
                                 model: selectedST,
