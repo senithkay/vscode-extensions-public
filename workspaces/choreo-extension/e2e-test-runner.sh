@@ -18,11 +18,11 @@ XVFB_RUN_EXIT_CODE=$?
 
 # Check if xvfb-run command failed
 if [ $XVFB_RUN_EXIT_CODE -ne 0 ]; then
-  LOGS=$(cat test-resources/output.txt)
-  LOGS="${LOGS//'%'/'%25'}"
-  LOGS="${LOGS//$'\n'/'%0A'}"
-  LOGS="${LOGS//$'\r'/'%0D'}"
-  echo 'log=$LOGS' >> $GITHUB_OUTPUT
+  echo "log=$(cat test-resources/output.txt)" >> $GITHUB_OUTPUT
+  EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+  echo "log<<$EOF" >> $GITHUB_OUTPUT
+  echo "Coverage: $(cat test-resources/output.txt)." >> $GITHUB_OUTPUT
+  echo "$EOF" >> $GITHUB_OUTPUT
   echo "xvfb-run failed with exit code $XVFB_RUN_EXIT_CODE"
   exit $XVFB_RUN_EXIT_CODE
 fi
