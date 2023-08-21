@@ -18,6 +18,7 @@ import { Context } from "../../../../../../Contexts/Diagram";
 import { getInitialSource, mutateTypeDefinition } from "../../../../../utils";
 import { genVariableName } from "../../../../Portals/utils";
 import { UndoRedoManager } from "../../../UndoRedoManager";
+import { isSupportedSLVersion } from "../../../Utils";
 import { wizardStyles } from "../../style";
 import { RecordConfigTypeSelector } from "../RecordConfigTypeSelector";
 import { RecordFromJson } from "../RecordFromJson";
@@ -49,7 +50,8 @@ export function CreateRecord(props: CreateRecordProps) {
             currentFile,
             fullST,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            ballerinaVersion
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -120,13 +122,20 @@ export function CreateRecord(props: CreateRecordProps) {
         )
     )
 
+    const checkBallerinVersion = () => {
+        if (ballerinaVersion) {
+            return isSupportedSLVersion(ballerinaVersion, 220172);
+        }
+        return false;
+    }
+
     return (
         <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
             <>
                 {(editorState === ConfigState.STATE_SELECTOR) && (
                     <RecordConfigTypeSelector
                         onImportFromJson={handleImportJSONClick}
-                        onImportFromXml={handleImportXMLClick}
+                        onImportFromXml={checkBallerinVersion() ? handleImportXMLClick : null}
                         onCreateNew={handleCreateNewClick}
                         onCancel={onCancel}
                         isDataMapper={isDataMapper}
@@ -141,7 +150,7 @@ export function CreateRecord(props: CreateRecordProps) {
                         isHeaderHidden={showHeader ? false : isDataMapper}
                     />
                 )}
-                 {(editorState === ConfigState.IMPORT_FROM_XML) && (
+                {(editorState === ConfigState.IMPORT_FROM_XML) && (
                     <RecordFromXml
                         undoRedoManager={undoRedoManager}
                         targetPosition={targetPosition}

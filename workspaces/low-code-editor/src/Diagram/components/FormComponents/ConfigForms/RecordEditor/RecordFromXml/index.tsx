@@ -76,14 +76,14 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
 
     const { props, api } = useContext(Context);
 
-    const { isMutationProgress, langServerURL, currentFile, syntaxTree } = props;
+    const { isMutationProgress, langServerURL, fullST } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
         xmlValue: "",
         isLoading: false,
         xmlDiagnostics: "",
-        isSeparateDef: false,
+        isSeparateDef: true,
         importedRecord: undefined,
     });
 
@@ -134,7 +134,11 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                             codeSnippet: updatedBlock.trim()
                         }, langServerURL, ls);
                         if (STKindChecker.isModulePart(modulePart)) {
-                            recordST = getRootRecord(modulePart, formState.recordName);
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(formState.xmlValue, "text/xml");
+                            const tagName = xmlDoc.documentElement.tagName;
+                            const recordName = tagName.charAt(0).toUpperCase() + tagName.slice(1);
+                            recordST = getRootRecord(modulePart, recordName);
                             newPosition = {
                                 startLine: targetPosition.startLine + recordST.position.startLine,
                                 startColumn: targetPosition.startColumn,
@@ -175,7 +179,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview type="XML" undoRedoManager={undoRedoManager} prevST={syntaxTree} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
+                <RecordOverview type="XML" undoRedoManager={undoRedoManager} prevST={fullST} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="xml-record-config-form" className={classes.wizardFormControlExtended}>
                     {!isHeaderHidden && (
