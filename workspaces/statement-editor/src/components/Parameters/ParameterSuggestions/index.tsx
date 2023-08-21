@@ -171,7 +171,7 @@ export function ParameterSuggestions() {
                 ))}
             {isConnectorFlow && insideParamList && (
                 <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                    {activeMethod.parameters && (<ParameterTree parameters={activeMethod.parameters} />)}
+                    {activeMethod.parameters && (<ParameterTree parameters={activeMethod.parameters} connectorInfo={connectorInfo}/>)}
                     {activeMethod.parameters?.length > 0 && (
                         <hr className={stmtEditorHelperClasses.returnSeparator} />
                     )}
