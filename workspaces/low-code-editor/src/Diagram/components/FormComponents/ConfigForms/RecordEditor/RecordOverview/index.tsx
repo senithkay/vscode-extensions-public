@@ -43,7 +43,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
 
-    const { props: { syntaxTree, currentFile }, api: { code: { modifyDiagram } } } = useContext(Context);
+    const { props: { fullST, currentFile }, api: { code: { modifyDiagram } } } = useContext(Context);
 
     const intl = useIntl();
     const doneButtonText = intl.formatMessage({
@@ -97,17 +97,17 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     }, [recordNames]);
 
     useEffect(() => {
-        if (syntaxTree && syntaxTree.source !== originalSource.source) {
-            const createdRecords = getAvailableCreatedRecords(createdDefinitions, syntaxTree);
-            setRecordNames(getAvailableCreatedRecords(createdDefinitions, syntaxTree));
+        if (fullST && fullST.source !== originalSource.source) {
+            const createdRecords = getAvailableCreatedRecords(createdDefinitions, fullST);
+            setRecordNames(getAvailableCreatedRecords(createdDefinitions, fullST));
             if (createdRecords.length === 0) {
                 onCancel();
             }
         }
-    }, [syntaxTree]);
+    }, [fullST]);
 
     const [listRecords, setListRecords] = useState<ReactNode[]>([]);
-    const actualSelectedRecordSt = selectedRecord ? getActualRecordST(syntaxTree, selectedRecord) : undefined;
+    const actualSelectedRecordSt = selectedRecord ? getActualRecordST(fullST, selectedRecord) : undefined;
 
     const onCancelEdit = () => {
         setSelectedRecord("");
@@ -128,7 +128,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
         setRecordNames(recordNameClone);
         undoRedoManager.updateContent(currentFile.path, currentFile.content);
         undoRedoManager.addModification(currentFile.content);
-        modifyDiagram(getRemoveCreatedRecordRange(selectedRecords, syntaxTree));
+        modifyDiagram(getRemoveCreatedRecordRange(selectedRecords, fullST));
         if (recordNameClone.length === 0) {
             onCancel();
         }
@@ -148,7 +148,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const handleUndo = () => {
         const lastUpdateSource = undoRedoManager.undo();
-        modifyDiagram([updatePropertyStatement(lastUpdateSource, syntaxTree.position)]);
+        modifyDiagram([updatePropertyStatement(lastUpdateSource, fullST.position)]);
         if (lastUpdateSource === originalSource.source) {
             // If original source matches to last updated source we assume there are no newly created record.
             // Hence, we are closing the form.
