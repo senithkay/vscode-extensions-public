@@ -82,7 +82,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     const { props, api } = useContext(Context);
 
-    const { isMutationProgress, langServerURL, currentFile, syntaxTree } = props;
+    const { isMutationProgress, langServerURL, currentFile, fullST } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
