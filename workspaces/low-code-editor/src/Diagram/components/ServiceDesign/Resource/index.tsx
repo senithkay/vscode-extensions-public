@@ -363,7 +363,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         return responses;
     }
 
-    const recordEditor = async (schemaValue: {}|[], setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
+    const recordEditor = async (schemaValue: {} | [], setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
         if (schemaValue.hasOwnProperty(key)) {
             const updatedSchema = { ...schema };
