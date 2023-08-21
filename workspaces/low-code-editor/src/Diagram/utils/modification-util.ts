@@ -20,6 +20,13 @@ import { keywords } from "../components/Portals/utils/constants";
 
 import { getComponentSource } from "./template-utils";
 
+
+export enum VERSION {
+    BETA = 'beta',
+    ALPHA = 'alpha',
+    PREVIEW = 'preview'
+}
+
 /* tslint:disable ordered-imports */
 
 export function createIfStatement(condition: string, targetPosition?: NodePosition): STModification {
@@ -237,7 +244,7 @@ export function updateWhileStatementCondition(conditionExpression: string, targe
 }
 
 export function createPropertyStatement(property: string, targetPosition?: NodePosition,
-                                        isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -762,7 +769,7 @@ export function createCheckedPayloadFunctionInvocation(variable: string, type: s
 }
 
 export function createModuleVarDecl(config: ModuleVariableFormState, targetPosition?: NodePosition,
-                                    isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { varName, varOptions, varType, varValue } = config;
 
     return {
@@ -840,7 +847,7 @@ export function createFlushStatement(config: FlushStatementConfig, targetPositio
 }
 
 export function createModuleVarDeclWithoutInitialization(config: ModuleVariableFormState, targetPosition?: NodePosition,
-                                                         isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { varName, varOptions, varType } = config;
 
     return {
@@ -878,7 +885,7 @@ export function updateModuleVarDecl(config: ModuleVariableFormState, targetPosit
 }
 
 export function createConfigurableDecl(config: ConfigurableFormState, targetPosition: NodePosition,
-                                       isLastMember?: boolean, skipNewLine?: boolean): STModification {
+    isLastMember?: boolean, skipNewLine?: boolean): STModification {
     const { isPublic, varName, varType, varValue, label } = config;
 
     const modification: STModification = {
@@ -935,7 +942,7 @@ export function updateConfigurableVarDecl(config: ConfigurableFormState, targetP
 }
 
 export function createConstDeclaration(config: ConstantConfigFormState, targetPosition: NodePosition,
-                                       isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { isPublic, constantName, constantType, constantValue } = config;
 
     return {
@@ -1016,7 +1023,7 @@ export function createServiceDeclartion(
 }
 
 export function createListenerDeclartion(config: ListenerConfig, targetPosition: NodePosition, isNew: boolean,
-                                         isLastMember?: boolean): STModification {
+    isLastMember?: boolean): STModification {
     const { listenerName, listenerPort } = config;
     let modification: STModification;
     if (isNew) {
@@ -1137,7 +1144,7 @@ export function createHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
         httpRequest += requestName;
         httpRequest += " = new;";
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
-            const payload: string = "\n" + requestName + ".setPayload(" + getParams([ message ]).toString() + ");";
+            const payload: string = "\n" + requestName + ".setPayload(" + getParams([message]).toString() + ");";
             httpRequest += payload;
         }
         const requestGeneration: STModification = {
@@ -1175,7 +1182,7 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
     let headerDecl: string = "";
     if (operation !== "forward") {
         if (operation === "post" || operation === "put" || operation === "delete" || operation === "patch") {
-            const payload: string = requestName + ".setPayload(" + getParams([ message ]).toString() + ");";
+            const payload: string = requestName + ".setPayload(" + getParams([message]).toString() + ");";
             headerDecl += payload;
         }
 
@@ -1205,7 +1212,7 @@ export function updateHeaderObjectDeclaration(headerObject: HeaderObjectConfig[]
 
 
 export function createFunctionSignature(accessModifier: string, name: string, parameters: string, returnTypes: string,
-                                        targetPosition: NodePosition, isLastMember?: boolean): STModification {
+    targetPosition: NodePosition, isLastMember?: boolean): STModification {
     const functionStatement: STModification = {
         startLine: targetPosition.startLine,
         startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -1241,7 +1248,7 @@ export function updateFunctionSignature(name: string, parameters: string, return
 }
 
 export function mutateTypeDefinition(typeName: string, typeDesc: string, targetPosition: NodePosition, isNew: boolean,
-                                     accessModifier?: string): STModification {
+    accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
         modification = {
@@ -1288,7 +1295,7 @@ export function createTrigger(config: any, targetPosition?: NodePosition, isLast
 }
 
 export function mutateEnumDefinition(name: string, members: string[], targetPosition: NodePosition, isNew: boolean,
-                                     accessModifier?: string): STModification {
+    accessModifier?: string): STModification {
     let modification: STModification;
     if (isNew) {
         modification = {
@@ -1314,4 +1321,18 @@ export function mutateEnumDefinition(name: string, members: string[], targetPosi
             'MEMBERS': members
         }
     };
+}
+
+export function isSupportedSLVersion(balVersion: string, minSupportedVersion: number) {
+    const ballerinaVersion: string = balVersion.toLocaleLowerCase();
+    const isGA: boolean = !ballerinaVersion.includes(VERSION.ALPHA) && !ballerinaVersion.includes(VERSION.BETA) && !ballerinaVersion.includes(VERSION.PREVIEW);
+
+    const regex = /(\d+)\.(\d+)\.(\d+)/;
+    const match = ballerinaVersion.match(regex);
+    const currentVersionNumber = match ? Number(match.slice(1).join("")) : 0;
+
+    if (minSupportedVersion <= currentVersionNumber && isGA) {
+        return true;
+    }
+    return false;
 }

@@ -15,7 +15,7 @@ import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-edi
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getInitialSource, mutateTypeDefinition } from "../../../../../utils";
+import { getInitialSource, isSupportedSLVersion, mutateTypeDefinition } from "../../../../../utils";
 import { genVariableName } from "../../../../Portals/utils";
 import { UndoRedoManager } from "../../../UndoRedoManager";
 import { wizardStyles } from "../../style";
@@ -123,11 +123,11 @@ export function CreateRecord(props: CreateRecordProps) {
 
     const checkBallerinVersion = () => {
         if (ballerinaVersion) {
-            const versionNo: string = ballerinaVersion.split(" ")[0];
-            return versionNo > "2201.7.1";
+            return isSupportedSLVersion(ballerinaVersion, 220172);
         }
         return false;
     }
+
     return (
         <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
             <>
