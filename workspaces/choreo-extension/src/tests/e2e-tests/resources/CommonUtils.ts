@@ -61,6 +61,7 @@ export class CommonUtils {
 
     /** Open Choreo activity if its not already opened */
     static async openChoreoActivity() {
+        console.log('Attempting to open Choreo Activity');
         const choreoActivityIcon = await this.waitUntil(By.xpath('//a[@aria-label="Choreo"]'));
         try {
             await this.waitUntil(By.xpath('//h2[@title="Choreo" and text()="Choreo"]'));
@@ -198,8 +199,11 @@ export class CommonUtils {
             console.log(`${changesCount} changes found to commit and push`);
             const workbench = new Workbench();
             await workbench.executeCommand(STAGE_CHANGES_COMMAND);
+            console.log("Waiting until changes are staged");
             await driver.wait(async () => (await provider?.getChanges()).length === 0, 10000);
+            console.log("Committing local git changes"); 
             await provider?.commitChanges(commitMsg);
+            console.log("Pushing changes to remote Github repository"); 
             await workbench.executeCommand(GIT_PUSH_COMMAND);
             await this.handleGitHubLogin();
             await driver.wait(

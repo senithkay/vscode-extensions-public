@@ -241,6 +241,8 @@ jobs:
           pnpm run e2e-test-setup
           export $(dbus-launch)
           export DISPLAY=:98.0
+          git config --global user.email "choreo-test-user@wso2.com"
+          git config --global user.name "choreo-user"
           sh e2e-test-runner.sh
         env:
           TEST_CHOREO_EXT_ENV: prod
