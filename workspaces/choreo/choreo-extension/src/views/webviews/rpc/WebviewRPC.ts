@@ -529,6 +529,13 @@ export class WebViewPanelRpc {
             throw new Error("Panel already registered");
         }
     }
+
+    public dispose() {
+        if (this._panel) {
+          this._panel.dispose();
+          this._panel = undefined;
+        }
+    }
 }
 
 export class WebViewViewRPC {
