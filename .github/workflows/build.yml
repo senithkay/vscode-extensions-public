@@ -238,7 +238,7 @@ jobs:
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
           TEST_USER_ORG_HANDLE: choreouser
           TEST_GITHUB_USERNAME: choreo-test-user@wso2.com
-          TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT_DEV }}
+          TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
           TEST_GITHUB_ORG: choreo-test-apps
           TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
 
