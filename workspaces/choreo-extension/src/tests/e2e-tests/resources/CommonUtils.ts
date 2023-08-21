@@ -298,7 +298,7 @@ export class CommonUtils {
     /** Create a new directory if does not already exist */
     static createDir(folderPath: string) {
         if (!fs.existsSync(folderPath)) {
-            fs.mkdirSync(folderPath);
+            fs.mkdirSync(folderPath, { recursive: true });
         }
     }
 
