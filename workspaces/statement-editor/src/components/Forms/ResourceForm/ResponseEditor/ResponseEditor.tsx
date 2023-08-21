@@ -141,10 +141,6 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     const handleOnSelect = (_: any, value: string) => {
-        const responseCode = optionList.find(item => item.title === value).code;
-        if (responseCode === 500) {
-            setTypeValue(defaultError)
-        }
         setResponse(value);
     };
 

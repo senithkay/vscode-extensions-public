@@ -328,9 +328,6 @@ export function ResourceForm(props: FunctionProps) {
     }
 
     const getReturnString = () => {
-        if (resourceReturn?.includes("error?|")) {
-            return resourceReturn?.replace("returns", "").replace("error?", "error");
-        }
         return resourceReturn?.replace("returns", "");
     }
 
