@@ -27,6 +27,6 @@
         "build:choreoExtention": "rush build -o choreo",
         "build:ballerinExtension": "rush build -o ballerina",
         "build": "rush build",
-        "setup-ui-test-debug": "workspaces/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver"
+        "setup-e2e-test-debug": "workspaces/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver"
     }
 }
