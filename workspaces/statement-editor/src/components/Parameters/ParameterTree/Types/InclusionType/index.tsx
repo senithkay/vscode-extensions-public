@@ -69,14 +69,16 @@ export default function InclusionType(props: TypeProps) {
                             )}
                         />
                     )}
-                    {param.documentation && (
+                </div>
+                {param.documentation && (
+                    <div className={stmtEditorHelperClasses.documentationWrapper}>
                         <ListItemText
                             className={stmtEditorHelperClasses.paramTreeDescriptionText}
-                            primary={" : " + param.documentation}
+                            primary={param.documentation}
                             data-testid="arg-documentation"
                         />
-                    )}
-                </div>
+                    </div>
+                )}
                 {paramSelected && param.inclusionType?.fields?.length > 0 && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
                         <ParameterBranch

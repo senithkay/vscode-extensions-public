@@ -735,7 +735,7 @@ export function addImportStatements(
     modulesToBeImported: string[]): string {
     let moduleList: string = "";
     modulesToBeImported.forEach(module => {
-        if (!currentFileContent.includes(module)){
+        if (!currentFileContent.includes(module)) {
             moduleList += "import " + module + ";"; // INFO: Adding new line fix comes with code action PR
         }
     });
@@ -759,4 +759,23 @@ export async function getKeywordTypes(docUri: string, getLangClient: () => Promi
     const langClient = await getLangClient();
     const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
     return completions.filter(value => value.kind === 25);
+}
+
+export function isStructuredType(node: STNode): boolean {
+    // Add logic to determine if the node is a structured node (map/record/table/tuple/array/xml)
+    // Return true if it's structured, false otherwise
+    if (
+        STKindChecker.isMapTypeDesc(node) ||
+        STKindChecker.isRecordTypeDesc(node) ||
+        STKindChecker.isTableTypeDesc(node) ||
+        STKindChecker.isTupleTypeDesc(node) ||
+        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isSimpleNameReference(node.memberTypeDesc) ||
+        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isByteTypeDesc(node.memberTypeDesc) ||
+        STKindChecker.isXmlTypeDesc(node) ||
+        STKindChecker.isSimpleNameReference(node) ||
+        STKindChecker.isOptionalTypeDesc(node) && STKindChecker.isSimpleNameReference(node.typeDescriptor)
+    ) {
+        return true;
+    }
+    return false;
 }

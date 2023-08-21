@@ -51,6 +51,7 @@ export function ActionForm(props: FormGeneratorProps) {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram, updateFileContent },
             library,
+            openExternalUrl
         },
     } = useContext(Context);
 
@@ -163,6 +164,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     extraModules: imports,
                     experimentalEnabled,
                     ballerinaVersion,
+                    openExternalUrl
                 })}
         </>
     );

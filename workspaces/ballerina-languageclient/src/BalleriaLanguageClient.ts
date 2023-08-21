@@ -64,7 +64,9 @@ import {
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
     TypesFromFnDefinitionRequest,
-    TypesFromSymbolResponse
+    TypesFromSymbolResponse,
+    XMLToRecordRequest,
+    XMLToRecordResponse
 } from './IBallerinaLanguageClient';
 import { BallerinaASTNode, BallerinaEndpoint, BallerinaSourceFragment } from "./ast-models";
 import { LSConnection } from "./LSConnection";
@@ -281,6 +283,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public convert(params: JsonToRecordRequest): Thenable<JsonToRecordResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.JSON_TO_RECORD_CONVERT, params);
+    }
+
+    public convertXml(params: XMLToRecordRequest): Thenable<XMLToRecordResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.XML_TO_RECORD_CONVERT, params);
     }
 
     public getSTForFunction(params: BallerinaFunctionSTRequest): Thenable<BallerinaSTModifyResponse> {
