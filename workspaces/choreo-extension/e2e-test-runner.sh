@@ -8,7 +8,7 @@ XVFB_RUN_PID=$!
 sleep 2
 
 # Start recording with ffmpeg
-ffmpeg -video_size 1024x768 -framerate 25 -f x11grab -i :98.0 test-resources/e2e-test-out.mp4
+ffmpeg -video_size 1920x1080 -framerate 25 -f x11grab -i :98.0 test-resources/e2e-test-out.mp4
 
 # Wait for the xvfb-run process to finish
 wait $XVFB_RUN_PID
