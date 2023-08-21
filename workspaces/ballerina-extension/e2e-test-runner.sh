@@ -18,11 +18,14 @@ XVFB_RUN_EXIT_CODE=$?
 
 # Check if xvfb-run command failed
 if [ $XVFB_RUN_EXIT_CODE -ne 0 ]; then
-  LOGS=$(cat test-resources/output.txt)
-  LOGS="${LOGS//'%'/'%25'}"
-  LOGS="${LOGS//$'\n'/'%0A'}"
-  LOGS="${LOGS//$'\r'/'%0D'}"
-  echo 'log=$LOGS' >> $GITHUB_OUTPUT
-  echo "xvfb-run failed with exit code $XVFB_RUN_EXIT_CODE"
+  echo 'log<<EOF' >> $GITHUB_OUTPUT
+  cat test-resources/output.txt
+  echo 'EOF' >> $GITHUB_OUTPUT
+  {
+    echo 'LOG<<EOF'
+    cat test-resources/output.txt
+    echo EOF
+  } >> $GITHUB_OUTPUT
+  echo "Run failed with exit code $XVFB_RUN_EXIT_CODE"
   exit $XVFB_RUN_EXIT_CODE
 fi
