@@ -11,10 +11,12 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { BallerinaProjectComponents, ComponentViewInfo, ConnectorWizardProps, ConnectorWizardType, FileListEntry, FunctionDefinitionInfo, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ModulePart, ModuleVarDecl, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { ConnectorWizard } from "../Diagram/components/FormComponents/ConfigForms/ConnectorWizard";
+import { FormGenerator, FormGeneratorProps } from "../Diagram/components/FormComponents/FormGenerator";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
@@ -32,7 +34,7 @@ import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
 import { useGeneratorStyles } from "./style";
 import { theme } from './theme';
-import { extractFilePath, getDiagramProviderProps } from "./utils";
+import { extractFilePath, generateClientInfo, getDiagramProviderProps, getFormTypeFromST } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
 import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyView";
@@ -66,6 +68,8 @@ export function DiagramViewManager(props: EditorProps) {
     ] = useComponentHistory();
 
     const classes = useGeneratorStyles();
+    const [formConfig, setFormConfig] = useState<FormGeneratorProps>();
+    const [connectorConfig, setConnectorConfig] = useState<ConnectorWizardProps>();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
@@ -215,12 +219,70 @@ export function DiagramViewManager(props: EditorProps) {
                     }
 
                     undoRedoManager.updateContent(file, content);
-                    setFocusedST(selectedST);
-                    setCompleteST(visitedST);
-                    setCurrentFileContent(content);
+                    if (selectedST
+                        && (STKindChecker.isModuleVarDecl(selectedST)
+                            || STKindChecker.isConstDeclaration(selectedST))) {
+
+                        if (selectedST.typeData && selectedST.typeData.isEndpoint) {
+                            // historyPop();
+                            // TODO: Fix connector editing scenario
+
+
+                            const typeSymbol = selectedST.typeData.typeSymbol;
+                            const moduleID = typeSymbol?.moduleID;
+                            const functions: FunctionDefinitionInfo[] = [];
+                            const config = {
+                                model: selectedST,
+                                connectorInfo: generateClientInfo(selectedST as ModuleVarDecl),
+                                wizardType: ConnectorWizardType.ENDPOINT,
+                                diagramPosition: { x: 0, y: 0 },
+                                targetPosition: selectedST.position,
+                                onClose: () => {
+                                    setConnectorConfig(undefined);
+                                    historyPop();
+                                },
+                                onSave: () => {
+                                    setConnectorConfig(undefined);
+                                    historyPop();
+                                },
+                                isModuleType: true
+                            }
+
+                            setConnectorConfig({
+                                ...config
+                            });
+                        } else {
+                            setFormConfig({
+                                model: selectedST,
+                                configOverlayFormStatus: {
+                                    isLoading: false,
+                                    formArgs: {
+                                        model: selectedST,
+                                        targetPosition: selectedST.position,
+                                        type: getFormTypeFromST(selectedST)
+                                    },
+                                    formType: getFormTypeFromST(selectedST)
+                                },
+                                onCancel: () => {
+                                    setFormConfig(undefined);
+                                    historyPop();
+                                },
+                                onSave: () => {
+                                    setFormConfig(undefined);
+                                    historyPop();
+                                },
+                                targetPosition: selectedST.position,
+                            });
+                        }
+                    } else {
+                        setFocusedST(selectedST);
+                        setCompleteST(visitedST);
+                        setCurrentFileContent(content);
+                    }
                     setLowCodeResourcesVersion(resourceVersion);
                     setLowCodeEnvInstance(envInstance);
                     setIsLoadingST(false);
+
                 } else {
                     setFocusedST(undefined);
                     setCompleteST(undefined);
@@ -248,7 +310,7 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const showOverviewMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
-        && history[history.length - 1].position === undefined;
+        && focusedST === undefined;
     const showSTMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
         && history[history.length - 1].position !== undefined && focusedST !== undefined;
 
@@ -306,6 +368,8 @@ export function DiagramViewManager(props: EditorProps) {
                             {!showOverviewMode && !showSTMode && showIdentificationFailureMessage && <FailedToIdentifyMessageOverlay onResetClick={handleNavigationHome} />}
                             {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
                             {showSTMode && <DiagramView projectComponents={projectComponents} isLoading={isLoadingST} />}
+                            {!!formConfig && <FormGenerator {...formConfig} />}
+                            {!!connectorConfig && <ConnectorWizard {...connectorConfig} />}
                             <div id={'canvas-overlay'} className={"overlayContainer"} />
                         </ViewManagerProvider>
                     </HistoryProvider>
