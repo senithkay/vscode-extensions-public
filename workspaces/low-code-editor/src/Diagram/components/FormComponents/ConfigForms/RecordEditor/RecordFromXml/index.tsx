@@ -76,7 +76,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
 
     const { props, api } = useContext(Context);
 
-    const { isMutationProgress, langServerURL, currentFile, syntaxTree } = props;
+    const { isMutationProgress, langServerURL, fullST } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
@@ -175,7 +175,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview type="XML" undoRedoManager={undoRedoManager} prevST={syntaxTree} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
+                <RecordOverview type="XML" undoRedoManager={undoRedoManager} prevST={fullST} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="xml-record-config-form" className={classes.wizardFormControlExtended}>
                     {!isHeaderHidden && (
