@@ -15,9 +15,10 @@ import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-edi
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../../Contexts/Diagram";
-import { getInitialSource, isSupportedSLVersion, mutateTypeDefinition } from "../../../../../utils";
+import { getInitialSource, mutateTypeDefinition } from "../../../../../utils";
 import { genVariableName } from "../../../../Portals/utils";
 import { UndoRedoManager } from "../../../UndoRedoManager";
+import { isSupportedSLVersion } from "../../../Utils";
 import { wizardStyles } from "../../style";
 import { RecordConfigTypeSelector } from "../RecordConfigTypeSelector";
 import { RecordFromJson } from "../RecordFromJson";
