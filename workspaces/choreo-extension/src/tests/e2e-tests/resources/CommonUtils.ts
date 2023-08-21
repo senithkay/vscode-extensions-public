@@ -61,6 +61,7 @@ export class CommonUtils {
 
     /** Open Choreo activity if its not already opened */
     static async openChoreoActivity() {
+        console.log('Attempting to open Choreo Activity');
         const choreoActivityIcon = await this.waitUntil(By.xpath('//a[@aria-label="Choreo"]'));
         try {
             await this.waitUntil(By.xpath('//h2[@title="Choreo" and text()="Choreo"]'));
@@ -199,9 +200,13 @@ export class CommonUtils {
             const workbench = new Workbench();
             await workbench.executeCommand(STAGE_CHANGES_COMMAND);
             await this.wait(3000);  // todo: remove
+            console.log("Waiting until changes are staged");    // todo: remove
             await driver.wait(async () => (await provider?.getChanges()).length === 0, 10000);
+            console.log("Attempting to commit changes");    // todo: remove
             await provider?.commitChanges(commitMsg);
+            console.log("Changes committed");    // todo: remove
             await workbench.executeCommand(GIT_PUSH_COMMAND);
+            console.log("Ran git push command");    // todo: remove
             await this.handleGitHubLogin();
             await driver.wait(
                 async () => (await driver.findElements(By.xpath(`//*[contains(text(), "Sync Changes")]`))).length === 0,
