@@ -175,8 +175,6 @@ jobs:
           sudo apt-get install xvfb
           pnpm run ui-test-setup
           export DISPLAY=:98.0
-          git config --global user.email "choreo-test-user@wso2.com"
-          git config --global user.name "choreo-user"
           Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
 
       - name: Publish UI Test Screenshots
@@ -231,6 +229,8 @@ jobs:
           pnpm run extest-setup
           export $(dbus-launch)
           export DISPLAY=:98.0
+          git config --global user.email "choreo-test-user@wso2.com"
+          git config --global user.name "choreo-user"
           Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run e2e-test
         env:
           TEST_CHOREO_EXT_ENV: prod
