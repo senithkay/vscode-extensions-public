@@ -135,7 +135,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                             <div>
                                 Schema : <span
                                     className={classes.schemaButton}
-                                    onClick={() => recordEditor(setPayloadSchema, typeName, i)}
+                                    onClick={() => recordEditor(payloadSchema, setPayloadSchema, typeName, i)}
                                 >
                                     {param.typeName?.source.trim()}
                                 </span> :{param.paramName?.value}
@@ -251,7 +251,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {des}
                             <div>
                                 Record Schema :
-                                <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(schema, setSchema, recordName, i)}>
                                     {recordName}
                                 </span>
                                 {schema[i] && tooltip}
@@ -285,7 +285,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {code}
                         </td>
                         <td>
-                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(schema, setSchema, recordName, i)}>
                                 {recordName}
                             </span>
                             {schema[i] && tooltip}
@@ -348,7 +348,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             {annotation && <span className={classes.annotation}>{annotation}</span>}
-                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(schemaParam, setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>
                             {schemaParam[i] && tooltip}
@@ -363,8 +363,14 @@ export function ResourceBody(props: ResourceBodyProps) {
         return responses;
     }
 
-    const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
+    const recordEditor = async (schemaValue: {}|[], setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
+        if (schemaValue.hasOwnProperty(key)) {
+            const updatedSchema = { ...schema };
+            delete updatedSchema[key];
+            setSchemaState(updatedSchema);
+            return;
+        }
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record, langClient);
 

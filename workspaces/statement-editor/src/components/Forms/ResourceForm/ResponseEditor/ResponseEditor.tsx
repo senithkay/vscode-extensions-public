@@ -67,8 +67,6 @@ export function ResponseEditor(props: ParamProps) {
     const classes = useStyles();
     const subTypeText = "Define a name record for the return type";
 
-    const defaultError = "error?";
-
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
 
     const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
@@ -167,9 +165,9 @@ export function ResponseEditor(props: ParamProps) {
                 onChange(segmentId, 200, anonymousValue);
             } else {
                 const responseCode = optionList.find(item => item.title === response);
-                let newResponse = defaultError;
-                if (responseCode.code !== 500) {
-                    newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
+                let newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
+                if (typeValue.includes("error")) {
+                    newResponse = typeValue;
                 }
                 const typeResponse = responseCode.code === Number(option) ? typeValue : newResponse;
                 onChange(segmentId, responseCode.code, typeResponse);
