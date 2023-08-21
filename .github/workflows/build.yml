@@ -182,13 +182,6 @@ jobs:
           export DISPLAY=:98.0
           sh e2e-test-runner.sh
 
-      - name: Publish log
-        uses: actions/upload-artifact@v3
-        with:
-          path: workspaces/ballerina-extension/test-resources/output.txt
-          name: Ballerina-e2e-test-log-${{ github.run_attempt }}
-        if: always()
-
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
         with:
@@ -258,13 +251,6 @@ jobs:
           TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
           TEST_GITHUB_ORG: choreo-test-apps
           TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
-
-      - name: Publish log
-        uses: actions/upload-artifact@v3
-        with:
-          path: workspaces/choreo-extension/test-resources/output.txt
-          name: Choreo-e2e-test-log-${{ github.run_attempt }}
-        if: always()
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
