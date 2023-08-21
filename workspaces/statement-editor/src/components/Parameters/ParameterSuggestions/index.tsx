@@ -101,8 +101,8 @@ export function ParameterSuggestions() {
         }
     }, [currentModel.model, statementModel]);
 
-    const getDocumentationDescription = () => {
-        const doc = documentation.documentation.description;
+    const getDocumentationDescription = (docs?:string) => {
+        const doc = docs || documentation.documentation.description;
         const docRegex = /```ballerina\n(.*?)\n```/gms;
         if (isDescriptionWithExample(doc)) {
             const des = getDocDescription(doc);
@@ -119,8 +119,9 @@ export function ParameterSuggestions() {
                 </>
             );
         } else {
+            const trimmedDoc = doc?.replace(/\n/g, " ");
             return (
-                <ListItemText primary={doc}/>
+                <ListItemText primary={trimmedDoc}/>
             );
         }
     }
@@ -171,17 +172,13 @@ export function ParameterSuggestions() {
                 ))}
             {isConnectorFlow && insideParamList && (
                 <List className={stmtEditorHelperClasses.docParamSuggestions}>
-                    {activeMethod.parameters && (<ParameterTree parameters={activeMethod.parameters} />)}
-                    {activeMethod.parameters?.length > 0 && (
-                        <hr className={stmtEditorHelperClasses.returnSeparator} />
-                    )}
+                    {activeMethod.parameters && <ParameterTree parameters={activeMethod.parameters} />}
+                    {activeMethod.parameters?.length > 0 && <hr className={stmtEditorHelperClasses.returnSeparator} />}
                     {(connectorInfo?.documentation || activeMethod.documentation) && (
                         <>
-                            <ParamListSubheader>
-                                Description
-                            </ParamListSubheader>
+                            <ParamListSubheader>Description</ParamListSubheader>
                             <ListItem className={stmtEditorHelperClasses.docDescription}>
-                                {connectorInfo?.documentation || activeMethod.documentation}
+                                {getDocumentationDescription(connectorInfo?.documentation || activeMethod.documentation)}
                             </ListItem>
                         </>
                     )}
