@@ -83,7 +83,7 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
         xmlValue: "",
         isLoading: false,
         xmlDiagnostics: "",
-        isSeparateDef: false,
+        isSeparateDef: true,
         importedRecord: undefined,
     });
 
@@ -134,7 +134,11 @@ export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
                             codeSnippet: updatedBlock.trim()
                         }, langServerURL, ls);
                         if (STKindChecker.isModulePart(modulePart)) {
-                            recordST = getRootRecord(modulePart, formState.recordName);
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(formState.xmlValue, "text/xml");
+                            const tagName = xmlDoc.documentElement.tagName;
+                            const recordName = tagName.charAt(0).toUpperCase() + tagName.slice(1);
+                            recordST = getRootRecord(modulePart, recordName);
                             newPosition = {
                                 startLine: targetPosition.startLine + recordST.position.startLine,
                                 startColumn: targetPosition.startColumn,
