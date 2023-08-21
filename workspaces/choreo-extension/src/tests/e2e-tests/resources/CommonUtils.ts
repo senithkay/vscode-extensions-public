@@ -198,6 +198,7 @@ export class CommonUtils {
             console.log(`${changesCount} changes found to commit and push`);
             const workbench = new Workbench();
             await workbench.executeCommand(STAGE_CHANGES_COMMAND);
+            await this.wait(3000);  // todo: remove
             await driver.wait(async () => (await provider?.getChanges()).length === 0, 10000);
             await provider?.commitChanges(commitMsg);
             await workbench.executeCommand(GIT_PUSH_COMMAND);
