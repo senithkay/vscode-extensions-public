@@ -82,7 +82,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     const { props, api } = useContext(Context);
 
-    const { isMutationProgress, langServerURL, currentFile, syntaxTree } = props;
+    const { isMutationProgress, langServerURL, currentFile, fullST } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
@@ -213,7 +213,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview undoRedoManager={undoRedoManager} prevST={syntaxTree} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
+                <RecordOverview undoRedoManager={undoRedoManager} prevST={fullST} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
                     {!isHeaderHidden && (
