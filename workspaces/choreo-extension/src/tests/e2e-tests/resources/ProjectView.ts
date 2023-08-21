@@ -63,7 +63,7 @@ export class ProjectView {
         await new Workbench().executeCommand(DELETE_PROJECT);
         await CommonUtils.clickPromptButton("Delete Project", "Please confirm the deletion of project");
         await CommonUtils.switchToIFrame("Project");
-        await CommonUtils.waitUntilById("create-project-btn", 20000);
+        await CommonUtils.waitUntilById("create-project-btn", 30000);
         await CommonUtils.switchToDefaultFrame();
         console.log("Deleted the currently opened project");
     }
