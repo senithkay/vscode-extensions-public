@@ -464,6 +464,13 @@ export const recordStyles = makeStyles((theme: Theme) =>
             textTransform: 'capitalize',
             fontWeight: 300
         },
+        ballerinLabel: {
+            color: '#4a4d55',
+            fontSize: 13,
+            textTransform: 'capitalize',
+            fontWeight: 300,
+            textAlign: 'end'
+        },
         inputSuccessTick: {
             color: "#08d608",
             marginBottom: -5

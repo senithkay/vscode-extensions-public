@@ -49,7 +49,8 @@ export function CreateRecord(props: CreateRecordProps) {
             currentFile,
             fullST,
             importStatements,
-            experimentalEnabled
+            experimentalEnabled,
+            ballerinaVersion
         },
         api: {
             ls: { getExpressionEditorLangClient },
@@ -120,13 +121,20 @@ export function CreateRecord(props: CreateRecordProps) {
         )
     )
 
+    const checkBallerinVersion = () => {
+        if (ballerinaVersion) {
+            const versionNo: string = ballerinaVersion.split(" ")[0];
+            return versionNo > "2201.7.1";
+        }
+        return false;
+    }
     return (
         <FormControl data-testid="record-form" className={overlayClasses.wizardFormControlExtended}>
             <>
                 {(editorState === ConfigState.STATE_SELECTOR) && (
                     <RecordConfigTypeSelector
                         onImportFromJson={handleImportJSONClick}
-                        onImportFromXml={handleImportXMLClick}
+                        onImportFromXml={checkBallerinVersion() ? handleImportXMLClick : null}
                         onCreateNew={handleCreateNewClick}
                         onCancel={onCancel}
                         isDataMapper={isDataMapper}
@@ -141,7 +149,7 @@ export function CreateRecord(props: CreateRecordProps) {
                         isHeaderHidden={showHeader ? false : isDataMapper}
                     />
                 )}
-                 {(editorState === ConfigState.IMPORT_FROM_XML) && (
+                {(editorState === ConfigState.IMPORT_FROM_XML) && (
                     <RecordFromXml
                         undoRedoManager={undoRedoManager}
                         targetPosition={targetPosition}
