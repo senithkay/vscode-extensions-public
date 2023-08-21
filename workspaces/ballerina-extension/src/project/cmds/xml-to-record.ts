@@ -15,7 +15,7 @@ import { ballerinaExtInstance, DIAGNOSTIC_SEVERITY, XMLToRecordResponse } from "
 import { PALETTE_COMMANDS, MESSAGES } from "./cmd-runner";
 import { isSupportedSLVersion } from "../../utils";
 
-const MSG_NOT_SUPPORT = "Paste XML as a Ballerina record feature is not supported"
+const MSG_NOT_SUPPORT = "Paste XML as a Ballerina record feature is not supported";
 
 export function activatePasteXMLAsRecord() {
 
