@@ -541,6 +541,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     async function handleOnCancel(){
+        console.log("handleOnCancel >>>", currentFile.content, undefined, currentFile.path);
         await updateFileContent(currentFile.content, undefined, currentFile.path);
         onCancel();
     }

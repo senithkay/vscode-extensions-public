@@ -226,11 +226,6 @@ export function DiagramViewManager(props: EditorProps) {
                         if (selectedST.typeData && selectedST.typeData.isEndpoint) {
                             // historyPop();
                             // TODO: Fix connector editing scenario
-
-
-                            const typeSymbol = selectedST.typeData.typeSymbol;
-                            const moduleID = typeSymbol?.moduleID;
-                            const functions: FunctionDefinitionInfo[] = [];
                             const config = {
                                 model: selectedST,
                                 connectorInfo: generateClientInfo(selectedST as ModuleVarDecl),
@@ -248,6 +243,7 @@ export function DiagramViewManager(props: EditorProps) {
                                 isModuleType: true
                             }
 
+                            setCompleteST(visitedST);
                             setConnectorConfig({
                                 ...config
                             });
@@ -277,10 +273,10 @@ export function DiagramViewManager(props: EditorProps) {
                     } else {
                         setFocusedST(selectedST);
                         setCompleteST(visitedST);
-                        setCurrentFileContent(content);
                     }
                     setLowCodeResourcesVersion(resourceVersion);
                     setLowCodeEnvInstance(envInstance);
+                    setCurrentFileContent(content);
                     setIsLoadingST(false);
 
                 } else {
