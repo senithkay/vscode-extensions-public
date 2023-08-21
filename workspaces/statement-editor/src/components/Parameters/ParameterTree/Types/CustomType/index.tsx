@@ -31,7 +31,7 @@ export default function CustomType(props: TypeProps) {
     };
 
     return (
-        <ListItem className={stmtEditorHelperClasses.docListDefault}>
+        <ListItem className={param.documentation ? stmtEditorHelperClasses.docListCustom : stmtEditorHelperClasses.docListDefault}>
             <div className={stmtEditorHelperClasses.listItemMultiLine} data-testid="custom-arg">
                 <div className={stmtEditorHelperClasses.listItemHeader}>
                     <Checkbox
@@ -60,14 +60,16 @@ export default function CustomType(props: TypeProps) {
                             </Typography>
                         )}
                     />
-                    {param.documentation && (
+                </div>
+                {param.documentation && (
+                    <div className={stmtEditorHelperClasses.documentationWrapper}>
                         <ListItemText
                             className={stmtEditorHelperClasses.paramTreeDescriptionText}
-                            primary={" : " + param.documentation}
+                            primary={param.documentation}
                             data-testid="arg-documentation"
                         />
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </ListItem>
     );

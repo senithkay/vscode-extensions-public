@@ -772,8 +772,10 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         paramList: {
-            maxHeight: '24vh',
-            overflowY: 'scroll',
+            overflowY: 'auto',
+        },
+        documentationWrapper: {
+            marginLeft: '28px',
         },
         includedRecordHeaderList: {
             "& .MuiListItem-root": {
@@ -786,6 +788,20 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             ...removePadding
         },
         docListDefault: {
+            "& .MuiListItem-root": {
+                padding: '0px'
+            },
+            "& .MuiListItemText-root": {
+                flex: 'inherit',
+                minWidth: 'auto',
+                margin: '0 6px 0 0'
+            },
+            alignItems: 'flex-start',
+            width: 'fit-content',
+            ...removePadding
+        },
+        docListCustom: {
+            marginBottom: '12px',
             "& .MuiListItem-root": {
                 padding: '0px'
             },
@@ -816,7 +832,9 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
         },
         paramTreeDescriptionText: {
             flex: "inherit",
-            whiteSpace: 'nowrap',
+            whiteSpace: 'pre-wrap',
+            marginLeft: '24px',
+            color: theme.palette.text.secondary,
             ...removePadding
         },
         listItemMultiLine: {
