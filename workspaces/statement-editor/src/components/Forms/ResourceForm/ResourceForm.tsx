@@ -225,10 +225,10 @@ export function ResourceForm(props: FunctionProps) {
 
     const [methodName, setMethodName] = useState<string>(model?.functionName?.value.toUpperCase());
     const handleMethodChange = async (value: string) => {
-        setMethodName(value.toUpperCase());
         // Path visiter to find the duplicate resource method and name
         setResourcePathDiagnostics(undefined);
-        const visitor = new ResourcePathFinderVisitor(value, resourcePath);
+        const visitor = new ResourcePathFinderVisitor(isEdit, { method: value, path: resourcePath }, { method: methodName, path: resourcePath });
+        setMethodName(value.toUpperCase());
         traversNode(fullST, visitor);
         const isValidPath = visitor.getResourcePathValidity();
 
@@ -248,10 +248,10 @@ export function ResourceForm(props: FunctionProps) {
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
     const handlePathChange = async (value: string) => {
         const sanitizedValue = value;
-        setResourcePath(sanitizedValue);
         // Path visiter to find the duplicate resource method and name
         setResourcePathDiagnostics(undefined);
-        const visitor = new ResourcePathFinderVisitor(methodName, sanitizedValue);
+        const visitor = new ResourcePathFinderVisitor(isEdit, {method: methodName, path: sanitizedValue}, {method: methodName, path: resourcePath});
+        setResourcePath(sanitizedValue);
         traversNode(fullST, visitor);
         const isValidPath = visitor.getResourcePathValidity();
 
