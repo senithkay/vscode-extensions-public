@@ -203,8 +203,8 @@ export class CommonUtils {
             await driver.wait(async () => (await provider?.getChanges()).length === 0, 10000);
             console.log("Committing local git changes"); 
             await provider?.commitChanges(commitMsg);
-            await workbench.executeCommand(GIT_PUSH_COMMAND);
             console.log("Pushing changes to remote Github repository"); 
+            await workbench.executeCommand(GIT_PUSH_COMMAND);
             await this.handleGitHubLogin();
             await driver.wait(
                 async () => (await driver.findElements(By.xpath(`//*[contains(text(), "Sync Changes")]`))).length === 0,
