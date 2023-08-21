@@ -198,13 +198,16 @@ export class CommonUtils {
         if (changesCount) {
             console.log(`${changesCount} changes found to commit and push`);
             const workbench = new Workbench();
-            await workbench.executeCommand(STAGE_CHANGES_COMMAND);
+            await workbench.executeCommand(STAGE_CHANGES_COMMAND);  // git stage command found
             await this.wait(3000);  // todo: remove
             console.log("Waiting until changes are staged");    // todo: remove
             await driver.wait(async () => (await provider?.getChanges()).length === 0, 10000);
+            console.log("Waiting until changes are staged 2");    // todo: remove
+            await driver.wait(async () => (await provider?.getChanges(true)).length === changesCount, 10000);
             console.log("Attempting to commit changes");    // todo: remove
             await provider?.commitChanges(commitMsg);
             console.log("Changes committed");    // todo: remove
+            await this.wait(3000);  // todo: remove
             await workbench.executeCommand(GIT_PUSH_COMMAND);
             console.log("Ran git push command");    // todo: remove
             await this.handleGitHubLogin();
