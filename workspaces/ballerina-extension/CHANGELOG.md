@@ -1,5 +1,19 @@
 # Change log
 
+## **4.5.0** (2023-08-21)
+For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.5.0/).
+
+### Added
+
+- Introduced XML import option to create records.
+
+### Improved
+
+- Added a link to quickly navigate to the central repository when a function is selected in the statement editor.
+- Enabled editing of top-level constructs through the statement editor.
+- Increased the size of the parameter configuration pane for better usability.
+- Enhanced the behavior of the function parameter configuration in the statement editor, preventing it from jumping to the top after selecting a value.
+
 ## **4.4.0** (2023-07-21)
 For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.4.0/).
 
