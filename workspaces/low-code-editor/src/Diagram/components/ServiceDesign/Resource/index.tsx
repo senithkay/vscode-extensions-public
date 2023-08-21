@@ -25,7 +25,7 @@ import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
-import { getKeywordTypes, HTTP_POST } from "../util";
+import { getKeywordTypes, HTTP_POST, isStructuredType } from "../util";
 
 import { ResourceHeader } from "./ResourceHeader";
 
@@ -117,9 +117,11 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     model.functionSignature?.parameters?.forEach((param, i) => {
         // value = record {|*http:Ok; Foo body;|}
-        if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
-            if (param.typeData?.typeSymbol?.name) {
-                const onClickHandler = () => openRecordEditor(param.typeData?.typeSymbol?.name)
+        if (STKindChecker.isRequiredParam(param) && (param.source.includes("Payload") || (i === 0 && param.annotations.length === 0 && isStructuredType(param.typeName)))) {
+            const typeSymbol = param.typeData?.typeSymbol;
+            const typeName = typeSymbol?.name || typeSymbol?.memberTypeDescriptor?.name;
+            if (typeName) {
+                const onClickHandler = () => openRecordEditor(typeName)
                 const payloadSchemaComponent = (
                     <pre className={classes.schema}>{payloadSchema[i]}
                         <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
@@ -131,7 +133,12 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             <div>
-                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span> :{param.paramName?.value}
+                                Schema : <span
+                                    className={classes.schemaButton}
+                                    onClick={() => recordEditor(payloadSchema, setPayloadSchema, typeName, i)}
+                                >
+                                    {param.typeName?.source.trim()}
+                                </span> :{param.paramName?.value}
                                 {payloadSchema[i] && payloadSchemaComponent}
                             </div>
                         </td>
@@ -204,7 +211,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
         for (const [i, value] of values.entries()) {
             let code = defaultResponseCode();
-            let recordName = value.trim();
+            let recordName = value.replace("?", "").trim();
             let des = "";
 
             responseCodes.forEach(item => {
@@ -244,7 +251,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {des}
                             <div>
                                 Record Schema :
-                                <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(schema, setSchema, recordName, i)}>
                                     {recordName}
                                 </span>
                                 {schema[i] && tooltip}
@@ -278,7 +285,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {code}
                         </td>
                         <td>
-                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(schema, setSchema, recordName, i)}>
                                 {recordName}
                             </span>
                             {schema[i] && tooltip}
@@ -288,6 +295,21 @@ export function ResourceBody(props: ResourceBodyProps) {
             }
         }
 
+        if (values.length === 0 || values.findIndex(val => val.includes("?")) > -1) {
+            const method = model.functionName.value.toUpperCase();
+            responses.push(
+                <tr key={0} className={classes.defaultResponse}>
+                    <td>
+                        {method === HTTP_POST ? "201" : "202"}
+                    </td>
+                    <td>
+                        <span>
+                            {"Default Response"}
+                        </span>
+                    </td>
+                </tr>
+            )
+        }
         return responses;
     }
 
@@ -296,7 +318,10 @@ export function ResourceBody(props: ResourceBodyProps) {
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
         for (const [i, param] of values.entries()) {
-            if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
+            if (
+                (STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param))
+                && (!param.source.includes("Payload") && !(i === 0 && param.annotations.length === 0 && isStructuredType(param.typeName)))
+            ) {
                 let paramDetails = param.source.split(" ");
                 let annotation = "";
                 if (param.annotations.length > 0) {
@@ -323,7 +348,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             {annotation && <span className={classes.annotation}>{annotation}</span>}
-                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(schemaParam, setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>
                             {schemaParam[i] && tooltip}
@@ -338,8 +363,14 @@ export function ResourceBody(props: ResourceBodyProps) {
         return responses;
     }
 
-    const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
+    const recordEditor = async (schemaValue: {} | [], setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
+        if (schemaValue.hasOwnProperty(key)) {
+            const updatedSchema = { ...schema };
+            delete updatedSchema[key];
+            setSchemaState(updatedSchema);
+            return;
+        }
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record, langClient);
 

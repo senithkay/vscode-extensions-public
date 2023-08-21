@@ -88,7 +88,8 @@ export const parameterHeader = {
         lineHeight: '14px',
         paddingLeft: '0px',
         marginBottom: '7px',
-        position: 'relative' as 'relative'
+        position: 'relative' as 'relative',
+        width: '100%'
     }
 }
 
@@ -1063,6 +1064,10 @@ export const useStatementEditorStyles = makeStyles(() =>
             "&:hover": {
                 cursor: "pointer"
             }
+        },
+        docButton: {
+            alignItems: "center",
+            display: "flex"
         }
     }),
 );

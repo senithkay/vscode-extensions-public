@@ -231,6 +231,10 @@ export const useStyles = makeStyles(() =>
             display: "block",
             color: "rgba(0, 0, 0, 0.38)",
             fontWeight: 400
+        },
+        defaultResponse: {
+            fontStyle: "italic",
+            fontWeight: 200
         }
     }),
 );

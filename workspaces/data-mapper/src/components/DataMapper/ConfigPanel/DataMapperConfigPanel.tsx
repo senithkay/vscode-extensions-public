@@ -259,7 +259,10 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const closeAddNewRecord = (createdNewRecord?: string) => {
         setIsNewRecord(false);
         if (createdNewRecord) {
-            const newRecordType = createdNewRecord.split(" ")[1];
+            const constantWord = "type";
+            const pattern = new RegExp(`${constantWord}\\s+(\\w+)`);
+            const match = createdNewRecord.match(pattern);
+            const newRecordType = match ? match[1] : "";
             if (newRecordBy === "input") {
                 setInputParams([...inputParams, {
                     name: camelCase(newRecordType),

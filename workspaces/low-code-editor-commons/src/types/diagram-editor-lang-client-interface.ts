@@ -36,6 +36,8 @@ import {
     JsonToRecordResponse,
     PerformanceAnalyzerEndpointsRequest,
     TriggerModifyRequest,
+    XMLToRecordRequest,
+    XMLToRecordResponse,
 } from "./lang-client-extended";
 
 export interface BallerinaAST {
@@ -158,6 +160,9 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     convert: (
         params: JsonToRecordRequest
     ) => Thenable<JsonToRecordResponse>;
+    convertXml: (
+        params: XMLToRecordRequest
+    ) => Thenable<XMLToRecordResponse>;
     getSTForFunction: (
         params: BallerinaFunctionSTRequest
     ) => Thenable<BallerinaSTModifyResponse>;
