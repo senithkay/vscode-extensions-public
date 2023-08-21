@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CaptureBindingPattern, DotToken, IdentifierToken, NodePosition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { DotToken, IdentifierToken, NodePosition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 export const MODULE_DELIMETER = '#';
 export const SUB_DELIMETER = '%%';
@@ -18,9 +18,7 @@ export enum CONSTRUCT_KEYWORDS {
     RESOURCE = 'resource',
     RECORD = 'record',
     REMOTE = 'remote',
-    CLASS = 'class',
-    CONST = 'const',
-    MODULE_VAR = 'module-var',
+    class = 'class',
 }
 
 export function isPositionEqual(position1: NodePosition, position2: NodePosition): boolean {
@@ -55,7 +53,7 @@ export function generateConstructIdStub(construct: STNode, index?: number): stri
     if (STKindChecker.isServiceDeclaration(construct)) {
         id = `${CONSTRUCT_KEYWORDS.SERVICE}${SUB_DELIMETER}${generateServicePathString(construct)}`;
     } else if (STKindChecker.isClassDefinition(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.CLASS}${SUB_DELIMETER}${construct.className.value}`;
+        id = `${CONSTRUCT_KEYWORDS.class}${SUB_DELIMETER}${construct.className.value}`;
     } else if (STKindChecker.isFunctionDefinition(construct)) {
         id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}`;
     } else if (STKindChecker.isObjectMethodDefinition(construct)) {
@@ -70,10 +68,6 @@ export function generateConstructIdStub(construct: STNode, index?: number): stri
         }
     } else if (STKindChecker.isTypeDefinition(construct)) {
         id = `${CONSTRUCT_KEYWORDS.RECORD}${SUB_DELIMETER}${construct.typeName?.value}`;
-    } else if (STKindChecker.isConstDeclaration(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.CONST}${SUB_DELIMETER}${construct.variableName.value}`;
-    } else if (STKindChecker.isModuleVarDecl(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.MODULE_VAR}${SUB_DELIMETER}${(construct.typedBindingPattern.bindingPattern as CaptureBindingPattern).variableName.value}`;
     }
 
     if (index) {

@@ -9,9 +9,7 @@
 
 import {
     ClassDefinition,
-    ConstDeclaration,
     FunctionDefinition,
-    ModuleVarDecl,
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
     ServiceDeclaration,
@@ -31,8 +29,6 @@ export class FindNodeByUidVisitor implements Visitor {
     private moduleClassIndex: number;
     private moduleTypeIndex: number;
     private classMemberIndex: number;
-    private constantIndex: number;
-    private moduleVarIndex: number;
     private selectedNode: STNode;
 
     constructor(uid: string) {
@@ -43,8 +39,6 @@ export class FindNodeByUidVisitor implements Visitor {
         this.moduleClassIndex = 0;
         this.moduleTypeIndex = 0;
         this.classMemberIndex = 0;
-        this.constantIndex = 0;
-        this.moduleVarIndex = 0;
     }
 
     beginVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
@@ -127,32 +121,6 @@ export class FindNodeByUidVisitor implements Visitor {
     }
 
     endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
-        this.stack.pop();
-    }
-
-    beginVisitModuleVarDecl(node: ModuleVarDecl) {
-        this.moduleVarIndex++;
-        this.stack.push(generateConstructIdStub(node, this.moduleVarIndex));
-
-        if (this.getCurrentUid() === this.uid) {
-            this.selectedNode = node;
-        }
-    }
-
-    endVisitModuleVarDecl(node: ModuleVarDecl) {
-        this.stack.pop();
-    }
-
-    beginVisitConstDeclaration(node: ConstDeclaration) {
-        this.constantIndex++;
-        this.stack.push(generateConstructIdStub(node, this.constantIndex));
-
-        if (this.getCurrentUid() === this.uid) {
-            this.selectedNode = node;
-        }
-    }
-
-    endVisitConstDeclaration(node: ConstDeclaration) {
         this.stack.pop();
     }
 
