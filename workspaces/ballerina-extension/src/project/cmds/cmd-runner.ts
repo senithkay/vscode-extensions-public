@@ -24,6 +24,7 @@ export enum PALETTE_COMMANDS {
     SAVE_ALL = 'workbench.action.files.saveFiles',
     TEST = 'ballerina.project.test',
     PASTE_JSON_AS_RECORD = 'ballerina.pasteAsRecord',
+    PASTE_XML_AS_RECORD = 'ballerina.pasteXMLAsRecord',
     CHOREO_SIGNIN = 'ballerina.choreo.signin',
     CHOREO_ANON_SIGNIN = 'ballerina.choreo.anonymous.signin',
     CHOREO_SIGNOUT = 'ballerina.choreo.signout',
@@ -63,7 +64,9 @@ export enum MESSAGES {
     NOT_IN_PROJECT = "Current file does not belong to a ballerina project.",
     INVALID_PACK = "Only a Ballerina package can be packed.",
     INVALID_JSON = "Invalid JSON String",
-    INVALID_JSON_RESPONSE = "JSON response is invalid."
+    INVALID_JSON_RESPONSE = "JSON response is invalid.",
+    INVALID_XML = "Invalid XML String",
+    INVALID_XML_RESPONSE = "XML response is invalid."
 }
 
 export const CONFIG_FILE = 'Config.toml';

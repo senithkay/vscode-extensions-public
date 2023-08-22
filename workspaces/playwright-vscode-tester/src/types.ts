@@ -5,9 +5,9 @@ type BrowserChannel = 'stable' | 'canary' | 'beta' | 'dev' | 'nightly' | string
 type BrowserFamily = 'chromium' | 'firefox' | 'webkit'
 
 /**
-   * Describes a browser Cypress can control
+   * Describes the browser
    */
-export interface CypressBrowser {
+export interface Browser {
     /**
      * Short browser name.
      */

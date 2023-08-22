@@ -101,7 +101,8 @@ export class AuthHandler {
             if (!userInfo || !userInfo.organizations) {
                 throw new Error("No user found in the keychain.");
             }
-            const selectedOrg = userInfo.organizations.find((org: Organization) => org.id === orgId);
+            // eslint-disable-next-line eqeqeq
+            const selectedOrg = userInfo.organizations.find((org: Organization) => org.id == orgId);
             if (!selectedOrg) {
                 throw new Error("No organization found for the user.");
             }

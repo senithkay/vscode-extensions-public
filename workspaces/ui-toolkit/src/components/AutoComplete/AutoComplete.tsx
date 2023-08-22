@@ -65,6 +65,7 @@ export const SearchableInput = cx(css`
 `);
 
 export interface AutoCompleteProps {
+    id?: string;
     items: string[];
     notItemsFoundMessage?: string;
     selectedItem?: string;
@@ -73,7 +74,7 @@ export interface AutoCompleteProps {
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { selectedItem, items, notItemsFoundMessage, widthOffset = 108 , onChange } = props;
+    const { id, selectedItem, items, notItemsFoundMessage, widthOffset = 108 , onChange } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -121,6 +122,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                 <div>
                     <div>
                         <Combobox.Input
+                            id={id}
                             ref={inputRef}
                             displayValue={displayItemValue}
                             onChange={handleInputQueryChange}

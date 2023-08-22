@@ -33,7 +33,7 @@ export const CellViewButton = () => {
             onClick={handleClick}
             label="Cell View"
             icon={<CellViewIcon />}
-            tooltip={isBalExtInstalled ? "Open Architecture Diagram" : "Please install Ballerina VSCode extension"}
+            tooltip={isBalExtInstalled ? "Open Cell View" : "Please install Ballerina VSCode extension"}
             disabled={!isBalExtInstalled}
         />
     );
