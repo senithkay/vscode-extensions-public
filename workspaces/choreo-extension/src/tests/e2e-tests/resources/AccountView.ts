@@ -30,13 +30,14 @@ export class AccountView {
             await this.handleLoginPrompt();
             await CommonUtils.switchToIFrame("Account");
             await CommonUtils.waitUntilById("user-details", 20000);
-            await CommonUtils.switchToDefaultFrame();
         } catch (err: any) {
             if (err.message.includes("sign-in-btn")) {
-                console.log("Could not find the sign in button. User must be already logged in.", err);
+                console.log("Could not find the sign in button. User must be already logged in.");
             } else {
                 throw err;
             }
+        } finally {
+            await CommonUtils.switchToDefaultFrame();
         }
     }
 

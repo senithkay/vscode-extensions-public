@@ -14,12 +14,14 @@
 import { Workbench, VSBrowser } from "vscode-extension-tester";
 import { ADD_CHOREO_COMPONENT_COMMAND } from "./constants";
 import { CommonUtils } from "./CommonUtils";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { GitUtils } from "./GitUtils";
 
 /** Provides functions to interact with the component wizard view iframe in the Choreo extension */
 export class ComponentWizardView {
     /** Create a new component within opened project */
-    static async createNewComponent(params: { componentName: string; gitRepoName: string }) {
-        const { componentName, gitRepoName } = params;
+    static async createNewComponent(params: { componentName: string; gitRepoName: string; gitProvider: GitProvider }) {
+        const { componentName, gitRepoName, gitProvider } = params;
 
         console.log(`Creating new component: ${componentName}`);
         await CommonUtils.switchToDefaultFrame();
@@ -45,7 +47,7 @@ export class ComponentWizardView {
         console.log("Syncing local component changes with remote repo");
         await CommonUtils.switchToDefaultFrame();
 
-        await CommonUtils.commitAndPushChanges(gitRepoName, `Add component ${componentName}`);
+        await GitUtils.commitAndPushChanges(gitRepoName, `Add component ${componentName}`, gitProvider);
 
         await CommonUtils.openChoreoActivity();
         await CommonUtils.switchToIFrame("Project");

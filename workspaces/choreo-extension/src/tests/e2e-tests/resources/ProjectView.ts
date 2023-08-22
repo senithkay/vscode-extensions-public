@@ -11,15 +11,17 @@
  *  associated services.
  */
 
-import { Workbench, InputBox, By, VSBrowser } from "vscode-extension-tester";
+import { Workbench, InputBox, By } from "vscode-extension-tester";
 import { ARCHITECTURE_VIEW_COMMAND, CELL_VIEW_COMMAND, DELETE_PROJECT, OPEN_CHOREO_PROJECT } from "./constants";
 import { join } from "path";
 import { CommonUtils } from "./CommonUtils";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { GitUtils } from "./GitUtils";
 
 /** Provides functions to interact with the Project view iframe and project related features in the Choreo extension */
 export class ProjectView {
     /** Delete project if that project already exists within user's organization */
-    static async deleteProjectIfAlreadyExists(projectName: string, projectsPath: string) {
+    static async deleteProjectIfAlreadyExists(projectName: string, projectsPath: string, gitProvider?: GitProvider) {
         console.log("Checking if project already exists before creating it");
         const updatedPath = join(projectsPath, "temp");
         await new Workbench().executeCommand(OPEN_CHOREO_PROJECT);
@@ -48,7 +50,7 @@ export class ProjectView {
                 inputValue: updatedPath,
                 title: "Select a folder to create the Workspace",
             });
-            await CommonUtils.handleGitHubLogin();
+            await GitUtils.handleGitLogin(gitProvider);
             await CommonUtils.initializeVSCode();
             await CommonUtils.waitUntil(By.xpath('//a[@aria-label="Choreo"]'));
             await CommonUtils.waitForIFrameCount(3);
@@ -95,8 +97,8 @@ export class ProjectView {
     }
 
     /** Delete the component from Choreo as well as from the remote repository */
-    static async deleteComponent(params: { componentName: string; gitRepoName: string }) {
-        const { componentName, gitRepoName } = params;
+    static async deleteComponent(params: { componentName: string; gitRepoName: string; gitProvider: GitProvider }) {
+        const { componentName, gitRepoName, gitProvider } = params;
         console.log(`Deleting component ${componentName}`);
         await CommonUtils.switchToIFrame("Project");
         await CommonUtils.waitAndClickById(`component-list-menu-${componentName}`);
@@ -105,6 +107,6 @@ export class ProjectView {
 
         await CommonUtils.clickPromptButton("Delete Component", "Are you sure you want to delete");
 
-        await CommonUtils.commitAndPushChanges(gitRepoName, `Delete component ${componentName}`);
+        await GitUtils.commitAndPushChanges(gitRepoName, `Delete component ${componentName}`, gitProvider);
     }
 }
