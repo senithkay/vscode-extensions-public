@@ -19,7 +19,7 @@ import {
     VSBrowser,
     WebDriver
 } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, wait, waitUntil } from './util';
+import { areVariablesIncludedInString, waitUntil, waitUntilElementIsEnabled } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
@@ -73,7 +73,7 @@ describe('VSCode Config Generation UI Tests', () => {
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackage/service.bal`);
         await browser.waitForWorkbench();
         // Re-locate the editor group container element
-        await driver.wait(until.elementLocated(By.css('.editor-group-container')), 30000);
+        await waitUntilElementIsEnabled(By.css('.editor-group-container'));
     });
 
     it('Click on run anyway button to just ignore the config generation', async () => {

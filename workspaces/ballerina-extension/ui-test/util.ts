@@ -127,3 +127,33 @@ export async function verifyTerminalText(text: string) {
         fail(e);
     });
 }
+
+export async function waitUntilElementIsEnabled(locator: By, timeout: number = DEFAULT_TIME_OUT): Promise<WebElement> {
+    const maxTimeout = timeout;
+    const driver = VSBrowser.instance.driver;
+    let element: WebElement;
+    let elementIdentifier;
+    return new Promise(async (resolve, reject) => {
+        const startTime = Date.now();
+        const checkElementEnabled = async () => {
+            try {
+                if (!elementIdentifier) {
+                    // Initial attempt or re-locate if stale
+                    element = await driver.findElement(locator);
+                    elementIdentifier = await element.getAttribute('xpath');
+                } else {
+                    element = await driver.findElement(By.xpath(elementIdentifier));
+                }
+                await driver.wait(until.elementIsEnabled(element), maxTimeout - (Date.now() - startTime));
+                resolve(element);
+            } catch (error) {
+                if (Date.now() - startTime < maxTimeout) {
+                    setTimeout(checkElementEnabled, 1000);
+                } else {
+                    reject(new Error('Element not found or not enabled within the specified timeout'));
+                }
+            }
+        };
+        await checkElementEnabled();
+    });
+}

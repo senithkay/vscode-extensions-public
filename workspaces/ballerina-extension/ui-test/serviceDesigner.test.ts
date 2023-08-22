@@ -14,7 +14,8 @@ import { By, VSBrowser, WebView, EditorView, TextEditor, WebDriver, until } from
 import {
     switchToIFrame,
     waitUntil,
-    getLabelElement
+    getLabelElement,
+    waitUntilElementIsEnabled,
 } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 import { ServiceDesigner } from './utils/ServiceDesigner';
@@ -25,10 +26,10 @@ describe('VSCode Service Designer Webview UI Tests', () => {
     const FILE_NAME = 'service.bal';
     let ORIGINAL_CONTENT = `import ballerina/http;
 
-    service /breakingbad on new http:Listener(9090) {
-    
-    
-    }
+service /breakingbad on new http:Listener(9090) {
+
+
+}
     `;
     let browser: VSBrowser;
     let driver: WebDriver;
@@ -46,7 +47,7 @@ describe('VSCode Service Designer Webview UI Tests', () => {
         await browser.waitForWorkbench();
 
         // Re-locate the editor group container element
-        await driver.wait(until.elementLocated(By.css('.editor-group-container')), 30000);
+        await waitUntilElementIsEnabled(By.css('.editor-group-container'));
     });
 
     it('Open service designer view using code lens', async () => {
@@ -59,7 +60,7 @@ describe('VSCode Service Designer Webview UI Tests', () => {
         await switchToIFrame('Overview Diagram', driver);
         await ServiceDesigner.waitForServiceDesigner();
 
-        expect(getLabelElement(driver, '/hello')).to.be.exist;
+        expect(getLabelElement(driver, '/breakingbad')).to.be.exist;
         expect(getLabelElement(driver, 'http:Listener(9090)')).to.be.exist;
         expect(getLabelElement(driver, 'Service list is empty')).to.be.exist;
 
