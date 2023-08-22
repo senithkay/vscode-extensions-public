@@ -16,13 +16,11 @@ interface LinkOrigins {
 }
 
 export class EntityLinkModel extends SharedLinkModel {
-	readonly cardinality: Cardinality;
 	sourceNode: LinkOrigins;
 	targetNode: LinkOrigins;
 
-	constructor(id: string, cardinality: Cardinality) {
+	constructor(id: string) {
 		super(id, 'entityLink');
-		this.cardinality = cardinality;
 	}
 
 	setSourceNode(nodeId: string, attributeId: string = '') {

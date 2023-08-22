@@ -62,7 +62,7 @@ export function AttributeWidget(props: AttributeProps) {
             <AttributeName>{attribute.name}</AttributeName>
             <AttributeType
                 onClick={handleOnAttributeTypeClick}
-                isAnonymous={node.entityObject.isAnonymous}
+                isAnonymous={node.componentObject.isAnonymous}
                 isSelected={isSelected || isHovered}
                 styles={{
                     fontFamily: 'Droid Sans Mono'

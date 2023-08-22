@@ -41,37 +41,37 @@ export function EntityWidget(props: EntityWidgetProps) {
         setCollapsibleStatus(collapsedMode);
     }, [collapsedMode])
 
-    useEffect(() => {
-        engine.getModel().getLinks().forEach((link) => {
-            const entityLink: EntityLinkModel = link as EntityLinkModel;
-            if (entityLink.sourceNode?.nodeId === node.getID()) {
-                const attributeId: string = `${node.getID()}/${entityLink.sourceNode.attributeId}`;
-                if (isCollapsed && entityLink.getSourcePort().getID() !== `right-${node.getID()}`) {
-                    link.setSourcePort(node.getPort(`right-${node.getID()}`));
-                } else if (!isCollapsed &&
-                    node.getPort(`right-${attributeId}`) &&
-                    entityLink.getSourcePort().getID() !== `right-${attributeId}`
-                ) {
-                    link.setSourcePort(node.getPort(`right-${attributeId}`));
-                }
-            } else if (entityLink.targetNode?.nodeId === node.getID()) {
-                const attributeId: string = `${node.getID()}/${entityLink.targetNode.attributeId}`;
-                if (isCollapsed && entityLink.getTargetPort().getID() !== `left-${node.getID()}`) {
-                    link.setTargetPort(node.getPort(`left-${node.getID()}`));
-                } else if (!isCollapsed &&
-                    node.getPort(`left-${attributeId}`) &&
-                    entityLink.getTargetPort().getID() !== `left-${attributeId}`
-                ) {
-                    link.setTargetPort(node.getPort(`left-${node.getID()}/${entityLink.targetNode.attributeId}`));
-                }
-            }
-        });
-        engine.repaintCanvas();
-    }, [isCollapsed]);
+    // useEffect(() => {
+    //     engine.getModel().getLinks().forEach((link) => {
+    //         const entityLink: EntityLinkModel = link as EntityLinkModel;
+    //         if (entityLink.sourceNode?.nodeId === node.getID()) {
+    //             const attributeId: string = `${node.getID()}/${entityLink.sourceNode.attributeId}`;
+    //             if (isCollapsed && entityLink.getSourcePort().getID() !== `right-${node.getID()}`) {
+    //                 link.setSourcePort(node.getPort(`right-${node.getID()}`));
+    //             } else if (!isCollapsed &&
+    //                 node.getPort(`right-${attributeId}`) &&
+    //                 entityLink.getSourcePort().getID() !== `right-${attributeId}`
+    //             ) {
+    //                 link.setSourcePort(node.getPort(`right-${attributeId}`));
+    //             }
+    //         } else if (entityLink.targetNode?.nodeId === node.getID()) {
+    //             const attributeId: string = `${node.getID()}/${entityLink.targetNode.attributeId}`;
+    //             if (isCollapsed && entityLink.getTargetPort().getID() !== `left-${node.getID()}`) {
+    //                 link.setTargetPort(node.getPort(`left-${node.getID()}`));
+    //             } else if (!isCollapsed &&
+    //                 node.getPort(`left-${attributeId}`) &&
+    //                 entityLink.getTargetPort().getID() !== `left-${attributeId}`
+    //             ) {
+    //                 link.setTargetPort(node.getPort(`left-${node.getID()}/${entityLink.targetNode.attributeId}`));
+    //             }
+    //         }
+    //     });
+    //     engine.repaintCanvas();
+    // }, [isCollapsed]);
 
-    if (node.entityObject.diagnostics.length) {
-        setHasDiagnostics(true);
-    }
+    // if (node.componentObject.diagnostics.length) {
+    //     setHasDiagnostics(true);
+    // }
 
     const handleOnHeaderWidgetClick = () => {
         setSelectedNodeId(node.getID());
@@ -80,7 +80,6 @@ export function EntityWidget(props: EntityWidgetProps) {
 
     return (
         <EntityNode
-            isAnonymous={node.entityObject.isAnonymous}
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
         >
@@ -93,8 +92,8 @@ export function EntityWidget(props: EntityWidgetProps) {
                 setCollapsedStatus={setCollapsibleStatus}
             />
 
-            {!isCollapsed && (
-                node.entityObject.attributes.map((attribute, index) => {
+            {/* {!isCollapsed && (
+                node.componentObject.attributes.map((attribute, index) => {
                     return (
                         <AttributeWidget
                             key={index}
@@ -105,18 +104,8 @@ export function EntityWidget(props: EntityWidgetProps) {
                         />
                     )
                 })
-            )}
+            )} */}
 
-            <InclusionPortsContainer>
-                <EntityPortWidget
-                    port={node.getPort(`top-${node.getID()}`)}
-                    engine={engine}
-                />
-                <EntityPortWidget
-                    port={node.getPort(`bottom-${node.getID()}`)}
-                    engine={engine}
-                />
-            </InclusionPortsContainer>
         </EntityNode>
     );
 }

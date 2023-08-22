@@ -35,5 +35,26 @@ export interface Service {
 
 export interface Connection {
     id: string
-    type: string
+    type: string // this should be a Connection Type enum
 }
+
+export enum ConnectionType {
+    HTTP = "http",
+    Connector = "connector",
+}
+
+export interface ServiceMetadata {
+    type: ConnectionType.HTTP;
+    organization: string;
+    project: string;
+    component: string;
+    service: string;
+}
+
+export interface ConnectorMetadata {
+    type: ConnectionType.Connector;
+    organization: string;
+    package: string;
+}
+
+export type ConnectionMetadata = ServiceMetadata | ConnectorMetadata;

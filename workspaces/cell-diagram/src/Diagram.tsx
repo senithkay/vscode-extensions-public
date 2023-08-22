@@ -8,114 +8,23 @@
  */
 
 import React, { useEffect, useState } from "react";
-// import { ComponentModel, GetPersistERModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-// import { CMEntity as Entity } from "@wso2-enterprise/ballerina-languageclient";
-import { generateEngine } from "./utils";
+import { generateEngine, modelMapper } from "./utils";
 import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen } from "./components";
-import { dagreEngine, Colors } from "./resources";
+import { dagreEngine, Colors, NO_ENTITIES_DETECTED } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
-import { Project } from "./types";
-
-const projectModel: Project = {
-    id: "p1",
-    name: "A",
-    components: [
-        {
-            id: "X",
-            version: "0.1.0",
-            services: {
-                "ABC:A:X:svc1Basepath": {
-                    id: "ABC:A:X:svc1Basepath",
-                    label: "svc1Basepath",
-                    type: "http",
-                    dependencyIds: ["ABC:A:X:svc2Basepath"],
-                    isExposedToInternet: false,
-                },
-                "ABC:A:X:svc2Basepath": {
-                    id: "ABC:A:X:svc2Basepath",
-                    label: "svc2Basepath",
-                    type: "http",
-                    dependencyIds: ["ABC:A:Y:svc2Basepath", "salesforce://salesforceCorporate"],
-                    isExposedToInternet: false,
-                },
-            },
-            connections: [
-                {
-                    id: "ABC:A:Y:svc2Basepath",
-                    type: "http",
-                },
-                {
-                    id: "salesforce://salesforceCorporate",
-                    type: "connector",
-                },
-            ],
-        },
-        {
-            id: "Y",
-            version: "0.1.1",
-            services: {
-                "ABC:A:Y:svc1Basepath": {
-                    id: "ABC:A:Y:svc1Basepath",
-                    label: "svc1Basepath",
-                    type: "http",
-                    dependencyIds: ["ABC:A:Y:svc2Basepath"],
-                    isExposedToInternet: true,
-                },
-                "ABC:A:Y:svc2Basepath": {
-                    id: "ABC:A:Y:svc2Basepath",
-                    label: "svc2Basepath",
-                    type: "http",
-                    dependencyIds: ["ABC:A:Z:basepath", "ABC:B:X:basepath"],
-                    isExposedToInternet: false,
-                },
-            },
-            connections: [
-                {
-                    id: "ABC:A:Z:basepath",
-                    type: "http",
-                },
-                {
-                    id: "ABC:B:X:basepath",
-                    type: "grpc",
-                },
-            ],
-        },
-        {
-            id: "Z",
-            version: "0.2.0",
-            services: {
-                "ABC:A:Z:basepath": {
-                    id: "ABC:A:Z:basepath",
-                    label: "basepath",
-                    type: "http",
-                    dependencyIds: [],
-                    isExposedToInternet: false,
-                },
-            },
-            connections: [
-                {
-                    id: "github://github",
-                    type: "connector",
-                },
-            ],
-        },
-    ],
-    modelVersion: "0.4.0",
-};
+import { Component, Project } from "./types";
 
 interface CellDiagramProps {
-    // getPersistModel: () => Promise<GetPersistERModelResponse>;
-    // selectedRecordName: string;
-    // showProblemPanel: () => void;
+    getProjectModel: () => Promise<Project>;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    // const { getPersistModel, selectedRecordName, showProblemPanel } = props;
+    const { getProjectModel } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -129,11 +38,6 @@ export function CellDiagram(props: CellDiagramProps) {
 
     useEffect(() => {
         refreshDiagram();
-        // const nodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : "";
-        // if (nodeId !== selectedNodeId) {
-        //     setSelectedNodeId(nodeId);
-        // }
-        // setFocusedNodeId("");
     }, [props]);
 
     useEffect(() => {
@@ -148,24 +52,18 @@ export function CellDiagram(props: CellDiagramProps) {
     }, [diagramModel, diagramEngine.getCanvas()]);
 
     const refreshDiagram = () => {
-        // getPersistModel().then((response) => {
-        //     const pkgModel: Map<string, ComponentModel> = new Map(Object.entries(response.persistERModel));
-        //     const entities: Map<string, Entity> = new Map(Object.entries(pkgModel.get("entities") as any));
-        //     setHasDiagnostics(response.diagnostics.length > 0);
-        //     if (entities.size) {
-        //         const model = modelMapper(entities);
-        //         model.addLayer(new OverlayLayerModel());
-        //         diagramEngine.setModel(model);
-        //         pkgModel;
-        //         setDiagramModel(model);
-        //         autoDistribute(model);
-        //     } else if (response.diagnostics.length && !diagramModel) {
-        //         setUserMessage(ERRONEOUS_MODEL);
-        //     } else if (!response.diagnostics?.length) {
-        //         setDiagramModel(undefined);
-        //         setUserMessage(NO_ENTITIES_DETECTED);
-        //     }
-        // });
+        getProjectModel().then((response) => {
+            const components: Map<string, Component> = new Map(Object.entries(response.components));
+
+            if (components.size) {
+                const model = modelMapper(components);
+                diagramEngine.setModel(model);
+                setDiagramModel(model);
+                autoDistribute(model);
+            } else {
+                setUserMessage(NO_ENTITIES_DETECTED);
+            }
+        });
     };
 
     const autoDistribute = (model: DiagramModel) => {
@@ -210,7 +108,7 @@ export function CellDiagram(props: CellDiagramProps) {
     return (
         <Container>
             <CellDiagramContext {...ctx}>
-                <HeaderWidget collapsedMode={collapsedMode} setIsCollapsedMode={switchCollapseMode} />
+                <HeaderWidget />
                 <DiagramContainer onClick={handleCanvasClick}>
                     {diagramEngine?.getModel() && diagramModel ? (
                         <>

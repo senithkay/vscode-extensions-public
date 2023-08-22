@@ -32,7 +32,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const displayName: string = node.getID().slice(node.getID().lastIndexOf(':') + 1);
+    const displayName: string = node.componentObject.id || node.getID().slice(node.getID().lastIndexOf(':') + 1);
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
@@ -53,7 +53,6 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
 
     return (
         <EntityHead
-            isAnonymous={node.entityObject.isAnonymous}
             isSelected={isSelected}
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
@@ -64,17 +63,16 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
             <EntityName
-                isAnonymous={node.entityObject.isAnonymous}
                 onClick={onClick}
             >
-                {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
+                {displayName}
             </EntityName>
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
             />
 
-            {isHovered &&
+            {/* {isHovered &&
                 <IconButton
                     onClick={handleCollapsedStatus}
                     size={'small'}
@@ -86,7 +84,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 >
                     {isCollapsed ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
                 </IconButton>
-            }
+            } */}
         </EntityHead>
     )
 }

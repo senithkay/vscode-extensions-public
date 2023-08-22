@@ -8,27 +8,18 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { SharedNodeModel } from '../shared-node/shared-node';
 import { EntityPortModel } from '../EntityPort/EntityPortModel';
+import { Component } from '../../types';
 
 export class EntityModel extends SharedNodeModel {
-    readonly entityObject: Entity;
+    readonly componentObject: Component;
 
-    constructor(entityName: string, entityObject: Entity) {
+    constructor(entityName: string, componentObject: Component) {
         super('entityNode', entityName);
-        this.entityObject = entityObject;
+        this.componentObject = componentObject;
 
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.LEFT));
         this.addPort(new EntityPortModel(entityName, PortModelAlignment.RIGHT));
-
-        // dedicated ports to connect inheritance links (record inclusions)
-        this.addPort(new EntityPortModel(entityName, PortModelAlignment.BOTTOM));
-        this.addPort(new EntityPortModel(entityName, PortModelAlignment.TOP));
-
-        this.entityObject.attributes.forEach(attribute => {
-            this.addPort(new EntityPortModel(`${entityName}/${attribute.name}`, PortModelAlignment.LEFT));
-            this.addPort(new EntityPortModel(`${entityName}/${attribute.name}`, PortModelAlignment.RIGHT));
-        })
     }
 }

@@ -7,15 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import styled from '@emotion/styled';
-import { Colors } from '../../resources';
-import { NodeCollapser } from '../Controls/NodeCollapser';
+import React from "react";
+import styled from "@emotion/styled";
+import { Colors } from "../../resources";
 
-interface HeaderProps {
-    collapsedMode: boolean;
-    setIsCollapsedMode: (collapsedMode: boolean) => void;
-}
+interface HeaderProps {}
 
 const HeaderContainer = styled.div`
     align-items: center;
@@ -31,13 +27,6 @@ const HeaderContainer = styled.div`
     width: calc(100vw - 20px);
 `;
 
-export function HeaderWidget(props: HeaderProps) {
-    const {collapsedMode, setIsCollapsedMode} = props;
-
-    return (
-        <HeaderContainer>
-            Entity Relationship Diagram
-            <NodeCollapser collapsedMode={collapsedMode} setIsCollapsedMode={setIsCollapsedMode} />
-        </HeaderContainer>
-    );
+export function HeaderWidget(_props: HeaderProps) {
+    return <HeaderContainer>Cell Diagram</HeaderContainer>;
 }
