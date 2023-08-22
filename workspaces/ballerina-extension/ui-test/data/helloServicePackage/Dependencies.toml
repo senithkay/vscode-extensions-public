@@ -98,6 +98,9 @@ dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "lang.value"}
 ]
+modules = [
+	{org = "ballerina", packageName = "io", moduleName = "io"}
+]
 
 [[package]]
 org = "ballerina"
@@ -270,13 +273,13 @@ dependencies = [
 
 [[package]]
 org = "wso2"
-name = "configServiceProject"
+name = "helloserviceproject"
 version = "0.0.1"
 dependencies = [
-	{org = "ballerina", name = "http"}
+	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "io"}
 ]
 modules = [
-	{org = "wso2", packageName = "configServiceProject", moduleName = "configServiceProject"},
-	{org = "wso2", packageName = "configServiceProject", moduleName = "configServiceProject.hello_world"}
+	{org = "wso2", packageName = "helloserviceproject", moduleName = "helloserviceproject"}
 ]
 
