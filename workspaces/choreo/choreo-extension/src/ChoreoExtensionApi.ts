@@ -407,11 +407,11 @@ export class ChoreoExtensionApi {
                 nonBalComponents?.forEach((component) => {
 
                     const defaultService: CMService = {
-                        dependencies: [],
-                        path: "",
-                        remoteFunctions: [],
                         serviceId: component.id || component.name,
+                        label: "",
+                        dependencyIDs: [],
                         serviceType: ServiceTypes.OTHER,
+                        remoteFunctions: [],
                         resources: [],
                         annotation: { id: component.id || component.name, label: component.displayName },
                     };
@@ -421,6 +421,8 @@ export class ChoreoExtensionApi {
                         entities: new Map(),
                         packageId: { name: component.name, org: organization.name, version: component.version },
                         services: { [component.name]: defaultService } as any,
+                        hasModelErrors: false,
+                        dependencies: []
                     };
 
                     const componentPath = getComponentDirPath(component, workspaceFileLocation);
@@ -489,8 +491,10 @@ export class ChoreoExtensionApi {
                             ...defaultComponentModel,
                             services: new Map(),
                             functionEntryPoint: {
+                                functionID: "",
+                                label: "",
                                 annotation: { id: component.name, label: "" },
-                                dependencies: [],
+                                dependencyIDs: [],
                                 interactions: [],
                                 parameters: [],
                                 returns: [],
