@@ -13,7 +13,6 @@
 import React from 'react';
 import styled from "@emotion/styled";
 import { CompletedStepCard } from './CompletedStepCard';
-import { CurrentStepCard } from './CurrentStepCard';
 import { InCompletedStepCard } from './IncompleteStepCard';
 
 export interface StepperStyleProps {
@@ -25,69 +24,70 @@ export interface Step {
     title: string;
 }
 
-export interface StepCompColors {
-    currentStepPrimaryColor?: string;
-    completedStepColor?: string;
-    incompletedStepColor?: string;
-}
-
 export interface StepperProps {
     steps: string[];
     currentStep: number;
-    showStepStatus?: boolean;
-    colors?: StepCompColors;
+    titleAlignment?: "right" | "bottom";
+    allignment?: "flex-start" | "center" | "flex-end";
 }
 
 export interface StepCardProps {
     step: Step;
     currentStep: number;
     totalSteps: number;
-    color?: string;
-    showStepStatus?: boolean;
+    titleAlignment?: "right" | "bottom";
 }
 
-export interface HeaderProps {
-    hideBar?: boolean;
+export interface TitleProps {
     color?: string;
 }
 
-const DivWithCircle = styled.div`
-    position: relative;
-    width: 200px;
-`;
+export interface HorizontalBarProps {
+    barWidth?: string;
+}
 
-export const Header = styled(DivWithCircle)`
-    background-color: var(--vscode-editor-background);
-    display: flex;
-    flex-direction: row;
-`;
+interface StpperContainerProps {
+    allignment?: "flex-start" | "center" | "flex-end";
+}
 
-const StpperContainer = styled.div`
+export const StpperContainer = styled.div<StpperContainerProps>`
     display: flex;
     flex-direction: row;
     flex-grow: initial;
-    justify-content: center;
+    justify-content: ${(props: StpperContainerProps) => props.allignment};
 `;
 
 export const StepCard = styled.div`
     display: flex;
-    flex-direction: column;
-`;
-
-export const Footer = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
-
-export const StepSubTitle = styled.div`
-    opacity: 0.5;
-    font-size: 8px;
-    padding-top: 15px;
+    flex-direction: row;
 `;
 
 export const StepTitle = styled.div`
-    font-size: 12px;
-    padding-top: 5px;
+    font-size: 14px;
+    padding-top: 12px;
+    padding-left: 5px;
+    color: ${(props: TitleProps) => props.color};
+    font-weight: 600;
+`;
+
+export const BottomTitleWrapper = styled.div`
+    display: flex;
+    font-size: 14px;
+    font-weight: 600;
+    flex-direction: column;
+    color: ${(props: TitleProps) => props.color};
+    align-items: center;
+    text-align: center;
+    margin-top: 15px;
+`;
+
+export const BottomStepTitle = styled.div`
+    font-size: 14px;
+    padding-top: 12px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: ${(props: TitleProps) => props.color};
+    font-weight: 600;
 `;
 
 export const StepStatus = styled.div`
@@ -97,52 +97,65 @@ export const StepStatus = styled.div`
 `;
 
 export const StepCircle = styled.div`
+    display: flex;
+    align-self: center;
     background-color: ${(props: StepperStyleProps) => props.color};
     width: 24px;
     height: 24px;
     border-radius: 50%;
     position: relative;
     left: 12px;
-    top: 20px;
+    top: 18px;
     transform: translate(-50%, -50%);
 `;
 
 export const HorizontalBar = styled.div`
-    background-color: ${(props: StepperStyleProps) => props.color};
-    width: calc(100% - 60px);
-    height: 2px;
+    width: 120px;
+    background-color: var(--vscode-editorIndentGuide-activeBackground);
+    height: 1px;
     position: relative;
     top: 20px;
-    left: 18px;
+    margin-left: 5px;
+    margin-right: 5px;
+`;
+
+export const IconNTitleWrapper = styled.div`
+    display: flex;
+    width: 150px;
+    flex-direction: column;
+    justify-content: flex-start;
+`;
+
+export const BottomTitleHorizontalBar = styled.div`
+    width: 120px;
+    background-color: var(--vscode-editorIndentGuide-activeBackground);
+    height: 1px;
+    position: relative;
+    top: -5px;
+    left: 85px;
+    margin-left: 5px;
+    margin-right: 5px;
 `;
 
 export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
-    const { steps, currentStep, showStepStatus, colors } = props;
+    const { steps, currentStep, allignment = "center", titleAlignment = "bottom" } = props;
 
     return (
-        <StpperContainer>
+        <StpperContainer allignment={allignment}>
             {steps.map((step: string, id: number) => {
-                const stepCard: StepCardProps = {
+                const stepCardProps: StepCardProps = {
                     currentStep: currentStep,
                     step: {
                         id: id,
                         title: step
                     },
                     totalSteps: steps.length,
-                    showStepStatus: showStepStatus
+                    titleAlignment: titleAlignment
                 };
                 if (id < currentStep) {
-                    stepCard.color = colors?.completedStepColor ? colors.completedStepColor :
-                        'var(--vscode-textLink-foreground)';
-                    return <CompletedStepCard key={`step${id}`} {...stepCard} />;
-                } else if (id === currentStep) {
-                    stepCard.color = colors?.incompletedStepColor ? colors?.incompletedStepColor :
-                        'var(--vscode-editorOverviewRuler-selectionHighlightForeground)';
-                    return <CurrentStepCard key={`step${id}`} {...stepCard} />;
-                }
-                stepCard.color = colors?.incompletedStepColor ? colors?.incompletedStepColor :
-                    'var(--vscode-editorOverviewRuler-selectionHighlightForeground)';
-                return <InCompletedStepCard key={`step${id}`} {...stepCard} />;
+                    return <CompletedStepCard key={`step${id}`} {...stepCardProps} />;
+                } 
+                return <InCompletedStepCard key={`step${id}`} {...stepCardProps} />;
             })}
         </StpperContainer>
     );

@@ -11,33 +11,45 @@
  *  associated services.
  */
 import React from "react";
-import { Footer, Header, HeaderProps, HorizontalBar, StepCard, StepCardProps, StepCircle, StepSubTitle, StepTitle } from "./Stepper";
+import { BottomTitleHorizontalBar, BottomTitleWrapper, HorizontalBar, IconNTitleWrapper, StepCard, StepCardProps, StepCircle, StepTitle } from "./Stepper";
 import styled from "@emotion/styled";
 
-const PendingStatus = styled.div`
-    opacity: 0.5;
-    padding-top: 5px;
-    font-size: 9px;
+const StepNumber = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-top: 3px;
+    margin-left: 8px;
+    color: var(--vscode-editor-background);
 `;
-
-const InCompletedStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
-    <Header>
-        <StepCircle color={props.color}/>
-        {props.hideBar ? null : <HorizontalBar color={props.color}/>}
-    </Header>
-);
 
 export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <InCompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} color={props.color}/>
-        <Footer>
-            <StepSubTitle>
-                {`STEP ${props.step.id + 1}`}
-            </StepSubTitle>
-            <StepTitle>
-                {props.step.title}
-            </StepTitle>
-            {props.showStepStatus && <PendingStatus color={props.color}>Pending</PendingStatus>}
-        </Footer>
+        {props.titleAlignment === "right" ? (
+            <>
+                <StepCircle color={'var(--vscode-editorIndentGuide-activeBackground)'}>
+                    <StepNumber>
+                        {props.step.id + 1}
+                    </StepNumber>
+                </StepCircle>
+                <StepTitle color='var(--vscode-editorIndentGuide-activeBackground)'>
+                    {props.step.title}
+                </StepTitle>
+                {(props.totalSteps === props.step.id + 1) ? null : <HorizontalBar/>}
+            </>
+        ) :
+            <>
+                <IconNTitleWrapper>
+                    <StepCircle color={'var(--vscode-editorIndentGuide-activeBackground)'}>
+                        <StepNumber>
+                            {props.step.id + 1}
+                        </StepNumber>
+                    </StepCircle>
+                    {props.totalSteps === props.step.id + 1 ? null : <BottomTitleHorizontalBar />}
+                    <BottomTitleWrapper color='var(--vscode-editor-foreground)'>
+                        {props.step.title}
+                    </BottomTitleWrapper>
+                </IconNTitleWrapper>
+            </>
+        }
     </StepCard>
 );

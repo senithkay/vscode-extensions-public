@@ -20,21 +20,23 @@ export default {
     component: Stepper,
 };
 
-const colors={completedStepColor: "#006ab1", incompletedStepColor: "#c8c8c8"
-};
 export const Stepper_Comp = () =>
     (
-        <div style={{width: 1000, height: 1000}}>
+        <div style={{width: 1500, height: 1000}}>
             <Stepper
                 steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
                 currentStep={3}
-                colors={colors}
             />
             <Stepper
                 steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
                 currentStep={0}
-                colors={colors}
-                showStepStatus
+                allignment='flex-start'
+            />
+            <Stepper
+                steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
+                currentStep={2}
+                titleAlignment='right'
+                allignment='flex-end'
             />
         </div>
     );
