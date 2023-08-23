@@ -12,7 +12,7 @@ import { existsSync, readFileSync, unlinkSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, Key, TextEditor, VSBrowser, WebDriver } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, wait, waitUntil } from './util';
+import { areVariablesIncludedInString, wait, waitForBallerina, waitUntil } from './util';
 
 
 const expectedConfigs = [
@@ -24,13 +24,13 @@ const expectedConfigs = [
 
 
 describe('VSCode Config Suggestions UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'configServicePackageEdit');
     let browser: VSBrowser;
     let driver: WebDriver;
 
-    const configFilePath = `${PROJECT_ROOT}/configServicePackageEdit/Config.toml`;
+    const configFilePath = `${PROJECT_ROOT}/Config.toml`;
 
-    const configContent = `# Configuration file for "configServiceProject"
+    const configContent = `# Configuration file for "configServicePackageEdit"
     # How to use see:
     # https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax
     

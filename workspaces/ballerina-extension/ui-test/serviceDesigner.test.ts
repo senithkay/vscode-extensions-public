@@ -16,6 +16,7 @@ import {
     waitUntil,
     getLabelElement,
     waitUntilElementIsEnabled,
+    waitForBallerina,
 } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 import { ServiceDesigner } from './utils/ServiceDesigner';
@@ -47,7 +48,7 @@ service /breakingbad on new http:Listener(9090) {
         await browser.waitForWorkbench();
 
         // Re-locate the editor group container element
-        await waitUntilElementIsEnabled(By.css('.editor-group-container'));
+        await waitForBallerina();
     });
 
     it('Open service designer view using code lens', async () => {
@@ -121,7 +122,7 @@ service /breakingbad on new http:Listener(9090) {
     });
 
     // TODO: Below test keep failing as there seems to be a delay in updating the state. 
-    it.skip('Add a new post resource different return type', async () => {
+    it('Add a new post resource different return type', async () => {
 
         await switchToIFrame('Overview Diagram', driver);
 

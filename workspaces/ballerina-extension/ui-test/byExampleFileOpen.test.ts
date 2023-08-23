@@ -32,9 +32,9 @@ describe('Open ballerina samples in VSCode from URL', () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
         workbench = new Workbench();
-        await browser.openResources(samplesDownloadDirectory, samplesDownloadDirectory);
-        await browser.waitForWorkbench();
         await new EditorView().closeAllEditors();
+        await browser.openResources(samplesDownloadDirectory);
+        await browser.waitForWorkbench();
         // Re-locate the editor group container element
         await driver.wait(until.elementLocated(By.css('.editor-group-container')), 30000);
     });

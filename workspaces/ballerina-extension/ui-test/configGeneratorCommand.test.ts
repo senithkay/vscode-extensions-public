@@ -12,7 +12,7 @@ import { existsSync, readFileSync, unlinkSync } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, Key, VSBrowser, WebDriver, Window, Workbench } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, wait, waitUntil } from './util';
+import { areVariablesIncludedInString, wait, waitForBallerina, waitUntil } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
@@ -68,7 +68,7 @@ describe('VSCode Config Creation Using Command UI Tests', () => {
         workbench = new Workbench();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackage/service.bal`);
         await browser.waitForWorkbench();
-
+        await waitForBallerina();
     });
 
     it('Open command palette to select config create command', async () => {

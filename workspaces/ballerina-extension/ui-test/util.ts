@@ -157,3 +157,10 @@ export async function waitUntilElementIsEnabled(locator: By, timeout: number = D
         await checkElementEnabled();
     });
 }
+
+export async function waitForBallerina() {
+    const elementText = 'Detecting';
+    const xpath = By.xpath(`//*[contains(text(), '${elementText}')]`);
+    const element = await waitUntil(xpath, 30000);
+    await VSBrowser.instance.driver.wait(until.elementTextContains(element, "Swan"));
+}

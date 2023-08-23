@@ -32,11 +32,11 @@ export class ResourceForm {
     // Update the resource path 
     static async updateResourcePath(webview: WebView, path: string) {
         // Resource path input update
-        const resourcePath  = await waitUntil(By.xpath("//input[@value='path']")) as Input;
+        const resourcePath = await waitUntil(By.xpath("//input[@value='path']")) as Input;
         await resourcePath.click();
         await resourcePath.sendKeys(path);
         // Wait for changes from LS
-        await this.waitForDisableEnableElement(webview);
+        await wait(3000);
     }
 
     // Add a new query param
@@ -122,6 +122,7 @@ export class ResourceForm {
         // Find and click on the input element of the Autocomplete component
         const input = await responseTypeInput.findElement(By.className('MuiAutocomplete-input'));
         await input.sendKeys(type);
+        await wait(3000);
 
         if (newType) {
             // Wait for diagnostic
@@ -137,20 +138,15 @@ export class ResourceForm {
         const responseSaveBtn = await webview.findWebElement(By.xpath("//*[@data-testid='path-segment-add-btn']"));
         await this.Driver().wait(until.elementIsEnabled(responseSaveBtn));
         await responseSaveBtn.click();
-
-        await waitUntil(addBtn);
     }
 
     static async saveResource(webview: WebView, method: string) {
-        // Wait for changes from LS
-        await this.waitForDisableEnableElement(webview);
-        const resourceSaveBtn  = await webview.findWebElement(By.xpath("//*[@data-testid='save-btn']"));
+        const resourceSaveBtn = await waitUntil(By.xpath("//*[@data-testid='save-btn']"));
         resourceSaveBtn.click();
 
         // Wait for new resource
         const resource = By.xpath(`//*[@class='function-box ${method.toLowerCase()}']`);
         await waitUntil(resource);
-
     }
 
     private static async waitForDisableEnableElement(webview: WebView) {

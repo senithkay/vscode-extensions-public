@@ -17,9 +17,10 @@ import {
     TerminalView,
     until,
     VSBrowser,
-    WebDriver
+    WebDriver,
+    Workbench
 } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, waitUntil, waitUntilElementIsEnabled } from './util';
+import { areVariablesIncludedInString, wait, waitForBallerina, waitForElementToDisappear, waitUntil, waitUntilElementIsEnabled } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
@@ -52,12 +53,13 @@ const expectedConfigs = [
 ];
 
 describe('VSCode Config Generation UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'configServicePackage');
     let browser: VSBrowser;
     let driver: WebDriver;
+    let workbench: Workbench;
 
-    const configFilePath = `${PROJECT_ROOT}/configServicePackage/Config.toml`;
-    const gitIgnoreFile = `${PROJECT_ROOT}/configServicePackage/.gitignore`;
+    const configFilePath = `${PROJECT_ROOT}/Config.toml`;
+    const gitIgnoreFile = `${PROJECT_ROOT}/.gitignore`;
 
     before(async () => {
         // Check if the file exists
@@ -69,11 +71,12 @@ describe('VSCode Config Generation UI Tests', () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
         // Close all open tabs
+        workbench = new Workbench();
         await new EditorView().closeAllEditors();
-        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackage/service.bal`);
+        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/service.bal`);
         await browser.waitForWorkbench();
-        // Re-locate the editor group container element
-        await waitUntilElementIsEnabled(By.css('.editor-group-container'));
+
+        await waitForBallerina();
     });
 
     it('Click on run anyway button to just ignore the config generation', async () => {
@@ -86,7 +89,7 @@ describe('VSCode Config Generation UI Tests', () => {
         await infoNotification.click();
 
         // Check if the terminal is open
-        await driver.wait(until.elementIsVisible(new TerminalView()), 10000);
+        await driver.wait(until.elementIsVisible(new TerminalView()), 15000);
         const terminal = await browser.driver.findElement(By.className('xterm'));
         expect(await terminal.isDisplayed()).to.be.true;
 
