@@ -11,9 +11,9 @@
  *  associated services.
  */
 import React from "react";
-import { StepCard, StepTitle, StepCardProps, StepCircle, HorizontalBar, BottomTitleWrapper, BottomTitleHorizontalBar, IconNTitleWrapper } from "./Stepper";
+import { StepCard, StepTitle, StepCardProps, StepCircle, HorizontalBar, BottomTitleWrapper, BottomTitleHorizontalBar, IconTitleWrapper } from "./Stepper";
 import styled from "@emotion/styled";
-import { colors } from "../../commons/Colors";
+import { colors } from "../Commons/Colors";
 
 const RightSign = styled.div`
     position: relative;
@@ -41,7 +41,7 @@ export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps)
             </>
         ) :
             <>
-                <IconNTitleWrapper>
+                <IconTitleWrapper>
                     <StepCircle color={colors.textLinkForeground}>
                         <RightSign />
                     </StepCircle>
@@ -49,7 +49,7 @@ export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps)
                     <BottomTitleWrapper color={colors.editorForeground}>
                         {props.step.title}
                     </BottomTitleWrapper>
-                </IconNTitleWrapper>
+                </IconTitleWrapper>
             </>
         }
     </StepCard>

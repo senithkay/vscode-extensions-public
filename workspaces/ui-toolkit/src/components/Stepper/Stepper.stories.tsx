@@ -11,32 +11,15 @@
  *  associated services.
  */
 /* tslint:disable:variable-name */
-import React from 'react';
-
-import { Stepper } from './Stepper';
-
-export default {
-    title: 'Stepper',
-    component: Stepper,
-};
-
-export const Stepper_Comp = () =>
-    (
-        <div style={{width: 1500, height: 1000}}>
-            <Stepper
-                steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
-                currentStep={3}
-            />
-            <Stepper
-                steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
-                currentStep={0}
-                alignment='flex-start'
-            />
-            <Stepper
-                steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
-                currentStep={2}
-                variant='bottom'
-                alignment='flex-end'
-            />
-        </div>
-    );
+import React from "react";
+import { ComponentStory } from "@storybook/react";
+import { Stepper, StepperProps } from "./Stepper";
+const defaultSteps = ["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"];
+const Template: ComponentStory<typeof Stepper> = (args: StepperProps) => <Stepper {...args} />;
+export const CenterAligned = Template.bind();
+CenterAligned.args = { steps: defaultSteps, currentStep: 3 };
+export const LeftAligned = Template.bind();
+LeftAligned.args = { steps: defaultSteps, currentStep: 0, alignment: "flex-start" };
+export const RightAligned = Template.bind();
+RightAligned.args = { steps: defaultSteps, currentStep: 2, alignment: "flex-end", variant: "bottom" };
+export default { component: Stepper, title: "Stepper" };

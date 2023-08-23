@@ -42,19 +42,15 @@ export interface TitleProps {
     color?: string;
 }
 
-export interface HorizontalBarProps {
-    barWidth?: string;
-}
-
-interface StpperContainerProps {
+interface StepperContainerProps {
     allignment?: "flex-start" | "center" | "flex-end";
 }
 
-export const StpperContainer = styled.div<StpperContainerProps>`
+export const StepperContainer = styled.div<StepperContainerProps>`
     display: flex;
     flex-direction: row;
     flex-grow: initial;
-    justify-content: ${(props: StpperContainerProps) => props.allignment};
+    justify-content: ${(props: StepperContainerProps) => props.allignment};
 `;
 
 export const StepCard = styled.div`
@@ -119,7 +115,7 @@ export const HorizontalBar = styled.div`
     margin-right: 5px;
 `;
 
-export const IconNTitleWrapper = styled.div`
+export const IconTitleWrapper = styled.div`
     display: flex;
     width: 150px;
     flex-direction: column;
@@ -141,7 +137,7 @@ export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
     const { steps, currentStep, alignment: alignment = "center", variant: titleAlignment = "right" } = props;
 
     return (
-        <StpperContainer allignment={alignment}>
+        <StepperContainer allignment={alignment}>
             {steps.map((step: string, id: number) => {
                 const stepCardProps: StepCardProps = {
                     currentStep: currentStep,
@@ -157,6 +153,6 @@ export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
                 } 
                 return <InCompletedStepCard key={`step${id}`} {...stepCardProps} />;
             })}
-        </StpperContainer>
+        </StepperContainer>
     );
 };

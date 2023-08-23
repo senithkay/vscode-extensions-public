@@ -11,9 +11,9 @@
  *  associated services.
  */
 import React from "react";
-import { BottomTitleHorizontalBar, BottomTitleWrapper, HorizontalBar, IconNTitleWrapper, StepCard, StepCardProps, StepCircle, StepTitle } from "./Stepper";
+import { BottomTitleHorizontalBar, BottomTitleWrapper, HorizontalBar, IconTitleWrapper, StepCard, StepCardProps, StepCircle, StepTitle } from "./Stepper";
 import styled from "@emotion/styled";
-import { colors } from "../../commons/Colors";
+import { colors } from "../Commons/Colors";
 
 const StepNumber = styled.div`
     display: flex;
@@ -39,7 +39,7 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
             </>
         ) :
             <>
-                <IconNTitleWrapper>
+                <IconTitleWrapper>
                     <StepCircle color={colors.indentGuideActiveBackgound}>
                         <StepNumber>
                             {props.step.id + 1}
@@ -49,7 +49,7 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
                     <BottomTitleWrapper color={colors.editorForeground}>
                         {props.step.title}
                     </BottomTitleWrapper>
-                </IconNTitleWrapper>
+                </IconTitleWrapper>
             </>
         }
     </StepCard>

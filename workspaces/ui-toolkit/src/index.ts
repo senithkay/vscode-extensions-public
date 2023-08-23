@@ -11,6 +11,7 @@ export * from './components/DiagramNavigationWrapper/NavigationWrapperCanvasWidg
 export * from './components/AutoComplete/AutoComplete';
 export { Stepper } from './components/Stepper/Stepper';
 export * from './components/TextField/TextField';
+export * from './components/Commons/Colors';
 
 export * from './components/Commons/ErrorBanner';
 
