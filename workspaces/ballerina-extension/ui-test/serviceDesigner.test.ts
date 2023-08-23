@@ -10,7 +10,7 @@
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, VSBrowser, WebView, EditorView, TextEditor, WebDriver, until } from 'vscode-extension-tester';
+import { VSBrowser, WebView, EditorView, TextEditor, WebDriver, ActivityBar } from 'vscode-extension-tester';
 import {
     switchToIFrame,
     waitUntil,
@@ -49,6 +49,8 @@ service /breakingbad on new http:Listener(9090) {
 
         // Re-locate the editor group container element
         await waitForBallerina();
+        const explorerView = await new ActivityBar().getViewControl("Explorer");
+        await explorerView.closeView();
     });
 
     it('Open service designer view using code lens', async () => {
