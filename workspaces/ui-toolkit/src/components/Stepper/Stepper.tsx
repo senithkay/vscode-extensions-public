@@ -138,7 +138,7 @@ export const BottomTitleHorizontalBar = styled.div`
 `;
 
 export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
-    const { steps, currentStep, alignment: alignment = "center", variant: titleAlignment = "bottom" } = props;
+    const { steps, currentStep, alignment: alignment = "center", variant: titleAlignment = "right" } = props;
 
     return (
         <StpperContainer allignment={alignment}>

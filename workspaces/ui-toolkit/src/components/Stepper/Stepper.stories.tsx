@@ -35,7 +35,7 @@ export const Stepper_Comp = () =>
             <Stepper
                 steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
                 currentStep={2}
-                variant='right'
+                variant='bottom'
                 alignment='flex-end'
             />
         </div>

@@ -18,7 +18,7 @@ import { colors } from "../../commons/Colors";
 const StepNumber = styled.div`
     display: flex;
     justify-content: center;
-    margin-top: 3px;
+    margin-top: 4px;
     margin-left: 8px;
     color: var(--vscode-editor-background);
 `;
