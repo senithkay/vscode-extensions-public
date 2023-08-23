@@ -494,7 +494,7 @@ export class ChoreoExtensionApi {
                                 functionID: "",
                                 label: "",
                                 annotation: { id: component.name, label: "" },
-                                dependencyIDs: [],
+                                dependencies: [],
                                 interactions: [],
                                 parameters: [],
                                 returns: [],

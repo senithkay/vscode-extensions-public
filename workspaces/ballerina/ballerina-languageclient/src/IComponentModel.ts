@@ -1,27 +1,23 @@
 import { LinePosition } from "./IBallerinaLanguageClient";
 
 export interface ComponentModel {
-    packageId: CMPackageID | string;
+    id: string;
+    orgName: string;
     version?: string;
+    modelVersion: string;
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
-    hasModelErrors: boolean;
-    dependencies: CMDependency[];
+    hasModelErrors?: boolean;
+    connections: CMDependency[];
 }
 
 export interface CMDiagnostics {
     name: string;
     message?: string;
     severity?: string;
-}
-
-export interface CMPackageID {
-    name: string,
-    org: string,
-    version: string
 }
 
 export interface CMLocation {
@@ -31,12 +27,12 @@ export interface CMLocation {
 }
 
 interface CMNode {
-    elementLocation?: CMLocation;
+    sourceLocation?: CMLocation;
     diagnostics?: CMDiagnostics[];
 }
 
 interface CMFunctionNode extends CMNode {
-    functionID: string;
+    id: string;
     label: string;
     interactions: CMInteraction[];
     parameters: CMParameter[];
@@ -46,17 +42,17 @@ interface CMFunctionNode extends CMNode {
 export interface CMEntryPoint extends CMFunctionNode {
     annotation: CMAnnotation;
     type?: 'scheduledTask' | 'manualTrigger';
-    dependencyIDs: string[];
+    dependencies: string[];
 }
 
 export interface CMService extends CMNode {
-    annotation: CMAnnotation;
-    serviceId: string;
+    id: string;
     label: string;
     remoteFunctions: CMRemoteFunction[];
-    resources: CMResourceFunction[];
-    serviceType: string;
-    dependencyIDs: string[];
+    resourceFunctions: CMResourceFunction[];
+    type: string;
+    dependencies: string[];
+    annotation: CMAnnotation;
     deploymentMetadata?: CMDeploymentMetadata;
     isNoData?: boolean;
     dataInProgress?: boolean;
@@ -68,14 +64,13 @@ export interface CMAnnotation extends CMNode {
 }
 
 export interface CMDependency extends CMNode {
-    connectorType: string;
-    entryPointID: string;
+    id: string;
+    type: string;
     serviceLabel?: string;
 }
 
 export interface CMResourceFunction extends CMFunctionNode {
-    identifier: string;
-    resourceId: CMResourceId;
+    path: string;
 }
 
 export interface CMRemoteFunction extends CMFunctionNode {
@@ -83,8 +78,8 @@ export interface CMRemoteFunction extends CMFunctionNode {
 }
 
 export interface CMInteraction extends CMNode {
-    resourceId: CMResourceId;
-    connectorType: string;
+    id: string;
+    type: string;
 }
 
 export interface CMParameter extends CMNode {
