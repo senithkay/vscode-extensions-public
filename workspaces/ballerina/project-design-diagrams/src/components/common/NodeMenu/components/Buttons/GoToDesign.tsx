@@ -22,12 +22,12 @@ export function GoToDesign(props: { element: Service | RemoteFunction | Resource
 
     const handleIconClick = () => {
         const position: NodePosition = {
-            startLine: element.elementLocation.startPosition.line,
-            startColumn: element.elementLocation.startPosition.offset,
-            endLine: element.elementLocation.endPosition.line,
-            endColumn: element.elementLocation.endPosition.offset,
+            startLine: element.sourceLocation.startPosition.line,
+            startColumn: element.sourceLocation.startPosition.offset,
+            endLine: element.sourceLocation.endPosition.line,
+            endColumn: element.sourceLocation.endPosition.offset,
         }
-        editLayerAPI.goToDesign(element.elementLocation.filePath, position);
+        editLayerAPI.goToDesign(element.sourceLocation.filePath, position);
     }
 
     return (

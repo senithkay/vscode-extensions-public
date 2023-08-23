@@ -34,12 +34,12 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     const [serviceLabel, updateServiceLabel] = useState<string>(annotation?.label);
 
     const getAnnotationLocation = (): Location => {
-        if (annotation?.elementLocation) {
-            return annotation?.elementLocation;
-        } else if (node.nodeObject.elementLocation) {
+        if (annotation?.sourceLocation) {
+            return annotation?.sourceLocation;
+        } else if (node.nodeObject.sourceLocation) {
             return {
-                ...node.nodeObject.elementLocation,
-                endPosition: node.nodeObject.elementLocation.startPosition
+                ...node.nodeObject.sourceLocation,
+                endPosition: node.nodeObject.sourceLocation.startPosition
             };
         }
     }
@@ -48,7 +48,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
         const updatedAnnotation: Annotation = {
             label: serviceLabel,
             id: annotation?.id || uuid(),
-            elementLocation: getAnnotationLocation()
+            sourceLocation: getAnnotationLocation()
         }
         await editLayerAPI.editDisplayLabel(updatedAnnotation);
         refreshDiagram();

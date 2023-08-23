@@ -354,11 +354,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                         const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
                         const model: ComponentModel = JSON.parse(decodedString.toString());
                         enrichConsoleDeploymentData(model.services, finalVersion);
-                        if (typeof model.packageId === "object") {
-                                componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
-                            } else {
-                                // todo: handle this case when adding support for non-ballerina components
-                            }
+                        componentModels[`${model.orgName}/${model.id}:${model.version}`] = model;
                     } else {
                         componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
                         diagnostics.push({ name: `${value.displayName} Component` });

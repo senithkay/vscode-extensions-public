@@ -364,7 +364,7 @@ export class ChoreoExtensionApi {
                         if (wsConfig && wsConfig.path) {
                             const componentPath: string = path.join(projectRoot, wsConfig.path);
                             for (const localModel of model.values()) {
-                                if (localModel.functionEntryPoint?.elementLocation?.filePath.includes(componentPath) &&
+                                if (localModel.functionEntryPoint?.sourceLocation?.filePath.includes(componentPath) &&
                                     (displayType === ChoreoComponentType.ScheduledTask.toString() || displayType === ChoreoComponentType.ManualTrigger.toString())) {
                                     localModel.functionEntryPoint.type = displayType as any;
                                 }
@@ -407,22 +407,25 @@ export class ChoreoExtensionApi {
                 nonBalComponents?.forEach((component) => {
 
                     const defaultService: CMService = {
-                        serviceId: component.id || component.name,
+                        id: component.id || component.name,
                         label: "",
-                        dependencyIDs: [],
-                        serviceType: ServiceTypes.OTHER,
+                        dependencies: [],
+                        type: ServiceTypes.OTHER,
                         remoteFunctions: [],
-                        resources: [],
+                        resourceFunctions: [],
                         annotation: { id: component.id || component.name, label: component.displayName },
                     };
 
                     const defaultComponentModel: ComponentModel = {
                         hasCompilationErrors: false,
                         entities: new Map(),
-                        packageId: { name: component.name, org: organization.name, version: component.version },
+                        id: component.name,
+                        orgName: organization.name,
+                        version: component.version,
                         services: { [component.name]: defaultService } as any,
                         hasModelErrors: false,
-                        dependencies: []
+                        modelVersion: '0.4.0',
+                        connections: []
                     };
 
                     const componentPath = getComponentDirPath(component, workspaceFileLocation);
@@ -448,11 +451,11 @@ export class ChoreoExtensionApi {
 
                                     const service: CMService = {
                                         ...defaultService,
-                                        serviceId,
-                                        serviceType: endpoint?.type || ServiceTypes.HTTP,
-                                        resources,
+                                        id: serviceId,
+                                        type: endpoint?.type || ServiceTypes.HTTP,
+                                        resourceFunctions: resources,
                                         annotation: { id: serviceId, label: endpoint.name },
-                                        elementLocation: {
+                                        sourceLocation: {
                                             filePath: endpointsPath,
                                             startPosition: { line: 0, offset: 0 },
                                             endPosition: { line: 0, offset: 0 },
@@ -478,7 +481,7 @@ export class ChoreoExtensionApi {
                     } else if([ComponentDisplayType.ByocWebAppDockerLess, ComponentDisplayType.ByocWebApp].includes(component.displayType as ComponentDisplayType)) {
                         const service: CMService = {
                             ...defaultService,
-                            serviceType: ServiceTypes.WEBAPP,
+                            type: ServiceTypes.WEBAPP,
                             deploymentMetadata: { gateways: { internet: { isExposed: true }, intranet: { isExposed: false } }},
                         };
 
@@ -491,7 +494,7 @@ export class ChoreoExtensionApi {
                             ...defaultComponentModel,
                             services: new Map(),
                             functionEntryPoint: {
-                                functionID: "",
+                                id: "",
                                 label: "",
                                 annotation: { id: component.name, label: "" },
                                 dependencies: [],
