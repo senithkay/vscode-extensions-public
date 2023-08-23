@@ -11,7 +11,6 @@ import React, { useContext } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
-import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import WarningIcon from '@mui/icons-material/Warning';
 import styled from '@emotion/styled';
 import CachedIcon from "@mui/icons-material/Cached";
@@ -76,9 +75,6 @@ export function DiagramControls(props: ControlProps) {
                     <WarningIcon sx={{ color: '#EA4C4D' }} />
                 </CanvasControlButton>
             }
-            <CanvasControlButton onClick={downloadDiagram} tooltipTitle={'Download'}>
-                <DownloadIcon />
-            </CanvasControlButton>
 
             <CanvasControlButton onClick={refreshDiagram} tooltipTitle={'Refresh'}>
                 <CachedIcon />
