@@ -57,7 +57,7 @@ export class ComponentWizardView {
         await CommonUtils.waitUntilById(`${componentName}-tag-Local`);
         console.log("Pushing component to Choreo");
         await CommonUtils.waitAndClickById("alert-btn-push-all");
-        await CommonUtils.waitForIdToDisappear(`${componentName}-tag-Local`, 20000);
+        await CommonUtils.waitForIdToDisappear(`${componentName}-tag-Local`, 30000);
         console.log("Component successfully pushed to Choreo");
 
         await CommonUtils.switchToDefaultFrame();
