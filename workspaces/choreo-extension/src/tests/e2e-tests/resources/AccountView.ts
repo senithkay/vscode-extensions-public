@@ -91,7 +91,6 @@ export class AccountView {
     /** Verify whether current project details are visible in the account section */
     static async verifyWithinProject() {
         console.log("Verifying whether current project details are visible");
-        const driver = VSBrowser.instance.driver;
         await CommonUtils.switchToIFrame("Account");
         await CommonUtils.waitUntilById("current-project-section", 20000);
         await CommonUtils.switchToDefaultFrame();
