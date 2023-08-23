@@ -11,7 +11,7 @@ import React, { SVGProps, useEffect, useState } from 'react';
 import { DiagramEngine, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { Point } from '@projectstorm/geometry';
 import { ComponentLinkModel } from './ComponentLinkModel';
-import { Colors } from '../../resources';
+import { Colors } from '../../../resources';
 
 interface WidgetProps {
 	engine: DiagramEngine,

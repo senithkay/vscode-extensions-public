@@ -8,7 +8,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors } from '../../resources';
+import { Colors } from '../../../resources';
 
 const ANON_RECORD_PRIMARY: string = '#0d6fbf';
 const ANON_RECORD_SECONDARY: string = '#e8f5ff';
@@ -31,7 +31,7 @@ export const ComponentNode: React.FC<any> = styled.div`
     color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
     display: flex;
     flex-direction: column;
-    padding: 10px;
+    padding: 8px;
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
@@ -56,49 +56,3 @@ export const ComponentName: React.FC<any> = styled.span`
     }
 `;
 
-export const AttributeContainer: React.FC<any> = styled.div`
-    align-items: center;
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-    border: 0.5px solid ${Colors.NODE_BORDER};
-    display: flex;
-    flex-direction: row;
-    font-size: 12px;
-    gap: 15px;
-    height: 35px;
-    justify-content: space-between;
-    min-width: calc(100% - 40px);
-    padding: 8px 8px 8px 32px;
-`;
-
-export const AttributeName = styled.span`
-    align-items: center;
-    color: ${Colors.DEFAULT_TEXT};
-    display: flex;
-    flex: 1;
-    font-family: GilmerRegular;
-    font-size: 12px;
-    line-height: 16px;
-    text-align: left;
-`;
-
-export const AttributeType: React.FC<any> = styled.span`
-    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
-    border-radius: 3px;
-    color: #000000;
-    font-family: GilmerRegular;
-    font-size: 12px;
-    height: 20px;
-    gap: 10px;
-    line-height: 20px;
-    min-width: 50px;
-    padding-inline: 8px;
-    text-align: center;
-    white-space: nowrap;
-    cursor: pointer;
-`;
-
-export const InclusionPortsContainer = styled.div`
-    display: flex;
-    justify-content: center;
-`;

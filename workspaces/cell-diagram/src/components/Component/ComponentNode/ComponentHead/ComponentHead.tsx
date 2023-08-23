@@ -9,9 +9,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import IconButton from '@mui/material/IconButton';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { ComponentPortWidget } from '../../ComponentPort/ComponentPortWidget';
 import { ComponentModel } from '../ComponentModel';
 import { ComponentHead, ComponentName } from '../styles';
@@ -25,12 +22,10 @@ interface ServiceHeadProps {
     setCollapsedStatus: (status: boolean) => void;
 }
 
-const ANON_RECORD_DISPLAY: string = 'record';
-
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isCollapsed, setCollapsedStatus, onClick } = props;
+    const { engine, node, isSelected, isCollapsed, onClick } = props;
     const headPorts = useRef<PortModel[]>([]);
-    const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [_isHovered, setIsHovered] = useState<boolean>(false);
 
     const displayName: string = node.componentObject.id || node.getID().slice(node.getID().lastIndexOf(':') + 1);
 
@@ -44,11 +39,6 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
         if (!isCollapsed) {
             node.handleHover(headPorts.current, task);
         }
-    }
-
-    const handleCollapsedStatus = () => {
-        setCollapsedStatus(!isCollapsed);
-        setIsHovered(false);
     }
 
     return (
@@ -71,20 +61,6 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
             />
-
-            {/* {isHovered &&
-                <IconButton
-                    onClick={handleCollapsedStatus}
-                    size={'small'}
-                    sx={{
-                        backgroundColor: 'white',
-                        right: '8px',
-                        position: 'absolute'
-                    }}
-                >
-                    {isCollapsed ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
-                </IconButton>
-            } */}
         </ComponentHead>
     )
 }

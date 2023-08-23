@@ -8,9 +8,9 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { SharedNodeModel } from '../shared-node/shared-node';
+import { SharedNodeModel } from '../../shared-node/shared-node';
 import { ComponentPortModel } from '../ComponentPort/ComponentPortModel';
-import { Component } from '../../types';
+import { Component } from '../../../types';
 
 export class ComponentModel extends SharedNodeModel {
     readonly componentObject: Component;
@@ -21,5 +21,8 @@ export class ComponentModel extends SharedNodeModel {
 
         this.addPort(new ComponentPortModel(componentName, PortModelAlignment.LEFT));
         this.addPort(new ComponentPortModel(componentName, PortModelAlignment.RIGHT));
+
+        this.addPort(new ComponentPortModel(componentName, PortModelAlignment.TOP));
+        this.addPort(new ComponentPortModel(componentName, PortModelAlignment.BOTTOM));
     }
 }
