@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { FILE_DOWNLOAD_PATH, BallerinaExtension } from "../core";
+import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_CANCELED, TM_EVENT_OPEN_FILE_CHANGE_PATH, TM_EVENT_OPEN_FILE_NEW_FOLDER, TM_EVENT_OPEN_FILE_SAME_FOLDER, TM_EVENT_OPEN_REPO_CANCELED, TM_EVENT_OPEN_REPO_CHANGE_PATH, TM_EVENT_OPEN_REPO_CLONE_NOW, sendTelemetryEvent } from "../telemetry";
 
 interface ProgressMessage {
     message: string;
@@ -87,12 +88,13 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
     if (isSuccess) {
         const successMsg = `The Ballerina sample file has been downloaded successfully to the following directory: ${filePath}.`;
         const changePath: MessageItem = { title: 'Change Directory' };
-        openFileInVSCode(filePath);
+        openFileInVSCode(ballerinaExtInstance, filePath);
         const success = await window.showInformationMessage(
             successMsg,
             changePath
         );
         if (success === changePath) {
+            sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_CHANGE_PATH, CMP_OPEN_VSCODE_URL);
             await selectFileDownloadPath();
         }
     }
@@ -109,11 +111,14 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
             const changePath: MessageItem = { title: 'Change Directory' };
             const result = await window.showInformationMessage(message, { detail: `${selectedPath}`, modal: true }, cloneAnyway, changePath);
             if (result === cloneAnyway) {
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CLONE_NOW, CMP_OPEN_VSCODE_URL);
                 cloneRepo(repoUrl, selectedPath, specificFileName);
             } else if (result === changePath) {
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CHANGE_PATH, CMP_OPEN_VSCODE_URL);
                 const newPath = await selectFileDownloadPath();
                 cloneRepo(repoUrl, newPath, specificFileName);
             } else {
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
                 window.showErrorMessage(`Repository clone canceled.`);
                 return;
             }
@@ -201,23 +206,26 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
 }
 
 
-async function openFileInVSCode(filePath: string): Promise<void> {
+async function openFileInVSCode(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
     const uri = Uri.file(filePath);
     const message = `Would you like to open the downloaded file?`;
     const newWindow: MessageItem = { title: "Open in New Window" };
     const sameWindow: MessageItem = { title: 'Open' };
     const result = await window.showInformationMessage(message, { modal: true }, sameWindow, newWindow);
     if (!result) {
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_CANCELED, CMP_OPEN_VSCODE_URL);
         return; // User cancelled
     }
     try {
         switch (result) {
             case newWindow:
                 await commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: true });
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_NEW_FOLDER, CMP_OPEN_VSCODE_URL);
                 break;
             case sameWindow:
                 const document = await workspace.openTextDocument(uri);
                 await window.showTextDocument(document, { preview: false });
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_SAME_FOLDER, CMP_OPEN_VSCODE_URL);
                 break;
             default:
                 break;

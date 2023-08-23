@@ -96,3 +96,16 @@ export const TM_EVENT_RESTART_NOTEBOOK = "notebook.restart";
 export const TM_EVENT_OPEN_VARIABLE_VIEW = "notebook.variable-view.open";
 export const TM_EVENT_UPDATE_VARIABLE_VIEW = "notebook.variable-view.update";
 export const TM_EVENT_START_NOTEBOOK_DEBUG = "notebook.start.debug";
+
+
+// events for open vscode from url
+export const TM_EVENT_OPEN_FILE_URL_START = "vscode.open.file.url.start";
+export const TM_EVENT_OPEN_FILE_CHANGE_PATH = "vscode.open.file.change.path";
+export const TM_EVENT_OPEN_FILE_NEW_FOLDER = "vscode.open.file.new.folder";
+export const TM_EVENT_OPEN_FILE_SAME_FOLDER = "vscode.open.file.same.folder";
+export const TM_EVENT_OPEN_FILE_CANCELED = "vscode.open.file.canceled";
+
+export const TM_EVENT_OPEN_REPO_URL_START = "vscode.open.repo.url.start";
+export const TM_EVENT_OPEN_REPO_CLONE_NOW = "vscode.open.repo.clone.now";
+export const TM_EVENT_OPEN_REPO_CHANGE_PATH = "vscode.open.repo.change.path";
+export const TM_EVENT_OPEN_REPO_CANCELED = "vscode.open.repo.canceled";

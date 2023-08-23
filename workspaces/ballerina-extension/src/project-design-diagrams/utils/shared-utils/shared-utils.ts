@@ -42,7 +42,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
 
         try {
             const choreoExt = await getChoreoExtAPI();
-            const nonBalComponentsMap = await choreoExt.getNonBalComponentModels();
+            const nonBalComponentsMap = await choreoExt?.getNonBalComponentModels();
             
             const response = await langClient.getPackageComponentModels({ documentUris: ballerinaFiles });
             let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
