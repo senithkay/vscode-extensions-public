@@ -253,6 +253,11 @@ jobs:
           TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
           TEST_GITHUB_ORG: choreo-test-apps
           TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
+          TEST_BITBUCKET_USERNAME: choreo-test-user
+          TEST_BITBUCKET_PASSWORD: ${{ secrets.TEST_BITBUCKET_PASSWORD }}
+          TEST_BITBUCKET_CHOREO_CREDENTIAL: vscode-test-credentials
+          TEST_BITBUCKET_WORKSPACE: vscode-tests
+          TEST_BITBUCKET_REPO: vscode-test-mono-repo-prod
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
