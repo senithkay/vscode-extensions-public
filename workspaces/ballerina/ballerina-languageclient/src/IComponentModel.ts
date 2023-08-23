@@ -14,10 +14,26 @@ export interface ComponentModel {
     connections: CMDependency[];
 }
 
+export interface ComponentModelDeprecated {
+    packageId: CMPackageID;
+    version?: string;
+    services: Map<string, any>;
+    entities: Map<string, CMEntity>;
+    diagnostics?: CMDiagnostics[];
+    functionEntryPoint?: any;
+    hasCompilationErrors: boolean;
+}
+
 export interface CMDiagnostics {
     name: string;
     message?: string;
     severity?: string;
+}
+
+export interface CMPackageID {
+    name: string,
+    org: string,
+    version: string
 }
 
 export interface CMLocation {
@@ -80,6 +96,8 @@ export interface CMRemoteFunction extends CMFunctionNode {
 export interface CMInteraction extends CMNode {
     id: string;
     type: string;
+    serviceId: string;
+    serviceLabel?: string;
 }
 
 export interface CMParameter extends CMNode {
@@ -87,13 +105,6 @@ export interface CMParameter extends CMNode {
     isRequired: boolean;
     name: string;
     type: string[];
-}
-
-export interface CMResourceId {
-    action: string;
-    path: string;
-    serviceId: string;
-    serviceLabel?: string;
 }
 
 export interface CMEntity extends CMNode {

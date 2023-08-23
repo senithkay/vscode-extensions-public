@@ -22,7 +22,7 @@ export async function enrichDeploymentData(orgId: string, componentId: string, p
                                            apiVersions: ApiVersion[], componentLocation: string): Promise<boolean> {
     const services = [...pkgServices.values()];
     const componentServices = services.filter((service) =>
-        service.elementLocation?.filePath.includes(componentLocation)
+        service.sourceLocation?.filePath.includes(componentLocation)
     );
     for (const service of componentServices) {
         let isInternetExposed = false;
@@ -91,9 +91,9 @@ export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, a
 export function mergeNonClonedProjectData(component: Component): ComponentModel {
     const pkgServices: { [key: string]: Service } = {};
     pkgServices[component.id] = {
-        serviceId: component.displayName,
+        id: component.displayName,
         label: component.displayName,
-        serviceType: component.displayType,
+        type: component.displayType,
         annotation: {
             id: component.id,
             label: component.displayName
@@ -108,16 +108,19 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
                 }
             }
         },
-        dependencyIDs: [],
+        dependencies: [],
         remoteFunctions: [],
-        resources: [],
+        resourceFunctions: [],
         isNoData: true
     };
     return {
-        packageId: { name: component.name, org: component.orgHandler, version: component.version },
+        id: component.name,
+        orgName: component.orgHandler,
+        modelVersion: "0.4.0",
+        version: component.version,
         services: pkgServices as any,
         entities: new Map(),
-        dependencies: [],
+        connections: [],
         hasCompilationErrors: false,
         hasModelErrors: false
     };
@@ -137,11 +140,10 @@ export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: 
         for (const pathKey of Object.keys(paths)) {
             for (const pathMethod of Object.keys(paths[pathKey])) {
                 resourceList.push({
-                    functionID: "",
+                    id: `${serviceId}:${pathKey}:${pathMethod}`,
                     label: "",
-                    identifier: `${pathMethod} ${pathKey}`,
+                    path: pathKey,
                     interactions: [],
-                    resourceId: { action: pathMethod, path: pathKey, serviceId },
                     parameters: [],
                     returns: [],
                 });

@@ -10,9 +10,11 @@
 import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
 import {
     CMDependency,
-    CMEntryPoint, CMPackageID, CMService,
+    CMEntryPoint, CMInteraction, CMRemoteFunction, CMResourceFunction,
+    CMService,
     CMService as Service,
-    ComponentModel
+    ComponentModel,
+    ComponentModelDeprecated
 } from '@wso2-enterprise/ballerina-languageclient';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
@@ -175,9 +177,9 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
         const sourcePort: GatewayPortModel = gatewayNode.getPortFromID(`${sourceGWType}-in`);
         let targetPort: ServicePortModel;
         if (sourceGWType === "WEST") {
-            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.nodeObject.serviceId}`);
+            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.nodeObject.id}`);
         } else if (sourceGWType === "NORTH") {
-            targetPort = targetNode.getPortFromID(`top-${targetNode.nodeObject.serviceId}`);
+            targetPort = targetNode.getPortFromID(`top-${targetNode.nodeObject.id}`);
         }
         if (sourcePort && targetPort) {
             engine.getModel().addLink(createGWLinks(sourcePort, targetPort, link));
@@ -318,21 +320,30 @@ export function getNorthGWArrowHeadSlope(slope: number) {
     return newSlope;
 }
 
-export function isVersionBelowV4(projectComponents: Map<string, ComponentModel>): boolean {
-    const firstComponent: ComponentModel = projectComponents.values().next().value;
-    return parseFloat(firstComponent.version) < 0.4;
+export function isVersionBelow(projectComponents: Map<string, ComponentModel | ComponentModelDeprecated>, targetVersion: number): boolean {
+    const firstComponent = projectComponents.values().next().value;
+    if (firstComponent?.modelVersion) {
+        return parseFloat(firstComponent.modelVersion) < targetVersion;
+    }
+    return parseFloat(firstComponent.version) < targetVersion;
 }
 
-export function transformToV4Models(projectComponents: Map<string, ComponentModel>): Map<string, ComponentModel> {
+export function transformToV4Models(projectComponents: Map<string, ComponentModelDeprecated>): Map<string, ComponentModel> {
     const newProjectComponents = new Map<string, ComponentModel>();
-    projectComponents.forEach((componentModel: ComponentModel, key: string) => {
+    projectComponents.forEach((componentModel: ComponentModelDeprecated, key: string) => {
         const newComponentModel: ComponentModel = {
-            ...componentModel,
-            services: transformToV4Services(componentModel.services, (componentModel.packageId as CMPackageID).name) as any,
+            id: componentModel.packageId.name,
+            orgName: componentModel.packageId.org,
+            version: componentModel.packageId.version,
+            modelVersion: componentModel.version,
+            services: transformToV4Services(componentModel.services, componentModel.packageId.name) as any,
+            entities: componentModel.entities,
+            diagnostics: componentModel.diagnostics,
             functionEntryPoint: componentModel.functionEntryPoint
                 && transformToV4FunctionEntryPoint(componentModel.functionEntryPoint),
+            hasCompilationErrors: componentModel.hasCompilationErrors,
             hasModelErrors: false,
-            dependencies: deriveDependencies(componentModel),
+            connections: deriveDependencies(componentModel),
         }
 
         newProjectComponents.set(key, newComponentModel);
@@ -341,14 +352,14 @@ export function transformToV4Models(projectComponents: Map<string, ComponentMode
     return newProjectComponents;
 }
 
-function deriveDependencies(componentModel: ComponentModel): CMDependency[] {
+function deriveDependencies(componentModel: ComponentModelDeprecated): CMDependency[] {
     const dependencies: CMDependency[] = [];
     Object.entries(componentModel.services).forEach(([_, service]: [string, any]) => {
-        (service as any)?.dependencies.forEach((dependency: CMDependency) => {
+        service?.dependencies.forEach((dependency: any) => {
             dependencies.push(transformToV4Dependency(dependency));
         });
     });
-    (componentModel.functionEntryPoint as any)?.dependencies.forEach((dependency: CMDependency) => {
+    componentModel.functionEntryPoint?.dependencies.forEach((dependency: any) => {
         dependencies.push(transformToV4Dependency(dependency));
     });
 
@@ -359,45 +370,94 @@ export function transformToV4Services(services: Map<string, any>, packageName: s
     const newServices: Record<string, CMService> = {};
     let unnamedSvcIndex = 0;
     Object.entries(services).forEach(([key, service]: [string, any]) => {
-        let label = service?.path || service.annotation.label;
+        let label = service.annotation.label || service?.path;
         if (!service.path && (!service.annotation.label || validateUUID(service.annotation.label))
             && validateUUID(service.annotation.id)) {
             [label, unnamedSvcIndex] = getLabelAndNextIndex(packageName, unnamedSvcIndex);
         }
         newServices[key] = {
-            serviceId: service.serviceId,
+            id: service.serviceId,
             label: label,
+            remoteFunctions: transformToV4RemoteFunctions(service.remoteFunctions),
+            resourceFunctions: transformToV4ResourceFunctions(service.resources),
+            type: service.serviceType,
+            dependencies: service?.dependencies?.map((dep: any) => dep?.serviceId),
             annotation: service.annotation,
-            serviceType: service.serviceType,
-            resources: service.resources,
-            remoteFunctions: service.remoteFunctions,
             deploymentMetadata: service.deploymentMetadata,
             isNoData: service.isNoData,
-            dependencyIDs: service?.dependencies?.map((dep: any) => dep?.serviceId)
+            sourceLocation: service.elementLocation,
+            diagnostics: service.diagnostics
         };
     });
 
     return newServices;
 }
 
-export function transformToV4FunctionEntryPoint(functionEntryPoint: CMEntryPoint): CMEntryPoint {
+export function transformToV4FunctionEntryPoint(functionEntryPoint: any): CMEntryPoint {
     return {
-        functionID: functionEntryPoint?.annotation?.id,
+        id: functionEntryPoint?.annotation?.id,
         label: functionEntryPoint?.annotation?.label,
-        annotation: functionEntryPoint.annotation,
-        type: functionEntryPoint.type,
         interactions: functionEntryPoint.interactions,
         parameters: functionEntryPoint.parameters,
         returns: functionEntryPoint.returns,
-        dependencyIDs: (functionEntryPoint as any)?.dependencies?.map((dep: any) => dep?.serviceId)
+        annotation: functionEntryPoint.annotation,
+        type: functionEntryPoint.type,
+        dependencies: (functionEntryPoint as any)?.dependencies?.map((dep: any) => dep?.serviceId),
+        sourceLocation: functionEntryPoint.elementLocation,
+        diagnostics: functionEntryPoint.diagnostics
     };
 }
 
-export function transformToV4Dependency(dependency: CMDependency): CMDependency {
+export function transformToV4ResourceFunctions(resources: any[]): CMResourceFunction[] {
+    return resources.map(resource => {
+        return {
+            id: `${resource.resourceId.serviceId}:${resource.resourceId.path}:${resource.resourceId.action}`,
+            label: resource.resourceId.path,
+            interactions: transformToV4Interactions(resource.interactions),
+            parameters: resource.parameters,
+            returns: resource.returns,
+            path: resource.resourceId.path,
+            sourceLocation: resource.elementLocation,
+            diagnostics: resource.diagnostics
+        }
+    });
+}
+
+export function transformToV4RemoteFunctions(remotes: any[]): CMRemoteFunction[] {
+    return remotes.map(remoteFn => {
+        return {
+            id: remoteFn.name,
+            label: remoteFn.name,
+            interactions: transformToV4Interactions(remoteFn.interactions),
+            parameters: remoteFn.parameters,
+            returns: remoteFn.returns,
+            name: remoteFn.name,
+            sourceLocation: remoteFn.elementLocation,
+            diagnostics: remoteFn.diagnostics
+        }
+    });
+}
+
+export function transformToV4Interactions(interactions: any[]): CMInteraction[] {
+    return interactions.map(interaction => {
+        return {
+            id: `${interaction.resourceId.serviceId}:${interaction.resourceId.path}:${interaction.resourceId.action}`,
+            type: interaction.connectorType,
+            serviceId: interaction.resourceId.serviceId,
+            serviceLabel: interaction.serviceLabel,
+            sourceLocation: interaction.elementLocation,
+            diagnostics: interaction.diagnostics
+        }
+    });
+}
+
+export function transformToV4Dependency(dependency: any): CMDependency {
     return {
-        entryPointID: (dependency as any)?.serviceId,
-        connectorType: dependency.connectorType,
-        serviceLabel: dependency.serviceLabel
+        id: dependency.serviceId,
+        type: dependency.connectorType,
+        serviceLabel: dependency.serviceLabel,
+        sourceLocation: dependency.elementLocation,
+        diagnostics: dependency.diagnostics
     };
 }
 

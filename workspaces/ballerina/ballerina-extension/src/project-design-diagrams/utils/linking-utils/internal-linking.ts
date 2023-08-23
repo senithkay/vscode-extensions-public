@@ -20,7 +20,7 @@ let clientName: string;
 
 export async function linkServices(langClient: ExtendedLangClient, args: AddLinkArgs): Promise<boolean> {
     const { source, target } = args;
-    const filePath: string = args.source.elementLocation.filePath;
+    const filePath: string = args.source.sourceLocation.filePath;
 
     const stResponse: STResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
@@ -29,13 +29,13 @@ export async function linkServices(langClient: ExtendedLangClient, args: AddLink
     }) as STResponse;
 
     if (stResponse && stResponse.parseSuccess) {
-        clientName = genClientName(stResponse.source, transformLabel(target.label || target.annotation.label || target.serviceId));
-        const targetType: ServiceTypes = getServiceType(target.serviceType);
+        clientName = genClientName(stResponse.source, transformLabel(target.label || target.annotation.label || target.id));
+        const targetType: ServiceTypes = getServiceType(target.type);
         const imports = new Set<string>([`ballerina/${targetType}`]);
         const missingImports: Set<string> = getMissingImports(stResponse.source, imports);
         const clientDecl: string = generateClientDecl(target, targetType, 'serviceId' in source);
 
-        if ('serviceId' in source) {
+        if ('resourceFunctions' in source) {
             return linkFromService(stResponse, source, clientDecl, missingImports, filePath, langClient);
         } else {
             return linkFromMain(stResponse, clientDecl, missingImports, filePath, langClient);
@@ -118,7 +118,7 @@ function generateClientDecl(targetService: Service, targetType: ServiceTypes, is
     let clientDeclaration: string = `
         @display {
             label: "${targetService.label}",
-            id: "${targetService.serviceId}"
+            id: "${targetService.id}"
         }
         ${targetType}:Client ${clientName}${isServiceSource ? '' : ' = check new("")'};
     `;
