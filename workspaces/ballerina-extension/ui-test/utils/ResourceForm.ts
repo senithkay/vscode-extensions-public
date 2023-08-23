@@ -141,6 +141,9 @@ export class ResourceForm {
     }
 
     static async saveResource(webview: WebView, method: string) {
+        // Wait for changes from LS
+        await this.waitForDisableEnableElement(webview);
+
         const resourceSaveBtn = await waitUntil(By.xpath("//*[@data-testid='save-btn']"));
         resourceSaveBtn.click();
 
