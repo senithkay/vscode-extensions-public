@@ -9,19 +9,19 @@
 
 import React from 'react';
 import { DefaultLinkFactory } from '@projectstorm/react-diagrams';
-import { EntityLinkModel } from './EntityLinkModel';
-import { EntityLinkWidget } from './EntityLinkWidget';
+import { ComponentLinkModel } from './ComponentLinkModel';
+import { ComponentLinkWidget } from './ComponentLinkWidget';
 
-export class EntityLinkFactory extends DefaultLinkFactory {
+export class ComponentLinkFactory extends DefaultLinkFactory {
 	constructor() {
-		super('entityLink');
+		super('componentLink');
 	}
 
-	generateModel(event: { initialConfig: any }): EntityLinkModel {
-		return new EntityLinkModel(event.initialConfig.id, event.initialConfig.cardinality);
+	generateModel(event: { initialConfig: any }): ComponentLinkModel {
+		return new ComponentLinkModel(event.initialConfig.id, event.initialConfig.cardinality);
 	}
 
-	generateReactWidget(props: { model: EntityLinkModel }): JSX.Element {
-		return <EntityLinkWidget link={props.model} engine={this.engine} />;
+	generateReactWidget(props: { model: ComponentLinkModel }): JSX.Element {
+		return <ComponentLinkWidget link={props.model} engine={this.engine} />;
 	}
 }

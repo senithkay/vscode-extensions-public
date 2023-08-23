@@ -9,7 +9,7 @@
 
 import createEngine, { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import {
-    EntityLinkModel, EntityModel, EntityPortModel, OverlayLayerFactory, EntityFactory, EntityLinkFactory, EntityPortFactory
+    ComponentLinkModel, ComponentModel, ComponentPortModel, OverlayLayerFactory, ComponentFactory, ComponentLinkFactory, ComponentPortFactory
 } from '../components';
 import { Component, ConnectionMetadata, ConnectionType } from '../types';
 
@@ -18,61 +18,61 @@ export function generateEngine(): DiagramEngine {
         registerDefaultPanAndZoomCanvasAction: true,
         registerDefaultZoomCanvasAction: false
     });
-    engine.getLinkFactories().registerFactory(new EntityLinkFactory());
-    engine.getPortFactories().registerFactory(new EntityPortFactory());
-    engine.getNodeFactories().registerFactory(new EntityFactory());
+    engine.getLinkFactories().registerFactory(new ComponentLinkFactory());
+    engine.getPortFactories().registerFactory(new ComponentPortFactory());
+    engine.getNodeFactories().registerFactory(new ComponentFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return engine;
 }
 
 export function modelMapper(entities: Map<string, Component>): DiagramModel {
-    let componentNodes: Map<string, EntityModel> = generateNodes(entities);
-    let componentLinks: Map<string, EntityLinkModel> = generateLinks(entities, componentNodes);
+    let componentNodes: Map<string, ComponentModel> = generateNodes(entities);
+    let componentLinks: Map<string, ComponentLinkModel> = generateLinks(entities, componentNodes);
 
     let model = new DiagramModel();
     model.addAll(...Array.from(componentNodes.values()), ...Array.from(componentLinks.values()));
     return model;
 }
 
-function generateNodes(entities: Map<string, Component>): Map<string, EntityModel> {
-    let nodes: Map<string, EntityModel> = new Map<string, EntityModel>();
-    entities?.forEach((entity, _key) => {
-        const entityNode = new EntityModel(entity.id, entity);
-        nodes.set(entity.id, entityNode);
+function generateNodes(entities: Map<string, Component>): Map<string, ComponentModel> {
+    let nodes: Map<string, ComponentModel> = new Map<string, ComponentModel>();
+    entities?.forEach((component, _key) => {
+        const componentNode = new ComponentModel(component.id, component);
+        nodes.set(component.id, componentNode);
     });
 
     return nodes;
 }
 
-function generateLinks(entities: Map<string, Component>, nodes: Map<string, EntityModel>): Map<string, EntityLinkModel> {
-    let links: Map<string, EntityLinkModel> = new Map();
+function generateLinks(entities: Map<string, Component>, nodes: Map<string, ComponentModel>): Map<string, ComponentLinkModel> {
+    let links: Map<string, ComponentLinkModel> = new Map();
     let mappedLinkNodes: Map<string, string[]> = new Map();
 
-    entities?.forEach((entity, key) => {
-        let callingEntity: EntityModel | undefined = nodes.get(entity.id);
-        let associatedEntity: EntityModel | undefined;
+    entities?.forEach((component, key) => {
+        let callingComponent: ComponentModel | undefined = nodes.get(component.id);
+        let associatedComponent: ComponentModel | undefined;
 
         if (!mappedLinkNodes.has(key)) {
             mappedLinkNodes.set(key, []);
         }
 
-        entity.connections.forEach(connection => {
+        component.connections.forEach(connection => {
             switch (connection.type) {
                 case ConnectionType.HTTP:
                     const connectionMetadata = getMetadataFromConnectionId(connection.id);
                     if (connectionMetadata && connectionMetadata.type === ConnectionType.HTTP) {
-                        associatedEntity = nodes.get(connectionMetadata.component);
-                        if (callingEntity && associatedEntity) {
-                            let sourcePort: EntityPortModel | null = callingEntity.getPort(`right-${callingEntity.getID()}`);
-                            let targetPort: EntityPortModel | null = associatedEntity.getPort(`left-${associatedEntity.getID()}`);
+                        associatedComponent = nodes.get(connectionMetadata.component);
+                        if (callingComponent && associatedComponent) {
+                            let sourcePort: ComponentPortModel | null = callingComponent.getPort(`right-${callingComponent.getID()}`);
+                            let targetPort: ComponentPortModel | null = associatedComponent.getPort(`left-${associatedComponent.getID()}`);
 
                             if (sourcePort && targetPort) {
                                 const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
-                                let link: EntityLinkModel = new EntityLinkModel(linkId);
+                                let link: ComponentLinkModel = new ComponentLinkModel(linkId);
                                 links.set(linkId, createLinks(sourcePort, targetPort, link));
-                                link.setSourceNode(callingEntity.getID());
-                                link.setTargetNode(associatedEntity.getID());
-                                mappedLinkNodes.set(key, [...(mappedLinkNodes.get(key) || []), associatedEntity.getID()]);
+                                link.setSourceNode(callingComponent.getID());
+                                link.setTargetNode(associatedComponent.getID());
+                                mappedLinkNodes.set(key, [...(mappedLinkNodes.get(key) || []), associatedComponent.getID()]);
                             }
 
                         }
@@ -86,51 +86,51 @@ function generateLinks(entities: Map<string, Component>, nodes: Map<string, Enti
         })
 
 
-        // entity.attributes.forEach(attribute => {
+        // component.attributes.forEach(attribute => {
         //     attribute.associations.forEach(association => {
-        //         associatedEntity = nodes.get(association.associate);
-        //         if (callingEntity && associatedEntity) {
-        //             let sourcePort: EntityPortModel = callingEntity.getPort(`right-${key}/${attribute.name}`);
-        //             let targetPort: EntityPortModel = associatedEntity.getPort(`left-${association.associate}`);
+        //         associatedComponent = nodes.get(association.associate);
+        //         if (callingComponent && associatedComponent) {
+        //             let sourcePort: ComponentPortModel = callingComponent.getPort(`right-${key}/${attribute.name}`);
+        //             let targetPort: ComponentPortModel = associatedComponent.getPort(`left-${association.associate}`);
 
         //             if (sourcePort && targetPort) {
-        //                 if (mappedLinkNodes.has(associatedEntity.getID()) &&
-        //                     mappedLinkNodes.get(associatedEntity.getID()).includes(callingEntity.getID())) {
+        //                 if (mappedLinkNodes.has(associatedComponent.getID()) &&
+        //                     mappedLinkNodes.get(associatedComponent.getID()).includes(callingComponent.getID())) {
         //                     const linkId: string = Array.from(links.keys()).find(itemId =>
-        //                         itemId.slice(itemId.indexOf('-') + 1).startsWith(associatedEntity.getID()) && itemId.endsWith(key)
+        //                         itemId.slice(itemId.indexOf('-') + 1).startsWith(associatedComponent.getID()) && itemId.endsWith(key)
         //                     );
         //                     if (linkId) {
         //                         const link2update = links.get(linkId);
         //                         link2update.cardinality.self = association.cardinality.associate;
         //                         link2update.setTargetPort(sourcePort);
-        //                         link2update.setTargetNode(callingEntity.getID(), attribute.name);
+        //                         link2update.setTargetNode(callingComponent.getID(), attribute.name);
         //                     }
-        //                     const index = mappedLinkNodes.get(associatedEntity.getID()).indexOf(callingEntity.getID());
+        //                     const index = mappedLinkNodes.get(associatedComponent.getID()).indexOf(callingComponent.getID());
         //                     if (index > -1) {
-        //                         mappedLinkNodes.get(associatedEntity.getID()).splice(index, 1);
+        //                         mappedLinkNodes.get(associatedComponent.getID()).splice(index, 1);
         //                     }
         //                 } else {
         //                     const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
-        //                     let link: EntityLinkModel = new EntityLinkModel(linkId, association.cardinality);
+        //                     let link: ComponentLinkModel = new ComponentLinkModel(linkId, association.cardinality);
         //                     links.set(linkId, createLinks(sourcePort, targetPort, link));
-        //                     link.setSourceNode(callingEntity.getID(), attribute.name);
-        //                     link.setTargetNode(associatedEntity.getID());
-        //                     mappedLinkNodes.set(key, [...mappedLinkNodes.get(key), associatedEntity.getID()]);
+        //                     link.setSourceNode(callingComponent.getID(), attribute.name);
+        //                     link.setTargetNode(associatedComponent.getID());
+        //                     mappedLinkNodes.set(key, [...mappedLinkNodes.get(key), associatedComponent.getID()]);
         //                 }
         //             }
         //         }
         //     });
         // });
 
-        // entity.inclusions.forEach((inclusion) => {
-        //     associatedEntity = nodes.get(inclusion);
-        //     if (callingEntity && associatedEntity) {
-        //         let sourcePort: EntityPortModel = callingEntity.getPort(`top-${key}`);
-        //         let targetPort: EntityPortModel = associatedEntity.getPort(`bottom-${inclusion}`);
+        // component.inclusions.forEach((inclusion) => {
+        //     associatedComponent = nodes.get(inclusion);
+        //     if (callingComponent && associatedComponent) {
+        //         let sourcePort: ComponentPortModel = callingComponent.getPort(`top-${key}`);
+        //         let targetPort: ComponentPortModel = associatedComponent.getPort(`bottom-${inclusion}`);
 
         //         if (sourcePort && targetPort) {
         //             const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
-        //             let link: EntityLinkModel = new EntityLinkModel(linkId, undefined);
+        //             let link: ComponentLinkModel = new ComponentLinkModel(linkId, undefined);
         //             links.set(linkId, createLinks(sourcePort, targetPort, link));
         //         }
         //     }
@@ -140,7 +140,7 @@ function generateLinks(entities: Map<string, Component>, nodes: Map<string, Enti
     return links;
 }
 
-function createLinks(sourcePort: EntityPortModel, targetPort: EntityPortModel, link: EntityLinkModel): EntityLinkModel {
+function createLinks(sourcePort: ComponentPortModel, targetPort: ComponentPortModel, link: ComponentLinkModel): ComponentLinkModel {
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);

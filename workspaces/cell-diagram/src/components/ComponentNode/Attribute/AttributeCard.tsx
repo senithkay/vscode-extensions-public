@@ -11,14 +11,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-languageclient';
 import { PrimaryKeyIcon } from '../../../resources';
-import { EntityModel } from '../EntityModel';
-import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
-import { extractAttributeType } from '../entity-util';
+import { ComponentModel } from '../ComponentModel';
+import { ComponentPortWidget } from '../../ComponentPort/ComponentPortWidget';
+import { extractAttributeType } from '../component-util';
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 import { useDiagramContext } from "../../DiagramContext/DiagramContext";
 
 interface AttributeProps {
-    node: EntityModel;
+    node: ComponentModel;
     engine: DiagramEngine;
     attribute: Attribute;
     isSelected: boolean;
@@ -54,7 +54,7 @@ export function AttributeWidget(props: AttributeProps) {
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
         >
-            <EntityPortWidget
+            <ComponentPortWidget
                 port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
                 engine={engine}
             />
@@ -70,7 +70,7 @@ export function AttributeWidget(props: AttributeProps) {
             >
                 {attributeType}
             </AttributeType>
-            <EntityPortWidget
+            <ComponentPortWidget
                 port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
                 engine={engine}
             />

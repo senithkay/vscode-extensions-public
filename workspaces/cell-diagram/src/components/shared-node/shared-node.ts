@@ -8,7 +8,7 @@
  */
 
 import { LinkModel, NodeModel, NodeModelGenerics, PortModel } from '@projectstorm/react-diagrams';
-import { EntityLinkModel } from '../EntityLink/EntityLinkModel';
+import { ComponentLinkModel } from '../ComponentLink/ComponentLinkModel';
 
 export class SharedNodeModel extends NodeModel<NodeModelGenerics> {
     constructor(type: string, id: string) {
@@ -31,7 +31,7 @@ export class SharedNodeModel extends NodeModel<NodeModelGenerics> {
         }
     }
 
-    isNodeSelected = (selectedLink: EntityLinkModel, portIdentifier: string): boolean => {
+    isNodeSelected = (selectedLink: ComponentLinkModel, portIdentifier: string): boolean => {
         if (selectedLink) {
             if (selectedLink.getSourcePort().getNode().getID() === this.getID()) {
                 let sourcePortID: string = selectedLink.getSourcePort().getID();

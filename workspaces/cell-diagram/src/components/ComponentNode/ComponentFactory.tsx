@@ -10,19 +10,19 @@
 import React from 'react';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { EntityModel } from './EntityModel';
-import { EntityWidget } from './EntityWidget';
+import { ComponentModel } from './ComponentModel';
+import { ComponentWidget } from './ComponentWidget';
 
-export class EntityFactory extends AbstractReactFactory<EntityModel, DiagramEngine> {
+export class ComponentFactory extends AbstractReactFactory<ComponentModel, DiagramEngine> {
     constructor() {
-        super('entityNode');
+        super('componentNode');
     }
 
-    generateReactWidget(event: { model: EntityModel }): JSX.Element {
-        return <EntityWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: { model: ComponentModel }): JSX.Element {
+        return <ComponentWidget engine={this.engine} node={event.model} />;
     }
 
     generateModel(event: { initialConfig: any }) {
-        return new EntityModel(event.initialConfig.key, event.initialConfig.entity);
+        return new ComponentModel(event.initialConfig.key, event.initialConfig.component);
     }
 }

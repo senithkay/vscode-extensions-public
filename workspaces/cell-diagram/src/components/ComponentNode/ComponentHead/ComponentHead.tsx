@@ -12,13 +12,13 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import IconButton from '@mui/material/IconButton';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
-import { EntityModel } from '../EntityModel';
-import { EntityHead, EntityName } from '../styles';
+import { ComponentPortWidget } from '../../ComponentPort/ComponentPortWidget';
+import { ComponentModel } from '../ComponentModel';
+import { ComponentHead, ComponentName } from '../styles';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
-    node: EntityModel;
+    node: ComponentModel;
     isSelected: boolean;
     isCollapsed: boolean;
     onClick: () => void;
@@ -27,7 +27,7 @@ interface ServiceHeadProps {
 
 const ANON_RECORD_DISPLAY: string = 'record';
 
-export function EntityHeadWidget(props: ServiceHeadProps) {
+export function ComponentHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isCollapsed, setCollapsedStatus, onClick } = props;
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
@@ -52,22 +52,22 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     }
 
     return (
-        <EntityHead
+        <ComponentHead
             isSelected={isSelected}
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
             isCollapsed={isCollapsed}
         >
-            <EntityPortWidget
+            <ComponentPortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
-            <EntityName
+            <ComponentName
                 onClick={onClick}
             >
                 {displayName}
-            </EntityName>
-            <EntityPortWidget
+            </ComponentName>
+            <ComponentPortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
             />
@@ -85,6 +85,6 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                     {isCollapsed ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
                 </IconButton>
             } */}
-        </EntityHead>
+        </ComponentHead>
     )
 }

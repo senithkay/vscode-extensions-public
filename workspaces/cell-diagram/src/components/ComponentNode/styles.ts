@@ -22,7 +22,7 @@ interface StyleProps {
     isFocused?: boolean;
 }
 
-export const EntityNode: React.FC<any> = styled.div`
+export const ComponentNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.NODE_BACKGROUND};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
@@ -34,7 +34,7 @@ export const EntityNode: React.FC<any> = styled.div`
     padding: 10px;
 `;
 
-export const EntityHead: React.FC<any> = styled.div`
+export const ComponentHead: React.FC<any> = styled.div`
     align-items: center;
     display: flex;
     font-family: GilmerMedium;
@@ -47,7 +47,7 @@ export const EntityHead: React.FC<any> = styled.div`
     text-align: center;
 `;
 
-export const EntityName: React.FC<any> = styled.span`
+export const ComponentName: React.FC<any> = styled.span`
     cursor: pointer;
     &:hover {
         color: ${(props: StyleProps) => props.isClickable ? PRIMARY_HOVER : ``};

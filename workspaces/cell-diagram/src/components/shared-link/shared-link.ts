@@ -34,8 +34,8 @@ export class SharedLinkModel extends DefaultLinkModel {
 	}
 
 	selectLinkedNodes = () => {
-		this.getSourcePort().getNode().fireEvent({ entity: this }, 'SELECT');
-		this.getTargetPort().getNode().fireEvent({ entity: this }, 'SELECT');
+		this.getSourcePort().getNode().fireEvent({ component: this }, 'SELECT');
+		this.getTargetPort().getNode().fireEvent({ component: this }, 'SELECT');
 	}
 
 	resetLinkedNodes = () => {
@@ -47,7 +47,7 @@ export class SharedLinkModel extends DefaultLinkModel {
 		const lineCurve = new BezierCurve();
 
 		if (this.getSourcePort() && this.getTargetPort()) {
-			let markerSpace: number = this.getType() === 'entityLink' ? 125 : 70;
+			let markerSpace: number = this.getType() === 'componentLink' ? 125 : 70;
 
 			lineCurve.setSource(this.getSourcePort().getPosition());
 			lineCurve.setTarget(this.getTargetPort().getPosition());

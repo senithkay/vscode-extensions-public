@@ -10,15 +10,15 @@
 import React, { SVGProps, useEffect, useState } from 'react';
 import { DiagramEngine, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { Point } from '@projectstorm/geometry';
-import { EntityLinkModel } from './EntityLinkModel';
+import { ComponentLinkModel } from './ComponentLinkModel';
 import { Colors } from '../../resources';
 
 interface WidgetProps {
 	engine: DiagramEngine,
-	link: EntityLinkModel
+	link: ComponentLinkModel
 }
 
-export function EntityLinkWidget(props: WidgetProps) {
+export function ComponentLinkWidget(props: WidgetProps) {
 	const { engine, link } = props;
 
 	const [isSelected, setIsSelected] = useState<boolean>(false);

@@ -15,12 +15,12 @@ interface LinkOrigins {
 	attributeId: string;
 }
 
-export class EntityLinkModel extends SharedLinkModel {
+export class ComponentLinkModel extends SharedLinkModel {
 	sourceNode: LinkOrigins;
 	targetNode: LinkOrigins;
 
 	constructor(id: string) {
-		super(id, 'entityLink');
+		super(id, 'componentLink');
 	}
 
 	setSourceNode(nodeId: string, attributeId: string = '') {

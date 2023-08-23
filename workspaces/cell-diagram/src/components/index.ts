@@ -7,17 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export { EntityFactory } from './EntityNode/EntityFactory';
-export { EntityModel } from './EntityNode/EntityModel';
-export { EntityWidget } from './EntityNode/EntityWidget';
+export { ComponentFactory } from './ComponentNode/ComponentFactory';
+export { ComponentModel } from './ComponentNode/ComponentModel';
+export { ComponentWidget } from './ComponentNode/ComponentWidget';
 
-export { EntityLinkFactory } from './EntityLink/EntityLinkFactory';
-export { EntityLinkModel } from './EntityLink/EntityLinkModel';
-export { EntityLinkWidget } from './EntityLink/EntityLinkWidget';
+export { ComponentLinkFactory } from './ComponentLink/ComponentLinkFactory';
+export { ComponentLinkModel } from './ComponentLink/ComponentLinkModel';
+export { ComponentLinkWidget } from './ComponentLink/ComponentLinkWidget';
 
-export { EntityPortFactory } from './EntityPort/EntityPortFactory';
-export { EntityPortModel } from './EntityPort/EntityPortModel';
-export { EntityPortWidget } from './EntityPort/EntityPortWidget';
+export { ComponentPortFactory } from './ComponentPort/ComponentPortFactory';
+export { ComponentPortModel } from './ComponentPort/ComponentPortModel';
+export { ComponentPortWidget } from './ComponentPort/ComponentPortWidget';
 
 export * from './OverlayLoader';
 

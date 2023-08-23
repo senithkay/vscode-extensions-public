@@ -9,29 +9,29 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { EntityModel } from './EntityModel';
-import { EntityLinkModel } from '../EntityLink/EntityLinkModel';
-import { EntityPortWidget } from '../EntityPort/EntityPortWidget';
-import { EntityHeadWidget } from './EntityHead/EntityHead';
+import { ComponentModel } from './ComponentModel';
+import { ComponentLinkModel } from '../ComponentLink/ComponentLinkModel';
+import { ComponentPortWidget } from '../ComponentPort/ComponentPortWidget';
+import { ComponentHeadWidget } from './ComponentHead/ComponentHead';
 import { AttributeWidget } from './Attribute/AttributeCard';
-import { EntityNode, InclusionPortsContainer } from './styles';
+import { ComponentNode, InclusionPortsContainer } from './styles';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 
-interface EntityWidgetProps {
-    node: EntityModel;
+interface ComponentWidgetProps {
+    node: ComponentModel;
     engine: DiagramEngine;
 }
 
-export function EntityWidget(props: EntityWidgetProps) {
+export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
     const { collapsedMode, selectedNodeId, setHasDiagnostics, setSelectedNodeId, focusedNodeId, setFocusedNodeId } = useContext(DiagramContext);
-    const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
+    const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
 
     useEffect(() => {
         node.registerListener({
             'SELECT': (event: any) => {
-                setSelectedLink(event.entity as EntityLinkModel);
+                setSelectedLink(event.component as ComponentLinkModel);
             },
             'UNSELECT': () => { setSelectedLink(undefined) }
         })
@@ -43,26 +43,26 @@ export function EntityWidget(props: EntityWidgetProps) {
 
     // useEffect(() => {
     //     engine.getModel().getLinks().forEach((link) => {
-    //         const entityLink: EntityLinkModel = link as EntityLinkModel;
-    //         if (entityLink.sourceNode?.nodeId === node.getID()) {
-    //             const attributeId: string = `${node.getID()}/${entityLink.sourceNode.attributeId}`;
-    //             if (isCollapsed && entityLink.getSourcePort().getID() !== `right-${node.getID()}`) {
+    //         const componentLink: ComponentLinkModel = link as ComponentLinkModel;
+    //         if (componentLink.sourceNode?.nodeId === node.getID()) {
+    //             const attributeId: string = `${node.getID()}/${componentLink.sourceNode.attributeId}`;
+    //             if (isCollapsed && componentLink.getSourcePort().getID() !== `right-${node.getID()}`) {
     //                 link.setSourcePort(node.getPort(`right-${node.getID()}`));
     //             } else if (!isCollapsed &&
     //                 node.getPort(`right-${attributeId}`) &&
-    //                 entityLink.getSourcePort().getID() !== `right-${attributeId}`
+    //                 componentLink.getSourcePort().getID() !== `right-${attributeId}`
     //             ) {
     //                 link.setSourcePort(node.getPort(`right-${attributeId}`));
     //             }
-    //         } else if (entityLink.targetNode?.nodeId === node.getID()) {
-    //             const attributeId: string = `${node.getID()}/${entityLink.targetNode.attributeId}`;
-    //             if (isCollapsed && entityLink.getTargetPort().getID() !== `left-${node.getID()}`) {
+    //         } else if (componentLink.targetNode?.nodeId === node.getID()) {
+    //             const attributeId: string = `${node.getID()}/${componentLink.targetNode.attributeId}`;
+    //             if (isCollapsed && componentLink.getTargetPort().getID() !== `left-${node.getID()}`) {
     //                 link.setTargetPort(node.getPort(`left-${node.getID()}`));
     //             } else if (!isCollapsed &&
     //                 node.getPort(`left-${attributeId}`) &&
-    //                 entityLink.getTargetPort().getID() !== `left-${attributeId}`
+    //                 componentLink.getTargetPort().getID() !== `left-${attributeId}`
     //             ) {
-    //                 link.setTargetPort(node.getPort(`left-${node.getID()}/${entityLink.targetNode.attributeId}`));
+    //                 link.setTargetPort(node.getPort(`left-${node.getID()}/${componentLink.targetNode.attributeId}`));
     //             }
     //         }
     //     });
@@ -79,11 +79,11 @@ export function EntityWidget(props: EntityWidgetProps) {
     }
 
     return (
-        <EntityNode
+        <ComponentNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
         >
-            <EntityHeadWidget
+            <ComponentHeadWidget
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
@@ -106,6 +106,6 @@ export function EntityWidget(props: EntityWidgetProps) {
                 })
             )} */}
 
-        </EntityNode>
+        </ComponentNode>
     );
 }
