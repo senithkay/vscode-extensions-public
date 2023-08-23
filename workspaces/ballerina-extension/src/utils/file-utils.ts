@@ -263,6 +263,7 @@ async function openRepoInVSCode(ballerinaExtInstance: BallerinaExtension, filePa
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
         return; // User cancelled
     }
+    handleSameWorkspaceFileOpen(ballerinaExtInstance, filePath); // If opened workspace is same open the file
     try {
         switch (result) {
             case newWindow:
@@ -278,6 +279,17 @@ async function openRepoInVSCode(ballerinaExtInstance: BallerinaExtension, filePa
         }
     } catch (error) {
         window.showErrorMessage(`Failed to open folder: ${error}`);
+    }
+}
+
+function handleSameWorkspaceFileOpen(ballerinaExtInstance: BallerinaExtension, filePath: string) {
+    const workspaceFolders = workspace.workspaceFolders;
+    if (workspaceFolders.length > 0) {
+        const workspaceFolder = workspaceFolders[0];
+        const workspaceFolderPath = workspaceFolder.uri.fsPath;
+        if (filePath === workspaceFolderPath) {
+            readStoredClonedFilePathFromTemp(ballerinaExtInstance);
+        }
     }
 }
 
