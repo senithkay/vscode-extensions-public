@@ -196,7 +196,7 @@ export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, sa
         <WizardContainer>
             <h1>{title}</h1>
             <StepperContainer>
-                <Stepper currentStep={state.currentStep} steps={stepperSteps} showStepStatus></Stepper>
+                <Stepper currentStep={state.currentStep} steps={stepperSteps}/>
             </StepperContainer>
             <h4>{steps[state.currentStep]?.title}</h4>
             <VSCodeDivider />

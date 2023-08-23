@@ -13,6 +13,7 @@
 import React from "react";
 import { BottomTitleHorizontalBar, BottomTitleWrapper, HorizontalBar, IconNTitleWrapper, StepCard, StepCardProps, StepCircle, StepTitle } from "./Stepper";
 import styled from "@emotion/styled";
+import { colors } from "../../commons/Colors";
 
 const StepNumber = styled.div`
     display: flex;
@@ -26,12 +27,12 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
     <StepCard>
         {props.titleAlignment === "right" ? (
             <>
-                <StepCircle color={'var(--vscode-editorIndentGuide-activeBackground)'}>
+                <StepCircle color={colors.indentGuideActiveBackgound}>
                     <StepNumber>
                         {props.step.id + 1}
                     </StepNumber>
                 </StepCircle>
-                <StepTitle color='var(--vscode-editorIndentGuide-activeBackground)'>
+                <StepTitle color={colors.indentGuideActiveBackgound}>
                     {props.step.title}
                 </StepTitle>
                 {(props.totalSteps === props.step.id + 1) ? null : <HorizontalBar/>}
@@ -39,13 +40,13 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
         ) :
             <>
                 <IconNTitleWrapper>
-                    <StepCircle color={'var(--vscode-editorIndentGuide-activeBackground)'}>
+                    <StepCircle color={colors.indentGuideActiveBackgound}>
                         <StepNumber>
                             {props.step.id + 1}
                         </StepNumber>
                     </StepCircle>
                     {props.totalSteps === props.step.id + 1 ? null : <BottomTitleHorizontalBar />}
-                    <BottomTitleWrapper color='var(--vscode-editor-foreground)'>
+                    <BottomTitleWrapper color={colors.editorForeground}>
                         {props.step.title}
                     </BottomTitleWrapper>
                 </IconNTitleWrapper>

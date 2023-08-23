@@ -27,8 +27,8 @@ export interface Step {
 export interface StepperProps {
     steps: string[];
     currentStep: number;
-    titleAlignment?: "right" | "bottom";
-    allignment?: "flex-start" | "center" | "flex-end";
+    variant?: "right" | "bottom";
+    alignment?: "flex-start" | "center" | "flex-end";
 }
 
 export interface StepCardProps {
@@ -138,10 +138,10 @@ export const BottomTitleHorizontalBar = styled.div`
 `;
 
 export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
-    const { steps, currentStep, allignment = "center", titleAlignment = "bottom" } = props;
+    const { steps, currentStep, alignment: alignment = "center", variant: titleAlignment = "bottom" } = props;
 
     return (
-        <StpperContainer allignment={allignment}>
+        <StpperContainer allignment={alignment}>
             {steps.map((step: string, id: number) => {
                 const stepCardProps: StepCardProps = {
                     currentStep: currentStep,

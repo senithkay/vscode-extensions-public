@@ -13,6 +13,7 @@
 import React from "react";
 import { StepCard, StepTitle, StepCardProps, StepCircle, HorizontalBar, BottomTitleWrapper, BottomTitleHorizontalBar, IconNTitleWrapper } from "./Stepper";
 import styled from "@emotion/styled";
+import { colors } from "../../commons/Colors";
 
 const RightSign = styled.div`
     position: relative;
@@ -30,10 +31,10 @@ export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps)
     <StepCard>
         {props.titleAlignment === "right" ? (
             <>
-                <StepCircle color='var(--vscode-textLink-foreground)'>
+                <StepCircle color={colors.textLinkForeground}>
                     <RightSign />
                 </StepCircle>
-                <StepTitle color='var(--vscode-editor-foreground)'>
+                <StepTitle color={colors.editorForeground}>
                     {props.step.title}
                 </StepTitle>
                 {props.totalSteps === props.step.id + 1 ? null : <HorizontalBar />}
@@ -41,11 +42,11 @@ export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps)
         ) :
             <>
                 <IconNTitleWrapper>
-                    <StepCircle color='var(--vscode-textLink-foreground)'>
+                    <StepCircle color={colors.textLinkForeground}>
                         <RightSign />
                     </StepCircle>
                     {props.totalSteps === props.step.id + 1 ? null : <BottomTitleHorizontalBar />}
-                    <BottomTitleWrapper color='var(--vscode-editor-foreground)'>
+                    <BottomTitleWrapper color={colors.editorForeground}>
                         {props.step.title}
                     </BottomTitleWrapper>
                 </IconNTitleWrapper>

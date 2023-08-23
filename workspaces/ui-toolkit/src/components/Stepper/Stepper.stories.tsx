@@ -30,13 +30,13 @@ export const Stepper_Comp = () =>
             <Stepper
                 steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
                 currentStep={0}
-                allignment='flex-start'
+                alignment='flex-start'
             />
             <Stepper
                 steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
                 currentStep={2}
-                titleAlignment='right'
-                allignment='flex-end'
+                variant='right'
+                alignment='flex-end'
             />
         </div>
     );
