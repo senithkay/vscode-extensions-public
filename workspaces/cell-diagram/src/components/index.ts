@@ -7,17 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export { ComponentFactory } from './ComponentNode/ComponentFactory';
-export { ComponentModel } from './ComponentNode/ComponentModel';
-export { ComponentWidget } from './ComponentNode/ComponentWidget';
+export { ComponentFactory } from './Component/ComponentNode/ComponentFactory';
+export { ComponentModel } from './Component/ComponentNode/ComponentModel';
+export { ComponentWidget } from './Component/ComponentNode/ComponentWidget';
 
-export { ComponentLinkFactory } from './ComponentLink/ComponentLinkFactory';
-export { ComponentLinkModel } from './ComponentLink/ComponentLinkModel';
-export { ComponentLinkWidget } from './ComponentLink/ComponentLinkWidget';
+export { ComponentLinkFactory } from './Component/ComponentLink/ComponentLinkFactory';
+export { ComponentLinkModel } from './Component/ComponentLink/ComponentLinkModel';
+export { ComponentLinkWidget } from './Component/ComponentLink/ComponentLinkWidget';
 
-export { ComponentPortFactory } from './ComponentPort/ComponentPortFactory';
-export { ComponentPortModel } from './ComponentPort/ComponentPortModel';
-export { ComponentPortWidget } from './ComponentPort/ComponentPortWidget';
+export { ComponentPortFactory } from './Component/ComponentPort/ComponentPortFactory';
+export { ComponentPortModel } from './Component/ComponentPort/ComponentPortModel';
+export { ComponentPortWidget } from './Component/ComponentPort/ComponentPortWidget';
+
+export { ConnectorFactory } from './Connector/ConnectorNode/ConnectorFactory';
+export { ConnectorModel } from './Connector/ConnectorNode/ConnectorModel';
+export { ConnectorWidget } from './Connector/ConnectorNode/ConnectorWidget';
+
+export { ConnectorLinkFactory } from './Connector/ConnectorLink/ConnectorLinkFactory';
+export { ConnectorLinkModel } from './Connector/ConnectorLink/ConnectorLinkModel';
+export { ConnectorLinkWidget } from './Connector/ConnectorLink/ConnectorLinkWidget';
+
+export { ConnectorPortFactory } from './Connector/ConnectorPort/ConnectorPortFactory';
+export { ConnectorPortModel } from './Connector/ConnectorPort/ConnectorPortModel';
+export { ConnectorPortWidget } from './Connector/ConnectorPort/ConnectorPortWidget';
 
 export * from './OverlayLoader';
 

@@ -47,7 +47,7 @@ export class SharedLinkModel extends DefaultLinkModel {
 		const lineCurve = new BezierCurve();
 
 		if (this.getSourcePort() && this.getTargetPort()) {
-			let markerSpace: number = this.getType() === 'componentLink' ? 125 : 70;
+			let markerSpace: number = this.getType() === 'componentLink' ? 70 : 120;
 
 			lineCurve.setSource(this.getSourcePort().getPosition());
 			lineCurve.setTarget(this.getTargetPort().getPosition());
@@ -60,16 +60,20 @@ export class SharedLinkModel extends DefaultLinkModel {
 				targetPoint.x = targetPoint.x - markerSpace;
 			} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
 				targetPoint.x = targetPoint.x + markerSpace;
+			} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
+				targetPoint.y = targetPoint.y + markerSpace;
 			} else {
-				targetPoint.y = targetPoint.y + 150;
+				targetPoint.y = targetPoint.y - markerSpace;
 			}
 
 			if (this.getSourcePort().getOptions().alignment === PortModelAlignment.LEFT) {
 				sourcePoint.x = sourcePoint.x - markerSpace;
 			} else if (this.getSourcePort().getOptions().alignment === PortModelAlignment.RIGHT) {
 				sourcePoint.x = sourcePoint.x + markerSpace;
+			} else if (this.getSourcePort().getOptions().alignment === PortModelAlignment.BOTTOM) {
+				sourcePoint.y = sourcePoint.y + markerSpace;
 			} else {
-				sourcePoint.y = sourcePoint.y - 90;
+				sourcePoint.y = sourcePoint.y - markerSpace;
 			}
 
 			lineCurve.setSourceControl(sourcePoint);
@@ -153,6 +157,9 @@ export class SharedLinkModel extends DefaultLinkModel {
 		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
 			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 10} ${targetPort.y + 14},
 				${targetPort.x - 10} ${targetPort.y + 14}`;
+		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP) {
+			points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10} ${targetPort.y - 15},
+					${targetPort.x - 10} ${targetPort.y - 15}`;
 		}
 		return points;
 	}

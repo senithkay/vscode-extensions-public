@@ -58,3 +58,7 @@ export interface ConnectorMetadata {
 }
 
 export type ConnectionMetadata = ServiceMetadata | ConnectorMetadata;
+
+export interface Connector {
+    id: string
+}
