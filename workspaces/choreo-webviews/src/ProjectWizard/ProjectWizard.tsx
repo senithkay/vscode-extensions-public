@@ -20,7 +20,7 @@ import { GithubAutherizer } from "../GithubRepoSelector/GithubAutherizer";
 import { ProviderTypeCard } from "./ProviderTypeCard";
 import { ProjectTypeCard } from "./ProjectTypeCard";
 import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
-import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
+import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_PROJECT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { AutoComplete, TextField } from "@wso2-enterprise/ui-toolkit";
@@ -195,7 +195,9 @@ export function ProjectWizard(props: { orgId: string }) {
                     eventName: CREATE_PROJECT_SUCCESS_EVENT,
                     properties: {
                         name: createdProject?.name,
-                    }
+                        type: initMonoRepo ? "mono-repo" : "multi-repo",
+                        gitProvider: initMonoRepo ? gitProvider : undefined,
+                    },
                 });
                 webviewAPI.closeWebView();
             } catch (error: any) {
@@ -368,7 +370,7 @@ export function ProjectWizard(props: { orgId: string }) {
                             appearance="secondary"
                             onClick={() => {
                                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-                                    eventName: CREATE_COMPONENT_CANCEL_EVENT
+                                    eventName: CREATE_PROJECT_CANCEL_EVENT
                                 });
                                 ChoreoWebViewAPI.getInstance().closeWebView();
                             }}
