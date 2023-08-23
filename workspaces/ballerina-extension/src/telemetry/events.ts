@@ -109,3 +109,5 @@ export const TM_EVENT_OPEN_REPO_URL_START = "vscode.open.repo.url.start";
 export const TM_EVENT_OPEN_REPO_CLONE_NOW = "vscode.open.repo.clone.now";
 export const TM_EVENT_OPEN_REPO_CHANGE_PATH = "vscode.open.repo.change.path";
 export const TM_EVENT_OPEN_REPO_CANCELED = "vscode.open.repo.canceled";
+export const TM_EVENT_OPEN_REPO_NEW_FOLDER = "vscode.open.exist.repo.new.folder";
+export const TM_EVENT_OPEN_REPO_SAME_FOLDER = "vscode.open.exist.repo.same.folder";
