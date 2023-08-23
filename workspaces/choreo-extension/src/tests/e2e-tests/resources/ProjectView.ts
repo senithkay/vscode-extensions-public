@@ -17,6 +17,7 @@ import { join } from "path";
 import { CommonUtils } from "./CommonUtils";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { GitUtils } from "./GitUtils";
+import { AccountView } from "./AccountView";
 
 /** Provides functions to interact with the Project view iframe and project related features in the Choreo extension */
 export class ProjectView {
@@ -62,6 +63,7 @@ export class ProjectView {
     static async deleteCurrentlyOpenedProject() {
         console.log("Deleting currently opened project");
         await CommonUtils.switchToDefaultFrame();
+        await AccountView.verifyWithinProject();
         console.log('Switched to default frame');
         await new Workbench().executeCommand(DELETE_PROJECT);
         console.log('Executed delete project command');
