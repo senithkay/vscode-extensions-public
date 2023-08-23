@@ -137,6 +137,8 @@ export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: 
         for (const pathKey of Object.keys(paths)) {
             for (const pathMethod of Object.keys(paths[pathKey])) {
                 resourceList.push({
+                    functionID: "",
+                    label: "",
                     identifier: `${pathMethod} ${pathKey}`,
                     interactions: [],
                     resourceId: { action: pathMethod, path: pathKey, serviceId },
