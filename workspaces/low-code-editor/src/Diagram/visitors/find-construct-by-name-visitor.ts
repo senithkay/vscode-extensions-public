@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ClassDefinition, FunctionDefinition, ObjectMethodDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ClassDefinition, ConstDeclaration, FunctionDefinition, ModuleVarDecl, ObjectMethodDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
 
 import { generateConstructIdStub, MODULE_DELIMETER, SUB_DELIMETER } from "./util";
 
@@ -20,6 +20,8 @@ export class FindConstructByNameVisitor implements Visitor {
     private moduleTypeIndex: number;
     private classMemberIndex: number;
     private selectedNode: STNode;
+    private moduleVarIndex: number;
+    private constantIndex: number;
     private updatedUid: string;
 
     constructor(uid: string) {
@@ -30,6 +32,8 @@ export class FindConstructByNameVisitor implements Visitor {
         this.moduleClassIndex = 0;
         this.moduleTypeIndex = 0;
         this.classMemberIndex = 0;
+        this.moduleVarIndex = 0;
+        this.constantIndex = 0;
     }
 
     beginVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
@@ -136,6 +140,34 @@ export class FindConstructByNameVisitor implements Visitor {
     }
 
     endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitModuleVarDecl(node: ModuleVarDecl, parent?: STNode): void {
+        this.moduleVarIndex++;
+        const constructIdStub = this.getCurrentUid(generateConstructIdStub(node));
+
+        if (this.extractedUid === constructIdStub) {
+            this.selectedNode = node;
+            this.updatedUid = `${constructIdStub}${SUB_DELIMETER}${this.moduleVarIndex}`;
+        }
+    }
+
+    endVisitModuleVarDecl(node: ModuleVarDecl, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitConstDeclaration(node: ConstDeclaration, parent?: STNode): void {
+        this.constantIndex++;
+        const constructIdStub = this.getCurrentUid(generateConstructIdStub(node));
+
+        if (this.extractedUid === constructIdStub) {
+            this.selectedNode = node;
+            this.updatedUid = `${constructIdStub}${SUB_DELIMETER}${this.constantIndex}`;
+        }
+    }
+
+    endVisitConstDeclaration(node: ConstDeclaration, parent?: STNode): void {
         this.stack.pop();
     }
 

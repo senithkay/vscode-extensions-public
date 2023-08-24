@@ -20,7 +20,7 @@ import { ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
 import { RESOURCE_PAYLOAD_PREFIX } from './ResourceParamEditor';
 import { ResourceParam } from './types';
-import { getParamString } from './util';
+import { getParamString, isStructuredType } from './util';
 
 export interface PayloadEditorProps {
     parameters: ResourceParam[];
@@ -42,7 +42,10 @@ export function PayloadEditor(props: PayloadEditorProps) {
     const [payloadParam, setPayloadParam] = useState<ResourceParam>();
 
     useEffect(() => {
-        const payloadEntry = parameters.findIndex((param) => param.parameterValue.includes(RESOURCE_PAYLOAD_PREFIX));
+        const payloadEntry = parameters.findIndex((param, index) =>
+            param.parameterValue.includes(RESOURCE_PAYLOAD_PREFIX) ||
+            index === 0 && isStructuredType(param.model.typeName)
+        );
         if (payloadEntry > -1) {
             const config: ParameterConfig = { id: -1, name: '' }
             config.id = payloadEntry;
