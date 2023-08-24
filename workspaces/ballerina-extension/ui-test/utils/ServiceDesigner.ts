@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { waitUntil } from "../util";
+import { waitUntil, waitUntilElementIsEnabled } from "../util";
 import { By, VSBrowser, until } from "vscode-extension-tester";
 
 export class ServiceDesigner {
@@ -26,6 +26,9 @@ export class ServiceDesigner {
         // Wait for resource form
         const resourceForm = By.xpath("//*[@data-testid='resource-form']");
         await waitUntil(resourceForm, 30000);
+
+        const resourceSaveBtn = By.xpath("//*[@data-testid='save-btn']");
+        waitUntilElementIsEnabled(resourceSaveBtn);
 
     }
 
