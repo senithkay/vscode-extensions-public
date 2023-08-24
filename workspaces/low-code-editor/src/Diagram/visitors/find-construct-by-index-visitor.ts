@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ClassDefinition, FunctionDefinition, ObjectMethodDefinition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ClassDefinition, ConstDeclaration, FunctionDefinition, ModuleVarDecl, ObjectMethodDefinition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
 
 import { generateConstructIdStub, MODULE_DELIMETER, SUB_DELIMETER } from "./util";
 
@@ -19,6 +19,8 @@ export class FindConstructByIndexVisitor implements Visitor {
     private moduleClassIndex: number;
     private moduleTypeIndex: number;
     private classMemberIndex: number;
+    private constantIndex: number;
+    private moduleVarIndex: number;
     private bodyString: string;
     private selectedNode: STNode;
     private updatedUid: string;
@@ -32,6 +34,8 @@ export class FindConstructByIndexVisitor implements Visitor {
         this.moduleClassIndex = 0;
         this.moduleTypeIndex = 0;
         this.classMemberIndex = 0;
+        this.constantIndex = 0;
+        this.moduleVarIndex = 0;
     }
 
     beginVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
@@ -150,6 +154,42 @@ export class FindConstructByIndexVisitor implements Visitor {
     }
 
     endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitModuleVarDecl(node: ModuleVarDecl, parent?: STNode): void {
+        this.moduleVarIndex++;
+        const currentConstructIdStub = generateConstructIdStub(node, this.moduleVarIndex);
+        const constructIdStub = this.extractUidWithIndex(currentConstructIdStub);
+        const nextUid = this.getCurrentUid(currentConstructIdStub);
+
+        if (this.extractedUid === this.getCurrentUid(constructIdStub)) {
+            this.selectedNode = node;
+            this.updatedUid = nextUid;
+        }
+
+        this.stack.push(nextUid);
+    }
+
+    endVisitModuleVarDecl(node: ModuleVarDecl, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitConstDeclaration(node: ConstDeclaration, parent?: STNode): void {
+        this.constantIndex++;
+        const currentConstructIdStub = generateConstructIdStub(node, this.constantIndex);
+        const constructIdStub = this.extractUidWithIndex(currentConstructIdStub);
+        const nextUid = this.getCurrentUid(currentConstructIdStub);
+
+        if (this.extractedUid === this.getCurrentUid(constructIdStub)) {
+            this.selectedNode = node;
+            this.updatedUid = nextUid;
+        }
+
+        this.stack.push(nextUid);
+    }
+
+    endVisitConstDeclaration(node: ConstDeclaration, parent?: STNode): void {
         this.stack.pop();
     }
 

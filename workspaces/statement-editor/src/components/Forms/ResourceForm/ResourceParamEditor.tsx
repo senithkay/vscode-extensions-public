@@ -20,7 +20,7 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/defi
 import { Param, ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
 import { ResourceParam } from './types';
-import { genParamName, getParamString } from './util';
+import { genParamName, getParamString, isStructuredType } from './util';
 
 export interface QueryParamEditorProps {
     parameters: ResourceParam[];
@@ -110,11 +110,13 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
 
     parameters
         .forEach((param, index) => {
+            const possiblePayload = index === 0 && param.model && isStructuredType(param.model.typeName);
             if ((editingSegmentId !== index)) {
                 if (param.parameterValue.includes(RESOURCE_PAYLOAD_PREFIX)
                     || param.parameterValue.includes(RESOURCE_CALLER_TYPE)
                     || param.parameterValue.includes(RESOURCE_REQUEST_TYPE)
                     || param.parameterValue.includes(RESOURCE_HEADER_MAP_TYPE)
+                    || possiblePayload
                 ) {
                     return;
                 }

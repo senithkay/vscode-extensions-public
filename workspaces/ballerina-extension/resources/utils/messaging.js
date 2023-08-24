@@ -33,11 +33,14 @@ class WebViewRPCHandler {
         }
     }
 
-    addMethod(methodName, handler = () => { }) {
-        this.methods.push({ methodName, handler });
+    addMethod(methodName, handler = () => {}) {
+        this.methods.push({
+            methodName,
+            handler
+        });
     }
 
-    invokeRemoteMethod(methodName, args, onReply = () => { }) {
+    invokeRemoteMethod(methodName, args, onReply = () => {}) {
         const msg = {
             id: this._sequence,
             methodName: methodName,
@@ -75,7 +78,9 @@ function getLangClient() {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSyntaxTree', [params], (resp) => {
                     consoleLog(start, 'getSyntaxTree');
-                    const unzippedResp = pako.inflate(resp.data, { to: 'string' });
+                    const unzippedResp = pako.inflate(resp.data, {
+                        to: 'string'
+                    });
                     resolve(JSON.parse(unzippedResp));
                 });
             });
@@ -286,7 +291,9 @@ function getLangClient() {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('stModify', [params], (resp) => {
                     consoleLog(start, 'stModify');
-                    const unzippedResp = pako.inflate(resp.data, { to: 'string' });
+                    const unzippedResp = pako.inflate(resp.data, {
+                        to: 'string'
+                    });
                     resolve(JSON.parse(unzippedResp));
                 });
             })
@@ -296,7 +303,9 @@ function getLangClient() {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('getSTForFunction', [params], (resp) => {
                     consoleLog(start, 'getSTForFunction');
-                    const unzippedResp = pako.inflate(resp.data, { to: 'string' });
+                    const unzippedResp = pako.inflate(resp.data, {
+                        to: 'string'
+                    });
                     resolve(JSON.parse(unzippedResp));
                 });
             })
@@ -351,6 +360,15 @@ function getLangClient() {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('convert', [params], (resp) => {
                     consoleLog(start, 'convert');
+                    resolve(resp);
+                });
+            })
+        },
+        convertXml: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('convertXml', [params], (resp) => {
+                    consoleLog(start, 'convertXml');
                     resolve(resp);
                 });
             })
