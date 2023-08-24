@@ -46,7 +46,7 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
                         </StepNumber>
                     </StepCircle>
                     {props.totalSteps === props.step.id + 1 ? null : <BottomTitleHorizontalBar />}
-                    <BottomTitleWrapper color={colors.editorForeground}>
+                    <BottomTitleWrapper color={colors.indentGuideActiveBackgound}>
                         {props.step.title}
                     </BottomTitleWrapper>
                 </IconTitleWrapper>
