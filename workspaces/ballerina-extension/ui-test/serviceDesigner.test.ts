@@ -128,7 +128,6 @@ service /breakingbad on new http:Listener(9090) {
 
     });
 
-    // TODO: Below test keep failing as there seems to be a delay in updating the state. 
     it('Add a new post resource different return type', async () => {
 
         await switchToIFrame('Overview Diagram', driver);

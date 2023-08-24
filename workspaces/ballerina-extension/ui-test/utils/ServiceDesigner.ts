@@ -27,9 +27,6 @@ export class ServiceDesigner {
         const resourceForm = By.xpath("//*[@data-testid='resource-form']");
         await waitUntil(resourceForm, 30000);
 
-        // Wait for the loading element to become stale (not found)
-        const loadingElement = await waitUntil(By.xpath("//*[@role='progressbar']"));
-        await driver.wait(until.stalenessOf(loadingElement));
     }
 
 }
