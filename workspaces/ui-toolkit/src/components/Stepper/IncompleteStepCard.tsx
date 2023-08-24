@@ -11,33 +11,46 @@
  *  associated services.
  */
 import React from "react";
-import { Footer, Header, HeaderProps, HorizontalBar, StepCard, StepCardProps, StepCircle, StepSubTitle, StepTitle } from "./Stepper";
+import { BottomTitleHorizontalBar, BottomTitleWrapper, HorizontalBar, IconTitleWrapper, StepCard, StepCardProps, StepCircle, StepTitle } from "./Stepper";
 import styled from "@emotion/styled";
+import { colors } from "../Commons/Colors";
 
-const PendingStatus = styled.div`
-    opacity: 0.5;
-    padding-top: 5px;
-    font-size: 9px;
+const StepNumber = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+    margin-left: 8px;
+    color: var(--vscode-editor-background);
 `;
-
-const InCompletedStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
-    <Header>
-        <StepCircle color={props.primaryColor}/>
-        {props.hideBar ? null : <HorizontalBar color={props.primaryColor}/>}
-    </Header>
-);
 
 export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <InCompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
-        <Footer>
-            <StepSubTitle>
-                {`STEP ${props.step.id + 1}`}
-            </StepSubTitle>
-            <StepTitle>
-                {props.step.title}
-            </StepTitle>
-            {props.showStepStatus && <PendingStatus color={props.color}>Pending</PendingStatus>}
-        </Footer>
+        {props.titleAlignment === "right" ? (
+            <>
+                <StepCircle color={colors.indentGuideActiveBackgound}>
+                    <StepNumber>
+                        {props.step.id + 1}
+                    </StepNumber>
+                </StepCircle>
+                <StepTitle color={colors.indentGuideActiveBackgound}>
+                    {props.step.title}
+                </StepTitle>
+                {(props.totalSteps === props.step.id + 1) ? null : <HorizontalBar/>}
+            </>
+        ) :
+            <>
+                <IconTitleWrapper>
+                    <StepCircle color={colors.indentGuideActiveBackgound}>
+                        <StepNumber>
+                            {props.step.id + 1}
+                        </StepNumber>
+                    </StepCircle>
+                    {props.totalSteps === props.step.id + 1 ? null : <BottomTitleHorizontalBar />}
+                    <BottomTitleWrapper color={colors.indentGuideActiveBackgound}>
+                        {props.step.title}
+                    </BottomTitleWrapper>
+                </IconTitleWrapper>
+            </>
+        }
     </StepCard>
 );

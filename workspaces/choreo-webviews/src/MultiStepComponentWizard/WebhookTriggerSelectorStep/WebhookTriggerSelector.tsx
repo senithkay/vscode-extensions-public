@@ -14,7 +14,7 @@ import React, { useRef } from "react";
 
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { BallerinaTriggerInfo, DisplayAnnotation, ServiceType, Trigger } from '@wso2-enterprise/ballerina-languageclient';
-import { ErrorBanner } from '../../Commons/ErrorBanner';
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoWebViewAPI } from '../../utilities/WebViewRpc';
 
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";

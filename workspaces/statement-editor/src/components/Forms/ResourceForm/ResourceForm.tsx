@@ -112,7 +112,7 @@ export function ResourceForm(props: FunctionProps) {
                 methodName,
                 resourcePath,
                 getParamString(parametersValue),
-                resourceReturn.replace("returns", "")
+                getReturnString()
             );
         }
     }, [])
@@ -219,16 +219,16 @@ export function ResourceForm(props: FunctionProps) {
             methodName,
             newPath,
             getParamString(parametersValue),
-            resourceReturn.replace("returns", ""),
+            getReturnString(),
         );
     };
 
     const [methodName, setMethodName] = useState<string>(model?.functionName?.value.toUpperCase());
     const handleMethodChange = async (value: string) => {
-        setMethodName(value.toUpperCase());
         // Path visiter to find the duplicate resource method and name
         setResourcePathDiagnostics(undefined);
-        const visitor = new ResourcePathFinderVisitor(value, resourcePath);
+        const visitor = new ResourcePathFinderVisitor(isEdit, { method: value, path: resourcePath }, { method: methodName, path: resourcePath });
+        setMethodName(value.toUpperCase());
         traversNode(fullST, visitor);
         const isValidPath = visitor.getResourcePathValidity();
 
@@ -238,7 +238,7 @@ export function ResourceForm(props: FunctionProps) {
                 value.toLowerCase(),
                 resourcePath,
                 getParamString(parametersValue),
-                resourceReturn.replace("returns", "")
+                getReturnString()
             );
         } else {
             setResourcePathDiagnostics([{ message: `Duplicated resource. '${value} ${resourcePath}'` }])
@@ -248,10 +248,10 @@ export function ResourceForm(props: FunctionProps) {
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
     const handlePathChange = async (value: string) => {
         const sanitizedValue = value;
-        setResourcePath(sanitizedValue);
         // Path visiter to find the duplicate resource method and name
         setResourcePathDiagnostics(undefined);
-        const visitor = new ResourcePathFinderVisitor(methodName, sanitizedValue);
+        const visitor = new ResourcePathFinderVisitor(isEdit, {method: methodName, path: sanitizedValue}, {method: methodName, path: resourcePath});
+        setResourcePath(sanitizedValue);
         traversNode(fullST, visitor);
         const isValidPath = visitor.getResourcePathValidity();
 
@@ -261,7 +261,7 @@ export function ResourceForm(props: FunctionProps) {
                 methodName,
                 sanitizedValue,
                 getParamString(parametersValue),
-                resourceReturn.replace("returns", ""),
+                getReturnString(),
             );
         } else {
             setResourcePathDiagnostics([{ message: `Duplicated resource. '${methodName} ${sanitizedValue}'` }])
@@ -278,7 +278,7 @@ export function ResourceForm(props: FunctionProps) {
             methodName,
             resourcePath,
             paramString,
-            resourceReturn.replace("returns", ""),
+            getReturnString(),
         );
     };
 
@@ -298,8 +298,8 @@ export function ResourceForm(props: FunctionProps) {
 
     const getReturnTypeDiagnostics = () => {
         const viewStateDiagnostics: StatementSyntaxDiagnostics[] = model?.viewState?.diagnosticsInRange;
-        const returnValues = resourceReturn.split(" ");
-        const filtered = viewStateDiagnostics.filter(diag => returnValues.some(val => diag.message.includes(val)));
+        const returnValues = resourceReturn?.split(" ");
+        const filtered = viewStateDiagnostics.filter(diag => returnValues?.some(val => diag.message.includes(val)));
         return filtered;
     }
 
@@ -310,7 +310,7 @@ export function ResourceForm(props: FunctionProps) {
                     methodName.toLowerCase(),
                     resourcePath,
                     getParamString(parametersValue),
-                    resourceReturn.replace("returns", ""),
+                    getReturnString(),
                     targetPosition)
             ]);
         } else {
@@ -319,12 +319,16 @@ export function ResourceForm(props: FunctionProps) {
                     methodName.toLowerCase(),
                     resourcePath,
                     getParamString(parametersValue),
-                    resourceReturn.replace("returns", ""),
+                    getReturnString(),
                     targetPosition
                 )
             ]);
         }
         onCancel();
+    }
+
+    const getReturnString = () => {
+        return resourceReturn?.replace("returns", "");
     }
 
     return (

@@ -10,31 +10,21 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-/* tslint:disable:variable-name */
-import React from 'react';
+import React from "react";
+import { ComponentStory } from "@storybook/react";
+import { Stepper, StepperProps } from "./Stepper";
 
-import { Stepper } from './Stepper';
+const defaultSteps = ["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"];
 
-export default {
-    title: 'Stepper',
-    component: Stepper,
-};
+const Template: ComponentStory<typeof Stepper> = (args: StepperProps) => <Stepper {...args} />;
 
-const colors={completedStepColor: "#006ab1", incompletedStepColor: "#c8c8c8"
-};
-export const Stepper_Comp = () =>
-    (
-        <div style={{width: 1000, height: 1000}}>
-            <Stepper
-                steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
-                currentStep={3}
-                colors={colors}
-            />
-            <Stepper
-                steps={["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"]}
-                currentStep={0}
-                colors={colors}
-                showStepStatus
-            />
-        </div>
-    );
+export const CenterAligned = Template.bind();
+CenterAligned.args = { steps: defaultSteps, currentStep: 3 };
+
+export const LeftAligned = Template.bind();
+LeftAligned.args = { steps: defaultSteps, currentStep: 0, alignment: "flex-start" };
+
+export const RightAligned = Template.bind();
+RightAligned.args = { steps: defaultSteps, currentStep: 2, alignment: "flex-end", variant: "bottom" };
+
+export default { component: Stepper, title: "Stepper" };

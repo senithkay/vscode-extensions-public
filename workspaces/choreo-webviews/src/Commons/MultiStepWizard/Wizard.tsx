@@ -196,7 +196,7 @@ export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, sa
         <WizardContainer>
             <h2>{title}</h2>
             <StepperContainer>
-                <Stepper currentStep={state.currentStep} steps={stepperSteps} showStepStatus></Stepper>
+                <Stepper currentStep={state.currentStep} steps={stepperSteps}/>
             </StepperContainer>
             <StepContainer>
                 {renderStep()}

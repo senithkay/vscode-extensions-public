@@ -11,8 +11,9 @@
  *  associated services.
  */
 import React from "react";
-import { StepCard, Footer, StepTitle, StepSubTitle, StepStatus, Header, StepCardProps, HeaderProps, StepCircle, HorizontalBar } from "./Stepper";
+import { StepCard, StepTitle, StepCardProps, StepCircle, HorizontalBar, BottomTitleWrapper, BottomTitleHorizontalBar, IconTitleWrapper } from "./Stepper";
 import styled from "@emotion/styled";
+import { colors } from "../Commons/Colors";
 
 const RightSign = styled.div`
     position: relative;
@@ -26,30 +27,30 @@ const RightSign = styled.div`
     transform: rotate(225deg);
 `;
 
-export const CircleWithRightSign: React.FC<HeaderProps> = (props: HeaderProps) => (
-    <StepCircle  color={props.primaryColor}>
-        <RightSign />
-    </StepCircle>
-);
-
-export const CompletedStepHeader: React.FC<HeaderProps> = (props: HeaderProps) => (
-    <Header>
-        <CircleWithRightSign primaryColor={props.primaryColor} />
-        {props.hideBar ? null : <HorizontalBar color={props.primaryColor} />}
-    </Header>
-);
-
 export const CompletedStepCard: React.FC<StepCardProps> = (props: StepCardProps) => (
     <StepCard>
-        <CompletedStepHeader hideBar={(props.totalSteps === props.step.id + 1)} primaryColor={props.color}/>
-        <Footer>
-            <StepSubTitle>
-                {`STEP ${props.step.id + 1}`}
-            </StepSubTitle>
-            <StepTitle>
-                {props.step.title}
-            </StepTitle>
-            {props.showStepStatus && <StepStatus color={props.color}>Completed</StepStatus>}
-        </Footer>
+        {props.titleAlignment === "right" ? (
+            <>
+                <StepCircle color={colors.textLinkForeground}>
+                    <RightSign />
+                </StepCircle>
+                <StepTitle color={colors.editorForeground}>
+                    {props.step.title}
+                </StepTitle>
+                {props.totalSteps === props.step.id + 1 ? null : <HorizontalBar />}
+            </>
+        ) :
+            <>
+                <IconTitleWrapper>
+                    <StepCircle color={colors.textLinkForeground}>
+                        <RightSign />
+                    </StepCircle>
+                    {props.totalSteps === props.step.id + 1 ? null : <BottomTitleHorizontalBar />}
+                    <BottomTitleWrapper color={colors.editorForeground}>
+                        {props.step.title}
+                    </BottomTitleWrapper>
+                </IconTitleWrapper>
+            </>
+        }
     </StepCard>
 );

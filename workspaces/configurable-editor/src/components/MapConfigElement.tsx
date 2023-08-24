@@ -63,6 +63,7 @@ export const MapConfigElement = (props: MapConfigElementProps): ReactElement => 
             const arrayTypeProps: ArrayTypeProps = {
                 ...props,
                 isInsideArray: true,
+                isMapType: true,
                 setArrayType: props.setConfigElement,
                 value: props.value !== undefined ? props.value : "",
             };
