@@ -10,7 +10,7 @@
 import { expect } from 'chai';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { VSBrowser, WebView, EditorView, TextEditor, WebDriver, ActivityBar } from 'vscode-extension-tester';
+import { VSBrowser, WebView, EditorView, TextEditor, WebDriver, ActivityBar, Workbench } from 'vscode-extension-tester';
 import {
     switchToIFrame,
     waitUntil,
@@ -35,9 +35,14 @@ service /breakingbad on new http:Listener(9090) {
     let browser: VSBrowser;
     let driver: WebDriver;
     let webview: WebView;
+    let workbench : Workbench;
 
     before(async () => {
         browser = VSBrowser.instance;
+        // Trigger the zoomOut command
+        workbench = new Workbench();
+        await workbench.executeCommand("View: Zoom Out");
+
         driver = browser.driver;
         webview = new WebView();
         await new EditorView().closeAllEditors();
