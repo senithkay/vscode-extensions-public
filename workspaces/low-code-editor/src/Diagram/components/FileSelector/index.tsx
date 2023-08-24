@@ -17,7 +17,7 @@ import { useStyles } from "../FormComponents/DynamicConnectorForm/style";
 
 export interface FileSelectorProps {
     label: string;
-    extension: 'json' | 'yaml'; // TODO: support for yaml js-yaml library
+    extension: 'json' | 'yaml' | 'xml'; // TODO: support for yaml js-yaml library
     onReadFile: (text: string) => void;
 }
 
@@ -60,7 +60,7 @@ export function FileSelector(props: FileSelectorProps) {
                 startIcon={<FileUploadIcon />}
                 className={classes.jsonUpload}
             >
-                {'Upload JSON File'}
+                {`Upload ${extension.toUpperCase()} File`}
             </Button>
         </div>
     )

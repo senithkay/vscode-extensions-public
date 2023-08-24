@@ -12,7 +12,19 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { FILE_DOWNLOAD_PATH, BallerinaExtension } from "../core";
-import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_CANCELED, TM_EVENT_OPEN_FILE_CHANGE_PATH, TM_EVENT_OPEN_FILE_NEW_FOLDER, TM_EVENT_OPEN_FILE_SAME_FOLDER, TM_EVENT_OPEN_REPO_CANCELED, TM_EVENT_OPEN_REPO_CHANGE_PATH, TM_EVENT_OPEN_REPO_CLONE_NOW, sendTelemetryEvent } from "../telemetry";
+import {
+    CMP_OPEN_VSCODE_URL,
+    TM_EVENT_OPEN_FILE_CANCELED,
+    TM_EVENT_OPEN_FILE_CHANGE_PATH,
+    TM_EVENT_OPEN_FILE_NEW_FOLDER,
+    TM_EVENT_OPEN_FILE_SAME_FOLDER,
+    TM_EVENT_OPEN_REPO_CANCELED,
+    TM_EVENT_OPEN_REPO_CHANGE_PATH,
+    TM_EVENT_OPEN_REPO_CLONE_NOW,
+    TM_EVENT_OPEN_REPO_NEW_FOLDER,
+    TM_EVENT_OPEN_REPO_SAME_FOLDER,
+    sendTelemetryEvent
+} from "../telemetry";
 
 interface ProgressMessage {
     message: string;
@@ -22,6 +34,7 @@ interface ProgressMessage {
 const allowedOrgList = ['ballerina-platform', 'ballerina-guides', 'ballerinax', 'wso2'];
 const gitDomain = "github.com";
 const gistOwner = "ballerina-github-bot";
+const tempStartingFile = "tempStartingFile";
 
 export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, repoFileUrl?: string) {
 
@@ -112,11 +125,11 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
             const result = await window.showInformationMessage(message, { detail: `${selectedPath}`, modal: true }, cloneAnyway, changePath);
             if (result === cloneAnyway) {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CLONE_NOW, CMP_OPEN_VSCODE_URL);
-                cloneRepo(repoUrl, selectedPath, specificFileName);
+                cloneRepo(repoUrl, selectedPath, specificFileName, ballerinaExtInstance);
             } else if (result === changePath) {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CHANGE_PATH, CMP_OPEN_VSCODE_URL);
                 const newPath = await selectFileDownloadPath();
-                cloneRepo(repoUrl, newPath, specificFileName);
+                cloneRepo(repoUrl, newPath, specificFileName, ballerinaExtInstance);
             } else {
                 sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
                 window.showErrorMessage(`Repository clone canceled.`);
@@ -132,13 +145,18 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
     }
 }
 
-async function cloneRepo(repoUrl: string, selectedPath: string, specificFileName: string) {
+async function cloneRepo(repoUrl: string, selectedPath: string, specificFileName: string, ballerinaExtInstance: BallerinaExtension) {
+    const repoFolderName = path.basename(new URL(repoUrl).pathname);
+    const repoPath = path.join(selectedPath, repoFolderName);
     if (specificFileName) {
-        const repoFolderName = path.basename(new URL(repoUrl).pathname);
-        const filePath = path.join(selectedPath, findTheRepoFolderName(repoFolderName, selectedPath), specificFileName);
-        writeClonedFilePathToTemp(filePath);
+        const filePath = path.join(repoPath, specificFileName);
+        writeClonedFilePathToTemp(ballerinaExtInstance, filePath);
     }
-    await commands.executeCommand('git.clone', repoUrl, selectedPath);
+    if (folderExists(repoPath)) {
+        openRepoInVSCode(ballerinaExtInstance, repoPath);
+    } else {
+        await commands.executeCommand('git.clone', repoUrl, selectedPath);
+    }
 }
 
 async function downloadFile(url, filePath, progressCallback) {
@@ -235,28 +253,62 @@ async function openFileInVSCode(ballerinaExtInstance: BallerinaExtension, filePa
     }
 }
 
-function writeClonedFilePathToTemp(selectedPath) {
-    const tempFilePath = path.join(os.tmpdir(), 'fileOpenPath.txt');
-    fs.writeFileSync(tempFilePath, selectedPath, 'utf-8');
-}
-
-// Function to open the stored cloned file path from the temporary file
-export async function readStoredClonedFilePathFromTemp() {
+async function openRepoInVSCode(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
+    const uri = Uri.file(`${filePath}/`);
+    const message = `Repository already exists. Would you like to open the existing repository folder?`;
+    const newWindow: MessageItem = { title: "Open in New Window" };
+    const sameWindow: MessageItem = { title: 'Open' };
+    const result = await window.showInformationMessage(message, { modal: true }, sameWindow, newWindow);
+    if (!result) {
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
+        return; // User cancelled
+    }
+    handleSameWorkspaceFileOpen(ballerinaExtInstance, filePath); // If opened workspace is same open the file
     try {
-        const tempFilePath = path.join(os.tmpdir(), 'fileOpenPath.txt');
-        const pathValue = fs.readFileSync(tempFilePath, 'utf-8').trim();
-        if (pathValue) {
-            try {
-                // Open the specific file
-                const document = await workspace.openTextDocument(pathValue);
-                await window.showTextDocument(document);
-            } catch (error) {
-                window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
-            }
-            writeClonedFilePathToTemp("");
+        switch (result) {
+            case newWindow:
+                await commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: true });
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_NEW_FOLDER, CMP_OPEN_VSCODE_URL);
+                break;
+            case sameWindow:
+                await commands.executeCommand('vscode.openFolder', uri);
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_SAME_FOLDER, CMP_OPEN_VSCODE_URL);
+                break;
+            default:
+                break;
         }
     } catch (error) {
-        return null;
+        window.showErrorMessage(`Failed to open folder: ${error}`);
+    }
+}
+
+function handleSameWorkspaceFileOpen(ballerinaExtInstance: BallerinaExtension, filePath: string) {
+    const workspaceFolders = workspace.workspaceFolders;
+    if (workspaceFolders.length > 0) {
+        const workspaceFolder = workspaceFolders[0];
+        const workspaceFolderPath = workspaceFolder.uri.fsPath;
+        if (filePath === workspaceFolderPath) {
+            readStoredClonedFilePathFromTemp(ballerinaExtInstance);
+        }
+    }
+}
+
+function writeClonedFilePathToTemp(ballerinaExtInstance: BallerinaExtension, selectedPath) {
+    ballerinaExtInstance.context.globalState.update(tempStartingFile, selectedPath);
+}
+
+// Function to open the stored cloned file path from the global state
+export async function readStoredClonedFilePathFromTemp(ballerinaExtInstance: BallerinaExtension) {
+    const pathValue = ballerinaExtInstance.context.globalState.get(tempStartingFile);
+    if (pathValue) {
+        try {
+            // Open the specific file
+            const document = await workspace.openTextDocument(pathValue);
+            await window.showTextDocument(document);
+        } catch (error) {
+            window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
+        }
+        writeClonedFilePathToTemp(ballerinaExtInstance, "")
     }
 }
 

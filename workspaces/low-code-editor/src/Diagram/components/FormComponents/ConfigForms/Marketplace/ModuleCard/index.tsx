@@ -26,7 +26,7 @@ function ModuleCard(props: ModuleCardProps) {
                     <div>
                         <ModuleIcon module={module} scale={0.9}/>
                     </div>
-                    <Tooltip type={"heading-content"} text={{ content: moduleName }}>
+                    <Tooltip type={"heading-content"} text={{ content: `${module.package?.organization} / ${module.moduleName} : ${module.package?.version}`}}>
                         <div className={classes.balModuleName}>{moduleName}</div>
                     </Tooltip>
                     <div className={classes.orgName}>by {module.package.organization}</div>

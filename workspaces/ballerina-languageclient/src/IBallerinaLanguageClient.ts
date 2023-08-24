@@ -38,6 +38,7 @@ export enum EXTENDED_APIS {
     PACKAGE_METADATA = 'ballerinaPackage/metadata',
     PACKAGE_CONFIG_SCHEMA = 'ballerinaPackage/configSchema',
     JSON_TO_RECORD_CONVERT = 'jsonToRecord/convert',
+    XML_TO_RECORD_CONVERT = 'xmlToRecord/convert',
     PARTIAL_PARSE_SINGLE_STATEMENT = 'partialParser/getSTForSingleStatement',
     PARTIAL_PARSE_EXPRESSION = 'partialParser/getSTForExpression',
     PARTIAL_PARSE_MODULE_MEMBER = 'partialParser/getSTForModuleMembers',
@@ -654,6 +655,23 @@ export interface JsonToRecordMapperDiagnostic {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
 }
+
+export interface XMLToRecordRequest {
+    xmlValue: string;
+    isRecordTypeDesc?: boolean;
+    isClosed?: boolean;
+    forceFormatRecordFields?: boolean;
+}
+
+export interface XMLToRecordResponse {
+    codeBlock: string;
+    diagnostics?: XMLToRecordConverterDiagnostic[];
+}
+
+export interface XMLToRecordConverterDiagnostic {
+    message: string;
+    severity?: DIAGNOSTIC_SEVERITY;
+}
 export interface DocumentIdentifier {
     uri: string;
 }
@@ -943,6 +961,8 @@ export interface IBallerinaLangClient {
     getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Thenable<TypesFromSymbolResponse>;
 
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
+
+    convertXml: (params: XMLToRecordRequest) => Thenable<XMLToRecordResponse>;
 
     rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
 
