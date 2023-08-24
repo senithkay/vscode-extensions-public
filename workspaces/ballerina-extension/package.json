@@ -715,8 +715,5 @@
     },
     "extensionPack": [
         "be5invis.toml"
-    ],
-    "extensionDependencies": [
-        "vscode.git"
     ]
 }

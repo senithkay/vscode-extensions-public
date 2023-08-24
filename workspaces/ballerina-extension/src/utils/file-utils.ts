@@ -12,17 +12,38 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { FILE_DOWNLOAD_PATH, BallerinaExtension } from "../core";
+import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_CANCELED, TM_EVENT_OPEN_FILE_CHANGE_PATH, TM_EVENT_OPEN_FILE_NEW_FOLDER, TM_EVENT_OPEN_FILE_SAME_FOLDER, TM_EVENT_OPEN_REPO_CANCELED, TM_EVENT_OPEN_REPO_CHANGE_PATH, TM_EVENT_OPEN_REPO_CLONE_NOW, sendTelemetryEvent } from "../telemetry";
 
 interface ProgressMessage {
     message: string;
     increment?: number;
 }
 
-export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, fileName: string) {
+const allowedOrgList = ['ballerina-platform', 'ballerina-guides', 'ballerinax', 'wso2'];
+const gitDomain = "github.com";
+const gistOwner = "ballerina-github-bot";
+
+export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, repoFileUrl?: string) {
 
     const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
     const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
     await updateDirectoryPath(selectedPath);
+    let validDomain = false;
+    let validGist = false;
+    let validRepo = false;
+    // Domain verification for git file download
+    if (repoFileUrl) {
+        const url = new URL(repoFileUrl);
+        const mainDomain = url.hostname;
+        validDomain = mainDomain === gitDomain;
+        if (validDomain) {
+            const username = getGithubUsername(repoFileUrl);
+            if (allowedOrgList.includes(username)) {
+                validRepo = true;
+            }
+        }
+    }
+    const fileName = file || path.basename(new URL(repoFileUrl).pathname);
     const filePath = path.join(selectedPath, fileName);
     let isSuccess = false;
 
@@ -39,45 +60,85 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
 
         try {
             if (fileName.endsWith('.bal')) {
-                progress.report({ message: "Verifying the gist file." });
-                const response = await axios.get(`https://api.github.com/gists/${gist}`);
-                const gistDetails = response.data;
-                const rawFileLink = gistDetails.files[fileName].raw_url;
-                await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
-                isSuccess = true;
-                return;
+                let rawFileLink = repoFileUrl && getGitHubRawFileUrl(repoFileUrl);
+                if (gist) {
+                    const response = await axios.get(`https://api.github.com/gists/${gist}`);
+                    const gistDetails = response.data;
+                    rawFileLink = gistDetails.files[fileName].raw_url;
+                    const responseOwner = gistDetails.owner.login;
+                    validGist = gistOwner === responseOwner;
+                }
+                if (validGist || validRepo) {
+                    await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
+                    isSuccess = true;
+                    return;
+                } else {
+                    window.showErrorMessage(`File url is not valid.`);
+                    return;
+                }
             } else {
-                window.showErrorMessage(`Gist or the file is not valid.`);
+                window.showErrorMessage(`Not a ballerina file.`);
                 return;
             }
         } catch (error) {
-            window.showErrorMessage(`The given gist file is not valid.`, error);
+            window.showErrorMessage(`The given file is not valid.`, error);
         }
     });
 
     if (isSuccess) {
         const successMsg = `The Ballerina sample file has been downloaded successfully to the following directory: ${filePath}.`;
         const changePath: MessageItem = { title: 'Change Directory' };
-        openFileInVSCode(filePath);
+        openFileInVSCode(ballerinaExtInstance, filePath);
         const success = await window.showInformationMessage(
             successMsg,
             changePath
         );
         if (success === changePath) {
+            sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_CHANGE_PATH, CMP_OPEN_VSCODE_URL);
             await selectFileDownloadPath();
         }
     }
 }
 
-export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, repoUrl: string) {
+export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, repoUrl: string, specificFileName?: string) {
     try {
         const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
         const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
-        await commands.executeCommand('git.clone', repoUrl, selectedPath);
+        const username = getGithubUsername(repoUrl);
+        if (allowedOrgList.includes(username)) {
+            const message = `Repository will be cloned to the following directory.`;
+            const cloneAnyway: MessageItem = { title: "Clone Now" };
+            const changePath: MessageItem = { title: 'Change Directory' };
+            const result = await window.showInformationMessage(message, { detail: `${selectedPath}`, modal: true }, cloneAnyway, changePath);
+            if (result === cloneAnyway) {
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CLONE_NOW, CMP_OPEN_VSCODE_URL);
+                cloneRepo(repoUrl, selectedPath, specificFileName);
+            } else if (result === changePath) {
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CHANGE_PATH, CMP_OPEN_VSCODE_URL);
+                const newPath = await selectFileDownloadPath();
+                cloneRepo(repoUrl, newPath, specificFileName);
+            } else {
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
+                window.showErrorMessage(`Repository clone canceled.`);
+                return;
+            }
+        } else {
+            window.showErrorMessage(`Unauthorized repository.`);
+            return;
+        }
     } catch (error: any) {
-        const errorMsg = `Repository clonning error: ${error.message}`;
+        const errorMsg = `Repository cloning error: ${error.message}`;
         await window.showErrorMessage(errorMsg);
     }
+}
+
+async function cloneRepo(repoUrl: string, selectedPath: string, specificFileName: string) {
+    if (specificFileName) {
+        const repoFolderName = path.basename(new URL(repoUrl).pathname);
+        const filePath = path.join(selectedPath, findTheRepoFolderName(repoFolderName, selectedPath), specificFileName);
+        writeClonedFilePathToTemp(filePath);
+    }
+    await commands.executeCommand('git.clone', repoUrl, selectedPath);
 }
 
 async function downloadFile(url, filePath, progressCallback) {
@@ -145,12 +206,97 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
 }
 
 
-async function openFileInVSCode(filePath: string): Promise<void> {
+async function openFileInVSCode(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
     const uri = Uri.file(filePath);
+    const message = `Would you like to open the downloaded file?`;
+    const newWindow: MessageItem = { title: "Open in New Window" };
+    const sameWindow: MessageItem = { title: 'Open' };
+    const result = await window.showInformationMessage(message, { modal: true }, sameWindow, newWindow);
+    if (!result) {
+        sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_CANCELED, CMP_OPEN_VSCODE_URL);
+        return; // User cancelled
+    }
     try {
-        const document = await workspace.openTextDocument(uri);
-        await window.showTextDocument(document);
+        switch (result) {
+            case newWindow:
+                await commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: true });
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_NEW_FOLDER, CMP_OPEN_VSCODE_URL);
+                break;
+            case sameWindow:
+                const document = await workspace.openTextDocument(uri);
+                await window.showTextDocument(document, { preview: false });
+                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_FILE_SAME_FOLDER, CMP_OPEN_VSCODE_URL);
+                break;
+            default:
+                break;
+        }
     } catch (error) {
         window.showErrorMessage(`Failed to open file: ${error}`);
     }
+}
+
+function writeClonedFilePathToTemp(selectedPath) {
+    const tempFilePath = path.join(os.tmpdir(), 'fileOpenPath.txt');
+    fs.writeFileSync(tempFilePath, selectedPath, 'utf-8');
+}
+
+// Function to open the stored cloned file path from the temporary file
+export async function readStoredClonedFilePathFromTemp() {
+    try {
+        const tempFilePath = path.join(os.tmpdir(), 'fileOpenPath.txt');
+        const pathValue = fs.readFileSync(tempFilePath, 'utf-8').trim();
+        if (pathValue) {
+            try {
+                // Open the specific file
+                const document = await workspace.openTextDocument(pathValue);
+                await window.showTextDocument(document);
+            } catch (error) {
+                window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
+            }
+            writeClonedFilePathToTemp("");
+        }
+    } catch (error) {
+        return null;
+    }
+}
+
+// Function to check if a folder with the given name exists
+function folderExists(folderPath) {
+    try {
+        const stats = fs.statSync(folderPath);
+        return stats.isDirectory();
+    } catch (error) {
+        return false;
+    }
+}
+
+// Function to find the next available folder name with the number
+function findTheRepoFolderName(baseFolderName, basePath) {
+    let folderName = baseFolderName;
+    let count = 1;
+
+    while (folderExists(path.join(basePath, folderName))) {
+        folderName = `${baseFolderName}-${count}`;
+        count++;
+    }
+
+    return folderName;
+}
+
+// Function to extract the organization/username
+function getGithubUsername(url) {
+    const urlParts = url.split('/');
+    const username = urlParts[3];
+    return username;
+}
+
+function getGitHubRawFileUrl(githubFileUrl) {
+    const urlParts = githubFileUrl.split('/');
+    const username = urlParts[3];
+    const repository = urlParts[4];
+    const branch = urlParts[6];
+    const filePath = urlParts.slice(7).join('/');
+
+    const rawFileUrl = `https://raw.githubusercontent.com/${username}/${repository}/${branch}/${filePath}`;
+    return rawFileUrl;
 }
