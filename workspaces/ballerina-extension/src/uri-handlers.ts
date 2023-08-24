@@ -14,7 +14,7 @@ import { handleOpenFile, handleOpenRepo, readStoredClonedFilePathFromTemp } from
 import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_URL_START, TM_EVENT_OPEN_REPO_URL_START, sendTelemetryEvent } from "./telemetry";
 
 export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
-    readStoredClonedFilePathFromTemp();
+    readStoredClonedFilePathFromTemp(ballerinaExtInstance);
     window.registerUriHandler({
         handleUri(uri: Uri): ProviderResult<void> {
             const urlParams = new URLSearchParams(uri.query);
