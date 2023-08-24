@@ -33,11 +33,13 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    findTypeByInfoFromStore,
     getDefaultValue,
     getExprBodyFromTypeCastExpression,
     getFieldName,
     getInnermostExpressionBody,
     getLinebreak,
+    getShortenedTypeName,
     getTypeName,
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
@@ -364,12 +366,16 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             const fieldsAvailable = !!listConstructor.expressions.length;
             let type = typeNameStr;
             if (isUnionType) {
-                const unionType = field.type.memberType;
+                let unionType = field.type.memberType;
+                if (!field.type.memberType.typeName && field.type.memberType.typeInfo) {
+                    unionType = findTypeByInfoFromStore(field.type.memberType.typeInfo);
+                }
                 type  = unionType.members.find(member => typeNameStr === getTypeName(member)).typeName;
             }
             const defaultValue = getDefaultValue(type);
             let targetPosition: NodePosition;
-            let newElementSource: string = `${getLinebreak()}${isUnionType ? `<${typeNameStr}>` : ''}${defaultValue}`;
+            let newElementSource: string =
+                `${getLinebreak()}${isUnionType ? `<${getShortenedTypeName(typeNameStr)}>` : ''}${defaultValue}`;
             if (fieldsAvailable) {
                 targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position as NodePosition;
                 newElementSource = `,${newElementSource}`
@@ -428,7 +434,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         || field.type?.memberType?.originalTypeName === AnydataType
         || field.type?.originalTypeName === AnydataType;
 
-    const isUnionType = field.type?.memberType?.typeName === PrimitiveBalType.Union;
+    const isUnionType = useMemo(() => {
+        if (field.type?.memberType.typeName) {
+            return field.type?.memberType?.typeName === PrimitiveBalType.Union;
+        }
+        const referredType = findTypeByInfoFromStore(field.type?.memberType?.typeInfo);
+        return referredType && referredType.typeName === PrimitiveBalType.Union;
+    }, [field]);
 
     const onCloseElementSetAnchor = () => addElementSetAnchorEl(null);
 

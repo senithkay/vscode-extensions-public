@@ -6,7 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-module.exports = {
-  stories: ["../src/**/*.stories.mdx", "../src/**/*.stories.@(js|jsx|ts|tsx)"],
-  addons: ["@storybook/addon-links", "@storybook/addon-essentials", "@storybook/preset-create-react-app"],
-};
+
+import styled from "@emotion/styled";
+import React from "react";
+
+const RequiredElement = styled.span`
+    color: var(--vscode-errorForeground);
+    font-size: 14px;
+`;
+
+export function RequiredFormInput() {
+    return <RequiredElement>*</RequiredElement>;
+}
