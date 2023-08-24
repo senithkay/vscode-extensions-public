@@ -17,12 +17,13 @@ import {
     getLabelElement,
     waitUntilElementIsEnabled,
     waitForBallerina,
+    workbenchZoomOut,
 } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 import { ServiceDesigner } from './utils/ServiceDesigner';
 import { ResourceForm } from './utils/ResourceForm';
 
-describe('VSCode Service Designer Webview UI Tests', () => {
+describe.only('VSCode Service Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'sampleService');
     const FILE_NAME = 'service.bal';
     let ORIGINAL_CONTENT = `import ballerina/http;
@@ -39,10 +40,7 @@ service /breakingbad on new http:Listener(9090) {
 
     before(async () => {
         browser = VSBrowser.instance;
-        // Trigger the zoomOut command
         workbench = new Workbench();
-        await workbench.executeCommand("View: Zoom Out");
-
         driver = browser.driver;
         webview = new WebView();
         await new EditorView().closeAllEditors();
@@ -56,6 +54,9 @@ service /breakingbad on new http:Listener(9090) {
         await waitForBallerina();
         const explorerView = await new ActivityBar().getViewControl("Explorer");
         await explorerView.closeView();
+
+        // Trigger the zoomOut command
+        await workbenchZoomOut(workbench, 2);
     });
 
     it('Open service designer view using code lens', async () => {

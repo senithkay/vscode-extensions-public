@@ -164,3 +164,10 @@ export async function waitForBallerina() {
     const element = await waitUntil(xpath, 30000);
     await VSBrowser.instance.driver.wait(until.elementTextContains(element, "Swan"));
 }
+
+export async function workbenchZoomOut(workbench, times) {
+    for (let i = 1; i <= times; i++) {
+        await workbench.executeCommand("View: Zoom Out");
+        await wait(2000); // This is a constant wait to apply zoom effect into the vscode
+    }
+}
