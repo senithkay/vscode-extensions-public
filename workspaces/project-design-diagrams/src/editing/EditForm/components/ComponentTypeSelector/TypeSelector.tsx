@@ -35,7 +35,6 @@ export function TypeSelector(props: TypeSelectorProps) {
                 <SelectLabel>Type</SelectLabel>
                 <Select
                     id='component-type-select'
-                    data-testid="component-type-select"
                     value={type}
                     onChange={handleTypeChange}
                     sx={DefaultSelectBoxStyles}
