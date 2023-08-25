@@ -55,7 +55,7 @@ export const ProjectDetails = () => {
     };
 
     return (
-        <Container>
+        <Container id="current-project-section">
             <ViewHeader>
                 <ViewTitle>Current Project</ViewTitle>
             </ViewHeader>

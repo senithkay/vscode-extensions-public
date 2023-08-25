@@ -13,7 +13,7 @@
 import { ProgressLocation, commands, window } from "vscode";
 import { choreoEnvConfig, initiateInbuiltAuth as openAuthURL } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId, openWalkthroughCmdId } from '../constants';
+import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithAuthCodeCmdId, choreoSignOutCmdId, openWalkthroughCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
@@ -74,28 +74,26 @@ export async function activateAuth(context: vscode.ExtensionContext) {
         }
     });
 
-    commands.registerCommand(choreoSignInWithApimTokenCmdId, async () => {
+    commands.registerCommand(choreoSignInWithAuthCodeCmdId, async () => {
         try {
             // This is used in the extension test runner to sign into choreo
             getLogger().debug("Signing in to Choreo using code");
             ext.api.status = STATUS_LOGGING_IN;
 
-            const apimResponse = await vscode.window.showInputBox({
-                prompt: 'Enter APIM Response: ',
-                placeHolder: 'Response',
+            const authCode = await vscode.window.showInputBox({
+                prompt: 'Enter Authentication Code: ',
+                placeHolder: 'Code',
                 ignoreFocusOut: true,
             });
 
-            if (apimResponse) {
-                const asgardioToken = JSON.parse(apimResponse);
-                // await ext.tokenStorage.setToken("asgardio.token", asgardioToken);
-                ext.authHandler.signout();
+            if (authCode) {
+                ext.api.signInWithAuthCode(authCode);
             } else {
-                window.showErrorMessage("APIM token response is required to login");
+                window.showErrorMessage("Auth Code is required to login");
             }
         } catch (error: any) {
             ext.api.status = STATUS_LOGGED_OUT;
-            getLogger().error("Error while signing in using APIM token. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            getLogger().error("Error while signing in using Auth Code." + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }

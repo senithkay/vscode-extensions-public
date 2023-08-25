@@ -16,11 +16,9 @@
   ],
   "activationEvents": [
     "workspaceContains:.choreo-project",
-    "onCommand:wso2.choreo.sign.in",
     "onView:choreo-projects",
     "onView:choreo-account",
-    "onStartupFinished",
-    "onCommand:wso2.choreo.sign.in.with.apim.token"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -76,6 +74,12 @@
         "icon": "$(link-external)"
       },
       {
+        "command": "wso2.choreo.project.delete",
+        "title": "Delete Choreo Project",
+        "category": "Choreo",
+        "icon": "$(trash)"
+      },
+      {
         "command": "wso2.choreo.project.open.external",
         "title": "Open Project in Choreo Console",
         "category": "Choreo",
@@ -87,8 +91,8 @@
         "category": "Choreo"
       },
       {
-        "command": "wso2.choreo.sign.in.with.apim.token",
-        "title": "Sign In with APIM token response",
+        "command": "wso2.choreo.sign.in.with.authCode",
+        "title": "Sign In with Auth Code",
         "category": "Choreo"
       },
       {
@@ -234,8 +238,11 @@
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../choreo-webviews/build/*.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
-    "ui-test-setup": "npx extest get-vscode -c 1.75.0 && npx extest get-chromedriver -c 1.75.0 && npx extest install-vsix -f $(ls vsix/*.vsix) && npx extest install-vsix -f $(ls ../../ballerina-*.vsix)",
-    "ui-test": "pnpm run compile-tests && npx extest run-tests 'dist/ui-test/*.test.js' --mocha_config src/ui-test/.mocharc.js -o src/ui-test/settings.json",
+    "e2e-test-setup": "npx extest get-vscode -c 1.81.0 && npx extest get-chromedriver -c 1.81.0 && npx extest install-vsix -f $(ls vsix/*.vsix) && npx extest install-vsix -f $(ls ../../ballerina-*.vsix)",
+    "e2e-test": "pnpm run compile-tests && npx extest run-tests 'dist/src/tests/e2e-tests/*.test.js' --mocha_config src/tests/e2e-tests/.mocharc.js -o src/tests/e2e-tests/settings.json",
+    "e2e-playwright": "pnpm run compile-tests && pnpm exec playwright test",
+    "e2e-pw-record": "pnpm run compile-tests && node ./dist/tests/e2e-playwright/recorder.js",
+    "integration-test": "pnpm run compile-tests && npx extest run-tests 'dist/tests/integration-tests/*.test.js' --mocha_config src/tests/integration-tests/.mocharc.js -o src/tests/integration-tests/settings.json",
     "pretest": "pnpm run clean && pnpm run compile-tests && pnpm run lint && pnpm run copy-webview-lib",
     "lint": "eslint src --ext ts",
     "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
@@ -246,19 +253,22 @@
     "postbuild": "pnpm run copyVSIX"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.5",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@playwright/test": "~1.37.0",
     "@types/byline": "^4.2.33",
     "@types/glob": "^8.0.0",
-    "@types/mocha": "^10.0.0",
+    "@types/js-yaml": "^4.0.5",
+    "@types/mocha": "~10.0.1",
+    "@types/nock": "~11.1.0",
     "@types/node": "^18.11.19",
     "@types/sinon": "^10.0.0",
     "@types/vscode": "^1.73.0",
+    "@types/which": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "~5.48.2",
     "@typescript-eslint/parser": "~5.48.2",
-    "@types/which": "^2.0.2",
     "@vscode/test-electron": "^2.2.0",
     "@vscode/vsce": "^2.17.0",
+    "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "axios": "^1.2.2",
     "copy-webpack-plugin": "^11.0.0",
     "copyfiles": "^2.4.1",
@@ -266,6 +276,7 @@
     "eslint": "^8.32.0",
     "glob": "^7.2.0",
     "mocha": "^10.2.0",
+    "nock": "~13.3.2",
     "nyc": "^15.1.0",
     "sinon": "^15.0.1",
     "source-map-support": "^0.5.21",
@@ -275,36 +286,35 @@
     "webpack": "^5.56.0",
     "webpack-cli": "^4.10.0",
     "webpack-permissions-plugin": "^1.0.9",
-    "yarn": "^1.22.19",
-    "playwright": "^1.34.0"
+    "yarn": "^1.22.19"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0",
+    "@types/chai": "^4.2.18",
+    "@types/lodash": "^4.14.189",
     "@vscode-logging/logger": "^1.2.3",
     "@vscode-logging/types": "^0.1.4",
     "@vscode-logging/wrapper": "^1.0.2",
+    "@vscode/extension-telemetry": "~0.7.7",
     "@vscode/iconv-lite-umd": "^0.7.0",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/ballerina-languageclient": "workspace:*",
     "@wso2-enterprise/choreo-client": "workspace:*",
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",
+    "byline": "^5.0.0",
+    "chai": "^4.3.4",
+    "dotenv": "^16.0.3",
+    "file-type": "^18.2.1",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
     "graphql-request": "~5.1.0",
+    "js-yaml": "^4.1.0",
+    "jschardet": "^3.0.0",
     "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.11",
     "simple-git": "^3.15.1",
     "vscode-messenger": "^0.4.4",
-    "lodash": "^4.17.11",
-    "@types/lodash": "^4.14.189",
     "vscode-messenger-common": "^0.4.3",
-    "chai": "^4.3.4",
-    "@types/chai": "^4.2.18",
-    "byline": "^5.0.0",
-    "file-type": "^18.2.1",
-    "jschardet": "^3.0.0",
-    "which": "^3.0.0",
-    "@vscode/extension-telemetry": "~0.7.7",
-    "dotenv": "^16.0.3"
+    "which": "^3.0.0"
   }
 }

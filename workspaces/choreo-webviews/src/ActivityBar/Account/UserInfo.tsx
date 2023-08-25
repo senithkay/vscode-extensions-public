@@ -68,7 +68,7 @@ export const UserInfo = () => {
     };
 
     return (
-        <Container>
+        <Container id="user-details">
             <img src={userProfilePictureUrl} width="40px" height="40px" />
             <MiddleContainer>
                 <div>{displayName}</div>

@@ -443,8 +443,16 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                             <Box p={2} width={400}>
                                 <Typography>{editConfirmMessage.current}</Typography>
                                 <Box mt={2} display='flex' justifyContent='flex-end'>
-                                    <SecondaryButton text="Cancel" onClick={handleClosePopover} />
-                                    <PrimaryButton text="Continue" onClick={onSaveForm} />
+                                    <SecondaryButton
+                                        dataTestId="dm-save-popover-cancel-btn"
+                                        text="Cancel"
+                                        onClick={handleClosePopover}
+                                    />
+                                    <PrimaryButton
+                                        dataTestId="dm-save-popover-continue-btn"
+                                        text="Continue"
+                                        onClick={onSaveForm}
+                                    />
                                 </Box>
                             </Box>
                         </Popover>

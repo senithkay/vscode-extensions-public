@@ -13,6 +13,7 @@ import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, Key, VSBrowser, WebDriver } from 'vscode-extension-tester';
 import { wait } from './util';
+import os from 'os';
 
 describe.skip('Open ballerina samples in VSCode from URL', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -50,9 +51,9 @@ describe.skip('Open ballerina samples in VSCode from URL', () => {
         await wait(3000);
 
         await driver.actions()
-            .keyDown(Key.CONTROL)
+            .keyDown(os.platform() === 'darwin' ? Key.COMMAND : Key.CONTROL)
             .sendKeys('a')
-            .keyUp(Key.CONTROL)
+            .keyUp(os.platform() === 'darwin' ? Key.COMMAND : Key.CONTROL)
             .sendKeys(Key.DELETE)
             .sendKeys(samplesDownloadDirectory)
             .perform();

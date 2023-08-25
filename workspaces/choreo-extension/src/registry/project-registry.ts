@@ -99,22 +99,15 @@ export class ProjectRegistry {
         });
     }
 
-    async getProjects(orgId: number, orgHandle: string, forceRefresh: boolean = false): Promise<Project[]> {
-        if ((forceRefresh || !this._dataProjects.has(orgId)) && ext.api.status === "LoggedIn") {
-            try {
-                const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
-                this._dataProjects.set(orgId, projects);
-                return projects;
-            } catch (error: any) {
-                getLogger().error("Error while fetching projects. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                window.showErrorMessage("Error while fetching projects ");
-                return [];
-            }
-        } else {
-            return new Promise((resolve) => {
-                const projects: Project[] | undefined = this._dataProjects.get(orgId);
-                resolve(projects ? projects : []);
-            });
+    async getProjects(orgId: number, orgHandle: string): Promise<Project[]> {
+        try {
+            const projects: Project[] = await executeWithTaskRetryPrompt(() => ext.clients.projectClient.getProjects({ orgId, orgHandle }));
+            this._dataProjects.set(orgId, projects);
+            return projects;
+        } catch (error: any) {
+            getLogger().error("Error while fetching projects. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            window.showErrorMessage("Error while fetching projects ");
+            return [];
         }
     }
 
@@ -313,7 +306,7 @@ export class ProjectRegistry {
         } catch (error: any) {
             const errorMetadata = error?.cause?.response?.metadata;
             getLogger().error("Error while fetching components. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-            throw new Error(`Failed to fetch component list. ${errorMetadata?.errorCode ?? error?.message}`);
+            throw new Error(`Failed to fetch component list. ${errorMetadata?.errorCode || error?.message}`);
         }
     }
 
@@ -402,6 +395,85 @@ export class ProjectRegistry {
         }
     }
 
+    async deleteProject(projectId: string, orgId: number): Promise<void> {
+        try {
+            await window.withProgress({
+                title: `Deleting currently opened project.`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                const org = ext.api.getOrgById(orgId);
+                const allComponents = await this.getComponents(projectId, orgId, org?.handle!, org?.uuid!);
+                const projectLocation = this.getProjectLocation(projectId);
+                if(projectLocation && org){
+                    for (const component of allComponents) {
+                        if (!component.local && component.id) {
+                            await ext.clients.projectClient.deleteComponent({
+                                component,
+                                orgId: orgId,
+                                orgHandle: component.orgHandler,
+                                projectId: projectId,
+                            });
+                        }
+
+                        this.deleteLocalComponentFiles(component, projectLocation);
+                        this._removeComponentFromWorkspace(component.name, projectLocation);
+                    }
+
+                    await ext.clients.projectClient.deleteProject({
+                        orgId: orgId,
+                        orgHandle: org?.handle,
+                        projectId: projectId,
+                    });
+                    const contents = readFileSync(projectLocation);
+                    const content: WorkspaceConfig = JSON.parse(contents.toString());
+                    writeFileSync(projectLocation, JSON.stringify({folders: content.folders}, null, 4));
+                    ext.api.refreshWorkspaceMetadata();
+                    vscode.window.showInformationMessage("Project has been successfully deleted successfully");
+                    this._dataComponents.delete(projectId);
+                    this._dataProjects.delete(orgId);
+                }
+            });
+        } catch (error: any) {
+            vscode.window.showErrorMessage("Failed to delete the project.");
+            getLogger().error(`Failed to delete the project. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+        }
+    }
+
+    deleteLocalComponentFiles(component: Component, projectLocation: string): boolean|void {
+        if (component.local) {
+            const choreoPM = new ChoreoProjectManager();
+            const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
+            const componentMetadata = localComponentMeta?.find(item => item.displayName === component.name);
+            if (componentMetadata) {
+                const { orgApp, nameApp } = componentMetadata.repository;
+                const subPath = componentMetadata.repository?.appSubPath 
+                    || componentMetadata.byocConfig?.dockerContext
+                    || componentMetadata.byocWebAppsConfig?.dockerContext
+                    || componentMetadata.byocWebAppsConfig?.webAppOutputDirectory;
+                if (subPath) {
+                    const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, subPath);
+                    if (existsSync(repoPath)) {
+                        rmdirSync(repoPath, { recursive: true });
+                    }
+                }
+            }
+        } else if (!component?.isRemoteOnly && component?.repository) {
+            const { organizationApp, nameApp } = component.repository;
+            const subPath = component.repository.appSubPath
+                || component.repository.byocBuildConfig?.dockerContext
+                || component.repository.byocWebAppBuildConfig?.dockerContext
+                || component.repository.byocWebAppBuildConfig?.outputDirectory;
+            if (subPath) {
+                const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
+                if (existsSync(repoPath)) {
+                    rmdirSync(repoPath, { recursive: true });
+                    return true;
+                }
+            }
+        }
+    }
+
     async deleteComponent(component: Component, orgId: number, orgHandle: string, projectId: string): Promise<void> {
         try {
             await window.withProgress({
@@ -416,36 +488,9 @@ export class ProjectRegistry {
 
                 const projectLocation = this.getProjectLocation(projectId);
                 if (projectLocation) {
-                    if (component.local) {
-                        const choreoPM = new ChoreoProjectManager();
-                        const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
-                        const componentMetadata = localComponentMeta?.find(item => item.displayName === component.name);
-                        if (componentMetadata) {
-                            const { orgApp, nameApp } = componentMetadata.repository;
-                            const subPath = componentMetadata.repository?.appSubPath 
-                                || componentMetadata.byocConfig?.dockerContext
-                                || componentMetadata.byocWebAppsConfig?.dockerContext
-                                || componentMetadata.byocWebAppsConfig?.webAppOutputDirectory;
-                            if (subPath) {
-                                const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, subPath);
-                                if (existsSync(repoPath)) {
-                                    rmdirSync(repoPath, { recursive: true });
-                                }
-                            }
-                        }
-                    } else if (!component?.isRemoteOnly && component?.repository) {
-                        const { organizationApp, nameApp } = component.repository;
-                        const subPath = component.repository.appSubPath
-                            || component.repository.byocBuildConfig?.dockerContext
-                            || component.repository.byocWebAppBuildConfig?.dockerContext
-                            || component.repository.byocWebAppBuildConfig?.outputDirectory;
-                        if (subPath) {
-                            const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
-                            if (existsSync(repoPath)) {
-                                rmdirSync(repoPath, { recursive: true });
-                                successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
-                            }
-                        }
+                    const showRemoveLocalFilesMsg = this.deleteLocalComponentFiles(component, projectLocation);
+                    if (showRemoveLocalFilesMsg) {
+                        successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
                     }
                     this._removeComponentFromWorkspace(component.name, projectLocation);
                 }
