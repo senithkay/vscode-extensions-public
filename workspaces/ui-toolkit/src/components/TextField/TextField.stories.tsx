@@ -1,45 +1,28 @@
-/**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
  */
-/* tslint:disable:variable-name */
-import React from 'react';
+import React from "react";
+import { ComponentStory } from "@storybook/react";
+import { TextField, TextFieldProps } from "./TextField";
 
-import { TextField } from './TextField';
+const Template: ComponentStory<typeof TextField> = (args: TextFieldProps) => <TextField {...args} />;
 
-export default {
-    title: 'TextField',
-    component: TextField,
-};
+export const TextFieldWithError = Template.bind();
+TextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", autoFocus: true, placeholder: "placeholder", onChange: null };
 
-export const Text_Field_Comp = () =>
-    (
-        <>
-            <TextField
-                value="Sample Text1"
-                label="TextField1"
-                autoFocus
-                errorMsg="Test Error"
-                placeholder="placeholder"
-                onChange={e => { console.log(e) }}
-            />
-            <TextField
-                value="Sample Text2"
-                label="TextField2"
-                required
-                errorMsg="Test Error"
-                placeholder="placeholder"
-                onChange={e => { console.log(e) }}
-            />
-            <TextField
-                value="Sample Text3"
-                required
-                placeholder="placeholder"
-                onChange={e => { console.log(e) }}
-            />
-        </>
-    );
+export const RequiredTextFieldWithError = Template.bind();
+RequiredTextFieldWithError.args = { value: "Sample Text", label: "TextField", errorMsg: "Test Error", required: true, placeholder: "placeholder", onChange: null };
+
+export const TextFieldWithoutLabel = Template.bind();
+TextFieldWithoutLabel.args = { value: "Sample Text", errorMsg: "Test Error", required: true, placeholder: "placeholder", onChange: null };
+
+export default { component: TextField, title: "TextField" };
