@@ -13,7 +13,7 @@
 import React from "react";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { UserDetails } from "./Account/UserDetails";
-import { ProgressIndicator } from "./Components/ProgressIndicator";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
 import styled from "@emotion/styled";
 

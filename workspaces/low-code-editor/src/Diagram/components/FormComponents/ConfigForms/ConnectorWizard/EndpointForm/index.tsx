@@ -48,6 +48,7 @@ export function EndpointForm(props: FormGeneratorProps) {
             code: { modifyDiagram, updateFileContent },
             library,
             runBackgroundTerminalCommand,
+            openExternalUrl
         },
     } = useContext(Context);
 
@@ -132,6 +133,7 @@ export function EndpointForm(props: FormGeneratorProps) {
                     runBackgroundTerminalCommand,
                     isModuleVar,
                     ballerinaVersion,
+                    openExternalUrl
                 })}
         </>
     );

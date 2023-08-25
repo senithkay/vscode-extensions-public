@@ -224,7 +224,7 @@ export function getResourcePath(pathSegments: (DotToken | SlashToken | Identifie
 }
 
 export function getParamString(parameters: ResourceParam[]): string {
-    return parameters.reduce((prev, current) => prev !== "" ? `${prev},${current.parameterValue}` : `${current.parameterValue}`, '');
+    return parameters.reduce((prev, current) => prev !== "" ? `${prev},${current.parameterValue}` : `${current.parameterValue.replace("@http:Payload", "")}`, '');
 }
 
 export function getParamArray(functionSignature: FunctionSignature): ResourceParam[] {
@@ -789,4 +789,23 @@ export async function getKeywordTypes(docUri: string, getLangClient: () => Promi
     const langClient = await getLangClient();
     const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
     return completions.filter(value => value.kind === 25);
+}
+
+export function isStructuredType(node: STNode): boolean {
+    // Add logic to determine if the node is a structured node (map/record/table/tuple/array/xml)
+    // Return true if it's structured, false otherwise
+    if (
+        STKindChecker.isMapTypeDesc(node) ||
+        STKindChecker.isRecordTypeDesc(node) ||
+        STKindChecker.isTableTypeDesc(node) ||
+        STKindChecker.isTupleTypeDesc(node) ||
+        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isSimpleNameReference(node.memberTypeDesc) ||
+        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isByteTypeDesc(node.memberTypeDesc) ||
+        STKindChecker.isXmlTypeDesc(node) ||
+        STKindChecker.isSimpleNameReference(node) ||
+        STKindChecker.isOptionalTypeDesc(node) && STKindChecker.isSimpleNameReference(node.typeDescriptor)
+    ) {
+        return true;
+    }
+    return false;
 }

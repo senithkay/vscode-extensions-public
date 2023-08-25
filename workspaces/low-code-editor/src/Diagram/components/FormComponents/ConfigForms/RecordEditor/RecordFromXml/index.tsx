@@ -11,7 +11,7 @@ import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
 import { DIAGNOSTIC_SEVERITY } from "@wso2-enterprise/ballerina-languageclient";
-import { JsonToRecordResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { XMLToRecordResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
     FormHeaderSection,
@@ -31,20 +31,20 @@ import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextAre
 import { UndoRedoManager } from "../../../UndoRedoManager";
 import { checkDiagnostics, getUpdatedSource } from "../../../Utils";
 import { RecordOverview } from "../RecordOverview";
-import { convertJsonToRecordUtil, getModulePartST, getRecordST, getRootRecord } from "../utils";
+import { convertXmlToRecordUtil, getModulePartST, getRecordST, getRootRecord } from "../utils";
 
 interface RecordState {
     isLoading?: boolean;
-    jsonValue?: string;
+    xmlValue?: string;
     recordName?: string;
     recordNameDiag?: string;
     importedRecord?: TypeDefinition | ModulePart;
     modifiedPosition?: NodePosition;
     isSeparateDef?: boolean;
-    jsonDiagnostics?: string;
+    xmlDiagnostics?: string;
 }
 
-interface RecordFromJsonProps {
+interface RecordFromXmlProps {
     targetPosition?: NodePosition;
     undoRedoManager?: UndoRedoManager;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
@@ -56,80 +56,44 @@ const debounceDelay = 300;
 
 const reducer = (state: RecordState, action: { type: string, payload: any }) => {
     switch (action.type) {
-        case 'jsonConversionStart':
+        case 'xmlConversionStart':
             return { ...state, isLoading: action.payload };
-        case 'setJsonDiagnostics':
-            return { ...state, jsonDiagnostics: action.payload, isLoading: false };
-        case 'setJsonValue':
-            return { ...state, jsonValue: action.payload, jsonDiagnostics: "" };
-        case 'recordNameChange':
-            return { ...state, recordName: action.payload.recordName, recordNameDiag: action.payload.recordNameDiag };
-        case 'setRecordNameDiag':
-            return { ...state, recordNameDiag: action.payload.recordNameDiag };
-        case 'checkSeparateDef':
-            return { ...state, isSeparateDef: action.payload };
-        case 'jsonConversionSuccess':
-            return { ...state, importedRecord: action.payload.importedRecord, modifiedPosition: action.payload.modifiedPosition, jsonValue: "", isLoading: false, jsonDiagnostics: "" };
+        case 'setXmlDiagnostics':
+            return { ...state, xmlDiagnostics: action.payload, isLoading: false };
+        case 'setXmlValue':
+            return { ...state, xmlValue: action.payload, xmlDiagnostics: "" };
+        case 'xmlConversionSuccess':
+            return { ...state, importedRecord: action.payload.importedRecord, modifiedPosition: action.payload.modifiedPosition, xmlValue: "", isLoading: false, xmlDiagnostics: "" };
         default:
             break;
     }
 }
 
-export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
+export function RecordFromXml(recordFromXmlProps: RecordFromXmlProps) {
     const classes = useStyles();
 
-    const { targetPosition, isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromJsonProps;
+    const { targetPosition, isHeaderHidden, undoRedoManager, onSave, onCancel } = recordFromXmlProps;
 
     const { props, api } = useContext(Context);
 
-    const { isMutationProgress, langServerURL, currentFile, fullST } = props;
+    const { isMutationProgress, langServerURL, fullST } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
-        recordName: "",
-        jsonValue: "",
+        xmlValue: "",
         isLoading: false,
-        jsonDiagnostics: "",
-        isSeparateDef: false,
-        recordNameDiag: "",
+        xmlDiagnostics: "",
+        isSeparateDef: true,
         importedRecord: undefined,
     });
 
-    const convertToJSon = () => {
-        dispatchFromState({ type: 'jsonConversionStart', payload: true });
+    const convertToXml = () => {
+        dispatchFromState({ type: 'xmlConversionStart', payload: true });
     };
 
-    const onJsonChange = (jsonText: string) => {
-        dispatchFromState({ type: 'setJsonValue', payload: jsonText });
+    const onXmlChange = (jsonText: string) => {
+        dispatchFromState({ type: 'setXmlValue', payload: jsonText });
     };
-
-    const onNameOutFocus = async (event: any) => {
-        const content = getInitialSource(mutateTypeDefinition(event.target.value, "record {};", targetPosition,
-            true));
-        const updateContent = getUpdatedSource(content, currentFile.content, targetPosition);
-        const diagnostics = await checkDiagnostics(currentFile?.path, updateContent, ls, targetPosition);
-        let filteredDiagnostics;
-        if ((diagnostics[0]?.severity === 1)
-            && (diagnostics[0]?.range?.start?.line - 1) === targetPosition.startLine) {
-            filteredDiagnostics = diagnostics.filter(diag => diag.message.includes(event.target.value));
-        }
-        dispatchFromState({
-            type: 'recordNameChange', payload: {
-                recordName: event.target.value,
-                recordNameDiag: filteredDiagnostics ? filteredDiagnostics[0].message : ""
-            }
-        });
-    };
-
-    const onNameChange = async (name: string) => {
-        dispatchFromState({
-            type: 'recordNameChange', payload: {
-                recordName: `${name.charAt(0).toUpperCase()}${name.slice(1)}`,
-                recordNameDiag: ""
-            }
-        });
-    };
-    const debouncedNameChanged = debounce(onNameChange, debounceDelay);
 
     const onSeparateDefinitionSelection = (mode: string[]) => {
         dispatchFromState({ type: 'checkSeparateDef', payload: mode.length > 0 });
@@ -144,7 +108,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     // This fix is added due to incorrect record name generation from ballerina side.
     // This can be removed once that issue is fixed
-    const fixNewRecordResponse = (response: JsonToRecordResponse) => {
+    const fixNewRecordResponse = (response: XMLToRecordResponse) => {
         const expected = `type ${formState.recordName}`;
         const notExpected = "type NewRecord";
         if (response.codeBlock && !response.codeBlock.includes(expected) && response.codeBlock.includes(notExpected)) {
@@ -156,8 +120,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     useEffect(() => {
         if (formState.isLoading) {
             (async () => {
-                const recordResponseLS = await convertJsonToRecordUtil(formState.jsonValue, formState.recordName,
-                    false, langServerURL, formState.isSeparateDef, ls);
+                const recordResponseLS = await convertXmlToRecordUtil(formState.xmlValue, ls);
                 const recordResponse = fixNewRecordResponse(recordResponseLS);
                 let recordST: STNode;
                 let modulePart: STNode;
@@ -171,7 +134,11 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             codeSnippet: updatedBlock.trim()
                         }, langServerURL, ls);
                         if (STKindChecker.isModulePart(modulePart)) {
-                            recordST = getRootRecord(modulePart, formState.recordName);
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(formState.xmlValue, "text/xml");
+                            const tagName = xmlDoc.documentElement.tagName;
+                            const recordName = tagName.charAt(0).toUpperCase() + tagName.slice(1);
+                            recordST = getRootRecord(modulePart, recordName);
                             newPosition = {
                                 startLine: targetPosition.startLine + recordST.position.startLine,
                                 startColumn: targetPosition.startColumn,
@@ -180,7 +147,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             }
                         }
                         dispatchFromState({
-                            type: 'jsonConversionSuccess', payload: {
+                            type: 'xmlConversionSuccess', payload: {
                                 importedRecord: modulePart, modifiedPosition: newPosition
                             }
                         });
@@ -194,80 +161,64 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             endColumn: recordST.position.endColumn,
                         }
                         dispatchFromState({
-                            type: 'jsonConversionSuccess', payload: {
+                            type: 'xmlConversionSuccess', payload: {
                                 importedRecord: recordST, modifiedPosition: newPosition
                             }
                         });
                     }
                     onSave(updatedBlock, newPosition);
                 } else {
-                    dispatchFromState({ type: 'setJsonDiagnostics', payload: recordResponse?.diagnostics[0].message });
+                    dispatchFromState({ type: 'setXmlDiagnostics', payload: recordResponse?.diagnostics[0].message });
                 }
             })();
         }
     }, [formState.isLoading]);
 
-    const isSaveButtonEnabled = !isMutationProgress && formState.jsonDiagnostics === ""
-        && (formState.jsonValue !== "") && !formState.recordNameDiag && formState.recordName;
+    const isSaveButtonEnabled = !isMutationProgress && formState.xmlDiagnostics === "" && (formState.xmlValue !== "");
 
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview type="JSON" undoRedoManager={undoRedoManager} prevST={fullST} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
+                <RecordOverview type="XML" undoRedoManager={undoRedoManager} prevST={fullST} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
-                <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
+                <FormControl data-testid="xml-record-config-form" className={classes.wizardFormControlExtended}>
                     {!isHeaderHidden && (
                         <FormHeaderSection
                             onCancel={onCancel}
-                            formTitle="Import Sample JSON"
+                            formTitle="Import Sample XML"
                             formType={""}
-                            defaultMessage=""
+                            defaultMessage="Import Sample XML"
                         />
                     )}
-                    <div id="json-input-container" test-id="json-input-container" className={classes.formWrapper}>
-                        <FormTextInput
-                            label="Record Name"
-                            dataTestId="import-record-name"
-                            placeholder="Enter Record Name"
-                            defaultValue={formState.recordName}
-                            customProps={{ readonly: false, isErrored: formState?.recordNameDiag }}
-                            errorMessage={formState?.recordNameDiag}
-                            onBlur={onNameOutFocus}
-                            onChange={debouncedNameChanged}
-                        />
-                        <div className={classNames(classes.inputWrapper, classes.flexItems)}>
+                    <div id="xml-input-container" test-id="xml-input-container" className={classes.formWrapper}>
+                        <div className={classNames(classes.flexItems)}>
                             <div className={classes.labelWrapper}>
-                                <FormHelperText className={classes.inputLabelForRequired}>Sample JSON</FormHelperText>
+                                <FormHelperText className={classes.inputLabelForRequired}>Sample XML</FormHelperText>
                             </div>
                             <div className={classes.fileSelect}>
-                                <FileSelector label='Select JSON file' extension='json' onReadFile={onJsonChange} />
+                                <FileSelector label='Select XML file' extension='xml' onReadFile={onXmlChange} />
                             </div>
                         </div>
                         <FormTextArea
                             rowsMax={5.1}
-                            dataTestId="json-input"
-                            placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
-                            onChange={onJsonChange}
+                            dataTestId="xml-input"
+                            placeholder={`eg: <company><org>wso2</org><address>Colombo</address></company>`}
+                            onChange={onXmlChange}
                             customProps={{
-                                isInvalid: formState.jsonDiagnostics !== "",
-                                text: formState.jsonDiagnostics
+                                isInvalid: formState.xmlDiagnostics !== "",
+                                text: formState.xmlDiagnostics
                             }}
-                            defaultValue={formState.jsonValue}
+                            defaultValue={formState.xmlValue}
                         />
                         {formState.isLoading && (
                             <TextPreloaderVertical position="absolute" />
                         )}
-                        <CheckBoxGroup
-                            values={["Make Separate Record Definitions"]}
-                            defaultValues={formState.isSeparateDef ? ['Make Separate Record Definitions'] : []}
-                            onChange={onSeparateDefinitionSelection}
-                        />
                         <FormActionButtons
                             cancelBtnText="Back"
                             saveBtnText="Save"
                             isMutationInProgress={false}
                             validForm={isSaveButtonEnabled}
-                            onSave={convertToJSon}
+                            onSave={convertToXml}
                             onCancel={onCancel}
                         />
                     </div>

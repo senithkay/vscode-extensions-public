@@ -446,18 +446,34 @@ export const recordStyles = makeStyles((theme: Theme) =>
             marginTop: 16,
         },
         inputLabelWrapper: {
-            display: "flex",
-            flexDirection: "row",
             marginLeft: 20,
             marginTop: 10,
-            height: 30
+            height: 50
         },
         inputLabel: {
             color: '#1D2028',
-            fontSize: 13,
+            fontSize: 15,
             textTransform: 'capitalize',
             lineHeight: '35px',
-            fontWeight: 400
+            fontWeight: 400,
+            margin: 0
+        },
+        inputLabelDetail: {
+            color: '#4a4d55',
+            fontSize: 13,
+            textTransform: 'capitalize',
+            fontWeight: 300
+        },
+        ballerinLabel: {
+            color: '#4a4d55',
+            fontSize: 13,
+            textTransform: 'capitalize',
+            fontWeight: 300,
+            textAlign: 'end'
+        },
+        inputSuccessTick: {
+            color: "#08d608",
+            marginBottom: -5
         },
         inputLink: {
             color: 'blue',
