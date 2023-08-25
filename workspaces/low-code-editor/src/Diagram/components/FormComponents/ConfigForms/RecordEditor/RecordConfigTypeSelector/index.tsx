@@ -21,12 +21,13 @@ import { recordStyles } from "../style";
 export interface RecordConfigTypeProps {
     isDataMapper?: boolean;
     onImportFromJson: () => void;
+    onImportFromXml: () => void;
     onCreateNew: () => void;
     onCancel: () => void;
 }
 
 export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
-    const { isDataMapper, onImportFromJson, onCreateNew, onCancel } = props;
+    const { isDataMapper, onImportFromJson, onImportFromXml, onCreateNew, onCancel } = props;
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
@@ -39,6 +40,10 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
     const importJsonButtonText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.option.importJson",
         defaultMessage: "Import a JSON",
+    });
+    const importXmlButtonText = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.option.importXml",
+        defaultMessage: "Import an XML",
     });
 
     return (
@@ -67,6 +72,16 @@ export function RecordConfigTypeSelector(props: RecordConfigTypeProps) {
                         dataTestId="import-json"
                         startIcon={<FileUploadIcon />}
                     />
+
+                    <LinePrimaryButton
+                        text={importXmlButtonText}
+                        fullWidth={true}
+                        onClick={onImportFromXml}
+                        dataTestId="import-xml"
+                        disabled={onImportFromXml === null}
+                        startIcon={<FileUploadIcon />}
+                    />
+                    {onImportFromXml === null && <p className={recordClasses.ballerinLabel}>To enable XML import, update the Ballerina version to 2201.7.2 or later.</p>}
                 </div>
             </div>
         </>

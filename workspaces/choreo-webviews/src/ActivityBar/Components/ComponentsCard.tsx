@@ -18,13 +18,13 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentRow } from "./ComponentRow";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
-import { ProgressIndicator } from "./ProgressIndicator";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { ViewTitle } from "./ViewTitle";
 import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
 import { NoComponentsAlert } from "./componentAlerts/NoComponentsAlert";
 import { ComponentSyncAlert } from "./componentAlerts/ComponentSyncAlert";
 import { ComponentsPushAlert } from "./componentAlerts/ComponentsPushAlert";
-import { ErrorBanner } from "../../Commons/ErrorBanner";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     display: flex;

@@ -31,7 +31,7 @@ import { FormTextArea } from "../../../FormFieldComponents/TextField/FormTextAre
 import { UndoRedoManager } from "../../../UndoRedoManager";
 import { checkDiagnostics, getUpdatedSource } from "../../../Utils";
 import { RecordOverview } from "../RecordOverview";
-import { convertToRecord, getModulePartST, getRecordST, getRootRecord } from "../utils";
+import { convertJsonToRecordUtil, getModulePartST, getRecordST, getRootRecord } from "../utils";
 
 interface RecordState {
     isLoading?: boolean;
@@ -82,7 +82,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
 
     const { props, api } = useContext(Context);
 
-    const { isMutationProgress, langServerURL, currentFile, syntaxTree } = props;
+    const { isMutationProgress, langServerURL, currentFile, fullST } = props;
     const { ls } = api;
 
     const [formState, dispatchFromState] = useReducer(reducer, {
@@ -156,7 +156,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     useEffect(() => {
         if (formState.isLoading) {
             (async () => {
-                const recordResponseLS = await convertToRecord(formState.jsonValue, formState.recordName,
+                const recordResponseLS = await convertJsonToRecordUtil(formState.jsonValue, formState.recordName,
                     false, langServerURL, formState.isSeparateDef, ls);
                 const recordResponse = fixNewRecordResponse(recordResponseLS);
                 let recordST: STNode;
@@ -213,7 +213,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     return (
         <>
             {formState.importedRecord ? (
-                <RecordOverview undoRedoManager={undoRedoManager} prevST={syntaxTree} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
+                <RecordOverview type="JSON" undoRedoManager={undoRedoManager} prevST={fullST} definitions={formState.importedRecord} onComplete={onCancel} onCancel={onCancel} />
             ) : (
                 <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControlExtended}>
                     {!isHeaderHidden && (

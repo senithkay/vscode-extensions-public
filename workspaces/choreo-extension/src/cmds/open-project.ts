@@ -17,11 +17,13 @@ import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
 import { cloneProject } from './clone';
 import path = require('path');
-import { Organization, Project } from '@wso2-enterprise/choreo-core';
+import { OPEN_PROJECT_EVENT, Organization, Project } from '@wso2-enterprise/choreo-core';
+import { sendTelemetryEvent } from '../telemetry/utils';
 
 export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, async () => {
         const isLoggedIn = await ext.api.waitForLogin();
+        sendTelemetryEvent(OPEN_PROJECT_EVENT);
         // show a message if user is not logged in
         if (!isLoggedIn) {
             vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
