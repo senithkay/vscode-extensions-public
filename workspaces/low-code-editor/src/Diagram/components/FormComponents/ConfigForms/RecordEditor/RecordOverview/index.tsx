@@ -11,9 +11,10 @@ import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { IconButton, Link } from "@material-ui/core";
+import CheckIcon from "@material-ui/icons/Check";
 import { DeleteButton, UndoIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { ModulePart, STKindChecker, STNode, TypeDefinition  } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from 'classnames';
 
 import { PrimaryButtonSquare } from "../../../../../../components/Buttons/PrimaryButtonSquare";
@@ -32,18 +33,19 @@ import { RecordItem } from "./RecordItem";
 export interface RecordOverviewProps {
     definitions: TypeDefinition | ModulePart;
     prevST?: STNode;
+    type: "XML" | "JSON"
     undoRedoManager?: UndoRedoManager;
     onComplete: () => void;
     onCancel: () => void;
 }
 
 export function RecordOverview(overviewProps: RecordOverviewProps) {
-    const { definitions, prevST, undoRedoManager, onComplete, onCancel } = overviewProps;
+    const { definitions, prevST, undoRedoManager, type, onComplete, onCancel } = overviewProps;
 
     const overlayClasses = wizardStyles();
     const recordClasses = recordStyles();
 
-    const { props: { syntaxTree, currentFile }, api: { code: { modifyDiagram } } } = useContext(Context);
+    const { props: { fullST, currentFile }, api: { code: { modifyDiagram } } } = useContext(Context);
 
     const intl = useIntl();
     const doneButtonText = intl.formatMessage({
@@ -53,7 +55,12 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const successMsgText = intl.formatMessage({
         id: "lowcode.develop.configForms.recordEditor.overview.doneBtnText",
-        defaultMessage: "Succcesfully imported the JSON Please use following section to further edit"
+        defaultMessage: `${type} Import Successful!`
+    });
+
+    const successMsgTextDetail = intl.formatMessage({
+        id: "lowcode.develop.configForms.recordEditor.overview.doneBtnText",
+        defaultMessage: "Proceed to the section below to make further edits."
     });
 
     const overviewSelectAll = intl.formatMessage({
@@ -97,17 +104,17 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     }, [recordNames]);
 
     useEffect(() => {
-        if (syntaxTree && syntaxTree.source !== originalSource.source) {
-            const createdRecords = getAvailableCreatedRecords(createdDefinitions, syntaxTree);
-            setRecordNames(getAvailableCreatedRecords(createdDefinitions, syntaxTree));
+        if (fullST && fullST.source !== originalSource.source) {
+            const createdRecords = getAvailableCreatedRecords(createdDefinitions, fullST);
+            setRecordNames(getAvailableCreatedRecords(createdDefinitions, fullST));
             if (createdRecords.length === 0) {
                 onCancel();
             }
         }
-    }, [syntaxTree]);
+    }, [fullST]);
 
     const [listRecords, setListRecords] = useState<ReactNode[]>([]);
-    const actualSelectedRecordSt = selectedRecord ? getActualRecordST(syntaxTree, selectedRecord) : undefined;
+    const actualSelectedRecordSt = selectedRecord ? getActualRecordST(fullST, selectedRecord) : undefined;
 
     const onCancelEdit = () => {
         setSelectedRecord("");
@@ -128,7 +135,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
         setRecordNames(recordNameClone);
         undoRedoManager.updateContent(currentFile.path, currentFile.content);
         undoRedoManager.addModification(currentFile.content);
-        modifyDiagram(getRemoveCreatedRecordRange(selectedRecords, syntaxTree));
+        modifyDiagram(getRemoveCreatedRecordRange(selectedRecords, fullST));
         if (recordNameClone.length === 0) {
             onCancel();
         }
@@ -148,7 +155,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
 
     const handleUndo = () => {
         const lastUpdateSource = undoRedoManager.undo();
-        modifyDiagram([updatePropertyStatement(lastUpdateSource, syntaxTree.position)]);
+        modifyDiagram([updatePropertyStatement(lastUpdateSource, fullST.position)]);
         if (lastUpdateSource === originalSource.source) {
             // If original source matches to last updated source we assume there are no newly created record.
             // Hence, we are closing the form.
@@ -167,7 +174,8 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                     />
                     {listRecords?.length > 0 && (
                         <div className={recordClasses.inputLabelWrapper}>
-                            <p className={recordClasses.inputLabel}>{successMsgText}</p>
+                            <p className={recordClasses.inputLabel}><CheckIcon className={recordClasses.inputSuccessTick} /> {successMsgText}</p>
+                            <p className={recordClasses.inputLabelDetail}>{successMsgTextDetail}</p>
                         </div>
                     )}
                     <div className={overlayClasses.recordFormWrapper}>
@@ -186,7 +194,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
                             <DeleteButton /> {deleteSelected}
                         </div>
 
-                        <Tooltip type="info" text={{content: "Undo"}} placement="bottom-end">
+                        <Tooltip type="info" text={{ content: "Undo" }} placement="bottom-end">
                             <IconButton
                                 onClick={handleUndo}
                                 className={classNames(recordClasses.undoButton, recordClasses.marginSpace)}

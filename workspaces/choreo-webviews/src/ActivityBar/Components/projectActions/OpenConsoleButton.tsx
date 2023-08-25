@@ -15,6 +15,7 @@ import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
 import { ChoreoIcon } from "../../../icons";
+import { OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 
 export const OpenConsoleButton = () => {
     const { choreoProject, choreoUrl, currentProjectOrg } = useChoreoWebViewContext();
@@ -22,6 +23,9 @@ export const OpenConsoleButton = () => {
     const projectURL = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${choreoProject?.id}`;
 
     const openProjectInChoreoConsole = () => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT
+        });
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);
     };
 

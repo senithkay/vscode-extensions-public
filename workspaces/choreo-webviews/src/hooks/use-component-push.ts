@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -12,18 +12,21 @@
  */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { Component } from "@wso2-enterprise/choreo-core";
+import { Component, PUSH_COMPONENT_TO_CHOREO_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoComponentsContext } from "../context/choreo-components-ctx";
 
 export function useComponentPush(component: Component) {
     const queryClient = useQueryClient();
-    const { refreshComponents } = useChoreoComponentsContext()
+    const { refreshComponents } = useChoreoComponentsContext();
     const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
         mutationFn: (componentName: string) =>
             ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({
                 projectId: component.projectId,
                 componentName,
             }),
+        onMutate: () => {
+            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({ eventName: PUSH_COMPONENT_TO_CHOREO_EVENT });
+        },
         onSuccess: async (_, name) => {
             await queryClient.cancelQueries({
                 queryKey: ["project_component_list", component.projectId],
