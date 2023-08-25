@@ -15,11 +15,12 @@ import { TokenStorage } from "./TokenStorage";
 import { getLogger } from "../logger/logger";
 import { AccessToken, ChoreoAuthClient, ChoreoOrgClient, ChoreoUserManagementClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoEnvConfig } from "./config";
-import { Organization, UserInfo } from "@wso2-enterprise/choreo-core";
+import { Organization, SIGN_IN_SUCCESS_EVENT, UserInfo } from "@wso2-enterprise/choreo-core";
 import { getDefaultSelectedOrg, promptToOpenSignupPage } from "./auth";
 import { ext } from "../extensionVariables";
 import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from "../constants";
 import { lock } from "./lock";
+import { sendTelemetryEvent } from "../telemetry/utils";
 
 
 export function isTokenExpired(token: AccessToken) {
@@ -81,6 +82,7 @@ export class AuthHandler {
                 }
                 await this.exchangeChoreoSTSToken(response.accessToken, selectedOrg.handle, selectedOrg.id);
                 await this.signin();
+                sendTelemetryEvent(SIGN_IN_SUCCESS_EVENT);
                 getLogger().debug("Total sign in time: " + (Date.now() - currentTime));
             } catch (error: any) {
                 const errMsg = "Error while signing in to Choreo! " + error?.message;

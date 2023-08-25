@@ -17,6 +17,7 @@ import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { useAccountSubscriptionStatus } from "../../hooks/use-account-subscription-status";
 import { Codicon } from "../../Codicon/Codicon";
+import { OPEN_UPGRADE_PLAN_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 
 const Container = styled.div`
     display: flex;
@@ -63,6 +64,7 @@ export const UserInfo = () => {
 
     const openBillingPortal = () => {
         ChoreoWebViewAPI.getInstance().openBillingPortal(currentProjectOrg?.uuid);
+        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({ eventName: OPEN_UPGRADE_PLAN_PAGE_EVENT });
     };
 
     return (

@@ -107,9 +107,12 @@ export async function activateAuth(context: vscode.ExtensionContext) {
 
 async function initFromExistingChoreoSession() {
     getLogger().debug("Initializing from existing Choreo session");
+    sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_START_EVENT);
     try {
         await ext.authHandler.signin(true);
+        sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT);
     } catch (error: any) {
+        sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
         getLogger().error("Error while initializing from existing Choreo session. " + error?.message);
         ext.authHandler.signout();
     }
