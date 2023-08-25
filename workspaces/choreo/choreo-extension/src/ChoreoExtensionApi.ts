@@ -14,21 +14,25 @@ import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, comm
 import { ext } from "./extensionVariables";
 
 import {
+    ChoreoComponentType,
+    ChoreoLoginStatus,
+    ChoreoWorkspaceMetaData,
+    Component,
+    ComponentDisplayType,
+    Endpoint,
     IProjectManager,
     Organization,
     Project,
-    ChoreoLoginStatus,
-    WorkspaceConfig,
-    Component,
-    ChoreoComponentType,
-    UserInfo,
-    ChoreoWorkspaceMetaData,
-    Endpoint,
     ServiceTypes,
-    ComponentDisplayType,
-    EndpointData,
+    UserInfo,
+    WorkspaceConfig,
 } from "@wso2-enterprise/choreo-core";
-import { CMEntryPoint, CMResourceFunction, CMService, ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    CMResourceFunction,
+    CMService,
+    ComponentModel,
+    Project as ProjectModel
+} from "@wso2-enterprise/ballerina-languageclient";
 import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
 
@@ -40,6 +44,11 @@ import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile,
 import { AxiosResponse } from 'axios';
 import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
+import {
+    getDefaultComponentModel,
+    getDefaultProjectModel,
+    getServices
+} from "./extensionApiUtils";
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -51,7 +60,6 @@ export interface IChoreoExtensionAPI {
     deleteComponent(projectId: string, componentPath: string): Promise<void>;
     getConsoleUrl(): Promise<string>;
 }
-
 
 export class ChoreoExtensionApi {
     private _userInfo: UserInfo | undefined;
@@ -139,7 +147,7 @@ export class ChoreoExtensionApi {
         if(selectedGlobalOrg && userInfo?.organizations?.some(item => item.id === selectedGlobalOrg.id)){
             return selectedGlobalOrg;
         }
-        
+
         if(userInfo?.organizations[0]){
             await ext.context.globalState.update(SELECTED_GLOBAL_ORG_KEY, userInfo?.organizations[0]);
             return userInfo?.organizations[0];
@@ -200,7 +208,7 @@ export class ChoreoExtensionApi {
     public refreshOrganization(org: Organization) {
         this._onOrganizationChanged.fire(org);
     }
-    
+
     public refreshWorkspaceMetadata() {
         this._onRefreshWorkspaceMetadata.fire(null);
     }
@@ -514,6 +522,54 @@ export class ChoreoExtensionApi {
         return nonBalMap;
     };
 
+    public async getProjectModel(): Promise<ProjectModel> {
+        const choreoProject = await this.getChoreoProject();
+
+        if (!choreoProject) {
+            return undefined;
+        }
+
+        const { id: projectID, orgIdStr, name: projectName } = choreoProject;
+        const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(projectID);
+        const projectModel = getDefaultProjectModel(projectID, projectName);
+
+        if (workspaceFileLocation) {
+            const organization = this.getOrgById(parseInt(orgIdStr));
+            if (!organization) {
+                throw new Error(`Organization with id ${orgIdStr} not found under user ${this.userInfo?.displayName}`);
+            }
+
+            const { id: orgId, handle: orgHandle, uuid: orgUuid, name: orgName  } = organization;
+            const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(projectID,
+                orgId, orgHandle, orgUuid);
+            const nonBalComponents = choreoComponents?.filter((item) => item.displayType?.startsWith("byoc"));
+
+            nonBalComponents?.forEach((component) => {
+
+                const defaultComponentModel = getDefaultComponentModel(component, organization);
+
+                const componentPath = getComponentDirPath(component, workspaceFileLocation);
+
+                if (component.displayType === ComponentDisplayType.ByocService && componentPath) {
+                    const yamlPath = path.join(componentPath, ".choreo", "component.yaml");
+
+                    if (existsSync(yamlPath)) {
+                        const endpointsContent = yaml.load(readFileSync(yamlPath, "utf8"));
+                        const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
+
+                        if (endpoints && Array.isArray(endpoints)) {
+                            defaultComponentModel.services = getServices(endpoints, orgName, projectName,
+                                component.name, componentPath, yamlPath);
+                        }
+                    }
+                }
+                projectModel.components.push(defaultComponentModel);
+            });
+        }
+
+        return projectModel;
+    };
+
     public async deleteComponent(projectId: string, componentPath: string) {
         const choreoProject = await this.getChoreoProject();
         if (choreoProject) {
@@ -542,7 +598,7 @@ export class ChoreoExtensionApi {
     public async shouldOpenChoreoActivity(): Promise<boolean | undefined> {
         return ext.context.globalState.get<boolean>(OPEN_CHOREO_ACTIVITY);
     }
-    
+
     public async resetOpenChoreoActivity(): Promise<void> {
         await ext.context.globalState.update(OPEN_CHOREO_ACTIVITY, undefined);
     }

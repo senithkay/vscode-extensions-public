@@ -1,5 +1,12 @@
 import { LinePosition } from "./IBallerinaLanguageClient";
 
+export interface Project {
+    id: string;
+    name: string;
+    components: ComponentModel[];
+    version?: string;
+}
+
 export interface ComponentModel {
     id: string;
     orgName: string;
