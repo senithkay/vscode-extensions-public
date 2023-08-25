@@ -14,10 +14,12 @@ import { Level } from '../../../resources';
 export class ServiceLinkModel extends SharedLinkModel {
 	readonly level: Level;
 	readonly location: Location;
+	readonly testId: string;
 
-	constructor(level: Level, location: Location) {
+	constructor(level: Level, location: Location, testId?: string) {
 		super('serviceLink');
 		this.level = level;
 		this.location = location;
+		this.testId = testId;
 	}
 }

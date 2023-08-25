@@ -61,6 +61,7 @@ export function EntryNodeWidget(props: EntryNodeProps) {
                 awaitLinking={checkLinkStatus()}
                 onMouseOver={() => { handleOnHover('SELECT') }}
                 onMouseLeave={() => { handleOnHover('UNSELECT') }}
+                data-testid={`entry-node-${displayName}`}
             >
                 <ServicePortWidget
                     port={node.getPort(`left-${node.getID()}`)}

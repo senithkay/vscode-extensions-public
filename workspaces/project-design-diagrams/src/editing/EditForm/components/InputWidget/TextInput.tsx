@@ -20,10 +20,11 @@ interface TextFieldProps {
     required?: boolean;
     error?: boolean;
     errorMessage?: string;
+    testId?: string;
 }
 
 export function TextInputWidget(props: TextFieldProps) {
-    const { label, value, required, error, errorMessage, onChange } = props;
+    const { label, testId, value, required, error, errorMessage, onChange } = props;
 
     const [visited, updateVisitStatus] = useState<boolean>(false);
 
@@ -44,6 +45,7 @@ export function TextInputWidget(props: TextFieldProps) {
             </span>
             <TextField
                 id='outlined-basic'
+                data-testid={testId}
                 size='small'
                 variant='outlined'
                 value={value}
