@@ -2,7 +2,7 @@
   "name": "@wso2-enterprise/ui-toolkit",
   "version": "1.0.0",
   "description": "Common ui-toolkit for other components",
-  "homepage": "http://tharindulak.github.io/ballerina-plugin-vscode",
+  "homepage": "http://wso2-enterprise.github.io/vscode-extensions.git",
   "files": [
     "lib"
   ],
@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "predeploy": "pnpm run build-storybook",
-    "deploy-storybook": "pnpm run predeploy && gh-pages -d storybook-static",
+    "deploy-storybook": "pnpm run predeploy && gh-pages -d storybook-static -r https://github.com/wso2-enterprise/vscode-extensions.git",
     "build-storybook": "build-storybook"
   },
   "dependencies": {

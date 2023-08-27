@@ -308,7 +308,7 @@ export async function readStoredClonedFilePathFromTemp(ballerinaExtInstance: Bal
         } catch (error) {
             window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
         }
-        writeClonedFilePathToTemp(ballerinaExtInstance, "");
+        writeClonedFilePathToTemp(ballerinaExtInstance, "")
     }
 }
 

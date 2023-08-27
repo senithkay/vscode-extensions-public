@@ -70,11 +70,10 @@ const Container = styled.div`
 
 `;
 
-export const ProgressIndicator = (props: ProgressBarProps) => {
-    const { id } = props;
+export const ProgressIndicator = ({ id }: { id?: string }) => {
     return (
-        <Container id={id} className="infinite active" role="progressbar">
-            <div className="progress-bar" />
+        <Container className="infinite active" role="progressbar" id={id}>
+            <div className="progress-bar"/>
         </Container>
     );
 };

@@ -54,7 +54,7 @@ export const SignInToChoreoMessage = (props: { showProjectHeader?: boolean }) =>
                     title={isChoreoProject ? "Choreo Project Detected" : "Choreo Project Not Found"}
                 />
             ) : (
-                <WideVSCodeButton appearance="primary" onClick={signInToChoreo}>
+                <WideVSCodeButton appearance="primary" onClick={signInToChoreo} id="sign-in-btn">
                     Sign In
                 </WideVSCodeButton>
             )}

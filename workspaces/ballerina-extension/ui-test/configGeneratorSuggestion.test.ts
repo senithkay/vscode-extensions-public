@@ -8,13 +8,11 @@
  */
 
 import { expect } from 'chai';
-import { existsSync, readFileSync, writeFile } from 'fs';
+import { readFileSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, EditorView, Key, TextEditor, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
-import { DIAGRAM_LOADING_TIME } from './constants';
-import { areVariablesIncludedInString, getDiagramExplorer, wait } from './util';
-import { ExtendedEditorView } from './utils/ExtendedEditorView';
+import { By, EditorView, Key, TextEditor, VSBrowser, WebDriver } from 'vscode-extension-tester';
+import { areVariablesIncludedInString, wait } from './util';
 
 
 const expectedConfigs = [

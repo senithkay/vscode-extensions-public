@@ -55,6 +55,7 @@ export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) =
             <WideVSCodeButton
                 appearance="primary"
                 onClick={openChoreoProject}
+                id="open-project-btn"
             >
                 Open Project
             </WideVSCodeButton>
@@ -62,6 +63,7 @@ export const EmptyWorkspaceMessage = (props: { projectUnavailable?: boolean }) =
             <WideVSCodeButton
                 appearance="primary"
                 onClick={createChoreoProject}
+                id="create-project-btn"
             >
                 Create Project
             </WideVSCodeButton>

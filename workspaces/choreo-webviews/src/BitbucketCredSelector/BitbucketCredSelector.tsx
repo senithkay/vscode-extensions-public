@@ -142,7 +142,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                     </BranchListContainer>
                 </>)
             }
-            {showProgressBar && <ProgressIndicator />}
+            {showProgressBar && <ProgressIndicator id="bitbucket-credential-progress"/>}
         </>
     );
 }

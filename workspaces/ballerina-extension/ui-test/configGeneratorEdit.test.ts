@@ -11,9 +11,8 @@ import { expect } from 'chai';
 import { existsSync, readFileSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, EditorView, TextEditor, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
-import { DIAGRAM_LOADING_TIME } from './constants';
-import { areVariablesIncludedInString, getDiagramExplorer, wait } from './util';
+import { By, EditorView, VSBrowser, WebDriver } from 'vscode-extension-tester';
+import { areVariablesIncludedInString, wait } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
