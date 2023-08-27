@@ -72,15 +72,6 @@ describe('VSCode architecture diagram Webview UI Tests', () => {
         await arcDiagram.clickCreateBtn("component-create-button");
         await arcDiagram.getItem("service-head-HTTPComp", 100000);
     });
-
-    after(async () => {
-        try {
-            // This sleep is to wait until the temp project is deleted
-            await wait(10000);
-            rmSync(TEMP_DIR, { recursive: true, force: true });
-        } catch (error) {
-        }
-    });
 });
 
 function copyFolderSync(sourceDir, targetDir) {

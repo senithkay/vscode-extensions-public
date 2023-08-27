@@ -22,7 +22,7 @@ describe('Debugger UI Tests', () => {
 
     beforeEach(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_service.bal`);
-        await VSBrowser.instance.waitForWorkbench;
+        await VSBrowser.instance.waitForWorkbench();
     });
 
     it('Test Debug Codelense', async () => {
