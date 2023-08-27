@@ -41,12 +41,9 @@ describe('VSCode architecture diagram Webview UI Tests', () => {
         arcEditorView = new EditorView();
     });
 
-    it('Open the architecture diagram', async () => {
+    it('Open the architecture diagram and Check for rendered diagram', async () => {
         arcDiagram = new ExtendedAcrchitectureDiagram(arcEditorView);
         await arcDiagram.openDigaram(workbench, browser);
-    });
-
-    it('Check for rendered diagram', async () => {
         await arcDiagram.getItem("service-head-HTTPService Component", 100000);
         await arcDiagram.getItem("service-link-HTTPService Component-GraphQlService");
         await arcDiagram.getItem("service-head-GraphQlService");
@@ -80,15 +77,6 @@ describe('VSCode architecture diagram Webview UI Tests', () => {
         try {
             // This sleep is to wait until the temp project is deleted
             await wait(10000);
-            const browserLogs = await browser.driver.manage().logs().get('browser');
-            let logs = '';
-            for (const logEntry of browserLogs) {
-                if (logEntry.level.toString() === 'SEVERE') {
-                    logs += `[${logEntry.level}] - ${logEntry.message}\n`;
-                    console.log(`[${logEntry.level}] - ${logEntry.message}\n`);
-                }
-            }
-            console.log(logs);
             rmSync(TEMP_DIR, { recursive: true, force: true });
         } catch (error) {
         }
