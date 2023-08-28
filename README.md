@@ -1,6 +1,7 @@
-# Ballerina/Choreo vscode extensions mono-repo
-
-This repository contains a mono-repo of Ballerina and Choreo VSCode extensions and libraries. This project consists of multiple packages, each having their own source code and dependencies.
+# WSO2 VSCode Extentions
+This repository contains VSCode extensions developed by WSO2. The repository houses several extensions along with a set of shared libraries.
+- [Ballerina] (https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
+- [Choreo] (https://marketplace.visualstudio.com/items?itemName=WSO2.choreo)
 
 ## Prerequisites
 

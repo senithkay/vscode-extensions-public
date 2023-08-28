@@ -33,4 +33,4 @@ ui-toolkit/
 ### How to develop with storybook
 
 - Run `npm run storybook` from the root directory.
-It will open the storybook in `http://localhost:62650/`
+It will open the storybook in `http://localhost:6006/`

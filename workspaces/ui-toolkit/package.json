@@ -11,7 +11,7 @@
   "scripts": {
     "prebuild": "pnpm run lint",
     "build": "tsc --pretty",
-    "storybook": "start-storybook",
+    "storybook": "start-storybook --port 6006",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },

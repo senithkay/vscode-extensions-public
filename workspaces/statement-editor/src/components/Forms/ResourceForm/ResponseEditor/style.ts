@@ -64,7 +64,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             width: "77%",
             marginTop: 7,
             marginLeft: 10,
-            lineHeight: "24px"
+            lineHeight: "24px",
+            whiteSpace: "nowrap"
         },
         disabledHeaderLabel: {
             width: "77%",

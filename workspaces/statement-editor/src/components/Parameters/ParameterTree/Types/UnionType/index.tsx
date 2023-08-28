@@ -100,14 +100,16 @@ export default function UnionType(props: TypeProps) {
                             onSelection={handleMemberType}
                         />
                     </div>
-                    {param.documentation && (
+                </div>
+                {param.documentation && (
+                    <div className={stmtEditorHelperClasses.documentationWrapper}>
                         <ListItemText
                             className={stmtEditorHelperClasses.paramTreeDescriptionText}
-                            primary={" : " + param.documentation}
+                            primary={param.documentation}
                             data-testid="arg-documentation"
                         />
-                    )}
-                </div>
+                    </div>
+                )}
                 {paramSelected && parameter && (
                     <div className={stmtEditorHelperClasses.listItemBody}>
                         <ParameterBranch parameters={[parameter]} depth={depth + 1} onChange={onChange} />
