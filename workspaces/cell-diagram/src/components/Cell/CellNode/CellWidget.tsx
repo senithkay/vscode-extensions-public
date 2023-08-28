@@ -26,8 +26,7 @@ export function CellWidget(props: CellWidgetProps) {
     const { collapsedMode, selectedNodeId, setHasDiagnostics, setSelectedNodeId, focusedNodeId, setFocusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<CellLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
-
-    const displayName: string = node.getID().slice(node.getID().lastIndexOf(":") + 1);
+    const [cellHeight, setCellHeight] = useState<number>(1000);
 
     useEffect(() => {
         node.registerListener({
@@ -49,8 +48,29 @@ export function CellWidget(props: CellWidgetProps) {
         setFocusedNodeId(undefined);
     };
 
+    const generateOctagonSVG = (height: number) => {
+        const points = [
+            `${(height * 30) / 100},${0}`,
+            `${(height * 70) / 100},${0}`,
+            `${height},${(height * 30) / 100}`,
+            `${height},${(height * 70) / 100}`,
+            `${(height * 70) / 100},${height}`,
+            `${(height * 30) / 100},${height}`,
+            `${0},${(height * 70) / 100}`,
+            `${0},${(height * 30) / 100}`,
+        ].join(" ");
+
+        return (
+            <svg width={height} height={height}>
+                <polygon points={points} />
+            </svg>
+        );
+    };
+
     return (
-        <CellNode isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())} isFocused={node.getID() === focusedNodeId}>
+        <CellNode height={cellHeight}>
+            {generateOctagonSVG(cellHeight)}
+
             <TopPortCircle>
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.TOP))} engine={engine} />
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.BOTTOM))} engine={engine} />

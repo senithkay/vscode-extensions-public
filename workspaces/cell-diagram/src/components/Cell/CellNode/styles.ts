@@ -20,23 +20,12 @@ interface StyleProps {
     isClickable?: boolean;
     isCollapsed?: boolean;
     isFocused?: boolean;
+    height?: number;
 }
 
 export const CellNode: React.FC<any> = styled.div`
-    width: 1000px;
-    height: 1000px;
-    color: ${(props: StyleProps) => (props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT)};
-    border: ${(props: StyleProps) =>
-        `2px solid ${
-            props.isSelected
-                ? Colors.PRIMARY_SELECTED
-                : props.isAnonymous
-                ? ANON_RECORD_PRIMARY
-                : props.isFocused
-                ? Colors.PRIMARY_FOCUSED
-                : Colors.NODE_BORDER
-        }`};
-    padding: 10px;
+    width: ${(props: StyleProps) => props.height}px;
+    height: ${(props: StyleProps) => props.height}px;
 
     display: flex;
     flex-direction: column;
@@ -46,6 +35,20 @@ export const CellNode: React.FC<any> = styled.div`
     text-align: center;
     position: relative;
     overflow: visible;
+
+    svg {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    
+      polygon {
+        stroke: ${Colors.NODE_BORDER};
+        stroke-width: 2;
+        fill: none;
+      }
 `;
 
 export const Circle: React.FC<any> = styled.div`
@@ -57,7 +60,7 @@ export const Circle: React.FC<any> = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    // background-color: ${Colors.NODE_BACKGROUND};
+    background-color: ${Colors.NODE_BACKGROUND};
 `;
 
 export const TopPortCircle: React.FC<any> = styled(Circle)`
@@ -74,13 +77,13 @@ export const BottomPortCircle: React.FC<any> = styled(Circle)`
 
 export const LeftPortCircle: React.FC<any> = styled(Circle)`
     position: absolute;
-    top: 50%;
+    top: 50% - 30px;
     left: -30px;
 `;
 
 export const RightPortCircle: React.FC<any> = styled(Circle)`
     position: absolute;
-    top: 50%;
+    top: 50% - 30px;
     right: -30px;
 `;
 
