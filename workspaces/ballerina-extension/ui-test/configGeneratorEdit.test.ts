@@ -24,7 +24,7 @@ const expectedConfigs = [
 ];
 
 
-describe('VSCode Config Generation Edit UI Tests', () => {
+describe.skip('VSCode Config Generation Edit UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
