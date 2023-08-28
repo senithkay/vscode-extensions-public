@@ -19,10 +19,10 @@ import { ChoreoAppInstaller } from "../GithubRepoSelector/ChoreoAppInstaller";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
 import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
-import { ErrorBanner } from "../Commons/ErrorBanner";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ProgressIndicator } from "../ActivityBar/Components/ProgressIndicator";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 const GhRepoSelectorActions = styled.div`
     display  : flex;

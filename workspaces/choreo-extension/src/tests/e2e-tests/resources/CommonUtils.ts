@@ -28,6 +28,8 @@ import {
 import { ENABLE_DND_MODE, GIT_PUSH_COMMAND, STAGE_CHANGES_COMMAND } from "./constants";
 import * as fs from "fs";
 import { join } from "path";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
+import { GitUtils } from "./GitUtils";
 
 dotenv.config();
 
@@ -43,6 +45,11 @@ export class CommonUtils {
             "TEST_GITHUB_PAT",
             "TEST_GITHUB_ORG",
             "TEST_GITHUB_MONO_REPO",
+            "TEST_BITBUCKET_USERNAME",
+            "TEST_BITBUCKET_PASSWORD",
+            "TEST_BITBUCKET_CHOREO_CREDENTIAL",
+            "TEST_BITBUCKET_WORKSPACE",
+            "TEST_BITBUCKET_REPO",
         ];
 
         requiredEnvVars.forEach((envVar) => {
@@ -61,7 +68,7 @@ export class CommonUtils {
 
     /** Open Choreo activity if its not already opened */
     static async openChoreoActivity() {
-        console.log('Attempting to open Choreo Activity');
+        console.log("Attempting to open Choreo Activity");
         const choreoActivityIcon = await this.waitUntil(By.xpath('//a[@aria-label="Choreo"]'));
         try {
             await this.waitUntil(By.xpath('//h2[@title="Choreo" and text()="Choreo"]'));
@@ -121,6 +128,7 @@ export class CommonUtils {
         // wait for new instance of vscode to open and extensions to initialize
         await this.wait(5000);
         await VSBrowser.instance.waitForWorkbench();
+        await this.closeAllEditors();
         try {
             // Enabling DND mode so that notifications do not interfere with the UI elements
             await this.waitUntil(By.xpath("//div[@id='status.notifications' and @aria-label='Notifications']"), 10000);
@@ -137,7 +145,7 @@ export class CommonUtils {
         if ("placeHolder" in params) {
             console.log(`Entering value into quick input field for ${params.placeHolder}`);
             await this.waitUntil(
-                By.xpath(`//div[@class='quick-input-titlebar']//input[@placeholder="${params.placeHolder}"]`)
+                By.xpath(`//div[@class="quick-input-header"]//input[@placeholder="${params.placeHolder}"]`)
             );
         } else if ("title" in params) {
             console.log(`Entering value into quick input field for ${params.title}`);
@@ -145,6 +153,10 @@ export class CommonUtils {
                 By.xpath(`//div[contains(@class, 'quick-input-title') and contains(text(), '${params.title}')]`)
             );
         }
+
+        // Wait 200ms for the input box to be interactive
+        await CommonUtils.wait(200);
+
         const inputBox = new InputBox();
         await inputBox.setText(params.inputValue);
         if (params.waitForItemSelect) {
@@ -171,67 +183,6 @@ export class CommonUtils {
     /** Wait for an element with a particular ID, in the UI to disappear */
     static async waitForIdToDisappear(elementId: string, timeout: number = 10000) {
         await this.waitForDisappear(By.id(elementId), timeout);
-    }
-
-    /** Commit and push local repo changes to remote repository */
-    static async commitAndPushChanges(repoName: string, commitMsg: string) {
-        console.log("Committing and pushing local changes");
-        const driver = VSBrowser.instance.driver;
-        const scmActivityView = await new ActivityBar().getViewControl("Source Control");
-        if (!scmActivityView) {
-            throw new Error("Source control view is not available");
-        }
-        const scmView: ScmView = (await scmActivityView.openView()) as any;
-        const provider = await scmView.getProvider(repoName);
-
-        if (!provider) {
-            throw new Error("Git provider not found");
-        }
-
-        let changesCount = 0;
-        try {
-            changesCount = (await this.waitUntilElements(By.className("resource"))).length;
-        } catch {
-            console.log("No changes found to commit and push");
-        }
-
-        if (changesCount) {
-            console.log(`${changesCount} changes found to commit and push`);
-            const workbench = new Workbench();
-            await workbench.executeCommand(STAGE_CHANGES_COMMAND);
-            console.log("Waiting until changes are staged");
-            await driver.wait(async () => (await provider?.getChanges()).length === 0, 10000);
-            console.log("Committing local git changes"); 
-            await provider?.commitChanges(commitMsg);
-            console.log("Pushing changes to remote Github repository"); 
-            await workbench.executeCommand(GIT_PUSH_COMMAND);
-            await this.handleGitHubLogin();
-            await driver.wait(
-                async () => (await driver.findElements(By.xpath(`//*[contains(text(), "Sync Changes")]`))).length === 0,
-                10000
-            );
-        }
-    }
-
-    /** Handle github login using test username and PAT */
-    static async handleGitHubLogin() {
-        console.log("Authenticating user with GitHub");
-        try {
-            await this.waitUntil(By.xpath(`//*[contains(text(), "wants to sign in using GitHub.")]`), 30000);
-            await this.waitAndClick(By.xpath("//*[@title='Close Dialog']"));
-            await this.setQuickInputFieldValue({
-                inputValue: process.env.TEST_GITHUB_USERNAME!,
-                placeholder: "Username",
-            });
-            await this.wait(500); // Wait is needed in order to correctly identify the password field
-            await this.setQuickInputFieldValue({
-                inputValue: process.env.TEST_GITHUB_PAT!,
-                placeholder: "Password",
-            });
-        } catch {
-            // Git auth modal was not shown.
-            console.log("Could not login with github");
-        }
     }
 
     /** Click buttons in prompts or modals */
@@ -320,29 +271,31 @@ export class CommonUtils {
 
     /** Check if there are folders that needs to be removed within the repo */
     static hasFoldersInRepo(repoPath: string) {
-        const files = fs.readdirSync(repoPath);
-        for (const file of files) {
-            if ([".git", "README.md"].includes(file)) {
-                continue; // Ignore .git folder
-            }
-            const filePath = join(repoPath, file);
-            const stats = fs.statSync(filePath);
-            if (stats.isDirectory()) {
-                return true; // At least one folder found
+        if (fs.existsSync(repoPath)) {
+            const files = fs.readdirSync(repoPath);
+            for (const file of files) {
+                if ([".git", "README.md"].includes(file)) {
+                    continue; // Ignore .git folder
+                }
+                const filePath = join(repoPath, file);
+                const stats = fs.statSync(filePath);
+                if (stats.isDirectory()) {
+                    return true; // At least one folder found
+                }
             }
         }
-        return false; // No folders found
+        return false;
     }
 
     /**
      * Delete all folders in the local and remote repo.
      * This is needed to clear unused files in the repo
      */
-    static async removeAllFoldersFromRepo(clonedRepoPath: string, repoName: string) {
+    static async removeAllFoldersFromRepo(clonedRepoPath: string, repoName: string, gitProvider: GitProvider) {
         if (CommonUtils.hasFoldersInRepo(clonedRepoPath)) {
             console.log("Repo has folders that needs to be deleted");
             CommonUtils.deleteFoldersInRepo(clonedRepoPath);
-            await CommonUtils.commitAndPushChanges(repoName, `Delete obsolete directories`);
+            await GitUtils.commitAndPushChanges(repoName, `Delete obsolete directories`, gitProvider);
         }
     }
 

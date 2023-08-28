@@ -17,3 +17,4 @@ export * from './ProjectView';
 export * from './CommonUtils';
 export * from './ComponentWizardView';
 export * from './ProjectWizardView';
+export * from './GitUtils';

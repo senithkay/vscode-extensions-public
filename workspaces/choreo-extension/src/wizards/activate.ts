@@ -14,10 +14,11 @@ import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
 import { createNewComponentCmdId, createNewProjectCmdId, choreoArchitectureViewCmdId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, deleteProjectCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
-import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
+import { CREATE_PROJECT_EVENT, ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
 import { ProjectRegistry } from "../registry/project-registry";
+import { sendTelemetryEvent } from "../telemetry/utils";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -25,6 +26,7 @@ let componentWizard: WebviewWizard;
 export function activateWizards() {
     const createProjectCmd = commands.registerCommand(createNewProjectCmdId, async (orgId: string) => {
         const isLoggedIn = await ext.api.waitForLogin();
+        sendTelemetryEvent(CREATE_PROJECT_EVENT);
         // show a message if user is not logged in
         if (!isLoggedIn) {
             window.showInformationMessage('You are not logged in. Please log in to continue.');
