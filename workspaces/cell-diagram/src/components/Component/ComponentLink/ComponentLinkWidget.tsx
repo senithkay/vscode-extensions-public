@@ -7,9 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { SVGProps, useEffect, useState } from 'react';
-import { DiagramEngine, PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
-import { Point } from '@projectstorm/geometry';
+import React, { useEffect, useState } from 'react';
+import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ComponentLinkModel } from './ComponentLinkModel';
 import { Colors } from '../../../resources';
 
@@ -19,15 +18,11 @@ interface WidgetProps {
 }
 
 export function ComponentLinkWidget(props: WidgetProps) {
-	const { engine, link } = props;
+	const { link } = props;
 
 	const [isSelected, setIsSelected] = useState<boolean>(false);
 
 	useEffect(() => {
-		if (link.cardinality) {
-			link.initLinks(engine);
-		}
-
 		link.registerListener({
 			'SELECT': selectPath,
 			'UNSELECT': unselectPath
@@ -44,43 +39,13 @@ export function ComponentLinkWidget(props: WidgetProps) {
 		link.resetLinkedNodes();
 	}
 
-	const multiLinkedSource: boolean = Object.entries(link.getSourcePort().getLinks()).length > 1;
-	const multiLinkedTarget: boolean = Object.entries(link.getTargetPort().getLinks()).length > 1;
-
-	const getCardinalityProps = (port: PortModel): SVGProps<SVGTextElement> => {
-		let position: Point = port.getPosition();
-		let props: SVGProps<SVGTextElement> = {
-			fontFamily: isSelected ? 'GilmerBold' : 'GilmerRegular',
-			fontSize: 11,
-			fontWeight: isSelected ? 'bold' : 'normal',
-			textAnchor: 'start',
-			y: position.y - 5
-		};
-
-		if (port.getOptions().alignment === PortModelAlignment.LEFT) {
-			return { ...props, x: position.x - 20 };
-		} else {
-			return { ...props, x: position.x + 18 };
-		}
-	}
 
 	return (
 		<g>
-			{link.cardinality ?
-				<>
-					<text {...getCardinalityProps(link.getSourcePort())}>
-						{isSelected || !multiLinkedSource ? transformCardinality(link.cardinality.self) : '...'}
-					</text>
-
-					<text {...getCardinalityProps(link.getTargetPort())}>
-						{isSelected || !multiLinkedTarget ? transformCardinality(link.cardinality.associate) : '...'}
-					</text>
-				</> :
-				<polygon
-					points={link.getArrowHeadPoints()}
-					fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-				/>
-			}
+			<polygon
+				points={link.getArrowHeadPoints()}
+				fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
+			/>
 			<path
 				id={link.getID()}
 				d={link.getCurvePath()}
@@ -94,10 +59,4 @@ export function ComponentLinkWidget(props: WidgetProps) {
 			/>
 		</g>
 	)
-}
-
-function transformCardinality(cardinality: string): string {
-	cardinality = cardinality.replace('-', '..');
-	cardinality = cardinality.replace('m', '*');
-	return cardinality;
 }

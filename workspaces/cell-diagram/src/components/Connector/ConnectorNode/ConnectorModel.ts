@@ -21,5 +21,8 @@ export class ConnectorModel extends SharedNodeModel {
 
         this.addPort(new ConnectorPortModel(connectorName, PortModelAlignment.TOP));
         this.addPort(new ConnectorPortModel(connectorName, PortModelAlignment.BOTTOM));
+
+        this.addPort(new ConnectorPortModel(connectorName, PortModelAlignment.LEFT));
+        this.addPort(new ConnectorPortModel(connectorName, PortModelAlignment.RIGHT));
     }
 }

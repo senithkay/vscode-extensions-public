@@ -31,6 +31,18 @@ export { ConnectorPortFactory } from './Connector/ConnectorPort/ConnectorPortFac
 export { ConnectorPortModel } from './Connector/ConnectorPort/ConnectorPortModel';
 export { ConnectorPortWidget } from './Connector/ConnectorPort/ConnectorPortWidget';
 
+export { CellFactory } from './Cell/CellNode/CellFactory';
+export { CellModel } from './Cell/CellNode/CellModel';
+export { CellWidget } from './Cell/CellNode/CellWidget';
+
+export { CellLinkFactory } from './Cell/CellLink/CellLinkFactory';
+export { CellLinkModel } from './Cell/CellLink/CellLinkModel';
+export { CellLinkWidget } from './Cell/CellLink/CellLinkWidget';
+
+export { CellPortFactory } from './Cell/CellPort/CellPortFactory';
+export { CellPortModel } from './Cell/CellPort/CellPortModel';
+export { CellPortWidget } from './Cell/CellPort/CellPortWidget';
+
 export * from './OverlayLoader';
 
 export { DiagramControls } from './Controls/DiagramControls';

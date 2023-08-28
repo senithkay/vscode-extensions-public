@@ -8,7 +8,7 @@
  */
 
 import { LinkModel, NodeModel, NodeModelGenerics, PortModel } from '@projectstorm/react-diagrams';
-import { ComponentLinkModel } from '../ComponentLink/ComponentLinkModel';
+import { ComponentLinkModel } from '../Component/ComponentLink/ComponentLinkModel';
 
 export class SharedNodeModel extends NodeModel<NodeModelGenerics> {
     constructor(type: string, id: string) {
