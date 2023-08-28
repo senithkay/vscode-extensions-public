@@ -76,6 +76,9 @@ export class ChoreoExtensionApi {
     private _onRefreshComponentList = new EventEmitter();
     public onRefreshComponentList = this._onRefreshComponentList.event;
 
+    private _onRefreshWorkspaceMetadata = new EventEmitter();
+    public onRefreshWorkspaceMetadata = this._onRefreshWorkspaceMetadata.event;
+
     constructor() {
         this._status = STATUS_INITIALIZING;
     }
@@ -206,6 +209,10 @@ export class ChoreoExtensionApi {
 
     public refreshOrganization(org: Organization) {
         this._onOrganizationChanged.fire(org);
+    }
+    
+    public refreshWorkspaceMetadata() {
+        this._onRefreshWorkspaceMetadata.fire(null);
     }
 
     public projectUpdated() {

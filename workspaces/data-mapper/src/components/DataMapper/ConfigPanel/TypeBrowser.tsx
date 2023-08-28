@@ -54,7 +54,7 @@ export function TypeBrowser(props: TypeBrowserProps) {
                 blurOnSelect={true}
                 openOnFocus={true}
             />
-            {isLoading && <LinearProgress />}
+            {isLoading && <LinearProgress data-testid={'type-select-linear-progress'} />}
         </>
     );
 }

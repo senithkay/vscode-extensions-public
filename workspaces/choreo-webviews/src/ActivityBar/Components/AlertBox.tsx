@@ -42,15 +42,16 @@ interface Props {
     variant?: 'primary' | 'secondary';
     onClick?: () => void;
     buttonDisabled?: boolean;
+    buttonId?: string;
 }
 
 export const AlertBox = (props: Props) => {
-    const { title, buttonTitle, subTitle, iconName, variant = 'primary', buttonDisabled = false, onClick } = props;
+    const { title, buttonTitle, subTitle, iconName, variant = 'primary', buttonDisabled = false, onClick, buttonId } = props;
     return (
         <Container variant={variant}>
             {title && <Title>{title}</Title>}
             {subTitle && <SubTitle>{subTitle}</SubTitle>}
-            <WideVSCodeButton onClick={onClick} appearance={variant} disabled={buttonDisabled}>
+            <WideVSCodeButton onClick={onClick} appearance={variant} disabled={buttonDisabled} id={`alert-btn${buttonId ? `-${buttonId}` : ''}`}>
                 {iconName && (
                     <>
                         <Codicon name={iconName} /> &nbsp;{" "}

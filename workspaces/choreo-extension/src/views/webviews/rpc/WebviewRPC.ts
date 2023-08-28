@@ -60,6 +60,7 @@ import {
     OpenBillingPortal,
     RefreshComponentsNotification,
     FireRefreshComponentList,
+    FireRefreshWorkspaceMetadata,
     OpenCellView,
     AskProjectDirPath,
     CloneChoreoProjectWithDir,
@@ -82,6 +83,7 @@ import {
     ClearWebviewCache,
     GoToSource,
     IsBallerinaExtInstalled,
+    RefreshWorkspaceNotification,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -186,7 +188,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgHandler, displayName } = params.component;
         const org = ext.api.getOrgByHandle(orgHandler);
         if (org) {
-            const answer = await vscode.window.showInformationMessage(`Are you sure you want to delete the component ${displayName}? `,
+            const answer = await vscode.window.showWarningMessage(`Are you sure you want to delete the component ${displayName}? `,
                 { modal: true },
                 "Delete Component");
             if (answer === "Delete Component") {
@@ -423,6 +425,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         messenger.sendNotification(RefreshComponentsNotification, BROADCAST, null);
     });
     
+    ext.api.onRefreshWorkspaceMetadata(() => {
+        messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
+    });
+
     messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
         if (args.length >= 1) {
             const cmdArgs = args.length > 1 ? args.slice(1) : [];
@@ -451,6 +457,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(FireRefreshComponentList, () => {
         ext.api.refreshComponentList();
+    });
+
+    messenger.onRequest(FireRefreshWorkspaceMetadata, () => {
+        ext.api.refreshWorkspaceMetadata();
     });
 
     messenger.onRequest(SetWebviewCache, async (params) => {
@@ -512,7 +522,7 @@ export class WebViewPanelRpc {
 
     public registerPanel(view: WebviewPanel) {
         if (!this._panel) {
-            this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents'] });
+            this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents', 'refreshWorkspace'] });
             this._panel = view;
         } else {
             throw new Error("Panel already registered");
@@ -536,7 +546,7 @@ export class WebViewViewRPC {
 
     public registerView(view: WebviewView) {
         if (!this._view) {
-            this._messenger.registerWebviewView(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents'] });
+            this._messenger.registerWebviewView(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents', 'refreshWorkspace'] });
             this._view = view;
         } else {
             throw new Error("View already registered");

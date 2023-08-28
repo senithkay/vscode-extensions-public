@@ -147,6 +147,7 @@ export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boo
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
+export const FireRefreshWorkspaceMetadata: RequestType<void, void> = { method: 'fireRefreshWorkspaceMetadata' };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };
 export const RestoreWebviewCache: RequestType<IDBValidKey, unknown> = { method: 'restoreWebviewCache' };
 export const ClearWebviewCache: RequestType<IDBValidKey, void> = { method: 'clearWebviewCache' };
@@ -169,6 +170,7 @@ export const SelectedProjectChangedNotification: NotificationType<string> = { me
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 export const RefreshComponentsNotification: NotificationType<void> = { method: 'refreshComponents' };
+export const RefreshWorkspaceNotification: NotificationType<void> = { method: 'refreshWorkspace' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

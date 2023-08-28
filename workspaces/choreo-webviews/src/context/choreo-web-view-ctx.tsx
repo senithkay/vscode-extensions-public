@@ -70,6 +70,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         error: getChoreoWorkspaceError,
         isLoading: getChoreoWorkspaceLoading,
         isFetched: fetchedWorkspaceMetaData,
+        refetch: refetchWorkspaceMetaData
     } = useQuery({
         queryKey: ["choreo_workspace_metadata"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoWorkspaceMetadata(),
@@ -163,6 +164,9 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         });
         rpcInstance.onSelectedOrgChanged(() => {
             refetchSelectedOrg();
+        })
+        rpcInstance.onRefreshWorkspaceMetadata(() => {
+            refetchWorkspaceMetaData();
         });
     }, []);
 
@@ -173,7 +177,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
             value={{
                 loginStatus,
                 userInfo,
-                choreoProject,
+                choreoProject: isChoreoProject ? choreoProject : undefined,
                 isChoreoProject,
                 error,
                 choreoUrl,

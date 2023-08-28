@@ -35,7 +35,8 @@ export async function runTests(options: TestOptions): Promise<number> {
 		'--skip-welcome',
 		'--skip-release-notes',
 		'--disable-workspace-trust',
-		'--extensionTestsPath=' + options.extensionTestsPath
+		'--extensionTestsPath=' + options.extensionTestsPath,
+		'--experimental-vm-features'
 	];
 
 	if (Array.isArray(options.extensionDevelopmentPath)) {

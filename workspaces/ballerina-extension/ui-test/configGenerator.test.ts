@@ -11,9 +11,15 @@ import { expect } from 'chai';
 import { existsSync, readFileSync, unlinkSync } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, EditorView, TextEditor, VSBrowser, WebDriver, WebView, Window } from 'vscode-extension-tester';
-import { DIAGRAM_LOADING_TIME } from './constants';
-import { areVariablesIncludedInString, getDiagramExplorer, wait } from './util';
+import {
+    By,
+    EditorView,
+    TerminalView,
+    until,
+    VSBrowser,
+    WebDriver
+} from 'vscode-extension-tester';
+import { areVariablesIncludedInString, wait } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
@@ -49,8 +55,6 @@ describe('VSCode Config Generation UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
-    let window: Window;
-
 
     const configFilePath = `${PROJECT_ROOT}/configServicePackage/Config.toml`;
 
@@ -81,8 +85,8 @@ describe('VSCode Config Generation UI Tests', () => {
             await infoNotification.click();
         }
 
-        await wait(5000);
         // Check if the terminal is open
+        await driver.wait(until.elementIsVisible(new TerminalView()), 10000);
         const terminal = await browser.driver.findElement(By.className('xterm'));
         expect(await terminal.isDisplayed()).to.be.true;
 

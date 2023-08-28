@@ -11,7 +11,7 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { AccessToken, ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoUserManagementClient } from "@wso2-enterprise/choreo-client";
+import { ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
 import { CHOREO_ENV_CONFIG_DEV, CHOREO_ENV_CONFIG_STAGE, ChoreoEnvConfig, IChoreoEnvConfig, DEFAULT_CHOREO_ENV_CONFIG } from "./config";
@@ -19,20 +19,15 @@ import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
 import { Organization, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT } from '@wso2-enterprise/choreo-core';
-import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from '../constants';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { workspace } from 'vscode';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
-const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
-const APIM_TOKEN_ERROR = "Error while retreiving the apim token details!";
-const REFRESH_TOKEN_ERROR = "Error while retreiving the refresh token details!";
-const SESSION_EXPIRED = "The session has expired, please login again!";
 
 export const choreoAIConfig = new ChoreoAIConfig();
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const choreoEnv = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
+const choreoEnv = process.env.TEST_CHOREO_EXT_ENV ?? workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
 
 let pickedEnvConfig: IChoreoEnvConfig;
 

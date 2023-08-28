@@ -11,12 +11,13 @@
  *  associated services.
  */
 import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoArchitectureViewCmdId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoArchitectureViewCmdId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, deleteProjectCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { CREATE_PROJECT_EVENT, ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
+import { ProjectRegistry } from "../registry/project-registry";
 import { sendTelemetryEvent } from "../telemetry/utils";
 
 let projectWizard: WebviewWizard;
@@ -37,6 +38,29 @@ export function activateWizards() {
                 projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, `${organizationId}`);
             }
             projectWizard.getWebview()?.reveal();
+        }
+    });
+
+    const deleteProjectCmd = commands.registerCommand(deleteProjectCmdId, async () => {
+        const isLoggedIn = await ext.api.waitForLogin();
+        if (!isLoggedIn) {
+            window.showInformationMessage("You are not logged in. Please log in to continue.");
+            return;
+        }
+
+        const choreoProject = await ext.api.getChoreoProject();
+        if (!choreoProject) {
+            window.showInformationMessage("You are not within a Choreo project at the moment");
+            return;
+        }
+
+        const answer = await window.showWarningMessage(
+            `Please confirm the deletion of project '${choreoProject.name}'. This action is not reversible and will result in the removal of all associated components`,
+            { modal: true },
+            "Delete Project"
+        );
+        if (answer === "Delete Project") {
+            await ProjectRegistry.getInstance().deleteProject(choreoProject.id, Number(choreoProject.orgId));
         }
     });
 
@@ -80,15 +104,12 @@ export function activateWizards() {
         }
     });
 
-    ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
-
-
     // Register Cell Diagram Wizard
     const choreoArchitectureView = commands.registerCommand(choreoArchitectureViewCmdId, (orgName: string, projectId: string) => {
         ChoreoArchitectureView.render(ext.context.extensionUri, orgName, projectId);
     });
 
-    ext.context.subscriptions.push(choreoArchitectureView);
+    ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd, choreoArchitectureView);
 
     commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
     commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);

@@ -94,11 +94,11 @@ export const ComponentRow = (props: {
 
     return (
         <Container>
-            <Header onClick={() => handleExpandClick(component.name)} expanded={expanded}>
+            <Header onClick={() => handleExpandClick(component.name)} expanded={expanded} id={`component-card-header-${component.displayName}`}>
                 <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
                 <ComponentName>{props.component.displayName}</ComponentName>
                 {componentTag && (
-                    <VSCodeTag title={"Only available locally"} style={{ marginLeft: "3px" }}>
+                    <VSCodeTag title={"Only available locally"} style={{ marginLeft: "3px" }} id={`${component.displayName}-tag-${componentTag}`}>
                         {componentTag}
                     </VSCodeTag>
                 )}
@@ -120,7 +120,7 @@ export const ComponentRow = (props: {
                 />
             </Header>
             {expanded && (
-                <Body>
+                <Body id={`component-card-expanded-${component.displayName}`}>
                     <ComponentDetails
                         loading={loading || deletingComponent}
                         component={props.component}

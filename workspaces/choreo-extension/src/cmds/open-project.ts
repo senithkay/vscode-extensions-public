@@ -159,7 +159,7 @@ async function showOrgChangeQuickPick() {
 }
 
 async function getProjectQuickPicks(org: Organization, currentProject?: Project) {
-    const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle, true);
+    const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle);
     const quickPicks: vscode.QuickPickItem[] = [];
     quickPicks.push({
         kind: vscode.QuickPickItemKind.Separator,
@@ -217,7 +217,7 @@ export const openProjectInVSCode = async (
         return;
     }
 
-    const projects = await ProjectRegistry.getInstance().getProjects(organization.id, organization.handle, true);
+    const projects = await ProjectRegistry.getInstance().getProjects(organization.id, organization.handle);
     const selectedProject = projects.find(project => project.id === projectId);
     if (selectedProject) {
         const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);

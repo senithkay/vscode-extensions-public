@@ -10,7 +10,6 @@ importers:
       '@sentry/webpack-plugin': ^1.18.8
       '@types/chai': ^4.2.18
       '@types/lodash': ^4.14.189
-      '@types/mocha': ^10.0.0
       '@types/node': ^18.11.19
       '@types/tcp-port-used': ^1.0.0
       '@types/vscode': ^1.73.0
@@ -98,7 +97,6 @@ importers:
     devDependencies:
       '@sentry/webpack-plugin': 1.20.0
       '@types/chai': 4.3.4
-      '@types/mocha': 10.0.1
       '@types/node': 18.13.0
       '@types/tcp-port-used': 1.0.1
       '@types/vscode': 1.75.0
@@ -363,10 +361,10 @@ importers:
   workspaces/choreo-extension:
     specifiers:
       '@istanbuljs/nyc-config-typescript': ^1.0.2
+      '@playwright/test': ~1.37.0
       '@types/chai': ^4.2.18
       '@types/glob': ^8.0.0
       '@types/lodash': ^4.14.189
-      '@types/mocha': ^10.0.0
       '@types/node': ^18.11.19
       '@types/sinon': ^10.0.0
       '@types/vscode': ^1.73.0
@@ -378,9 +376,11 @@ importers:
       '@vscode/test-electron': ^2.2.0
       '@vscode/vsce': ^2.17.0
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/choreo-vscode-webviews': workspace:*
+      '@wso2-enterprise/playwright-vscode-tester': workspace:*
       axios: ^1.2.2
       chai: ^4.3.4
       copyfiles: ^2.4.1
@@ -412,6 +412,7 @@ importers:
       '@vscode-logging/types': 0.1.4
       '@vscode-logging/wrapper': 1.0.2
       '@vscode/webview-ui-toolkit': 1.2.1
+      '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/choreo-vscode-webviews': link:../choreo-webviews
@@ -426,8 +427,8 @@ importers:
       vscode-messenger-common: 0.4.3
     devDependencies:
       '@istanbuljs/nyc-config-typescript': 1.0.2_nyc@15.1.0
+      '@playwright/test': 1.37.0
       '@types/glob': 8.0.1
-      '@types/mocha': 10.0.1
       '@types/node': 18.13.0
       '@types/sinon': 10.0.13
       '@types/vscode': 1.75.0
@@ -435,6 +436,7 @@ importers:
       '@typescript-eslint/parser': 5.48.2_4vsywjlpuriuw3tl5oq6zy5a64
       '@vscode/test-electron': 2.2.3
       '@vscode/vsce': 2.17.0
+      '@wso2-enterprise/playwright-vscode-tester': link:../playwright-vscode-tester
       axios: 1.3.2
       copyfiles: 2.4.1
       del-cli: 5.0.0
@@ -2377,12 +2379,14 @@ importers:
       eslint: ^8.32.0
       eslint-plugin-react: ^7.33.1
       eslint-plugin-react-hooks: ^4.6.0
+      gh-pages: ^6.0.0
     devDependencies:
       '@typescript-eslint/eslint-plugin': 6.2.1_j5kj2zgfu5houdjyj45rrl6d4a
       '@typescript-eslint/parser': 6.2.1_eslint@8.33.0
       eslint: 8.33.0
       eslint-plugin-react: 7.33.1_eslint@8.33.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.33.0
+      gh-pages: 6.0.0
 
   workspaces/variable-view:
     specifiers:
@@ -6142,6 +6146,17 @@ packages:
     dependencies:
       mkdirp: 1.0.4
       rimraf: 3.0.2
+    dev: true
+
+  /@playwright/test/1.37.0:
+    resolution: {integrity: sha512-181WBLk4SRUyH1Q96VZl7BP6HcK0b7lbdeKisn3N/vnjitk+9HbdlFz/L5fey05vxaAhldIDnzo8KUoy8S3mmQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      '@types/node': 18.13.0
+      playwright-core: 1.37.0
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.10_ohj47mxwagpoxvu7nhhwxzphqm:
@@ -11309,10 +11324,6 @@ packages:
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
 
-  /@types/mocha/10.0.1:
-    resolution: {integrity: sha512-/fvYntiO1GeICvqbQ3doGDIP97vWmvFt83GKguJ6prmQM2iXZfFcq6YE8KteFyRtX2/h5Hf91BYvPodJKFYv5Q==}
-    dev: true
-
   /@types/mousetrap/1.6.11:
     resolution: {integrity: sha512-F0oAily9Q9QQpv9JKxKn0zMKfOo36KHCW7myYsmUyf2t0g+sBTbG3UleTPoguHdE1z3GLFr3p7/wiOio52QFjQ==}
 
@@ -15918,6 +15929,11 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
+  /commander/11.0.0:
+    resolution: {integrity: sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==}
+    engines: {node: '>=16'}
+    dev: true
+
   /commander/2.13.0:
     resolution: {integrity: sha512-MVuS359B+YzaWqjCL/c+22gfryv+mCBPHAv3zyVI2GN8EY6IRP8VwtasXn8jyyhvvq84R4ImN1OKRtcbIasjYA==}
     dev: true
@@ -17923,6 +17939,10 @@ packages:
       minimalistic-crypto-utils: 1.0.1
     dev: true
 
+  /email-addresses/5.0.0:
+    resolution: {integrity: sha512-4OIPYlA6JXqtVn8zpHpGiI7vE6EQOAg16aGnDMIAlZVinnoZ8208tW1hAbjWydgN/4PLTT9q+O1K6AH/vALJGw==}
+    dev: true
+
   /emitter-component/1.1.1:
     resolution: {integrity: sha512-G+mpdiAySMuB7kesVRLuyvYRqDmshB7ReKEVuyBPkzQlmiDiLrt7hHHIy4Aff552bgknVN7B2/d3lzhGO5dvpQ==}
     dev: false
@@ -19580,6 +19600,20 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /filename-reserved-regex/2.0.0:
+    resolution: {integrity: sha512-lc1bnsSr4L4Bdif8Xb/qrtokGbq5zlsms/CYH8PP+WtCkGNF65DPiQY8vG3SakEdRn8Dlnm+gW/qWKKjS5sZzQ==}
+    engines: {node: '>=4'}
+    dev: true
+
+  /filenamify/4.3.0:
+    resolution: {integrity: sha512-hcFKyUG57yWGAzu1CMt/dPzYZuv+jAJUT85bL8mrXvNe6hWj6yEHEc4EdcgiA6Z3oi1/9wXJdZPXF2dZNgwgOg==}
+    engines: {node: '>=8'}
+    dependencies:
+      filename-reserved-regex: 2.0.0
+      strip-outer: 1.0.1
+      trim-repeated: 1.0.0
+    dev: true
+
   /fileset/2.0.3:
     resolution: {integrity: sha512-UxowFKnAFIwtmSxgKjWAVgjE3Fk7MQJT0ZIyl0NwIFZTrx4913rLaonGJ84V+x/2+w/pe4ULHRns+GZPs1TVuw==}
     dependencies:
@@ -20199,6 +20233,15 @@ packages:
       universalify: 2.0.0
     dev: true
 
+  /fs-extra/11.1.1:
+    resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
+    engines: {node: '>=14.14'}
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: true
+
   /fs-extra/3.0.1:
     resolution: {integrity: sha512-V3Z3WZWVUYd8hoCL5xfXJCaHWYzmtwW5XWYSlLgERi8PWd8bx1kUHUk8L1BT57e49oKnDDD180mjfrHc1yA9rg==}
     dependencies:
@@ -20443,6 +20486,20 @@ packages:
     resolution: {integrity: sha512-0fzj9JxOLfJ+XGLhR8ze3unN0KZCgZwiSSDz168VERjK8Wl8kVSdcu2kspd4s4wtAa1y/qrVRiAA0WclVsu0ng==}
     dependencies:
       assert-plus: 1.0.0
+
+  /gh-pages/6.0.0:
+    resolution: {integrity: sha512-FXZWJRsvP/fK2HJGY+Di6FRNHvqFF6gOIELaopDjXXgjeOYSNURcuYwEO/6bwuq6koP5Lnkvnr5GViXzuOB89g==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      async: 3.2.4
+      commander: 11.0.0
+      email-addresses: 5.0.0
+      filenamify: 4.3.0
+      find-cache-dir: 3.3.2
+      fs-extra: 11.1.1
+      globby: 6.1.0
+    dev: true
 
   /github-from-package/0.0.0:
     resolution: {integrity: sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==}
@@ -25641,7 +25698,7 @@ packages:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
     engines: {node: '>=8'}
     dependencies:
-      semver: 6.3.0
+      semver: 6.3.1
 
   /make-error/1.3.6:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
@@ -27696,6 +27753,12 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 3.0.0
+    dev: true
+
+  /playwright-core/1.37.0:
+    resolution: {integrity: sha512-1c46jhTH/myQw6sesrcuHVtLoSNfJv8Pfy9t3rs6subY7kARv0HRw5PpyfPYPpPtQvBOmgbE6K+qgYUpj81LAA==}
+    engines: {node: '>=16'}
+    hasBin: true
     dev: true
 
   /please-upgrade-node/3.2.0:
@@ -32185,7 +32248,6 @@ packages:
   /semver/6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
-    dev: true
 
   /semver/7.3.8:
     resolution: {integrity: sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==}
@@ -33330,6 +33392,13 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  /strip-outer/1.0.1:
+    resolution: {integrity: sha512-k55yxKHwaXnpYGsOzg4Vl8+tDrWylxDEpknGjhTiZB8dFRU5rTo9CAzeycivxV3s+zlTKwrs6WxMxR95n26kwg==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      escape-string-regexp: 1.0.5
+    dev: true
+
   /strnum/1.0.5:
     resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==}
     dev: true
@@ -34284,6 +34353,13 @@ packages:
   /trim-newlines/4.0.2:
     resolution: {integrity: sha512-GJtWyq9InR/2HRiLZgpIKv+ufIKrVrvjQWEj7PxAXNc5dwbNJkqhAUoAGgzRmULAnoOM5EIpveYd3J2VeSAIew==}
     engines: {node: '>=12'}
+
+  /trim-repeated/1.0.0:
+    resolution: {integrity: sha512-pkonvlKk8/ZuR0D5tLW8ljt5I8kmxp2XKymhepUeOdCEfKpZaktSArkLHZt76OB1ZvO9bssUsDty4SWhLvZpLg==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      escape-string-regexp: 1.0.5
+    dev: true
 
   /trim-right/1.0.1:
     resolution: {integrity: sha512-WZGXGstmCWgeevgTL54hrCuw1dyMQIzWy7ZfqRJfSmJZBwklI15egmQytFP6bPidmw3M8d5yEowl1niq4vmqZw==}

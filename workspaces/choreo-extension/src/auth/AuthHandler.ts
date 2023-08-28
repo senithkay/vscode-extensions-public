@@ -227,7 +227,7 @@ export class AuthHandler {
             if (error?.cause) {
                 getLogger().debug("Cause message: " + JSON.stringify(error.cause?.message));
             }
-            throw new Error(errMsg);
+            throw error;
         }
     }
 

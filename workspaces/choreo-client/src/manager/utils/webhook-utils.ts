@@ -12,7 +12,6 @@
  */
 
 import { compile } from "handlebars";
-import fetch from "node-fetch";
 import { log } from "console";
 import { extensions } from "vscode";
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, Parameter, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
@@ -20,6 +19,10 @@ import { join } from "path";
 import { readFile, writeFile } from "fs";
 import { runCommand } from "./component-creation-utils";
 import { TriggerDetails } from "@wso2-enterprise/choreo-core";
+
+async function getFetch() {
+    return (await import("node-fetch")).default;
+}
 
 interface TriggerResponse extends BallerinaTriggerResponse {
     moduleName: string;
@@ -97,7 +100,7 @@ async function getTrigger(triggerId: string, balVersion: string): Promise<Trigge
             return response;
         }
     }
-
+    const fetch = await getFetch();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = await (await fetch(`${GET_TRIGGERS_API}/${triggerId}`, { headers: { "User-Agent": balVersion } })).json();
     if (response && !response.error) {
