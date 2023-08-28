@@ -31,6 +31,7 @@ import { ConnectorModel } from "../components/Connector/ConnectorNode/ConnectorM
 import { ConnectorLinkModel } from "../components/Connector/ConnectorLink/ConnectorLinkModel";
 import { CellBounds, CellModel } from "../components/Cell/CellNode/CellModel";
 import { getCellPortId } from "../components/Cell/CellNode/cell-util";
+import { MAIN_CELL } from "../resources";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -58,7 +59,7 @@ export function modelMapper(project: Project): DiagramModel {
     let componentLinks: Map<string, ComponentLinkModel> = generateComponentLinks(project, componentNodes);
     let connectorNodes: Map<string, ConnectorModel> = generateConnectorNodes(project);
 
-    let cellNode = new CellModel("main-cell", Array.from(connectorNodes.values()));
+    let cellNode = new CellModel(MAIN_CELL, Array.from(connectorNodes.values()));
     let cellLinks: Map<string, ComponentLinkModel> = generateCellLinks(project, cellNode, componentNodes);
 
     let connectorLinks: Map<string, ComponentLinkModel> = generateConnectorLinks(cellNode, connectorNodes);
@@ -207,7 +208,7 @@ function generateCellLinks(project: Project, cellNode: CellModel, nodes: Map<str
 
                     if (sourcePort && targetPort) {
                         const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
-                        let link: ComponentLinkModel = new ComponentLinkModel(linkId);
+                        let link: CellLinkModel = new CellLinkModel(linkId);
                         links.set(linkId, createLinks(sourcePort, targetPort, link));
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(cellNode.getID());

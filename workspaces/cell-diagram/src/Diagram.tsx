@@ -8,16 +8,17 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, modelMapper } from "./utils";
 import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, CellModel } from "./components";
-import { dagreEngine, Colors, NO_ENTITIES_DETECTED } from "./resources";
+import { dagreEngine, Colors, NO_ENTITIES_DETECTED, MAIN_CELL } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { Component, Project } from "./types";
+import { CellBounds } from "./components/Cell/CellNode/CellModel";
 
 interface CellDiagramProps {
     getProjectModel: () => Promise<Project>;
@@ -65,6 +66,7 @@ export function CellDiagram(props: CellDiagramProps) {
         getProjectModel().then((project) => {
             if (project?.components?.length > 0) {
                 const model = modelMapper(project);
+                model.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(model);
                 setDiagramModel(model);
                 autoDistribute(model);
@@ -79,6 +81,24 @@ export function CellDiagram(props: CellDiagramProps) {
             dagreEngine.redistribute(diagramEngine.getModel());
             diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
 
+            // re arrange external connector nodes - align with cell bottom ports
+            model.getNodes().forEach((node) => {
+                if (node.getID() === MAIN_CELL) {
+                    for (const key in node.getPorts()) {
+                        if (Object.prototype.hasOwnProperty.call(node.getPorts(), key)) {
+                            const port = node.getPorts()[key];
+                            const portData = port.getID().split("-");
+                            if (portData.length > 3 && portData[2] === CellBounds.SouthBound && portData[0] === PortModelAlignment.BOTTOM) {
+                                const portPosition = port.getPosition().clone();
+                                portPosition.x = portPosition.x - 40;
+                                portPosition.y = portPosition.y + 200;
+                                model.getNode(portData[3]).setPosition(portPosition);
+                            }
+                        }
+                    }
+                }
+            });
+            // remove preloader
             const overlayLayer = diagramEngine
                 .getModel()
                 .getLayers()
@@ -86,6 +106,7 @@ export function CellDiagram(props: CellDiagramProps) {
             if (overlayLayer) {
                 diagramEngine.getModel().removeLayer(overlayLayer);
             }
+
             diagramEngine.setModel(model);
         }, 30);
     };

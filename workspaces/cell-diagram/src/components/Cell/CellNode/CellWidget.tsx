@@ -15,6 +15,7 @@ import { CellNode, TopPortCircle, Connector, LeftPortCircle, RightPortCircle, Bo
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId } from "./cell-util";
+import { MAIN_CELL_DEFAULT_HEIGHT } from "../../../resources";
 
 interface CellWidgetProps {
     node: CellModel;
@@ -26,9 +27,10 @@ export function CellWidget(props: CellWidgetProps) {
     const { collapsedMode, selectedNodeId, setHasDiagnostics, setSelectedNodeId, focusedNodeId, setFocusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<CellLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
-    const [cellHeight, setCellHeight] = useState<number>(1000);
+    const [cellHeight, setCellHeight] = useState<number>(MAIN_CELL_DEFAULT_HEIGHT);
 
     useEffect(() => {
+        resizeCellHeight();
         node.registerListener({
             SELECT: (event: any) => {
                 setSelectedLink(event.cell as CellLinkModel);
@@ -65,6 +67,13 @@ export function CellWidget(props: CellWidgetProps) {
                 <polygon points={points} />
             </svg>
         );
+    };
+
+    const resizeCellHeight = () => {
+        const conCount = node.connectorNodes?.length;
+        if (conCount && conCount * 100 + 40 > (MAIN_CELL_DEFAULT_HEIGHT * 40) / 100) {
+            setCellHeight(((conCount * 100 + 40) * 100) / 40);
+        }
     };
 
     return (

@@ -24,15 +24,19 @@ export enum Colors {
 
 export const dagreEngine = new DagreEngine({
     graph: {
-        rankdir: 'LR',
+        rankdir: 'TB',
         ranksep: 175,
         edgesep: 20,
         nodesep: 20,
         ranker: 'longest-path',
         marginx: 20,
-        marginy: 20
+        marginy: 20,
     }
 });
 
 export const NO_ENTITIES_DETECTED = 'Could not detect any entities in the Persist model.';
 export const ERRONEOUS_MODEL = 'Please resolve the diagnostics to view the ER diagram.';
+
+export const MAIN_CELL = "mainCell";
+export const MAIN_CELL_DEFAULT_HEIGHT = 1000;
+

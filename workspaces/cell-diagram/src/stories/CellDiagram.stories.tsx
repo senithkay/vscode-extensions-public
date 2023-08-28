@@ -36,6 +36,18 @@ const getProjectModel = () => {
                         id: "salesforce://salesforceCorporate",
                         type: "connector",
                     },
+                    {
+                        id: "github://github",
+                        type: "connector",
+                    },
+                    {
+                        id: "sheet://googlesheet",
+                        type: "connector",
+                    },                  
+                    {
+                        id: "twilio://twilio",
+                        type: "connector",
+                    }                  
                 ],
             },
             {
