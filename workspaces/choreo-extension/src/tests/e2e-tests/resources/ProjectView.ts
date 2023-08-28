@@ -69,6 +69,7 @@ export class ProjectView {
         await CommonUtils.switchToIFrame("Project");
         await CommonUtils.waitUntilById("create-project-btn", 30000);
         await CommonUtils.switchToDefaultFrame();
+        await CommonUtils.closeAllEditors();
         console.log("Deleted the currently opened project");
     }
 
