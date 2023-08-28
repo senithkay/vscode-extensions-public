@@ -56,10 +56,6 @@ export class ProjectWizardView {
         console.log(`Creating new project: ${projectName}`);
         await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(ADD_CHOREO_PROJECT_COMMAND);
-        await CommonUtils.setQuickInputFieldValue({
-            inputValue: process.env.TEST_USER_ORG_HANDLE!,
-            title: "Select Organization",
-        });
 
         await CommonUtils.switchToIFrame("Create New Project");
         await CommonUtils.waitUntil(By.xpath('//h3[contains(text(), "Project Details")]'));
