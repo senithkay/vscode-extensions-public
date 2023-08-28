@@ -72,6 +72,7 @@ export class GitUtils {
     /** Insert git username and password/PAT when prompted by VSCode */
     private static async insertLoginCredentials(username: string, password: string) {
         await CommonUtils.setQuickInputFieldValue({ inputValue: username, placeholder: "Username" });
+        await CommonUtils.wait(500);
         await CommonUtils.setQuickInputFieldValue({ inputValue: password, placeholder: "Password" });
     }
 
