@@ -35,16 +35,17 @@ export interface Service {
 
 export interface Connection {
     id: string
-    type: string // this should be a Connection Type enum
+    type: ConnectionType
 }
 
 export enum ConnectionType {
     HTTP = "http",
+    GRPC = "grpc",
     Connector = "connector",
 }
 
 export interface ServiceMetadata {
-    type: ConnectionType.HTTP;
+    type: ConnectionType;
     organization: string;
     project: string;
     component: string;

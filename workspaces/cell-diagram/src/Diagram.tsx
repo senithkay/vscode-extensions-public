@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, modelMapper } from "./utils";
-import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen } from "./components";
+import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, CellModel } from "./components";
 import { dagreEngine, Colors, NO_ENTITIES_DETECTED } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
@@ -51,12 +51,20 @@ export function CellDiagram(props: CellDiagramProps) {
         }
     }, [diagramModel, diagramEngine.getCanvas()]);
 
-    const refreshDiagram = () => {
-        getProjectModel().then((response) => {
-            const components: Map<string, Component> = new Map(Object.entries(response.components));
+    diagramEngine?.registerListener({
+        canvasReady: () => {
+            console.log("canvasReady");
+            if (diagramModel) {
+                console.log("dagreEngine.options.graph.height", dagreEngine.options.graph.height);
+                console.log("dagreEngine.options.graph.width", dagreEngine.options.graph.width);
+            }
+        },
+    });
 
-            if (components.size) {
-                const model = modelMapper(components);
+    const refreshDiagram = () => {
+        getProjectModel().then((project) => {
+            if (project?.components?.length > 0) {
+                const model = modelMapper(project);
                 diagramEngine.setModel(model);
                 setDiagramModel(model);
                 autoDistribute(model);
@@ -82,7 +90,7 @@ export function CellDiagram(props: CellDiagramProps) {
         }, 30);
     };
 
-    const switchCollapseMode = (shouldCollapse: boolean) => {
+    const _switchCollapseMode = (shouldCollapse: boolean) => {
         setIsCollapsedMode(shouldCollapse);
         if (diagramModel) {
             autoDistribute(diagramModel);

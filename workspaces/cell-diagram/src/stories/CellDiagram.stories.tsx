@@ -77,7 +77,7 @@ const getProjectModel = () => {
                         label: "basepath",
                         type: "http",
                         dependencyIds: [],
-                        isExposedToInternet: false,
+                        isExposedToInternet: true,
                     },
                 },
                 connections: [

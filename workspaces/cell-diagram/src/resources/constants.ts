@@ -29,8 +29,8 @@ export const dagreEngine = new DagreEngine({
         edgesep: 20,
         nodesep: 20,
         ranker: 'longest-path',
-        marginx: 40,
-        marginy: 40
+        marginx: 20,
+        marginy: 20
     }
 });
 
