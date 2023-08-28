@@ -16,6 +16,7 @@ import { join } from "path";
 import { CHOREO_PROJECTS_PATH, AccountView, CommonUtils, ProjectView } from "./resources";
 import { ProjectWizardView } from "./resources/ProjectWizardView";
 import { ComponentWizardView } from "./resources/ComponentWizardView";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
 
 const PROJECT_NAME = "test_vscode_mono_repo_project";
 const COMPONENT_NAME = `test_component_${new Date().getTime()}`;
@@ -33,22 +34,25 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
 
     it("Sign into Choreo", async () => {
         await AccountView.signIntoChoreo();
-        await ProjectView.deleteProjectIfAlreadyExists(PROJECT_NAME, CHOREO_PROJECTS_PATH);
+        await ProjectView.deleteProjectIfAlreadyExists(PROJECT_NAME, CHOREO_PROJECTS_PATH, GitProvider.GITHUB);
     });
 
     it("Create new project & open it", async () => {
         await ProjectWizardView.createNewProject({
             projectName: PROJECT_NAME,
             projectPath: CHOREO_PROJECTS_PATH,
-            gitOrgName: GIT_ORG_NAME,
-            gitRepoName: GIT_REPO_NAME,
+            monoRepoDetails: { provider: GitProvider.GITHUB, orgName: GIT_ORG_NAME, repoName: GIT_REPO_NAME },
         });
         await AccountView.verifyWithinProject();
     });
 
     it("Create new ballerina service component from scratch", async () => {
         await CommonUtils.closeAllEditors();
-        await ComponentWizardView.createNewComponent({ componentName: COMPONENT_NAME, gitRepoName: GIT_REPO_NAME });
+        await ComponentWizardView.createNewComponent({
+            componentName: COMPONENT_NAME,
+            gitRepoName: GIT_REPO_NAME,
+            gitProvider: GitProvider.GITHUB,
+        });
     });
 
     it("Verify component in Architecture & Cell view", async () => {
@@ -58,7 +62,11 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
     });
 
     it("Delete component in from project & repo", async () => {
-        await ProjectView.deleteComponent({ componentName: COMPONENT_NAME, gitRepoName: GIT_REPO_NAME });
+        await ProjectView.deleteComponent({
+            componentName: COMPONENT_NAME,
+            gitRepoName: GIT_REPO_NAME,
+            gitProvider: GitProvider.GITHUB,
+        });
         await CommonUtils.openChoreoActivity();
     });
 
@@ -67,6 +75,6 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
     });
 
     after(async () => {
-        await CommonUtils.removeAllFoldersFromRepo(CLONED_REPO_PATH, GIT_REPO_NAME);
+        await CommonUtils.removeAllFoldersFromRepo(CLONED_REPO_PATH, GIT_REPO_NAME, GitProvider.GITHUB);
     });
 });

@@ -29,7 +29,7 @@
             "program": "${workspaceFolder}/node_modules/vscode-extension-tester/out/cli.js",
             "args": [
                 "run-tests",
-                "${workspaceFolder}/dist/tests/e2e-tests/*.js",
+                "${workspaceFolder}/dist/src/tests/e2e-tests/*.js",
                 "--mocha_config",
                 "${workspaceFolder}/src/tests/e2e-tests/.mocharc.js",
                 "-o",

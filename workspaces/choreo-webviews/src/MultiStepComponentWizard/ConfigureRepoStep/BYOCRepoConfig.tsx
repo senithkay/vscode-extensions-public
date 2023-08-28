@@ -15,7 +15,7 @@ import styled from "@emotion/styled";
 
 import { cx } from "@emotion/css";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { ErrorBanner, ErrorIcon } from "../../Commons/ErrorBanner";
+import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";

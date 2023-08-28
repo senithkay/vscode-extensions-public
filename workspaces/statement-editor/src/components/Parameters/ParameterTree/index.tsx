@@ -11,13 +11,14 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { ListItemText, ListSubheader } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
-import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorInfo, FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ACTION, CONNECTOR, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
+import { DocumentationButton } from "../../ExternalDocumentation";
 import { parameterHeader, useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { MemoizedParameterBranch } from "./ParameterBranch";
@@ -31,10 +32,11 @@ export interface TypeProps {
 
 export interface ParameterTreeProps {
     parameters: FormField[];
+    connectorInfo: BallerinaConnectorInfo;
 }
 
 export function ParameterTree(props: ParameterTreeProps) {
-    const { parameters } = props;
+    const { parameters, connectorInfo } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const overlayClasses = useStatementEditorStyles();
     const ParamListSubheader = withStyles(parameterHeader)(ListSubheader);
@@ -88,7 +90,10 @@ export function ParameterTree(props: ParameterTreeProps) {
             {parameters?.length > 0 && (
                 <>
                     <ParamListSubheader>
-                        Configure Parameters
+                        <div style={{display: "flex", justifyContent: "space-between"}}>
+                            Configure Parameters
+                            {connectorInfo && (<DocumentationButton connectorInfo={connectorInfo}/>)}
+                        </div>
                         <ListItemText secondary={"Select parameters from the list given below"} />
                     </ParamListSubheader>
                     {updatingParams && (
