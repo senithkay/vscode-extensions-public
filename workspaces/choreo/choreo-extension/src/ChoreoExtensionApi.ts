@@ -19,6 +19,7 @@ import {
     ChoreoWorkspaceMetaData,
     Component,
     ComponentDisplayType,
+    Connection,
     Endpoint,
     IProjectManager,
     Organization,
@@ -45,9 +46,10 @@ import { AxiosResponse } from 'axios';
 import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
 import {
+    getConnectionModels,
     getDefaultComponentModel,
     getDefaultProjectModel,
-    getServices
+    getServiceModels
 } from "./extensionApiUtils";
 
 export interface IChoreoExtensionAPI {
@@ -519,17 +521,22 @@ export class ChoreoExtensionApi {
             }
         }
 
+        const projectModel = await this.getProjectModel();
+        if (projectModel) {
+            console.log("Found project model");
+        }
+
         return nonBalMap;
     };
 
-    public async getProjectModel(): Promise<ProjectModel> {
+    public async getProjectModel(): Promise<ProjectModel | undefined> {
         const choreoProject = await this.getChoreoProject();
 
         if (!choreoProject) {
             return undefined;
         }
 
-        const { id: projectID, orgIdStr, name: projectName } = choreoProject;
+        const { id: projectID, orgId: orgIdStr, name: projectName } = choreoProject;
         const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(projectID);
         const projectModel = getDefaultProjectModel(projectID, projectName);
 
@@ -556,11 +563,11 @@ export class ChoreoExtensionApi {
                     if (existsSync(yamlPath)) {
                         const endpointsContent = yaml.load(readFileSync(yamlPath, "utf8"));
                         const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
+                        const connections: Connection[] = (endpointsContent as any).connections;
 
-                        if (endpoints && Array.isArray(endpoints)) {
-                            defaultComponentModel.services = getServices(endpoints, orgName, projectName,
-                                component.name, componentPath, yamlPath);
-                        }
+                        defaultComponentModel.services = getServiceModels(endpoints, orgName, projectName,
+                            component.name, componentPath, yamlPath);
+                        defaultComponentModel.connections = getConnectionModels(connections);
                     }
                 }
                 projectModel.components.push(defaultComponentModel);

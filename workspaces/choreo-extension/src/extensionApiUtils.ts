@@ -12,12 +12,13 @@
  */
 
 import {
+    CMDependency,
     CMResourceFunction,
     CMService,
     ComponentModel,
     Project as ProjectModel
 } from "@wso2-enterprise/ballerina-languageclient";
-import { Component, Endpoint, Organization, ServiceTypes } from "@wso2-enterprise/choreo-core";
+import { Component, Connection, Endpoint, Organization, ServiceTypes } from "@wso2-enterprise/choreo-core";
 import { getResourcesFromOpenApiFile } from "./utils";
 import * as path from "path";
 
@@ -35,12 +36,12 @@ export function getDefaultServiceModel(): CMService {
     };
 }
 
-export function getServices(endpoints: Endpoint[],
-                            orgName: string,
-                            projectName: string,
-                            componentName: string,
-                            componentPath: string,
-                            yamlPath: string) {
+export function getServiceModels(endpoints: Endpoint[],
+                                 orgName: string,
+                                 projectName: string,
+                                 componentName: string,
+                                 componentPath: string,
+                                 yamlPath: string) {
 
     const services: { [key: string]: CMService } = {};
 
@@ -79,6 +80,22 @@ export function getServices(endpoints: Endpoint[],
     }
 
     return  new Map<string, CMService>(Object.entries(services));
+}
+
+export function getConnectionModels(connections: Connection[]) {
+    const connectionModels: CMDependency[] = [];
+
+    if (connections && Array.isArray(connections)) {
+        for (const connection of connections) {
+            const hasServiceUrl = connection.mappings.some(mapping => Object.keys(mapping).includes('service.url'));
+            connectionModels.push({
+                id: connection.id,
+                type: hasServiceUrl ? "service" : "connector"
+            });
+        }
+    }
+
+    return connectionModels;
 }
 
 export function getDefaultComponentModel(component: Component, organization: Organization): ComponentModel {
