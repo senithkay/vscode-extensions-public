@@ -146,7 +146,7 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
 }
 
 async function cloneRepo(repoUrl: string, selectedPath: string, specificFileName: string, ballerinaExtInstance: BallerinaExtension) {
-    const repoFolderName = path.basename(new URL(repoUrl).pathname);
+    const repoFolderName = path.basename(new URL(repoUrl).pathname).replace(".git", "");
     const repoPath = path.join(selectedPath, repoFolderName);
     if (specificFileName) {
         const filePath = path.join(repoPath, specificFileName);
