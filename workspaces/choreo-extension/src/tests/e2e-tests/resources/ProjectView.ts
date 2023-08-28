@@ -42,10 +42,10 @@ export class ProjectView {
         }
         if (projectExist) {
             console.log("Project already exists, & therefore attempting to delete it");
-            await CommonUtils.setQuickInputFieldValue({
-                inputValue: "Select folder to clone the project",
-                title: "The project is not cloned yet. Do you want to clone and open it?",
-            });
+            await CommonUtils.clickPromptButton(
+                "Select Directory",
+                "The selected project hasn't been cloned yet. Please select a directory where you'd like it to be cloned."
+            );
             CommonUtils.createDir(join(updatedPath));
             await CommonUtils.setQuickInputFieldValue({
                 inputValue: updatedPath,
