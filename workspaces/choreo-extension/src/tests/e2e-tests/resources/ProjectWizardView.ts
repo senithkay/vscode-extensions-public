@@ -37,6 +37,7 @@ export class ProjectWizardView {
         await CommonUtils.waitAndClickById("cred-drop-down");
         await CommonUtils.waitAndClickById(`cred-item-${credentialName}`);
         await CommonUtils.waitAndClickById("cred-drop-down");
+        await CommonUtils.waitForIdToDisappear("project-repo-progress", 30000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("bitbucket-workspace-select"), workspaceName, 60000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("bitbucket-repo-select"), repoName);
         await CommonUtils.waitForIdToDisappear("project-repo-progress");
