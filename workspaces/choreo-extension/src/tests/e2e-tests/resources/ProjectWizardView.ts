@@ -57,6 +57,7 @@ export class ProjectWizardView {
         await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(ADD_CHOREO_PROJECT_COMMAND);
 
+        await CommonUtils.waitForIFrameCount(3,20000);
         await CommonUtils.switchToIFrame("Create New Project");
         await CommonUtils.waitUntil(By.xpath('//h3[contains(text(), "Project Details")]'));
         await CommonUtils.waitAndTypeById("project-name-input", projectName);
