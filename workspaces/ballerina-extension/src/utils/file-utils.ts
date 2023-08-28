@@ -254,7 +254,7 @@ async function openFileInVSCode(ballerinaExtInstance: BallerinaExtension, filePa
 }
 
 async function openRepoInVSCode(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
-    const uri = Uri.file(`${filePath}/`);
+    const uri = Uri.file(`${filePath}`);
     const message = `Repository already exists. Would you like to open the existing repository folder?`;
     const newWindow: MessageItem = { title: "Open in New Window" };
     const sameWindow: MessageItem = { title: 'Open' };
@@ -284,7 +284,7 @@ async function openRepoInVSCode(ballerinaExtInstance: BallerinaExtension, filePa
 
 function handleSameWorkspaceFileOpen(ballerinaExtInstance: BallerinaExtension, filePath: string) {
     const workspaceFolders = workspace.workspaceFolders;
-    if (workspaceFolders.length > 0) {
+    if (workspaceFolders && workspaceFolders.length > 0) {
         const workspaceFolder = workspaceFolders[0];
         const workspaceFolderPath = workspaceFolder.uri.fsPath;
         if (filePath === workspaceFolderPath) {
