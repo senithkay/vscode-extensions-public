@@ -26,7 +26,6 @@ describe('Debugger UI Tests', () => {
     });
 
     it('Test Debug Codelense', async () => {
-        await wait(2000);
         const editorView = new ExtendedEditorView(new EditorView());
         const lens = await editorView.getAction("Debug");
         expect(lens).is.not.undefined;
