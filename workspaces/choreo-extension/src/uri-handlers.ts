@@ -46,32 +46,37 @@ export function activateURIHandlers() {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get("code");
                 const installationId = urlParams.get("installationId");
-                const choreoIstOrgId = ext.api.getChoreoInstallOrg();
-                const orgId = choreoIstOrgId ?? ext.api.getOrgIdOfCurrentProject();
-                if (!orgId) {
-                    // TODO!IMPORTANT: Handle project creation when no project is open
-                    getLogger().error(`Choreo Github Auth Failed: No Choreo org id found`);
-                    window.showErrorMessage(`Choreo Github Auth Failed: No org id found`);
-                    return;
-                }
-                if (authCode) {
-                    getLogger().debug(`Github exchanging code for token`);
-                    executeWithTaskRetryPrompt(() => ext.clients.githubAppClient.obatainAccessToken(authCode, orgId)).catch((err) => {
-                        getLogger().error(`Github App Auth Failed: ${err.message}` + (err?.cause ? "\nCause: " + err.cause.message : ""));
-                        window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
-                    });
-                } else if (installationId) {
-                    getLogger().debug(`Github App installation id: ${installationId}`);
-                    ext.clients.githubAppClient.fireGHAppAuthCallback({
-                        status: "installed",
-                        installationId,
-                    });
-                } else {
-                    ext.clients.githubAppClient.fireGHAppAuthCallback({
-                        status: "error",
-                    });
-                    window.showErrorMessage(`Choreo Github Auth Failed`);
-                }
+                ext.api.getSelectedOrg().then(selectedOrg => {
+                    // TODO:
+                    // Instead of setting _choreoInstallationOrgId as temporary value within ChoreoExtensionsApi.ts
+                    // We should try to pass the orgId within the state when opening the Github URL
+                    // Update Choreo console to pass that orgId back to us within the query params
+                    const choreoIstOrgId = ext.api.getChoreoInstallOrg();
+                    const orgId = choreoIstOrgId ?? selectedOrg?.id;
+                    if (!orgId) {
+                        getLogger().error(`Choreo Github Auth Failed: No Choreo org id found`);
+                        window.showErrorMessage(`Choreo Github Auth Failed: No org id found`);
+                        return;
+                    }
+                    if (authCode) {
+                        getLogger().debug(`Github exchanging code for token`);
+                        executeWithTaskRetryPrompt(() => ext.clients.githubAppClient.obatainAccessToken(authCode, orgId)).catch((err) => {
+                            getLogger().error(`Github App Auth Failed: ${err.message}` + (err?.cause ? "\nCause: " + err.cause.message : ""));
+                            window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
+                        });
+                    } else if (installationId) {
+                        getLogger().debug(`Github App installation id: ${installationId}`);
+                        ext.clients.githubAppClient.fireGHAppAuthCallback({
+                            status: "installed",
+                            installationId,
+                        });
+                    } else {
+                        ext.clients.githubAppClient.fireGHAppAuthCallback({
+                            status: "error",
+                        });
+                        window.showErrorMessage(`Choreo Github Auth Failed`);
+                    }
+                });
             } else if (uri.path === "/overview") {
                 getLogger().info("Choreo Project Overview callback hit");
                 const urlParams = new URLSearchParams(uri.query);

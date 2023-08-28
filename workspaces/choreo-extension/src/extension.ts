@@ -28,7 +28,7 @@ import { getLogger, initLogger } from "./logger/logger";
 import { choreoSignInCmdId } from './constants';
 import { activateTelemetry } from './telemetry/telemetry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
-import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
+import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, Organization } from '@wso2-enterprise/choreo-core';
 import { activateActivityBarWebViews } from './views/webviews/ActivityBar/activate';
 import { activateCmds } from './cmds';
 import { TokenStorage } from './auth/TokenStorage';
@@ -44,7 +44,7 @@ export function activateBallerinaExtension() {
 export async function activate(context: vscode.ExtensionContext) {
 	activateTelemetry(context);
 	await initLogger(context);
-  	getLogger().debug("Activating Choreo Extension");
+	getLogger().debug("Activating Choreo Extension");
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
@@ -61,6 +61,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = false;
 	openChoreoActivity();
 	getLogger().debug("Choreo Extension activated");
+	selectInitialOrg();
 	return ext.api;
 }
 
@@ -125,6 +126,19 @@ function showMsgAndRestart(msg: string): void {
 			commands.executeCommand('workbench.action.reloadWindow');
 		}
 	});
+}
+
+async function selectInitialOrg() {
+	const userInfo = ext.api.userInfo;
+	if (userInfo) {
+		const org: Organization | undefined = await ext.api.getTempSelectedOrg();
+		if (org) {
+			if (!ext.api.isChoreoProject()) {
+				await ext.api.setSelectedOrg(org);
+			}
+			await ext.api.clearTempSelectedOrg();
+		}
+	}
 }
 
 

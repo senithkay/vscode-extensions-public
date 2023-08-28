@@ -31,29 +31,12 @@ export function activateWizards() {
             window.showInformationMessage('You are not logged in. Please log in to continue.');
             return;
         }
-        if (orgId) {
-            // TODO: Handle multiple project creation scenarios for different orgs
+        const organizationId = orgId ? orgId : (await ext.api.getSelectedOrg())?.id;
+        if(organizationId){
             if (!projectWizard || !projectWizard.getWebview()) {
-                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, orgId);
+                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, `${organizationId}`);
             }
             projectWizard.getWebview()?.reveal();
-        } else {
-            const orgs = ext.api.userInfo?.organizations;
-            if (!orgs) {
-                window.showErrorMessage('Failed to load organizations.');
-                return;
-            }
-            const quickPicks: QuickPickItem[] = orgs.map(org => ({ label: org.name, description: org.handle }));
-            const options: QuickPickOptions = { canPickMany: false, ignoreFocusOut: true, title: "Select Organization" };
-            const selected = await window.showQuickPick(quickPicks, options);
-            if (selected) {
-                const selectedOrgItem = orgs.find(org => org.name === selected.label);
-
-                if (!projectWizard || !projectWizard.getWebview()) {
-                    projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, `${selectedOrgItem?.id}`);
-                }
-                projectWizard.getWebview()?.reveal();
-            }
         }
     });
 

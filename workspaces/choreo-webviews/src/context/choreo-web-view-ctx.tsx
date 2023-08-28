@@ -11,7 +11,13 @@
  *  associated services.
  */
 import React, { FC, useContext, useEffect, useMemo } from "react";
-import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import {
+    ChoreoLoginStatus,
+    ChoreoWorkspaceMetaData,
+    Organization,
+    Project,
+    UserInfo,
+} from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
@@ -22,10 +28,13 @@ export interface IChoreoWebViewContext {
     error?: Error;
     isChoreoProject?: boolean;
     choreoProject?: Project;
+    requireOrgSwitch?: boolean;
     loadingProject?: boolean;
     choreoUrl: string;
+    selectedOrg?: Organization;
     currentProjectOrg?: Organization;
     isBalExtInstalled?: boolean;
+    workspaceMetaData?: ChoreoWorkspaceMetaData;
 }
 
 const defaultContext: IChoreoWebViewContext = {
@@ -73,7 +82,6 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         data: loginStatus = "Initializing",
         error: loginStatusError,
         isLoading: loginStatusLoading,
-        isFetched: fetchedLoginStatus,
     } = useQuery({
         queryKey: ["choreo_login_status"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
@@ -92,6 +100,23 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
     });
 
     const {
+        data: selectedOrg,
+        refetch: refetchSelectedOrg,
+        isLoading: selectedOrgLoading,
+        isFetched: fetchedSelectedOrg,
+    } = useQuery({
+        queryKey: ["choreo_org", loginStatus, userInfo?.userId],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getCurrentOrg(),
+        enabled: loginStatus === "LoggedIn",
+        refetchOnWindowFocus: false,
+    });
+
+    const requireOrgSwitch =
+        isChoreoProject &&
+        userInfo?.organizations?.some((item) => item.id === selectedOrg?.id) &&
+        selectedOrg?.id !== workspaceMetaData?.orgId;
+
+    const {
         data: choreoProject,
         error: choreoProjectError,
         isLoading: choreoProjectLoading,
@@ -100,13 +125,19 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
             "choreo_project_details",
             loginStatus,
             isChoreoProject,
-            workspaceMetaData?.projectID,
+            workspaceMetaData,
             userInfo?.userId,
             fetchedWorkspaceMetaData,
-            fetchedLoginStatus,
+            selectedOrg,
+            fetchedSelectedOrg,
         ],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
-        enabled: loginStatus === "LoggedIn" && isChoreoProject && fetchedWorkspaceMetaData && fetchedLoginStatus,
+        enabled:
+            loginStatus === "LoggedIn" &&
+            isChoreoProject &&
+            fetchedWorkspaceMetaData &&
+            selectedOrg?.id === workspaceMetaData?.orgId &&
+            fetchedSelectedOrg,
         refetchOnWindowFocus: false,
     });
 
@@ -130,6 +161,9 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
                 refetchUserInfo();
             }
         });
+        rpcInstance.onSelectedOrgChanged(() => {
+            refetchSelectedOrg();
+        });
     }, []);
 
     const error = (getChoreoWorkspaceError || loginStatusError || userInfoError || choreoProjectError) as Error;
@@ -144,9 +178,15 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
                 error,
                 choreoUrl,
                 loginStatusPending: loginStatusLoading || userInfoLoading,
-                loadingProject: getChoreoWorkspaceLoading || (isChoreoProject === true && choreoProjectLoading),
+                loadingProject:
+                    getChoreoWorkspaceLoading ||
+                    selectedOrgLoading ||
+                    (isChoreoProject === true && requireOrgSwitch === false && choreoProjectLoading),
                 currentProjectOrg,
+                selectedOrg,
                 isBalExtInstalled,
+                requireOrgSwitch,
+                workspaceMetaData,
             }}
         >
             {children}

@@ -29,17 +29,9 @@ export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
             vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
             return;
         }
-        const currentOrgId = ext.api.getOrgIdOfCurrentProject();
-        if (currentOrgId) {
-            const currentOrg = ext.api.getOrgById(currentOrgId);
-            if (currentOrg) {
-                showSwitchProjectQuickPick(currentOrg);
-            }
-        } else {
-            const targetOrg = ext.api.userInfo?.organizations?.[0];
-            if (targetOrg) {
-                showSwitchProjectQuickPick(targetOrg);
-            }
+        const currentOrg = await ext.api.getSelectedOrg();
+        if (currentOrg) {
+            showSwitchProjectQuickPick(currentOrg);
         }
     }));
 }
@@ -88,7 +80,7 @@ const onDidAcceptProjectList = async (
         vscode.commands.executeCommand(createNewProjectCmdId);
         return;
     }
-    
+
     const selectedProject = projects.find(project => project.name === selection?.label);
     // if the selected project is already opened, show a message and return
     if (selectedProject?.id === currentProject?.id) {
@@ -119,12 +111,14 @@ const onDidAcceptProjectList = async (
             }
         } else {
             // Project is not cloned yet, clone the project and open it
-            // show a quick pick to ask user whether to clone the project or not
-            const cloneSelection = await vscode.window.showQuickPick([
-                { label: 'Select folder to clone the project' },
-                { label: 'Cancel' },
-            ], { title: 'The project is not cloned yet. Do you want to clone and open it?' });
-            if (cloneSelection?.label === 'Select folder to clone the project') {
+            // show a modal and ask user to select the folder to clone
+            const selectDirectoryPrompt = await vscode.window.showInformationMessage(
+                "The selected project hasn't been cloned yet. Please select a directory where you'd like it to be cloned.",
+                { modal: true },
+                'Select Directory',
+            );
+
+            if (selectDirectoryPrompt === 'Select Directory') {
                 cloneProject(selectedProject);
             }
         }
@@ -144,10 +138,7 @@ async function showOrgChangeQuickPick() {
         return;
     }
     const quickPicks = orgs.map(org => {
-        return {
-            label: org.name,
-            description: org.handle,
-        };
+        return { label: org.name, description: org.handle };
     });
     quickPickInstance.busy = false;
     quickPickInstance.placeholder = 'Select an organization';
@@ -208,6 +199,7 @@ async function getProjectQuickPicks(org: Organization, currentProject?: Project)
     quickPicks.push({
         label: '$(add)  Create New',
         detail: 'Create and open a new Choreo project',
+        alwaysShow: true,
     });
     return { quickPicks, projects };
 }
@@ -250,12 +242,13 @@ export const openProjectInVSCode = async (
             }
         } else {
             // Project is not cloned yet, clone the project and open it
-            // show a quick pick to ask user whether to clone the project or not
-            const cloneSelection = await vscode.window.showQuickPick([
-                { label: 'Select folder to clone the project' },
-                { label: 'Cancel' },
-            ], { title: 'The project is not cloned yet. Do you want to clone and open it?' });
-            if (cloneSelection?.label === 'Select folder to clone the project') {
+            // show a modal and ask user to select the folder to clone
+            const selectDirectoryPrompt = await vscode.window.showInformationMessage(
+                "The selected project hasn't been cloned yet. Please select a directory where you'd like it to be cloned.",
+                { modal: true },
+                'Select Directory',
+            );
+            if (selectDirectoryPrompt === 'Select Directory') {
                 cloneProject(selectedProject);
             }
         }

@@ -108,10 +108,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return ext.api.status;
     });
     messenger.onRequest(GetCurrentOrgRequest, () => {
-        const orgId = ext.api.getOrgIdOfCurrentProject();
-        if (orgId) {
-            return ext.api.getOrgById(orgId);
-        }
+        return ext.api.getSelectedOrg();
     });
 
     messenger.onRequest(GetUserInfoRequest, async () => {
@@ -398,12 +395,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             location: ProgressLocation.Notification,
             cancellable: false
         }, async (_progress, cancellationToken) => {
-            const currentOrgId = ext.api.getOrgIdOfCurrentProject();
-            if (currentOrgId) {
-                const org = ext.api.getOrgById(currentOrgId);
-                if (org){
-                    await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
-                }
+            const org = await ext.api.getSelectedOrg();
+            if (org){
+                await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
             }
         });
     });

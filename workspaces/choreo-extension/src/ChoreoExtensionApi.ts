@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri } from 'vscode';
+import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, commands } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import {
@@ -51,6 +51,9 @@ export interface IChoreoExtensionAPI {
     deleteComponent(projectId: string, componentPath: string): Promise<void>;
     getConsoleUrl(): Promise<string>;
 }
+
+const selectedOrgKey = "selected-org";
+const tempSelectedOrgKey = "temp-selected-org";
 
 export class ChoreoExtensionApi {
     private _userInfo: UserInfo | undefined;
@@ -115,6 +118,76 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
+    public async getSelectedOrgForUser(userInfo: UserInfo): Promise<Organization> {
+        const selectedOrg: Organization | undefined = await ext.context.workspaceState.get(selectedOrgKey);
+
+        if (userInfo?.organizations?.length === 0) {
+            if(selectedOrg){
+                await this.clearSelectedOrg();
+            }
+            throw new Error("No organizations found for the user.");
+        }
+
+        if(selectedOrg && userInfo?.organizations?.some(item=>item.id === selectedOrg.id)){
+            return selectedOrg;
+        }
+
+        // If workspace a choreo project, we need to select the org of the project.
+        const isChoreoProject = ext.api.isChoreoProject();
+        if (isChoreoProject) {
+            const currentProjectId = ext.api.getOrgIdOfCurrentProject();
+            if (currentProjectId) {
+                const foundOrg = userInfo?.organizations.find(org => org.id === currentProjectId);
+                if (foundOrg) {
+                    await ext.context.workspaceState.update(selectedOrgKey, foundOrg);
+                    return foundOrg;
+                }
+            }
+        }
+        
+        // Else we need to select the first org.
+        await ext.context.workspaceState.update(selectedOrgKey, userInfo?.organizations[0]);
+        return userInfo?.organizations[0];
+    }
+
+    public async setSelectedOrg(org: Organization): Promise<void> {
+        const user = ext.api.userInfo;
+        if(user?.organizations?.some(item => item.id === org.id)){
+            if (this.isChoreoProject()) {
+                const choreoProject = await this.getChoreoProject();
+                if (choreoProject?.orgId?.toString() !== org?.id?.toString()) {
+                    const answer = await window.showInformationMessage(
+                        `In order to switch to ${org.name}, you need to either open a new window or close the currently opened workspace and continue in the current window`,
+                        { modal: true },
+                        'Current Window',
+                        'New Window',
+                    );
+                    if (answer === "Current Window") {
+                        await this.setTempSelectedOrg(org);
+                        await commands.executeCommand("workbench.action.closeFolder");
+                    }else if (answer === "New Window") {
+                        await this.setTempSelectedOrg(org);
+                        await commands.executeCommand("workbench.action.newWindow");
+                    }
+                } else {
+                    await ext.context.workspaceState.update(selectedOrgKey, org);
+                    this.refreshOrganization(org);
+                }
+            } else {
+                await ext.context.workspaceState.update(selectedOrgKey, org);
+                this.refreshOrganization(org);
+            }
+        }
+    }
+
+    public async getSelectedOrg(): Promise<Organization | undefined> {
+        return ext.context.workspaceState.get(selectedOrgKey);
+    }
+
+    public async clearSelectedOrg() {
+        await ext.context.workspaceState.update(selectedOrgKey, undefined);
+    }
+
     public setChoreoInstallOrg(selectedOrgId: number) {
         this._choreoInstallationOrgId = selectedOrgId;
     }
@@ -129,6 +202,10 @@ export class ChoreoExtensionApi {
 
     public refreshComponentList() {
         this._onRefreshComponentList.fire(null);
+    }
+
+    public refreshOrganization(org: Organization) {
+        this._onOrganizationChanged.fire(org);
     }
 
     public projectUpdated() {
@@ -451,5 +528,17 @@ export class ChoreoExtensionApi {
                 await ProjectRegistry.getInstance().deleteComponent(toDelete, id, handle, projectId);
             }
         }
+    }
+
+    public async getTempSelectedOrg(): Promise<Organization | undefined> {
+        return ext.context.globalState.get(tempSelectedOrgKey);
+    }
+
+    public async setTempSelectedOrg(org: Organization): Promise<void> {
+        await ext.context.globalState.update(tempSelectedOrgKey, org);
+    }
+
+    public async clearTempSelectedOrg(): Promise<void> {
+        await ext.context.globalState.update(tempSelectedOrgKey, undefined);
     }
 }

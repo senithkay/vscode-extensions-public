@@ -44,7 +44,7 @@ const IconLabel = styled.div`
 `;
 
 export const ProjectDetails = () => {
-    const { choreoProject, currentProjectOrg } = useChoreoWebViewContext();
+    const { choreoProject } = useChoreoWebViewContext();
 
     const changeProject = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
@@ -60,10 +60,6 @@ export const ProjectDetails = () => {
                 <ViewTitle>Current Project</ViewTitle>
             </ViewHeader>
             <VSCodeDataGrid aria-label="project">
-                <VSCodeDataGridRow>
-                    <TruncatedGridTitleCell gridColumn="1">Organization</TruncatedGridTitleCell>
-                    <TruncatedGridCell gridColumn="2">{currentProjectOrg?.name}</TruncatedGridCell>
-                </VSCodeDataGridRow>
                 <VSCodeDataGridRow>
                     <TruncatedGridTitleCell gridColumn="1">Project</TruncatedGridTitleCell>
                     <TruncatedGridCell gridColumn="2">{choreoProject?.name}</TruncatedGridCell>
