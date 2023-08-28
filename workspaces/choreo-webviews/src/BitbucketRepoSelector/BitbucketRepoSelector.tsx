@@ -172,11 +172,11 @@ export function BitbucketRepoSelector(props: BitbucketRepoSelectorProps) {
                         <BBRepoSelectorContainer>
                             <BBRepoSelectorOrgContainer>
                                 <label htmlFor="org-drop-down">Workspace</label>
-                                <AutoComplete items={bborgs ?? []} selectedItem={selectedRepo?.org} onChange={handleBBOrgChange}></AutoComplete>
+                                <AutoComplete items={bborgs ?? []} selectedItem={selectedRepo?.org} onChange={handleBBOrgChange} id="bitbucket-workspace-select" />
                             </BBRepoSelectorOrgContainer>
                             <BBRepoSelectorRepoContainer>
                                 <label htmlFor="repo-drop-down">Repository</label>
-                                <AutoComplete items={bbrepos ?? []} selectedItem={selectedRepo?.repo} onChange={handleBBRepoChange}></AutoComplete>
+                                <AutoComplete items={bbrepos ?? []} selectedItem={selectedRepo?.repo} onChange={handleBBRepoChange} id="bitbucket-repo-select" />
                             </BBRepoSelectorRepoContainer>
                             <RefreshBtn
                                 appearance="icon"

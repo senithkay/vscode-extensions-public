@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 
 import { Box,  Card, CardActions, CardContent, Collapse, FormLabel, Typography } from "@material-ui/core";
 
@@ -71,7 +71,7 @@ export const generateDocURL = (env: string, configSchema: ConfigSchema) => {
 export const ConfigForm = (props: ConfigFormProps) => {
     const classes = useStyles();
     const defaultableFields: ReactElement[] = [];
-    const [configValue, setConfigValue] = useState<ConfigElementProps[]>([]);
+    const configValue = useRef<ConfigElementProps[]>([]);
     const [expanded, setExpanded] = useState(true);
 
     useEffect(() => {
@@ -95,23 +95,20 @@ export const ConfigForm = (props: ConfigFormProps) => {
     const configElements: ConfigElementProps = getConfigProperties(
         getPackageConfig(configSchema), connectionConfig, isFeaturePreview, isLowCode,
     );
+
     generateDocURL(env, configSchema);
     // Set the existing config values to the config property obtained.
     setExistingValues(configElements, existingConfigs, getMetaData(configSchema));
 
     const handleSetConfigValue = (id: string, value: any) => {
-        setConfigValue((prevState) => {
-            let newConfigValue: ConfigElementProps[] = [...prevState];
-            const existingConfig = newConfigValue.findIndex(
-                (property) => property.id === id,
-            );
-            if (existingConfig > -1) {
-                newConfigValue[existingConfig] = value;
-            } else {
-                newConfigValue = newConfigValue.concat(value);
-            }
-            return [...newConfigValue];
-        });
+        const existingConfigIndex = configValue.current.findIndex(
+            (property) => property.id === id
+        );
+        if (existingConfigIndex > -1) {
+            configValue.current[existingConfigIndex] = value;
+        } else {
+            configValue.current.push(value);
+        }
     };
 
     const handleSubmit = (event: any) => {
@@ -120,7 +117,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
             id: "1",
             isRequired: true,
             name: "root",
-            properties: [...configValue],
+            properties: [...configValue.current],
             type: ConfigType.OBJECT,
         };
         onClickPrimaryButton(returnElement);
@@ -204,7 +201,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
                 <CardActions>
                     <ButtonContainer justifyContent="flex-end" size="small">
                         <Button
-                            variant="outlined"
+                            variant="contained"
                             color="secondary"
                             size="small"
                             onClick={handleDefaultButtonClick}

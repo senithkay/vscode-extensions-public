@@ -96,7 +96,11 @@ export function ResponseEditor(props: ParamProps) {
     // "record {|*http:Created"
     const withTypeModelValue = withTypeModel.split("*")[1];
 
-    const defaultValue = optionList.find(item => withTypeModelValue ? item.source === withTypeModelValue : item.source === model);
+    const defaultValue = optionList.find(item =>
+        withTypeModelValue ?
+            item.source === withTypeModelValue :
+            (item.source === model || model.includes("error") && item.code === 500)
+    );
 
     const selectedMethodResponse = httpMethodName && httpMethodName === "POST" ? optionsListString[3] : optionsListString[0];
 
@@ -161,7 +165,10 @@ export function ResponseEditor(props: ParamProps) {
                 onChange(segmentId, 200, anonymousValue);
             } else {
                 const responseCode = optionList.find(item => item.title === response);
-                const newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
+                let newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
+                if (typeValue.includes("error")) {
+                    newResponse = typeValue;
+                }
                 const typeResponse = responseCode.code === Number(option) ? typeValue : newResponse;
                 onChange(segmentId, responseCode.code, typeResponse);
             }

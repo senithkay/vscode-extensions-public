@@ -27,7 +27,7 @@ export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 export const choreoAIConfig = new ChoreoAIConfig();
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const choreoEnv = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
+const choreoEnv = process.env.TEST_CHOREO_EXT_ENV ?? workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
 
 let pickedEnvConfig: IChoreoEnvConfig;
 

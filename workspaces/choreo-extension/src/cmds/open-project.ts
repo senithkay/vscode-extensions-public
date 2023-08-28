@@ -17,11 +17,13 @@ import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
 import { cloneProject } from './clone';
 import path = require('path');
-import { Organization, Project } from '@wso2-enterprise/choreo-core';
+import { OPEN_PROJECT_EVENT, Organization, Project } from '@wso2-enterprise/choreo-core';
+import { sendTelemetryEvent } from '../telemetry/utils';
 
 export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, async () => {
         const isLoggedIn = await ext.api.waitForLogin();
+        sendTelemetryEvent(OPEN_PROJECT_EVENT);
         // show a message if user is not logged in
         if (!isLoggedIn) {
             vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
@@ -166,7 +168,7 @@ async function showOrgChangeQuickPick() {
 }
 
 async function getProjectQuickPicks(org: Organization, currentProject?: Project) {
-    const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle, true);
+    const projects = await ProjectRegistry.getInstance().getProjects(org.id, org.handle);
     const quickPicks: vscode.QuickPickItem[] = [];
     quickPicks.push({
         kind: vscode.QuickPickItemKind.Separator,
@@ -223,7 +225,7 @@ export const openProjectInVSCode = async (
         return;
     }
 
-    const projects = await ProjectRegistry.getInstance().getProjects(organization.id, organization.handle, true);
+    const projects = await ProjectRegistry.getInstance().getProjects(organization.id, organization.handle);
     const selectedProject = projects.find(project => project.id === projectId);
     if (selectedProject) {
         const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);

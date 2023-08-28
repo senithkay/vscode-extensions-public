@@ -18,7 +18,7 @@ import debounce from "lodash.debounce"
 import { cx } from "@emotion/css";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { useContext } from "react";
-import { ErrorBanner, ErrorIcon } from "../../Commons/ErrorBanner";
+import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
@@ -108,6 +108,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                         placeholder=""
                         onInput={(e: any) => updateSubFolderName(e.target.value)}
                         value={repository?.subPath}
+                        id="directory-select-input"
                     >
                         Directory <RequiredFormInput />
                         {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}

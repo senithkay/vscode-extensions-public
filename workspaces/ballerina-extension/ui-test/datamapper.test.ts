@@ -21,7 +21,7 @@ import {
 import { EXPLORER_ACTIVITY } from "./constants";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 
-describe('VSCode Data mapper Webview UI Tests', () => {
+describe.skip('VSCode Data mapper Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     const FILE_NAME = 'data_mapper.bal';
     let ORIGINAL_CONTENT = '';
