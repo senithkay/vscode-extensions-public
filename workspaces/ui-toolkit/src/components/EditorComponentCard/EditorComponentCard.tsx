@@ -15,7 +15,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import classNames from "classnames";
 
-export interface ComponentCardProps {
+export interface EditorComponentCardProps {
     isAllowed: boolean;
     children: React.ReactNode;
     onClick: () => void;
@@ -80,7 +80,7 @@ const ComponentContainer = styled.div`
   }
 `;
 
-export const EditorCardComponent: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
+export const EditorCardComponent: React.FC<EditorComponentCardProps> = (props: EditorComponentCardProps) => {
     const { isAllowed, children, onClick } = props;
 
     return (

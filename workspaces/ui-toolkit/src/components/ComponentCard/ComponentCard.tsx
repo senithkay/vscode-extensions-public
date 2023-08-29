@@ -18,7 +18,7 @@ interface CardContainerProps {
 const CardContainer = styled.div<CardContainerProps>`
     // Flex Props
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -53,10 +53,10 @@ export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCard
 
     const handleComponentClick = () => {
         onClick(id);
-    }
+    };
 
     return (
-        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected})} sx={sx} onClick={handleComponentClick} title={description}>
+        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected })} sx={sx} onClick={handleComponentClick} title={description}>
             {children}
         </CardContainer>
     );

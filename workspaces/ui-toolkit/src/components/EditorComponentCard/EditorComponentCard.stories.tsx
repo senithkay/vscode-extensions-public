@@ -13,9 +13,9 @@
 /* tslint:disable:variable-name */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { EditorCardComponent, ComponentCardProps } from "./EditorComponentCard";
+import { EditorCardComponent, EditorComponentCardProps } from "./EditorComponentCard";
 
-const Template: ComponentStory<typeof EditorCardComponent> = (args: ComponentCardProps) => <EditorCardComponent {...args}> <div>Test Component<div/></div></EditorCardComponent>;
+const Template: ComponentStory<typeof EditorCardComponent> = (args: EditorComponentCardProps) => <EditorCardComponent {...args}> <div>Test Component<div/></div></EditorCardComponent>;
 
 export const Card = Template.bind();
 Card.args = { isAllowed: true,  onClick: () => {} };

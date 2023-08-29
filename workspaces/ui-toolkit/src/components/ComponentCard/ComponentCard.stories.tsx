@@ -9,11 +9,13 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { ComponentCard, ComponentCardProps } from "./ComponentCard";
-import { ComponentLabel } from "./ComponentLabel";
+import { Typography } from "../Typography/Typography";
+import { Icon } from "../Icon/Icon";
 
 const Template: ComponentStory<typeof ComponentCard> = (args: ComponentCardProps) => 
     <ComponentCard {...args}>
-        <ComponentLabel label={"Test Component"} variant="h4" />  
+        <Icon name="ArchitectureViewIcon" sx={{marginRight: 5}} />
+        <Typography variant="h4">Test Component</Typography>  
     </ComponentCard>
 ;
 
