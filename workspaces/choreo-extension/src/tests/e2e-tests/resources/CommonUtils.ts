@@ -211,8 +211,8 @@ export class CommonUtils {
             | "Cell View"
     ) {
         console.log(`Switching to iframe: ${frameName}`);
-        const driver = VSBrowser.instance.driver;
         await this.switchToDefaultFrame();
+        const driver = VSBrowser.instance.driver;
         const allIFrames = await this.waitUntilElements(By.xpath("//iframe"));
         for (const iframeItem of allIFrames) {
             try {

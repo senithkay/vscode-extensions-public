@@ -56,6 +56,7 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
     });
 
     it("Verify component in Architecture & Cell view", async () => {
+        await CommonUtils.wait(5000);
         await ProjectView.verifyComponentWithinArchitectureView(COMPONENT_NAME);
         await ProjectView.verifyComponentWithinCellView(COMPONENT_NAME);
         await CommonUtils.closeAllEditors();
