@@ -25,6 +25,7 @@ describe('GraphQL UI Tests', () => {
     let workbench : Workbench;
     
     beforeEach(async () => {
+        await new EditorView().closeAllEditors();
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         VSBrowser.instance.waitForWorkbench();
         workbench = new Workbench();
@@ -67,6 +68,5 @@ describe('GraphQL UI Tests', () => {
 
     afterEach(async () => {
         workbench.executeCommand(DND_PALETTE_COMMAND);
-        await new EditorView().closeAllEditors();
     });
 });
