@@ -120,6 +120,7 @@ export function EditForm(props: EditFormProps) {
                     label={'Component Name'}
                     value={component.name}
                     required={true}
+                    testId='component-name-input'
                     onChange={updateName}
                 />
 
@@ -141,6 +142,7 @@ export function EditForm(props: EditFormProps) {
 
                 <ControlsContainer>
                     <CreateButton
+                        testId='component-create-button'
                         label={'Create'}
                         onClick={onSubmit}
                         color={Colors.PRIMARY}
