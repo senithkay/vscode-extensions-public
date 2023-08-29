@@ -26,7 +26,7 @@ describe('Swagger view UI Tests', () => {
     let driver: WebDriver;
     let workbench : Workbench;
     
-    before(async () => {
+    beforeEach(async () => {
         VSBrowser.instance.waitForWorkbench();
         const editorView = new EditorView();
         await editorView.closeAllEditors();
@@ -79,7 +79,7 @@ describe('Swagger view UI Tests', () => {
         expect(response).is.equal('"Hello, World!"');
     });
 
-    after(async () => {
+    afterEach(async () => {
         workbench.executeCommand(DND_PALETTE_COMMAND);
     });
 });

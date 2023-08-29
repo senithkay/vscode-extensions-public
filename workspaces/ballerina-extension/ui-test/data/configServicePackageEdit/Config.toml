@@ -6,7 +6,7 @@
     
     url = ""	# Type of STRING
     
-    [authConfig]	# Type of OBJECT
     # For more information refer https://lib.ballerina.io/ballerina/http/
+    [authConfig]	# Type of OBJECT
 
-isAdmin = false	# Type of BOOLEAN
+isAdmin = false	# Type of BOOLEAN    
