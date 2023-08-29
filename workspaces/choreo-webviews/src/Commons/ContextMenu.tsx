@@ -71,9 +71,10 @@ export interface MenuItem {
 interface Props {
     items: MenuItem[];
     loading?: boolean;
+    menuId?: string;
 }
 
-export const ContextMenu: React.FC<Props> = ({ items, loading }) => {
+export const ContextMenu: React.FC<Props> = ({ items, loading, menuId }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -96,7 +97,7 @@ export const ContextMenu: React.FC<Props> = ({ items, loading }) => {
             {loading ? (
                 <SmallProgressRing />
             ) : (
-                <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id="component-list-menu-btn">
+                <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
                     <Codicon name="ellipsis" />
                 </VSCodeButton>
             )}

@@ -76,7 +76,7 @@ describe('Swagger view UI Tests', () => {
         expect(response).is.equal('"Hello, World!"');
     });
 
-    after(async () => {
+    afterEach(async () => {
         workbench.executeCommand(DND_PALETTE_COMMAND);
     });
 });

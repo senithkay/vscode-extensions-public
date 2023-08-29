@@ -7,7 +7,7 @@ import * as vsce from '@vscode/vsce';
 import { Unpack } from "./unpack";
 import { Download } from './download';
 import { VSBrowser } from './browser';
-import { BrowserLaunchOptions, CypressBrowser } from './types';
+import { BrowserLaunchOptions, Browser } from './types.js';
 
 export enum ReleaseQuality {
     Stable = 'stable',
@@ -394,7 +394,7 @@ export class CodeUtil {
         }
     }
 
-    async getCypressBrowser(runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<CypressBrowser> {
+    async getBrowser(runOptions: RunOptions = DEFAULT_RUN_OPTIONS): Promise<Browser> {
         if (!runOptions.offline) {
             await this.checkCodeVersion(runOptions.vscodeVersion ?? DEFAULT_RUN_OPTIONS.vscodeVersion);
         } else {

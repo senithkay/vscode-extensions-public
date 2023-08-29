@@ -12,18 +12,17 @@
  */
 import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
-import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
+import { OPEN_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
 import { ArchitectureViewIcon } from "../../../icons";
 
 export const ArchiViewButton = () => {
-    const { choreoProject, isBalExtInstalled } = useChoreoWebViewContext();
+    const { isBalExtInstalled } = useChoreoWebViewContext();
 
     const handleClick = () => {
-        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-            eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
-            properties: { project: choreoProject?.name ?? "" },
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_ARCHITECTURE_DIAGRAM_EVENT,
         });
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     };

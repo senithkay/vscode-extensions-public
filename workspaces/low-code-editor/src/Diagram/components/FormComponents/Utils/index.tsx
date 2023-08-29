@@ -19,7 +19,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
-import {Diagnostic} from "vscode-languageserver-protocol";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { createImportStatement, createPropertyStatement, createQueryWhileStatement, updateFunctionSignature } from "../../../utils/modification-util";
 import * as Forms from "../ConfigForms";
@@ -93,6 +93,11 @@ const BALLERINA_CENTRAL_ROOT = 'https://lib.ballerina.io';
 const BALLERINA_CENTRAL_STAGE = 'https://staging-lib.ballerina.io';
 const BALLERINA_CENTRAL_DEV = 'https://dev-lib.ballerina.io';
 
+export enum VERSION {
+    BETA = 'beta',
+    ALPHA = 'alpha',
+    PREVIEW = 'preview'
+}
 
 export function generateDocUrl(org: string, module: string, method: string, clientName: string, env: string) {
     const environment = env === "dev" ? BALLERINA_CENTRAL_DEV : env === "stage" ? BALLERINA_CENTRAL_STAGE : BALLERINA_CENTRAL_ROOT;
@@ -224,7 +229,7 @@ export function isStatementEditorSupported(version: string): boolean {
             // > 2201.0 (eg: 2301.1.2, 2301.2.2)
             return parseInt(splittedVersions[1], 10) > 0;
         }
-    } else  if (parseInt(splittedVersions[0], 10) > 2201) {
+    } else if (parseInt(splittedVersions[0], 10) > 2201) {
         // > 2201 (eg: 2301, 2202)
         return true;
     } else {
@@ -311,4 +316,18 @@ export async function sendDidChange(
             version: 1
         }
     });
+}
+
+export function isSupportedSLVersion(balVersion: string, minSupportedVersion: number) {
+    const ballerinaVersion: string = balVersion.toLocaleLowerCase();
+    const isGA: boolean = !ballerinaVersion.includes(VERSION.ALPHA) && !ballerinaVersion.includes(VERSION.BETA) && !ballerinaVersion.includes(VERSION.PREVIEW);
+
+    const regex = /(\d+)\.(\d+)\.(\d+)/;
+    const match = ballerinaVersion.match(regex);
+    const currentVersionNumber = match ? Number(match.slice(1).join("")) : 0;
+
+    if (minSupportedVersion <= currentVersionNumber && isGA) {
+        return true;
+    }
+    return false;
 }

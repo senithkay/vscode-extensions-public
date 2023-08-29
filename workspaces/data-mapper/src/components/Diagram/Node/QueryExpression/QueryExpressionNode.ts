@@ -157,7 +157,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                                     && innerMostExpr.fieldName.position as NodePosition;
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {
-                if (node instanceof MappingConstructorNode || node instanceof ListConstructorNode) {
+                if (node instanceof MappingConstructorNode
+                    || node instanceof ListConstructorNode
+                    || node instanceof UnionTypeNode) {
                     const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];

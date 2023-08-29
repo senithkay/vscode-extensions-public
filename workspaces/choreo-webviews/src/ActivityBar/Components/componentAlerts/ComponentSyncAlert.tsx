@@ -35,6 +35,7 @@ export const ComponentSyncAlert = () => {
                     iconName="source-control"
                     variant="secondary"
                     onClick={handleSourceControlClick}
+                    buttonId="sync-all"
                 />
             )}
         </>

@@ -14,10 +14,11 @@ import styled from "@emotion/styled";
 import React from "react";
 import { ViewTitle } from "../Components/ViewTitle";
 import { ViewHeader } from "../Components/ViewHeader";
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     display: flex;
@@ -26,12 +27,6 @@ const Container = styled.div`
     gap: 10px;
     width: 100%;
     min-height: 62px;
-`;
-
-const GridTitleCell = styled(VSCodeDataGridCell)`
-    opacity: 0.7;
-    padding-left: 0px;
-    padding-right: 0px;
 `;
 
 const ProjectButtonWrap = styled.div`
@@ -60,34 +55,34 @@ export const ProjectDetails = () => {
     };
 
     return (
-        <Container>
+        <Container id="current-project-section">
             <ViewHeader>
                 <ViewTitle>Current Project</ViewTitle>
             </ViewHeader>
             <VSCodeDataGrid aria-label="project">
                 <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">Organization</GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">{currentProjectOrg?.name}</VSCodeDataGridCell>
+                    <TruncatedGridTitleCell gridColumn="1">Organization</TruncatedGridTitleCell>
+                    <TruncatedGridCell gridColumn="2">{currentProjectOrg?.name}</TruncatedGridCell>
                 </VSCodeDataGridRow>
                 <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">Project</GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">{choreoProject?.name}</VSCodeDataGridCell>
+                    <TruncatedGridTitleCell gridColumn="1">Project</TruncatedGridTitleCell>
+                    <TruncatedGridCell gridColumn="2">{choreoProject?.name}</TruncatedGridCell>
                 </VSCodeDataGridRow>
                 {choreoProject?.repository && (
                     <VSCodeDataGridRow>
-                        <GridTitleCell gridColumn="1">Repository</GridTitleCell>
-                        <VSCodeDataGridCell gridColumn="2">{choreoProject?.repository}</VSCodeDataGridCell>
+                        <TruncatedGridTitleCell gridColumn="1">Repository</TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">{choreoProject?.repository}</TruncatedGridCell>
                     </VSCodeDataGridRow>
                 )}
                 {choreoProject?.branch && (
                     <VSCodeDataGridRow>
-                        <GridTitleCell gridColumn="1">Branch</GridTitleCell>
-                        <VSCodeDataGridCell gridColumn="2">{choreoProject?.branch}</VSCodeDataGridCell>
+                        <TruncatedGridTitleCell gridColumn="1">Branch</TruncatedGridTitleCell>
+                        <TruncatedGridCell gridColumn="2">{choreoProject?.branch}</TruncatedGridCell>
                     </VSCodeDataGridRow>
                 )}
                 <VSCodeDataGridRow>
-                    <GridTitleCell gridColumn="1">Version</GridTitleCell>
-                    <VSCodeDataGridCell gridColumn="2">{choreoProject?.version}</VSCodeDataGridCell>
+                    <TruncatedGridTitleCell gridColumn="1">Version</TruncatedGridTitleCell>
+                    <TruncatedGridCell gridColumn="2">{choreoProject?.version}</TruncatedGridCell>
                 </VSCodeDataGridRow>
             </VSCodeDataGrid>
             <ProjectButtonWrap>

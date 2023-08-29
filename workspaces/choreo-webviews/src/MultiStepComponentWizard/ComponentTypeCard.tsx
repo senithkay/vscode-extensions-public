@@ -60,7 +60,7 @@ export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
     };
 
     return (
-        <TypeCardContainer className={cn({ "active": isSelected})} onClick={setSelectedType} title={description}>
+        <TypeCardContainer id={`card-select-${value}`} className={cn({ "active": isSelected})} onClick={setSelectedType} title={description}>
             <h4>{label}</h4>
         </TypeCardContainer>
     );
