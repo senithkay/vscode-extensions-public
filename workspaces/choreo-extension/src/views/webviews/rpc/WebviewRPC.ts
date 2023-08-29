@@ -408,6 +408,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         if (existsSync(filePath)) {
             const sourceFile = await vscode.workspace.openTextDocument(filePath);
             await window.showTextDocument(sourceFile);
+            await commands.executeCommand("workbench.explorer.fileView.focus");
         }
     });
 
