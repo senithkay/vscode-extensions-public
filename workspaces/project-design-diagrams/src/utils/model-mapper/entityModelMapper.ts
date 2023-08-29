@@ -54,16 +54,18 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
     entities.forEach((entity, key) => {
         let callingEntity: EntityModel = nodes.get(key);
         let associatedEntity: EntityModel;
+        const callingDisplayName = callingEntity?.getID()?.slice(callingEntity?.getID()?.lastIndexOf(':') + 1);
 
         entity.attributes.forEach(attribute => {
             attribute.associations.forEach(association => {
                 associatedEntity = nodes.get(association.associate);
+                const assorciatedDisplayName = associatedEntity?.getID()?.slice(associatedEntity?.getID()?.lastIndexOf(':') + 1);
                 if (callingEntity && associatedEntity) {
                     let sourcePort: EntityPortModel = callingEntity.getPort(`right-${key}/${attribute.name}`);
                     let targetPort: EntityPortModel = associatedEntity.getPort(`left-${association.associate}`);
 
                     if (sourcePort && targetPort) {
-                        let link: EntityLinkModel = new EntityLinkModel(association.cardinality);
+                        let link: EntityLinkModel = new EntityLinkModel(association.cardinality, `entity-link-${callingDisplayName}-${assorciatedDisplayName}`);
                         links.push(createLinks(sourcePort, targetPort, link));
                     }
                 }
