@@ -11,18 +11,13 @@
  *  associated services.
  */
 /* tslint:disable:variable-name */
-import React from 'react';
+import React from "react";
+import { ComponentStory } from "@storybook/react";
+import { EditorCardComponent, ComponentCardProps } from "./EditorComponentCard";
 
-import { ComponentCard } from './ComponentCard';
+const Template: ComponentStory<typeof EditorCardComponent> = (args: ComponentCardProps) => <EditorCardComponent {...args}> <div>Test Component<div/></div></EditorCardComponent>;
 
-export default {
-    title: 'CardComponent',
-    component: ComponentCard,
-};
+export const Card = Template.bind();
+Card.args = { isAllowed: true,  onClick: () => {} };
 
-export const Component_Card = () =>
-    (
-        <ComponentCard isAllowed={true} onClick={null} colors={{foreground: '#000', hoverBackground: '#f3f3f3', hoverBorder: '#e7e7e7'}} >
-            <div>Test Card</div>
-        </ComponentCard>
-    );
+export default { component: EditorCardComponent, title: "EditorComponentCard" };
