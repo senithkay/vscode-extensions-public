@@ -46,8 +46,8 @@ describe('GraphQL UI Tests', () => {
         await lens.click();
 
         // Confirm path
+        await wait(100); // Pause for a while server to start. It may take some time to server to respond initially
         const inputBox = new InputBox();
-        await wait(100); // Pause for a while to let the input box appear
         await inputBox.confirm();
         
         // switch to swagger window
@@ -59,7 +59,7 @@ describe('GraphQL UI Tests', () => {
         await graphqlView.clickExplorer();
         await graphqlView.selectQueryVariable();
         await graphqlView.verifyQueryGeneration();
-        await wait(100); // Pause for a while to let the query execute
+        await wait(100); // Pause for a while to let the query execute (GraphQL Libary not giving the expected result when there is no delay)
         await graphqlView.execute();
         const response =  await graphqlView.getResponse();
         expect(parseFloat(response)).is.greaterThan(0);
@@ -67,5 +67,6 @@ describe('GraphQL UI Tests', () => {
 
     afterEach(async () => {
         workbench.executeCommand(DND_PALETTE_COMMAND);
+        await new EditorView().closeAllEditors();
     });
 });
