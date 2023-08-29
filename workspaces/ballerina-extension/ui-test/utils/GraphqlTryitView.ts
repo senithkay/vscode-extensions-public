@@ -34,9 +34,7 @@ export class GraphqlTryItView {
     }
 
     async verifyQueryGeneration() {
-        const querySelector = By.className("CodeMirror-code");
-        await waitUntil(querySelector, 10000);
-        await waitUntil(By.xpath("//span[@class='cm-property']"), 10000);
+        await waitUntil(By.xpath("//section[@class='query-editor']//span[@class='cm-property']"), 10000);
     }
 
     async execute() {
