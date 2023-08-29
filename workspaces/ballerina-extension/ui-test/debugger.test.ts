@@ -22,11 +22,10 @@ describe('Debugger UI Tests', () => {
 
     beforeEach(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_service.bal`);
-        await VSBrowser.instance.waitForWorkbench;
+        await VSBrowser.instance.waitForWorkbench();
     });
 
     it('Test Debug Codelense', async () => {
-        await wait(2000);
         const editorView = new ExtendedEditorView(new EditorView());
         const lens = await editorView.getAction("Debug");
         expect(lens).is.not.undefined;
