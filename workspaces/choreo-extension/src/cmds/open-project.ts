@@ -58,14 +58,15 @@ export async function showSwitchProjectQuickPick(org: Organization) {
     quickPickInstance.items = quickPicks;
 
     quickPickInstance.onDidAccept(async () => {
-        onDidAcceptProjectList(quickPickInstance, currentProject, projects);
+        onDidAcceptProjectList(quickPickInstance, currentProject, projects, org);
     });
 }
 
 const onDidAcceptProjectList = async (
     quickPickInstance: vscode.QuickPick<vscode.QuickPickItem>,
     currentProject: Project | undefined,
-    projects: Project[]) => {
+    projects: Project[],
+    org: Organization) => {
     quickPickInstance.hide();
     const selection = quickPickInstance.selectedItems[0];
 
@@ -77,7 +78,7 @@ const onDidAcceptProjectList = async (
 
     // show project creation wizard if user selects the last item
     if (selection?.label.includes('Create New')) {
-        vscode.commands.executeCommand(createNewProjectCmdId);
+        vscode.commands.executeCommand(createNewProjectCmdId, org?.id);
         return;
     }
 
