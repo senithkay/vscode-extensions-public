@@ -45,6 +45,7 @@ export function DiagramHeader(props: HeaderProps) {
             <HeaderLeftPane isEditable={editingEnabled}>
                 {(currentView !== Views.TYPE_COMPOSITION) && (currentView !==  Views.CELL_VIEW) &&
                     <IconButton
+                        data-testid={'type-switcher'}
                         className={'iconButton'}
                         size='small'
                         onMouseOver={() => setShowTypeDropdown(true)}
