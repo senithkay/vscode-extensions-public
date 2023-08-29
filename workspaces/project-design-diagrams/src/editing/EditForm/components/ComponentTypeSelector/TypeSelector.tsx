@@ -35,14 +35,15 @@ export function TypeSelector(props: TypeSelectorProps) {
                 <SelectLabel>Type</SelectLabel>
                 <Select
                     id='component-type-select'
+                    data-testid='component-type-select'
                     value={type}
                     onChange={handleTypeChange}
                     sx={DefaultSelectBoxStyles}
                 >
-                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.REST_API}>HTTP</MenuItem>
-                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.GRAPHQL}>GraphQL</MenuItem>
-                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.WEBHOOK}>Webhook</MenuItem>
-                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.MAIN}>Main</MenuItem>
+                    <MenuItem data-testid="HTTP" sx={DefaultTextProps} value={BallerinaComponentTypes.REST_API}>HTTP</MenuItem>
+                    <MenuItem data-testid="GraphQL" sx={DefaultTextProps} value={BallerinaComponentTypes.GRAPHQL}>GraphQL</MenuItem>
+                    <MenuItem data-testid="Webhook" sx={DefaultTextProps} value={BallerinaComponentTypes.WEBHOOK}>Webhook</MenuItem>
+                    <MenuItem data-testid="Main" sx={DefaultTextProps} value={BallerinaComponentTypes.MAIN}>Main</MenuItem>
                 </Select>
             </InputComponent>
 

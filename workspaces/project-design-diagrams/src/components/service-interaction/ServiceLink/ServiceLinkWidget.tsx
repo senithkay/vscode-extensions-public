@@ -84,6 +84,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 					onMouseOver={onMouseOver}
 					stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
 					strokeWidth={1}
+					data-testid={link?.testId}
 				/>
 			</g>
 
