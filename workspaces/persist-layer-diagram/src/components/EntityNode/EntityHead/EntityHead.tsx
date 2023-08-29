@@ -58,6 +58,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
             isCollapsed={isCollapsed}
+            data-testid={`entity-head-${displayName}`}
         >
             <EntityPortWidget
                 port={node.getPort(`left-${node.getID()}`)}

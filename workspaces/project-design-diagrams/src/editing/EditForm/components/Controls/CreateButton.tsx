@@ -15,14 +15,16 @@ interface ButtonProps {
     label: string;
     color: string;
     disabled?: boolean;
+    testId?: string;
     onClick: () => void;
 }
 
 export function CreateButton(props: ButtonProps) {
-    const { label, color, disabled, onClick } = props;
+    const { label, color, testId, disabled, onClick } = props;
 
     return (
         <Button
+            data-testid={testId}
             disabled={disabled || false}
             onClick={onClick}
             size='medium'
