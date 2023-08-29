@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { By, EditorView, VSBrowser, WebDriver, WebView, Workbench, until, InputBox } from 'vscode-extension-tester';
+import { EditorView, VSBrowser, WebView, Workbench, InputBox } from 'vscode-extension-tester';
 import { join } from 'path';
-import { before, describe } from 'mocha';
+import { describe } from 'mocha';
 import { clickOnActivity, waitForWebview, verifyTerminalText, wait } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
@@ -47,7 +47,7 @@ describe('GraphQL UI Tests', () => {
         await lens.click();
 
         // Confirm path
-        await wait(100); // Pause for a while server to start. It may take some time to server to respond initially
+        await wait(500); // Pause for a while server to start. It may take some time to server to respond initially
         const inputBox = new InputBox();
         await inputBox.confirm();
         
