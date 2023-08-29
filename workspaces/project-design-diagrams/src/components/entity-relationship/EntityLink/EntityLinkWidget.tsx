@@ -82,6 +82,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 			}
 			<path
 				id={link.getID()}
+				data-testid={link?.testId}
 				d={link.getCurvePath()}
 				cursor={'pointer'}
 				fill={'none'}
