@@ -61,5 +61,6 @@ export class ComponentWizardView {
         console.log("Component successfully pushed to Choreo");
 
         await CommonUtils.switchToDefaultFrame();
+        await CommonUtils.wait(1000);
     }
 }
