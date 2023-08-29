@@ -78,7 +78,7 @@ export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
         orgsAPI: "https://apis.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.choreo.dev/component-mgt/1.0.0/orgs",
-        userMgtAPI: "https://apis.choreo.dev/users-mgt/1.0.0",
+        userMgtAPI: "https://apis.choreo.dev/user-mgt/1.0.0",
     },
     
     choreoConsoleBaseUrl: "https://console.choreo.dev",
@@ -111,7 +111,7 @@ export const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
         orgsAPI: "https://apis.st.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.st.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.st.choreo.dev/component-mgt/1.0.0/orgs",
-        userMgtAPI: "https://apis.st.choreo.dev/users-mgt/1.0.0",
+        userMgtAPI: "https://apis.st.choreo.dev/user-mgt/1.0.0",
     },
 
     choreoConsoleBaseUrl: "https://console.st.choreo.dev",
@@ -145,7 +145,7 @@ export const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
         orgsAPI: "https://apis.preview-dv.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.preview-dv.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.preview-dv.choreo.dev/component-mgt/1.0.0/orgs",
-        userMgtAPI: "https://apis.preview-dv.choreo.dev/users-mgt/1.0.0",
+        userMgtAPI: "https://apis.preview-dv.choreo.dev/user-mgt/1.0.0",
     },
 
     choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
