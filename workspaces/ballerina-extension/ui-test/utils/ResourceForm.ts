@@ -115,14 +115,16 @@ export class ResourceForm {
             const option = await webview.findWebElement(By.xpath(`//*[contains(text(), '${returnType}')]`));
             await option.click();
         }
-        // Get empty input value
-        const responseTypeInput = await webview.findWebElement(By.xpath("//*[@data-testid='type-select-dropdown']"));
-        await responseTypeInput.click();
+        if (type) {
+            // Get empty input value
+            const responseTypeInput = await webview.findWebElement(By.xpath("//*[@data-testid='type-select-dropdown']"));
+            await responseTypeInput.click();
 
-        // Find and click on the input element of the Autocomplete component
-        const input = await responseTypeInput.findElement(By.className('MuiAutocomplete-input'));
-        await input.sendKeys(type);
-        await wait(3000);
+            // Find and click on the input element of the Autocomplete component
+            const input = await responseTypeInput.findElement(By.className('MuiAutocomplete-input'));
+            await input.sendKeys(type);
+            await wait(3000);
+        }
 
         if (newType) {
             // Wait for diagnostic

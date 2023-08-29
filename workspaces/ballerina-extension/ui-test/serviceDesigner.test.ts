@@ -90,7 +90,7 @@ service /breakingbad on new http:Listener(9090) {
 
         const EXPECTED = `import ballerina/http;
         service /breakingbad on new http:Listener(9090) {
-            resource function get characters() returns error?|Character[] {
+            resource function get characters() returns Character[] {
             }
         }
         type Character record {
@@ -121,7 +121,7 @@ service /breakingbad on new http:Listener(9090) {
         await webview.switchBack();
 
         await new EditorView().openEditor(FILE_NAME);
-        const EXPECTED = `resource function post cooking() returns error?|Character {}}`;
+        const EXPECTED = `resource function post cooking() returns Character {}}`;
         // Check if generated code equals expected code
         const text = await new TextEditor().getText();
         expect(text.replace(/\s/g, '')).to.include(EXPECTED.replace(/\s/g, ''));
@@ -137,19 +137,21 @@ service /breakingbad on new http:Listener(9090) {
 
         await ResourceForm.selectHttpMethod(webview, "POST");
 
-        await ResourceForm.updateResourcePath(webview, "selling");
+        await ResourceForm.updateResourcePath(webview, "collecting");
 
         await ResourceForm.addResponseParam(webview, "Character", false, "Accept");
+
+        await ResourceForm.addResponseParam(webview, "", false, "Not Found");
 
         await ResourceForm.saveResource(webview, "POST");
 
         await webview.switchBack();
         await new EditorView().openEditor(FILE_NAME);
-        const EXPECTED = `resource function post selling() returns error?|record {|*http:Accepted; Character body;|} {}}`;
+        const EXPECTED = `resource function post collecting() returns record {|*http:Accepted; Character body;|}|http:NotFound {}}`;
         // Check if generated code equals expected code
         const text = await new TextEditor().getText();
         expect(text.replace(/\s/g, '')).to.include(EXPECTED.replace(/\s/g, ''));
-        expect(getLabelElement(driver, 'selling')).to.be.exist;
+        expect(getLabelElement(driver, 'collecting')).to.be.exist;
 
     });
 
