@@ -11,35 +11,10 @@
  *  associated services.
  */
 import React from "react";
-import cn from "classnames";
 
-import styled from "@emotion/styled";
 import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType } from "@wso2-enterprise/choreo-core";
+import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ComponentWizardState } from "./types";
-
-
-const TypeCardContainer = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    width: 120px;
-    padding: 5px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 3px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--vscode-panel-border);
-    cursor: pointer;
-    &:hover, &.active {
-        border-color: var(--vscode-focusBorder);
-    }
-`;
 
 export interface ComponentTypeCardProps {
     formData: Partial<ComponentWizardState>;
@@ -55,13 +30,13 @@ export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
 
     const isSelected = formData[formKey] === value;
 
-    const setSelectedType = () => {
-        onFormDataChange(prevFormData => ({ ...prevFormData, [formKey]: value }));
+    const setSelectedType = (selectedItem: string) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, [formKey]: selectedItem }));
     };
 
     return (
-        <TypeCardContainer id={`card-select-${value}`} className={cn({ "active": isSelected})} onClick={setSelectedType} title={description}>
-            <h4>{label}</h4>
-        </TypeCardContainer>
+        <ComponentCard id={value} isSelected={isSelected} onClick={setSelectedType} description={description}>
+            <Typography variant="h4">{label}</Typography>
+        </ComponentCard>
     );
 };
