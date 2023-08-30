@@ -154,8 +154,8 @@ export class CommonUtils {
             );
         }
 
-        // Wait 200ms for the input box to be interactive
-        await CommonUtils.wait(200);
+        // Wait 500ms for the input box to be interactive
+        await CommonUtils.wait(500);
 
         const inputBox = new InputBox();
         await inputBox.setText(params.inputValue);
