@@ -25,15 +25,13 @@ describe('GraphQL UI Tests', () => {
     let workbench : Workbench;
     
     beforeEach(async () => {
-        await new EditorView().closeAllEditors();
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
-        VSBrowser.instance.waitForWorkbench();
+        await VSBrowser.instance.waitForWorkbench();
         workbench = new Workbench();
         await workbench.executeCommand(DND_PALETTE_COMMAND);
     });
 
     it('Test tryit button', async () => {
-        console.log("Test tryit button");
         await clickOnActivity(EXPLORER_ACTIVITY);
 
         // Click on `Run` code lens to run service
