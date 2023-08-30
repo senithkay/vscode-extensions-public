@@ -61,6 +61,6 @@ export class ComponentWizardView {
         console.log("Component successfully pushed to Choreo");
 
         await CommonUtils.switchToDefaultFrame();
-        await CommonUtils.wait(5000);   // Todo: need a way to avoid using this wait
+        // await CommonUtils.wait(5000);   // Todo: need a way to avoid using this wait
     }
 }
