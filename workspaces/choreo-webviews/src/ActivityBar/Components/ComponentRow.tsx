@@ -114,7 +114,7 @@ export const ComponentRow = (props: {
                     </VSCodeButton>
                 )}
                 {component.sourcePath && (
-                    <VSCodeButton appearance="icon" title="Open source" onClick={(event) => {
+                    <VSCodeButton appearance="icon" title="View source" onClick={(event) => {
                         event.stopPropagation()
                         ChoreoWebViewAPI.getInstance().goToSource(component.sourcePath)
                     }}>
