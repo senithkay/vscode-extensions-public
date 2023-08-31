@@ -44,11 +44,11 @@ const CardContainer = styled.div<CardContainerProps>`
 
 export interface ComponentCardProps {
 	id?: string; // Identifier for the component
-	description?: string;
-	isSelected?: boolean;
-	disabled?: boolean;
-	sx?: any;
-	children?: React.ReactNode;
+    description?: string;
+    isSelected?: boolean;
+    disabled?: boolean;
+    sx?: any;
+    children?: React.ReactNode;
     onClick?: (value: string) => void;
 }
 

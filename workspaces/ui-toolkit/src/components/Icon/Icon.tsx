@@ -12,7 +12,7 @@ import * as Icons from "../../assets/icons";
 import styled from "@emotion/styled";
 
 interface IconContainerProps {
-	sx?: any;
+    sx?: any;
 }
 
 const IconContainer = styled.div<IconContainerProps>`
