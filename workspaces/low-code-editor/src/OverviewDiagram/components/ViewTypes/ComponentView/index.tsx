@@ -10,7 +10,7 @@ import React from "react";
 
 import { Typography } from "@material-ui/core";
 import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ComponentCard } from "@wso2-enterprise/ui-toolkit";
+import { EditorCardComponent } from "@wso2-enterprise/ui-toolkit";
 
 import { ComponentViewInfo } from "../../../util";
 
@@ -50,12 +50,12 @@ export function ComponentView(props: ComponentViewProps) {
     const isAllowed = isComponentAllowed();
 
     return (
-        <ComponentCard isAllowed={isAllowed} onClick={handleComponentClick}>
+        <EditorCardComponent isAllowed={isAllowed} onClick={handleComponentClick}>
             <div className="icon">
                 {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}
             </div>
             <Typography className={classes.label} variant="h4">{info.name.length ? info.name : '/'}</Typography>
-        </ComponentCard>
+        </EditorCardComponent>
     )
 }
 
