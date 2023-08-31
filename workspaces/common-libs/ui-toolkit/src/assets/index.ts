@@ -8,6 +8,10 @@
  */
 
 // Add icons here
-export { CellViewIcon } from './icons/CellViewIcon';
+export { ArchitectureViewIcon } from './ArchitectureViewIcon';
+export { BitBucketIcon } from './BitBucketIcon';
+export { CellViewIcon } from './CellViewIcon';
+export { ChoreoIcon } from './ChoreoIcon';
+export { GithubIcon } from './GithubIcon';
 
 // Add images here
