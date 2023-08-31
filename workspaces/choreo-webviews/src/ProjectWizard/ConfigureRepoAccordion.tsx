@@ -22,7 +22,7 @@ import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/githu
 import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ProgressIndicator } from "../ActivityBar/Components/ProgressIndicator";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 const GhRepoSelectorActions = styled.div`
     display  : flex;
@@ -314,7 +314,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                         )}
                     </RepoSubContainer>
                 </RepoStepContent>
-                    {showProgressBar && <ProgressIndicator />}
+                    {showProgressBar && <ProgressIndicator id="project-repo-progress"/>}
             </RepoStepWrapper>
         </>
     );

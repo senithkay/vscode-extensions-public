@@ -26,6 +26,7 @@
         "build:variableView": "rush build -o variableview-lib",
         "build:choreoExtention": "rush build -o choreo",
         "build:ballerinExtension": "rush build -o ballerina",
-        "build": "rush build"
+        "build": "rush build",
+        "setup-e2e-test-debug": "workspaces/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver"
     }
 }

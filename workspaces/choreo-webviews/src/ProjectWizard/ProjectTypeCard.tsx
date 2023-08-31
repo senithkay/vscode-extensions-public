@@ -58,7 +58,7 @@ export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
     };
 
     return (
-        <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} >
+        <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} id={`${label}-card`}>
             <h4>{label}</h4>
         </TypeCardContainer>
     );

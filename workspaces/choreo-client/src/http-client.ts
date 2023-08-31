@@ -11,7 +11,6 @@
  *  associated services.
  */
 import axios, { CreateAxiosDefaults } from "axios";
-import curlirize from "axios-curlirize";
 import { isRequestTraceEnabled } from "./utils";
 
 export function getHttpClient(authToken?: string, baseURL?: string) {
@@ -26,7 +25,7 @@ export function getHttpClient(authToken?: string, baseURL?: string) {
     const client = axios.create(config);
 
     if (isRequestTraceEnabled()) {
-        curlirize(client);
+        import("axios-curlirize").then((curlirize) => curlirize.default(client));
     }
 
     client.interceptors.response.use(null, (error) => {

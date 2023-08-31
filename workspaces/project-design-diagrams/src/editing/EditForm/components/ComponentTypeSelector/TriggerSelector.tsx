@@ -109,6 +109,7 @@ export function TriggerSelector(props: TriggerSelectorProps) {
                                         disablePadding
                                         secondaryAction={
                                             <Checkbox
+                                                data-testid={service?.name}
                                                 edge='end'
                                                 onChange={handleToggle(service.name)}
                                                 checked={isChecked}

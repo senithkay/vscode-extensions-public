@@ -16,6 +16,7 @@ docs/
 .rush/
 config/
 **/*.log
+test-resources/
 
 # Ignore all webview-ui files except the build directory
 webview-ui/src/**

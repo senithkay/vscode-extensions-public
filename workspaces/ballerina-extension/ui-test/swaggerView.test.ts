@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -7,137 +7,79 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { WebView, VSBrowser, By, EditorView } from 'vscode-extension-tester';
+import { By, EditorView, VSBrowser, WebDriver, WebView, Workbench, until } from 'vscode-extension-tester';
 import { join } from 'path';
-import { before, describe, it } from 'mocha';
+import { before, describe } from 'mocha';
+import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText } from './util';
 import { expect } from 'chai';
-import { wait, getDiagramExplorer, waitForWebview } from './util';
-import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
-import { Service } from './utils/Service';
+import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
+import { ExtendedEditorView } from './utils/ExtendedEditorView';
+import { SwaggerView } from './utils/SwaggerView';
+
+export const RUN_OUTPUT = 'Running executable';
+export const REQUEST_RECIEVED_OUTPUT = 'request received';
 
 describe('Swagger view UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
+    const FILE_NAME = 'hello_service.bal';
+    let browser: VSBrowser;
+    let driver: WebDriver;
+    let workbench : Workbench;
+    
+    beforeEach(async () => {
+        await VSBrowser.instance.waitForWorkbench();
+        const editorView = new EditorView();
+        await editorView.closeAllEditors();
+        
+        workbench = new Workbench();
+        await workbench.executeCommand(DND_PALETTE_COMMAND);
 
-    before(async () => {
-        await VSBrowser.instance.waitForWorkbench;
+        browser = VSBrowser.instance;
+        driver = browser.driver;
+        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        await clickOnActivity(EXPLORER_ACTIVITY);
     });
 
-    // it('Test tryit button', async () => {
-    //     await wait(5000);
-    //     VSBrowser.instance.openResources(join(PROJECT_ROOT, "helloServicePackage"));
-    //     await wait(2000);
-    //     const editorView = new EditorView();
-    //     await editorView.closeAllEditors();
-    //     const diagramExplorer = await getDiagramExplorer();
+    it('Test tryit button', async () => {
+        
+        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 30000);;
 
-    //     const rootFolder = (await diagramExplorer.getVisibleItems())[0];
-    //     await rootFolder.expand();
+        // Click on `Run` code lens to run service
+        const editorView = new ExtendedEditorView(new EditorView());
+        const runLens = await editorView.getCodeLens("Run");
+        await runLens.click();
+        await verifyTerminalText(RUN_OUTPUT);
 
-    //     // Open low code diagram
-    //     (await rootFolder.findChildItem("hello_service.bal"))?.click();
-    //     await wait(DIAGRAM_LOADING_TIME)
+        // Click on `Try it` code lens to open up swagger
+        const lens = await editorView.getCodeLens("Try it");
+        await lens.click();
+        
+        // switch to swagger window
+        await waitForWebview("Swagger");
+        const swaggerWebView = await new EditorView().openEditor('Swagger', 1) as WebView;
+        const swaggerView = new SwaggerView(swaggerWebView);
+        await swaggerWebView.switchToFrame();
 
-    //     // switch to low code window
-    //     const webview = new WebView();
-    //     await webview.switchToFrame();
+        // expand get
+        await swaggerView.expandGet();
 
-    //     // run project
-    //     const service = new Service(webview);
-    //     (await (await (await (await service.getHeader()).getServiceOptions()).click()).getRun()).click();
-    //     await wait(PROJECT_RUN_TIME);
+        // click try it
+        await swaggerView.clickTryItOut(driver);
 
-    //     // open swagger view
-    //     await (await service.getTryIt()).click();
-    //     await webview.switchBack();
+        // cilck execute
+        await swaggerView.clickExecute();
 
-    //     // switch to swagger window
-    //     await waitForWebview("Swagger");
-    //     const swaggerWebView = await new EditorView().openEditor('Swagger', 1) as WebView;
-    //     await swaggerWebView.switchToFrame();
+        // Verify request receival
+        await swaggerWebView.switchBack();
+        await verifyTerminalText(REQUEST_RECIEVED_OUTPUT);
+        await swaggerWebView.switchToFrame();
 
-    //     // expand get
-    //     const operationTag = By.className("operation-tag-content");
-    //     const getTab = await swaggerWebView.findWebElement(operationTag);
-    //     expect(getTab).is.not.undefined;
-    //     await getTab.click();
-    //     await wait(2000);
+        // check response
+        const response = await swaggerView.getResponse();
+        expect(response).is.equal('"Hello, World!"');
+    });
 
-    //     // click try it
-    //     const tryIt = (await swaggerWebView.findWebElements(By.className("try-out__btn")))[0];
-    //     expect(tryIt).is.not.undefined;
-    //     await tryIt.click();
-    //     await wait(2000);
-
-    //     // cilck execute
-    //     const execute = (await swaggerWebView.findWebElements(By.className("opblock-control__btn")))[0];
-    //     expect(execute).is.not.undefined;
-    //     await execute.click();
-    //     await wait(2000);
-
-    //     // check response
-    //     const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
-    //     expect(execute).is.not.undefined;
-    //     const reponseBox = await codeBlock.findElement(By.css("code"));
-    //     const reponse = await reponseBox.findElement(By.css("span"));
-    //     expect(await reponse.getText()).is.equal('"Hello, World!"');
-    // });
-
-    // it('Test swagger view headers', async () => {
-    //     await wait(5000);
-    //     VSBrowser.instance.openResources(join(PROJECT_ROOT, "swagger"));
-    //     await wait(2000);
-    //     const editorView = new EditorView();
-    //     await editorView.closeAllEditors();
-    //     const diagramExplorer = await getDiagramExplorer();
-
-    //     const rootFolder = (await diagramExplorer.getVisibleItems())[0];
-    //     await rootFolder.expand();
-
-    //     // Open low code diagram
-    //     (await rootFolder.findChildItem("deltaLine.bal"))?.click();
-    //     await wait(DIAGRAM_LOADING_TIME)
-
-    //     // switch to low code window
-    //     const webview2 = new WebView();
-    //     await webview2.switchToFrame();
-
-    //     // run project
-    //     const service = new Service(webview2);
-    //     (await (await (await (await service.getHeader()).getServiceOptions()).click()).getRun()).click();
-    //     await wait(PROJECT_RUN_TIME);
-
-    //     // open swagger view
-    //     await (await service.getTryIt()).click();
-    //     await webview2.switchBack();
-    //     await wait(5000);
-
-    //     // switch to swagger window
-    //     const swaggerWebView = await new EditorView().openEditor('Swagger', 1) as WebView;
-    //     swaggerWebView.switchToFrame();
-    //     await wait(2000);
-
-    //     // expand get
-    //     const getTab = await swaggerWebView.findWebElement(By.className("operation-tag-content"));
-    //     expect(getTab).is.not.undefined;
-    //     await getTab.click();
-    //     await wait(2000);
-
-    //     // click try it
-    //     const tryIt = (await swaggerWebView.findWebElements(By.className("try-out__btn")))[0];
-    //     expect(tryIt).is.not.undefined;
-    //     await tryIt.click();
-    //     await wait(2000);
-
-    //     // cilck execute
-    //     const execute = (await swaggerWebView.findWebElements(By.className("opblock-control__btn")))[0];
-    //     expect(execute).is.not.undefined;
-    //     await execute.click();
-    //     await wait(2000);
-
-    //     // check response
-    //     const codeBlock = await swaggerWebView.findWebElement(By.className("highlight-code"));
-    //     expect(execute).is.not.undefined;
-    //     const reponseBox = await codeBlock.findElement(By.css("code"));
-    //     expect(await reponseBox.getText()).is.equal('{\n  "ticketId": "T120",\n  "seat": "A10",\n  "price": 68\n}');
-    // });
+    afterEach(async () => {
+        workbench.executeCommand(DND_PALETTE_COMMAND);
+    });
 });
