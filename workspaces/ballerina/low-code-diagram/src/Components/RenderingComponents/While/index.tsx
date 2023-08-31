@@ -18,6 +18,13 @@ import {
     WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
+import { Context } from "../../../Context/diagram";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
+import { collapseExpandedRange, expandCollapsedRange, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents, recalculateSizingAndPositioning } from "../../../Utils";
+import { BlockViewState } from "../../../ViewState";
+import { WhileViewState } from "../../../ViewState/while";
+import { DefaultConfig } from "../../../Visitors/default";
 import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
 import {
     DELETE_SVG_HEIGHT_WITH_SHADOW,
@@ -29,13 +36,6 @@ import {
     EDIT_SVG_OFFSET,
     EDIT_SVG_WIDTH_WITH_SHADOW
 } from "../../DiagramActions/EditBtn/EditSVG";
-import { Context } from "../../../Context/diagram";
-import { useFunctionContext } from "../../../Context/Function";
-import { ViewMode } from "../../../Context/types";
-import { collapseExpandedRange, expandCollapsedRange, getConditionConfig, getDiagnosticInfo, getDraftComponent, getRandomInt, getSTComponents, recalculateSizingAndPositioning } from "../../../Utils";
-import { BlockViewState } from "../../../ViewState";
-import { WhileViewState } from "../../../ViewState/while";
-import { DefaultConfig } from "../../../Visitors/default";
 import { PlusButton } from "../../PlusButtons/Plus";
 import CollapseComponent from "../Collapse";
 import { ConditionAssignment, CONDITION_ASSIGNMENT_NAME_WIDTH } from "../ConditionAssignment";

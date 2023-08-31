@@ -10,14 +10,14 @@ import React, { useEffect, useState } from 'react';
 
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
-import { ForeachStatement, FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { FunctionDefinition, ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { Function  } from "..";
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { fetchSyntaxTree, getComponentDataPath, getFileContent, getProjectRoot, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 
-import { Function, FunctionProps  } from "..";
 
 export default {
     title: 'Diagram/Component/Function',

@@ -13,16 +13,16 @@ import { BallerinaConnectorInfo, ConnectorWizardType } from "@wso2-enterprise/ba
 import { CaptureBindingPattern, LocalVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
-import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/DeleteBtn/DeleteSVG";
-import { EditBtn } from "../../../DiagramActions/EditBtn";
-import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
 import { defaultOrgs } from "../../../../Types/constants";
 import { getDiagnosticInfo, getMatchingConnector } from "../../../../Utils";
 import { BlockViewState, StatementViewState, ViewState } from "../../../../ViewState";
 import { DraftStatementViewState } from "../../../../ViewState/draft";
+import { DeleteBtn } from "../../../DiagramActions/DeleteBtn";
+import { DELETE_SVG_HEIGHT_WITH_SHADOW, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/DeleteBtn/DeleteSVG";
+import { EditBtn } from "../../../DiagramActions/EditBtn";
+import { EDIT_SVG_OFFSET, EDIT_SVG_WIDTH_WITH_SHADOW } from "../../../DiagramActions/EditBtn/EditSVG";
 
 import { ConnectorProcessSVG, CONNECTOR_PROCESS_SHADOW_OFFSET, CONNECTOR_PROCESS_SVG_HEIGHT, CONNECTOR_PROCESS_SVG_HEIGHT_WITH_SHADOW, CONNECTOR_PROCESS_SVG_WIDTH, CONNECTOR_PROCESS_SVG_WIDTH_WITH_SHADOW } from "./ConnectorProcessSVG";
 import "./style.scss";

@@ -13,14 +13,14 @@ import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
-import { DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
-import { EditBtn } from "../../DiagramActions/EditBtn";
-import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
 import { getConditionConfig } from "../../../Utils";
 import { BlockViewState, EndViewState } from "../../../ViewState";
 import { DefaultConfig } from "../../../Visitors/default";
+import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
+import { DELETE_SVG_OFFSET, DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
+import { EditBtn } from "../../DiagramActions/EditBtn";
+import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
 
 import { StopSVG, STOP_SVG_HEIGHT, STOP_SVG_HEIGHT_WITH_SHADOW, STOP_SVG_SHADOW_OFFSET, STOP_SVG_WIDTH_WITH_SHADOW } from "./StopSVG";
 import "./style.scss";

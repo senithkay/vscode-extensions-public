@@ -12,13 +12,13 @@ import React, { useEffect, useState } from 'react';
 import { Story } from '@storybook/react/types-6-0';
 import { ForeachStatement, FunctionDefinition,  ModulePart, STKindChecker } from '@wso2-enterprise/syntax-tree';
 
+import { ForEach } from "..";
 import { Provider } from '../../../../Context/diagram';
 import { LowCodeDiagramProps } from '../../../../Context/types';
-import { fetchSyntaxTree, getComponentDataPath, getFileContent, langClientPromise } from '../../../../stories/story-utils';
+import { fetchSyntaxTree, getComponentDataPath } from '../../../../stories/story-utils';
 import { sizingAndPositioning } from '../../../../Utils';
 import { Function } from '../../Function';
 
-import { ForEach } from "..";
 
 export default {
     title: 'Diagram/Component/ForEach',

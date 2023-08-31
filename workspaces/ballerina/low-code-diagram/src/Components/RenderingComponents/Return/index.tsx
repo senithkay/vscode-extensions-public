@@ -13,15 +13,15 @@ import { ConfigOverlayFormStatus, WizardType } from "@wso2-enterprise/ballerina-
 import { NodePosition, ReturnStatement } from "@wso2-enterprise/syntax-tree";
 import cn from "classnames";
 
-import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
-import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
-import { EditBtn } from "../../DiagramActions/EditBtn";
-import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
 import { Context } from "../../../Context/diagram";
 import { getDiagnosticInfo, getOverlayFormConfig, getRandomInt } from "../../../Utils";
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
+import { DeleteBtn } from "../../DiagramActions/DeleteBtn";
+import { DELETE_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/DeleteBtn/DeleteSVG";
+import { EditBtn } from "../../DiagramActions/EditBtn";
+import { EDIT_SVG_WIDTH_WITH_SHADOW } from "../../DiagramActions/EditBtn/EditSVG";
 import { PROCESS_SVG_HEIGHT, PROCESS_SVG_HEIGHT_WITH_SHADOW, PROCESS_SVG_SHADOW_OFFSET, PROCESS_SVG_WIDTH, PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW } from "../Processor/ProcessSVG";
 import { VariableName } from "../VariableName";
 
