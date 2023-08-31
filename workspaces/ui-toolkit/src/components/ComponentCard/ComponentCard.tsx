@@ -35,28 +35,32 @@ const CardContainer = styled.div<CardContainerProps>`
     cursor: pointer;
     &:hover, &.active {
         border-color: var(--vscode-focusBorder);
-    }
+    };
+	&.not-allowed {
+    	cursor: not-allowed;
+  	};
 	${(props: CardContainerProps) => props.sx};
 `;
 
 export interface ComponentCardProps {
-	id: string; // Identifier for the component
-	description: string;
-	isSelected: boolean;
+	id?: string; // Identifier for the component
+	description?: string;
+	isSelected?: boolean;
+	disabled?: boolean;
 	sx?: any;
-	children: React.ReactNode;
-    onClick: (value: string) => void;
+	children?: React.ReactNode;
+    onClick?: (value: string) => void;
 }
 
 export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
-    const { id, sx, description, isSelected, children, onClick } = props;
+    const { id, sx, description, isSelected, disabled, children, onClick } = props;
 
     const handleComponentClick = () => {
         onClick(id);
     };
 
     return (
-        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected })} sx={sx} onClick={handleComponentClick} title={description}>
+        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} onClick={handleComponentClick} title={description}>
             {children}
         </CardContainer>
     );

@@ -19,7 +19,37 @@ const Template: ComponentStory<typeof ComponentCard> = (args: ComponentCardProps
     </ComponentCard>
 ;
 
-export const Card = Template.bind();
-Card.args = { id: "Test", description: "Description", isSelected: false, sx: {width: 900, height: 50}, onClick: (e: any) => { console.log(e) } };
+export const EditorCard = Template.bind();
+EditorCard.args = { 
+    id: "Test", 
+    description: "Description", 
+    isSelected: false, 
+    sx: {
+        display: "flex",
+        height: 50,
+        width: 200,
+        cursor: "pointer",
+        borderRadius: 5,
+        alignItems: "center",
+        padding: 10,
+        justifyContent: "left",
+        marginRight: 16,
+        marginBottom: 16,
+        transition: "0.3s",
+        border: "1px solid var(--vscode-editor-foreground)",
+        "&:hover, &.active": {
+            border: "1px solid var(--vscode-focusBorder)",
+            backgroundColor: "var(--vscode-pickerGroup-border)",
+            color: "var(--vscode-editor-foreground)",
+            ".icon svg g": {
+                fill: "var(--vscode-editor-foreground)"
+            }
+        }
+    }, 
+    onClick: (e: any) => { console.log(e) } 
+};
 
-export default { component: Card, title: "ComponentCard" };
+export const ChoreoCard = Template.bind();
+ChoreoCard.args = { id: "Test", description: "Description", isSelected: false, sx: {width: 900, height: 50}, onClick: (e: any) => { console.log(e) } };
+
+export default { component: ComponentCard, title: "ComponentCard" };
