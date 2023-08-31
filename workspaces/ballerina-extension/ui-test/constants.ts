@@ -20,5 +20,5 @@ export const EXPLORER_ACTIVITY = 'Explorer';
 export const DND_PALETTE_COMMAND = 'notifications.toggleDoNotDisturbMode';
 
 // wait times
-export const VSCODE_ZOOM = 2000;
+export const VSCODE_ZOOM_TIME = 2000;
 
