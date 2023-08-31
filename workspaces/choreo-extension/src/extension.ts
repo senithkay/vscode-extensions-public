@@ -61,7 +61,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = false;
 	openChoreoActivity();
 	getLogger().debug("Choreo Extension activated");
-	selectInitialOrg();
 	return ext.api;
 }
 
@@ -126,19 +125,6 @@ function showMsgAndRestart(msg: string): void {
 			commands.executeCommand('workbench.action.reloadWindow');
 		}
 	});
-}
-
-async function selectInitialOrg() {
-	const userInfo = ext.api.userInfo;
-	if (userInfo) {
-		const org: Organization | undefined = await ext.api.getTempSelectedOrg();
-		if (org) {
-			if (!ext.api.isChoreoProject()) {
-				await ext.api.setSelectedOrg(org);
-			}
-			await ext.api.clearTempSelectedOrg();
-		}
-	}
 }
 
 

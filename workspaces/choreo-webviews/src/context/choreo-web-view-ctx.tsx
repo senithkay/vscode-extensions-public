@@ -28,7 +28,6 @@ export interface IChoreoWebViewContext {
     error?: Error;
     isChoreoProject?: boolean;
     choreoProject?: Project;
-    requireOrgSwitch?: boolean;
     loadingProject?: boolean;
     choreoUrl: string;
     selectedOrg?: Organization;
@@ -112,11 +111,6 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         refetchOnWindowFocus: false,
     });
 
-    const requireOrgSwitch =
-        isChoreoProject &&
-        userInfo?.organizations?.some((item) => item.id === selectedOrg?.id) &&
-        selectedOrg?.id !== workspaceMetaData?.orgId;
-
     const {
         data: choreoProject,
         error: choreoProjectError,
@@ -185,11 +179,10 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
                 loadingProject:
                     getChoreoWorkspaceLoading ||
                     selectedOrgLoading ||
-                    (isChoreoProject === true && requireOrgSwitch === false && choreoProjectLoading),
+                    (isChoreoProject === true && choreoProjectLoading),
                 currentProjectOrg,
                 selectedOrg,
                 isBalExtInstalled,
-                requireOrgSwitch,
                 workspaceMetaData,
             }}
         >

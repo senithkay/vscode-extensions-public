@@ -52,8 +52,7 @@ export interface IChoreoExtensionAPI {
     getConsoleUrl(): Promise<string>;
 }
 
-const selectedOrgKey = "selected-org";
-const tempSelectedOrgKey = "temp-selected-org";
+const selectedGlobalOrgKey = "selected-global-org";
 
 export class ChoreoExtensionApi {
     private _userInfo: UserInfo | undefined;
@@ -121,36 +120,33 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
-    public async getSelectedOrgForUser(userInfo: UserInfo): Promise<Organization> {
-        const selectedOrg: Organization | undefined = await ext.context.workspaceState.get(selectedOrgKey);
-
-        if (userInfo?.organizations?.length === 0) {
-            if(selectedOrg){
-                await this.clearSelectedOrg();
-            }
-            throw new Error("No organizations found for the user.");
-        }
-
-        if(selectedOrg && userInfo?.organizations?.some(item=>item.id === selectedOrg.id)){
-            return selectedOrg;
-        }
-
+    public async getSelectedOrg(userInfo = ext.api.userInfo): Promise<Organization> {
         // If workspace a choreo project, we need to select the org of the project.
         const isChoreoProject = ext.api.isChoreoProject();
-        if (isChoreoProject) {
-            const currentProjectId = ext.api.getOrgIdOfCurrentProject();
-            if (currentProjectId) {
-                const foundOrg = userInfo?.organizations.find(org => org.id === currentProjectId);
-                if (foundOrg) {
-                    await ext.context.workspaceState.update(selectedOrgKey, foundOrg);
-                    return foundOrg;
-                }
+        const currentProjectOrgId = ext.api.getOrgIdOfCurrentProject();
+
+        if(!userInfo){
+            throw new Error(`User information not found`);
+        }
+
+        if (isChoreoProject && currentProjectOrgId) {
+            const foundOrg = userInfo?.organizations.find(org => org.id === currentProjectOrgId);
+            if (foundOrg) {
+                return foundOrg;
             }
+            throw new Error(`Couldn't find org id ${currentProjectOrgId} within user's available orgs`);
+        }
+
+        const selectedGlobalOrg: Organization | undefined = await ext.context.globalState.get(selectedGlobalOrgKey);
+        if(selectedGlobalOrg && userInfo?.organizations?.some(item => item.id === selectedGlobalOrg.id)){
+            return selectedGlobalOrg;
         }
         
-        // Else we need to select the first org.
-        await ext.context.workspaceState.update(selectedOrgKey, userInfo?.organizations[0]);
-        return userInfo?.organizations[0];
+        if(userInfo?.organizations[0]){
+            await ext.context.globalState.update(selectedGlobalOrgKey, userInfo?.organizations[0]);
+            return userInfo?.organizations[0];
+        }
+        throw new Error("No organizations found for the user.");
     }
 
     public async setSelectedOrg(org: Organization): Promise<void> {
@@ -166,30 +162,23 @@ export class ChoreoExtensionApi {
                         'New Window',
                     );
                     if (answer === "Current Window") {
-                        await this.setTempSelectedOrg(org);
+                        await ext.context.globalState.update(selectedGlobalOrgKey, org);
                         await commands.executeCommand("workbench.action.closeFolder");
                     }else if (answer === "New Window") {
-                        await this.setTempSelectedOrg(org);
+                        await ext.context.globalState.update(selectedGlobalOrgKey, org);
                         await commands.executeCommand("workbench.action.newWindow");
                     }
                 } else {
-                    await ext.context.workspaceState.update(selectedOrgKey, org);
+                    await ext.context.workspaceState.update(selectedGlobalOrgKey, org);
                     this.refreshOrganization(org);
                 }
             } else {
-                await ext.context.workspaceState.update(selectedOrgKey, org);
+                await ext.context.globalState.update(selectedGlobalOrgKey, org);
                 this.refreshOrganization(org);
             }
         }
     }
 
-    public async getSelectedOrg(): Promise<Organization | undefined> {
-        return ext.context.workspaceState.get(selectedOrgKey);
-    }
-
-    public async clearSelectedOrg() {
-        await ext.context.workspaceState.update(selectedOrgKey, undefined);
-    }
 
     public setChoreoInstallOrg(selectedOrgId: number) {
         this._choreoInstallationOrgId = selectedOrgId;
@@ -537,15 +526,4 @@ export class ChoreoExtensionApi {
         }
     }
 
-    public async getTempSelectedOrg(): Promise<Organization | undefined> {
-        return ext.context.globalState.get(tempSelectedOrgKey);
-    }
-
-    public async setTempSelectedOrg(org: Organization): Promise<void> {
-        await ext.context.globalState.update(tempSelectedOrgKey, org);
-    }
-
-    public async clearTempSelectedOrg(): Promise<void> {
-        await ext.context.globalState.update(tempSelectedOrgKey, undefined);
-    }
 }

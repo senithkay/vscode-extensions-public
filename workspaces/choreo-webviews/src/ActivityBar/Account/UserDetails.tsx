@@ -19,7 +19,6 @@ import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ChangeOrgCard } from "./ChangeOrgCard";
 import { OrganizationInfo } from "./OrganizationInfo";
 
 const Container = styled.div`
@@ -48,7 +47,7 @@ const openWalkthrough = () => {
 };
 
 export const UserDetails = () => {
-    const { loginStatusPending, choreoProject, currentProjectOrg, requireOrgSwitch } = useChoreoWebViewContext();
+    const { loginStatusPending, choreoProject, currentProjectOrg } = useChoreoWebViewContext();
 
     return (
         <Container>
@@ -56,7 +55,6 @@ export const UserDetails = () => {
             <UserInfo />
             <Seperator />
             <OrganizationInfo />
-            {requireOrgSwitch && <ChangeOrgCard />}
             {currentProjectOrg && choreoProject && (
                 <>
                     <Seperator />

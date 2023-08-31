@@ -76,7 +76,7 @@ export class AuthHandler {
                 getLogger().debug("Successfully exchanged auth code to Asgardio token.");
                 getLogger().debug("Auth code exchange time: " + (Date.now() - currentTime));
                 const userInfo = await this._validateUser(response.accessToken);
-                const selectedOrg = await ext.api.getSelectedOrgForUser(userInfo);
+                const selectedOrg = await ext.api.getSelectedOrg(userInfo);
                 await this.exchangeChoreoSTSToken(response.accessToken, selectedOrg.handle, selectedOrg.id);
                 await this.signin();
                 sendTelemetryEvent(SIGN_IN_SUCCESS_EVENT);
@@ -148,7 +148,7 @@ export class AuthHandler {
         if (!updatedUserInfo) {
             throw new Error("No user found in the keychain.");
         }
-        const selectedOrg = await ext.api.getSelectedOrgForUser(userInfo);
+        const selectedOrg = await ext.api.getSelectedOrg(userInfo);
         const orgAccessToken = await this.getToken(selectedOrg?.id);
         if (!orgAccessToken?.accessToken) {
             throw new Error("Asgardio token not found in token store!");

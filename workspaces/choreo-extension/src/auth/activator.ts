@@ -104,27 +104,28 @@ export async function activateAuth(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `wso2.choreo#choreo.getStarted`, false);
     });
 
-    commands.registerCommand(changeChoreoOrgCmdId, async (orgId?: string) => {
+    commands.registerCommand(changeChoreoOrgCmdId, async () => {
         try {
-            sendTelemetryEvent(CHANGE_ORG_EVENT);
-            const orgs = ext.api.userInfo?.organizations;
+            sendTelemetryEvent(CHANGE_ORG_EVENT);       
             const selectedOrg = await ext.api.getSelectedOrg();
 
+            const orgs = ext.api.userInfo?.organizations;
             if (!orgs) {
                 window.showErrorMessage('Failed to load organizations.');
                 return;
             }
-            if(orgId){
-                const selectedOrg = orgs.find(item=>item.id.toString() === orgId.toString());
-                if(selectedOrg){
-                    await ext.api.setSelectedOrg(selectedOrg);
-                    return;
-                }
+
+            const quickPicks: QuickPickItem[] = [
+                { kind: vscode.QuickPickItemKind.Separator, label: "Selected Organization" },
+            ];
+            quickPicks.push({ label: selectedOrg.name, description: selectedOrg.handle });
+            const otherOrgs = orgs.filter((item) => item.id !== selectedOrg?.id);
+            if (otherOrgs?.length > 0) {
+                quickPicks.push({ kind: vscode.QuickPickItemKind.Separator, label: "Available Organizations" });
+                quickPicks.push(...otherOrgs.map((org) => ({ label: org.name, description: org.handle })));
             }
-            
-            // eslint-disable-next-line eqeqeq
-            const quickPicks: QuickPickItem[] = orgs.map(org => ({ label: org.name, description: org.handle, picked: selectedOrg?.id == org.id }));
-            const options: QuickPickOptions = { canPickMany: false, ignoreFocusOut: true, title: "Select Organization" };
+
+            const options: QuickPickOptions = { canPickMany: false, title: "Select Organization" };
             const selected = await window.showQuickPick(quickPicks, options);
             if (selected) {
                 const selectedOrgItem = orgs.find(org => org.name === selected.label);
