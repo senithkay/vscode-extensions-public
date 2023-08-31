@@ -1,15 +1,8 @@
 {
+    "extends": "../../rush-config.json",
     "operationSettings": [
         {
             "operationName": "build",
-            "outputFolderNames": [
-                "vsix",
-                "dist",
-                "build",
-                "build-app",
-                "lib",
-                "resources/jslibs"
-            ],
             "dependsOnAdditionalFiles": [
                 "../bbe/build/*",
                 "../low-code-distribution/build/*",
