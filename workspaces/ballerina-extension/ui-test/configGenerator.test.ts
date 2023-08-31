@@ -22,6 +22,7 @@ import {
 } from 'vscode-extension-tester';
 import { areVariablesIncludedInString, wait, waitForBallerina, waitForElementToDisappear, waitUntil, waitUntilElementIsEnabled } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
+import { DEFAULT_TIME_OUT } from './constants';
 
 
 const expectedConfigs = [
