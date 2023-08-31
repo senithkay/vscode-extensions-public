@@ -133,10 +133,11 @@ suite('Ballerina Debug Adapter', () => {
             };
 
             dc.on('output', (res) => {
+                console.log(res.body.output);
                 if (res.body.output.indexOf("Running executable") > -1) {
-                    setTimeout(function () {
+                    setInterval(function () {
                         http.get('http://0.0.0.0:9090/hello/sayHello');
-                    }, 5000);
+                    }, 1000);
                 }
             });
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 10, verified: false },
@@ -157,9 +158,9 @@ suite('Ballerina Debug Adapter', () => {
 
             dc.on('output', (res) => {
                 if (res.body.output.indexOf("Running executable") > -1) {
-                    setTimeout(function () {
+                    setInterval(function () {
                         http.get('http://0.0.0.0:9091/hello/sayHello');
-                    }, 5000);
+                    }, 1000);
                 }
             });
             return await dc.hitBreakpoint(launchArgs, { path: program, line: 11, verified: false },
