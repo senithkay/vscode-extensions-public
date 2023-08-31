@@ -6,13 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export * from './components/ComponentCard/ComponentCard';
 export * from './components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget';
 export * from './components/AutoComplete/AutoComplete';
 export * from './components/ProgressIndicator/ProgressIndicator';
 export { Stepper } from './components/Stepper/Stepper';
 export * from './components/TextField/TextField';
 export * from './components/Commons/Colors';
+export * from './components/Icon/Icon';
+export * from './components/ComponentCard/ComponentCard';
+export * from './components/Typography/Typography';
 
 export * from './components/Commons/ErrorBanner';
 

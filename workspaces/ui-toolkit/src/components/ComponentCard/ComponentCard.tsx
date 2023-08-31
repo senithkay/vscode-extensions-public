@@ -1,101 +1,67 @@
-/*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
+import cn from "classnames";
 
 import styled from "@emotion/styled";
-import classNames from "classnames";
 
-export interface ComponentCardColors {
-    foreground?: string;
-    hoverBackground?: string;
-    hoverBorder?: string;
-}
-export interface ComponentCardProps {
-    isAllowed: boolean;
-    children: React.ReactNode;
-    onClick: () => void;
-    colors?: ComponentCardColors;
+interface CardContainerProps {
+	sx?: any;
 }
 
-const ComponentContainer = styled.div`
-  height: 50px;
-  cursor: pointer;
-  border-radius: 5px;
-  border: 1px solid ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  justify-content: left;
-  width: 200px;
-  margin-right: 16px;
-  margin-bottom: 16px;
-  transition: 0.3s;
-  color: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
-
-  .icon svg g {
-    fill: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};;
-  }
-
-  &.not-allowed {
-    cursor: not-allowed;
-  }
-
-  &:hover {
-    border: 1px solid ${(props: ComponentCardColors) => props.hoverBorder ? props.hoverBorder : 'var(--vscode-editorGroup.border)'};
-    background-color: ${(props: ComponentCardColors) => props.hoverBackground ? props.hoverBackground : 'var(--vscode-editorGroup.background)'};
-    color: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
-    .icon svg g {
-      fill: ${(props: ComponentCardColors) => props.foreground ? props.foreground : 'var(--vscode-editor-foreground)'};
-    }
-  }
-
-  .icon {
+const CardContainer = styled.div<CardContainerProps>`
+    // Flex Props
     display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-right: 10px;
-  }
-
-  .label {
+    gap: 10px;
+    // End Flex Props
+    // Sizing Props
+    width: 120px;
     padding: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .break {
-    flex: 1;
-  }
-
-  .title {
-    font-size: 16px;
-  }
-
-  .file {
-    display: flex;
-    flex-direction: row-reverse;
-  }
+    // End Sizing Props
+    // Border Props
+    border-radius: 3px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--vscode-panel-border);
+    cursor: pointer;
+    &:hover, &.active {
+        border-color: var(--vscode-focusBorder);
+    };
+	&.not-allowed {
+    	cursor: not-allowed;
+  	};
+	${(props: CardContainerProps) => props.sx};
 `;
 
+export interface ComponentCardProps {
+	id?: string; // Identifier for the component
+    tooltip?: string;
+    isSelected?: boolean;
+    disabled?: boolean;
+    sx?: any;
+    children?: React.ReactNode;
+    onClick?: (value: string) => void;
+}
+
 export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
-    const { isAllowed, children, onClick, colors } = props;
+    const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
+
+    const handleComponentClick = () => {
+        onClick(id);
+    };
 
     return (
-        <ComponentContainer
-            className={classNames("component", { 'not-allowed': !isAllowed })}
-            onClick={onClick}
-            {...colors}
-        >
+        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} onClick={handleComponentClick} title={tooltip}>
             {children}
-        </ComponentContainer>
-    )
+        </CardContainer>
+    );
 };
