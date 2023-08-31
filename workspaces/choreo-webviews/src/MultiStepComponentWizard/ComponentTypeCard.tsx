@@ -35,7 +35,7 @@ export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
     };
 
     return (
-        <ComponentCard id={value} isSelected={isSelected} onClick={setSelectedType} description={description}>
+        <ComponentCard id={value} isSelected={isSelected} onClick={setSelectedType} tooltip={description}>
             <Typography variant="h4">{label}</Typography>
         </ComponentCard>
     );

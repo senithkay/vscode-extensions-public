@@ -44,7 +44,7 @@ const CardContainer = styled.div<CardContainerProps>`
 
 export interface ComponentCardProps {
 	id?: string; // Identifier for the component
-    description?: string;
+    tooltip?: string;
     isSelected?: boolean;
     disabled?: boolean;
     sx?: any;
@@ -53,14 +53,14 @@ export interface ComponentCardProps {
 }
 
 export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
-    const { id, sx, description, isSelected, disabled, children, onClick } = props;
+    const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
 
     const handleComponentClick = () => {
         onClick(id);
     };
 
     return (
-        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} onClick={handleComponentClick} title={description}>
+        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} onClick={handleComponentClick} title={tooltip}>
             {children}
         </CardContainer>
     );
