@@ -27,7 +27,7 @@ describe('Swagger view UI Tests', () => {
     let workbench : Workbench;
     
     beforeEach(async () => {
-        VSBrowser.instance.waitForWorkbench();
+        await VSBrowser.instance.waitForWorkbench();
         const editorView = new EditorView();
         await editorView.closeAllEditors();
         
