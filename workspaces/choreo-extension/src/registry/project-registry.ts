@@ -247,15 +247,16 @@ export class ProjectRegistry {
 
         const files = readdirSync(componentPath);
         for (const file of files) {
+            const filePath = join(componentPath,file);
             if (file.endsWith('.bal')) {
-                return file;
+                return filePath;
             }
-            const stat = statSync(file);
+            const stat = statSync(filePath);
             if (stat.isDirectory()) {
-                const innerFiles = readdirSync(file);
+                const innerFiles = readdirSync(filePath);
                 for (const file of innerFiles) {
                     if (file.endsWith('.bal')) {
-                        return file;
+                        return join(filePath, file);
                     }
                 }
             }
@@ -263,22 +264,26 @@ export class ProjectRegistry {
     }
 
     getSourceFileOfComponent(component: Component, projectLocation?: string): string | undefined {
-        if (projectLocation) {
-            const componentPath = getComponentDirPath(component, projectLocation);
-            const repo = component.repository;
-            if (componentPath) {
-                if (component.displayType?.startsWith("byoc")) {
-                    const dockerFilePath = repo?.byocBuildConfig?.dockerfilePath;
-                    if (dockerFilePath && repo?.organizationApp && repo?.nameApp) {
-                        const dockerFileFullPath = join(dirname(projectLocation), "repos", repo?.organizationApp, repo?.nameApp, dockerFilePath);
-                        if (existsSync(dockerFileFullPath)) {
-                            return dockerFileFullPath;
+        try {
+            if (projectLocation) {
+                const componentPath = getComponentDirPath(component, projectLocation);
+                const repo = component.repository;
+                if (componentPath) {
+                    if (component.displayType?.startsWith("byoc")) {
+                        const dockerFilePath = repo?.byocBuildConfig?.dockerfilePath;
+                        if (dockerFilePath && repo?.organizationApp && repo?.nameApp) {
+                            const dockerFileFullPath = join(dirname(projectLocation), "repos", repo?.organizationApp, repo?.nameApp, dockerFilePath);
+                            if (existsSync(dockerFileFullPath)) {
+                                return dockerFileFullPath;
+                            }
                         }
+                    } else {
+                        return this.findStartingBalFileOfComponent(componentPath);
                     }
-                } else {
-                    return this.findStartingBalFileOfComponent(componentPath);
                 }
             }
+        } catch {
+            console.error("failed to find source for component", component);
         }
     }
 
