@@ -17,7 +17,7 @@ import {
     ActivityBar,
     BottomBarPanel,
 } from "vscode-extension-tester";
-import { DEFAULT_TIME_OUT } from "./constants";
+import { DEFAULT_TIME_OUT, VSCODE_ZOOM } from "./constants";
 import { fail } from "assert";
 
 export function wait(ms: number) {
@@ -168,6 +168,6 @@ export async function waitForBallerina() {
 export async function workbenchZoomOut(workbench, times) {
     for (let i = 1; i <= times; i++) {
         await workbench.executeCommand("View: Zoom Out");
-        await wait(2000); // This is a constant wait to apply zoom effect into the vscode
+        await wait(VSCODE_ZOOM); // This is a constant wait to apply zoom effect into the vscode
     }
 }

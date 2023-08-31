@@ -36,7 +36,7 @@ export class ResourceForm {
         await resourcePath.click();
         await resourcePath.sendKeys(path);
         // Wait for changes from LS
-        await wait(3000);
+        await wait(1000);
     }
 
     // Add a new query param
@@ -123,7 +123,7 @@ export class ResourceForm {
             // Find and click on the input element of the Autocomplete component
             const input = await responseTypeInput.findElement(By.className('MuiAutocomplete-input'));
             await input.sendKeys(type);
-            await wait(3000);
+            await wait(1000);
         }
 
         if (newType) {
