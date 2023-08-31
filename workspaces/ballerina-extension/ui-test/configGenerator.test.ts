@@ -89,7 +89,7 @@ describe('VSCode Config Generation UI Tests', () => {
         await infoNotification.click();
 
         // Check if the terminal is open
-        await driver.wait(until.elementIsVisible(new TerminalView()), 15000);
+        await driver.wait(until.elementIsVisible(new TerminalView()), DEFAULT_TIME_OUT);
         const terminal = await browser.driver.findElement(By.className('xterm'));
         expect(await terminal.isDisplayed()).to.be.true;
 
