@@ -19,7 +19,7 @@ describe('VSCode UI Tests', () => {
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_world.bal`);
-        await wait(4000);
+        await VSBrowser.instance.waitForWorkbench();
     });
 
     it('Test Title bar', async () => {

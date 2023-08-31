@@ -97,6 +97,7 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
                                 }}
                             >
                                 <IconButton
+                                    data-testid={viewType?.label}
                                     className={styles.controlButton}
                                     size='small'
                                     onClick={() => handleOnClick(viewType.type)}
