@@ -11,13 +11,7 @@
  *  associated services.
  */
 import React, { FC, useContext, useEffect, useMemo } from "react";
-import {
-    ChoreoLoginStatus,
-    ChoreoWorkspaceMetaData,
-    Organization,
-    Project,
-    UserInfo,
-} from "@wso2-enterprise/choreo-core";
+import { ChoreoLoginStatus, Organization, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
@@ -33,7 +27,6 @@ export interface IChoreoWebViewContext {
     selectedOrg?: Organization;
     currentProjectOrg?: Organization;
     isBalExtInstalled?: boolean;
-    workspaceMetaData?: ChoreoWorkspaceMetaData;
 }
 
 const defaultContext: IChoreoWebViewContext = {
@@ -69,7 +62,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         error: getChoreoWorkspaceError,
         isLoading: getChoreoWorkspaceLoading,
         isFetched: fetchedWorkspaceMetaData,
-        refetch: refetchWorkspaceMetaData
+        refetch: refetchWorkspaceMetaData,
     } = useQuery({
         queryKey: ["choreo_workspace_metadata"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoWorkspaceMetadata(),
@@ -158,7 +151,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         });
         rpcInstance.onSelectedOrgChanged(() => {
             refetchSelectedOrg();
-        })
+        });
         rpcInstance.onRefreshWorkspaceMetadata(() => {
             refetchWorkspaceMetaData();
         });
@@ -183,7 +176,6 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
                 currentProjectOrg,
                 selectedOrg,
                 isBalExtInstalled,
-                workspaceMetaData,
             }}
         >
             {children}

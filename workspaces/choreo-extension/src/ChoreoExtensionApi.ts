@@ -151,20 +151,21 @@ export class ChoreoExtensionApi {
 
     public async setSelectedOrg(org: Organization): Promise<void> {
         const user = ext.api.userInfo;
-        if(user?.organizations?.some(item => item.id === org.id)){
+        if (user?.organizations?.some((item) => item.id === org.id)) {
             if (this.isChoreoProject()) {
                 const choreoProject = await this.getChoreoProject();
                 if (choreoProject?.orgId?.toString() !== org?.id?.toString()) {
+                    // If user is already in a choreo project & trying to swtich to a different one
                     const answer = await window.showInformationMessage(
                         `In order to switch to ${org.name}, you need to either open a new window or close the currently opened workspace and continue in the current window`,
                         { modal: true },
-                        'Current Window',
-                        'New Window',
+                        "Current Window",
+                        "New Window"
                     );
                     if (answer === "Current Window") {
                         await ext.context.globalState.update(selectedGlobalOrgKey, org);
                         await commands.executeCommand("workbench.action.closeFolder");
-                    }else if (answer === "New Window") {
+                    } else if (answer === "New Window") {
                         await ext.context.globalState.update(selectedGlobalOrgKey, org);
                         await commands.executeCommand("workbench.action.newWindow");
                     }
@@ -173,12 +174,12 @@ export class ChoreoExtensionApi {
                     this.refreshOrganization(org);
                 }
             } else {
+                // If user is not within a choreo project
                 await ext.context.globalState.update(selectedGlobalOrgKey, org);
                 this.refreshOrganization(org);
             }
         }
     }
-
 
     public setChoreoInstallOrg(selectedOrgId: number) {
         this._choreoInstallationOrgId = selectedOrgId;
