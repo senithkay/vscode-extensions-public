@@ -22,7 +22,7 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: watch-ballerina"
         },
         {
             "name": "Ballerina Extension Tests",
@@ -116,6 +116,32 @@
 			],
 			"console": "integratedTerminal",
 			"preLaunchTask": "compile:choreo-tests"
+		},
+        {
+			"name": "MI Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/mi/mi-extension"
+			],
+			"outFiles": [
+				"${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js"
+			],
+			"preLaunchTask": "npm: watch-mi"
+		},
+		{
+			"name": "MI Extension Tests",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/mi/mi-extension",
+				"--extensionTestsPath=${workspaceFolder}/workspaces/mi/mi-extension/out/test/suite/index"
+			],
+			"outFiles": [
+				"${workspaceFolder}/workspaces/mi/mi-extension/out/**/*.js",
+				"${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js"
+			],
+			"preLaunchTask": "watch-mi-tests"
 		}
     ]
 }

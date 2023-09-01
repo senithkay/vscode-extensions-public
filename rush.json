@@ -242,7 +242,11 @@
     /**
      * The list of shell commands to run after the Rush build command finishes
      */
-    "postRushBuild": ["cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot"]
+    "postRushBuild": [
+      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot"
+    ]
   },
   /**
    * Installation variants allow you to maintain a parallel set of configuration files that can be
@@ -543,6 +547,10 @@
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "integration-studio",
+      "projectFolder": "workspaces/mi/mi-extension"
     }
   ]
 }

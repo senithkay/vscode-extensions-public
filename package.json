@@ -27,6 +27,9 @@
         "build:choreoExtention": "rush build -o choreo",
         "build:ballerinExtension": "rush build -o ballerina",
         "build": "rush build",
+        "build:ballerina": "rush build --to ballerina",
+        "build:choreo": "rush build --to choreo",
+        "build:mi": "rush build --to integration-studio",
         "setup-e2e-test-debug": "workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver",
         "ui-toolkit-stories": "npm run --prefix ./workspaces/ui-toolkit serve-storybook"
     }

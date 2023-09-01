@@ -630,7 +630,7 @@
     "scripts": {
         "clean": "del-cli ./dist ./out ./ballerina-*.vsix ./coverage ./.nyc_output",
         "compile": "webpack --mode production",
-        "watch": "webpack --mode none --watch",
+        "watch-ballerina": "webpack --mode none --watch",
         "test-compile": "tsc -p ./",
         "test": "pnpm run test-compile && node ./out/test/runTest.js",
         "e2e-test-setup": "npx extest get-vscode -c 1.81.1 && npx extest get-chromedriver -c 1.81.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
