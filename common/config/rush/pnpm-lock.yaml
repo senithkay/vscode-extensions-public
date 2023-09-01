@@ -2900,7 +2900,7 @@ importers:
       webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
       webpack-dev-server: 4.15.1_w3wu7rcwmvifygnqiqkxwjppse
 
-  ../../workspaces/mi/extension:
+  ../../workspaces/mi/mi-extension:
     specifiers:
       '@types/mocha': ^10.0.1
       '@types/node': 16.x
@@ -13240,7 +13240,7 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.4
-      '@types/node': 20.4.10
+      '@types/node': 20.5.7
       '@types/responselike': 1.0.0
     dev: false
 
@@ -13456,13 +13456,13 @@ packages:
   /@types/jsonfile/6.1.1:
     resolution: {integrity: sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==}
     dependencies:
-      '@types/node': 20.4.10
+      '@types/node': 20.5.7
     dev: true
 
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 20.4.10
+      '@types/node': 20.5.7
     dev: false
 
   /@types/lodash.camelcase/4.3.7:
@@ -13537,6 +13537,7 @@ packages:
 
   /@types/node/20.4.10:
     resolution: {integrity: sha512-vwzFiiy8Rn6E0MtA13/Cxxgpan/N6UeNYR9oUu6kuJWxu6zCk98trcDp8CBhbtaeuq9SykCmXkFr2lWLoPcvLg==}
+    dev: true
 
   /@types/node/20.5.7:
     resolution: {integrity: sha512-dP7f3LdZIysZnmvP3ANJYTSwg+wLLl8p7RqniVlV7j+oXSXAbt9h0WIBFmJy5inWZoX9wZN6eXx+YXd9Rh3RBA==}
@@ -13658,7 +13659,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 20.4.10
+      '@types/node': 20.5.7
     dev: false
 
   /@types/retry/0.12.0:
