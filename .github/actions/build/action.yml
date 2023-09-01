@@ -71,7 +71,7 @@ runs:
       shell: bash
       if: ${{ inputs.ballerina == 'true' }}
       run: |
-        cd workspaces/ballerina-extension
+        cd workspaces/ballerina/ballerina-extension
         currentVersion=$(node -p "require('./package.json').version")
         if [[ ${#currentVersion} -ge 8 ]]; then
           currentVersionWOPreId=${currentVersion%-*}
@@ -85,7 +85,7 @@ runs:
       shell: bash
       if: ${{ inputs.choreo == 'true' }}
       run: |
-        cd workspaces/choreo-extension
+        cd workspaces/choreo/choreo-extension
         currentVersion=$(node -p "require('./package.json').version")
         if [[ ${#currentVersion} -ge 8 ]]; then
           currentVersionWOPreId=${currentVersion%-*}
@@ -100,14 +100,14 @@ runs:
       shell: bash
       if: ${{ inputs.version != 'N/A' && inputs.ballerina == 'true' }}
       run: |
-        cd workspaces/ballerina-extension
+        cd workspaces/ballerina/ballerina-extension
         npm version ${{ inputs.version }} --preid beta --no-git-tag-version
 
     - name: Update choreo extension versions
       shell: bash
       if: ${{ inputs.version != 'N/A' && inputs.choreo == 'true' }}
       run: |
-        cd workspaces/choreo-extension
+        cd workspaces/choreo/choreo-extension
         npm version ${{ inputs.version }} --preid beta --no-git-tag-version
 
     - name: Get timestamp
@@ -121,7 +121,7 @@ runs:
       shell: bash
       if: ${{ inputs.isPreRelease == 'true' && inputs.ballerina == 'true' }}
       run: |
-        cd workspaces/ballerina-extension
+        cd workspaces/ballerina/ballerina-extension
         currentVersion=$(node -p "require('./package.json').version")
         newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
         echo $newVersion
@@ -131,7 +131,7 @@ runs:
       shell: bash
       if: ${{ inputs.isPreRelease == 'true' && inputs.choreo == 'true' }}
       run: |
-        cd workspaces/choreo-extension
+        cd workspaces/choreo/choreo-extension
         currentVersion=$(node -p "require('./package.json').version")
         newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
         echo $newVersion
@@ -142,7 +142,7 @@ runs:
       if: ${{ inputs.packages == 'true' }}
       run: |
         cd workspaces
-        workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "choreo-core" "project-design-diagrams")
+        workspaces=("ballerina/ballerina-languageclient" "configurable-editor" "ballerina/data-mapper" "ballerina/expression-editor" "ballerina/lang-service" "ballerina/low-code-diagram" "ballerina/low-code-distribution" "ballerina/low-code-editor" "ballerina/low-code-editor-commons" "ballerina/low-code-ui-components" "ballerina/statement-editor" "ballerina/syntax-tree" "choreo/choreo-core" "ballerina/project-design-diagrams")
         for workspace in "${workspaces[@]}"; do
           cd $workspace
           pnpm version ${{ inputs.version }} --no-git-tag-version
