@@ -48,7 +48,11 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                     {(() => {
                         switch (type) {
                             case "ChoreoArchitectureView":
-                                return <ChoreoArchitectureView projectId={projectId} orgName={orgName} />;
+                                return (
+                                    <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>
+                                        <ChoreoArchitectureView projectId={projectId} orgName={orgName} />
+                                    </ChoreoWebViewContextProvider>
+                                );
                             case "ProjectCreateForm":
                                 return (
                                     <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>

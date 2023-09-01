@@ -16,6 +16,7 @@ import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 import { FREE_COMPONENT_LIMIT } from "../../auth/config";
 import { choreoEnvConfig } from "../../auth/auth";
+import { Organization } from "@wso2-enterprise/choreo-core";
 
 export class ChoreoArchitectureView {
 	public static currentPanel: ChoreoArchitectureView | undefined;
@@ -33,10 +34,10 @@ export class ChoreoArchitectureView {
 		}
 	}
 
-	public static render(extensionUri: vscode.Uri, orgName: string, projectId: string) {
+	public static render(extensionUri: vscode.Uri, org: Organization, projectId: string) {
 		if (ChoreoArchitectureView.currentPanel) {
 			const panel = ChoreoArchitectureView.currentPanel._panel;
-			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
+			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, org.name, projectId);
 			panel.reveal(vscode.ViewColumn.One);
 		} else {
 			const panel = vscode.window.createWebviewPanel(
@@ -45,7 +46,7 @@ export class ChoreoArchitectureView {
 				vscode.ViewColumn.One,
 				{ enableScripts: true, retainContextWhenHidden: true }
 			);
-			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
+			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, org.name, projectId);
 		}
 	}
 

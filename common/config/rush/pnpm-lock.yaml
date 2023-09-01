@@ -304,7 +304,7 @@ importers:
       webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
       webpack-dev-server: 4.15.1_w3wu7rcwmvifygnqiqkxwjppse
 
-  ../../workspaces/cell-diagram:
+  ../../workspaces/choreo/cell-diagram:
     specifiers:
       '@babel/core': ^7.20.12
       '@emotion/react': ^11.9.3

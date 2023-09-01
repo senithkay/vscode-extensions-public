@@ -86,7 +86,7 @@ import {
     RefreshWorkspaceNotification,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
 
@@ -96,7 +96,6 @@ import * as vscode from 'vscode';
 import { cloneProject, askProjectDirPath } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
-import { executeWithTaskRetryPrompt } from "../../../retry";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
@@ -503,6 +502,10 @@ ext.api.onRefreshWorkspaceMetadata(() => {
 
     // Register RPC handlers for the Choreo Project Manager
     registerChoreoProjectManagerRPCHandlers(messenger, manager);
+
+    // Register RPC handlers for the Choreo Cell View
+    registerChoreoCellViewRPCHandlers(messenger, ext.clients.cellViewClient);
+
 }
 
 export class WebViewPanelRpc {

@@ -10,11 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./project";
-export * from "./auth";
-export * from "./http-client";
-export * from "./org";
-export * from "./subscription";
-export * from "./componentManagement";
-export * from "./userManagement";
-export * from "./cellView";
+export * from "./cell-view-client";
+export * from "./types";
+export * from "./rpc";

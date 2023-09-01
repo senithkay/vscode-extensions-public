@@ -11,12 +11,10 @@
  *  associated services.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
-import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { Project} from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
-import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 const WizardContainer = styled.div`
     width: 100vw;
@@ -30,24 +28,41 @@ export interface ArchitectureViewProps {
 
 export function ChoreoArchitectureView(props: ArchitectureViewProps) {
     const { orgName, projectId } = props;
-    const { currentProjectOrg } = useChoreoWebViewContext();
 
-    const getComponentModel = async (): Promise<GetComponentModelResponse> => {
-        if (projectId && orgName) {
-            const response: GetComponentModelResponse = await 
-                ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, currentProjectOrg?.id);
-            return response;
+    const getProjectModel = async (): Promise<Project> => {
+        if (orgName && projectId) {
+            const org = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
+            const projectModel =
+                await ChoreoWebViewAPI.getInstance().getChoreoCellView().getProjectModel(org, projectId);
+            return projectModel;
         }
         throw new Error("Error while loading project resources.");
     }
 
     return (
         <WizardContainer>
-            <DesignDiagram
-                isEditable={false}
-                isChoreoProject={true}
-                getComponentModel={getComponentModel}
-            />
+            <CellDiagram getProjectModel={getProjectModel}/>
         </WizardContainer>
+    );
+}
+
+export interface CellViewProps {
+    getProjectModel: () => Promise<Project>;
+}
+
+function CellDiagram(props: CellViewProps) {
+    const { getProjectModel } = props;
+    const [projectModel, setProjectModel] = React.useState<Project>();
+
+    useEffect(() => {
+        getProjectModel().then((pm) => {
+            setProjectModel(pm);
+        });
+    }, []);
+
+    return (
+        <div style={{ height: "100vh", width: "100vw" }}>
+            <pre>{JSON.stringify(projectModel, null, 2)}</pre>
+        </div>
     );
 }

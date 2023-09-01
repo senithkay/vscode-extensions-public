@@ -10,11 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./project";
-export * from "./auth";
-export * from "./http-client";
-export * from "./org";
-export * from "./subscription";
-export * from "./componentManagement";
-export * from "./userManagement";
-export * from "./cellView";
+import { Messenger } from "vscode-messenger";
+import { GetProjectModelRequest } from "./types";
+import { IChoreoCellViewClient } from "../types";
+
+export function registerChoreoCellViewRPCHandlers(messenger: Messenger, cellViewClient: IChoreoCellViewClient ) {
+   messenger.onRequest(GetProjectModelRequest, (params) => cellViewClient.getProjectModel(params.org, params.projectId));
+}
