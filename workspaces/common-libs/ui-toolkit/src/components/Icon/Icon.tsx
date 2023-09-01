@@ -18,19 +18,20 @@ interface IconContainerProps {
 const IconContainer = styled.div<IconContainerProps>`
     height: 16px;
     width: 14px;
+    cursor: pointer;
     ${(props: IconContainerProps) => props.sx};
 `;
 
 export interface IconProps {
 	name: string; // Identifier for the icon
     sx?: any;
-    onClick?: (value: string) => void;
+    onClick?: () => void;
 }
 
 export const Icon: React.FC<IconProps> = (props: IconProps) => {
     const { name, sx, onClick } = props;
     const handleComponentClick = () => {
-        onClick("");
+        onClick();
     }
     const SpecificIcon = Icons[name as keyof typeof Icons];
     return (
