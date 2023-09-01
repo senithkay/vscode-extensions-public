@@ -1,4 +1,0 @@
-
-function getGreetings() returns string? {
-
-}
