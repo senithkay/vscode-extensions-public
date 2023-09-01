@@ -42,7 +42,7 @@ export const OrganizationInfo = () => {
                 <OrgLabel>Organization:</OrgLabel> {selectedOrg?.name}
             </div>
             <VSCodeButton appearance="icon" title="Change Organization" onClick={changeOrg}>
-                <Codicon name="list-selection" />
+                <Codicon name="arrow-swap" />
             </VSCodeButton>
         </OrgContainer>
     );

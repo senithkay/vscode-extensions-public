@@ -41,6 +41,7 @@ export async function showSwitchProjectQuickPick(org: Organization) {
     quickPickInstance.busy = true;
     quickPickInstance.placeholder = `Loading projects in '${org.name}' organization...`;
     quickPickInstance.show();
+    quickPickInstance.title = "Open Project";
 
     const isLoggedIn = await ext.api.waitForLogin();
     // show a message if user is not logged in
@@ -129,6 +130,7 @@ const onDidAcceptProjectList = async (
 async function showOrgChangeQuickPick() {
     const quickPickInstance = vscode.window.createQuickPick();
     quickPickInstance.busy = true;
+    quickPickInstance.title = "Select Organization";
     quickPickInstance.placeholder = 'Loading organizations...';
     quickPickInstance.show();
 

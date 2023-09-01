@@ -39,3 +39,5 @@ export const choreoAccountTreeId = 'choreo-account';
 
 // state keys
 export const USER_INFO_KEY = 'userInfo';
+export const SELECTED_GLOBAL_ORG_KEY = "selected-global-org";
+export const OPEN_CHOREO_ACTIVITY = "open-choreo-activity";
