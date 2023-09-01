@@ -1,2 +1,0 @@
-function sampleFunction() returns error? {
-}

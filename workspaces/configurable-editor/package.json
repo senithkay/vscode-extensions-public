@@ -25,7 +25,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "test": "react-scripts test --watchAll=false",
-    "postbuild": "copyfiles -f build/umd/ConfigEditor.js ../ballerina-extension/resources/jslibs"
+    "postbuild": "copyfiles -f build/umd/ConfigEditor.js ../ballerina/ballerina-extension/resources/jslibs"
   },
   "dependencies": {
     "@material-ui/core": "^4.12.3",
