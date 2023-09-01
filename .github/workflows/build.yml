@@ -37,6 +37,7 @@ jobs:
     outputs:
       runBalExtTests: ${{ steps.testMatrix.outputs.runBalExtTests }}
       runChoreoExtTests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}
+      runMIExtTests: ${{ steps.testMatrix.outputs.runMIExtTests }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -61,22 +62,22 @@ jobs:
             # Get list of all changed files in the PR
             CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
 
-            if [[ "${CHANGED_DIRS[@]}" =~ "ballerina-languageclient" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "expression-editor" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "lang-service" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "low-code-editor-commons" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "low-code-ui-components" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "statement-editor" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "syntax-tree" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "ballerina-extension" ]]; then
+            # Ballerina ext
+            if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]] ||
+            [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
               echo "runBalExtTests=true" >> $GITHUB_OUTPUT
             fi 
 
-            if [[ "${CHANGED_DIRS[@]}" =~ "choreo-client" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-core" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-extension" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-webviews" ]]; then
+            # Choreo ext
+            if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]] ||
+            [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
               echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+            fi
+
+            # MI ext
+            if [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]] ||
+            [[ "${CHANGED_DIRS[@]}" =~ "mi" ]] ||; then
+              echo "runMIExtTests=true" >> $GITHUB_OUTPUT
             fi
           fi  
 
@@ -258,3 +259,33 @@ jobs:
           path: workspaces/choreo/choreo-extension/test-resources/screenshots/
           name: Choreo-e2e-test-screenshots-${{ github.run_attempt }}
         if: failure()
+
+  ExtTest_MI:
+    name: Run MI extension tests
+    needs: Build_Stage
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests || github.base_ref == 'main' }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - name: Run Test
+        run: |
+          cd workspaces/mi/mi-extension
+          xvfb-run --auto-servernum pnpm run test
