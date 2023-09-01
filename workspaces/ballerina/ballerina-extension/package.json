@@ -649,7 +649,7 @@
     "dependencies": {
         "@types/lodash": "^4.14.189",
         "@vscode/test-electron": "^2.2.0",
-        "@vscode/vsce": "^2.17.0",
+        "@vscode/vsce": "~2.21.0",
         "@wso2-enterprise/ballerina-languageclient": "workspace:*",
         "@wso2-enterprise/ballerina-low-code-editor": "workspace:*",
         "@wso2-enterprise/ballerina-low-code-editor-distribution": "workspace:*",
