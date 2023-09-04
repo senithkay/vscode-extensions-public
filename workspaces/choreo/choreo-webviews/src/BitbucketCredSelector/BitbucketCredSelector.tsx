@@ -18,7 +18,7 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { ProgressIndicator } from "../ActivityBar/Components/ProgressIndicator";
 
 const BranchListContainer = styled.div`
     display: flex;
@@ -40,13 +40,13 @@ const CredSelectorActions = styled.div`
 
 export interface BitbucketCredSelectorProps {
     org: Organization;
-    selectedCred: FilteredCredentialData;
+    selectedCredID: string;
     onCredSelect: (cred: FilteredCredentialData) => void;
 }
 
 export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
 
-    const { org, selectedCred, onCredSelect } = props;
+    const { org, selectedCredID, onCredSelect } = props;
 
     const { isLoading: isFetchingCredentials, data: credentials, refetch, isRefetching } = useQuery({
         queryKey: ['git-bitbucket-credentials', org.uuid],
@@ -72,6 +72,8 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
             return credentialNameArr;
         }
     });
+
+    const selectedCredName = credentials.find(cred => cred.id === selectedCredID).name;
 
     const handleBitbucketDropdownChange = (credName: string) => {
         let credId = '';
@@ -109,7 +111,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                         Select Credential
                         <VSCodeDropdown
                             id="cred-drop-down"
-                            value={selectedCred.name}
+                            value={selectedCredName}
                             onChange={(e: any) => {
                                 handleBitbucketDropdownChange(e.target.value)
                             }}>
@@ -142,7 +144,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                     </BranchListContainer>
                 </>)
             }
-            {showProgressBar && <ProgressIndicator id="bitbucket-credential-progress"/>}
+            {showProgressBar && <ProgressIndicator />}
         </>
     );
 }
