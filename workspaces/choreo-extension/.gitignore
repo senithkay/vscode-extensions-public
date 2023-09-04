@@ -1,7 +1,0 @@
-.nyc_output
-resources/jslibs/main.js
-!src/test/lib
-.vscode-test
-test-resources
-src/test/data/test_vscode
-.env

@@ -1,0 +1,12 @@
+# Configuration file for "configServiceProject"
+    # How to use see:
+    # https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax
+    
+    bar = 0.0	# Type of NUMBER
+    
+    url = ""	# Type of STRING
+    
+    # For more information refer https://lib.ballerina.io/ballerina/http/
+    [authConfig]	# Type of OBJECT
+
+isAdmin = false	# Type of BOOLEAN    

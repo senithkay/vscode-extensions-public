@@ -4,7 +4,7 @@
         {
             "type": "npm",
             "script": "watch",
-			"path": "workspaces/ballerina-extension",
+            "path": "workspaces/ballerina/ballerina-extension",
             "problemMatcher": {
                 "owner": "typescript",
                 "source": "ts",
@@ -45,7 +45,7 @@
         {
             "type": "npm",
             "script": "watch-choreo",
-			"path": "workspaces/choreo-extension",
+            "path": "workspaces/choreo/choreo-extension",
             "problemMatcher": {
                 "owner": "typescript",
                 "source": "ts",
@@ -82,6 +82,18 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "compile:ballerina-tests",
+            "type": "npm",
+            "path": "workspaces/ballerina/ballerina-extension",
+            "script": "test-compile",
+        },
+        {
+            "label": "compile:choreo-tests",
+            "type": "npm",
+            "path": "workspaces/choreo/choreo-extension",
+            "script": "compile-tests",
         }
     ]
 }
