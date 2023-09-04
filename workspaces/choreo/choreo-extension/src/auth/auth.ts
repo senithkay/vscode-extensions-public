@@ -74,7 +74,7 @@ export async function activateClients(): Promise<void> {
 
     const componentManagementClient = new ComponentManagementClient(readonlyTokenStore, choreoEnvConfig.getComponentManagementUrl());
 
-    const cellViewClient = new ChoreoCellViewClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI());
+    const cellViewClient = new ChoreoCellViewClient(projectClient);
 
     ext.clients = {
         githubAppClient,

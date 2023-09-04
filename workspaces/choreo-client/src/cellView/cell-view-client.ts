@@ -29,7 +29,6 @@ import {
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
-import { IReadOnlyTokenStorage } from "../auth";
 import { ChoreoProjectClient } from "../project";
 import { dirname, join } from "path";
 import * as yaml from 'js-yaml';
@@ -38,7 +37,7 @@ const MODEL_VERSION = "0.4.0";
 
 export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {
+    constructor(private _projectClient: ChoreoProjectClient) {
     }
 
     async getProjectModel(organization: Organization, projectId: string) {
@@ -48,9 +47,9 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             throw new Error("Workspace file not found");
         }
 
-        const projectClient = new ChoreoProjectClient(this._tokenStore, this._baseURL);
-        const projects = await projectClient.getProjects({orgId: organization.id, orgHandle: organization.handle});
-        const project = projects.find(project => project.id === projectId);
+        const project = (await this._projectClient.getProjects(
+            {orgId: organization.id, orgHandle: organization.handle}
+        )).find(project => project.id === projectId);
 
         if (!project) {
             throw new Error(`Project with id ${projectId} not found under organization ${organization.name}`);
@@ -62,7 +61,9 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
         if (workspaceFileLocation) {
             const { id: orgId, handle: orgHandle, uuid: orgUuid, name: orgName  } = organization;
 
-            const choreoComponents = await projectClient.getComponents({projId: projectId, orgId, orgHandle, orgUuid});
+            const choreoComponents = await this._projectClient.getComponents(
+                {projId: projectId, orgId, orgHandle, orgUuid}
+            );
             const nonBalComponents = choreoComponents?.filter((item) => item.displayType?.startsWith("byoc"));
 
             nonBalComponents?.forEach((component) => {
