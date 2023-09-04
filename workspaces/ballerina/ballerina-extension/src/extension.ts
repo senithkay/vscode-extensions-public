@@ -28,7 +28,7 @@ import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
-import { debug, log } from './utils';
+import { debug, log, resolveModules } from './utils';
 import { activateUriHandlers } from './uri-handlers';
 
 let langClient: ExtendedLangClient;
@@ -116,7 +116,7 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
     }).catch((e) => {
         log("Failed to activate Ballerina extension. " + (e.message ? e.message : e));
         const cmds: any[] = ballerinaExtInstance.extension.packageJSON.contributes.commands;
-        
+
         if (e.message && e.message.includes('Error when checking ballerina version.')) {
             ballerinaExtInstance.showMessageInstallBallerina();
             ballerinaExtInstance.showMissingBallerinaErrInStatusBar();
@@ -147,6 +147,8 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
                 });
             });
         }
+    }).finally(() => {
+        resolveMissingDependencies();
     });
     return ballerinaExtInstance;
 }
@@ -158,4 +160,13 @@ export function deactivate(): Thenable<void> | undefined {
     }
     ballerinaExtInstance.telemetryReporter.dispose();
     return langClient.stop();
+}
+
+function resolveMissingDependencies() {
+    const activeEditor = window.activeTextEditor;
+    if (activeEditor) {
+        const documentUri = activeEditor.document.uri;
+        const filePath = documentUri.fsPath;
+        resolveModules(langClient, filePath);
+    }
 }

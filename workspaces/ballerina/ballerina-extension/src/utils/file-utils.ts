@@ -6,12 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands } from "vscode";
+import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment } from "vscode";
+import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
 import axios from "axios";
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { FILE_DOWNLOAD_PATH, BallerinaExtension } from "../core";
+import { FILE_DOWNLOAD_PATH, BallerinaExtension, ExtendedLangClient } from "../core";
 import {
     CMP_OPEN_VSCODE_URL,
     TM_EVENT_OPEN_FILE_CANCELED,
@@ -25,7 +26,6 @@ import {
     TM_EVENT_OPEN_REPO_SAME_FOLDER,
     sendTelemetryEvent
 } from "../telemetry";
-
 interface ProgressMessage {
     message: string;
     increment?: number;
@@ -35,6 +35,7 @@ const allowedOrgList = ['ballerina-platform', 'ballerina-guides', 'ballerinax', 
 const gitDomain = "github.com";
 const gistOwner = "ballerina-github-bot";
 const tempStartingFile = "tempStartingFile";
+const ballerinaToml = "Ballerina.toml";
 
 export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, repoFileUrl?: string) {
 
@@ -223,7 +224,6 @@ async function handleDownloadFile(rawFileLink: string, defaultDownloadsPath: str
     progress.report({ message: "Download finished" });
 }
 
-
 async function openFileInVSCode(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
     const uri = Uri.file(filePath);
     const message = `Would you like to open the downloaded file?`;
@@ -299,7 +299,7 @@ function writeClonedFilePathToTemp(ballerinaExtInstance: BallerinaExtension, sel
 
 // Function to open the stored cloned file path from the global state
 export async function readStoredClonedFilePathFromTemp(ballerinaExtInstance: BallerinaExtension) {
-    const pathValue = ballerinaExtInstance.context.globalState.get(tempStartingFile);
+    const pathValue = ballerinaExtInstance.context.globalState.get(tempStartingFile) as string;
     if (pathValue) {
         try {
             // Open the specific file
@@ -322,19 +322,6 @@ function folderExists(folderPath) {
     }
 }
 
-// Function to find the next available folder name with the number
-function findTheRepoFolderName(baseFolderName, basePath) {
-    let folderName = baseFolderName;
-    let count = 1;
-
-    while (folderExists(path.join(basePath, folderName))) {
-        folderName = `${baseFolderName}-${count}`;
-        count++;
-    }
-
-    return folderName;
-}
-
 // Function to extract the organization/username
 function getGithubUsername(url) {
     const urlParts = url.split('/');
@@ -351,4 +338,60 @@ function getGitHubRawFileUrl(githubFileUrl) {
 
     const rawFileUrl = `https://raw.githubusercontent.com/${username}/${repository}/${branch}/${filePath}`;
     return rawFileUrl;
+}
+
+export async function resolveModules(langClient: ExtendedLangClient, pathValue) {
+    const isBallerinProject = findBallerinaTomlFile(pathValue);
+    if (isBallerinProject) {
+        // Create a status bar item for the build notification
+        const buildStatusItem = window.createStatusBarItem(StatusBarAlignment.Right, 110);
+        buildStatusItem.text = "$(sync~spin) Resolving dependencies...";
+        buildStatusItem.tooltip = "Pulling all the missing ballerina modules.";
+        const uriString = Uri.file(pathValue).toString();
+        buildStatusItem.show();
+        // Show the progress bar.
+        await window.withProgress({
+            location: ProgressLocation.Notification,
+            title: "Resolving dependencies...",
+            cancellable: false
+        }, async (progress) => {
+            progress.report({ increment: 20 });
+            // Resolve missing dependencies.
+            const dependenciesResponse = await langClient.resolveMissingDependencies({
+                documentIdentifier: {
+                    uri: uriString
+                }
+            });
+            const response = dependenciesResponse as GetSyntaxTreeResponse;
+            if (response.parseSuccess) {
+                progress.report({ increment: 50 });
+                // Rebuild the file to update the LS.
+                await langClient.didChange({
+                    contentChanges: [{ text: null }],
+                    textDocument: {
+                        uri: uriString,
+                        version: 1
+                    }
+                });
+                progress.report({ increment: 100 });
+            }
+            buildStatusItem.hide();
+        })
+        buildStatusItem.dispose();
+    }
+}
+
+function findBallerinaTomlFile(filePath) {
+    let currentFolderPath = path.dirname(filePath);
+
+    while (currentFolderPath !== '/') {
+        const tomlFilePath = path.join(currentFolderPath, ballerinaToml);
+        if (fs.existsSync(tomlFilePath)) {
+            return currentFolderPath;
+        }
+
+        currentFolderPath = path.dirname(currentFolderPath);
+    }
+
+    return null; // Ballerina.toml not found in any parent folder
 }
