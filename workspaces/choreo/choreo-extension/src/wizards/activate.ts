@@ -112,9 +112,9 @@ export function activateWizards() {
     });
 
     // Register Cell Diagram Wizard
-    const choreoArchitectureView = commands.registerCommand(choreoCellViewCmdId, openCellView);
+    const choreoCellView = commands.registerCommand(choreoCellViewCmdId, openCellView);
 
-    ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd, choreoArchitectureView);
+    ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd, choreoCellView);
 
     commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
     commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
