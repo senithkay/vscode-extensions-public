@@ -19,7 +19,6 @@ import {
     ChoreoWorkspaceMetaData,
     Component,
     ComponentDisplayType,
-    Connection,
     Endpoint,
     IProjectManager,
     Organization,
@@ -31,8 +30,7 @@ import {
 import {
     CMResourceFunction,
     CMService,
-    ComponentModel,
-    Project as ProjectModel
+    ComponentModel
 } from "@wso2-enterprise/ballerina-languageclient";
 import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
@@ -45,12 +43,6 @@ import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile,
 import { AxiosResponse } from 'axios';
 import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
-import {
-    getConnectionModels,
-    getDefaultComponentModel,
-    getDefaultProjectModel,
-    getServiceModels
-} from "./extensionApiUtils";
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -520,61 +512,7 @@ export class ChoreoExtensionApi {
                 });
             }
         }
-
-        const projectModel = await this.getProjectModel();
-        if (projectModel) {
-            console.log("Found project model");
-        }
-
         return nonBalMap;
-    };
-
-    public async getProjectModel(): Promise<ProjectModel | undefined> {
-        const choreoProject = await this.getChoreoProject();
-
-        if (!choreoProject) {
-            return undefined;
-        }
-
-        const { id: projectID, orgId: orgIdStr, name: projectName } = choreoProject;
-        const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(projectID);
-        const projectModel = getDefaultProjectModel(projectID, projectName);
-
-        if (workspaceFileLocation) {
-            const organization = this.getOrgById(parseInt(orgIdStr));
-            if (!organization) {
-                throw new Error(`Organization with id ${orgIdStr} not found under user ${this.userInfo?.displayName}`);
-            }
-
-            const { id: orgId, handle: orgHandle, uuid: orgUuid, name: orgName  } = organization;
-            const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(projectID,
-                orgId, orgHandle, orgUuid);
-            const nonBalComponents = choreoComponents?.filter((item) => item.displayType?.startsWith("byoc"));
-
-            nonBalComponents?.forEach((component) => {
-
-                const defaultComponentModel = getDefaultComponentModel(component, organization);
-
-                const componentPath = getComponentDirPath(component, workspaceFileLocation);
-
-                if (component.displayType === ComponentDisplayType.ByocService && componentPath) {
-                    const yamlPath = path.join(componentPath, ".choreo", "component.yaml");
-
-                    if (existsSync(yamlPath)) {
-                        const endpointsContent = yaml.load(readFileSync(yamlPath, "utf8"));
-                        const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
-                        const connections: Connection[] = (endpointsContent as any).connections;
-
-                        defaultComponentModel.services = getServiceModels(endpoints, orgName, projectName,
-                            component.name, componentPath, yamlPath);
-                        defaultComponentModel.connections = getConnectionModels(connections);
-                    }
-                }
-                projectModel.components.push(defaultComponentModel);
-            });
-        }
-
-        return projectModel;
     };
 
     public async deleteComponent(projectId: string, componentPath: string) {
