@@ -164,7 +164,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
     );
 
     return (
-        <div className={classes.root}>
+        <div className={classes.root} data-testid="service-design-view">
             {serviceST && (
                 <>
                     <div className={classes.serviceTitle}>
@@ -177,7 +177,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                             </Typography>
                         </div>
                         <div className={classes.flexRow}>
-                            <div className={classes.resourceAdd} onClick={handlePlusClick} >
+                            <div data-testid="add-resource-btn" className={classes.resourceAdd} onClick={handlePlusClick} >
                                 <AddIcon />
                                 <div>Resource</div>
                             </div>

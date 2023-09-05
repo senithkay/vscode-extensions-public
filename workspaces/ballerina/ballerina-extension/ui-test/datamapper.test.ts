@@ -16,7 +16,8 @@ import {
     switchToIFrame,
     waitForElementToDisappear,
     waitUntil,
-    waitForMultipleElementsLocated
+    waitForMultipleElementsLocated,
+    waitForBallerina
 } from './util';
 import { EXPLORER_ACTIVITY } from "./constants";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
@@ -45,6 +46,7 @@ describe.skip('VSCode Data mapper Webview UI Tests', () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        await waitForBallerina();
         await clickOnActivity(EXPLORER_ACTIVITY);
 
         ORIGINAL_CONTENT = await new TextEditor().getText();
