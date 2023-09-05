@@ -14,7 +14,6 @@ import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
 import {
     createNewComponentCmdId,
     createNewProjectCmdId,
-    choreoCellViewCmdId,
     cloneAllComponentsCmdId,
     cloneRepoToCurrentProjectWorkspaceCmdId,
     deleteProjectCmdId
@@ -25,7 +24,6 @@ import { CREATE_PROJECT_EVENT, ComponentCreateMode } from "@wso2-enterprise/chor
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
 import { ProjectRegistry } from "../registry/project-registry";
 import { sendTelemetryEvent } from "../telemetry/utils";
-import { openCellView } from "../cmds/open-cell-view";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -111,10 +109,7 @@ export function activateWizards() {
         }
     });
 
-    // Register Cell Diagram Wizard
-    const choreoCellView = commands.registerCommand(choreoCellViewCmdId, openCellView);
-
-    ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd, choreoCellView);
+    ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd);
 
     commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
     commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);

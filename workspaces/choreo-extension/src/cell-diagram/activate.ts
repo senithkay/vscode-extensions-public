@@ -13,11 +13,12 @@
 
 import * as vscode from 'vscode';
 import { openChoreoCellDiagram } from '../constants';
-import { CellDiagramView } from '../views/webviews/CellDiagramView';
 import { ext } from '../extensionVariables';
+import { Organization } from "@wso2-enterprise/choreo-core";
+import { CellDiagramView } from "../views/webviews/CellDiagramView";
 
-export function showCellDiagram() {
-    CellDiagramView.render(ext.context.extensionUri);
+export function showCellDiagram(org: Organization, projectId: string) {
+    CellDiagramView.render(ext.context.extensionUri, org, projectId);
 }
 
 export function activateCellDiagram(context: vscode.ExtensionContext) {
