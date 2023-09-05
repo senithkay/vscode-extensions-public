@@ -521,7 +521,7 @@
     },
     {
       "packageName": "@wso2-enterprise/cell-diagram",
-      "projectFolder": "workspaces/cell-diagram",
+      "projectFolder": "workspaces/choreo/cell-diagram",
       "versionPolicyName": "choreo-extension"
     },
     {
