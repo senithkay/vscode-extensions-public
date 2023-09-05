@@ -27,7 +27,7 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
     <StepCard>
         {props.titleAlignment === "right" ? (
             <>
-                <StepCircle color={colors.indentGuideActiveBackgound}>
+                <StepCircle color={props?.isCuurentStep ? colors.vscodeTextLinkForeground : colors.indentGuideActiveBackgound}>
                     <StepNumber>
                         {props.step.id + 1}
                     </StepNumber>
@@ -40,7 +40,7 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
         ) :
             <>
                 <IconTitleWrapper>
-                    <StepCircle color={colors.indentGuideActiveBackgound}>
+                    <StepCircle color={props?.isCuurentStep ? colors.vscodeTextLinkForeground : colors.indentGuideActiveBackgound}>
                         <StepNumber>
                             {props.step.id + 1}
                         </StepNumber>

@@ -36,6 +36,7 @@ export interface StepCardProps {
     currentStep: number;
     totalSteps: number;
     titleAlignment?: "right" | "bottom";
+    isCuurentStep?: boolean;
 }
 
 export interface TitleProps {
@@ -146,7 +147,8 @@ export const Stepper: React.FC<StepperProps> = (props: StepperProps) => {
                         title: step
                     },
                     totalSteps: steps.length,
-                    titleAlignment: titleAlignment
+                    titleAlignment: titleAlignment,
+                    isCuurentStep: (id === currentStep)
                 };
                 if (id < currentStep) {
                     return <CompletedStepCard key={`step${id}`} {...stepCardProps} />;
