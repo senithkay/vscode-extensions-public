@@ -28,7 +28,7 @@ import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
-import { debug, log, resolveModules } from './utils';
+import { debug, log, handleResolveMissingDependencies } from './utils';
 import { activateUriHandlers } from './uri-handlers';
 
 let langClient: ExtendedLangClient;
@@ -148,7 +148,7 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
             });
         }
     }).finally(() => {
-        resolveMissingDependencies();
+        handleResolveMissingDependencies(ballerinaExtInstance);
     });
     return ballerinaExtInstance;
 }
@@ -160,13 +160,4 @@ export function deactivate(): Thenable<void> | undefined {
     }
     ballerinaExtInstance.telemetryReporter.dispose();
     return langClient.stop();
-}
-
-function resolveMissingDependencies() {
-    const activeEditor = window.activeTextEditor;
-    if (activeEditor) {
-        const documentUri = activeEditor.document.uri;
-        const filePath = documentUri.fsPath;
-        resolveModules(langClient, filePath);
-    }
 }

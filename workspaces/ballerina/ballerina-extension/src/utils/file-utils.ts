@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment } from "vscode";
+import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages } from "vscode";
 import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
 import axios from "axios";
 import * as fs from 'fs';
@@ -36,6 +36,8 @@ const gitDomain = "github.com";
 const gistOwner = "ballerina-github-bot";
 const tempStartingFile = "tempStartingFile";
 const ballerinaToml = "Ballerina.toml";
+
+const buildStatusItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
 
 export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, gist: string, file: string, repoFileUrl?: string) {
 
@@ -305,6 +307,7 @@ export async function readStoredClonedFilePathFromTemp(ballerinaExtInstance: Bal
             // Open the specific file
             const document = await workspace.openTextDocument(pathValue);
             await window.showTextDocument(document);
+            ballerinaExtInstance.setVscodeUrlCommandState(true);
         } catch (error) {
             window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
         }
@@ -340,22 +343,21 @@ function getGitHubRawFileUrl(githubFileUrl) {
     return rawFileUrl;
 }
 
-export async function resolveModules(langClient: ExtendedLangClient, pathValue) {
+async function resolveModules(langClient: ExtendedLangClient, pathValue) {
     const isBallerinProject = findBallerinaTomlFile(pathValue);
     if (isBallerinProject) {
         // Create a status bar item for the build notification
-        const buildStatusItem = window.createStatusBarItem(StatusBarAlignment.Right, 110);
-        buildStatusItem.text = "$(sync~spin) Resolving dependencies...";
-        buildStatusItem.tooltip = "Pulling all the missing ballerina modules.";
+        buildStatusItem.text = "$(sync~spin) Pulling modules...";
+        buildStatusItem.tooltip = "Pulling the missing ballerina modules.";
         const uriString = Uri.file(pathValue).toString();
         buildStatusItem.show();
         // Show the progress bar.
         await window.withProgress({
             location: ProgressLocation.Notification,
-            title: "Resolving dependencies...",
+            title: `Unresolved modules found. Pulling missing ballerina modules...`,
             cancellable: false
         }, async (progress) => {
-            progress.report({ increment: 20 });
+            progress.report({ increment: 30 });
             // Resolve missing dependencies.
             const dependenciesResponse = await langClient.resolveMissingDependencies({
                 documentIdentifier: {
@@ -364,7 +366,7 @@ export async function resolveModules(langClient: ExtendedLangClient, pathValue) 
             });
             const response = dependenciesResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess) {
-                progress.report({ increment: 50 });
+                progress.report({ increment: 60 });
                 // Rebuild the file to update the LS.
                 await langClient.didChange({
                     contentChanges: [{ text: "" }],
@@ -374,6 +376,8 @@ export async function resolveModules(langClient: ExtendedLangClient, pathValue) 
                     }
                 });
                 progress.report({ increment: 100 });
+            } else {
+                window.showErrorMessage("Failed to pull modules");
             }
             buildStatusItem.hide();
         })
@@ -394,4 +398,19 @@ function findBallerinaTomlFile(filePath) {
     }
 
     return null; // Ballerina.toml not found in any parent folder
+}
+
+export function handleResolveMissingDependencies(ballerinaExtInstance: BallerinaExtension) {
+    const langClient = ballerinaExtInstance.langClient;
+    // Listen for diagnostic changes
+    languages.onDidChangeDiagnostics(async (e) => {
+        const activeEditor = window.activeTextEditor;
+        if (ballerinaExtInstance.getIsVscodeUrlCommand() && activeEditor && activeEditor.document.languageId === 'ballerina') {
+            const uri = activeEditor.document.uri;
+            const diagnostics = languages.getDiagnostics(uri);
+            if (diagnostics.length > 0 && diagnostics.filter(diag => diag.code === "BCE2003").length > 0) {
+                resolveModules(langClient, uri.fsPath);
+            }
+        }
+    });
 }
