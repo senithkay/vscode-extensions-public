@@ -13,29 +13,33 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { useQuery } from "@tanstack/react-query";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { VSCodeButton, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "../../Codicon/Codicon";
 
 const GhRepoBranhSelectorContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
-    width: 200px;
 `;
 
 const BranchListContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    gap: 20px;
+    gap: 10px;
 `;
 
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
+const BranchDropDown = styled(VSCodeDropdown)`
+    width: 200px;
+`;
+
+const RefreshBtn = styled(VSCodeButton)`
+    margin-top: auto;
+    padding: 1px;
 `;
 
 function getDefaultBranch(branches: string[], branch?: string): string {
@@ -61,19 +65,19 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     const { org, repo, branch, credentialID } = formData?.repository || {};
     const repoId = `${org}/${repo}`;
 
-    const {isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery(
-        ['branchData',repoId, org, repo], 
+    const { isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery(
+        ['branchData', repoId, org, repo],
         async () => {
             try {
                 return ChoreoWebViewAPI.getInstance()
-                .getChoreoGithubAppClient()
-                .getRepoBranches(currentProjectOrg?.id, org, repo, credentialID);
+                    .getChoreoGithubAppClient()
+                    .getRepoBranches(currentProjectOrg?.id, org, repo, credentialID);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching branches. Please authorize with GitHub.");
                 throw error;
             }
         },
-        { 
+        {
             enabled: !!org && !!repo,
             onSuccess: (repoBranches) => {
                 if (repoBranches) {
@@ -97,7 +101,7 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
                 <>
                     <label htmlFor="branch-drop-down">Branch</label>
                     <BranchListContainer>
-                        <VSCodeDropdown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
+                        <BranchDropDown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
                             {repoBranches.map((branch) => (
                                 <VSCodeOption
                                     key={branch}
@@ -106,9 +110,16 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
                                     {branch}
                                 </VSCodeOption>
                             ))}
-                        </VSCodeDropdown>
-                        {!isRefetchingBranches && <VSCodeLink onClick={() => refetch()}>Refresh</VSCodeLink>}
-                        {isRefetchingBranches && <SmallProgressRing />}
+                        </BranchDropDown>
+                        <RefreshBtn
+                            appearance="icon"
+                            onClick={() => refetch()}
+                            title="Refresh branch list"
+                            disabled={isRefetchingBranches}
+                            id='refresh-branch-btn'
+                        >
+                            <Codicon name="refresh" />
+                        </RefreshBtn>
                     </BranchListContainer>
                 </>
             )}

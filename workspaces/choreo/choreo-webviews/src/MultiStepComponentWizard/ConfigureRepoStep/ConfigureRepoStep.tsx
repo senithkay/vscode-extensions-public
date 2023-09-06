@@ -34,6 +34,14 @@ const StepContainer = styled.div`
     gap: 20px;
 `;
 
+const RepoSelectorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 30px;
+`;
+
 const GhRepoSelectorActions = styled.div`
     display  : flex;
     flex-direction: row;
@@ -52,13 +60,14 @@ const GhRepoSelectorOrgContainer = styled.div`
     flex-direction: column;
     gap: 5px;
     width: 200px;
+    margin-right: 80px;
 `;
 
 const GhRepoSelectorRepoContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
-    width: 300px;
+    width: 200px;
 `;
 
 const CardContainer = styled.div`
@@ -564,7 +573,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                             {showLoader && loaderMessage}
                             {showLoader && <VSCodeProgressRing />}
                             {(gitProvider === GitProvider.GITHUB || selectedCredentialId) ? (
-                                <>
+                                <RepoSelectorContainer>
+                                    <span>Select the desired repository.</span>
                                     {githubOrgs && githubOrgs.length > 0 && (
                                         <GhRepoSelectorContainer>
                                             <GhRepoSelectorOrgContainer>
@@ -637,7 +647,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                                             onFormDataChange={onFormDataChange}
                                         />
                                     )}
-                                </>
+                                </RepoSelectorContainer>
                             ) : (
                                 <span>"Please select a bitbucket credential."</span>
                             )}
