@@ -8,11 +8,11 @@
  */
 
 import { expect } from 'chai';
-import { readFileSync, writeFile } from 'fs';
+import { existsSync, readFileSync, unlinkSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, Key, TextEditor, VSBrowser, WebDriver } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, wait } from './util';
+import { areVariablesIncludedInString, wait, waitForBallerina, waitUntil } from './util';
 
 
 const expectedConfigs = [
@@ -23,14 +23,14 @@ const expectedConfigs = [
 ];
 
 
-describe.skip('VSCode Config Suggestions UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
+describe('VSCode Config Suggestions UI Tests', () => {
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'configServicePackageEdit');
     let browser: VSBrowser;
     let driver: WebDriver;
 
-    const configFilePath = `${PROJECT_ROOT}/configServicePackageEdit/Config.toml`;
+    const configFilePath = `${PROJECT_ROOT}/Config.toml`;
 
-    const configContent = `# Configuration file for "configServiceProject"
+    const configContent = `# Configuration file for "configServicePackageEdit"
     # How to use see:
     # https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax
     
@@ -50,15 +50,13 @@ describe.skip('VSCode Config Suggestions UI Tests', () => {
                 console.log('Config file updated successfully!');
             }
         });
-
-        await wait(2000);
         browser = VSBrowser.instance;
-
         driver = browser.driver;
         // Close all open tabs
         await new EditorView().closeAllEditors();
+        await browser.openResources(PROJECT_ROOT, configFilePath);
+        await browser.waitForWorkbench();
 
-        await browser.openResources(configFilePath);
     });
 
     it('Click on suggestion to add configs to the file', async () => {
@@ -75,12 +73,8 @@ describe.skip('VSCode Config Suggestions UI Tests', () => {
         await editor.toggleContentAssist(true);
         await wait(2000);
 
-        // Find the completion values
-        const infoNotifications = await driver.findElements(By.linkText('isAdmin'));
-        // Iterate over the completion values
-        for (const infoNotification of infoNotifications) {
-            await infoNotification.click();
-        }
+        const isAdminLink = await waitUntil(By.linkText('isAdmin'));
+        await isAdminLink.click();
 
         await editor.save();
 
@@ -93,5 +87,13 @@ describe.skip('VSCode Config Suggestions UI Tests', () => {
         // Compare the generated config file with the expected config file
         expect(areVariablesIncludedInString(expectedConfigs, generatedConfigContent)).to.true;
 
+    });
+
+    after(async () => {
+        // Check if the file exists
+        if (existsSync(configFilePath)) {
+            // If the file exists, delete it
+            unlinkSync(configFilePath);
+        }
     });
 });

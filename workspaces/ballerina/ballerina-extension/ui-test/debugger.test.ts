@@ -8,7 +8,7 @@
  */
 
 import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar } from "vscode-extension-tester";
-import { wait, waitUntilTextContains } from "./util";
+import { wait, waitForBallerina, waitUntilTextContains } from "./util";
 import { join } from "path";
 import { expect } from "chai";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
