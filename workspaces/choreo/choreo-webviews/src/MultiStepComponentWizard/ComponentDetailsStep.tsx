@@ -19,6 +19,7 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { AngularIcon, BallerinaIcon, DockerIcon, ReactIcon, StaticFileIcon, VuejsIcon } from "../icons";
 
 const StepContainer = styled.div`
     display: flex;
@@ -126,12 +127,14 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                                 {
                                     label: "Ballerina",
                                     description: "Component impelmented using Ballerina Language",
-                                    value: ChoreoImplementationType.Ballerina
+                                    value: ChoreoImplementationType.Ballerina,
+                                    icon: BallerinaIcon
                                 },
                                 {
                                     label: "Docker",
                                     description: "Component impelmented using other language and built using Docker",
-                                    value: ChoreoImplementationType.Docker
+                                    value: ChoreoImplementationType.Docker,
+                                    icon: DockerIcon
                                 }
                             ]}
                         />
@@ -146,27 +149,32 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                                 {
                                     label: "React SPA",
                                     description: "Create a React SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.React
+                                    value: ChoreoImplementationType.React,
+                                    icon: ReactIcon
                                 },
                                 {
                                     label: "Angular SPA",
                                     description: "Create a Angular SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.Angular
+                                    value: ChoreoImplementationType.Angular,
+                                    icon: AngularIcon
                                 },
                                 {
                                     label: "Vue SPA",
                                     description: "Create a Vue SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.Vue
+                                    value: ChoreoImplementationType.Vue,
+                                    icon: VuejsIcon
                                 },
                                 {
                                     label: "Static Website",
                                     description: "Create a static website component in Choreo",
-                                    value: ChoreoImplementationType.StaticFiles
+                                    value: ChoreoImplementationType.StaticFiles,
+                                    icon: StaticFileIcon
                                 },
                                 {
                                     label: "Dockerfile",
                                     description: "Create a Docker based web application component in Choreo",
-                                    value: ChoreoImplementationType.Docker
+                                    value: ChoreoImplementationType.Docker,
+                                    icon: DockerIcon
                                 },
                             ]}
                         />

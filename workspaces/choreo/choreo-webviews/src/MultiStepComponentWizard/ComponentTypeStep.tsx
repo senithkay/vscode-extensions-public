@@ -17,6 +17,7 @@ import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentWizardState } from "./types";
 import { ConfigCardList } from "./ConfigCardList";
+import { ManualTriggerIcon, ScheduledTriggerIcon, ServiceIcon, WebAppIcon, WebhookIcon } from "../icons";
 
 const StepContainer = styled.div`
     display: flex;
@@ -55,22 +56,26 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
         {
             label: "Service",
             description: "Design, develop, test, and deploy your microservices",
-            value: ChoreoComponentType.Service
+            value: ChoreoComponentType.Service,
+            icon: ServiceIcon
         },
         {
             label: "Scheduled Trigger",
             description: "Create programs that can execute on a schedule. E.g., Recurring integration tasks.",
-            value: ChoreoComponentType.ScheduledTask
+            value: ChoreoComponentType.ScheduledTask,
+            icon: ScheduledTriggerIcon
         },
         {
             label: "Manual Trigger",
             description: "Create programs that you can execute manually. E.g., One-time integration tasks.",
-            value: ChoreoComponentType.ManualTrigger
+            value: ChoreoComponentType.ManualTrigger,
+            icon: ManualTriggerIcon
         },
         {
             label: "Webhook",
             description: "Create programs that trigger via events. E.g., Business automation tasks.",
-            value: ChoreoComponentType.Webhook
+            value: ChoreoComponentType.Webhook,
+            icon: WebhookIcon
         }
     ];
 
@@ -78,9 +83,12 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
         items.push({
             label: "Web Application",
             value: ChoreoComponentType.WebApplication,
-            description: "Create and manage web applications in Choreo"
+            description: "Create and manage web applications in Choreo",
+            icon: WebAppIcon
         });
     }
+
+    const description = items.find(item => item.value === formData.type).description;
 
     return (
         <StepContainer>
@@ -92,6 +100,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                     onFormDataChange={onFormDataChange}
                     items={items}
                 />
+                <p>{description}</p>
             </SectionWrapper>
         </StepContainer>
     );
