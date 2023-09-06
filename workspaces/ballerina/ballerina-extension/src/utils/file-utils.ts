@@ -367,7 +367,7 @@ export async function resolveModules(langClient: ExtendedLangClient, pathValue) 
                 progress.report({ increment: 50 });
                 // Rebuild the file to update the LS.
                 await langClient.didChange({
-                    contentChanges: [{ text: null }],
+                    contentChanges: [{ text: "" }],
                     textDocument: {
                         uri: uriString,
                         version: 1
