@@ -298,7 +298,7 @@ export function ResourceForm(props: FunctionProps) {
 
     const getReturnTypeDiagnostics = () => {
         const viewStateDiagnostics: StatementSyntaxDiagnostics[] = model?.viewState?.diagnosticsInRange;
-        const returnValues = resourceReturn?.split(" ");
+        const returnValues = resourceReturn?.replace("[]", "").split(" ");
         const filtered = viewStateDiagnostics.filter(diag => returnValues?.some(val => diag.message.includes(val)));
         return filtered;
     }
