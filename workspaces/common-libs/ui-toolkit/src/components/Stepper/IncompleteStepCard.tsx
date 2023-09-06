@@ -27,12 +27,12 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
     <StepCard>
         {props.titleAlignment === "right" ? (
             <>
-                <StepCircle color={props?.isCuurentStep ? colors.vscodeTextLinkForeground : colors.indentGuideActiveBackgound}>
+                <StepCircle color={props?.isCurrentStep ? colors.vscodeTextLinkForeground : colors.indentGuideActiveBackgound}>
                     <StepNumber>
                         {props.step.id + 1}
                     </StepNumber>
                 </StepCircle>
-                <StepTitle color={colors.indentGuideActiveBackgound}>
+                <StepTitle color={props?.isCurrentStep ? colors.editorForeground : colors.indentGuideActiveBackgound}>
                     {props.step.title}
                 </StepTitle>
                 {(props.totalSteps === props.step.id + 1) ? null : <HorizontalBar/>}
@@ -40,13 +40,13 @@ export const InCompletedStepCard: React.FC<StepCardProps> = (props: StepCardProp
         ) :
             <>
                 <IconTitleWrapper>
-                    <StepCircle color={props?.isCuurentStep ? colors.vscodeTextLinkForeground : colors.indentGuideActiveBackgound}>
+                    <StepCircle color={props.isCurrentStep ? colors.vscodeTextLinkForeground : colors.indentGuideActiveBackgound}>
                         <StepNumber>
                             {props.step.id + 1}
                         </StepNumber>
                     </StepCircle>
                     {props.totalSteps === props.step.id + 1 ? null : <BottomTitleHorizontalBar />}
-                    <BottomTitleWrapper color={colors.indentGuideActiveBackgound}>
+                    <BottomTitleWrapper color={props?.isCurrentStep ? colors.editorForeground : colors.indentGuideActiveBackgound}>
                         {props.step.title}
                     </BottomTitleWrapper>
                 </IconTitleWrapper>
