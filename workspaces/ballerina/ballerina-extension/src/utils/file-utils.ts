@@ -354,7 +354,7 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
         // Show the progress bar.
         await window.withProgress({
             location: ProgressLocation.Notification,
-            title: `Unresolved modules found. Pulling missing ballerina modules...`,
+            title: `Unresolved modules found. Pulling all missing ballerina modules...`,
             cancellable: false
         }, async (progress) => {
             progress.report({ increment: 30 });
@@ -381,7 +381,6 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
             }
             buildStatusItem.hide();
         })
-        buildStatusItem.dispose();
     }
 }
 
