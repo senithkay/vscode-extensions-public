@@ -17,7 +17,7 @@ import {
     ActivityBar,
     BottomBarPanel,
 } from "vscode-extension-tester";
-import { DEFAULT_TIME_OUT } from "./constants";
+import { DEFAULT_TIME_OUT, VSCODE_ZOOM_TIME } from "./constants";
 import { fail } from "assert";
 
 export function wait(ms: number) {
@@ -112,6 +112,10 @@ export async function clickOnActivity(activityName: string) {
     viewControl.click();
 }
 
+export async function getLabelElement(driver: WebDriver, targetSubstring: string) {
+    return await driver.findElement(By.xpath(`//*[contains(text(), "${targetSubstring}")]`));
+}
+
 export function waitForWebview(name: string) {
     return waitUntil(By.xpath("//div[@title='" + name + "']"));
 }
@@ -122,4 +126,48 @@ export async function verifyTerminalText(text: string) {
     await waitUntilTextContains(terminal, text, 60000).catch((e) => {
         fail(e);
     });
+}
+
+export async function waitUntilElementIsEnabled(locator: By, timeout: number = DEFAULT_TIME_OUT): Promise<WebElement> {
+    const maxTimeout = timeout;
+    const driver = VSBrowser.instance.driver;
+    let element: WebElement;
+    let elementIdentifier;
+    return new Promise(async (resolve, reject) => {
+        const startTime = Date.now();
+        const checkElementEnabled = async () => {
+            try {
+                if (!elementIdentifier) {
+                    // Initial attempt or re-locate if stale
+                    element = await driver.findElement(locator);
+                    elementIdentifier = await element.getAttribute('xpath');
+                } else {
+                    element = await driver.findElement(By.xpath(elementIdentifier));
+                }
+                await driver.wait(until.elementIsEnabled(element), maxTimeout - (Date.now() - startTime));
+                resolve(element);
+            } catch (error) {
+                if (Date.now() - startTime < maxTimeout) {
+                    setTimeout(checkElementEnabled, 1000);
+                } else {
+                    reject(new Error('Element not found or not enabled within the specified timeout'));
+                }
+            }
+        };
+        await checkElementEnabled();
+    });
+}
+
+export async function waitForBallerina() {
+    const elementText = 'Detecting';
+    const xpath = By.xpath(`//*[contains(text(), '${elementText}')]`);
+    const element = await waitUntil(xpath, 30000);
+    await VSBrowser.instance.driver.wait(until.elementTextContains(element, "Swan"));
+}
+
+export async function workbenchZoomOut(workbench, times) {
+    for (let i = 1; i <= times; i++) {
+        await workbench.executeCommand("View: Zoom Out");
+        await wait(VSCODE_ZOOM_TIME); // This is a constant wait to apply zoom effect into the vscode
+    }
 }

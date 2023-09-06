@@ -8,11 +8,11 @@
  */
 
 import { expect } from 'chai';
-import { existsSync, readFileSync, writeFile } from 'fs';
+import { existsSync, readFileSync, unlinkSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, VSBrowser, WebDriver } from 'vscode-extension-tester';
-import { areVariablesIncludedInString, wait } from './util';
+import { areVariablesIncludedInString, wait, waitForBallerina, waitUntil } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 
@@ -25,15 +25,12 @@ const expectedConfigs = [
 
 
 describe('VSCode Config Generation Edit UI Tests', () => {
-    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
+    const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'configServicePackageEdit');
     let browser: VSBrowser;
-    let driver: WebDriver;
 
-    const configFilePath = `${PROJECT_ROOT}/configServicePackageEdit/Config.toml`;
-    const expectedConfigFilePath = `${PROJECT_ROOT}/configServicePackageEdit/expected-config.toml`;
+    const configFilePath = `${PROJECT_ROOT}/Config.toml`;
 
-
-    const configContent = `# Configuration file for "configServiceProject"
+    const configContent = `# Configuration file for "configServicePackageEdit"
     # How to use see:
     # https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax
     
@@ -54,27 +51,24 @@ describe('VSCode Config Generation Edit UI Tests', () => {
             }
         });
         browser = VSBrowser.instance;
-        driver = browser.driver;
         // Close all open tabs
         await new EditorView().closeAllEditors();
 
-        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackageEdit/service.bal`);
+        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/service.bal`);
+        await browser.waitForWorkbench();
+        await waitForBallerina();
     });
 
     it('Click on run button to add configs to the file', async () => {
         const editorView = new ExtendedEditorView(new EditorView());
-        expect(await editorView.getAction("Run")).is.not.undefined;
-        (await editorView.getAction("Run"))!.click();
-        await wait(5000);
+        const runBtn = await editorView.getAction("Run");
+        await runBtn.click();
 
-        // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.linkText('Add to config'));
-        // Iterate over the information message boxes
-        for (const infoNotification of infoNotifications) {
-            await infoNotification.click();
-        }
-        await wait(5000);
+        const infoNotification = await waitUntil(By.linkText('Add to config'));
+        await infoNotification.click();
 
+        await waitUntil(By.xpath("//*[contains(text(), 'Successfully updated')]"));
+    
         // Read the updated config file and expected config file
         const generatedConfigContent = readFileSync(configFilePath, 'utf8').replace(/\s/g, '');
 
@@ -82,4 +76,14 @@ describe('VSCode Config Generation Edit UI Tests', () => {
         expect(areVariablesIncludedInString(expectedConfigs, generatedConfigContent)).to.true;
 
     });
+
+    
+    after(async () => {
+        // Check if the file exists
+        if (existsSync(configFilePath)) {
+            // If the file exists, delete it
+            unlinkSync(configFilePath);
+        }
+    });
+
 });
