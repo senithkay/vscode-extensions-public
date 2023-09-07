@@ -354,7 +354,7 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
         // Show the progress bar.
         await window.withProgress({
             location: ProgressLocation.Notification,
-            title: `Unresolved modules found. Pulling all missing ballerina modules...`,
+            title: `Pulling all missing ballerina modules...`,
             cancellable: false
         }, async (progress) => {
             progress.report({ increment: 30 });
@@ -404,11 +404,21 @@ export function handleResolveMissingDependencies(ballerinaExtInstance: Ballerina
     // Listen for diagnostic changes
     languages.onDidChangeDiagnostics(async (e) => {
         const activeEditor = window.activeTextEditor;
-        if (ballerinaExtInstance.getIsVscodeUrlCommand() && activeEditor && activeEditor.document.languageId === 'ballerina') {
+        if (activeEditor && activeEditor.document.languageId === 'ballerina') {
             const uri = activeEditor.document.uri;
             const diagnostics = languages.getDiagnostics(uri);
             if (diagnostics.length > 0 && diagnostics.filter(diag => diag.code === "BCE2003").length > 0) {
-                resolveModules(langClient, uri.fsPath);
+                if (ballerinaExtInstance.getIsVscodeUrlCommand()) {
+                    resolveModules(langClient, uri.fsPath);
+                    ballerinaExtInstance.setVscodeUrlCommandState(false);
+                } else {
+                    const message = `Unresolved modules found.`;
+                    const pullModules: MessageItem = { title: "Pull Modules" };
+                    const result = await window.showInformationMessage(message, pullModules);
+                    if (result === pullModules) {
+                        resolveModules(langClient, uri.fsPath);
+                    }
+                }
             }
         }
     });
