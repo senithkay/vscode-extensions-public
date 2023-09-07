@@ -2900,6 +2900,21 @@ importers:
       webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
       webpack-dev-server: 4.15.1_w3wu7rcwmvifygnqiqkxwjppse
 
+  ../../workspaces/mi/mi-core:
+    specifiers:
+      '@typescript-eslint/eslint-plugin': ~5.48.2
+      '@typescript-eslint/parser': ~5.48.2
+      eslint: ^8.32.0
+      typescript: ^4.9.4
+      vscode-messenger-common: ^0.4.5
+    dependencies:
+      vscode-messenger-common: 0.4.5
+    devDependencies:
+      '@typescript-eslint/eslint-plugin': 5.48.2_glnxe276xytynte7qoyvlk5nwq
+      '@typescript-eslint/parser': 5.48.2_cgvy6hrg3pjeapqw5wnuqcmdo4
+      eslint: 8.48.0
+      typescript: 4.9.5
+
   ../../workspaces/mi/mi-diagram:
     specifiers:
       '@babel/plugin-syntax-flow': ~7.22.5
