@@ -1,0 +1,29 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React from "react";
+
+import { DefaultLinkFactory } from "@projectstorm/react-diagrams";
+
+import { MEDIATOR_LINK, MediatorLinkModel } from "./MediatorLinkModel";
+import { MediatorLinkWidget } from "./MediatorLinkWidget";
+
+export class MediatorLinkFactory extends DefaultLinkFactory {
+    constructor() {
+        super(MEDIATOR_LINK);
+    }
+
+    generateModel(event: { initialConfig: any }): MediatorLinkModel {
+        return new MediatorLinkModel(event.initialConfig.id);
+    }
+
+    generateReactWidget(event: { model: MediatorLinkModel }): JSX.Element {
+        return <MediatorLinkWidget link={event.model} engine={this.engine}/>;
+    }
+}

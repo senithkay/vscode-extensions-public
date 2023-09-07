@@ -551,6 +551,10 @@
     {
       "packageName": "integration-studio",
       "projectFolder": "workspaces/mi/mi-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/mi-diagram",
+      "projectFolder": "workspaces/mi/mi-diagram"
     }
   ]
 }
