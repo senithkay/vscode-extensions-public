@@ -8,6 +8,7 @@
  */
 
 import * as vscode from 'vscode';
+import { createDiagramWebview } from './diagram/webview';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -15,6 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let disposable = vscode.commands.registerCommand('integration-studio.helloWorld', () => {
 		vscode.window.showInformationMessage('Hello Worldd from Integration Studio!');
+		createDiagramWebview(context);
 	});
 
 	context.subscriptions.push(disposable);

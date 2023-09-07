@@ -96,9 +96,9 @@
             "script": "compile-tests",
         },
         {
-            "label": "watch-mi",
+            "label": "npm: watch-mi",
 			"type": "npm",
-			"script": "watch-mi",
+			"script": "watch",
             "path": "workspaces/mi/mi-extension",
             "problemMatcher": "$ts-webpack-watch",
 			"isBackground": true,

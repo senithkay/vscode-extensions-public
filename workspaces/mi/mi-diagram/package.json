@@ -8,7 +8,7 @@
     "build": "webpack && pnpm run postbuild",
     "storybook": "storybook dev",
     "build-storybook": "storybook build",
-    "postbuild": "copyfiles -f build/*.js ../mi-extension/resources/jslibs"
+    "postbuild": "copyfiles -u 1 \"build/**/*\" ../mi-extension/resources/jslibs"
   },
   "author": "wso2",
   "license": "Apache-2.0",
