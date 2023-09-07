@@ -1,0 +1,47 @@
+@font-face {
+    font-family: "vscode-font";
+    src: url("./vscode-font.eot?1d793103068768bf95a4f635ecf36ec3?#iefix") format("embedded-opentype"),
+url("./vscode-font.woff2?1d793103068768bf95a4f635ecf36ec3") format("woff2"),
+url("./vscode-font.woff?1d793103068768bf95a4f635ecf36ec3") format("woff"),
+url("./vscode-font.ttf?1d793103068768bf95a4f635ecf36ec3") format("truetype"),
+url("./vscode-font.svg?1d793103068768bf95a4f635ecf36ec3#vscode-font") format("svg");
+}
+
+i[class^="font-"]:before, i[class*=" font-"]:before {
+    font-family: vscode-font !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.font-architectureView:before {
+    content: "\f101";
+}
+.font-cellView:before {
+    content: "\f102";
+}
+.font-choreo:before {
+    content: "\f103";
+}
+.font-loading:before {
+    content: "\f104";
+}
+.font-organization:before {
+    content: "\f105";
+}
+.font-project:before {
+    content: "\f106";
+}
+.font-refresh:before {
+    content: "\f107";
+}
+.font-sign-in:before {
+    content: "\f108";
+}
+.font-sign-out:before {
+    content: "\f109";
+}

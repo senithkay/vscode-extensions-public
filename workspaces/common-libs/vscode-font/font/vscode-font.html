@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>vscode-font</title>
+
+    <style>
+
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        .preview {
+            width: 100px;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .preview .inner {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: #f5f5f5;
+            -webkit-border-radius: 3px 3px 0 0;
+            -moz-border-radius: 3px 3px 0 0;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .preview .inner i {
+            line-height: 85px;
+            font-size: 40px;
+            color: #333;
+        }
+
+        .label {
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 5px;
+            font-size: 10px;
+            font-family: Monaco, monospace;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background: #ddd;
+            -webkit-border-radius: 0 0 3px 3px;
+            -moz-border-radius: 0 0 3px 3px;
+            border-radius: 0 0 3px 3px;
+            color: #666;
+        }
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="vscode-font.css" />
+</head>
+<body>
+
+    <h1>vscode-font</h1> <div> <input type="text" id="searchInput" placeholder="Seach Icon"> </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-architectureView"></i>
+            </span>
+            <br>
+            <span class='label'>architectureView</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-cellView"></i>
+            </span>
+            <br>
+            <span class='label'>cellView</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-choreo"></i>
+            </span>
+            <br>
+            <span class='label'>choreo</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-loading"></i>
+            </span>
+            <br>
+            <span class='label'>loading</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-organization"></i>
+            </span>
+            <br>
+            <span class='label'>organization</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-project"></i>
+            </span>
+            <br>
+            <span class='label'>project</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-refresh"></i>
+            </span>
+            <br>
+            <span class='label'>refresh</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-sign-in"></i>
+            </span>
+            <br>
+            <span class='label'>sign-in</span>
+        </div>
+
+
+        <div class="preview">
+            <span class="inner">
+                <i class=" font-sign-out"></i>
+            </span>
+            <br>
+            <span class='label'>sign-out</span>
+        </div>
+
+
+<script>
+    // JavaScript to handle the label filtering
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const searchText = this.value.toLowerCase();
+        const previews = document.querySelectorAll('.preview');
+
+        previews.forEach(function (preview) {
+            const label = preview.querySelector('.label');
+            const labelText = label.textContent.toLowerCase();
+
+            if (labelText.includes(searchText)) {
+                preview.style.display = 'inline-block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+    });
+</script>
+</body>
+</html>
