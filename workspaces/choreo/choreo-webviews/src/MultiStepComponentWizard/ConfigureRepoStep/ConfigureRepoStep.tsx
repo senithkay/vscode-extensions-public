@@ -25,7 +25,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ProviderTypeCard } from "../../ProjectWizard/ProviderTypeCard";
 import { ChoreoComponentType, ChoreoImplementationType, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../../Codicon/Codicon";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { ProgressIndicator, Typography } from "@wso2-enterprise/ui-toolkit";
 
 const StepContainer = styled.div`
     display: flex;
@@ -445,8 +445,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         <StepContainer>
             {!isMonoRepo && (<>
                 <SectionWrapper>
-                    <h3>Configure Repository</h3>
-                    <h4>Git Provider Details</h4>
+                    <Typography variant="h3">Component Type</Typography>
+                    <Typography variant="h4">Git Provider Details</Typography>
                     <SubContainer>
                         <CardContainer>
                             <ProviderTypeCard
@@ -524,7 +524,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     <RepoStepWrapper>
                         <RepoStepNumber> 1 </RepoStepNumber>
                         <RepoStepContent>
-                            <h3>  Starting from scratch?  </h3>
+                            <Typography variant="h3">  Starting from scratch?  </Typography>
                             {gitProvider === GitProvider.GITHUB && (
                                 <StepContainer>
                                     <ListItemWrapper>
@@ -569,7 +569,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     <RepoStepWrapper>
                         <RepoStepNumber> 2 </RepoStepNumber>
                         <RepoStepContent>
-                            <h3>  Select repository  </h3>
+                            <Typography variant="h3">  Select repository  </Typography>
                             {showLoader && loaderMessage}
                             {showLoader && <VSCodeProgressRing />}
                             {(gitProvider === GitProvider.GITHUB || selectedCredentialId) ? (

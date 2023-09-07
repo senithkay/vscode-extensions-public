@@ -16,7 +16,7 @@ import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-u
 import { ComponentWizardState } from "./types";
 import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
-import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, ErrorIcon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
@@ -102,7 +102,7 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
         <div>
             <StepContainer>
                 <SectionWrapper>
-                    <h3>Configure Endpoints</h3>
+                    <Typography variant="h3">Configure Endpoints</Typography>
                     <VSCodeTextField
                         autofocus
                         placeholder="Port"

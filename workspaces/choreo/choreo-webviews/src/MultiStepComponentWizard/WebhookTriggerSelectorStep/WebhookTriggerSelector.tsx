@@ -14,7 +14,7 @@ import React, { useRef } from "react";
 
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { BallerinaTriggerInfo, DisplayAnnotation, ServiceType, Trigger } from '@wso2-enterprise/ballerina-languageclient';
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoWebViewAPI } from '../../utilities/WebViewRpc';
 
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
@@ -196,7 +196,7 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
     return (
         <StepContainer>
             <SectionWrapper>
-                <h3>Configure Webhook Trigger</h3>
+                <Typography variant="h3">Configure Webhook Trigger</Typography>
                 <DropDownContainer>
                     <label htmlFor="trigger-dropdown">Select Trigger</label>
                     {fetchingTriggers && <VSCodeProgressRing />}

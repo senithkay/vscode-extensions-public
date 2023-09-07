@@ -18,6 +18,7 @@ import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentWizardState } from "./types";
 import { ConfigCardList } from "./ConfigCardList";
 import { ManualTriggerIcon, ScheduledTriggerIcon, ServiceIcon, WebAppIcon, WebhookIcon } from "../icons";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 const StepContainer = styled.div`
     display: flex;
@@ -93,7 +94,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
     return (
         <StepContainer>
             <SectionWrapper>
-                <h3>Component Type</h3>
+                <Typography variant="h3">Component Type</Typography>
                 <ConfigCardList 
                     formKey='type'
                     formData={formData}

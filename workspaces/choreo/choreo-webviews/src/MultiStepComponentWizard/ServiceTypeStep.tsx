@@ -17,6 +17,7 @@ import { ChoreoServiceType } from "@wso2-enterprise/choreo-core";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ConfigCardList } from './ConfigCardList';
 import { ComponentWizardState } from "./types";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 const StepContainer = styled.div`
     display: flex;
@@ -54,7 +55,7 @@ export const ServiceTypeStepC = (props: StepProps<Partial<ComponentWizardState>>
     return (
         <StepContainer>
             <SectionWrapper>
-                <h3>Service Type</h3>
+                <Typography variant="h3">Service Type</Typography>
                 <ConfigCardList 
                     formKey='serviceType'
                     formData={formData}

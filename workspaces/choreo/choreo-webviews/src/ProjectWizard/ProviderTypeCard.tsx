@@ -15,7 +15,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { BitBucketIcon, GithubIcon } from "../icons";
-import { ComponentCard } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
 
 const IconContainer = styled.div`
     height: 50px;
@@ -46,7 +46,7 @@ export const ProviderTypeCard: React.FC<ProviderTypeCardProps> = (props) => {
             <IconContainer>
                 {type === GitProvider.BITBUCKET ? <BitBucketIcon /> : <GithubIcon />}
             </IconContainer>
-            <h4>{label}</h4>
+            <Typography variant="h4">{label}</Typography>
         </ComponentCard>
     );
 };

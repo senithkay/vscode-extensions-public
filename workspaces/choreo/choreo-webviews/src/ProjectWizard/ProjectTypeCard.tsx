@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { ComponentCard } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
 
 export interface ProjectTypeCardProps {
     isCurrentMonoRepo: boolean;
@@ -35,7 +35,7 @@ export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
 
     return (
         <ComponentCard isSelected={isSelected} onClick={onSelection} id={`${label}-card`}>
-            <h4>{label}</h4>
+            <Typography variant="h4">{label}</Typography>
         </ComponentCard>
     );
 };
