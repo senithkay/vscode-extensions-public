@@ -15,7 +15,7 @@ import {
 } from '@projectstorm/react-diagrams';
 
 import { CanvasContainer } from './Canvas';
-import { createLinks, generateEngine } from './Utils';
+import { createLinks, generateEngine } from './utils/Utils';
 import { MediatorNodeModel } from './components/node/MediatorNodeModel';
 import { MediatorPortModel } from './components/port/MediatorPortModel';
 import { NavigationWrapperCanvasWidget } from './components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget';

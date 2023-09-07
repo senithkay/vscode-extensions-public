@@ -8,11 +8,11 @@
  */
 
 import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
-import { MediatorLinkFactory } from "./components/link/MediatorLinkFactory";
-import { MediatorNodeFactory } from "./components/node/MediatorNodeFactory";
-import { MediatorPortFactory } from "./components/port/MediatorPortFactory";
-import { MediatorPortModel } from "./components/port/MediatorPortModel";
-import { MediatorLinkModel } from "./components/link/MediatorLinkModel";
+import { MediatorLinkFactory } from "../components/link/MediatorLinkFactory";
+import { MediatorNodeFactory } from "../components/node/MediatorNodeFactory";
+import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
+import { MediatorPortModel } from "../components/port/MediatorPortModel";
+import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
