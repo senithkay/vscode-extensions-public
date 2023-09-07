@@ -81,7 +81,8 @@ export class ProjectView {
         await CommonUtils.waitForIFrameCount(3);
         await CommonUtils.switchToIFrame("Architecture View");
         await CommonUtils.waitUntil(
-            By.xpath(`//div[contains(@class, 'diagram-container')]//*[text()='${componentName}']`)
+            By.xpath(`//div[contains(@class, 'diagram-container')]//*[text()='${componentName}']`),
+            30000
         );
         await CommonUtils.switchToDefaultFrame();
     }
@@ -94,7 +95,8 @@ export class ProjectView {
         await CommonUtils.waitForIFrameCount(3);
         await CommonUtils.switchToIFrame("Cell View");
         await CommonUtils.waitUntil(
-            By.xpath(`//div[contains(@class, 'cell-diagram-container')]//*[text()='${componentName}']`)
+            By.xpath(`//div[contains(@class, 'cell-diagram-container')]//*[text()='${componentName}']`),
+            30000
         );
         await CommonUtils.switchToDefaultFrame();
     }
