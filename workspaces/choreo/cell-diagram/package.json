@@ -5,14 +5,15 @@
     "files": [
         "lib"
     ],
-    "main": "lib/Diagram.js",
-    "types": "lib/Diagram.d.ts",
+    "main": "lib/cellDiagram.js",
+    "types": "lib/cellDiagram.d.ts",
     "scripts": {
         "start": "webpack-dev-server --progress --mode=development",
         "build": "webpack && pnpm run postbuild",
+        "watch:webpack": "webpack-dev-server --mode=development --progress",
         "deploy": "npm publish",
-		"storybook": "start-storybook -p 6006",
-        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../../ballerina/ballerina-extension/resources/jslibs"
+        "storybook": "start-storybook -p 6006",
+        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../choreo-extension/resources/jslibs"
     },
     "keywords": [],
     "dependencies": {

@@ -8,11 +8,20 @@
  */
 
 import createEngine, { DiagramModel, DefaultNodeModel, DefaultLinkModel } from "@projectstorm/react-diagrams";
-import * as React from "react";
+import React from "react";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { Container, DiagramContainer } from './utils/CanvasStyles';
+import { Project } from "@wso2-enterprise/ballerina-languageclient";
 
-export function SimpleDiagram() {
+interface SimpleDiagramProps {
+    project: Project;
+}
+
+export function SimpleDiagram(props: SimpleDiagramProps) {
+    const { project } = props;
+    console.log("~~ project ~~");
+    console.log(JSON.stringify(project));
+
     //1) setup the diagram engine
     var engine = createEngine();
 

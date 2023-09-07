@@ -5,7 +5,7 @@ module.exports = {
   target: "web",
   devtool: "source-map",
   output: {
-    path: path.resolve(__dirname, "build"),
+    path: path.resolve(__dirname, "lib"),
     filename: "cellDiagram.js",
     library: "cellDiagram",
   },

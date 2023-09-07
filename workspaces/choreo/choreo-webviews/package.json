@@ -19,7 +19,6 @@
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/project-design-diagrams": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
-    "@wso2-enterprise/cell-diagram": "workspace:*",
     "path": "^0.12.7",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

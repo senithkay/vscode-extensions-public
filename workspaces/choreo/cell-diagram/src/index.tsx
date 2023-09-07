@@ -9,13 +9,15 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import { SimpleDiagram } from './SimpleDiagram';
+import { SimpleDiagram } from "./SimpleDiagram";
+import { Project } from "@wso2-enterprise/ballerina-languageclient";
 
 export function renderDiagram(
-    target: HTMLDivElement
+    target: HTMLDivElement,
+    project: Project
 ) {
     render(
-        <SimpleDiagram />,
+        <SimpleDiagram project={project} />,
         target
     );
 }

@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "module": "es2020",
-    "outDir": "./lib",
     "rootDir": "./src",
     "lib": [
       "dom",
@@ -10,11 +8,8 @@
     ],
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationDir": "./lib",
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -30,11 +25,13 @@
     ]
   },
   "include": [
-    "src"
+    "src/index.tsx",
+    "src/SimpleDiagram.tsx",
+    "src/Diagram.tsx",
+    "src/custom.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "build",
-    "src/stories"
+    "build"
   ]
 }

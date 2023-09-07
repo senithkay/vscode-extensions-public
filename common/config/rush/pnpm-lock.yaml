@@ -2761,7 +2761,6 @@ importers:
       '@types/vscode-webview': ^1.57.1
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-languageclient': workspace:*
-      '@wso2-enterprise/cell-diagram': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/project-design-diagrams': workspace:*
@@ -2797,7 +2796,6 @@ importers:
       '@types/lodash.debounce': 4.0.7
       '@vscode/webview-ui-toolkit': 1.2.2_react@17.0.2
       '@wso2-enterprise/ballerina-languageclient': link:../../ballerina/ballerina-languageclient
-      '@wso2-enterprise/cell-diagram': link:../cell-diagram
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/project-design-diagrams': link:../../ballerina/project-design-diagrams

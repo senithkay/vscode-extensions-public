@@ -11,11 +11,10 @@
  *  associated services.
  */
 
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 import { Project} from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { CellDiagram } from "@wso2-enterprise/cell-diagram";
 
 const WizardContainer = styled.div`
     width: 100vw;
@@ -47,23 +46,23 @@ export function ChoreoCellView(props: ChoreoCellViewProps) {
     );
 }
 
-// export interface CellViewProps {
-//     getProjectModel: () => Promise<Project>;
-// }
-//
-// function CellDiagram(props: CellViewProps) {
-//     const { getProjectModel } = props;
-//     const [projectModel, setProjectModel] = React.useState<Project>();
-//
-//     useEffect(() => {
-//         getProjectModel().then((pm) => {
-//             setProjectModel(pm);
-//         });
-//     }, []);
-//
-//     return (
-//         <div style={{ height: "100vh", width: "100vw" }}>
-//             <pre>{JSON.stringify(projectModel, null, 2)}</pre>
-//         </div>
-//     );
-// }
+export interface CellViewProps {
+    getProjectModel: () => Promise<Project>;
+}
+
+function CellDiagram(props: CellViewProps) {
+    const { getProjectModel } = props;
+    const [projectModel, setProjectModel] = React.useState<Project>();
+
+    useEffect(() => {
+        getProjectModel().then((pm) => {
+            setProjectModel(pm);
+        });
+    }, []);
+
+    return (
+        <div style={{ height: "100vh", width: "100vw" }}>
+            <pre>{JSON.stringify(projectModel, null, 2)}</pre>
+        </div>
+    );
+}
