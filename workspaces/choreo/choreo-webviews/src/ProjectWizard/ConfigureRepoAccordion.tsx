@@ -313,7 +313,7 @@ export function ConfigureRepoAccordion(props: ConfigureRepoAccordionProps) {
                         )}
                     </RepoSubContainer>
                 </RepoStepContent>
-                    {showProgressBar && <ProgressIndicator />}
+                    {showProgressBar && <ProgressIndicator id="project-repo-progress"/>}
             </RepoStepWrapper>
         </>
     );
