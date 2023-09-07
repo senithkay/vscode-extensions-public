@@ -1,3 +1,12 @@
+<!--
+ ~   Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ ~   
+ ~   This software is the property of WSO2 LLC. and its suppliers, if any.
+ ~   Dissemination of any information or reproduction of any material contained
+ ~   herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ ~   You may not alter or remove any copyright or other notice from copies of this content.
+-->
+
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_529_26841)">
 <rect x="-7.46875" y="18.9062" width="37.2999" height="51.221" rx="18.6499" transform="rotate(-45 -7.46875 18.9062)" fill="#F0F1F4"/>
