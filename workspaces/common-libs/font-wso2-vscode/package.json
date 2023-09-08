@@ -1,10 +1,10 @@
 {
-  "name": "@wso2-enterprise/vscode-font",
+  "name": "@wso2-enterprise/font-wso2-vscode",
   "version": "1.0.0",
   "description": "Icons for Vscode plugin",
   "main": "index.js",
   "scripts": {
-    "gen-icons": "icon-font-generator src/icons/*.svg -o font -n vscode-font -p font --normalize --round 0 --mono --height 250 && node src/searchableInput/addSearch.js",
+    "gen-icons": "icon-font-generator src/icons/*.svg -o fw-vscode -n wso2-vscode -p fw --normalize --round 0 --mono --height 250 && node src/searchableInput/addSearch.js",
     "start": "http-server -p 8080 font/vscode-font.html",
     "build": "echo Method not implemeted"
   },

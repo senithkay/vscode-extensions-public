@@ -2,8 +2,8 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
 <svg xmlns="http://www.w3.org/2000/svg">
 <defs>
-  <font id="vscode-font" horiz-adv-x="96">
-    <font-face font-family="vscode-font"
+  <font id="wso2-vscode" horiz-adv-x="96">
+    <font-face font-family="wso2-vscode"
       units-per-em="250" ascent="250"
       descent="0" />
     <missing-glyph horiz-adv-x="0" />

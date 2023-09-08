@@ -1,12 +1,12 @@
 const fs = require('fs');
 
 // Read the generated HTML file
-const htmlFilePath = 'font/vscode-font.html'; // Adjust the path to your generated HTML file
+const htmlFilePath = 'fw-vscode/wso2-vscode.html'; // Adjust the path to your generated HTML file
 const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
 
 let modifiedHtml = htmlContent.replace(
-    '<h1>vscode-font</h1>',
-    `<h1>vscode-font</h1> <div> <input type="text" id="searchInput" placeholder="Seach Icon"> </div>`
+    '<h1>wso2-vscode</h1>',
+    `<h1>WSO2 VS Code Font</h1> <div> <input type="text" id="searchInput" placeholder="Seach Icon"> </div>`
 );
 
 modifiedHtml = modifiedHtml.replace(
