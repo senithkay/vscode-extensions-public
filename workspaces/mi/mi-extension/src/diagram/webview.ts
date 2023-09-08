@@ -9,6 +9,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { RegisterWebViewPanelRpc } from '../WebviewRPC';
 
 export function createDiagramWebview(context: vscode.ExtensionContext) {
     // Get the path to the `diagram.js` file
@@ -27,6 +28,7 @@ export function createDiagramWebview(context: vscode.ExtensionContext) {
         }
     );
 
+    new RegisterWebViewPanelRpc(panel);
     panel.webview.html = `
             <!DOCTYPE html>
             <html lang="en">

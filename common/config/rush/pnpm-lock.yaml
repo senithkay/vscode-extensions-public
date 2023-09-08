@@ -2906,8 +2906,10 @@ importers:
       '@typescript-eslint/parser': ~5.48.2
       eslint: ^8.32.0
       typescript: ^4.9.4
+      vscode-messenger: ~0.4.5
       vscode-messenger-common: ^0.4.5
     dependencies:
+      vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
     devDependencies:
       '@typescript-eslint/eslint-plugin': 5.48.2_glnxe276xytynte7qoyvlk5nwq
@@ -2936,6 +2938,8 @@ importers:
       '@types/node': ~20.5.9
       '@types/react': ^17.0.37
       '@types/react-dom': ^17.0.14
+      '@types/vscode-webview': ~1.57.2
+      '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ~2.4.1
       lodash: ~4.17.21
@@ -2944,6 +2948,8 @@ importers:
       source-map-loader: ~4.0.1
       storybook: ~7.4.0
       ts-loader: ~9.4.4
+      vscode-messenger-common: ~0.4.5
+      vscode-messenger-webview: ~0.4.5
       webpack: ~5.88.2
       webpack-cli: ~5.1.4
       webpack-dev-server: ~4.15.1
@@ -2960,6 +2966,7 @@ importers:
       '@types/node': 20.5.9
       '@types/react': 17.0.65
       '@types/react-dom': 17.0.20
+      '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       copyfiles: 2.4.1
       lodash: 4.17.21
@@ -2968,6 +2975,8 @@ importers:
       source-map-loader: 4.0.1_webpack@5.88.2
       storybook: 7.4.0
       ts-loader: 9.4.4_webpack@5.88.2
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
     devDependencies:
       '@babel/plugin-syntax-flow': 7.22.5
       '@babel/preset-typescript': 7.22.11
@@ -2976,6 +2985,7 @@ importers:
       '@storybook/addon-links': 7.4.0_biqbaboplfbrettd7655fr4n2y
       '@storybook/react-webpack5': 7.4.0_6254enpmcz5rszoqwq4yi2cl7m
       '@types/lodash': 4.14.198
+      '@types/vscode-webview': 1.57.2
       webpack: 5.88.2_webpack-cli@5.1.4
       webpack-cli: 5.1.4_55ctblq7vmnkc7msvxpxtdxasq
       webpack-dev-server: 4.15.1_w46lltld4evug5kpkz4iei6qt4
@@ -2989,17 +2999,23 @@ importers:
       '@typescript-eslint/parser': ^6.4.1
       '@vscode/test-electron': ^2.3.4
       '@vscode/vsce': ~2.21.0
+      '@wso2-enterprise/mi-core': workspace:*
       copyfiles: ^2.4.1
       eslint: ^8.47.0
       glob: ^10.3.3
       mocha: ^10.2.0
       ts-loader: ^9.4.4
       typescript: ^5.1.6
+      vscode-messenger: ~0.4.5
+      vscode-messenger-common: ~0.4.5
       webpack: ^5.88.2
       webpack-cli: ^5.1.4
     dependencies:
       '@vscode/vsce': 2.21.0
+      '@wso2-enterprise/mi-core': link:../mi-core
       copyfiles: 2.4.1
+      vscode-messenger: 0.4.5
+      vscode-messenger-common: 0.4.5
     devDependencies:
       '@types/mocha': 10.0.1
       '@types/node': 16.18.46
@@ -16976,7 +16992,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.88.2_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_webpack@5.88.2
+      webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
 
   /@webpack-cli/configtest/2.1.1_w46lltld4evug5kpkz4iei6qt4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -16995,7 +17011,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.10.0
-      webpack-cli: 4.10.0_webpack@5.88.2
+      webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
 
   /@webpack-cli/info/2.0.2_w46lltld4evug5kpkz4iei6qt4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -17018,6 +17034,7 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.88.2
+    dev: true
 
   /@webpack-cli/serve/1.7.0_zlkpompfwd3ohwjpgahvnmgqqy:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -40697,6 +40714,7 @@ packages:
       rechoir: 0.7.1
       webpack: 5.88.2_webpack-cli@4.10.0
       webpack-merge: 5.9.0
+    dev: true
 
   /webpack-cli/5.1.4_55ctblq7vmnkc7msvxpxtdxasq:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -41306,7 +41324,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.9_webpack@5.88.2
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_webpack@5.88.2
+      webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'

@@ -20,6 +20,7 @@ import { MediatorNodeModel } from './components/node/MediatorNodeModel';
 import { MediatorPortModel } from './components/port/MediatorPortModel';
 import { NavigationWrapperCanvasWidget } from './components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget';
 import { MediatorLinkModel } from './components/link/MediatorLinkModel';
+import { MIWebViewAPI } from './utils/WebViewRpc';
 
 const dagreEngine = new DagreEngine({
 	graph: {
@@ -62,6 +63,8 @@ export function MIDiagram(_props: MIDiagramProps) {
 		setDiagramModel(model);
 		setEngine(e);
 		autoDistribute();
+
+		MIWebViewAPI.getInstance().showErrorMsg('Hello from React');
 	}, []);
 
 	const autoDistribute = () => {
