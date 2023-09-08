@@ -42,10 +42,10 @@ export class ProjectView {
         }
         if (projectExist) {
             console.log("Project already exists, & therefore attempting to delete it");
-            await CommonUtils.setQuickInputFieldValue({
-                inputValue: "Select folder to clone the project",
-                title: "The project is not cloned yet. Do you want to clone and open it?",
-            });
+            await CommonUtils.clickPromptButton(
+                "Select Directory",
+                "The selected project hasn't been cloned yet. Please select a directory where you'd like it to be cloned."
+            );
             CommonUtils.createDir(join(updatedPath));
             await CommonUtils.setQuickInputFieldValue({
                 inputValue: updatedPath,
@@ -69,6 +69,7 @@ export class ProjectView {
         await CommonUtils.switchToIFrame("Project");
         await CommonUtils.waitUntilById("create-project-btn", 30000);
         await CommonUtils.switchToDefaultFrame();
+        await CommonUtils.closeAllEditors();
         console.log("Deleted the currently opened project");
     }
 
@@ -80,7 +81,8 @@ export class ProjectView {
         await CommonUtils.waitForIFrameCount(3);
         await CommonUtils.switchToIFrame("Architecture View");
         await CommonUtils.waitUntil(
-            By.xpath(`//div[contains(@class, 'diagram-container')]//*[text()='${componentName}']`)
+            By.xpath(`//div[contains(@class, 'diagram-container')]//*[text()='${componentName}']`),
+            30000
         );
         await CommonUtils.switchToDefaultFrame();
     }
@@ -93,7 +95,8 @@ export class ProjectView {
         await CommonUtils.waitForIFrameCount(3);
         await CommonUtils.switchToIFrame("Cell View");
         await CommonUtils.waitUntil(
-            By.xpath(`//div[contains(@class, 'cell-diagram-container')]//*[text()='${componentName}']`)
+            By.xpath(`//div[contains(@class, 'cell-diagram-container')]//*[text()='${componentName}']`),
+            30000
         );
         await CommonUtils.switchToDefaultFrame();
     }
