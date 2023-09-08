@@ -8,36 +8,36 @@
  */
 import React from "react";
 import "../../../resources/codicons/codicon.css"
-import "../../../resources/fw-vscode/wso2-vscode.css"
 
 import styled from "@emotion/styled";
 
-interface IconContainerProps {
+interface CodiconContainerProps {
     sx?: any;
 }
 
-const IconContainer = styled.div<IconContainerProps>`
+const CodiconContainer = styled.div<CodiconContainerProps>`
     height: 16px;
     width: 14px;
     cursor: pointer;
-    ${(props: IconContainerProps) => props.sx};
+    ${(props: CodiconContainerProps) => props.sx};
 `;
 
-export interface IconProps {
+export interface CodiconProps {
 	name: string; // Identifier for the icon
     sx?: any;
     onClick?: () => void;
 }
 
-export const Icon: React.FC<IconProps> = (props: IconProps) => {
+export const Codicon: React.FC<CodiconProps> = (props: CodiconProps) => {
     const { name, sx, onClick } = props;
     const handleComponentClick = () => {
         onClick();
     }
-    const icon = (<i className={`fw-${name}`} />);
+    const icon = (<i className={`codicon codicon-${name}`} />);
+    
     return (
-        <IconContainer sx={sx} onClick={handleComponentClick}>
+        <CodiconContainer sx={sx} onClick={handleComponentClick}>
             {icon}
-        </IconContainer>
+        </CodiconContainer>
     );
 };

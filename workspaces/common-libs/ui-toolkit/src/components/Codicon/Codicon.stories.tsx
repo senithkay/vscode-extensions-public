@@ -8,11 +8,11 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Icon, IconProps } from "./Icon";
+import { Codicon, CodiconProps } from "./Codicon";
 
-const Template: ComponentStory<typeof Icon> = (args: IconProps) => <Icon {...args} />;
+const Template: ComponentStory<typeof Codicon> = (args: CodiconProps) => <Codicon {...args} />;
 
 export const SampleIcon = Template.bind();
-SampleIcon.args = { name: "architectureView" };
+SampleIcon.args = { name: "add" };
 
-export default { component: Icon, title: "Icon" };
+export default { component: Codicon, title: "Codicon" };

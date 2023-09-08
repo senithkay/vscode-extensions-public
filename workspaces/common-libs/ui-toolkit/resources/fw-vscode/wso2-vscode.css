@@ -1,0 +1,47 @@
+@font-face {
+    font-family: "wso2-vscode";
+    src: url("./wso2-vscode.eot?e813645763477b989aeaf34ccf5ed13a?#iefix") format("embedded-opentype"),
+url("./wso2-vscode.woff2?e813645763477b989aeaf34ccf5ed13a") format("woff2"),
+url("./wso2-vscode.woff?e813645763477b989aeaf34ccf5ed13a") format("woff"),
+url("./wso2-vscode.ttf?e813645763477b989aeaf34ccf5ed13a") format("truetype"),
+url("./wso2-vscode.svg?e813645763477b989aeaf34ccf5ed13a#wso2-vscode") format("svg");
+}
+
+i[class^="fw-"]:before, i[class*=" fw-"]:before {
+    font-family: wso2-vscode !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.fw-architectureView:before {
+    content: "\f101";
+}
+.fw-cellView:before {
+    content: "\f102";
+}
+.fw-choreo:before {
+    content: "\f103";
+}
+.fw-loading:before {
+    content: "\f104";
+}
+.fw-organization:before {
+    content: "\f105";
+}
+.fw-project:before {
+    content: "\f106";
+}
+.fw-refresh:before {
+    content: "\f107";
+}
+.fw-sign-in:before {
+    content: "\f108";
+}
+.fw-sign-out:before {
+    content: "\f109";
+}
