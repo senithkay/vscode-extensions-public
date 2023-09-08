@@ -44,7 +44,7 @@ const expectedConfigs = [
     'authConfig'
 ];
 
-describe.skip('VSCode Config Creation Using Command UI Tests', () => {
+describe('VSCode Config Creation Using Command UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;

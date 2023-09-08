@@ -16,6 +16,7 @@ import {
     WebDriver,
     ActivityBar,
     BottomBarPanel,
+    InputBox,
 } from "vscode-extension-tester";
 import { DEFAULT_TIME_OUT, VSCODE_ZOOM_TIME } from "./constants";
 import { fail } from "assert";
@@ -26,6 +27,10 @@ export function wait(ms: number) {
 
 export function waitUntil(locator: Locator, timeout: number = DEFAULT_TIME_OUT) {
     return VSBrowser.instance.driver.wait(until.elementLocated(locator), timeout);
+}
+
+export async function getAvailableInput() {
+    return await VSBrowser.instance.driver.wait(until.elementIsVisible(new InputBox()), DEFAULT_TIME_OUT) as InputBox;
 }
 
 export function waitUntilTextContains(

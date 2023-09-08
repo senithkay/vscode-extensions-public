@@ -10,7 +10,7 @@
 import { EditorView, VSBrowser, WebView, Workbench, InputBox } from 'vscode-extension-tester';
 import { join } from 'path';
 import { describe } from 'mocha';
-import { clickOnActivity, waitForWebview, verifyTerminalText, wait } from './util';
+import { clickOnActivity, waitForWebview, verifyTerminalText, wait, getAvailableInput } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -46,7 +46,7 @@ describe('GraphQL UI Tests', () => {
 
         // Confirm path
         await wait(500); // Pause for a while server to start. It may take some time to server to respond initially
-        const inputBox = new InputBox();
+        const inputBox = await getAvailableInput();
         await inputBox.confirm();
         
         // switch to swagger window
