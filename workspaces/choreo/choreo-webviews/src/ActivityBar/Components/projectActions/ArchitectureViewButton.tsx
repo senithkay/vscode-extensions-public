@@ -15,7 +15,7 @@ import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
-import { ArchitectureViewIcon } from "../../../icons";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export const ArchiViewButton = () => {
     const { isBalExtInstalled } = useChoreoWebViewContext();
@@ -26,12 +26,12 @@ export const ArchiViewButton = () => {
         });
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     };
-
+    const icon = (<Icon name="architectureView" />);
     return (
         <ProjectActionButton
             onClick={handleClick}
             label="Architecture"
-            icon={<ArchitectureViewIcon />}
+            icon={icon}
             tooltip={isBalExtInstalled ? "Open Architecture Diagram" : "Please install Ballerina VSCode extension"}
             disabled={!isBalExtInstalled}
         />

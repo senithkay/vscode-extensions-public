@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "gen-icons": "icon-font-generator src/icons/*.svg -o fw-vscode -n wso2-vscode -p fw --normalize --round 0 --mono --height 250 && node src/searchableInput/addSearch.js",
-    "start": "http-server -p 8080 font/vscode-font.html",
+    "start": "open fw-vscode/wso2-vscode.html",
     "build": "echo Method not implemeted"
   },
   "author": "",
