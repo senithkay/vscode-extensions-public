@@ -105,6 +105,9 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                     dockerContext: subPath,
                 }
                 componentParams.repositoryInfo = repoDetails;
+                componentParams.port = Number(port);
+                componentParams.networkVisibility = networkVisibility;
+                componentParams.endpointContext = endpointContext;
 
                 await ChoreoWebViewAPI.getInstance().createNonBalComponent(componentParams);
             } else if (implementationType === ChoreoImplementationType.Ballerina) {

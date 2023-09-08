@@ -24,6 +24,7 @@ export interface IChoreoWebViewContext {
     choreoProject?: Project;
     loadingProject?: boolean;
     choreoUrl: string;
+    selectedOrg?: Organization;
     currentProjectOrg?: Organization;
     isBalExtInstalled?: boolean;
 }
@@ -61,7 +62,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         error: getChoreoWorkspaceError,
         isLoading: getChoreoWorkspaceLoading,
         isFetched: fetchedWorkspaceMetaData,
-        refetch: refetchWorkspaceMetaData
+        refetch: refetchWorkspaceMetaData,
     } = useQuery({
         queryKey: ["choreo_workspace_metadata"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoWorkspaceMetadata(),
@@ -74,7 +75,6 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
         data: loginStatus = "Initializing",
         error: loginStatusError,
         isLoading: loginStatusLoading,
-        isFetched: fetchedLoginStatus,
     } = useQuery({
         queryKey: ["choreo_login_status"],
         queryFn: () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
@@ -93,6 +93,18 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
     });
 
     const {
+        data: selectedOrg,
+        refetch: refetchSelectedOrg,
+        isLoading: selectedOrgLoading,
+        isFetched: fetchedSelectedOrg,
+    } = useQuery({
+        queryKey: ["choreo_org", loginStatus, userInfo?.userId],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getCurrentOrg(),
+        enabled: loginStatus === "LoggedIn",
+        refetchOnWindowFocus: false,
+    });
+
+    const {
         data: choreoProject,
         error: choreoProjectError,
         isLoading: choreoProjectLoading,
@@ -101,13 +113,19 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
             "choreo_project_details",
             loginStatus,
             isChoreoProject,
-            workspaceMetaData?.projectID,
+            workspaceMetaData,
             userInfo?.userId,
             fetchedWorkspaceMetaData,
-            fetchedLoginStatus,
+            selectedOrg,
+            fetchedSelectedOrg,
         ],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
-        enabled: loginStatus === "LoggedIn" && isChoreoProject && fetchedWorkspaceMetaData && fetchedLoginStatus,
+        enabled:
+            loginStatus === "LoggedIn" &&
+            isChoreoProject &&
+            fetchedWorkspaceMetaData &&
+            selectedOrg?.id === workspaceMetaData?.orgId &&
+            fetchedSelectedOrg,
         refetchOnWindowFocus: false,
     });
 
@@ -131,6 +149,9 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
                 refetchUserInfo();
             }
         });
+        rpcInstance.onSelectedOrgChanged(() => {
+            refetchSelectedOrg();
+        });
         rpcInstance.onRefreshWorkspaceMetadata(() => {
             refetchWorkspaceMetaData();
         });
@@ -143,13 +164,18 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
             value={{
                 loginStatus,
                 userInfo,
-                choreoProject: isChoreoProject ? choreoProject : undefined,
+                choreoProject:
+                    isChoreoProject && selectedOrg?.id === workspaceMetaData?.orgId ? choreoProject : undefined,
                 isChoreoProject,
                 error,
                 choreoUrl,
                 loginStatusPending: loginStatusLoading || userInfoLoading,
-                loadingProject: getChoreoWorkspaceLoading || (isChoreoProject === true && choreoProjectLoading),
+                loadingProject:
+                    getChoreoWorkspaceLoading ||
+                    selectedOrgLoading ||
+                    (isChoreoProject === true && selectedOrg?.id === workspaceMetaData?.orgId && choreoProjectLoading),
                 currentProjectOrg,
+                selectedOrg,
                 isBalExtInstalled,
             }}
         >
