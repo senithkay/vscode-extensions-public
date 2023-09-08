@@ -387,7 +387,7 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
 function findBallerinaTomlFile(filePath) {
     let currentFolderPath = path.dirname(filePath);
 
-    while (currentFolderPath !== '/') {
+    while (currentFolderPath !== path.sep) {
         const tomlFilePath = path.join(currentFolderPath, ballerinaToml);
         if (fs.existsSync(tomlFilePath)) {
             return currentFolderPath;
