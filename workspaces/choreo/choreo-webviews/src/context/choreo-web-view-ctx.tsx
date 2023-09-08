@@ -164,7 +164,8 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
             value={{
                 loginStatus,
                 userInfo,
-                choreoProject: isChoreoProject ? choreoProject : undefined,
+                choreoProject:
+                    isChoreoProject && selectedOrg?.id === workspaceMetaData?.orgId ? choreoProject : undefined,
                 isChoreoProject,
                 error,
                 choreoUrl,
@@ -172,7 +173,7 @@ export const ChoreoWebViewContextProvider: FC<Props> = ({ children, choreoUrl, c
                 loadingProject:
                     getChoreoWorkspaceLoading ||
                     selectedOrgLoading ||
-                    (isChoreoProject === true && choreoProjectLoading),
+                    (isChoreoProject === true && selectedOrg?.id === workspaceMetaData?.orgId && choreoProjectLoading),
                 currentProjectOrg,
                 selectedOrg,
                 isBalExtInstalled,

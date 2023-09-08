@@ -51,7 +51,12 @@ export async function showSwitchProjectQuickPick(org: Organization) {
         return;
     }
 
-    const currentProject = await ext.api.getChoreoProject();
+    let currentProject: Project | undefined;
+    try {
+        currentProject = await ext.api.getChoreoProject();
+    } catch {
+        console.log("User is not within a valid Choreo project");
+    }
     const { quickPicks, projects } = await getProjectQuickPicks(org, currentProject);
 
     quickPickInstance.busy = false;

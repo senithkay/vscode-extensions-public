@@ -133,7 +133,6 @@ export class ChoreoExtensionApi {
             if (foundOrg) {
                 return foundOrg;
             }
-            throw new Error(`Couldn't find org id ${currentProjectOrgId} within user's available orgs`);
         }
 
         const selectedGlobalOrg: Organization | undefined = await ext.context.globalState.get(SELECTED_GLOBAL_ORG_KEY);
