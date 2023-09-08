@@ -164,10 +164,10 @@ function showActionableMessage(message: string, location: Location) {
 export async function editDisplayLabel(langClient: ExtendedLangClient, annotation: Annotation): Promise<boolean> {
     const stObject = {
         position: {
-            startLine: annotation.elementLocation.startPosition.line,
-            startColumn: annotation.elementLocation.startPosition.offset,
-            endLine: annotation.elementLocation.endPosition.line,
-            endColumn: annotation.elementLocation.endPosition.offset
+            startLine: annotation.sourceLocation.startPosition.line,
+            startColumn: annotation.sourceLocation.startPosition.offset,
+            endLine: annotation.sourceLocation.endPosition.line,
+            endColumn: annotation.sourceLocation.endPosition.offset
         }
     };
 
@@ -179,9 +179,9 @@ export async function editDisplayLabel(langClient: ExtendedLangClient, annotatio
     `;
 
     const response: STResponse = await updateSyntaxTree(
-        langClient, annotation.elementLocation.filePath, stObject, displayAnnotation, undefined, true) as STResponse;
+        langClient, annotation.sourceLocation.filePath, stObject, displayAnnotation, undefined, true) as STResponse;
     if (response.parseSuccess && response.source) {
-        return updateSourceFile(langClient, annotation.elementLocation.filePath, response.source);
+        return updateSourceFile(langClient, annotation.sourceLocation.filePath, response.source);
     }
     window.showErrorMessage('Architecture View: Failed to update display annotation.');
     return false;

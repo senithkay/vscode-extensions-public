@@ -83,6 +83,11 @@
         "category": "Choreo"
       },
       {
+        "command": "wso2.choreo.cell.view",
+        "title": "View Choreo Cell Diagram",
+        "category": "Choreo"
+      },
+      {
         "command": "wso2.choreo.sign.in.with.authCode",
         "title": "Sign In with Auth Code",
         "category": "Choreo"
@@ -225,9 +230,10 @@
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "compile": "webpack --mode production",
     "watch-choreo": "npx webpack --watch",
-    "build": "pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm run package && pnpm run postbuild",
-    "rebuild": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm run postbuild",
+    "build": "pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm copy-cellview-lib && pnpm run package && pnpm run postbuild",
+    "rebuild": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm copy-cellview-lib && pnpm run postbuild",
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../choreo-webviews/build/*.js ./resources/jslibs",
+    "copy-cellview-lib": "mkdir -p ./resources/jslibs && copyfiles -u 3 \"../cell-diagram/lib/**/*\" ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
     "e2e-test-setup": "npx extest get-vscode -c 1.81.0 && npx extest get-chromedriver -c 1.81.0 && npx extest install-vsix -f $(ls vsix/*.vsix) && npx extest install-vsix -f $(ls ../../../ballerina-*.vsix)",
@@ -235,7 +241,7 @@
     "e2e-playwright": "pnpm run compile-tests && pnpm exec playwright test",
     "e2e-pw-record": "pnpm run compile-tests && node ./dist/tests/e2e-playwright/recorder.js",
     "integration-test": "pnpm run compile-tests && npx extest run-tests 'dist/tests/integration-tests/*.test.js' --mocha_config src/tests/integration-tests/.mocharc.js -o src/tests/integration-tests/settings.json",
-    "pretest": "pnpm run clean && pnpm run compile-tests && pnpm run lint && pnpm run copy-webview-lib",
+    "pretest": "pnpm run clean && pnpm run compile-tests && pnpm run lint && pnpm run copy-webview-lib && pnpm run copy-cellview-lib",
     "lint": "eslint src --ext ts",
     "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
     "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",

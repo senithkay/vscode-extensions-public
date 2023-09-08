@@ -86,7 +86,7 @@ import {
     RefreshWorkspaceNotification,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
 
@@ -96,7 +96,6 @@ import * as vscode from 'vscode';
 import { cloneProject, askProjectDirPath } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
-import { executeWithTaskRetryPrompt } from "../../../retry";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
@@ -354,7 +353,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                         const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
                         const model: ComponentModel = JSON.parse(decodedString.toString());
                         enrichConsoleDeploymentData(model.services, finalVersion);
-                        componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
+                        componentModels[`${model.orgName}/${model.id}:${model.version}`] = model;
                     } else {
                         componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
                         diagnostics.push({ name: `${value.displayName} Component` });
@@ -425,11 +424,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     ext.api.onRefreshComponentList(() => {
         messenger.sendNotification(RefreshComponentsNotification, BROADCAST, null);
     });
-    
-    ext.api.onRefreshWorkspaceMetadata(() => {
+ext.api.onRefreshWorkspaceMetadata(() => {
         messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
     });
-
     messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
         if (args.length >= 1) {
             const cmdArgs = args.length > 1 ? args.slice(1) : [];
@@ -475,7 +472,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onRequest(ClearWebviewCache, async (cacheKey) => {
         await ext.context.workspaceState.update(cacheKey, undefined);
     });
-    
+
     messenger.onRequest(IsBallerinaExtInstalled, () => {
         const ext = vscode.extensions.getExtension("wso2.ballerina");
         return !!ext;
@@ -505,6 +502,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     // Register RPC handlers for the Choreo Project Manager
     registerChoreoProjectManagerRPCHandlers(messenger, manager);
+
+    // Register RPC handlers for the Choreo Cell View
+    registerChoreoCellViewRPCHandlers(messenger, ext.clients.cellViewClient);
+
 }
 
 export class WebViewPanelRpc {
@@ -527,6 +528,13 @@ export class WebViewPanelRpc {
             this._panel = view;
         } else {
             throw new Error("Panel already registered");
+        }
+    }
+
+    public dispose() {
+        if (this._panel) {
+          this._panel.dispose();
+          this._panel = undefined;
         }
     }
 }

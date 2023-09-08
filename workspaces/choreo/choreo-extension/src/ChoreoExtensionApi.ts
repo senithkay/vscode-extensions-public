@@ -14,21 +14,24 @@ import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, comm
 import { ext } from "./extensionVariables";
 
 import {
+    ChoreoComponentType,
+    ChoreoLoginStatus,
+    ChoreoWorkspaceMetaData,
+    Component,
+    ComponentDisplayType,
+    Endpoint,
     IProjectManager,
     Organization,
     Project,
-    ChoreoLoginStatus,
-    WorkspaceConfig,
-    Component,
-    ChoreoComponentType,
-    UserInfo,
-    ChoreoWorkspaceMetaData,
-    Endpoint,
     ServiceTypes,
-    ComponentDisplayType,
-    EndpointData,
+    UserInfo,
+    WorkspaceConfig,
 } from "@wso2-enterprise/choreo-core";
-import { CMEntryPoint, CMResourceFunction, CMService, ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    CMResourceFunction,
+    CMService,
+    ComponentModel
+} from "@wso2-enterprise/ballerina-languageclient";
 import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
 
@@ -51,7 +54,6 @@ export interface IChoreoExtensionAPI {
     deleteComponent(projectId: string, componentPath: string): Promise<void>;
     getConsoleUrl(): Promise<string>;
 }
-
 
 export class ChoreoExtensionApi {
     private _userInfo: UserInfo | undefined;
@@ -139,7 +141,7 @@ export class ChoreoExtensionApi {
         if(selectedGlobalOrg && userInfo?.organizations?.some(item => item.id === selectedGlobalOrg.id)){
             return selectedGlobalOrg;
         }
-        
+
         if(userInfo?.organizations[0]){
             await ext.context.globalState.update(SELECTED_GLOBAL_ORG_KEY, userInfo?.organizations[0]);
             return userInfo?.organizations[0];
@@ -200,7 +202,7 @@ export class ChoreoExtensionApi {
     public refreshOrganization(org: Organization) {
         this._onOrganizationChanged.fire(org);
     }
-    
+
     public refreshWorkspaceMetadata() {
         this._onRefreshWorkspaceMetadata.fire(null);
     }
@@ -364,7 +366,7 @@ export class ChoreoExtensionApi {
                         if (wsConfig && wsConfig.path) {
                             const componentPath: string = path.join(projectRoot, wsConfig.path);
                             for (const localModel of model.values()) {
-                                if (localModel.functionEntryPoint?.elementLocation?.filePath.includes(componentPath) &&
+                                if (localModel.functionEntryPoint?.sourceLocation?.filePath.includes(componentPath) &&
                                     (displayType === ChoreoComponentType.ScheduledTask.toString() || displayType === ChoreoComponentType.ManualTrigger.toString())) {
                                     localModel.functionEntryPoint.type = displayType as any;
                                 }
@@ -407,20 +409,25 @@ export class ChoreoExtensionApi {
                 nonBalComponents?.forEach((component) => {
 
                     const defaultService: CMService = {
+                        id: component.id || component.name,
+                        label: "",
                         dependencies: [],
-                        path: "",
+                        type: ServiceTypes.OTHER,
                         remoteFunctions: [],
-                        serviceId: component.id || component.name,
-                        serviceType: ServiceTypes.OTHER,
-                        resources: [],
+                        resourceFunctions: [],
                         annotation: { id: component.id || component.name, label: component.displayName },
                     };
 
                     const defaultComponentModel: ComponentModel = {
                         hasCompilationErrors: false,
                         entities: new Map(),
-                        packageId: { name: component.name, org: organization.name, version: component.version },
+                        id: component.name,
+                        orgName: organization.name,
+                        version: component.version,
                         services: { [component.name]: defaultService } as any,
+                        hasModelErrors: false,
+                        modelVersion: '0.4.0',
+                        connections: []
                     };
 
                     const componentPath = getComponentDirPath(component, workspaceFileLocation);
@@ -446,11 +453,11 @@ export class ChoreoExtensionApi {
 
                                     const service: CMService = {
                                         ...defaultService,
-                                        serviceId,
-                                        serviceType: endpoint?.type || ServiceTypes.HTTP,
-                                        resources,
+                                        id: serviceId,
+                                        type: endpoint?.type || ServiceTypes.HTTP,
+                                        resourceFunctions: resources,
                                         annotation: { id: serviceId, label: endpoint.name },
-                                        elementLocation: {
+                                        sourceLocation: {
                                             filePath: endpointsPath,
                                             startPosition: { line: 0, offset: 0 },
                                             endPosition: { line: 0, offset: 0 },
@@ -476,7 +483,7 @@ export class ChoreoExtensionApi {
                     } else if([ComponentDisplayType.ByocWebAppDockerLess, ComponentDisplayType.ByocWebApp].includes(component.displayType as ComponentDisplayType)) {
                         const service: CMService = {
                             ...defaultService,
-                            serviceType: ServiceTypes.WEBAPP,
+                            type: ServiceTypes.WEBAPP,
                             deploymentMetadata: { gateways: { internet: { isExposed: true }, intranet: { isExposed: false } }},
                         };
 
@@ -489,6 +496,8 @@ export class ChoreoExtensionApi {
                             ...defaultComponentModel,
                             services: new Map(),
                             functionEntryPoint: {
+                                id: "",
+                                label: "",
                                 annotation: { id: component.name, label: "" },
                                 dependencies: [],
                                 interactions: [],
@@ -503,7 +512,6 @@ export class ChoreoExtensionApi {
                 });
             }
         }
-
         return nonBalMap;
     };
 
@@ -535,7 +543,7 @@ export class ChoreoExtensionApi {
     public async shouldOpenChoreoActivity(): Promise<boolean | undefined> {
         return ext.context.globalState.get<boolean>(OPEN_CHOREO_ACTIVITY);
     }
-    
+
     public async resetOpenChoreoActivity(): Promise<void> {
         await ext.context.globalState.update(OPEN_CHOREO_ACTIVITY, undefined);
     }

@@ -25,6 +25,7 @@ export const choreoArchitectureViewCmdId = 'wso2.choreo.architecture.view';
 export const choreoSignInWithAuthCodeCmdId = 'wso2.choreo.sign.in.with.authCode';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 export const openWalkthroughCmdId = 'wso2.choreo.getStarted';
+export const openChoreoCellDiagram = 'wso2.choreo.cell.view';
 
 // Choreo login status
 export const STATUS_LOGGED_IN = "LoggedIn";

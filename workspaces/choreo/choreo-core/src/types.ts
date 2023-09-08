@@ -495,6 +495,11 @@ export interface Endpoint {
     schemaFilePath?: string;
 }
 
+export interface Connection {
+    id: string;
+    mappings: Mapping[];
+}
+
 export enum DeploymentStatus {
     NotDeployed = 'NOT_DEPLOYED',
     Active = 'ACTIVE',
@@ -536,4 +541,8 @@ export enum ServiceTypes {
     WEBHOOK = "Webhook",
     WEBAPP = "WebApp",
     OTHER = "other"
+}
+
+interface Mapping {
+    [key: string]: string;
 }

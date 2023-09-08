@@ -9,7 +9,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ComponentModel, CMEntryPoint as EntryPoint, CMLocation as Location, GetComponentModelResponse, CMService as Service
+    ComponentModel,
+    CMEntryPoint as EntryPoint,
+    CMLocation as Location,
+    GetComponentModelResponse,
+    CMService as Service,
+    ComponentModelDeprecated
 } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -21,6 +26,7 @@ import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
+import { isVersionBelow, transformToV4Models } from "./utils/utils";
 
 interface ContainerStyleProps {
     backgroundColor?: string;
@@ -110,16 +116,25 @@ export function DesignDiagram(props: DiagramProps) {
 
     const refreshDiagram = async () => {
         await getComponentModel().then((response) => {
-            const components: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
+            const components: Map<string, ComponentModel | ComponentModelDeprecated> =
+                new Map(Object.entries(response.componentModels));
             if (components && components.size > 0) {
-                defaultOrg.current = [...components][0][1].packageId.org;
+                const component = [...components][0][1] as any;
+                defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.orgName;
             }
             if (!hasDiagnostics.current && response.diagnostics.length && editLayerAPI) {
                 editLayerAPI.showDiagnosticsWarning();
             }
             hasDiagnostics.current = response.diagnostics.length > 0;
             setProjectPkgs(createRenderPackageObject(components.keys()));
-            setProjectComponents(components);
+
+            let projectComponents: Map<string, ComponentModel>;
+            if (isVersionBelow(components, 0.4)) {
+                projectComponents = transformToV4Models(components as Map<string, ComponentModelDeprecated>);
+            } else {
+                projectComponents = components as Map<string, ComponentModel>;
+            }
+            setProjectComponents(projectComponents);
             setFocusedNodeId(undefined);
         });
     };

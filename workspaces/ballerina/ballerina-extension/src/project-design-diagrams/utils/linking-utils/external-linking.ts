@@ -27,7 +27,7 @@ let clientName: string;
 
 export async function addConnector(langClient: ExtendedLangClient, args: AddConnectorArgs): Promise<boolean> {
     const { source, connector } = args;
-    const filePath: string = source.elementLocation.filePath;
+    const filePath: string = source.sourceLocation.filePath;
 
     const stResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
@@ -46,7 +46,7 @@ export async function addConnector(langClient: ExtendedLangClient, args: AddConn
     clientName = genClientName(stResponse.syntaxTree.source, "Ep", connector);
     const imports = getConnectorImports(stResponse.syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
 
-    if ("serviceId" in source) {
+    if ("resourceFunctions" in source) {
         return linkFromService(stResponse as STResponse, source, imports, connectorInfo, filePath, langClient);
     } else {
         return linkFromMain(stResponse as STResponse, connectorInfo, imports, filePath, langClient);
@@ -55,7 +55,7 @@ export async function addConnector(langClient: ExtendedLangClient, args: AddConn
 
 export async function pullConnector(langClient: ExtendedLangClient, args: AddConnectorArgs): Promise<boolean> {
     const { source, connector } = args;
-    const filePath: string = source.elementLocation.filePath;
+    const filePath: string = source.sourceLocation.filePath;
     const stResponse = (await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString(),

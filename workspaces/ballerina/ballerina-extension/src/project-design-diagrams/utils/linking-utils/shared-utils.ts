@@ -49,10 +49,10 @@ export function genClientName(source: string, prefix: string, connector?: Connec
 export function getServiceDeclaration(members: any[], service: Service, checkEnd: boolean): ServiceDeclaration {
     return members.find((member) => (
         member.kind === "ServiceDeclaration" &&
-        service.elementLocation.startPosition.line === member.position.startLine &&
-        service.elementLocation.startPosition.offset === member.position.startColumn && (
-            checkEnd ? service.elementLocation.endPosition.line === member.position.endLine &&
-                service.elementLocation.endPosition.offset === member.position.endColumn : true
+        service.sourceLocation.startPosition.line === member.position.startLine &&
+        service.sourceLocation.startPosition.offset === member.position.startColumn && (
+            checkEnd ? service.sourceLocation.endPosition.line === member.position.endLine &&
+                service.sourceLocation.endPosition.offset === member.position.endColumn : true
         )
     ));
 }
