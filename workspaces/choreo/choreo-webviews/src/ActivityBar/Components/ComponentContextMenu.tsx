@@ -54,18 +54,18 @@ export const ComponentContextMenu = (props: {
 
     const menuItems: MenuItem[] = [];
 
-    component.filePaths?.forEach(file => {
+    if (component.endpointsPath) {
         menuItems.push({
-            id: "open-source",
+            id: "open-endpoints",
             label: (
                 <>
                     <InlineIcon name="code" />
-                    &nbsp; View {file.label}
+                    &nbsp; View endpoints.yaml
                 </>
             ),
-            onClick: () => ChoreoWebViewAPI.getInstance().goToSource(file.path),
+            onClick: () => ChoreoWebViewAPI.getInstance().goToSource(component.endpointsPath),
         });
-    }) 
+    }
 
     if (!component.local && component.repository) {
         const { repository } = component;
