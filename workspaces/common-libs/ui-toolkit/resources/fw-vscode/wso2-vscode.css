@@ -1,10 +1,8 @@
 @font-face {
     font-family: "wso2-vscode";
-    src: url("./wso2-vscode.eot?e813645763477b989aeaf34ccf5ed13a?#iefix") format("embedded-opentype"),
-url("./wso2-vscode.woff2?e813645763477b989aeaf34ccf5ed13a") format("woff2"),
-url("./wso2-vscode.woff?e813645763477b989aeaf34ccf5ed13a") format("woff"),
-url("./wso2-vscode.ttf?e813645763477b989aeaf34ccf5ed13a") format("truetype"),
-url("./wso2-vscode.svg?e813645763477b989aeaf34ccf5ed13a#wso2-vscode") format("svg");
+    src: url("./wso2-vscode.eot?36a8b513e06463315597fd96bd8a4f92#iefix") format("embedded-opentype"),
+url("./wso2-vscode.woff2?36a8b513e06463315597fd96bd8a4f92") format("woff2"),
+url("./wso2-vscode.woff?36a8b513e06463315597fd96bd8a4f92") format("woff");
 }
 
 i[class^="fw-"]:before, i[class*=" fw-"]:before {
