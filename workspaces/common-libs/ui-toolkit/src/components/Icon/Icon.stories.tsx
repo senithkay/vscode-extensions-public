@@ -13,6 +13,6 @@ import { Icon, IconProps } from "./Icon";
 const Template: ComponentStory<typeof Icon> = (args: IconProps) => <Icon {...args} />;
 
 export const SampleIcon = Template.bind();
-SampleIcon.args = { name: "architectureView" };
+SampleIcon.args = { name: "ballerina" };
 
 export default { component: Icon, title: "Icon" };

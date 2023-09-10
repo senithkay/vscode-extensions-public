@@ -1,45 +1,145 @@
 export type Wso2VscodeId =
-  | "architectureView"
-  | "cellView"
+  | "ballerina"
   | "choreo"
+  | "configurable-icon"
+  | "custom"
+  | "dataMapper"
+  | "debug"
+  | "delete"
+  | "design-view"
+  | "disable"
+  | "doc"
+  | "editIcon"
+  | "email"
+  | "enable-inverse"
+  | "enable"
   | "loading"
+  | "logo-github"
+  | "manual"
+  | "new-file"
+  | "new-folder"
+  | "new-module"
   | "organization"
+  | "persist-diagram"
   | "project"
-  | "refresh"
+  | "run-conf"
+  | "schedule"
   | "sign-in"
-  | "sign-out";
+  | "sign-out"
+  | "source-view"
+  | "start"
+  | "tab"
+  | "trash"
+  | "user"
+  | "webhook"
+  | "while-icon";
 
 export type Wso2VscodeKey =
-  | "ArchitectureView"
-  | "CellView"
+  | "Ballerina"
   | "Choreo"
+  | "ConfigurableIcon"
+  | "Custom"
+  | "DataMapper"
+  | "Debug"
+  | "Delete"
+  | "DesignView"
+  | "Disable"
+  | "Doc"
+  | "EditIcon"
+  | "Email"
+  | "EnableInverse"
+  | "Enable"
   | "Loading"
+  | "LogoGithub"
+  | "Manual"
+  | "NewFile"
+  | "NewFolder"
+  | "NewModule"
   | "Organization"
+  | "PersistDiagram"
   | "Project"
-  | "Refresh"
+  | "RunConf"
+  | "Schedule"
   | "SignIn"
-  | "SignOut";
+  | "SignOut"
+  | "SourceView"
+  | "Start"
+  | "Tab"
+  | "Trash"
+  | "User"
+  | "Webhook"
+  | "WhileIcon";
 
 export enum Wso2Vscode {
-  ArchitectureView = "architectureView",
-  CellView = "cellView",
+  Ballerina = "ballerina",
   Choreo = "choreo",
+  ConfigurableIcon = "configurable-icon",
+  Custom = "custom",
+  DataMapper = "dataMapper",
+  Debug = "debug",
+  Delete = "delete",
+  DesignView = "design-view",
+  Disable = "disable",
+  Doc = "doc",
+  EditIcon = "editIcon",
+  Email = "email",
+  EnableInverse = "enable-inverse",
+  Enable = "enable",
   Loading = "loading",
+  LogoGithub = "logo-github",
+  Manual = "manual",
+  NewFile = "new-file",
+  NewFolder = "new-folder",
+  NewModule = "new-module",
   Organization = "organization",
+  PersistDiagram = "persist-diagram",
   Project = "project",
-  Refresh = "refresh",
+  RunConf = "run-conf",
+  Schedule = "schedule",
   SignIn = "sign-in",
   SignOut = "sign-out",
+  SourceView = "source-view",
+  Start = "start",
+  Tab = "tab",
+  Trash = "trash",
+  User = "user",
+  Webhook = "webhook",
+  WhileIcon = "while-icon",
 }
 
 export const WSO2_VSCODE_CODEPOINTS: { [key in Wso2Vscode]: string } = {
-  [Wso2Vscode.ArchitectureView]: "61697",
-  [Wso2Vscode.CellView]: "61698",
-  [Wso2Vscode.Choreo]: "61699",
-  [Wso2Vscode.Loading]: "61700",
-  [Wso2Vscode.Organization]: "61701",
-  [Wso2Vscode.Project]: "61702",
-  [Wso2Vscode.Refresh]: "61703",
-  [Wso2Vscode.SignIn]: "61704",
-  [Wso2Vscode.SignOut]: "61705",
+  [Wso2Vscode.Ballerina]: "61697",
+  [Wso2Vscode.Choreo]: "61698",
+  [Wso2Vscode.ConfigurableIcon]: "61699",
+  [Wso2Vscode.Custom]: "61700",
+  [Wso2Vscode.DataMapper]: "61701",
+  [Wso2Vscode.Debug]: "61702",
+  [Wso2Vscode.Delete]: "61703",
+  [Wso2Vscode.DesignView]: "61704",
+  [Wso2Vscode.Disable]: "61705",
+  [Wso2Vscode.Doc]: "61706",
+  [Wso2Vscode.EditIcon]: "61707",
+  [Wso2Vscode.Email]: "61708",
+  [Wso2Vscode.EnableInverse]: "61709",
+  [Wso2Vscode.Enable]: "61710",
+  [Wso2Vscode.Loading]: "61711",
+  [Wso2Vscode.LogoGithub]: "61712",
+  [Wso2Vscode.Manual]: "61713",
+  [Wso2Vscode.NewFile]: "61714",
+  [Wso2Vscode.NewFolder]: "61715",
+  [Wso2Vscode.NewModule]: "61716",
+  [Wso2Vscode.Organization]: "61717",
+  [Wso2Vscode.PersistDiagram]: "61718",
+  [Wso2Vscode.Project]: "61719",
+  [Wso2Vscode.RunConf]: "61720",
+  [Wso2Vscode.Schedule]: "61721",
+  [Wso2Vscode.SignIn]: "61722",
+  [Wso2Vscode.SignOut]: "61723",
+  [Wso2Vscode.SourceView]: "61724",
+  [Wso2Vscode.Start]: "61725",
+  [Wso2Vscode.Tab]: "61726",
+  [Wso2Vscode.Trash]: "61727",
+  [Wso2Vscode.User]: "61728",
+  [Wso2Vscode.Webhook]: "61729",
+  [Wso2Vscode.WhileIcon]: "61730",
 };
