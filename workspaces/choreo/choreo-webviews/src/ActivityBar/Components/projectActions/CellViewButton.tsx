@@ -15,7 +15,7 @@ import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_CELL_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { CellViewIcon } from "../../../icons";
 
 export const CellViewButton = () => {
     const { isBalExtInstalled } = useChoreoWebViewContext();
@@ -27,12 +27,11 @@ export const CellViewButton = () => {
         ChoreoWebViewAPI.getInstance().openCellView();
     };
 
-    const icon = (<Icon name="cellView" />);
     return (
         <ProjectActionButton
             onClick={handleClick}
             label="Cell View"
-            icon={icon}
+            icon={<CellViewIcon />}
             tooltip={isBalExtInstalled ? "Open Cell View" : "Please install Ballerina VSCode extension"}
             disabled={!isBalExtInstalled}
         />
