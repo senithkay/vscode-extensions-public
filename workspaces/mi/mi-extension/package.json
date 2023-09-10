@@ -30,6 +30,8 @@
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "pnpm run pretest && node ./out/test/runTest.js",
+    "e2e-test-setup": "npx extest get-vscode -c 1.81.1 && npx extest get-chromedriver -c 1.81.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
+    "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
     "postbuild": "pnpm run copyVSIX"
@@ -54,6 +56,9 @@
     "@vscode/vsce": "~2.21.0",
     "vscode-messenger-common": "~0.4.5",
     "vscode-messenger": "~0.4.5",
-    "@wso2-enterprise/mi-core": "workspace:*"
+    "@wso2-enterprise/mi-core": "workspace:*",
+    "@playwright/test": "~1.37.1",
+    "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
+    "vscode-extension-tester": "~5.9.1"
   }
 }
