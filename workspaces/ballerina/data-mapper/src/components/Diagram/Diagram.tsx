@@ -42,6 +42,7 @@ import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
+import { EnumTypeNode } from './Node/EnumType';
 import { ExpandedMappingHeaderNode } from './Node/ExpandedMappingHeader';
 import { FromClauseNode } from './Node/FromClause';
 import { JoinClauseNode } from './Node/JoinClause';
@@ -217,7 +218,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					|| node instanceof LetClauseNode
 					|| node instanceof JoinClauseNode
 					|| node instanceof LetExpressionNode
-					|| node instanceof ModuleVariableNode)
+					|| node instanceof ModuleVariableNode
+					|| node instanceof EnumTypeNode)
 				{
 					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
 					const isLetExprNode = node instanceof LetExpressionNode;
