@@ -27,7 +27,8 @@ export const MODULE_VAR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-module-var
 export enum ModuleVarKind {
     Variable,
     Configurable,
-    Constant
+    Constant,
+    Enum
 }
 
 export interface ModuleVariable {
