@@ -7,13 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
 	keywords,
 	LinePosition,
 	NonPrimitiveBal,
 	PrimitiveBalType,
 	STModification,
-	STSymbolInfo,
 	Type
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -40,6 +40,7 @@ import {
 	STKindChecker,
 	STNode,
 	traversNode,
+	traversNodeAsync,
 	TypeCastExpression
 } from "@wso2-enterprise/syntax-tree";
 
@@ -61,6 +62,7 @@ import {
 	REQ_PARAM_NODE_TYPE
 } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
+import { EnumTypeNode, ENUM_TYPE_SOURCE_NODE_TYPE } from "../Node/EnumType";
 import { ExpandedMappingHeaderNode, EXPANDED_MAPPING_HEADER_NODE_TYPE } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { JoinClauseNode, QUERY_EXPR_JOIN_NODE_TYPE } from "../Node/JoinClause";
@@ -77,6 +79,7 @@ import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
 
 import {
+	ENUM_TYPE_SOURCE_PORT_PREFIX,
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
@@ -528,9 +531,10 @@ export function findNodeByValueNode(value: STNode,
 
 export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	const dmNodes = dmNode.getModel().getNodes();
+	let paramType: LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode | ModuleVariableNode | EnumTypeNode;
 	let paramNode: RequiredParam | FromClause | LetClause | JoinClause | ExpressionFunctionBody | Map<string, ModuleVariable>;
 	if (STKindChecker.isSimpleNameReference(expr)) {
-		paramNode = (dmNodes.find((node) => {
+		paramType = (dmNodes.find((node) => {
 			if (node instanceof LetClauseNode) {
 				const letVarDecl = node.value.letVarDeclarations[0] as LetVarDecl;
 				const bindingPattern = letVarDecl?.typedBindingPattern?.bindingPattern as CaptureBindingPattern;
@@ -538,6 +542,8 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			} else if (node instanceof LetExpressionNode) {
 				return node.letVarDecls.some(decl => decl.varName === expr.source.trim());
 			} else if (node instanceof ModuleVariableNode) {
+				return node.value.has(expr.source.trim());
+			} else if (node instanceof EnumTypeNode) {
 				return node.value.has(expr.source.trim());
 			} else if (node instanceof JoinClauseNode) {
 				const bindingPattern = (node.value as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
@@ -550,7 +556,8 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					return expr.name.value === bindingPattern.variableName.value;
 				}
 			}
-		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode | ModuleVariableNode)?.value;
+		}) as LetClauseNode | LetExpressionNode | RequiredParamNode | FromClauseNode | ModuleVariableNode | EnumTypeNode);
+		paramNode = paramType?.value;
 	} else if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 		let valueExpr = expr.expression;
 		while (valueExpr && (STKindChecker.isFieldAccess(valueExpr)
@@ -629,9 +636,15 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 	}
 	if (paramNode) {
 		if (paramNode instanceof Map) {
-			return dmNodes.find(node => node instanceof ModuleVariableNode) as ModuleVariableNode;
+			if (paramType instanceof ModuleVariableNode) {
+				return dmNodes.find(node => node instanceof ModuleVariableNode) as ModuleVariableNode;
+			} else if (paramType instanceof EnumTypeNode) {
+				const nodes = dmNodes.find(node => node instanceof EnumTypeNode) as EnumTypeNode;
+				return nodes
+			}
+		} else {
+			return findNodeByValueNode(paramNode, dmNode);
 		}
-		return findNodeByValueNode(paramNode, dmNode);
 	}
 }
 
@@ -640,9 +653,10 @@ export function getInputPortsForExpr(node: RequiredParamNode
 										 | LetClauseNode
 										 | JoinClauseNode
 										 | LetExpressionNode
-										 | ModuleVariableNode,
+										 | ModuleVariableNode
+										 | EnumTypeNode,
                                      expr: STNode): RecordFieldPortModel {
-	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode) && node.typeDef;
+	let typeDesc = !(node instanceof LetExpressionNode || node instanceof ModuleVariableNode || node instanceof EnumTypeNode) && node.typeDef;
 	let portIdBuffer;
 	if (node instanceof RequiredParamNode) {
 		portIdBuffer = node?.value && node.value.paramName.value
@@ -664,6 +678,16 @@ export function getInputPortsForExpr(node: RequiredParamNode
 		});
 		typeDesc = moduleVar?.type;
 		portIdBuffer = moduleVar && MODULE_VARIABLE_SOURCE_PORT_PREFIX + "." + moduleVar.varName;
+	} else if (node instanceof EnumTypeNode) {
+		for (const enumType of node.enumTypeDecls) {
+			for (const field of enumType.fields) {
+				if (field.varName === expr.source.trim()) {
+					typeDesc = field.type;
+					portIdBuffer = ENUM_TYPE_SOURCE_PORT_PREFIX + "." + enumType.varName + "." + field.varName;
+					break;
+				}
+			}
+		}
 	} else {
 		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
 			+ (node as FromClauseNode).sourceBindingPattern.variableName.value
@@ -914,10 +938,18 @@ export function getInputNodes(node: STNode) {
 	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
-export function getModuleVariables(node: STNode, symbolInfo: STSymbolInfo) {
-	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(symbolInfo);
-	traversNode(node, moduleVarFindingVisitor);
+export async function getModuleVariables(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>) {
+	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise);
+	await moduleVarFindingVisitor.init();
+	await traversNodeAsync(node, moduleVarFindingVisitor);
 	return moduleVarFindingVisitor.getModuleVariables();
+}
+
+export async function getEnumTypes(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>) {
+	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise);
+	await enumTypeFindingVisitor.init();
+	await traversNodeAsync(node, enumTypeFindingVisitor);
+	return enumTypeFindingVisitor.getEnumTypes();
 }
 
 export function getFieldName(field: EditableRecordField) {
@@ -1066,7 +1098,8 @@ export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 		|| node instanceof JoinClauseNode
 		|| node instanceof ExpandedMappingHeaderNode
 		|| node instanceof LetClauseNode
-		|| node instanceof ModuleVariableNode)
+		|| node instanceof ModuleVariableNode
+		|| node instanceof EnumTypeNode)
 	).length >= 2;
 }
 
@@ -1304,6 +1337,7 @@ export function getErrorKind(node: DataMapperNodeModel): ErrorNodeKind {
 			return ErrorNodeKind.Input;
 		case LET_EXPR_SOURCE_NODE_TYPE:
 		case MODULE_VAR_SOURCE_NODE_TYPE:
+		case ENUM_TYPE_SOURCE_NODE_TYPE:
 		case EXPANDED_MAPPING_HEADER_NODE_TYPE:
 		case QUERY_EXPR_NODE_TYPE:
 		case QUERY_EXPR_SOURCE_NODE_TYPE:
