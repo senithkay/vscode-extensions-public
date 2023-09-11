@@ -34,7 +34,7 @@ export const ConnectorNode: React.FC<any> = styled.div`
 export const ConnectorHead: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.NODE_BACKGROUND};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
+    border: ${(props: StyleProps) => `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_PRIMARY : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
     border-radius: 50%;
     height: 60px;

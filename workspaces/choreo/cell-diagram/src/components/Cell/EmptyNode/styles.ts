@@ -7,16 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { CellDiagram, CellDiagramProps } from './Diagram';
+import styled from "@emotion/styled";
 
-export function renderDiagram(
-    props: CellDiagramProps,
-    target: HTMLDivElement
-) {
-    render(
-        <CellDiagram  {...props}/>,
-        target
-    );
-}
+export const EmptyNode: React.FC<any> = styled.div`
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: none;
+`;

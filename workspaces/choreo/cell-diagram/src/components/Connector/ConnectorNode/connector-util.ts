@@ -8,11 +8,11 @@
  */
 
 export function extractAttributeType(retrievedType: string) {
-    let attributeType: string = '';
+    let attributeType = '';
 
     if (retrievedType) {
         if (retrievedType.includes(':') && retrievedType.includes('|')) {
-            let types: string[] = retrievedType.split('|');
+            const types: string[] = retrievedType.split('|');
             types.forEach((type, index) => {
                 attributeType = attributeType + type.slice(type.lastIndexOf(':') + 1);
     

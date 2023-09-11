@@ -18,45 +18,45 @@ interface WidgetProps {
 }
 
 export function ComponentLinkWidget(props: WidgetProps) {
-	const { link } = props;
+    const { link } = props;
 
-	const [isSelected, setIsSelected] = useState<boolean>(false);
+    const [isSelected, setIsSelected] = useState<boolean>(false);
 
-	useEffect(() => {
-		link.registerListener({
-			'SELECT': selectPath,
-			'UNSELECT': unselectPath
-		})
-	}, [link])
+    useEffect(() => {
+        link.registerListener({
+            'SELECT': selectPath,
+            'UNSELECT': unselectPath
+        })
+    }, [link])
 
-	const selectPath = () => {
-		setIsSelected(true);
-		link.selectLinkedNodes();
-	}
+    const selectPath = () => {
+        setIsSelected(true);
+        link.selectLinkedNodes();
+    }
 
-	const unselectPath = () => {
-		setIsSelected(false);
-		link.resetLinkedNodes();
-	}
+    const unselectPath = () => {
+        setIsSelected(false);
+        link.resetLinkedNodes();
+    }
 
 
-	return (
-		<g>
-			<polygon
-				points={link.getArrowHeadPoints()}
-				fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-			/>
-			<path
-				id={link.getID()}
-				d={link.getCurvePath()}
-				cursor={'pointer'}
-				fill={'none'}
-				onMouseLeave={unselectPath}
-				onMouseOver={selectPath}
-				pointerEvents={'all'}
-				stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-				strokeWidth={0.75}
-			/>
-		</g>
-	)
+    return (
+        <g>
+            <polygon
+                points={link.getArrowHeadPoints()}
+                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+            />
+            <path
+                id={link.getID()}
+                d={link.getCurvePath()}
+                cursor={'pointer'}
+                fill={'none'}
+                onMouseLeave={unselectPath}
+                onMouseOver={selectPath}
+                pointerEvents={'all'}
+                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+                strokeWidth={1}
+            />
+        </g>
+    )
 }

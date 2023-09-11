@@ -32,11 +32,11 @@ const Container = styled.div`
 `;
 
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
-	render() {
-		return (
-			<Container>
-				<CircularProgress sx={{ color: Colors.PRIMARY }} />
-			</Container>
-		);
-	}
+    render() {
+        return (
+            <Container>
+                <CircularProgress sx={{ color: Colors.PRIMARY }} />
+            </Container>
+        );
+    }
 }

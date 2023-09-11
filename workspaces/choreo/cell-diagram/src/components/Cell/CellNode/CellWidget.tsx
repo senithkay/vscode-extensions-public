@@ -7,15 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellBounds, CellModel } from "./CellModel";
-import { CellLinkModel } from "../CellLink/CellLinkModel";
 import { CellNode, TopPortCircle, Connector, LeftPortCircle, RightPortCircle, BottomPortWrapper, Circle } from "./styles";
-import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId } from "./cell-util";
-import { MAIN_CELL_DEFAULT_HEIGHT } from "../../../resources";
 
 interface CellWidgetProps {
     node: CellModel;
@@ -24,32 +21,15 @@ interface CellWidgetProps {
 
 export function CellWidget(props: CellWidgetProps) {
     const { node, engine } = props;
-    const { collapsedMode, setSelectedNodeId, setFocusedNodeId } = useContext(DiagramContext);
-    const [, setSelectedLink] = useState<CellLinkModel>(undefined);
-    const [, setCollapsibleStatus] = useState<boolean>(collapsedMode);
-    const [cellHeight, setCellHeight] = useState<number>(MAIN_CELL_DEFAULT_HEIGHT);
+    const [cellHeight, setCellHeight] = useState<number>(node.width);
 
     useEffect(() => {
         resizeCellHeight();
-        node.registerListener({
-            SELECT: (event: any) => {
-                setSelectedLink(event.cell as CellLinkModel);
-            },
-            UNSELECT: () => {
-                setSelectedLink(undefined);
-            },
-        });
     }, [node]);
 
     useEffect(() => {
-        setCollapsibleStatus(collapsedMode);
-    }, [collapsedMode]);
-
-    // @ts-ignore
-    const handleOnHeaderWidgetClick = () => {
-        setSelectedNodeId(node.getID());
-        setFocusedNodeId(undefined);
-    };
+        resizeCellHeight();        
+    }, [node.width]);
 
     const generateOctagonSVG = (height: number) => {
         const points = [
@@ -71,10 +51,10 @@ export function CellWidget(props: CellWidgetProps) {
     };
 
     const resizeCellHeight = () => {
-        const conCount = node.connectorNodes?.length;
-        if (conCount && conCount * 100 + 40 > (MAIN_CELL_DEFAULT_HEIGHT * 40) / 100) {
-            setCellHeight(((conCount * 100 + 40) * 100) / 40);
-        }
+        const conCount = node.connectorNodes?.length || 0;
+        const connectorRowWidth = (conCount * 100 + 40) * 100/ 40;
+        setCellHeight(Math.max(connectorRowWidth, node.width));
+        engine.repaintCanvas();
     };
 
     return (

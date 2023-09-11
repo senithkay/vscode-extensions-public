@@ -36,7 +36,7 @@ export const DiagramContext = createContext<IDiagramContext>(defaultState);
 export function CellDiagramContext(props: DiagramContextProps) {
     const { collapsedMode, selectedNodeId, setSelectedNodeId, setHasDiagnostics, hasDiagnostics, children, focusedNodeId, setFocusedNodeId } = props;
 
-    let context: IDiagramContext = {
+    const context: IDiagramContext = {
         collapsedMode,
         selectedNodeId,
         hasDiagnostics,

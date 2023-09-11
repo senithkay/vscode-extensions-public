@@ -14,7 +14,7 @@ import { useStyles } from './style';
 
 export interface PromptScreenProps {
     userMessage: string;
-    showProblemPanel: (() => void) | undefined;
+    showProblemPanel?: (() => void) | undefined;
 }
 
 export function PromptScreen(props: PromptScreenProps) {

@@ -43,6 +43,18 @@ export { CellPortFactory } from './Cell/CellPort/CellPortFactory';
 export { CellPortModel } from './Cell/CellPort/CellPortModel';
 export { CellPortWidget } from './Cell/CellPort/CellPortWidget';
 
+export { EmptyFactory } from './Cell/EmptyNode/EmptyFactory';
+export { EmptyModel } from './Cell/EmptyNode/EmptyModel';
+export { EmptyWidget } from './Cell/EmptyNode/EmptyWidget';
+
+export { ExternalFactory } from './External/ExternalNode/ExternalFactory';
+export { ExternalModel } from './External/ExternalNode/ExternalModel';
+export { ExternalWidget } from './External/ExternalNode/ExternalWidget';
+
+export { ExternalLinkFactory } from './External/ExternalLink/ExternalLinkFactory';
+export { ExternalLinkModel } from './External/ExternalLink/ExternalLinkModel';
+export { ExternalLinkWidget } from './External/ExternalLink/ExternalLinkWidget';
+
 export * from './OverlayLoader';
 
 export { DiagramControls } from './Controls/DiagramControls';

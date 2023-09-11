@@ -24,7 +24,7 @@ interface ComponentWidgetProps {
 
 export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
-    const { collapsedMode, selectedNodeId, setSelectedNodeId, focusedNodeId, setFocusedNodeId } = useContext(DiagramContext);
+    const { collapsedMode, selectedNodeId, focusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
 
@@ -42,8 +42,8 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     }, [collapsedMode])
 
     const handleOnHeaderWidgetClick = () => {
-        setSelectedNodeId(node.getID());
-        setFocusedNodeId(undefined);
+        // setSelectedNodeId(node.getID());
+        // setFocusedNodeId(undefined);
     }
 
     return (

@@ -15,14 +15,13 @@ import WarningIcon from '@mui/icons-material/Warning';
 import styled from '@emotion/styled';
 import CachedIcon from "@mui/icons-material/Cached";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { toJpeg } from 'html-to-image';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { CanvasControlButton } from './ControlButtons/ControlButton';
 
 interface ControlProps {
     engine: DiagramEngine;
-    refreshDiagram: () => void;
     showProblemPanel: () => void;
+    refreshDiagram?: () => void;
 }
 
 export const ControlPanel: React.FC<any> = styled.div`
@@ -40,27 +39,8 @@ export function DiagramControls(props: ControlProps) {
     const { engine, refreshDiagram, showProblemPanel } = props;
     const { hasDiagnostics } = useContext(DiagramContext);
 
-    // @ts-ignore
-    const downloadDiagram = () => {
-        const canvas: HTMLDivElement = engine.getCanvas();
-        if (!canvas) {
-            return;
-        }
-
-        toJpeg(canvas, { cacheBust: true, quality: 0.95, width: canvas.scrollWidth, height: canvas.scrollHeight })
-            .then((dataUrl) => {
-                const link = document.createElement('a');
-                link.download = 'er-diagram.jpeg';
-                link.href = dataUrl;
-                link.click();
-            })
-            .catch((err) => {
-                console.log(err.message);
-            });
-    }
-
     const onZoom = (zoomIn: boolean) => {
-        let delta: number = zoomIn ? +5 : -5;
+        const delta: number = zoomIn ? +5 : -5;
         engine.getModel().setZoomLevel(engine.getModel().getZoomLevel() + delta);
         engine.repaintCanvas();
     }
@@ -71,15 +51,17 @@ export function DiagramControls(props: ControlProps) {
 
     return (
         <ControlPanel >
-            {hasDiagnostics &&
+            {hasDiagnostics && (
                 <CanvasControlButton onClick={showProblemPanel} tooltipTitle={'Diagnostics were detected in the model.'}>
                     <WarningIcon sx={{ color: '#EA4C4D' }} />
                 </CanvasControlButton>
-            }
+            )}
 
-            <CanvasControlButton onClick={refreshDiagram} tooltipTitle={'Refresh'}>
-                <CachedIcon />
-            </CanvasControlButton>
+            {refreshDiagram && (
+                <CanvasControlButton onClick={refreshDiagram} tooltipTitle={"Refresh"}>
+                    <CachedIcon />
+                </CanvasControlButton>
+            )}
 
             <CanvasControlButton onClick={zoomToFit} tooltipTitle={'Zoom to fit nodes'}>
                 <FullscreenIcon />

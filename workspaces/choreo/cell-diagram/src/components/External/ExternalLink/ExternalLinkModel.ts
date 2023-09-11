@@ -8,7 +8,7 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { Point } from '@projectstorm/geometry';
+import { BezierCurve, Point } from '@projectstorm/geometry';
 import { SharedLinkModel } from '../../shared-link/shared-link';
 
 interface LinkOrigins {
@@ -16,19 +16,19 @@ interface LinkOrigins {
 	attributeId: string;
 }
 
-export class CellLinkModel extends SharedLinkModel {
+export class ExternalLinkModel extends SharedLinkModel {
     sourceNode: LinkOrigins;
     targetNode: LinkOrigins;
 
     constructor(id: string) {
-        super(id, 'cellLink');
+        super(id, 'externalLink');
     }
 
-    setSourceNode(nodeId: string, attributeId = '') {
+    setSourceNode(nodeId: string, attributeId?: string) {
         this.sourceNode = { nodeId, attributeId };
     }
 	
-    setTargetNode(nodeId: string, attributeId = '') {
+    setTargetNode(nodeId: string, attributeId?: string) {
         this.targetNode = { nodeId, attributeId };
     }
 
@@ -52,4 +52,35 @@ export class CellLinkModel extends SharedLinkModel {
         return points;
     }
 
+    getCurvePath = (): string => {
+        const lineCurve = new BezierCurve();
+
+        if (this.getSourcePort() && this.getTargetPort()) {
+            const markerSpace: number = 60;
+
+            lineCurve.setSource(this.getSourcePort().getPosition());
+            lineCurve.setTarget(this.getTargetPort().getPosition());
+
+            // With a leeway space for the marker
+            const sourcePoint: Point = this.getSourcePort().getPosition().clone();
+            const targetPoint: Point = this.getTargetPort().getPosition().clone();
+
+            if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
+                targetPoint.x = targetPoint.x - markerSpace;
+            } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
+                targetPoint.x = targetPoint.x + markerSpace;
+            } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
+                targetPoint.y = targetPoint.y + markerSpace;
+            } else {
+                targetPoint.y = targetPoint.y - markerSpace;
+            }
+
+            lineCurve.setSourceControl(sourcePoint);
+            lineCurve.setTargetControl(targetPoint);
+            lineCurve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
+            lineCurve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
+        }
+
+        return lineCurve.getSVGCurve();
+    }
 }
