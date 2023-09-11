@@ -30,7 +30,6 @@ export class ModuleVariablesFindingVisitor implements Visitor {
     private queryExpressionDepth: number;
     private moduleVarDecls: ComponentInfo[];
     private constDecls: ComponentInfo[];
-    // private configurables: ComponentInfo[];
     private enums: ComponentInfo[];
 
     constructor(filePath: string, langClientPromise: Promise<IBallerinaLangClient>) {
@@ -42,7 +41,6 @@ export class ModuleVariablesFindingVisitor implements Visitor {
 
         this.moduleVarDecls = [];
         this.constDecls = [];
-        // this.configurables = [];
         this.enums = [];
     }
 
@@ -146,11 +144,6 @@ export class ModuleVariablesFindingVisitor implements Visitor {
                 kind = ModuleVarKind.Constant;
             }
         });
-        // this.configurables?.forEach((component) => {
-        //     if (component.name.trim() === varName && !kind) {
-        //         kind = ModuleVarKind.Configurable;
-        //     }
-        // });
         this.moduleVarDecls?.forEach((component) => {
             if (component.name.trim() === varName && !kind) {
                 kind = ModuleVarKind.Variable;
