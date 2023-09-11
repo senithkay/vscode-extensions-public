@@ -20,7 +20,7 @@ export const ConfigCardList = (props: {
         ) => Partial<ComponentWizardState>
     ) => void;
     formKey: keyof ComponentWizardState;
-    items: Pick<ComponentTypeCardProps, "label" | "description" | "value">[];
+    items: Pick<ComponentTypeCardProps, "label" | "description" | "value" | "icon">[];
 }) => (
     <CardContainer>
         {props.items.map((item) => (
