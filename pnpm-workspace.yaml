@@ -1,2 +1,4 @@
 packages:
   - 'workspaces/*'
+  - 'workspaces/ballerina/*'
+  - 'workspaces/choreo/*'
