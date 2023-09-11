@@ -11,20 +11,20 @@ on:
         description: "Select the package to release"
         required: true
         options:
-          - 'ballerina-languageclient'
+          - 'ballerina/ballerina-languageclient'
+          - 'ballerina/data-mapper'
+          - 'ballerina/expression-editor'
+          - 'ballerina/lang-service'
+          - 'ballerina/low-code-diagram'
+          - 'ballerina/low-code-distribution'
+          - 'ballerina/low-code-editor'
+          - 'ballerina/low-code-editor-commons'
+          - 'ballerina/low-code-integration-tests'
+          - 'ballerina/low-code-ui-components'
+          - 'ballerina/statement-editor'
+          - 'ballerina/syntax-tree'
+          - 'ballerina/project-design-diagrams'                                                                               
           - 'configurable-editor'
-          - 'data-mapper'
-          - 'expression-editor'
-          - 'lang-service'
-          - 'low-code-diagram'
-          - 'low-code-distribution'
-          - 'low-code-editor'
-          - 'low-code-editor-commons'
-          - 'low-code-integration-tests'
-          - 'low-code-ui-components'
-          - 'statement-editor'
-          - 'syntax-tree'
-          - 'project-design-diagrams'                                                                               
       version:
         type: choice
         description: 'Enter the version type'
