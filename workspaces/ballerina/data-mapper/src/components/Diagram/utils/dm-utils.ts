@@ -683,7 +683,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 			for (const field of enumType.fields) {
 				if (field.varName === expr.source.trim()) {
 					typeDesc = field.type;
-					portIdBuffer = ENUM_TYPE_SOURCE_PORT_PREFIX + "." + enumType.varName + "." + field.varName;
+					portIdBuffer = `${ENUM_TYPE_SOURCE_PORT_PREFIX}.${enumType.varName}.${field.varName}`;
 					break;
 				}
 			}

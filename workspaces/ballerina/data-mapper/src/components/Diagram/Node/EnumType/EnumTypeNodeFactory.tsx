@@ -6,14 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import * as React from "react";
 
 import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { container, injectable, singleton } from "tsyringe";
 
-import { RecordFieldPortModel } from "../../Port";
 import { IDataMapperNodeFactory } from "../commons/DataMapperNode";
 import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
@@ -40,12 +39,8 @@ export class EnumTypeNodeFactory
                         engine={this.engine}
                         enums={event.model.enumTypeDecls}
                         context={event.model.context}
-                        getPort={(portId: string) =>
-                            event.model.getPort(portId) as RecordFieldPortModel
-                        }
-                        handleCollapse={(fieldName: string, expand?: boolean) =>
-                            event.model.context.handleCollapse(fieldName, expand)
-                        }
+                        getPort={event.model.getPort.bind(event.model)}
+                        handleCollapse={event.model.context.handleCollapse.bind(event.model)}
                     />
                 )}
             </>

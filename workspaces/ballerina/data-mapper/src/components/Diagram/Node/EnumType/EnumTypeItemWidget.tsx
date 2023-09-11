@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
 import { IconButton } from "@material-ui/core";
@@ -128,7 +128,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
                             engine={engine}
                             enumType={subField}
                             treeDepth={treeDepth + 1}
-                            getPort={(portId: string) => getPort(portId) as RecordFieldPortModel}
+                            getPort={getPort}
                             handleCollapse={handleCollapse}
                             valueLabel={subField.varName}
                             hasHoveredParent={isHovered || hasHoveredParent}

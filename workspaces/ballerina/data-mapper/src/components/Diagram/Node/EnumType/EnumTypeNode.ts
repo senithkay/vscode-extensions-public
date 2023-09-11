@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda prefer-for-of no-labels
+// tslint:disable: jsx-no-multiline-js
 import { Point } from "@projectstorm/geometry";
 import { ResolvedTypeForExpression } from "@wso2-enterprise/ballerina-languageclient";
 import {
@@ -133,9 +133,9 @@ export class EnumTypeNode extends DataMapperNodeModel {
                 ) {
                     let typeDeclared: boolean = false;
                     const typeDecl: Type = { name: varName, ...type.value.type };
-                    for (let i = 0; i < allEnumTypeDecls.length; i++) {
-                        if (allEnumTypeDecls[i].varName === type.enumName) {
-                            allEnumTypeDecls[i].fields.push({
+                    for (const enumTypeDecl of allEnumTypeDecls) {
+                        if (enumTypeDecl.varName === type.enumName) {
+                            enumTypeDecl.fields.push({
                                 varName,
                                 kind: item.kind,
                                 node: item.node,
