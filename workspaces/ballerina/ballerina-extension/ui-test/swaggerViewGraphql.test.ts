@@ -10,7 +10,7 @@
 import { EditorView, VSBrowser, WebView, Workbench, InputBox } from 'vscode-extension-tester';
 import { join } from 'path';
 import { describe } from 'mocha';
-import { clickOnActivity, waitForWebview, verifyTerminalText, wait } from './util';
+import { clickOnActivity, waitForWebview, verifyTerminalText, wait, enableDndMode } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -28,7 +28,7 @@ describe('GraphQL UI Tests', () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await VSBrowser.instance.waitForWorkbench();
         workbench = new Workbench();
-        await workbench.executeCommand(DND_PALETTE_COMMAND);
+        await enableDndMode(workbench);
     });
 
     it('Test tryit button', async () => {
