@@ -24,7 +24,7 @@ export class ResourceForm {
         await selectComponent.click();
 
         // Find the option based on the optionText
-        const option = await selectComponent.findElement(By.xpath(`//*[contains(text(), '${method}')]`));
+        const option = await waitUntil(By.xpath(`//*[contains(text(), '${method}')]`));
         await option.click();
 
     }
