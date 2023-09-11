@@ -19,6 +19,7 @@ import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { OrganizationInfo } from "./OrganizationInfo";
 
 const Container = styled.div`
     display: flex;
@@ -52,6 +53,8 @@ export const UserDetails = () => {
         <Container>
             {loginStatusPending && <ProgressIndicator />}
             <UserInfo />
+            <Seperator />
+            <OrganizationInfo />
             {currentProjectOrg && choreoProject && (
                 <>
                     <Seperator />

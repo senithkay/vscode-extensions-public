@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri } from 'vscode';
+import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, commands } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import {
@@ -38,7 +38,7 @@ import * as path from "path";
 
 import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
-import { STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
+import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
 
 export interface IChoreoExtensionAPI {
@@ -51,6 +51,7 @@ export interface IChoreoExtensionAPI {
     deleteComponent(projectId: string, componentPath: string): Promise<void>;
     getConsoleUrl(): Promise<string>;
 }
+
 
 export class ChoreoExtensionApi {
     private _userInfo: UserInfo | undefined;
@@ -118,6 +119,68 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
+    public async getSelectedOrg(userInfo = ext.api.userInfo): Promise<Organization> {
+        // If workspace a choreo project, we need to select the org of the project.
+        const isChoreoProject = ext.api.isChoreoProject();
+        const currentProjectOrgId = ext.api.getOrgIdOfCurrentProject();
+
+        if(!userInfo){
+            throw new Error(`User information not found`);
+        }
+
+        if (isChoreoProject && currentProjectOrgId) {
+            const foundOrg = userInfo?.organizations.find(org => org.id === currentProjectOrgId);
+            if (foundOrg) {
+                return foundOrg;
+            }
+        }
+
+        const selectedGlobalOrg: Organization | undefined = await ext.context.globalState.get(SELECTED_GLOBAL_ORG_KEY);
+        if(selectedGlobalOrg && userInfo?.organizations?.some(item => item.id === selectedGlobalOrg.id)){
+            return selectedGlobalOrg;
+        }
+        
+        if(userInfo?.organizations[0]){
+            await ext.context.globalState.update(SELECTED_GLOBAL_ORG_KEY, userInfo?.organizations[0]);
+            return userInfo?.organizations[0];
+        }
+        throw new Error("No organizations found for the user.");
+    }
+
+    public async setSelectedOrg(org: Organization): Promise<void> {
+        const user = ext.api.userInfo;
+        if (user?.organizations?.some((item) => item.id === org.id)) {
+            if (this.isChoreoProject()) {
+                const choreoProject = await this.getChoreoProject();
+                if (choreoProject?.orgId?.toString() !== org?.id?.toString()) {
+                    // If user is already in a choreo project & trying to swtich to a different one
+                    const answer = await window.showInformationMessage(
+                        `The currently opened project belongs to a different organization. To switch organizations, you can either open a new window or close the current workspace and continue in the current window.`,
+                        { modal: true },
+                        "Current Window",
+                        "New Window"
+                    );
+                    if (answer === "Current Window") {
+                        await ext.context.globalState.update(SELECTED_GLOBAL_ORG_KEY, org);
+                        await ext.api.openChoreoActivityOnNewWindow();
+                        await commands.executeCommand("workbench.action.closeFolder");
+                    } else if (answer === "New Window") {
+                        await ext.context.globalState.update(SELECTED_GLOBAL_ORG_KEY, org);
+                        await ext.api.openChoreoActivityOnNewWindow();
+                        await commands.executeCommand("workbench.action.newWindow");
+                    }
+                } else {
+                    await ext.context.workspaceState.update(SELECTED_GLOBAL_ORG_KEY, org);
+                    this.refreshOrganization(org);
+                }
+            } else {
+                // If user is not within a choreo project
+                await ext.context.globalState.update(SELECTED_GLOBAL_ORG_KEY, org);
+                this.refreshOrganization(org);
+            }
+        }
+    }
+
     public setChoreoInstallOrg(selectedOrgId: number) {
         this._choreoInstallationOrgId = selectedOrgId;
     }
@@ -134,6 +197,10 @@ export class ChoreoExtensionApi {
         this._onRefreshComponentList.fire(null);
     }
 
+    public refreshOrganization(org: Organization) {
+        this._onOrganizationChanged.fire(org);
+    }
+    
     public refreshWorkspaceMetadata() {
         this._onRefreshWorkspaceMetadata.fire(null);
     }
@@ -458,5 +525,18 @@ export class ChoreoExtensionApi {
                 await ProjectRegistry.getInstance().deleteComponent(toDelete, id, handle, projectId);
             }
         }
+    }
+
+    /** Persist a value in the global state so that when extension reactivates, we can do certain actions automatically */
+    public async openChoreoActivityOnNewWindow(): Promise<void> {
+        await ext.context.globalState.update(OPEN_CHOREO_ACTIVITY, true);
+    }
+
+    public async shouldOpenChoreoActivity(): Promise<boolean | undefined> {
+        return ext.context.globalState.get<boolean>(OPEN_CHOREO_ACTIVITY);
+    }
+    
+    public async resetOpenChoreoActivity(): Promise<void> {
+        await ext.context.globalState.update(OPEN_CHOREO_ACTIVITY, undefined);
     }
 }

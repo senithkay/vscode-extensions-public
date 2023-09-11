@@ -105,10 +105,8 @@ export interface Component {
     hasUnPushedLocalCommits?: boolean;
     hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
-    filePaths?: {
-        path: string;
-        label: string;
-    }[];
+    sourcePath?: string;
+    endpointsPath?: string;
 }
 
 export interface StateReason {

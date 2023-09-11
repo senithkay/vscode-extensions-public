@@ -113,6 +113,14 @@ export const ComponentRow = (props: {
                         <Codicon name="alert" />
                     </VSCodeButton>
                 )}
+                {component.sourcePath && (
+                    <VSCodeButton appearance="icon" title={component.displayType?.startsWith("byoc") ? "View Dockerfile" : "View source"} onClick={(event) => {
+                        event.stopPropagation()
+                        ChoreoWebViewAPI.getInstance().goToSource(component.sourcePath)
+                    }}>
+                        <Codicon name="code" />
+                    </VSCodeButton>
+                )}
                 <ComponentContextMenu
                     component={component}
                     deletingComponent={deletingComponent}

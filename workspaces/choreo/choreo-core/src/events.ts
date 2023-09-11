@@ -75,6 +75,8 @@ export const CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT = 'vscode-clone-new-repo-to
 // Other commands
 export const OPEN_PROJECT_EVENT = 'vscode-open-project';
 export const CREATE_PROJECT_EVENT = 'vscode-create-project';
+export const CHANGE_ORG_EVENT = 'vscode-change-org';
+export const CHANGE_ORG_EVENT_FAILURE = 'vscode-change-org-failure';
 
 // Common Error Event
 export const ERROR_OCCURRED_EVENT = 'vscode-error-occurred';

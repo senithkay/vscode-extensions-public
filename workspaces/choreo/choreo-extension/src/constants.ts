@@ -12,13 +12,12 @@
  */
 export const choreoSignInCmdId = 'wso2.choreo.sign.in';
 export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
-export const refreshProjectsTreeViewCmdId = 'wso2.choreo.projects.tree.refresh';
-export const cloneComponentCmdId = 'wso2.choreo.component.clone';
 export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
 export const cloneRepoToCurrentProjectWorkspaceCmdId = 'wso2.choreo.project.repo.clone';
 
 export const createNewProjectCmdId = 'wso2.choreo.project.create';
 export const openProjectCmdId = 'wso2.choreo.project.open';
+export const changeChoreoOrgCmdId = 'wso2.choreo.org.change';
 export const deleteProjectCmdId = 'wso2.choreo.project.delete';
 export const openProjectInConsoleCmdId = 'wso2.choreo.project.open.external';
 export const createNewComponentCmdId = 'wso2.choreo.component.create';
@@ -40,3 +39,5 @@ export const choreoAccountTreeId = 'choreo-account';
 
 // state keys
 export const USER_INFO_KEY = 'userInfo';
+export const SELECTED_GLOBAL_ORG_KEY = "selected-global-org";
+export const OPEN_CHOREO_ACTIVITY = "open-choreo-activity";
