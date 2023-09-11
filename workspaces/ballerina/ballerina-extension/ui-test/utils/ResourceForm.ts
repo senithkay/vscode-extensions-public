@@ -22,7 +22,7 @@ export class ResourceForm {
         // Find and click on the MuiSelect component to open the dropdown
         const selectComponent = await webview.findWebElement(By.className('MuiSelect-selectMenu'));
         await selectComponent.click();
-
+        await wait(500);
         // Find the option based on the optionText
         const option = await waitUntil(By.xpath(`//*[contains(text(), '${method}')]`));
         await option.click();
@@ -36,7 +36,7 @@ export class ResourceForm {
         await resourcePath.click();
         await resourcePath.sendKeys(path);
         // Wait for changes from LS
-        await wait(500);
+        await wait(2000);
     }
 
     // Add a new query param
@@ -123,7 +123,7 @@ export class ResourceForm {
             // Find and click on the input element of the Autocomplete component
             const input = await responseTypeInput.findElement(By.className('MuiAutocomplete-input'));
             await input.sendKeys(type);
-            await wait(500);
+            await wait(2000);
         }
 
         if (newType) {
