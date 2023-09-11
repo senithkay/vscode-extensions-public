@@ -18,7 +18,7 @@ import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ConfigCardList } from './ConfigCardList';
 import { ComponentWizardState } from "./types";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "../utilities/styles"
+import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
     display: flex;

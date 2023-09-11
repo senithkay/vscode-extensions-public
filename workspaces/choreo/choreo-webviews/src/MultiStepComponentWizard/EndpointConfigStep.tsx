@@ -18,7 +18,7 @@ import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialo
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ErrorBanner, ErrorIcon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
-import { SectionWrapper } from "../utilities/styles"
+import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
     display: flex;

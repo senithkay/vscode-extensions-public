@@ -22,7 +22,7 @@ import { ComponentWizardState } from "../types";
 import { ChoreoComponentType, TriggerDetails } from "@wso2-enterprise/choreo-core";
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
-import { SectionWrapper } from "../../utilities/styles"
+import { SectionWrapper } from "../../ProjectWizard/ProjectWizard";
 
 const DEFAULT_ERROR_MSG = "Could not load the Webhook triggers.";
 const GET_TRIGGERS_PATH = "https://api.central.ballerina.io/2.0/registry/triggers";

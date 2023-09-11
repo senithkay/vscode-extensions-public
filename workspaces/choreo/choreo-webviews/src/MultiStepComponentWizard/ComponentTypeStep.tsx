@@ -19,7 +19,7 @@ import { ComponentWizardState } from "./types";
 import { ConfigCardList } from "./ConfigCardList";
 import { ManualTriggerIcon, ScheduledTriggerIcon, ServiceIcon, WebAppIcon, WebhookIcon } from "../icons";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
-import { SectionWrapper } from "../utilities/styles"
+import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
     display: flex;

@@ -20,7 +20,7 @@ import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility }
 import { ConfigCardList } from "./ConfigCardList";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
 import { AngularIcon, BallerinaIcon, DockerIcon, ReactIcon, StaticFileIcon, VuejsIcon } from "../icons";
-import { SectionWrapper } from "../utilities/styles"
+import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
     display: flex;
