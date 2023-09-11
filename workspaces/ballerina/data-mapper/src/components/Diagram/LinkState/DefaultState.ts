@@ -14,6 +14,7 @@ import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
 import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, RequiredParamNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { EnumTypeNode } from '../Node/EnumType';
 import { FromClauseNode } from '../Node/FromClause';
 import { JoinClauseNode } from "../Node/JoinClause";
 import { LetClauseNode } from "../Node/LetClause";
@@ -102,6 +103,7 @@ export class DefaultState extends State<DiagramEngine> {
 							|| element instanceof FromClauseNode
 							|| element instanceof LetExpressionNode
 							|| element instanceof ModuleVariableNode
+							|| element instanceof EnumTypeNode
 							|| element instanceof LetClauseNode
 							|| element instanceof JoinClauseNode
 						)
