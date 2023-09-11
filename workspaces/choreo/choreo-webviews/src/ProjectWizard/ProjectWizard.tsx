@@ -25,6 +25,7 @@ import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/githu
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { AutoComplete, TextField } from "@wso2-enterprise/ui-toolkit";
 import { useQuery } from "@tanstack/react-query";
+import { SectionWrapper } from "../utilities/styles"
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -61,28 +62,6 @@ const SubContainer = styled.div`
     justify-content: flex-start;
     align-content: space-between;
     gap: 20px;
-`;
-
-const SectionWrapper = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
 `;
 
 const TitleWrapper = styled.div`

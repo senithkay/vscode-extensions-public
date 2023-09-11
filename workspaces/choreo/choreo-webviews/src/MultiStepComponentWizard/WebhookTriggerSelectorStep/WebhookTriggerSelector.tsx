@@ -22,7 +22,7 @@ import { ComponentWizardState } from "../types";
 import { ChoreoComponentType, TriggerDetails } from "@wso2-enterprise/choreo-core";
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
-
+import { SectionWrapper } from "../../utilities/styles"
 
 const DEFAULT_ERROR_MSG = "Could not load the Webhook triggers.";
 const GET_TRIGGERS_PATH = "https://api.central.ballerina.io/2.0/registry/triggers";
@@ -63,28 +63,6 @@ const ServiceListContainer = styled.div`
     flex-wrap: wrap;
     gap: 8px;
     max-height: 60vh;
-`;
-
-const SectionWrapper = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
 `;
 
 interface TriggerServiceType extends ServiceType {

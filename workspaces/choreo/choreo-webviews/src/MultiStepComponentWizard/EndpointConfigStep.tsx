@@ -18,6 +18,7 @@ import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialo
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ErrorBanner, ErrorIcon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
+import { SectionWrapper } from "../utilities/styles"
 
 const StepContainer = styled.div`
     display: flex;
@@ -37,28 +38,6 @@ const DropDownContainer = styled.div`
 const VisibilityLabel = styled.label`
     margin-top: 5px;
     font-weight: lighter;
-`;
-
-const SectionWrapper = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
 `;
 
 export interface EndpointConfigProps {
