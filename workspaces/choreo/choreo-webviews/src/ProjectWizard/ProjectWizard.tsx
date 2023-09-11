@@ -87,7 +87,7 @@ const BrowseBtn = styled(VSCodeButton)`
     padding: 5px;
 `;
 
-export const SectionWrapper = styled.div`
+export const SectionWrapper : React.FC<React.HTMLAttributes<HTMLDivElement>> = styled.div`
     // Flex Props
     display: flex;
     flex-direction: column;
