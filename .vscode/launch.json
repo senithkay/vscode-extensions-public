@@ -48,7 +48,9 @@
             "request": "launch",
             "env": {
                 "WEB_VIEW_DEV_MODE": "true",
-                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js"
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+                "CELL_VIEW_DEV_MODE": "true",
+                "CELL_VIEW_DEV_HOST": "http://localhost:3001/cellDiagram.js"
             },
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/workspaces/choreo/choreo-extension"

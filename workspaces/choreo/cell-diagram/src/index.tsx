@@ -9,14 +9,16 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import { CellDiagram, CellDiagramProps } from './Diagram';
+import { CellDiagram } from './Diagram';
+import { Project } from './types';
 
 export function renderDiagram(
-    props: CellDiagramProps,
+    projectModel: string,
     target: HTMLDivElement
 ) {
+    const project: Project = JSON.parse(JSON.stringify(projectModel));
     render(
-        <CellDiagram  {...props}/>,
+        <CellDiagram project={project}/>,
         target
     );
 }

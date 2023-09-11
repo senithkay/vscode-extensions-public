@@ -32,7 +32,7 @@ export interface CellDiagramProps {
 
 export function CellDiagram(props: CellDiagramProps) {
     const { project } = props;
-
+    
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
