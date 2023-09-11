@@ -7,98 +7,118 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
-import { DiagramEngine, DiagramModel, PortModelAlignment } from "@projectstorm/react-diagrams";
+import React, { useEffect, useRef, useState } from "react";
+import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-import { generateEngine, modelMapper } from "./utils";
-import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen } from "./components";
-import { dagreEngine, Colors, NO_ENTITIES_DETECTED, MAIN_CELL } from "./resources";
+import {
+    generateEngine,
+    getComponentDiagramWidth,
+    getNodesNLinks,
+    manualDistribute,
+    calculateCellWidth,
+} from "./utils";
+import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectorModel } from "./components";
+import { Colors, NO_ENTITIES_DETECTED, MAIN_CELL, NO_CELL_NODE, COMPONENT_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
-import { CellBounds } from "./components/Cell/CellNode/CellModel";
-import { Project } from "@wso2-enterprise/ballerina-languageclient";
+import { Project } from "./types";
+import { CellModel } from "./components/Cell/CellNode/CellModel";
 
-interface CellDiagramProps {
-    getProjectModel: () => Promise<Project>;
+export interface CellDiagramProps {
+    project: Project;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { getProjectModel } = props;
+    const { project } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>("");
-    const [collapsedMode, setIsCollapsedMode] = useState<boolean>(false);
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
+    const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
 
     const styles = useStyles();
 
     useEffect(() => {
-        refreshDiagram();
+        drawDiagram();
     }, [props]);
 
     useEffect(() => {
         if (diagramEngine.getCanvas()) {
-            function handleEscapePress(event: KeyboardEvent) {
-                if (event.key === "Escape" && selectedNodeId) {
-                    setSelectedNodeId("");
-                }
-            }
             document.addEventListener("keydown", handleEscapePress);
         }
     }, [diagramModel, diagramEngine.getCanvas()]);
 
-    diagramEngine?.registerListener({
-        canvasReady: () => {
-            console.log("canvasReady");
-            if (diagramModel) {
-                console.log("dagreEngine.options.graph.height", dagreEngine.options.graph.height);
-                console.log("dagreEngine.options.graph.width", dagreEngine.options.graph.width);
-            }
-        },
-    });
+    function handleEscapePress(event: KeyboardEvent) {
+        if (event.key === "Escape" && selectedNodeId) {
+            setSelectedNodeId("");
+        }
+    }
 
-    const refreshDiagram = () => {
-        getProjectModel().then((project) => {
-            if (project?.components?.length > 0) {
-                const model = modelMapper(project);
-                model.addLayer(new OverlayLayerModel());
-                diagramEngine.setModel(model);
-                setDiagramModel(model);
-                autoDistribute(model);
-            } else {
-                setUserMessage(NO_ENTITIES_DETECTED);
+    // draw diagram
+    const drawDiagram = () => {
+        // check if project has components
+        if (!project?.components?.length) {
+            setUserMessage(NO_ENTITIES_DETECTED);
+            return;
+        }
+        // get node and links
+        const nodeNLinks = getNodesNLinks(project);
+        // auto distribute component nodes, component links, empty nodes and cell links
+        // get component diagram boundaries
+        // calculate component diagram width
+        const componentDiagramWidth = getComponentDiagramWidth(nodeNLinks);
+        cellNodeWidth.current = componentDiagramWidth;
+        // get cell node
+        const cellNode = new CellModel(
+            MAIN_CELL,
+            componentDiagramWidth,
+            Array.from((nodeNLinks.nodes.connectorNodes as Map<string, ConnectorModel>).values())
+        );
+        // create diagram model
+        const model = new DiagramModel();
+        // add node and links to diagram model
+        const models = model.addAll(
+            // nodes
+            cellNode,
+            ...nodeNLinks.nodes.componentNodes.values(),
+            ...nodeNLinks.nodes.connectorNodes.values(),
+            ...nodeNLinks.nodes.emptyNodes.values(),
+            ...nodeNLinks.nodes.externalNodes.values(),
+            // links
+            ...nodeNLinks.links.componentLinks.values(),
+            ...nodeNLinks.links.connectorLinks.values(),
+            ...nodeNLinks.links.cellLinks.values(),
+            ...nodeNLinks.links.externalLinks.values()
+        );
+
+        models.forEach((item) => {
+            if (item.getType() === COMPONENT_NODE) {
+                item.registerListener({
+                    eventDidFire: (e) => {
+                        if (e.function === "positionChanged") {
+                            refreshDiagram();
+                        }
+                    },
+                });
             }
         });
-    };
 
-    const autoDistribute = (model: DiagramModel) => {
+        // add preloader overlay layer
+        model.addLayer(new OverlayLayerModel());
+        // draw diagram with all nodes and links
+        diagramEngine.setModel(model);
+        setDiagramModel(model);
+
         setTimeout(() => {
-            dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
-
-            // re arrange external connector nodes - align with cell bottom ports
-            model.getNodes().forEach((node) => {
-                if (node.getID() === MAIN_CELL) {
-                    for (const key in node.getPorts()) {
-                        if (Object.prototype.hasOwnProperty.call(node.getPorts(), key)) {
-                            const port = node.getPorts()[key];
-                            const portData = port.getID().split("-");
-                            if (portData.length > 3 && portData[2] === CellBounds.SouthBound && portData[0] === PortModelAlignment.BOTTOM) {
-                                const portPosition = port.getPosition().clone();
-                                portPosition.x = portPosition.x - 40;
-                                portPosition.y = portPosition.y + 200;
-                                model.getNode(portData[3]).setPosition(portPosition);
-                            }
-                        }
-                    }
-                }
-            });
-            // remove preloader
+            // manual distribute - update empty node, external node and connector node position based on cell node position
+            manualDistribute(model);
+            diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+            // remove preloader overlay layer
             const overlayLayer = diagramEngine
                 .getModel()
                 .getLayers()
@@ -106,21 +126,41 @@ export function CellDiagram(props: CellDiagramProps) {
             if (overlayLayer) {
                 diagramEngine.getModel().removeLayer(overlayLayer);
             }
-
+            // update diagram
             diagramEngine.setModel(model);
         }, 30);
     };
 
-    // @ts-ignore
-    const _switchCollapseMode = (shouldCollapse: boolean) => {
-        setIsCollapsedMode(shouldCollapse);
-        if (diagramModel) {
-            autoDistribute(diagramModel);
+    // refresh diagram
+    const refreshDiagram = () => {
+        // calculate component diagram width
+        const model = diagramEngine.getModel();
+        const cellWidth = calculateCellWidth(model);
+        console.log(">>> cellWidth current", cellNodeWidth.current, "new", cellWidth);
+        if (cellWidth === cellNodeWidth.current) {
+            return;
         }
+        const cellNode = model.getNode(MAIN_CELL);
+        // change cell node width
+        if (!cellNode) {
+            setUserMessage(NO_CELL_NODE); // TODO: handle error properly
+            return;
+        }
+        cellNode.width = cellWidth;
+        cellNode.updateDimensions({ width: cellWidth, height: cellWidth });
+        cellNodeWidth.current = cellWidth;
+
+        setTimeout(() => {
+            // manual distribute - update empty node, external node and connector node position based on cell node position
+            manualDistribute(model);
+            // update diagram
+            diagramEngine.setModel(model);
+            diagramEngine.repaintCanvas();
+        }, 30);
     };
 
-    let ctx = {
-        collapsedMode,
+    const ctx = {
+        collapsedMode: false,
         selectedNodeId,
         setSelectedNodeId,
         setHasDiagnostics,
@@ -147,10 +187,10 @@ export function CellDiagram(props: CellDiagramProps) {
                                 className={styles.canvas}
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
-                            <DiagramControls engine={diagramEngine} refreshDiagram={refreshDiagram} showProblemPanel={() => {}} />
+                            <DiagramControls engine={diagramEngine} showProblemPanel={() => {}} />
                         </>
                     ) : userMessage ? (
-                        <PromptScreen userMessage={userMessage} showProblemPanel={() => {}} />
+                        <PromptScreen userMessage={userMessage} />
                     ) : (
                         <CircularProgress sx={{ color: Colors.PRIMARY }} />
                     )}

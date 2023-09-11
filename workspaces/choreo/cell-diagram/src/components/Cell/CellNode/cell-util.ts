@@ -11,18 +11,34 @@ import { CellBounds } from "./CellModel";
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 
 
-export function getCellPortId(cellName: string, bound: CellBounds, align?: PortModelAlignment, ...args: string[]): string {
+export function getCellPortId(name: string, bound: CellBounds, align?: PortModelAlignment, ...args: string[]): string {
     let rest = '';
     if (args.length > 0) {
         rest = `-${args.join('-')}`;
     }
-    return `${align ? `${align}-` : ''}${cellName}-${bound}${rest !== '' ? `${rest}` : ''}`;
+    return `${align ? `${align}-` : ''}${name}-${bound}${rest !== '' ? `${rest}` : ''}`;
 }
 
-export function getCellPortName(cellName: string, bound: CellBounds, ...args: string[]): string {
+export function getCellPortName(name: string, bound: CellBounds, ...args: string[]): string {
     let rest = '';
-    if (args.length > 0) {
-        rest = `-${args.join('-')}`;
-    }
-    return `${cellName}-${bound}${rest !== '' ? `${rest}` : ''}`;
+    args?.forEach((arg) => {
+        if (arg) {
+            rest += `-${arg}`;
+        }
+    });
+    return `${name}-${bound}${rest !== '' ? `${rest}` : ''}`;
+}
+
+export function getNodePortId(name: string, align?: PortModelAlignment): string {
+    return `${align ? `${align}-` : ''}${name}`;
+}
+
+export function getEmptyNodeName(name: string, bound: CellBounds, ...args: string[]): string {
+    let rest = '';
+    args?.forEach((arg) => {
+        if (arg) {
+            rest += `-${arg}`;
+        }
+    });
+    return `${name}-${bound}${rest !== '' ? `${rest}` : ''}`;
 }

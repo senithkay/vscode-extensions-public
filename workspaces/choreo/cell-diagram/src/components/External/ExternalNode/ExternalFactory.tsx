@@ -10,20 +10,19 @@
 import React from 'react';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { ComponentModel } from './ComponentModel';
-import { ComponentWidget } from './ComponentWidget';
-import { COMPONENT_NODE } from '../../../resources';
+import { ExternalModel } from './ExternalModel';
+import { ExternalWidget } from './ExternalWidget';
 
-export class ComponentFactory extends AbstractReactFactory<ComponentModel, DiagramEngine> {
+export class ExternalFactory extends AbstractReactFactory<ExternalModel, DiagramEngine> {
     constructor() {
-        super(COMPONENT_NODE);
+        super('externalNode');
     }
 
-    generateReactWidget(event: { model: ComponentModel }): JSX.Element {
-        return <ComponentWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: { model: ExternalModel }): JSX.Element {
+        return <ExternalWidget engine={this.engine} node={event.model} />;
     }
 
     generateModel(event: { initialConfig: any }) {
-        return new ComponentModel(event.initialConfig.key, event.initialConfig.component);
+        return new ExternalModel(event.initialConfig.key);
     }
 }

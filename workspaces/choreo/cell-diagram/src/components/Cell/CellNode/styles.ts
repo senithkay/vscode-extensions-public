@@ -51,7 +51,7 @@ export const Circle: React.FC<any> = styled.div`
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    border: ${() => `2px solid ${Colors.NODE_BORDER}`};
+    border: 2px solid ${Colors.NODE_BORDER};
     display: flex;
     flex-direction: column;
     justify-content: center;

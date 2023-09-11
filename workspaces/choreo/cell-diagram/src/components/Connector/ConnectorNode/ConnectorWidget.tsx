@@ -61,7 +61,7 @@ export function ConnectorWidget(props: ConnectorWidgetProps) {
                 isCollapsed={isCollapsed}
                 setCollapsedStatus={setCollapsibleStatus}
             />
-             <ConnectorName
+            <ConnectorName
                 onClick={handleOnHeaderWidgetClick}
             >
                 {displayName}

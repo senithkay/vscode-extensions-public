@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DagreEngine } from '@projectstorm/react-diagrams-routing';
+// import { DagreEngine } from '@projectstorm/react-diagrams-routing';
+import { DagreEngine } from '../resources/DagreEngine'; // TODO: Update library props to support node parents
 
 export enum Colors {
     DEFAULT_TEXT = '#40404B',
@@ -19,24 +20,27 @@ export enum Colors {
     SECONDARY_SELECTED = '#fffaf2',
     SHADED_SELECTED = '#faead2',
     NODE_BACKGROUND = '#F7F8FB',
-    NODE_BORDER = '#CBCEDB'
+    NODE_BORDER = '#000'
 }
 
 export const dagreEngine = new DagreEngine({
     graph: {
-        rankdir: 'TB',
-        ranksep: 175,
-        edgesep: 20,
-        nodesep: 20,
-        ranker: 'longest-path',
-        marginx: 20,
-        marginy: 20,
-    }
+        rankdir: 'LR',
+        ranksep: 280,
+        edgesep: 100,
+        nodesep: 80,
+        ranker: 'tight-tree',
+    },
+    includeLinks: true,
 });
 
-export const NO_ENTITIES_DETECTED = 'Could not detect any entities in the Persist model.';
-export const ERRONEOUS_MODEL = 'Please resolve the diagnostics to view the ER diagram.';
+export const NO_ENTITIES_DETECTED = 'Could not detect any components in the project.';
+export const ERRONEOUS_MODEL = 'Please resolve the diagnostics to view the cell diagram.';
+export const NO_CELL_NODE = 'Could not detect cell.';
 
 export const MAIN_CELL = "mainCell";
-export const MAIN_CELL_DEFAULT_HEIGHT = 1000;
+export const MAIN_CELL_DEFAULT_HEIGHT = 500;
+
+export const COMPONENT_NODE = "componentNode";
+export const EMPTY_NODE = "emptyNode";
 

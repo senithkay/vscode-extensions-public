@@ -9,15 +9,15 @@
 
 import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { CellLinkModel } from './CellLinkModel';
+import { ExternalLinkModel } from './ExternalLinkModel';
 import { Colors } from '../../../resources';
 
 interface WidgetProps {
 	engine: DiagramEngine,
-	link: CellLinkModel
+	link: ExternalLinkModel
 }
 
-export function CellLinkWidget(props: WidgetProps) {
+export function ExternalLinkWidget(props: WidgetProps) {
     const { link } = props;
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
@@ -43,7 +43,7 @@ export function CellLinkWidget(props: WidgetProps) {
         <g>
             <polygon
                 points={link.getArrowHeadPoints()}
-                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
+                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
             />
             <path
                 id={link.getID()}
@@ -53,8 +53,8 @@ export function CellLinkWidget(props: WidgetProps) {
                 onMouseLeave={unselectPath}
                 onMouseOver={selectPath}
                 pointerEvents={'all'}
-                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-                strokeWidth={1}
+                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
+                strokeWidth={2}
             />
         </g>
     )

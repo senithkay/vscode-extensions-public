@@ -9,19 +9,19 @@
 
 import React from 'react';
 import { DefaultLinkFactory } from '@projectstorm/react-diagrams';
-import { CellLinkModel } from './CellLinkModel';
-import { CellLinkWidget } from './CellLinkWidget';
+import { ExternalLinkModel } from './ExternalLinkModel';
+import { ExternalLinkWidget } from './ExternalLinkWidget';
 
-export class CellLinkFactory extends DefaultLinkFactory {
+export class ExternalLinkFactory extends DefaultLinkFactory {
     constructor() {
-        super('cellLink');
+        super('externalLink');
     }
 
-    generateModel(event: { initialConfig: any }): CellLinkModel {
-        return new CellLinkModel(event.initialConfig.id);
+    generateModel(event: { initialConfig: any }): ExternalLinkModel {
+        return new ExternalLinkModel(event.initialConfig.id);
     }
 
-    generateReactWidget(props: { model: CellLinkModel }): JSX.Element {
-        return <CellLinkWidget link={props.model} engine={this.engine} />;
+    generateReactWidget(props: { model: ExternalLinkModel }): JSX.Element {
+        return <ExternalLinkWidget link={props.model} engine={this.engine} />;
     }
 }

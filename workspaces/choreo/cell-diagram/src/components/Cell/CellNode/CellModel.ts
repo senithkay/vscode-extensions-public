@@ -12,6 +12,7 @@ import { SharedNodeModel } from '../../shared-node/shared-node';
 import { CellPortModel } from '../CellPort/CellPortModel';
 import { ConnectorModel } from '../../Connector/ConnectorNode/ConnectorModel';
 import { getCellPortName } from './cell-util';
+import { MAIN_CELL_DEFAULT_HEIGHT } from '../../../resources';
 
 export enum CellBounds {
     NorthBound = "nb",
@@ -21,11 +22,14 @@ export enum CellBounds {
 }
 
 export class CellModel extends SharedNodeModel {
+    width: number;
     readonly connectorNodes?: ConnectorModel[];
 
-    constructor(cellName: string, connectorNodes?: ConnectorModel[]) {
+    constructor(cellName: string, width = MAIN_CELL_DEFAULT_HEIGHT, connectorNodes?: ConnectorModel[]) {
         super('cellNode', cellName);
+        this.width = width;
         this.connectorNodes = connectorNodes;
+        this.setLocked(true);
 
         // North bound ports - for public exposed APIs
         const northBoundPortName = getCellPortName(cellName, CellBounds.NorthBound);
@@ -51,4 +55,10 @@ export class CellModel extends SharedNodeModel {
             });
         }
     }
+
+    setWidth(newWidth: number) {
+        this.width = newWidth;
+        this.updateDimensions({ width: newWidth, height: newWidth });
+    }
+
 }

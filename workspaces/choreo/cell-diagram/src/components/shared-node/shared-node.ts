@@ -14,7 +14,7 @@ export class SharedNodeModel extends NodeModel<NodeModelGenerics> {
     constructor(type: string, id: string) {
         super({
             type: type,
-            id: id
+            id: id,
         });
     }
 
@@ -34,10 +34,10 @@ export class SharedNodeModel extends NodeModel<NodeModelGenerics> {
     isNodeSelected = (selectedLink: ComponentLinkModel, portIdentifier: string): boolean => {
         if (selectedLink) {
             if (selectedLink.getSourcePort().getNode().getID() === this.getID()) {
-                let sourcePortID: string = selectedLink.getSourcePort().getID();
+                const sourcePortID: string = selectedLink.getSourcePort().getID();
                 return sourcePortID.slice(sourcePortID.indexOf('-') + 1) === portIdentifier;
             } else if (selectedLink.getTargetPort().getNode().getID() === this.getID()) {
-                let targetPortID: string = selectedLink.getTargetPort().getID();
+                const targetPortID: string = selectedLink.getTargetPort().getID();
                 return targetPortID.slice(targetPortID.indexOf('-') + 1) === portIdentifier;
             }
         }

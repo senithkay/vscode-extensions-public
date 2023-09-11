@@ -7,16 +7,3 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { CellDiagram, CellDiagramProps } from './Diagram';
-
-export function renderDiagram(
-    props: CellDiagramProps,
-    target: HTMLDivElement
-) {
-    render(
-        <CellDiagram  {...props}/>,
-        target
-    );
-}

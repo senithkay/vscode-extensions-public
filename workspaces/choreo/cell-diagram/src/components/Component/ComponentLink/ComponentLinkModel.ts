@@ -15,18 +15,18 @@ interface LinkOrigins {
 }
 
 export class ComponentLinkModel extends SharedLinkModel {
-	sourceNode: LinkOrigins;
-	targetNode: LinkOrigins;
+    sourceNode: LinkOrigins;
+    targetNode: LinkOrigins;
 
-	constructor(id: string) {
-		super(id, 'componentLink');
-	}
+    constructor(id: string) {
+        super(id, 'componentLink');
+    }
 
-	setSourceNode(nodeId: string, attributeId: string = '') {
-		this.sourceNode = { nodeId, attributeId };
-	}
+    setSourceNode(nodeId: string, attributeId = '') {
+        this.sourceNode = { nodeId, attributeId };
+    }
 	
-	setTargetNode(nodeId: string, attributeId: string = '') {
-		this.targetNode = { nodeId, attributeId };
-	}
+    setTargetNode(nodeId: string, attributeId = '') {
+        this.targetNode = { nodeId, attributeId };
+    }
 }

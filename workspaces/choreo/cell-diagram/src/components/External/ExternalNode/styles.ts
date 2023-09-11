@@ -7,16 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { CellDiagram, CellDiagramProps } from './Diagram';
+import styled from "@emotion/styled";
 
-export function renderDiagram(
-    props: CellDiagramProps,
-    target: HTMLDivElement
-) {
-    render(
-        <CellDiagram  {...props}/>,
-        target
-    );
+interface StyleProps {
+    isAnonymous: boolean;
+    isSelected?: boolean;
+    isClickable?: boolean;
+    isCollapsed?: boolean;
+    isFocused?: boolean;
+    height?: number;
 }
+
+export const ExternalNode: React.FC<any> = styled.div`
+    width: ${(props: StyleProps) => props.height}px;
+    height: ${(props: StyleProps) => props.height}px;
+`;

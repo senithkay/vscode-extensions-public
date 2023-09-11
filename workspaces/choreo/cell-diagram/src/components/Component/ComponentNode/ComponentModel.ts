@@ -10,13 +10,14 @@
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { SharedNodeModel } from '../../shared-node/shared-node';
 import { ComponentPortModel } from '../ComponentPort/ComponentPortModel';
-import { ComponentModel as Component } from "@wso2-enterprise/ballerina-languageclient";
+import { Component } from '../../../types';
+import { COMPONENT_NODE } from '../../../resources';
 
 export class ComponentModel extends SharedNodeModel {
     readonly componentObject: Component;
 
     constructor(componentName: string, componentObject: Component) {
-        super('componentNode', componentName);
+        super(COMPONENT_NODE, componentName);
         this.componentObject = componentObject;
 
         this.addPort(new ComponentPortModel(componentName, PortModelAlignment.LEFT));

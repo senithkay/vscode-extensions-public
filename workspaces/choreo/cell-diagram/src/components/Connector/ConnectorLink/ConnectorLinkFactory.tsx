@@ -13,15 +13,15 @@ import { ConnectorLinkModel } from './ConnectorLinkModel';
 import { ConnectorLinkWidget } from './ConnectorLinkWidget';
 
 export class ConnectorLinkFactory extends DefaultLinkFactory {
-	constructor() {
-		super('connectorLink');
-	}
+    constructor() {
+        super('connectorLink');
+    }
 
-	generateModel(event: { initialConfig: any }): ConnectorLinkModel {
-		return new ConnectorLinkModel(event.initialConfig.id);
-	}
+    generateModel(event: { initialConfig: any }): ConnectorLinkModel {
+        return new ConnectorLinkModel(event.initialConfig.id);
+    }
 
-	generateReactWidget(props: { model: ConnectorLinkModel }): JSX.Element {
-		return <ConnectorLinkWidget link={props.model} engine={this.engine} />;
-	}
+    generateReactWidget(props: { model: ConnectorLinkModel }): JSX.Element {
+        return <ConnectorLinkWidget link={props.model} engine={this.engine} />;
+    }
 }
