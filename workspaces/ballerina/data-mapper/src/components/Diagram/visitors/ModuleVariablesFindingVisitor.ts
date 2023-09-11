@@ -6,75 +6,125 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { STSymbolInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FieldAccess,
     OptionalFieldAccess,
     SimpleNameReference,
     STKindChecker,
     STNode,
-    Visitor
+    Visitor,
 } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "monaco-editor";
 
+import { containsWithin } from "../../../utils/st-utils";
 import { ModuleVariable, ModuleVarKind } from "../Node/ModuleVariable";
+import { getDefinitionPosition } from "../utils/ls-utils";
 
 export class ModuleVariablesFindingVisitor implements Visitor {
     private readonly moduleVariables: Map<string, ModuleVariable>;
+    private readonly enumTypes: Map<string, ModuleVariable>;
+    private readonly filePath: string;
+    private readonly langClientPromise: Promise<IBallerinaLangClient>;
     private queryExpressionDepth: number;
-    private moduleVarDecls: Map<string, STNode>;
-    private constDecls: Map<string, STNode>;
-    private configurables: Map<string, STNode>;
+    private moduleVarDecls: ComponentInfo[];
+    private constDecls: ComponentInfo[];
+    // private configurables: ComponentInfo[];
+    private enums: ComponentInfo[];
 
-    constructor(symbolInfo: STSymbolInfo) {
+    constructor(filePath: string, langClientPromise: Promise<IBallerinaLangClient>) {
         this.moduleVariables = new Map<string, ModuleVariable>();
-        this.moduleVarDecls = symbolInfo.moduleVariables;
-        this.constDecls = symbolInfo.constants;
-        this.configurables = symbolInfo.configurables;
-        this.queryExpressionDepth = 0
+        this.enumTypes = new Map<string, ModuleVariable>();
+        this.filePath = filePath;
+        this.langClientPromise = langClientPromise;
+        this.queryExpressionDepth = 0;
+
+        this.moduleVarDecls = [];
+        this.constDecls = [];
+        // this.configurables = [];
+        this.enums = [];
     }
 
-    public beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
-        if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth === 0
+    public async init() {
+        const langClient = await this.langClientPromise;
+        const componentResponse = await langClient.getBallerinaProjectComponents({
+            documentIdentifiers: [
+                {
+                    uri: Uri.file(this.filePath).toString(),
+                },
+            ],
+        });
+        for (const pkg of componentResponse.packages) {
+            for (const mdl of pkg.modules) {
+                for (const moduleVariable of mdl.moduleVariables) {
+                    this.moduleVarDecls.push(moduleVariable)
+                }
+                for (const constant of mdl.constants) {
+                    this.constDecls.push(constant)
+                }
+                for (const enumType of mdl.enums) {
+                    this.enums.push(enumType)
+                }
+            }
+        }
+    }
+
+    public async beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
+        if (
+            (!parent ||
+                (!STKindChecker.isFieldAccess(parent) &&
+                    !STKindChecker.isOptionalFieldAccess(parent))) &&
+            this.queryExpressionDepth === 0
         ) {
-            const varName = node.source.trim().split('.')[0];
-            const moduleVarKind = this.getModuleVarKind(varName);
+            const varName = node.source.trim().split(".")[0];
+            const moduleVarKind = await this.getModuleVarKind(varName, node.position);
             if (moduleVarKind !== undefined) {
                 this.moduleVariables.set(varName, {
                     kind: moduleVarKind,
-                    node
+                    node,
                 });
             }
         }
     }
 
-    public beginVisitOptionalFieldAccess(node: OptionalFieldAccess, parent?: STNode) {
-        if ((!parent || (!STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth === 0
+    public async beginVisitOptionalFieldAccess(node: OptionalFieldAccess, parent?: STNode) {
+        if (
+            (!parent ||
+                (!STKindChecker.isFieldAccess(parent) &&
+                    !STKindChecker.isOptionalFieldAccess(parent))) &&
+            this.queryExpressionDepth === 0
         ) {
-            const varName = node.source.trim().split('.')[0];
-            const moduleVarKind = this.getModuleVarKind(varName);
+            const varName = node.source.trim().split(".")[0];
+            const moduleVarKind = await this.getModuleVarKind(varName, node.position);
             if (moduleVarKind !== undefined) {
                 this.moduleVariables.set(varName, {
                     kind: moduleVarKind,
-                    node
+                    node,
                 });
             }
         }
     }
 
-
-    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
-        if (STKindChecker.isIdentifierToken(node.name)
-            && (!parent
-                || (parent && !STKindChecker.isFieldAccess(parent) && !STKindChecker.isOptionalFieldAccess(parent)))
-            && this.queryExpressionDepth === 0
+    public async beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
+        if (
+            STKindChecker.isIdentifierToken(node.name) &&
+            (!parent ||
+                (parent &&
+                    !STKindChecker.isFieldAccess(parent) &&
+                    !STKindChecker.isOptionalFieldAccess(parent))) &&
+            this.queryExpressionDepth === 0
         ) {
-            const moduleVarKind = this.getModuleVarKind(node.name.value);
-            if (moduleVarKind !== undefined) {
+            const moduleVarKind = await this.getModuleVarKind(node.name.value, node.position);
+            if (moduleVarKind === ModuleVarKind.Enum) {
+                this.enumTypes.set(node.name.value, {
+                    kind: moduleVarKind,
+                    node,
+                });
+            } else if (moduleVarKind !== undefined) {
                 this.moduleVariables.set(node.name.value, {
                     kind: moduleVarKind,
-                    node
+                    node,
                 });
             }
         }
@@ -84,28 +134,51 @@ export class ModuleVariablesFindingVisitor implements Visitor {
         this.queryExpressionDepth += 1;
     }
 
-    public endVisitQueryExpression(){
+    public endVisitQueryExpression() {
         this.queryExpressionDepth -= 1;
     }
 
-    private getModuleVarKind(varName: string) {
+    private async getModuleVarKind(varName: string, position: any) {
         let kind: ModuleVarKind;
 
-        this.constDecls.forEach((node, key) => {
-            if (key === varName && !kind) {
+        this.constDecls?.forEach((component) => {
+            if (component.name.trim() === varName && !kind) {
                 kind = ModuleVarKind.Constant;
             }
         });
-        this.configurables.forEach((node, key) => {
-            if (key === varName && !kind) {
-                kind = ModuleVarKind.Configurable;
-            }
-        })
-        this.moduleVarDecls.forEach((node, key) => {
-            if (key === varName && !kind) {
+        // this.configurables?.forEach((component) => {
+        //     if (component.name.trim() === varName && !kind) {
+        //         kind = ModuleVarKind.Configurable;
+        //     }
+        // });
+        this.moduleVarDecls?.forEach((component) => {
+            if (component.name.trim() === varName && !kind) {
                 kind = ModuleVarKind.Variable;
             }
-        })
+        });
+        if (this.enums) {
+            for (const component of this.enums) {
+                const definitionPosition = await getDefinitionPosition(
+                    this.filePath,
+                    this.langClientPromise,
+                    {
+                        line: position.startLine,
+                        offset: position.startColumn,
+                    }
+                );
+                if (definitionPosition.parseSuccess) {
+                    const contains = containsWithin(definitionPosition.syntaxTree?.position, {
+                        startLine: component.startLine,
+                        startColumn: component.startColumn,
+                        endLine: component.endLine,
+                        endColumn: component.endColumn,
+                    });
+                    if (contains && !kind) {
+                        kind = ModuleVarKind.Enum;
+                    }
+                }
+            }
+        }
 
         return kind;
     }
@@ -114,4 +187,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
         return this.moduleVariables;
     }
 
+    public getEnumTypes() {
+        return this.enumTypes;
+    }
 }
