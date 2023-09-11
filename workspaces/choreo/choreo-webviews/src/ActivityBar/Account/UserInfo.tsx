@@ -52,7 +52,7 @@ const SignOutButton = styled(VSCodeButton)`
 // Diplays the avatar, name and email of the currently logged in user.
 export const UserInfo = () => {
     const { showUpgradeButton } = useAccountSubscriptionStatus();
-    const { userInfo, currentProjectOrg } = useChoreoWebViewContext();
+    const { userInfo, selectedOrg } = useChoreoWebViewContext();
     if (!userInfo) {
         return null;
     }
@@ -63,7 +63,7 @@ export const UserInfo = () => {
     };
 
     const openBillingPortal = () => {
-        ChoreoWebViewAPI.getInstance().openBillingPortal(currentProjectOrg?.uuid);
+        ChoreoWebViewAPI.getInstance().openBillingPortal(selectedOrg?.uuid);
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({ eventName: OPEN_UPGRADE_PLAN_PAGE_EVENT });
     };
 
@@ -73,7 +73,7 @@ export const UserInfo = () => {
             <MiddleContainer>
                 <div>{displayName}</div>
                 <Email>{userEmail}</Email>
-                {showUpgradeButton && currentProjectOrg?.uuid && (
+                {showUpgradeButton && selectedOrg?.uuid && (
                     <VSCodeLink onClick={openBillingPortal}>Upgrade</VSCodeLink>
                 )}
             </MiddleContainer>

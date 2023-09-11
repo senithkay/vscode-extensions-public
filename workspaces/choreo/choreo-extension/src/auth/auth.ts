@@ -97,24 +97,6 @@ export async function promptToOpenSignupPage() {
     });
 }
 
-export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
-    if (userOrgs.length === 0) {
-        throw new Error("No organizations found for the user.");
-    }
-    // If workspace a choreo project, we need to select the org of the project.
-    const isChoreoProject = ext.api.isChoreoProject();
-    if (isChoreoProject) {
-        const currentProjectId = await ext.api.getOrgIdOfCurrentProject();
-        if (currentProjectId) {
-            const foundOrg = userOrgs.find(org => org.id === currentProjectId);
-            if (foundOrg) {
-                return foundOrg;
-            }
-        }
-    }
-    // Else we need to select the first org.
-    return userOrgs[0];
-}
 
 export function getConsoleUrl() {
     return choreoEnvConfig.getConsoleUrl();

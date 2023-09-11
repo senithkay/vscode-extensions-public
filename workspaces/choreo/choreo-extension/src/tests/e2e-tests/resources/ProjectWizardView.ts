@@ -37,6 +37,7 @@ export class ProjectWizardView {
         await CommonUtils.waitAndClickById("cred-drop-down");
         await CommonUtils.waitAndClickById(`cred-item-${credentialName}`);
         await CommonUtils.waitAndClickById("cred-drop-down");
+        await CommonUtils.waitForIdToDisappear("project-repo-progress", 30000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("bitbucket-workspace-select"), workspaceName, 60000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("bitbucket-repo-select"), repoName);
         await CommonUtils.waitForIdToDisappear("project-repo-progress");
@@ -56,11 +57,8 @@ export class ProjectWizardView {
         console.log(`Creating new project: ${projectName}`);
         await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(ADD_CHOREO_PROJECT_COMMAND);
-        await CommonUtils.setQuickInputFieldValue({
-            inputValue: process.env.TEST_USER_ORG_HANDLE!,
-            title: "Select Organization",
-        });
 
+        await CommonUtils.waitForIFrameCount(3,20000);
         await CommonUtils.switchToIFrame("Create New Project");
         await CommonUtils.waitUntil(By.xpath('//h3[contains(text(), "Project Details")]'));
         await CommonUtils.waitAndTypeById("project-name-input", projectName);

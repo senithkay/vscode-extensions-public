@@ -10,13 +10,13 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ProgressLocation, commands, window } from "vscode";
+import { ProgressLocation, QuickPickItem, QuickPickOptions, commands, window } from "vscode";
 import { choreoEnvConfig, initiateInbuiltAuth as openAuthURL } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithAuthCodeCmdId, choreoSignOutCmdId, openWalkthroughCmdId } from '../constants';
+import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, changeChoreoOrgCmdId, choreoSignInCmdId, choreoSignInWithAuthCodeCmdId, choreoSignOutCmdId, openWalkthroughCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
-import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
+import { CHANGE_ORG_EVENT, CHANGE_ORG_EVENT_FAILURE, SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 import * as vscode from 'vscode';
 import { AuthHandler } from "./AuthHandler";
 
@@ -102,7 +102,45 @@ export async function activateAuth(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand(openWalkthroughCmdId, () => {
         vscode.commands.executeCommand(`workbench.action.openWalkthrough`, `wso2.choreo#choreo.getStarted`, false);
-    })
+    });
+
+    commands.registerCommand(changeChoreoOrgCmdId, async () => {
+        try {
+            sendTelemetryEvent(CHANGE_ORG_EVENT);       
+            const selectedOrg = await ext.api.getSelectedOrg();
+
+            const orgs = ext.api.userInfo?.organizations;
+            if (!orgs) {
+                window.showErrorMessage('Failed to load organizations.');
+                return;
+            }
+
+            const quickPicks: QuickPickItem[] = [
+                { kind: vscode.QuickPickItemKind.Separator, label: "Selected Organization" },
+            ];
+            quickPicks.push({ label: selectedOrg.name, description: selectedOrg.handle });
+            const otherOrgs = orgs.filter((item) => item.id !== selectedOrg?.id);
+            if (otherOrgs?.length > 0) {
+                quickPicks.push({ kind: vscode.QuickPickItemKind.Separator, label: "Available Organizations" });
+                quickPicks.push(...otherOrgs.map((org) => ({ label: org.name, description: org.handle })));
+            }
+
+            const options: QuickPickOptions = { canPickMany: false, title: "Select Organization" };
+            const selected = await window.showQuickPick(quickPicks, options);
+            if (selected) {
+                const selectedOrgItem = orgs.find(org => org.name === selected.label);
+                if(selectedOrgItem){
+                    await ext.api.setSelectedOrg(selectedOrgItem);
+                }
+            }
+        } catch (error: any) {
+            sendTelemetryEvent(CHANGE_ORG_EVENT_FAILURE, { cause: error?.message });
+            getLogger().error("Error while switching org. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            if (error instanceof Error) {
+                window.showErrorMessage(error.message);
+            }
+        }
+    });
 }
 
 async function initFromExistingChoreoSession() {

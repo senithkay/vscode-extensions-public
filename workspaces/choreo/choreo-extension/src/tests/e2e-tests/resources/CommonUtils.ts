@@ -154,8 +154,8 @@ export class CommonUtils {
             );
         }
 
-        // Wait 200ms for the input box to be interactive
-        await CommonUtils.wait(200);
+        // Wait 500ms for the input box to be interactive
+        await CommonUtils.wait(500);
 
         const inputBox = new InputBox();
         await inputBox.setText(params.inputValue);
@@ -211,8 +211,8 @@ export class CommonUtils {
             | "Cell View"
     ) {
         console.log(`Switching to iframe: ${frameName}`);
-        const driver = VSBrowser.instance.driver;
         await this.switchToDefaultFrame();
+        const driver = VSBrowser.instance.driver;
         const allIFrames = await this.waitUntilElements(By.xpath("//iframe"));
         for (const iframeItem of allIFrames) {
             try {
