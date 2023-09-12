@@ -9,15 +9,8 @@
 
 import { before, describe } from "mocha";
 import { join } from "path";
-import { By, EditorView, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
-import {
-    getElementByXPathUsingTestID,
-    switchToIFrame,
-    waitUntil,
-    waitForElementToAppear,
-    clickListItem, openNodeMenu, clickWebElement, selectItemFromAutocomplete
-} from "./util";
-import { ExtendedEditorView } from "./utils/ExtendedEditorView";
+import { By, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
+import { GraphqlDesignerView } from "./utils/GraphqlDesignerView";
 
 describe('VSCode Graphql Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'starwars');
@@ -27,204 +20,120 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     let driver: WebDriver;
 
     before(async () => {
-        const editorView = new EditorView();
-        await editorView.closeAllEditors();
-
         browser = VSBrowser.instance;
         driver = browser.driver;
         webview = new WebView();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
     });
 
-    it('Open graphql designer using code lens', async () => {
-        const extendedEditorView = new ExtendedEditorView(new EditorView());
-        const lens = await extendedEditorView.getCodeLens('Visualize');
-        await lens.click();
+    it('Verify nodes and fields in Graphql Visualizer', async () => {
+        await GraphqlDesignerView.verifyGraphqlDesignerCanvasLoad(driver);
 
-        await switchToIFrame('Overview Diagram', driver);
-        await waitUntil(getElementByXPathUsingTestID("graphql-canvas-widget-container"), 30000);
-    });
+        // Verify root node
+        await GraphqlDesignerView.verifyFieldsAndTypesInNode("graphql-root-node-/graphql2",
+            [{ name: "function-card-hero", type: "resource-type-Character!" },
+                { name: "function-card-reviews", type: "resource-type-[Review]!" },
+                { name: "function-card-characters", type: "resource-type-[Character]!" },
+                { name: "function-card-droid", type: "resource-type-Droid" },
+                { name: "function-card-human", type: "resource-type-Human" },
+                { name: "function-card-starship", type: "resource-type-Starship" },
+                { name: "function-card-search", type: "resource-type-[SearchResult!]" },
+                { name: "function-card-reviewAdded", type: "resource-type-Review!" },
+                { name: "function-card-createReview", type: "remote-type-Review!" },
+                { name: "function-card-profile", type: "resource-type-profile!" }
+            ]);
 
-    it('Verify graphql root node and its fields ', async () => {
-        await waitForElementToAppear("graphql-root-head-/graphql2");
+        // Verify Record node
+        await GraphqlDesignerView.verifyFieldsAndTypesInNode("record-node-Review",
+            [{ name: "record-field-episode", type: "record-field-type-Episode!" },
+                { name: "record-field-stars", type: "record-field-type-Int!" },
+                { name: "record-field-commentary", type: "record-field-type-String" }]);
 
-        await waitForElementToAppear("resource-identifier-hero");
-        await waitForElementToAppear("resource-type-Character!");
+        // Verify Enum node
+        await GraphqlDesignerView.verifyFieldsInNode("enum-node-Episode",
+            ["enum-field-NEWHOPE", "enum-field-EMPIRE", "enum-field-JEDI"]);
 
-        await waitForElementToAppear("resource-identifier-reviews");
-        await waitForElementToAppear("resource-type-[Review]!");
 
-        await waitForElementToAppear("resource-identifier-characters");
-        await waitForElementToAppear("resource-type-[Character]!");
+        // Verify Service Class nodes
+        await GraphqlDesignerView.verifyFieldsAndTypesInNode("service-class-node-Droid",
+            [{ name: "service-field-card-name", type: "service-field-type-String!" },
+                { name: "service-field-card-id", type: "service-field-type-String!" },
+                { name: "service-field-card-friends", type: "service-field-type-[Character!]!" },
+                { name: "service-field-card-appearsIn", type: "service-field-type-[Episode!]!" },
+                { name: "service-field-card-primaryFunction", type: "service-field-type-String" },
+            ]);
 
-        await waitForElementToAppear("resource-identifier-droid");
-        await waitForElementToAppear("resource-type-Droid");
+        await GraphqlDesignerView.verifyNodeHeader("service-class-head-Human");
+        await GraphqlDesignerView.verifyNodeHeader("service-class-head-Starship");
 
-        await waitForElementToAppear("resource-identifier-human");
-        await waitForElementToAppear("resource-type-Human");
 
-        await waitForElementToAppear("resource-identifier-starship");
-        await waitForElementToAppear("resource-type-Starship");
+        // Verify Interface nodes
+        await GraphqlDesignerView.verifyFieldsAndTypesInNode("interface-node-Character",
+            [{ name: "interface-func-field-id", type: "interface-func-type-String!" },
+                { name: "interface-func-field-name", type: "interface-func-type-String!" },
+                { name: "interface-func-field-friends", type: "interface-func-type-[Character!]!" },
+                { name: "interface-func-field-appearsIn", type: "interface-func-type-[Episode!]!" },
+            ]);
 
-        await waitForElementToAppear("resource-identifier-search");
-        await waitForElementToAppear("resource-type-[SearchResult!]");
+        await GraphqlDesignerView.verifyNodeHeader("interface-node-Human");
+        await GraphqlDesignerView.verifyNodeHeader("interface-node-Droid");
 
-        await waitForElementToAppear("resource-identifier-starship");
-        await waitForElementToAppear("resource-type-Starship");
 
-        await waitForElementToAppear("resource-identifier-reviewAdded");
-        await waitForElementToAppear("resource-type-Review!");
+        // Verify Union nodes
+        await GraphqlDesignerView.verifyFieldsInNode("union-node-SearchResult",
+            ["union-field-Human", "union-field-Droid", "union-field-Starship"]);
 
-        await waitForElementToAppear("remote-identifier-createReview");
-        await waitForElementToAppear("remote-type-Review!");
 
-        await waitForElementToAppear("resource-identifier-profile");
-        await waitForElementToAppear("resource-type-profile!");
-    });
+        // Verify Hierarchical nodes
+        await GraphqlDesignerView.verifyFieldsAndTypesInNode("hierarchical-node-profile",
+            [{ name: "hierarchical-field-card-quote", type: "hierarchical-field-type-String!" },
+                { name: "hierarchical-field-card-name", type: "hierarchical-field-type-name!" },
+            ]);
 
-    it('Verify record nodes and fields', async () => {
-        await waitForElementToAppear("record-head-Review");
+        await GraphqlDesignerView.verifyFieldsAndTypesInNode("hierarchical-node-name",
+            [{ name: "hierarchical-field-card-first", type: "hierarchical-field-type-String!" },
+                { name: "hierarchical-field-card-last", type: "hierarchical-field-type-String!" },
+            ]);
 
-        await waitForElementToAppear("record-field-name-episode");
-        await waitForElementToAppear("record-field-type-Episode!");
-
-        await waitForElementToAppear("record-field-name-stars");
-        await waitForElementToAppear("record-field-type-Int!");
-
-        await waitForElementToAppear("record-field-name-commentary");
-        await waitForElementToAppear("record-field-type-String");
-    });
-
-    it('Verify enum nodes and fields', async () => {
-        await waitForElementToAppear("enum-head-Episode");
-
-        await waitForElementToAppear("enum-field-JEDI");
-        await waitForElementToAppear("enum-field-EMPIRE");
-        await waitForElementToAppear("enum-field-NEWHOPE");
-    });
-
-    it('Verify service nodes and fields', async () => {
-        await waitForElementToAppear("service-class-head-Droid");
-
-        await waitForElementToAppear("service-field-id");
-        await waitForElementToAppear("service-field-type-String");
-
-        await waitForElementToAppear("service-field-name");
-        await waitForElementToAppear("service-field-type-String");
-
-        await waitForElementToAppear("service-field-friends");
-        await waitForElementToAppear("service-field-type-[Character!]!");
-
-        await waitForElementToAppear("service-field-appearsIn");
-        await waitForElementToAppear("service-field-type-[Episode!]!");
-
-        await waitForElementToAppear("service-field-primaryFunction");
-        await waitForElementToAppear("service-field-type-String");
-
-        await waitForElementToAppear("service-class-head-Human");
-        await waitForElementToAppear("service-class-head-Starship");
-    });
-
-    it('Verify interface nodes and fields', async () => {
-        await waitForElementToAppear("interface-head-Character");
-
-        await waitForElementToAppear("interface-func-id");
-        await waitForElementToAppear("interface-func-type-String!");
-
-        await waitForElementToAppear("interface-func-name");
-        await waitForElementToAppear("interface-func-type-String!");
-
-        await waitForElementToAppear("interface-func-friends");
-        await waitForElementToAppear("interface-func-type-[Character!]!");
-
-        await waitForElementToAppear("interface-func-appearsIn");
-        await waitForElementToAppear("interface-func-type-[Episode!]!");
-
-        await waitForElementToAppear("interface-implementation-Human");
-        await waitForElementToAppear("interface-implementation-Droid");
-    });
-
-    it('Verify union nodes and fields', async () => {
-        await waitForElementToAppear("union-head-SearchResult");
-
-        await waitForElementToAppear("union-field-Human");
-        await waitForElementToAppear("union-field-Droid");
-        await waitForElementToAppear("union-field-Starship");
-    });
-
-    it('Verify hierarchical resource nodes and fields', async () => {
-        await waitForElementToAppear("hierarchical-head-profile");
-
-        await waitForElementToAppear("hierarchical-field-quote");
-        await waitForElementToAppear("hierarchical-field-type-String!");
-        await waitForElementToAppear("hierarchical-field-name");
-        await waitForElementToAppear("hierarchical-field-type-name!");
-
-        await waitForElementToAppear("hierarchical-head-name");
-
-        await waitForElementToAppear("hierarchical-field-first");
-        await waitForElementToAppear("hierarchical-field-type-String!");
-        await waitForElementToAppear("hierarchical-field-last");
-        await waitForElementToAppear("hierarchical-field-type-String!");
-    });
-
-    it('Verify links', async () => {
-        await waitForElementToAppear("right-search-left-SearchResult");
-        await waitForElementToAppear("right-hero-left-Character");
-        await waitForElementToAppear("right-reviewAdded-left-Review");
-        await waitForElementToAppear("right-starship-left-Starship");
-        await waitForElementToAppear("right-human-left-Human");
-        await waitForElementToAppear("right-appearsIn-left-Episode");
-        await waitForElementToAppear("right-Starship-left-Starship");
+        // Verify Links
+        await GraphqlDesignerView.verifyLinks(["right-search-left-SearchResult",
+            "right-hero-left-Character", "right-reviewAdded-left-Review", "right-starship-left-Starship",
+            "right-human-left-Human", "right-appearsIn-left-Episode", "right-Starship-left-Starship"
+        ]);
     });
 
     it('Verify filtering of operations', async () => {
-        await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
+        await GraphqlDesignerView.clickOperationFilterOption(webview, "Mutations");
 
-        await clickListItem(webview, "operation-type", "Mutations");
+        await GraphqlDesignerView.verifyFieldsInNode("graphql-root-node-/graphql2", ["remote-identifier-createReview"]);
+        await GraphqlDesignerView.verifyNodeHeaderList(["record-head-Review", "enum-head-Episode"]);
 
-        await waitForElementToAppear("graphql-root-head-/graphql2");
-        await waitForElementToAppear("remote-identifier-createReview");
-        await waitForElementToAppear("record-head-Review");
-        await waitForElementToAppear("enum-head-Episode");
+        await GraphqlDesignerView.clickOperationFilterOption(webview, "Subscriptions");
 
-        await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
-
-        await clickListItem(webview, "operation-type", "Subscription");
-
-        await waitForElementToAppear("graphql-root-head-/graphql2");
-        await waitForElementToAppear("resource-identifier-reviewAdded");
-        await waitForElementToAppear("record-head-Review");
-        await waitForElementToAppear("enum-head-Episode");
+        await GraphqlDesignerView.verifyFieldsInNode("graphql-root-node-/graphql2", ["resource-identifier-reviewAdded"]);
+        await GraphqlDesignerView.verifyNodeHeaderList(["record-head-Review", "enum-head-Episode"]);
     });
 
     it('Verify filtering of nodes', async () => {
-        await selectItemFromAutocomplete(webview, "/graphql2", "Human");
+        await GraphqlDesignerView.selectNodeToFilter(webview, "/graphql2", "Human");
 
-        await waitForElementToAppear("service-class-head-Human");
-        await waitForElementToAppear("service-class-head-Droid");
-        await waitForElementToAppear("interface-head-Character");
-        await waitForElementToAppear("enum-head-Episode");
-        await waitForElementToAppear("service-class-head-Starship");
+        await GraphqlDesignerView.verifyNodeHeaderList(["service-class-head-Human", "service-class-head-Droid",
+            "interface-head-Character", "enum-head-Episode", "service-class-head-Starship"
+        ]);
+
     });
 
     it('Verify subGraph filtering', async () => {
-        await selectItemFromAutocomplete(webview, "Human", "/graphql2", true);
+        await GraphqlDesignerView.selectNodeToFilter(webview, "Human", "/graphql2", true);
+        await GraphqlDesignerView.clickOperationFilterOption(webview, "All Operations");
 
-        await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
+        await GraphqlDesignerView.verifyNodeHeader("union-head-SearchResult");
 
-        await clickListItem(webview, "operation-type", "All Operations");
+        await GraphqlDesignerView.openNodeMenu(webview, "union-head-SearchResult", "filter-node-menu");
+        await GraphqlDesignerView.openSubGraph(webview);
 
-        await waitForElementToAppear("union-head-SearchResult");
-
-        await openNodeMenu(webview, "union-head-SearchResult", "filter-node-menu");
-        await clickWebElement(webview, getElementByXPathUsingTestID("show-subgraph-menu"));
-
-        await waitForElementToAppear("union-head-SearchResult");
-        await waitForElementToAppear("service-class-head-Droid");
-        await waitForElementToAppear("service-class-head-Human");
-        await waitForElementToAppear("service-class-head-Starship");
-        await waitForElementToAppear("interface-head-Character");
-        await waitForElementToAppear("enum-head-Episode");
+        await GraphqlDesignerView.verifyNodeHeaderList(["union-head-SearchResult", "service-class-head-Droid",
+            "service-class-head-Human", "service-class-head-Starship", "interface-head-Character", "enum-head-Episode"
+        ]);
     });
 });

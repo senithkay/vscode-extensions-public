@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import { ExtendedEditorView } from "./ExtendedEditorView";
 import { By, EditorView, Key, WebDriver, WebView } from "vscode-extension-tester";
 import {
@@ -8,6 +17,11 @@ import {
     waitForElementToAppear,
     waitUntil, waitUntilVisible
 } from "../util";
+
+interface FieldData {
+    name: string;
+    type: string;
+}
 
 export class GraphqlDesignerView {
     static async verifyGraphqlDesignerCanvasLoad(driver: WebDriver) {
@@ -23,19 +37,36 @@ export class GraphqlDesignerView {
         await waitForElementToAppear(rootHead);
     }
 
-    static async verifyNodeFields(nodeHeaderList: string[]){
+    static async verifyFieldsAndTypesInNode(nodeHeader: string, fieldList: FieldData[]) {
+        for (const field of fieldList) {
+            await waitUntil(By.xpath(
+                `//*[contains(@data-testid, '${nodeHeader}')]//*[contains(@data-testid, '${field.name}')]//*[contains(@data-testid, '${field.type}')]`
+            ));
+        }
+    }
+
+    static async verifyFieldsInNode(nodeHeader: string, fieldList: string[]) {
+        for (const field of fieldList) {
+            await waitUntil(By.xpath(
+                `//*[contains(@data-testid, '${nodeHeader}')]//*[contains(@data-testid, '${field}')]`
+            ));
+
+        }
+    }
+
+    static async verifyLinks(linkList: string[]) {
+        for (const link of linkList) {
+            await waitForElementToAppear(link);
+        }
+    }
+
+    static async verifyNodeHeaderList(nodeHeaderList: string[]) {
         for (const nodeHeader of nodeHeaderList) {
             await waitForElementToAppear(nodeHeader);
         }
     }
 
-    static async verifyFieldTypes(fieldTypeList: string[]){
-        for (const fieldType of fieldTypeList) {
-            await waitForElementToAppear(fieldType);
-        }
-    }
-
-    static async clickOperationFilterOption(webview: WebView, operationFilterOption: string){
+    static async clickOperationFilterOption(webview: WebView, operationFilterOption: string) {
         await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
         await clickListItem(webview, "operation-type", operationFilterOption);
     }
