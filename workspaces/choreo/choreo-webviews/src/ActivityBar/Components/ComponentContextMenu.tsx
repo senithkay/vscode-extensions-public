@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "@emotion/styled";
 import {
     Component,
@@ -18,11 +18,29 @@ import {
     OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT,
     OPEN_GITHUB_REPO_PAGE_EVENT,
 } from "@wso2-enterprise/choreo-core";
+import {
+    ContextMenu,
+} from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ContextMenu, MenuItem } from "../../Commons/ContextMenu";
 import { BitBucketIcon, GithubIcon } from "../../icons";
+import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
+
+export interface MenuItem {
+    id: number | string;
+    label: React.ReactNode;
+    onClick: () => void;
+    disabled?: boolean;
+}
+
+const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
+    text-align: left;
+    width: 220px;
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+`;
 
 const InlineIcon = styled(Codicon)`
     vertical-align: sub;
@@ -41,6 +59,8 @@ export const ComponentContextMenu = (props: {
 }) => {
     const { component, deletingComponent, handleDeleteComponentClick } = props;
     const { choreoUrl, currentProjectOrg } = useChoreoWebViewContext();
+
+    const [isOpen, setIsOpen] = useState(false);
 
     const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
     const openComponentUrl = useCallback(() => {
@@ -121,5 +141,46 @@ export const ComponentContextMenu = (props: {
         disabled: deletingComponent,
     });
 
-    return <ContextMenu items={menuItems} loading={deletingComponent} menuId={component.displayName} />;
+    const handleItemClick = (item: MenuItem) => {
+        item.onClick();
+        setIsOpen(false);
+    };
+
+    const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
+        setIsOpen(true);
+    };
+
+    const handleMenuClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        event.stopPropagation();
+        setIsOpen(false);
+    };
+
+    const icon = (<Codicon name="ellipsis" />);
+
+    return (
+        <ContextMenu isOpen={isOpen} icon={icon} isLoading={deletingComponent} menuId={component.displayName} onClick={handleClick} onClose={handleMenuClose} sx={{right: 0, marginTop: 50}}>
+            <VSCodeDataGrid aria-label="Context Menu">
+                {menuItems.map((item) => (
+                    <VSCodeDataGridRow
+                        key={item.id}
+                        onClick={(event) => {
+                            if (!item.disabled) {
+                                event.stopPropagation();
+                                handleItemClick(item);
+                                setIsOpen(false);
+                            }
+                        }}
+                        style={{
+                            cursor: item.disabled ? "not-allowed" : "pointer",
+                            opacity: item.disabled ? 0.5 : 1,
+                        }}
+                        id={`component-list-menu-${item.id}`}
+                    >
+                        <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
+                    </VSCodeDataGridRow>
+                ))}
+            </VSCodeDataGrid>
+        </ContextMenu>
+    );
 };
