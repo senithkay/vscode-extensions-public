@@ -9,15 +9,15 @@
 
 import * as vscode from 'vscode';
 import { createDiagramWebview } from './diagram/webview';
+import { launch } from './lang-server/activator';
 
 export function activate(context: vscode.ExtensionContext) {
-
-	console.log('Congratulations, your extension "integration-studio" is now active!');
-
 	let disposable = vscode.commands.registerCommand('integration-studio.helloWorld', () => {
 		vscode.window.showInformationMessage('Hello Worldd from Integration Studio!');
 		createDiagramWebview(context);
 	});
 
 	context.subscriptions.push(disposable);
+
+	launch(context, __dirname);
 }

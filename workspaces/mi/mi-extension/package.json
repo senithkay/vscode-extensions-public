@@ -10,14 +10,31 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:SynapseXml"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+			{
+				"id": "SynapseXml",
+				"extensions": [
+          ".xml"
+        ]
+			}
+		],
     "commands": [
       {
         "command": "integration-studio.helloWorld",
         "title": "Hello World"
       }
+    ],
+    "grammars": [
+      {
+				"language": "SynapseXml",
+				"scopeName": "synapse.xml",
+				"path": "./syntaxes/xml.tmLanguage.json"
+			}
     ]
   },
   "scripts": {
@@ -59,6 +76,7 @@
     "@wso2-enterprise/mi-core": "workspace:*",
     "@playwright/test": "~1.37.1",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
-    "vscode-extension-tester": "~5.9.1"
+    "vscode-extension-tester": "~5.9.1",
+    "vscode-languageclient": "^8.0.0"
   }
 }

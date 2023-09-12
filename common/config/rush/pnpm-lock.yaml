@@ -3011,6 +3011,7 @@ importers:
       ts-loader: ^9.4.4
       typescript: ^5.1.6
       vscode-extension-tester: ~5.9.1
+      vscode-languageclient: ^8.0.0
       vscode-messenger: ~0.4.5
       vscode-messenger-common: ~0.4.5
       webpack: ^5.88.2
@@ -3022,6 +3023,7 @@ importers:
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       copyfiles: 2.4.1
       vscode-extension-tester: 5.9.1_iszrbtkgi4fougqiv5wazjzlw4
+      vscode-languageclient: 8.1.0
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
     devDependencies:
@@ -16996,7 +16998,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       webpack: 5.88.2_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_webpack@5.88.2
+      webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
 
   /@webpack-cli/configtest/2.1.1_w46lltld4evug5kpkz4iei6qt4:
     resolution: {integrity: sha512-wy0mglZpDSiSS0XHrVR+BAdId2+yxPSoJW8fsna3ZpYSlufjvxnP4YbKTCBZnNIcGN4r6ZPXV55X4mYExOfLmw==}
@@ -17015,7 +17017,7 @@ packages:
       webpack-cli: 4.x.x
     dependencies:
       envinfo: 7.10.0
-      webpack-cli: 4.10.0_webpack@5.88.2
+      webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
 
   /@webpack-cli/info/2.0.2_w46lltld4evug5kpkz4iei6qt4:
     resolution: {integrity: sha512-zLHQdI/Qs1UyT5UBdWNqsARasIA+AaF8t+4u2aS2nEpBQh2mWIVb8qAklq0eUENnC5mOItrIB4LiS9xMtph18A==}
@@ -17038,6 +17040,7 @@ packages:
         optional: true
     dependencies:
       webpack-cli: 4.10.0_webpack@5.88.2
+    dev: true
 
   /@webpack-cli/serve/1.7.0_zlkpompfwd3ohwjpgahvnmgqqy:
     resolution: {integrity: sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==}
@@ -40737,6 +40740,7 @@ packages:
       rechoir: 0.7.1
       webpack: 5.88.2_webpack-cli@4.10.0
       webpack-merge: 5.9.0
+    dev: true
 
   /webpack-cli/5.1.4_55ctblq7vmnkc7msvxpxtdxasq:
     resolution: {integrity: sha512-pIDJHIEI9LR0yxHXQ+Qh95k2EvXpWzZ5l+d+jIo+RdSm9MiHfzazIxwwni/p7+x4eJZuvG1AJwgC4TNQ7NRgsg==}
@@ -41346,7 +41350,7 @@ packages:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.9_webpack@5.88.2
       watchpack: 2.4.0
-      webpack-cli: 4.10.0_webpack@5.88.2
+      webpack-cli: 4.10.0_55ctblq7vmnkc7msvxpxtdxasq
       webpack-sources: 3.2.3
     transitivePeerDependencies:
       - '@swc/core'
