@@ -140,6 +140,7 @@ export class ResourceForm {
         const responseSaveBtn = await webview.findWebElement(By.xpath("//*[@data-testid='path-segment-add-btn']"));
         await this.Driver().wait(until.elementIsEnabled(responseSaveBtn));
         await responseSaveBtn.click();
+        await this.waitForDisableEnableElement(webview);
     }
 
     static async saveResource(webview: WebView, method: string) {
