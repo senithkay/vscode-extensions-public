@@ -77,7 +77,7 @@ export function CellDiagram(props: CellDiagramProps) {
         const cellNode = new CellModel(
             MAIN_CELL,
             componentDiagramWidth,
-            Array.from((nodeNLinks.nodes.connectorNodes as Map<string, ConnectorModel>).values())
+            Array.from((nodeNLinks.nodes.connectionNodes as Map<string, ConnectorModel>).values())
         );
         // create diagram model
         const model = new DiagramModel();
@@ -86,12 +86,12 @@ export function CellDiagram(props: CellDiagramProps) {
             // nodes
             cellNode,
             ...nodeNLinks.nodes.componentNodes.values(),
-            ...nodeNLinks.nodes.connectorNodes.values(),
+            ...nodeNLinks.nodes.connectionNodes.values(),
             ...nodeNLinks.nodes.emptyNodes.values(),
             ...nodeNLinks.nodes.externalNodes.values(),
             // links
             ...nodeNLinks.links.componentLinks.values(),
-            ...nodeNLinks.links.connectorLinks.values(),
+            ...nodeNLinks.links.connectionLinks.values(),
             ...nodeNLinks.links.cellLinks.values(),
             ...nodeNLinks.links.externalLinks.values()
         );

@@ -9,19 +9,19 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { ConnectorModel } from "../ConnectorModel";
-import { ConnectorHead, IconWrapper } from "../styles";
+import { ConnectionModel } from "../ConnectionModel";
+import { ConnectionHead, IconWrapper } from "../styles";
 import { DefaultConnectorIcon } from "../../../../resources/assets/icons/DefaultConnectorIcon";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
-    node: ConnectorModel;
+    node: ConnectionModel;
     isSelected: boolean;
     isCollapsed: boolean;
     setCollapsedStatus: (status: boolean) => void;
 }
 
-export function ConnectorHeadWidget(props: ServiceHeadProps) {
+export function ConnectionHeadWidget(props: ServiceHeadProps) {
     const { node, isSelected, isCollapsed } = props;
     const headPorts = useRef<PortModel[]>([]);
     const [_isHovered, setIsHovered] = useState<boolean>(false);
@@ -39,7 +39,7 @@ export function ConnectorHeadWidget(props: ServiceHeadProps) {
     };
 
     return (
-        <ConnectorHead
+        <ConnectionHead
             isSelected={isSelected}
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
@@ -48,6 +48,6 @@ export function ConnectorHeadWidget(props: ServiceHeadProps) {
             <IconWrapper>
                 <DefaultConnectorIcon />
             </IconWrapper>
-        </ConnectorHead>
+        </ConnectionHead>
     );
 }

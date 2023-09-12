@@ -19,13 +19,13 @@ export { ComponentPortFactory } from './Component/ComponentPort/ComponentPortFac
 export { ComponentPortModel } from './Component/ComponentPort/ComponentPortModel';
 export { ComponentPortWidget } from './Component/ComponentPort/ComponentPortWidget';
 
-export { ConnectorFactory } from './Connector/ConnectorNode/ConnectorFactory';
-export { ConnectorModel } from './Connector/ConnectorNode/ConnectorModel';
-export { ConnectorWidget } from './Connector/ConnectorNode/ConnectorWidget';
+export { ConnectionFactory } from './Connection/ConnectionNode/ConnectionFactory';
+export { ConnectionModel } from './Connection/ConnectionNode/ConnectionModel';
+export { ConnectionWidget } from './Connection/ConnectionNode/ConnectionWidget';
 
-export { ConnectorPortFactory } from './Connector/ConnectorPort/ConnectorPortFactory';
-export { ConnectorPortModel } from './Connector/ConnectorPort/ConnectorPortModel';
-export { ConnectorPortWidget } from './Connector/ConnectorPort/ConnectorPortWidget';
+export { ConnectionPortFactory } from './Connection/ConnectionPort/ConnectionPortFactory';
+export { ConnectionPortModel } from './Connection/ConnectionPort/ConnectionPortModel';
+export { ConnectionPortWidget } from './Connection/ConnectionPort/ConnectionPortWidget';
 
 export { CellFactory } from './Cell/CellNode/CellFactory';
 export { CellModel } from './Cell/CellNode/CellModel';

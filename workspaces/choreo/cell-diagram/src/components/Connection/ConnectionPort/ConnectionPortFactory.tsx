@@ -9,14 +9,14 @@
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
-import { ConnectorPortModel } from './ConnectorPortModel';
+import { ConnectionPortModel } from './ConnectionPortModel';
 
-export class ConnectorPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
+export class ConnectionPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
     constructor() {
-        super('connectorPort');
+        super('connectionPort');
     }
 
-    generateModel(event: { initialConfig: any }): ConnectorPortModel {
-        return new ConnectorPortModel(event.initialConfig.id, event.initialConfig.portType);
+    generateModel(event: { initialConfig: any }): ConnectionPortModel {
+        return new ConnectionPortModel(event.initialConfig.id, event.initialConfig.portType);
     }
 }

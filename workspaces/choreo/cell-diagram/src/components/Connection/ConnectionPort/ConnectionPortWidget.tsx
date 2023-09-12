@@ -9,15 +9,15 @@
 
 import React, { CSSProperties } from 'react';
 import { DiagramEngine, PortModelAlignment, PortWidget } from '@projectstorm/react-diagrams';
-import { ConnectorPortModel } from './ConnectorPortModel';
+import { ConnectionPortModel } from './ConnectionPortModel';
 import { inclusionPortStyles, sidePortStyles } from './styles';
 
 interface CustomPortProps {
-    port: ConnectorPortModel;
+    port: ConnectionPortModel;
     engine: DiagramEngine;
 }
 
-export function ConnectorPortWidget(props: CustomPortProps) {
+export function ConnectionPortWidget(props: CustomPortProps) {
     const { port, engine } = props;
     const portStyles: CSSProperties = port.getOptions().alignment === PortModelAlignment.LEFT ?
         { left: 0, ...sidePortStyles } : port.getOptions().alignment === PortModelAlignment.RIGHT ?

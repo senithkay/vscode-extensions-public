@@ -35,7 +35,9 @@ export interface Service {
 
 export interface Connection {
     id: string
-    type: ConnectionType
+    type: ConnectionType,
+    projectId?: string,
+    onPlatform: boolean,
 }
 
 export enum ConnectionType {
@@ -59,7 +61,3 @@ export interface ConnectorMetadata {
 }
 
 export type ConnectionMetadata = ServiceMetadata | ConnectorMetadata;
-
-export interface Connector {
-    id: string
-}

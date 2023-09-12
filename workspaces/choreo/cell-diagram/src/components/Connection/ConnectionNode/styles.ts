@@ -19,7 +19,7 @@ interface StyleProps {
     isFocused?: boolean;
 }
 
-export const ConnectorNode: React.FC<any> = styled.div`
+export const ConnectionNode: React.FC<any> = styled.div`
     color: ${Colors.DEFAULT_TEXT};
     display: flex;
     flex-direction: column;
@@ -29,7 +29,7 @@ export const ConnectorNode: React.FC<any> = styled.div`
     padding: 10px;
 `;
 
-export const ConnectorHead: React.FC<any> = styled.div`
+export const ConnectionHead: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
     border: ${(props: StyleProps) =>
         `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
@@ -42,7 +42,7 @@ export const ConnectorHead: React.FC<any> = styled.div`
     line-height: 28px;
 `;
 
-export const ConnectorName: React.FC<any> = styled.span`
+export const ConnectionName: React.FC<any> = styled.span`
     margin-top: 10px;
     cursor: pointer;
     font-size: ${LABEL_FONT_SIZE}px;

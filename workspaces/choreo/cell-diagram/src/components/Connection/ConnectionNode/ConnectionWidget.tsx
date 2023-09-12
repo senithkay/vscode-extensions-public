@@ -9,31 +9,32 @@
 
 import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
-import { ConnectorModel } from "./ConnectorModel";
-import { ConnectorLinkModel } from "../ConnectorLink/ConnectorLinkModel";
-import { ConnectorHeadWidget } from "./ConnectorHead/ConnectorHead";
-import { ConnectorName, ConnectorNode, InclusionPortsContainer } from "./styles";
+import { ConnectionModel } from "./ConnectionModel";
+import { ConnectionHeadWidget } from "./ConnectionHead/ConnectionHead";
+import { ConnectionName, ConnectionNode, InclusionPortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { getConnectorNameFromId } from "./connector-util";
-import { ConnectorPortWidget } from "../ConnectorPort/ConnectorPortWidget";
+import { ConnectionPortWidget } from "../ConnectionPort/ConnectionPortWidget";
+import { ExternalLinkModel } from "../../External/ExternalLink/ExternalLinkModel";
+import { getMetadataFromConnection } from "../../../utils";
+import { ConnectionType } from "../../../types";
 
-interface ConnectorWidgetProps {
-    node: ConnectorModel;
+interface ConnectionWidgetProps {
+    node: ConnectionModel;
     engine: DiagramEngine;
 }
 
-export function ConnectorWidget(props: ConnectorWidgetProps) {
+export function ConnectionWidget(props: ConnectionWidgetProps) {
     const { node, engine } = props;
-    const { collapsedMode, selectedNodeId, setSelectedNodeId, focusedNodeId, setFocusedNodeId } = useContext(DiagramContext);
-    const [selectedLink, setSelectedLink] = useState<ConnectorLinkModel>(undefined);
+    const { collapsedMode, selectedNodeId, focusedNodeId } = useContext(DiagramContext);
+    const [selectedLink, setSelectedLink] = useState<ExternalLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
-
-    const displayName: string = getConnectorNameFromId(node.connectorObject.id) || node.getID().slice(node.getID().lastIndexOf(":") + 1);
+    const metadata = getMetadataFromConnection(node.connection);
+    const displayName = (metadata.type === ConnectionType.Connector ? metadata.organization : metadata.component) || node.connection.id;
 
     useEffect(() => {
         node.registerListener({
             SELECT: (event: any) => {
-                setSelectedLink(event.connector as ConnectorLinkModel);
+                setSelectedLink(event.connection as ExternalLinkModel);
             },
             UNSELECT: () => {
                 setSelectedLink(undefined);
@@ -51,22 +52,22 @@ export function ConnectorWidget(props: ConnectorWidgetProps) {
     };
 
     return (
-        <ConnectorNode
+        <ConnectionNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
         >
-            <ConnectorHeadWidget
+            <ConnectionHeadWidget
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 isCollapsed={isCollapsed}
                 setCollapsedStatus={setCollapsibleStatus}
             />
-            <ConnectorName onClick={handleOnHeaderWidgetClick}>{displayName}</ConnectorName>
+            <ConnectionName onClick={handleOnHeaderWidgetClick}>{displayName}</ConnectionName>
             <InclusionPortsContainer>
-                <ConnectorPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
-                <ConnectorPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
+                <ConnectionPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
+                <ConnectionPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
             </InclusionPortsContainer>
-        </ConnectorNode>
+        </ConnectionNode>
     );
 }
