@@ -6,19 +6,32 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { ContextMenu, ContextMenuProps } from "./ContextMenu";
+import React, { useState } from "react";
+import { storiesOf } from "@storybook/react";
 
-const Template: ComponentStory<typeof ContextMenu> = (args: ContextMenuProps) => 
-    <>
-        <ContextMenu {...args}>
-            <>This is a sample Context Menu</>
+import { ContextMenu } from "./ContextMenu";
+import { Codicon } from "../Codicon/Codicon";
+
+const ComponentStory = () => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleOpen = () => {
+        setIsOpen(true);
+    };
+    const handleClose = () => {
+        setIsOpen(false);
+    };
+    const icon = (<Codicon name="ellipsis" />);
+    return (
+        <ContextMenu
+            isOpen={isOpen}
+            onClick={handleOpen}
+            onClose={handleClose}
+            icon={icon}
+        >
+            <>Sample Context Menu</>
         </ContextMenu>
-    </>
-;
+    );
+};
 
-export const Menu = Template.bind();
-Menu.args = { menuId: "Test" };
-
-export default { component: ContextMenu, title: "ContextMenu" };
+storiesOf("Context Menu").add("Menu", () => <ComponentStory />);

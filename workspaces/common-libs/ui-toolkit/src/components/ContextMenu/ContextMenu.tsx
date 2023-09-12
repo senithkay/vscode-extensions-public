@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from "react";
+import React, { ReactNode } from "react";
 import {
     VSCodeButton,
     VSCodeProgressRing,
@@ -16,17 +16,27 @@ import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
 
 export interface ContextMenuProps {
-    loading?: boolean;
+    isOpen: boolean;
+    onClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    onClose: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    isLoading?: boolean;
     menuId?: string;
     children?: React.ReactNode;
+    icon?: ReactNode;
+    sx?: any;
 }
 
-const ExpandedMenu = styled.div<ContextMenuProps>`
+export interface ContainerProps {
+  sx?: any;
+}
+
+const ExpandedMenu = styled.div<ContainerProps>`
     position: absolute;
     margin-top: 30px;
     z-index: 15;
     background: var(--vscode-editor-background);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
+    ${(props: ContextMenuProps) => props.sx};
 `;
 
 const SmallProgressRing = styled(VSCodeProgressRing)`
@@ -43,35 +53,24 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { loading, menuId, children } = props;
-    const [isOpen, setIsOpen] = useState(false);
-
-    const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        event.stopPropagation();
-        setIsOpen(true);
-    };
-
-    const handleClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        event.stopPropagation();
-        setIsOpen(false);
-    };
+    const { isLoading, isOpen, menuId, sx, children, onClick, icon, onClose } = props;
 
     return (
         <Container>
-            {loading ? (
+            {isLoading ? (
                 <SmallProgressRing />
             ) : (
-                <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                    <Codicon name="ellipsis" />
+                <VSCodeButton appearance="icon" onClick={onClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                    {icon ? icon : <Codicon name="ellipsis" />}
                 </VSCodeButton>
             )}
 
             {isOpen && (
-                <ExpandedMenu>
+                <ExpandedMenu sx={sx}>
                     {children}
                 </ExpandedMenu>
             )}
-            {isOpen && <Overlay onClose={handleClose} />}
+            {isOpen && <Overlay onClose={onClose} />}
         </Container>
     );
 };
