@@ -14,8 +14,8 @@ import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ProjectActionButton } from "../ProjectActionButton";
-import { ChoreoIcon } from "../../../icons";
 import { OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export const OpenConsoleButton = () => {
     const { choreoProject, choreoUrl, currentProjectOrg } = useChoreoWebViewContext();
@@ -28,13 +28,14 @@ export const OpenConsoleButton = () => {
         });
         ChoreoWebViewAPI.getInstance().openExternal(projectURL);
     };
+    const icon = (<Icon name="choreo" />);
 
     return (
         <ProjectActionButton
             tooltip="Open project in Choreo Console"
             onClick={openProjectInChoreoConsole}
             label="Console"
-            icon={<ChoreoIcon />}
+            icon={icon}
         />
     );
 };
