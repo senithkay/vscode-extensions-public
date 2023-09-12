@@ -57,12 +57,6 @@ export function getElementByXPathUsingTestID(
     return By.xpath("//*[@data-testid='" + testID + "']");
 }
 
-export function getListElementByXPathUsingText(
-    text: string
-) {
-    return By.xpath("//li[text()='" + text + "']");
-}
-
 export function getInputElementByXPathUsingValue(
     value: string
 ) {
@@ -73,12 +67,6 @@ export function getElementByXPathUsingTitle(
     title: string
 ) {
     return By.xpath("//*[@title='" + title + "']");
-}
-
-export function getElementByCssUsingId(
-    id: string
-) {
-    return By.css(`[data-testid='${id}']`);
 }
 
 export async function waitForElementToAppear(
@@ -93,26 +81,9 @@ export async function clickListItem(webview: WebView, className: string, text: s
     await options.click();
 }
 
-export async function openNodeMenu(webview: WebView, nodeTestId: string, menuTestId: string) {
-    const options = await webview.findWebElement(By.xpath(`//div[contains(@data-testid, '${nodeTestId}')]/*[contains(@data-testid, '${menuTestId}')]`));
-    await waitUntilVisible(options);
-    await options.click();
-}
-
 export async function clickWebElement(webview: WebView, locator: Locator) {
     const element = await webview.findWebElement(locator);
     await element.click();
-}
-
-export async function selectItemFromAutocomplete(webview: WebView, currentSelection: string, valueToSelect: string, clearInput: boolean = false) {
-    const nodeFilter = await webview.findWebElement(getInputElementByXPathUsingValue(currentSelection));
-    await nodeFilter.click();
-    if (clearInput) {
-        await clickWebElement(webview, getElementByXPathUsingTitle("Clear"));
-        await nodeFilter.sendKeys(valueToSelect, Key.DOWN, Key.ENTER);
-    } else {
-        await nodeFilter.sendKeys(valueToSelect, Key.DOWN, Key.ENTER);
-    }
 }
 
 export async function waitForElementToDisappear(
