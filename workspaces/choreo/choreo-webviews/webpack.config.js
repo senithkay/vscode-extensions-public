@@ -42,7 +42,13 @@ module.exports = {
             {
                 test: /\.(woff|woff2|ttf|eot|svg)$/,
                 type: 'asset/inline'
-            }
+            },
+            {
+                test: /\.png$/,
+                use: [
+                  'file-loader',
+                ],
+            },
         ],
     },
     devServer: {
