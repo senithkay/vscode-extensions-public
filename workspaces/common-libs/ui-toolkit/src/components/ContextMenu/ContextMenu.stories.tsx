@@ -11,9 +11,11 @@ import { ComponentStory } from "@storybook/react";
 import { ContextMenu, ContextMenuProps } from "./ContextMenu";
 
 const Template: ComponentStory<typeof ContextMenu> = (args: ContextMenuProps) => 
-    <ContextMenu {...args}>
-        <>This is a sample Context Menu</>
-    </ContextMenu>
+    <>
+        <ContextMenu {...args}>
+            <>This is a sample Context Menu</>
+        </ContextMenu>
+    </>
 ;
 
 export const Menu = Template.bind();

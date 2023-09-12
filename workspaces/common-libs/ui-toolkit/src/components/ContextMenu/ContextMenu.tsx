@@ -13,17 +13,17 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { Overlay } from "../Commons/Overlay";
+import { Codicon } from "../Codicon/Codicon";
 
 export interface ContextMenuProps {
     loading?: boolean;
     menuId?: string;
     children?: React.ReactNode;
-    direction?: "left" | "right";
 }
 
 const ExpandedMenu = styled.div<ContextMenuProps>`
     position: absolute;
-    top: 24px;
+    margin-top: 30px;
     z-index: 15;
     background: var(--vscode-editor-background);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
@@ -43,7 +43,7 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { loading, menuId, children, direction = "left" } = props;
+    const { loading, menuId, children } = props;
     const [isOpen, setIsOpen] = useState(false);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -62,13 +62,12 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
                 <SmallProgressRing />
             ) : (
                 <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                    {/* <Codicon name="ellipsis" /> */}
-                    Hello
+                    <Codicon name="ellipsis" />
                 </VSCodeButton>
             )}
 
             {isOpen && (
-                <ExpandedMenu direction={direction}>
+                <ExpandedMenu>
                     {children}
                 </ExpandedMenu>
             )}
