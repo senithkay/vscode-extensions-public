@@ -8,7 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources";
+import { CELL_LINE_WIDTH, CIRCLE_SIZE, Colors, DOT_SIZE } from "../../../resources";
 
 interface StyleProps {
     isAnonymous: boolean;
@@ -48,10 +48,10 @@ export const CellNode: React.FC<any> = styled.div`
 `;
 
 export const Circle: React.FC<any> = styled.div`
-    width: 60px;
-    height: 60px;
+    width: ${CIRCLE_SIZE}px;
+    height: ${CIRCLE_SIZE}px;
     border-radius: 50%;
-    border: 2px solid ${Colors.NODE_BORDER};
+    border: ${CELL_LINE_WIDTH}px solid ${Colors.NODE_BORDER};
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -59,40 +59,46 @@ export const Circle: React.FC<any> = styled.div`
     background-color: ${Colors.NODE_BACKGROUND};
 `;
 
-export const TopPortCircle: React.FC<any> = styled(Circle)`
-    position: absolute;
-    top: -30px;
-    left: 50% - 30px;
+export const Dot: React.FC<any> = styled.div`
+    width: ${DOT_SIZE}px;
+    height: ${DOT_SIZE}px;
+    border-radius: 50%;
+    border: ${CELL_LINE_WIDTH}px solid ${Colors.NODE_BORDER};
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: ${Colors.DARK};
 `;
 
-export const BottomPortCircle: React.FC<any> = styled(Circle)`
+export const TopPortCircle: React.FC<any> = styled(Circle)`
     position: absolute;
-    bottom: -30px;
-    left: 50% - 30px;
+    top: -${CIRCLE_SIZE / 2}px;
+    left: 50% - ${CIRCLE_SIZE / 2}px;
 `;
 
 export const LeftPortCircle: React.FC<any> = styled(Circle)`
     position: absolute;
-    top: 50% - 30px;
-    left: -30px;
+    top: 50% - ${CIRCLE_SIZE / 2}px;
+    left: -${CIRCLE_SIZE / 2}px;
 `;
 
-export const RightPortCircle: React.FC<any> = styled(Circle)`
+export const RightPortCircle: React.FC<any> = styled(Dot)`
     position: absolute;
-    top: 50% - 30px;
-    right: -30px;
+    top: 50% - ${DOT_SIZE / 2 + CELL_LINE_WIDTH}px;
+    right: -${DOT_SIZE / 2 + CELL_LINE_WIDTH}px;
 `;
 
 export const BottomPortWrapper: React.FC<any> = styled.div`
     position: absolute;
-    bottom: -30px;
+    bottom: -${DOT_SIZE / 2 + CELL_LINE_WIDTH}px;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: 40px;
+    gap: ${CIRCLE_SIZE}px;
 `;
 
-export const Connector: React.FC<any> = styled.div`
+export const DotWrapper: React.FC<any> = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;

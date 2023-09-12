@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellBounds, CellModel } from "./CellModel";
-import { CellNode, TopPortCircle, Connector, LeftPortCircle, RightPortCircle, BottomPortWrapper, Circle } from "./styles";
+import { CellNode, TopPortCircle, LeftPortCircle, RightPortCircle, BottomPortWrapper, DotWrapper, Dot } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId } from "./cell-util";
 
@@ -79,8 +79,8 @@ export function CellWidget(props: CellWidgetProps) {
             <BottomPortWrapper>
                 {node.connectorNodes?.map((connectorNode) => {
                     return (
-                        <Connector key={connectorNode.getID()}>
-                            <Circle>
+                        <DotWrapper key={connectorNode.getID()}>
+                            <Dot>
                                 <CellPortWidget
                                     port={node.getPort(getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.TOP, connectorNode.getID()))}
                                     engine={engine}
@@ -89,8 +89,8 @@ export function CellWidget(props: CellWidgetProps) {
                                     port={node.getPort(getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.BOTTOM, connectorNode.getID()))}
                                     engine={engine}
                                 />
-                            </Circle>
-                        </Connector>
+                            </Dot>
+                        </DotWrapper>
                     );
                 })}
             </BottomPortWrapper>

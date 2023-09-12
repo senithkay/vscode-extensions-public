@@ -10,10 +10,13 @@
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { Point } from '@projectstorm/geometry';
 import { SharedLinkModel } from '../../shared-link/shared-link';
+import { EMPTY_NODE } from '../../../resources';
+import { CellBounds } from '../CellNode/CellModel';
+import { getEmptyNodeName } from '../CellNode/cell-util';
 
 interface LinkOrigins {
-	nodeId: string;
-	attributeId: string;
+    nodeId: string;
+    attributeId: string;
 }
 
 export class CellLinkModel extends SharedLinkModel {
@@ -27,7 +30,7 @@ export class CellLinkModel extends SharedLinkModel {
     setSourceNode(nodeId: string, attributeId = '') {
         this.sourceNode = { nodeId, attributeId };
     }
-	
+
     setTargetNode(nodeId: string, attributeId = '') {
         this.targetNode = { nodeId, attributeId };
     }
@@ -36,20 +39,21 @@ export class CellLinkModel extends SharedLinkModel {
         let points: string;
         const targetPort: Point = this.getTargetPort().getPosition();
 
-        if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-            points = `${targetPort.x + 6} ${targetPort.y}, ${targetPort.x + 16} ${targetPort.y + 10},
-                ${targetPort.x + 16} ${targetPort.y - 10}`;
-        } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14} ${targetPort.y + 10},
-                ${targetPort.x - 14} ${targetPort.y - 10}`;
-        } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
-            points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 10} ${targetPort.y + 14},
-				${targetPort.x - 10} ${targetPort.y + 14}`;
-        } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP) {
+        if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP
+            && getEmptyNodeName(EMPTY_NODE, CellBounds.NorthBound) === this.sourceNode.nodeId) {
             points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10} ${targetPort.y - 15},
 					${targetPort.x - 10} ${targetPort.y - 15}`;
         }
         return points;
     }
 
+    getStraightPath = (): string => {
+        let path: string;
+        if (this.getSourcePort() && this.getTargetPort()) {
+            const sourcePoint: Point = this.getSourcePort().getPosition().clone();
+            const targetPoint: Point = this.getTargetPort().getPosition().clone();
+            path = `M ${sourcePoint.x} ${sourcePoint.y} L ${targetPoint.x} ${targetPoint.y}`;
+        }
+        return path;
+    }
 }

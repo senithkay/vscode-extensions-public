@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-// import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 import { DagreEngine } from '../resources/DagreEngine'; // TODO: Update library props to support node parents
 
 export enum Colors {
@@ -20,7 +19,8 @@ export enum Colors {
     SECONDARY_SELECTED = '#fffaf2',
     SHADED_SELECTED = '#faead2',
     NODE_BACKGROUND = '#F7F8FB',
-    NODE_BORDER = '#000'
+    NODE_BORDER = '#000000',
+    DARK = '#969696',
 }
 
 export const dagreEngine = new DagreEngine({
@@ -43,4 +43,8 @@ export const MAIN_CELL_DEFAULT_HEIGHT = 500;
 
 export const COMPONENT_NODE = "componentNode";
 export const EMPTY_NODE = "emptyNode";
+
+export const CIRCLE_SIZE = 60;
+export const DOT_SIZE = 20;
+export const CELL_LINE_WIDTH = 2;
 
