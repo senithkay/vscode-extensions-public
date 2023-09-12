@@ -1,0 +1,120 @@
+@font-face {
+    font-family: "wso2-vscode";
+    src: url("./wso2-vscode.eot?a4755f733c342113226b6ffb6ea8f00b#iefix") format("embedded-opentype"),
+url("./wso2-vscode.woff2?a4755f733c342113226b6ffb6ea8f00b") format("woff2"),
+url("./wso2-vscode.woff?a4755f733c342113226b6ffb6ea8f00b") format("woff");
+}
+
+i[class^="fw-"]:before, i[class*=" fw-"]:before {
+    font-family: wso2-vscode !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.fw-ballerina:before {
+    content: "\f101";
+}
+.fw-choreo:before {
+    content: "\f102";
+}
+.fw-configurable-icon:before {
+    content: "\f103";
+}
+.fw-custom:before {
+    content: "\f104";
+}
+.fw-dataMapper:before {
+    content: "\f105";
+}
+.fw-debug:before {
+    content: "\f106";
+}
+.fw-delete:before {
+    content: "\f107";
+}
+.fw-design-view:before {
+    content: "\f108";
+}
+.fw-disable:before {
+    content: "\f109";
+}
+.fw-doc:before {
+    content: "\f10a";
+}
+.fw-editIcon:before {
+    content: "\f10b";
+}
+.fw-email:before {
+    content: "\f10c";
+}
+.fw-enable-inverse:before {
+    content: "\f10d";
+}
+.fw-enable:before {
+    content: "\f10e";
+}
+.fw-loading:before {
+    content: "\f10f";
+}
+.fw-logo-github:before {
+    content: "\f110";
+}
+.fw-manual:before {
+    content: "\f111";
+}
+.fw-new-file:before {
+    content: "\f112";
+}
+.fw-new-folder:before {
+    content: "\f113";
+}
+.fw-new-module:before {
+    content: "\f114";
+}
+.fw-organization:before {
+    content: "\f115";
+}
+.fw-persist-diagram:before {
+    content: "\f116";
+}
+.fw-project:before {
+    content: "\f117";
+}
+.fw-run-conf:before {
+    content: "\f118";
+}
+.fw-schedule:before {
+    content: "\f119";
+}
+.fw-sign-in:before {
+    content: "\f11a";
+}
+.fw-sign-out:before {
+    content: "\f11b";
+}
+.fw-source-view:before {
+    content: "\f11c";
+}
+.fw-start:before {
+    content: "\f11d";
+}
+.fw-tab:before {
+    content: "\f11e";
+}
+.fw-trash:before {
+    content: "\f11f";
+}
+.fw-user:before {
+    content: "\f120";
+}
+.fw-webhook:before {
+    content: "\f121";
+}
+.fw-while-icon:before {
+    content: "\f122";
+}
