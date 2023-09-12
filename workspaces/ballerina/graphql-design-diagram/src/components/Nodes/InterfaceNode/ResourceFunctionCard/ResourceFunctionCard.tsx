@@ -56,7 +56,7 @@ export function ResourceFunctionCard(props: ResourceFunctionCardProps) {
     const classes = popOverStyle();
 
     return (
-        <NodeFieldContainer>
+        <NodeFieldContainer data-testid={`interface-func-field-${functionElement.identifier}`}>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${path}`)}
                 engine={engine}

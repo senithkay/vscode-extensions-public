@@ -58,7 +58,7 @@ export function ResourceField(props: ResourceFieldProps) {
     const classes = popOverStyle();
 
     return (
-        <NodeFieldContainer>
+        <NodeFieldContainer data-testid={`hierarchical-field-card-${resource.identifier}`}>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${path}`)}
                 engine={engine}

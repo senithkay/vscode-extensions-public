@@ -33,7 +33,7 @@ export function RecordFieldWidget(props: RecordFieldWidgetProps) {
     }
 
     return (
-        <RecordFieldContainer>
+        <RecordFieldContainer data-testid={`record-field-${field.name}`}>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${field.name}`)}
                 engine={engine}

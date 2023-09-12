@@ -65,6 +65,7 @@ export function ServiceField(props: ServiceFieldProps) {
         <NodeFieldContainer
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
+            data-testid={`service-field-card-${functionElement.identifier}`}
         >
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${path}`)}
