@@ -11,6 +11,7 @@ import { storiesOf } from "@storybook/react";
 
 import { ContextMenu } from "./ContextMenu";
 import { Codicon } from "../Codicon/Codicon";
+import { colors } from "../Commons/Colors";
 
 const ComponentStory = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +30,7 @@ const ComponentStory = () => {
             onClose={handleClose}
             icon={icon}
         >
-            <>Sample Context Menu</>
+            <div style={{color: colors.editorForeground}}> Sample Context Menu</div>
         </ContextMenu>
     );
 };
