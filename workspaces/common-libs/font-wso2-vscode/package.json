@@ -1,0 +1,17 @@
+{
+  "name": "@wso2-enterprise/font-wso2-vscode",
+  "version": "1.0.0",
+  "description": "Icons for Vscode plugin",
+  "main": "index.js",
+  "scripts": {
+    "gen-icons": "fantasticon ./src/icons/ -o ./fw-vscode --normalize -n wso2-vscode -p fw && node src/searchableInput/addSearch.js",
+    "start": "open fw-vscode/wso2-vscode.html",
+    "build": "echo Method not implemeted"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "fantasticon": "^2.0.0",
+    "icon-font-generator": "^2.1.11"
+  }
+}

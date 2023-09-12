@@ -11,7 +11,7 @@
  *  associated services.
  */
 import React, { useEffect } from "react";
-import { VSCodeDivider, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import styled from "@emotion/styled";
 import { createElement } from "react";
@@ -35,12 +35,12 @@ const WizardActionsContainer = styled.div`
     align-items: flex-end;
     gap: 10px;
     width: 100%;
-    margin-top: 15px;
+    padding: 15px 0px;
 `;
 
 const StepContainer = styled.div`
-    min-height: 40%;
-    padding: 15px;
+    width: 100%;
+    margin-top: 20px;
 `;
 
 const StepperContainer = styled.div`
@@ -194,16 +194,13 @@ export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, sa
 
     return (
         <WizardContainer>
-            <h1>{title}</h1>
+            <h2>{title}</h2>
             <StepperContainer>
                 <Stepper currentStep={state.currentStep} steps={stepperSteps}/>
             </StepperContainer>
-            <h4>{steps[state.currentStep]?.title}</h4>
-            <VSCodeDivider />
             <StepContainer>
                 {renderStep()}
             </StepContainer>
-            <VSCodeDivider />
             {renderButtons()}
         </WizardContainer>
     );
