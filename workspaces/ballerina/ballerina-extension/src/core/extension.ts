@@ -121,6 +121,7 @@ export class BallerinaExtension {
     private webviewContext: WebviewContext;
     private perfForecastContext: PerformanceForecastContext;
     private ballerinaConfigPath: string;
+    private isVscodeUrlCommand: boolean;
 
     constructor() {
         this.ballerinaHome = '';
@@ -167,6 +168,7 @@ export class BallerinaExtension {
             }
         };
         this.ballerinaConfigPath = '';
+        this.isVscodeUrlCommand = false;
     }
 
     setContext(context: ExtensionContext) {
@@ -672,6 +674,14 @@ export class BallerinaExtension {
 
     public setNotebookDebugModeEnabled(value: boolean) {
         commands.executeCommand('setContext', 'isNotebookDebugModeEnabled', value);
+    }
+
+    public getIsVscodeUrlCommand(): boolean {
+        return this.isVscodeUrlCommand;
+    }
+
+    public setVscodeUrlCommandState(state: boolean) {
+        this.isVscodeUrlCommand = state;
     }
 }
 

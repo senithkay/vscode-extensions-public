@@ -22,7 +22,7 @@ export class ResourceForm {
         // Find and click on the MuiSelect component to open the dropdown
         const selectComponent = await webview.findWebElement(By.className('MuiSelect-selectMenu'));
         await selectComponent.click();
-
+        await wait(500);
         // Find the option based on the optionText
         const option = await selectComponent.findElement(By.xpath(`//*[contains(text(), '${method}')]`));
         await option.click();
@@ -143,8 +143,6 @@ export class ResourceForm {
     }
 
     static async saveResource(webview: WebView, method: string) {
-        // Wait for changes from LS
-        await this.waitForDisableEnableElement(webview);
 
         const resourceSaveBtn = await waitUntil(By.xpath("//*[@data-testid='save-btn']"));
         resourceSaveBtn.click();

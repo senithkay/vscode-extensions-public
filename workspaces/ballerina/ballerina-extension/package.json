@@ -26,7 +26,7 @@
     "activationEvents": [
         "onLanguage:ballerina",
         "onCommand:ballerina.showExamples",
-        "workspaceContains:Ballerina.toml",
+        "workspaceContains:**/Ballerina.toml",
         "onNotebook:ballerina-notebook",
         "onUri"
     ],
