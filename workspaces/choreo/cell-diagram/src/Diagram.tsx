@@ -136,7 +136,6 @@ export function CellDiagram(props: CellDiagramProps) {
         // calculate component diagram width
         const model = diagramEngine.getModel();
         const cellWidth = calculateCellWidth(model);
-        console.log(">>> cellWidth current", cellNodeWidth.current, "new", cellWidth);
         if (cellWidth === cellNodeWidth.current) {
             return;
         }

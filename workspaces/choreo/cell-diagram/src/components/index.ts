@@ -23,10 +23,6 @@ export { ConnectorFactory } from './Connector/ConnectorNode/ConnectorFactory';
 export { ConnectorModel } from './Connector/ConnectorNode/ConnectorModel';
 export { ConnectorWidget } from './Connector/ConnectorNode/ConnectorWidget';
 
-export { ConnectorLinkFactory } from './Connector/ConnectorLink/ConnectorLinkFactory';
-export { ConnectorLinkModel } from './Connector/ConnectorLink/ConnectorLinkModel';
-export { ConnectorLinkWidget } from './Connector/ConnectorLink/ConnectorLinkWidget';
-
 export { ConnectorPortFactory } from './Connector/ConnectorPort/ConnectorPortFactory';
 export { ConnectorPortModel } from './Connector/ConnectorPort/ConnectorPortModel';
 export { ConnectorPortWidget } from './Connector/ConnectorPort/ConnectorPortWidget';

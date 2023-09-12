@@ -152,8 +152,10 @@ export class SharedLinkModel extends DefaultLinkModel {
             points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 6},
 				${targetPort.x + 12} ${targetPort.y - 6}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 10} ${targetPort.y + 6},
-				${targetPort.x - 10} ${targetPort.y - 6}`;
+            // points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 10} ${targetPort.y + 6},
+			// 	${targetPort.x - 10} ${targetPort.y - 6}`;
+            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14} ${targetPort.y + 10},
+                ${targetPort.x - 14} ${targetPort.y - 10}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
             points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 10} ${targetPort.y + 14},
 				${targetPort.x - 10} ${targetPort.y + 14}`;

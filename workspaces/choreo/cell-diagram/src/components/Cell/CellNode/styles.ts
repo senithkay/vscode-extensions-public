@@ -8,7 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-import { CELL_LINE_WIDTH, CIRCLE_SIZE, Colors, DOT_SIZE } from "../../../resources";
+import { CELL_LINE_WIDTH, CIRCLE_WIDTH, Colors, DOT_WIDTH } from "../../../resources";
 
 interface StyleProps {
     isAnonymous: boolean;
@@ -32,70 +32,73 @@ export const CellNode: React.FC<any> = styled.div`
     position: relative;
     overflow: visible;
 
-    svg {
+    #mainCell svg {
         width: 100%;
         height: 100%;
         position: absolute;
         top: 0;
         left: 0;
-      }
-    
-      polygon {
+    }
+
+    polygon {
         stroke: ${Colors.NODE_BORDER};
         stroke-width: 2;
         fill: none;
-      }
+    }
 `;
 
 export const Circle: React.FC<any> = styled.div`
-    width: ${CIRCLE_SIZE}px;
-    height: ${CIRCLE_SIZE}px;
+    width: ${CIRCLE_WIDTH}px;
+    height: ${CIRCLE_WIDTH}px;
     border-radius: 50%;
     border: ${CELL_LINE_WIDTH}px solid ${Colors.NODE_BORDER};
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: ${Colors.NODE_BACKGROUND};
+    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
 `;
 
 export const Dot: React.FC<any> = styled.div`
-    width: ${DOT_SIZE}px;
-    height: ${DOT_SIZE}px;
+    width: ${DOT_WIDTH}px;
+    height: ${DOT_WIDTH}px;
     border-radius: 50%;
     border: ${CELL_LINE_WIDTH}px solid ${Colors.NODE_BORDER};
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: ${Colors.DARK};
+    background-color: ${Colors.NODE_BACKGROUND_SECONDARY};
 `;
 
 export const TopPortCircle: React.FC<any> = styled(Circle)`
     position: absolute;
-    top: -${CIRCLE_SIZE / 2}px;
-    left: 50% - ${CIRCLE_SIZE / 2}px;
+    top: -${CIRCLE_WIDTH / 2}px;
+    left: 50% - ${CIRCLE_WIDTH / 2}px;
+    svg {
+        transform: rotate(90deg);
+    }
 `;
 
 export const LeftPortCircle: React.FC<any> = styled(Circle)`
     position: absolute;
-    top: 50% - ${CIRCLE_SIZE / 2}px;
-    left: -${CIRCLE_SIZE / 2}px;
+    top: 50% - ${CIRCLE_WIDTH / 2}px;
+    left: -${CIRCLE_WIDTH / 2}px;
 `;
 
 export const RightPortCircle: React.FC<any> = styled(Dot)`
     position: absolute;
-    top: 50% - ${DOT_SIZE / 2 + CELL_LINE_WIDTH}px;
-    right: -${DOT_SIZE / 2 + CELL_LINE_WIDTH}px;
+    top: 50% - ${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
+    right: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
 `;
 
 export const BottomPortWrapper: React.FC<any> = styled.div`
     position: absolute;
-    bottom: -${DOT_SIZE / 2 + CELL_LINE_WIDTH}px;
+    bottom: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    gap: ${CIRCLE_SIZE}px;
+    gap: ${CIRCLE_WIDTH}px;
 `;
 
 export const DotWrapper: React.FC<any> = styled.div`
@@ -106,4 +109,12 @@ export const DotWrapper: React.FC<any> = styled.div`
 
 export const Label: React.FC<any> = styled.div`
     margin-top: 10px;
+`;
+
+export const IconWrapper: React.FC<any> = styled.div`
+    height: 24px;
+    width: 24px;
+    svg {
+        fill: ${Colors.NODE_BORDER};
+    }
 `;

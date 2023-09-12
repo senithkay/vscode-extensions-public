@@ -170,7 +170,7 @@ const complexModel: Project = {
                     type: "connector",
                 },
                 {
-                    id: "sheet://googlesheet",
+                    id: "googleappssheets://googlesheet",
                     type: "connector",
                 },
                 {

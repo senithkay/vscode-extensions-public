@@ -7,12 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import styled from '@emotion/styled';
-import { Colors } from '../../../resources';
+import styled from "@emotion/styled";
+import { COMPONENT_CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 
-const ANON_RECORD_PRIMARY: string = '#0d6fbf';
-const ANON_RECORD_SECONDARY: string = '#e8f5ff';
-const PRIMARY_HOVER: string = '#2c09ed';
+const PRIMARY_HOVER: string = "#2c09ed";
 
 interface StyleProps {
     isAnonymous: boolean;
@@ -23,36 +21,48 @@ interface StyleProps {
 }
 
 export const ComponentNode: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.NODE_BACKGROUND};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
-    border-radius: 6px !important;
-    color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
+    color: ${Colors.DEFAULT_TEXT};
     display: flex;
     flex-direction: column;
-    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
-    align-items: center;
+    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
+    border: ${(props: StyleProps) => `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
+    border-radius: 50%;
+    height: ${COMPONENT_CIRCLE_WIDTH}px;
+    width: ${COMPONENT_CIRCLE_WIDTH}px;
+    line-height: 28px;
+
     display: flex;
-    font-family: GilmerMedium;
-    font-size: 13px;
-    height: 30px;
+    flex-direction: column;
     justify-content: center;
-    line-height: 20px;
-    min-width:  ${(props: StyleProps) => props.isCollapsed ? `calc(100% - 40px)` : `calc(100% - 100px)`};
-    padding: ${(props: StyleProps) => props.isCollapsed ? `0px 20px` : `0px 50px`};
-    text-align: center;
+    align-items: center;
 `;
 
 export const ComponentName: React.FC<any> = styled.span`
+    margin-top: 10px;
     cursor: pointer;
+    font-size: ${LABEL_FONT_SIZE}px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    max-width: ${LABEL_MAX_WIDTH}px;
     &:hover {
-        color: ${(props: StyleProps) => props.isClickable ? PRIMARY_HOVER : ``};
-        cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
-        text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
+        color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
+        cursor: ${(props: StyleProps) => (props.isClickable ? `grabbing` : ``)};
+        text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};
     }
 `;
 
+export const IconWrapper: React.FC<any> = styled.div`
+    height: 24px;
+    width: 24px;
+    svg {
+        fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
+    }
+`;

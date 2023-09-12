@@ -7,15 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext, useEffect, useState } from 'react';
-import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ComponentModel } from './ComponentModel';
-import { ComponentLinkModel } from '../ComponentLink/ComponentLinkModel';
-import { ComponentHeadWidget } from './ComponentHead/ComponentHead';
-import { ComponentNode } from './styles';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import { ComponentPortWidget } from '../ComponentPort/ComponentPortWidget';
-import { InclusionPortsContainer } from '../../Connector/ConnectorNode/styles';
+import React, { useContext, useEffect, useState } from "react";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { ComponentModel } from "./ComponentModel";
+import { ComponentLinkModel } from "../ComponentLink/ComponentLinkModel";
+import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
+import { ComponentName, ComponentNode } from "./styles";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
+import { InclusionPortsContainer } from "../../Connector/ConnectorNode/styles";
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -28,23 +28,27 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
 
+    const displayName: string = node.componentObject.id || node.getID().slice(node.getID().lastIndexOf(":") + 1);
+
     useEffect(() => {
         node.registerListener({
-            'SELECT': (event: any) => {
+            SELECT: (event: any) => {
                 setSelectedLink(event.component as ComponentLinkModel);
             },
-            'UNSELECT': () => { setSelectedLink(undefined) }
-        })
+            UNSELECT: () => {
+                setSelectedLink(undefined);
+            },
+        });
     }, [node]);
 
     useEffect(() => {
         setCollapsibleStatus(collapsedMode);
-    }, [collapsedMode])
+    }, [collapsedMode]);
 
     const handleOnHeaderWidgetClick = () => {
         // setSelectedNodeId(node.getID());
         // setFocusedNodeId(undefined);
-    }
+    };
 
     return (
         <ComponentNode
@@ -55,20 +59,15 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-                onClick={handleOnHeaderWidgetClick}
+                isFocused={node.getID() === focusedNodeId}
                 isCollapsed={isCollapsed}
                 setCollapsedStatus={setCollapsibleStatus}
             />
+            <ComponentName onClick={handleOnHeaderWidgetClick}>{displayName}</ComponentName>
 
             <InclusionPortsContainer>
-                <ComponentPortWidget
-                    port={node.getPort(`top-${node.getID()}`)}
-                    engine={engine}
-                />
-                <ComponentPortWidget
-                    port={node.getPort(`bottom-${node.getID()}`)}
-                    engine={engine}
-                />
+                <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
+                <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
             </InclusionPortsContainer>
         </ComponentNode>
     );

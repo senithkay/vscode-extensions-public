@@ -7,17 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { ConnectorModel } from '../ConnectorModel';
-import { ConnectorHead } from '../styles';
+import React, { useEffect, useRef, useState } from "react";
+import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { ConnectorModel } from "../ConnectorModel";
+import { ConnectorHead, IconWrapper } from "../styles";
+import { DefaultConnectorIcon } from "../../../../resources/assets/icons/DefaultConnectorIcon";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ConnectorModel;
     isSelected: boolean;
     isCollapsed: boolean;
-    onClick: () => void;
     setCollapsedStatus: (status: boolean) => void;
 }
 
@@ -29,26 +29,25 @@ export function ConnectorHeadWidget(props: ServiceHeadProps) {
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-    }, [node])
+    }, [node]);
 
     const handleOnHover = (task: string) => {
-        setIsHovered(task === 'SELECT' ? true : false);
+        setIsHovered(task === "SELECT" ? true : false);
         if (!isCollapsed) {
             node.handleHover(headPorts.current, task);
         }
-    }
+    };
 
     return (
         <ConnectorHead
             isSelected={isSelected}
-            onMouseOver={() => handleOnHover('SELECT')}
-            onMouseLeave={() => handleOnHover('UNSELECT')}
+            onMouseOver={() => handleOnHover("SELECT")}
+            onMouseLeave={() => handleOnHover("UNSELECT")}
             isCollapsed={isCollapsed}
         >
-            {/* <ConnectorPortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-            /> */}
+            <IconWrapper>
+                <DefaultConnectorIcon />
+            </IconWrapper>
         </ConnectorHead>
-    )
+    );
 }

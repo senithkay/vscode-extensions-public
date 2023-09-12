@@ -12,7 +12,7 @@ import { SharedNodeModel } from '../../shared-node/shared-node';
 import { CellPortModel } from '../CellPort/CellPortModel';
 import { getEmptyNodeName } from '../CellNode/cell-util';
 import { CellBounds } from '../CellNode/CellModel';
-import { CIRCLE_SIZE, EMPTY_NODE } from '../../../resources';
+import { CIRCLE_WIDTH, EMPTY_NODE } from '../../../resources';
 
 export class EmptyModel extends SharedNodeModel {
     readonly bound: CellBounds;
@@ -23,7 +23,7 @@ export class EmptyModel extends SharedNodeModel {
         
         super(EMPTY_NODE, nodeName);
         this.bound = bound;
-        this.width = width || CIRCLE_SIZE;
+        this.width = width || CIRCLE_WIDTH;
         this.setLocked(true);
 
         this.addPort(new CellPortModel(nodeName , PortModelAlignment.TOP));

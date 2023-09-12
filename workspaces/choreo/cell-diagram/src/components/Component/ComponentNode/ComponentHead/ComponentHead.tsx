@@ -7,60 +7,51 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { ComponentPortWidget } from '../../ComponentPort/ComponentPortWidget';
-import { ComponentModel } from '../ComponentModel';
-import { ComponentHead, ComponentName } from '../styles';
+import React, { useEffect, useRef, useState } from "react";
+import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
+import { ComponentModel } from "../ComponentModel";
+import { ComponentHead, IconWrapper } from "../styles";
+import { ServiceIcon } from "../../../../resources/assets/icons/ServiceIcon";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ComponentModel;
     isSelected: boolean;
     isCollapsed: boolean;
-    onClick: () => void;
+    isFocused: boolean;
     setCollapsedStatus: (status: boolean) => void;
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isCollapsed, onClick } = props;
+    const { engine, node, isSelected, isCollapsed, isFocused } = props;
     const headPorts = useRef<PortModel[]>([]);
     const [_isHovered, setIsHovered] = useState<boolean>(false);
-
-    const displayName: string = node.componentObject.id || node.getID().slice(node.getID().lastIndexOf(':') + 1);
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-    }, [node])
+    }, [node]);
 
     const handleOnHover = (task: string) => {
-        setIsHovered(task === 'SELECT' ? true : false);
+        setIsHovered(task === "SELECT" ? true : false);
         if (!isCollapsed) {
             node.handleHover(headPorts.current, task);
         }
-    }
+    };
 
     return (
         <ComponentHead
             isSelected={isSelected}
-            onMouseOver={() => handleOnHover('SELECT')}
-            onMouseLeave={() => handleOnHover('UNSELECT')}
+            onMouseOver={() => handleOnHover("SELECT")}
+            onMouseLeave={() => handleOnHover("UNSELECT")}
             isCollapsed={isCollapsed}
         >
-            <ComponentPortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <ComponentName
-                onClick={onClick}
-            >
-                {displayName}
-            </ComponentName>
-            <ComponentPortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
+            <IconWrapper isFocused={isFocused} >
+                <ServiceIcon />
+            </IconWrapper>
+            <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
+            <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
         </ComponentHead>
-    )
+    );
 }

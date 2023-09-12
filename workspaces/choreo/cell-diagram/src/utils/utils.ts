@@ -7,13 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, {
-    DiagramEngine,
-    DiagramModel,
-    NodeModel,
-    NodeModelGenerics,
-    PortModelAlignment,
-} from "@projectstorm/react-diagrams";
+import createEngine, { DiagramEngine, DiagramModel, NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams";
 import {
     ComponentLinkModel,
     ComponentModel,
@@ -39,24 +33,22 @@ import {
 } from "../components";
 import { Connection, ConnectionMetadata, ConnectionType, ConnectorMetadata, Project } from "../types";
 import { ConnectorModel } from "../components/Connector/ConnectorNode/ConnectorModel";
-import { CellBounds, CellModel } from "../components/Cell/CellNode/CellModel";
+import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getEmptyNodeName, getNodePortId } from "../components/Cell/CellNode/cell-util";
-import { CIRCLE_SIZE, COMPONENT_NODE, DOT_SIZE, EMPTY_NODE, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
-
+import { CIRCLE_WIDTH, COMPONENT_NODE, DOT_WIDTH, EMPTY_NODE, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
 
 interface NodesAndLinks {
-    nodes: Nodes,
-    links: Links
+    nodes: Nodes;
+    links: Links;
 }
 
 interface Nodes {
-    [key: string]: Map<string, ComponentModel | ConnectorModel | ExternalModel | EmptyModel>
+    [key: string]: Map<string, ComponentModel | ConnectorModel | ExternalModel | EmptyModel>;
 }
 
 interface Links {
-    [key: string]: Map<string, ComponentLinkModel | ExternalLinkModel | CellLinkModel>
+    [key: string]: Map<string, ComponentLinkModel | ExternalLinkModel | CellLinkModel>;
 }
-
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -106,8 +98,8 @@ export function getNodesNLinks(project: Project): NodesAndLinks {
             cellLinks,
             connectorLinks,
             externalLinks,
-        }
-    }
+        },
+    };
 }
 
 export function getComponentDiagramWidth(models: NodesAndLinks): number {
@@ -134,7 +126,6 @@ export function calculateCellWidth(model: DiagramModel) {
 export function manualDistribute(model: DiagramModel): DiagramModel {
     // get component diagram boundaries and calculate center
     const { maxX, minX, maxY, minY } = getComponentDiagramBoundaries(model);
-    console.log(">>> cell boundaries", maxX, minX, maxY, minY)
     const layoutCenterX = (maxX + minX) / 2;
     const layoutCenterY = (maxY + minY) / 2;
     const cellNode = model.getNode(MAIN_CELL);
@@ -156,6 +147,7 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
 
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
     const externalLinkOffset = Math.max(100, cellNode.width / 10);
+    let nextConnectorNodeOffset = externalLinkOffset;
     for (const key in cellNode.getPorts()) {
         if (Object.prototype.hasOwnProperty.call(cellNode.getPorts(), key)) {
             const port = cellNode.getPorts()[key];
@@ -164,9 +156,20 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
             if (portData.length > 3 && portData[2] === CellBounds.SouthBound && portData[0] === PortModelAlignment.BOTTOM) {
                 const portPosition = port.getPosition().clone();
                 // change connector link positions
-                portPosition.x = portPosition.x - 40;
-                portPosition.y = portPosition.y + externalLinkOffset;
-                model.getNode(portData[3])?.setPosition(portPosition);
+                const connectorNode = model.getNode(portData[3]);
+                const defaultNodeWidth = CIRCLE_WIDTH + 24; // padding + circle border width
+                if (connectorNode) {
+                    portPosition.x = portPosition.x - connectorNode.width / 2;
+                    portPosition.y = portPosition.y + nextConnectorNodeOffset;
+                    connectorNode.setPosition(portPosition);
+                    // if connector node width is greater than cell node width, next connector node should be placed below the previous one
+                    nextConnectorNodeOffset =
+                        nextConnectorNodeOffset === externalLinkOffset
+                            ? connectorNode.width > defaultNodeWidth
+                                ? externalLinkOffset + connectorNode.height
+                                : externalLinkOffset
+                            : externalLinkOffset;
+                }
             }
             if (portData.length > 3 && portData[2] === CellBounds.SouthBound && portData[0] === PortModelAlignment.TOP) {
                 const portPosition = port.getPosition().clone();
@@ -252,9 +255,11 @@ function generateOrgConnectionNodes(project: Project): Map<string, ConnectorMode
     project.components?.forEach((component, _key) => {
         component.connections?.forEach((connection) => {
             const connectionMetadata = getMetadataFromConnection(connection);
-            if (connectionMetadata &&
+            if (
+                connectionMetadata &&
                 (connectionMetadata.type === ConnectionType.HTTP || connectionMetadata.type === ConnectionType.GRPC) &&
-                connectionMetadata.project !== project.id) {
+                connectionMetadata.project !== project.id
+            ) {
                 const connectorNode = new ConnectorModel(connection.id, connection);
                 nodes.set(connection.id, connectorNode);
             }
@@ -283,21 +288,21 @@ function generateEmptyNodes(connectorNodes: Map<string, ConnectorModel>): Map<st
     const DIAGRAM_END = 1000;
     const nodes: Map<string, EmptyModel> = new Map<string, EmptyModel>();
 
-    const northBoundEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.NorthBound, CIRCLE_SIZE);
+    const northBoundEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.NorthBound, CIRCLE_WIDTH);
     northBoundEmptyNode.setPosition(0, DIAGRAM_END * -1);
     nodes.set(northBoundEmptyNode.getID(), northBoundEmptyNode);
 
-    const westBoundEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.WestBound, CIRCLE_SIZE);
+    const westBoundEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.WestBound, CIRCLE_WIDTH);
     westBoundEmptyNode.setPosition(DIAGRAM_END * -1, 0);
     nodes.set(westBoundEmptyNode.getID(), westBoundEmptyNode);
 
-    const eastBoundEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.EastBound, DOT_SIZE);
+    const eastBoundEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.EastBound, DOT_WIDTH);
     eastBoundEmptyNode.setPosition(DIAGRAM_END, 0);
     nodes.set(eastBoundEmptyNode.getID(), eastBoundEmptyNode);
 
     let count = 0;
     connectorNodes.forEach((connectorNode, _key) => {
-        const connectorEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.SouthBound, DOT_SIZE, connectorNode.getID());
+        const connectorEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.SouthBound, DOT_WIDTH, connectorNode.getID());
         connectorEmptyNode.setPosition(count++ * 30, DIAGRAM_END);
         nodes.set(connectorEmptyNode.getID(), connectorEmptyNode);
     });
@@ -464,7 +469,11 @@ function generateExternalLinks(emptyNodes: Map<string, EmptyModel>, externalNode
     return links;
 }
 
-function createLinks(sourcePort: ComponentPortModel, targetPort: ComponentPortModel, link: ComponentLinkModel | ExternalLinkModel | CellLinkModel): ComponentLinkModel | ExternalLinkModel | CellLinkModel {
+function createLinks(
+    sourcePort: ComponentPortModel,
+    targetPort: ComponentPortModel,
+    link: ComponentLinkModel | ExternalLinkModel | CellLinkModel
+): ComponentLinkModel | ExternalLinkModel | CellLinkModel {
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
