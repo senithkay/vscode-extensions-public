@@ -35,10 +35,15 @@ export interface EnumType {
 
 export interface DMEnumTypeDecl {
     varName: string;
-    kind?: ModuleVarKind;
     type: Type;
-    node?: STNode;
-    fields?: DMEnumTypeDecl[];
+    fields: DMEnumTypeMember[];
+}
+
+export interface DMEnumTypeMember {
+    varName: string;
+    kind: ModuleVarKind;
+    type: Type;
+    node: STNode
 }
 
 export class EnumTypeNode extends DataMapperNodeModel {
@@ -222,7 +227,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
             if (item.varName?.toLowerCase()?.includes(searchValue.toLowerCase())) {
                 filteredVariables.push(item);
             } else {
-                const fields: DMEnumTypeDecl[] = [];
+                const fields: DMEnumTypeMember[] = [];
                 for (const field of item.fields) {
                     if (field.varName?.toLowerCase()?.includes(searchValue.toLowerCase())) {
                         fields.push(field);
