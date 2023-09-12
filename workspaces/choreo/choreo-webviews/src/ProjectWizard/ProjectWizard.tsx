@@ -63,28 +63,6 @@ const SubContainer = styled.div`
     gap: 20px;
 `;
 
-const SectionWrapper = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
-`;
-
 const TitleWrapper = styled.div`
     display: flex;
     flex-direction: row;
@@ -107,6 +85,28 @@ const OrgContainer = styled.div`
 const BrowseBtn = styled(VSCodeButton)`
     width: fit-content;
     padding: 5px;
+`;
+
+export const SectionWrapper : React.FC<React.HTMLAttributes<HTMLDivElement>> = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    gap: 10px;
+    // End Flex Props
+    // Sizing Props
+    padding: 20px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: transparent;
+    background-color: var(--vscode-welcomePage-tileBackground);
+    &.active {
+        border-color: var(--vscode-focusBorder);
+    }
 `;
 
 export interface Region {
@@ -326,7 +326,7 @@ export function ProjectWizard(props: { orgId: string }) {
                                     </CardContainer>
                                 </SubContainer>
                                 {gitProvider === GitProvider.GITHUB && <GithubAutherizer />}
-                                {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />}
+                                {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCredID={selectedCredential.id} onCredSelect={setSelectedCredential} />}
                             </SectionWrapper>
                         )
                     }
@@ -336,7 +336,7 @@ export function ProjectWizard(props: { orgId: string }) {
                                 <ConfigureRepoAccordion
                                     selectedOrg={selectedOrg}
                                     gitProvider={gitProvider}
-                                    selectedCredential={selectedCredential}
+                                    selectedCredential={selectedCredential.id}
                                     selectedGHOrgName={selectedGHOrgName}
                                     selectedGHRepo={selectedGHRepo}
                                     setSelectedGHOrgName={setSelectedGHOrgName}

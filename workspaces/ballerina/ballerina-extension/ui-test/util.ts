@@ -16,8 +16,9 @@ import {
     WebDriver,
     ActivityBar,
     BottomBarPanel,
+    InputBox,
 } from "vscode-extension-tester";
-import { DEFAULT_TIME_OUT, VSCODE_ZOOM_TIME } from "./constants";
+import { DEFAULT_TIME_OUT, DND_PALETTE_COMMAND, VSCODE_ZOOM_TIME } from "./constants";
 import { fail } from "assert";
 
 export function wait(ms: number) {
@@ -26,6 +27,10 @@ export function wait(ms: number) {
 
 export function waitUntil(locator: Locator, timeout: number = DEFAULT_TIME_OUT) {
     return VSBrowser.instance.driver.wait(until.elementLocated(locator), timeout);
+}
+
+export async function getAvailableInput() {
+    return await VSBrowser.instance.driver.wait(until.elementIsVisible(new InputBox()), DEFAULT_TIME_OUT) as InputBox;
 }
 
 export function waitUntilTextContains(
@@ -169,5 +174,15 @@ export async function workbenchZoomOut(workbench, times) {
     for (let i = 1; i <= times; i++) {
         await workbench.executeCommand("View: Zoom Out");
         await wait(VSCODE_ZOOM_TIME); // This is a constant wait to apply zoom effect into the vscode
+    }
+}
+
+export async function enableDndMode(workbench) {
+    try {
+        // Enabling DND mode so that notifications do not interfere with the UI elements
+        await waitUntil(By.xpath("//div[@id='status.notifications' and @aria-label='Notifications']"), 10000);
+        await workbench.executeCommand(DND_PALETTE_COMMAND);
+    } catch {
+        // dnd mode already enabled
     }
 }
