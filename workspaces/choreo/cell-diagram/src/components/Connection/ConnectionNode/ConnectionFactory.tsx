@@ -10,19 +10,20 @@
 import React from 'react';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { ConnectorModel } from './ConnectorModel';
-import { ConnectorWidget } from './ConnectorWidget';
+import { ConnectionModel } from './ConnectionModel';
+import { ConnectionWidget } from './ConnectionWidget';
+import { CONNECTION_NODE } from '../../../resources';
 
-export class ConnectorFactory extends AbstractReactFactory<ConnectorModel, DiagramEngine> {
+export class ConnectionFactory extends AbstractReactFactory<ConnectionModel, DiagramEngine> {
     constructor() {
-        super('connectorNode');
+        super(CONNECTION_NODE);
     }
 
-    generateReactWidget(event: { model: ConnectorModel }): JSX.Element {
-        return <ConnectorWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: { model: ConnectionModel }): JSX.Element {
+        return <ConnectionWidget engine={this.engine} node={event.model} />;
     }
 
     generateModel(event: { initialConfig: any }) {
-        return new ConnectorModel(event.initialConfig.key, event.initialConfig.connector);
+        return new ConnectionModel(event.initialConfig.key, event.initialConfig.connection);
     }
 }

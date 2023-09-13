@@ -14,11 +14,11 @@ import { Component } from '../../../types';
 import { COMPONENT_NODE } from '../../../resources';
 
 export class ComponentModel extends SharedNodeModel {
-    readonly componentObject: Component;
+    readonly component: Component;
 
-    constructor(componentName: string, componentObject: Component) {
+    constructor(componentName: string, component: Component) {
         super(COMPONENT_NODE, componentName);
-        this.componentObject = componentObject;
+        this.component = component;
 
         this.addPort(new ComponentPortModel(componentName, PortModelAlignment.LEFT));
         this.addPort(new ComponentPortModel(componentName, PortModelAlignment.RIGHT));

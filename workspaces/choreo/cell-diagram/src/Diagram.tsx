@@ -17,7 +17,7 @@ import {
     manualDistribute,
     calculateCellWidth,
 } from "./utils";
-import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectorModel } from "./components";
+import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
 import { Colors, NO_ENTITIES_DETECTED, MAIN_CELL, NO_CELL_NODE, COMPONENT_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
@@ -77,7 +77,8 @@ export function CellDiagram(props: CellDiagramProps) {
         const cellNode = new CellModel(
             MAIN_CELL,
             componentDiagramWidth,
-            Array.from((nodeNLinks.nodes.connectorNodes as Map<string, ConnectorModel>).values())
+            Array.from((nodeNLinks.nodes.connectorNodes as Map<string, ConnectionModel>).values()),
+            Array.from((nodeNLinks.nodes.connectionNodes as Map<string, ConnectionModel>).values())
         );
         // create diagram model
         const model = new DiagramModel();
@@ -86,11 +87,13 @@ export function CellDiagram(props: CellDiagramProps) {
             // nodes
             cellNode,
             ...nodeNLinks.nodes.componentNodes.values(),
+            ...nodeNLinks.nodes.connectionNodes.values(),
             ...nodeNLinks.nodes.connectorNodes.values(),
             ...nodeNLinks.nodes.emptyNodes.values(),
             ...nodeNLinks.nodes.externalNodes.values(),
             // links
             ...nodeNLinks.links.componentLinks.values(),
+            ...nodeNLinks.links.connectionLinks.values(),
             ...nodeNLinks.links.connectorLinks.values(),
             ...nodeNLinks.links.cellLinks.values(),
             ...nodeNLinks.links.externalLinks.values()
@@ -136,7 +139,6 @@ export function CellDiagram(props: CellDiagramProps) {
         // calculate component diagram width
         const model = diagramEngine.getModel();
         const cellWidth = calculateCellWidth(model);
-        console.log(">>> cellWidth current", cellNodeWidth.current, "new", cellWidth);
         if (cellWidth === cellNodeWidth.current) {
             return;
         }

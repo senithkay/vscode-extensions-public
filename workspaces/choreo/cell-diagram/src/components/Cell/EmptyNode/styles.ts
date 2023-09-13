@@ -9,9 +9,13 @@
 
 import styled from "@emotion/styled";
 
+interface StyleProps {
+    width: number;
+}
+
 export const EmptyNode: React.FC<any> = styled.div`
-    width: 60px;
-    height: 60px;
+    width: ${(props: StyleProps) => props.width}px;
+    height: ${(props: StyleProps) => props.width}px;
     border-radius: 50%;
     background-color: none;
 `;

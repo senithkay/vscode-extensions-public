@@ -7,8 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from './constants';
+export { GatewayIcon } from "./GatewayIcon";
 
-export * from './assets/icons';
+export { ServiceIcon } from "./ServiceIcon";
+export { WebAppIcon } from "./WebAppIcon";
+export { ScheduledTaskIcon } from "./ScheduledTaskIcon";
 
-export { default as CanvasBackground } from './assets/PatternBg.svg';
+export { ConnectionIcon } from "./ConnectionIcon"; 
+export { DatabaseIcon } from "./DatabaseIcon";

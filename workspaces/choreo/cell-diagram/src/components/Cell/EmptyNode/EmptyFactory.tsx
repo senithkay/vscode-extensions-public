@@ -20,7 +20,7 @@ export class EmptyFactory extends AbstractReactFactory<EmptyModel, DiagramEngine
     }
 
     generateReactWidget(event: { model: EmptyModel }): JSX.Element {
-        return <EmptyWidget engine={this.engine} node={event.model} />;
+        return <EmptyWidget engine={this.engine} node={event.model}/>;
     }
 
     generateModel(event: { initialConfig: any }) {

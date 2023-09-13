@@ -41,21 +41,18 @@ export function CellLinkWidget(props: WidgetProps) {
 
     return (
         <g>
-            <polygon
-                points={link.getArrowHeadPoints()}
-                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-            />
+            <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT} />
             <path
                 id={link.getID()}
                 d={link.getCurvePath()}
-                cursor={'pointer'}
-                fill={'none'}
+                cursor={"pointer"}
+                fill={"none"}
                 onMouseLeave={unselectPath}
                 onMouseOver={selectPath}
-                pointerEvents={'all'}
+                pointerEvents={"all"}
                 stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
                 strokeWidth={1}
             />
         </g>
-    )
+    );
 }

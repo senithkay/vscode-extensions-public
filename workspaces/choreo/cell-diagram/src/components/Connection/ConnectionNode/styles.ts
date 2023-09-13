@@ -8,43 +8,44 @@
  */
 
 import styled from "@emotion/styled";
-import { COMPONENT_CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { Orientation } from "./ConnectionModel";
 
 const PRIMARY_HOVER: string = "#2c09ed";
-
 interface StyleProps {
     isAnonymous: boolean;
     isSelected?: boolean;
     isClickable?: boolean;
     isCollapsed?: boolean;
     isFocused?: boolean;
+    orientation?: Orientation;
 }
 
-export const ComponentNode: React.FC<any> = styled.div`
+export const ConnectionNode: React.FC<any> = styled.div`
     color: ${Colors.DEFAULT_TEXT};
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? 'column': 'row')};;
     align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 10px;
     padding: 2px;
 `;
 
-export const ComponentHead: React.FC<any> = styled.div`
+export const ConnectionHead: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
-    border: ${(props: StyleProps) => `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
+    border: ${(props: StyleProps) =>
+        `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
     border-radius: 50%;
-    height: ${COMPONENT_CIRCLE_WIDTH}px;
-    width: ${COMPONENT_CIRCLE_WIDTH}px;
-    line-height: 28px;
-
+    height: ${CIRCLE_WIDTH}px;
+    width: ${CIRCLE_WIDTH}px;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
+    line-height: 28px;
 `;
 
-export const ComponentName: React.FC<any> = styled.span`
+export const ConnectionName: React.FC<any> = styled.span`
     cursor: pointer;
     font-size: ${LABEL_FONT_SIZE}px;
     white-space: nowrap;
@@ -62,12 +63,7 @@ export const ComponentName: React.FC<any> = styled.span`
 export const IconWrapper: React.FC<any> = styled.div`
     height: 32px;
     width: 32px;
-    /* svg {
-        fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
-    } */
-`;
-
-export const PortsContainer = styled.div`
-    display: flex;
-    justify-content: center;
+    svg {
+        fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER)};
+    }
 `;

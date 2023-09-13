@@ -9,30 +9,34 @@
 
 import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
-import { ComponentModel } from "./ComponentModel";
-import { ComponentLinkModel } from "../ComponentLink/ComponentLinkModel";
-import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
-import { ComponentName, ComponentNode, PortsContainer } from "./styles";
+import { ConnectionModel } from "./ConnectionModel";
+import { ConnectionHeadWidget } from "./ConnectionHead/ConnectionHead";
+import { ConnectionName, ConnectionNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
+import { ExternalLinkModel } from "../../External/ExternalLink/ExternalLinkModel";
+import { getConnectionMetadata } from "../../../utils";
+import { ConnectionType } from "../../../types";
 
-interface ComponentWidgetProps {
-    node: ComponentModel;
+interface ConnectionWidgetProps {
+    node: ConnectionModel;
     engine: DiagramEngine;
 }
 
-export function ComponentWidget(props: ComponentWidgetProps) {
+export function ConnectionWidget(props: ConnectionWidgetProps) {
     const { node, engine } = props;
     const { collapsedMode, selectedNodeId, focusedNodeId } = useContext(DiagramContext);
-    const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
+    const [selectedLink, setSelectedLink] = useState<ExternalLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
-
-    const displayName: string = node.component.id;
+    const metadata = getConnectionMetadata(node.connection);
+    const displayName =
+        (metadata.type === ConnectionType.Connector || metadata.type === ConnectionType.Datastore
+            ? metadata.organization
+            : `${metadata.project} / ${metadata.component}`) || node.connection.id;
 
     useEffect(() => {
         node.registerListener({
             SELECT: (event: any) => {
-                setSelectedLink(event.component as ComponentLinkModel);
+                setSelectedLink(event.connection as ExternalLinkModel);
             },
             UNSELECT: () => {
                 setSelectedLink(undefined);
@@ -50,24 +54,19 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     };
 
     return (
-        <ComponentNode
+        <ConnectionNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
+            orientation={node.orientation}
         >
-            <ComponentHeadWidget
+            <ConnectionHeadWidget
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-                isFocused={node.getID() === focusedNodeId}
                 isCollapsed={isCollapsed}
                 setCollapsedStatus={setCollapsibleStatus}
             />
-            <ComponentName onClick={handleOnHeaderWidgetClick}>{displayName}</ComponentName>
-
-            <PortsContainer>
-                <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
-                <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
-            </PortsContainer>
-        </ComponentNode>
+            <ConnectionName onClick={handleOnHeaderWidgetClick}>{displayName}</ConnectionName>
+        </ConnectionNode>
     );
 }

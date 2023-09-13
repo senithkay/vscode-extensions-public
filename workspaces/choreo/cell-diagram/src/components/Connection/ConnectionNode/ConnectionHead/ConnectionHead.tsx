@@ -9,22 +9,21 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
-import { ComponentModel } from "../ComponentModel";
-import { ComponentHead, IconWrapper } from "../styles";
-import { ComponentType } from "../../../../types";
-import { WebAppIcon, ScheduledTaskIcon, ServiceIcon } from "../../../../resources/assets/icons";
+import { ConnectionModel } from "../ConnectionModel";
+import { ConnectionHead, IconWrapper } from "../styles";
+import { ConnectionIcon, DatabaseIcon } from "../../../../resources/assets/icons";
+import { ConnectionPortWidget } from "../../ConnectionPort/ConnectionPortWidget";
+import { ConnectionType } from "../../../../types";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
-    node: ComponentModel;
+    node: ConnectionModel;
     isSelected: boolean;
     isCollapsed: boolean;
-    isFocused: boolean;
     setCollapsedStatus: (status: boolean) => void;
 }
 
-export function ComponentHeadWidget(props: ServiceHeadProps) {
+export function ConnectionHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isCollapsed } = props;
     const headPorts = useRef<PortModel[]>([]);
     const [_isHovered, setIsHovered] = useState<boolean>(false);
@@ -41,27 +40,28 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
         }
     };
 
-    const getComponentIcon = () => {
-        switch (node.component.type) {
-            case ComponentType.WEB_APP:
-                return <WebAppIcon />;
-            case ComponentType.SCHEDULED_TASK:
-                return <ScheduledTaskIcon />;
+    // get connection icon
+    const getConnectionIcon = () => {
+        switch (node.connection.type) {
+            case ConnectionType.Datastore:
+                return <DatabaseIcon />;
             default:
-                return <ServiceIcon />;
+                return <ConnectionIcon />;
         }
     };
 
     return (
-        <ComponentHead
+        <ConnectionHead
             isSelected={isSelected}
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
             isCollapsed={isCollapsed}
         >
-            <IconWrapper>{getComponentIcon()}</IconWrapper>
-            <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
-            <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
-        </ComponentHead>
+            <IconWrapper>
+                {getConnectionIcon()}
+            </IconWrapper>
+            <ConnectionPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
+            <ConnectionPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
+        </ConnectionHead>
     );
 }

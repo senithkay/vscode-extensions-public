@@ -10,9 +10,11 @@
 import React, { useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellBounds, CellModel } from "./CellModel";
-import { CellNode, TopPortCircle, Connector, LeftPortCircle, RightPortCircle, BottomPortWrapper, Circle } from "./styles";
+import { CellNode, TopPortCircle, LeftPortCircle, BottomPortsWrapper, DotWrapper, Dot, IconWrapper, RightPortsWrapper } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId } from "./cell-util";
+import { MAIN_CELL } from "../../../resources";
+import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
 
 interface CellWidgetProps {
     node: CellModel;
@@ -28,7 +30,7 @@ export function CellWidget(props: CellWidgetProps) {
     }, [node]);
 
     useEffect(() => {
-        resizeCellHeight();        
+        resizeCellHeight();
     }, [node.width]);
 
     const generateOctagonSVG = (height: number) => {
@@ -44,7 +46,7 @@ export function CellWidget(props: CellWidgetProps) {
         ].join(" ");
 
         return (
-            <svg width={height} height={height}>
+            <svg width={height} height={height} id={MAIN_CELL}>
                 <polygon points={points} />
             </svg>
         );
@@ -52,7 +54,7 @@ export function CellWidget(props: CellWidgetProps) {
 
     const resizeCellHeight = () => {
         const conCount = node.connectorNodes?.length || 0;
-        const connectorRowWidth = (conCount * 100 + 40) * 100/ 40;
+        const connectorRowWidth = ((conCount * 100 + 40) * 100) / 40;
         setCellHeight(Math.max(connectorRowWidth, node.width));
         engine.repaintCanvas();
     };
@@ -62,25 +64,44 @@ export function CellWidget(props: CellWidgetProps) {
             {generateOctagonSVG(cellHeight)}
 
             <TopPortCircle>
+                <IconWrapper>
+                    <GatewayIcon />
+                </IconWrapper>
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.TOP))} engine={engine} />
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.BOTTOM))} engine={engine} />
             </TopPortCircle>
 
             <LeftPortCircle>
+                <IconWrapper>
+                    <GatewayIcon />
+                </IconWrapper>
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.WestBound, PortModelAlignment.LEFT))} engine={engine} />
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.WestBound, PortModelAlignment.RIGHT))} engine={engine} />
             </LeftPortCircle>
 
-            <RightPortCircle>
-                <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.LEFT))} engine={engine} />
-                <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.RIGHT))} engine={engine} />
-            </RightPortCircle>
-
-            <BottomPortWrapper>
+            <RightPortsWrapper>
+                {node.connectionNodes?.map((connectionNode) => {
+                    return (
+                        <DotWrapper key={connectionNode.getID()}>
+                            <Dot>
+                                <CellPortWidget
+                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.LEFT, connectionNode.getID()))}
+                                    engine={engine}
+                                />
+                                <CellPortWidget
+                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.RIGHT, connectionNode.getID()))}
+                                    engine={engine}
+                                />
+                            </Dot>
+                        </DotWrapper>
+                    );
+                })}
+            </RightPortsWrapper>
+            <BottomPortsWrapper>
                 {node.connectorNodes?.map((connectorNode) => {
                     return (
-                        <Connector key={connectorNode.getID()}>
-                            <Circle>
+                        <DotWrapper key={connectorNode.getID()}>
+                            <Dot>
                                 <CellPortWidget
                                     port={node.getPort(getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.TOP, connectorNode.getID()))}
                                     engine={engine}
@@ -89,11 +110,11 @@ export function CellWidget(props: CellWidgetProps) {
                                     port={node.getPort(getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.BOTTOM, connectorNode.getID()))}
                                     engine={engine}
                                 />
-                            </Circle>
-                        </Connector>
+                            </Dot>
+                        </DotWrapper>
                     );
                 })}
-            </BottomPortWrapper>
+            </BottomPortsWrapper>
         </CellNode>
     );
 }

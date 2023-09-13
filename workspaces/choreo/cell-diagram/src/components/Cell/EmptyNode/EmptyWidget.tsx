@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, {  } from "react";
+import React from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { EmptyModel } from "./EmptyModel";
 import { EmptyNode } from "./styles";
@@ -23,7 +23,7 @@ export function EmptyWidget(props: EmptyWidgetProps) {
     const { node, engine } = props;
 
     return (
-        <EmptyNode>
+        <EmptyNode width={node.width}>
             <CellPortWidget port={node.getPort(getNodePortId(node.getID(), PortModelAlignment.TOP))} engine={engine} />
             <CellPortWidget port={node.getPort(getNodePortId(node.getID(), PortModelAlignment.BOTTOM))} engine={engine} />
             <CellPortWidget port={node.getPort(getNodePortId(node.getID(), PortModelAlignment.LEFT))} engine={engine} />

@@ -9,10 +9,10 @@
 
 import { PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 
-export class ConnectorPortModel extends PortModel {
+export class ConnectionPortModel extends PortModel {
     constructor(id: string, portType: PortModelAlignment) {
         super({
-            type: 'connectorPort',
+            type: 'connectionPort',
             name: `${portType}-${id}`,
             id: `${portType}-${id}`,
             alignment: portType
