@@ -8,6 +8,7 @@
  */
 
 import { expect } from 'chai';
+import { writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { VSBrowser, WebView, EditorView, TextEditor, WebDriver, ActivityBar, Workbench } from 'vscode-extension-tester';
@@ -156,11 +157,13 @@ service /breakingbad on new http:Listener(9090) {
     });
 
     after(async () => {
-        await webview.switchBack();
-        await new EditorView().openEditor(FILE_NAME);
-        const textEditor = new TextEditor();
-        await textEditor.setText("");
-        await textEditor.save();
+        writeFile(`${PROJECT_ROOT}/${FILE_NAME}`, "", (err) => {
+            if (err) {
+                console.error('Error updating bal file:', err);
+            } else {
+                console.log('Bal file updated successfully!');
+            }
+        });
     });
 
 });
