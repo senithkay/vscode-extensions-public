@@ -12,6 +12,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 export const IconLabel = styled.div`
     // To hide label in small screens
+    margin-left: 2px;
     @media (max-width: 320px) {
       display: none;
     }
