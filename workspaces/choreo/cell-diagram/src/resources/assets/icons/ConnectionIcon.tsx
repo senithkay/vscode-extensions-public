@@ -9,12 +9,12 @@
 
 import React, { CSSProperties } from "react";
 
-export function ServiceIcon(props: { styles?: CSSProperties }) {
+export function ConnectionIcon(props: { styles?: CSSProperties }) {
     return (
         <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" style={{ ...props.styles }}>
-            <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" transform="translate(2 3)">
-                <path d="m1.5 4.5h14v7.9976807c0 1.1045695-.8954305 2-2 2h-10c-1.1045695 0-2-.8954305-2-2zm0-3.9777832h14c.5522847 0 1 .44771525 1 1v1.9777832c0 .55228475-.4477153 1-1 1h-14c-.55228475 0-1-.44771525-1-1v-1.9777832c0-.55228475.44771525-1 1-1z" />
-                <path d="m6.5 7.5h4" />
+            <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" transform="translate(4 5)">
+                <path d="m5.5 2.5 1-1c1.1045695-1.1045695 2.8954305-1.1045695 4 0s1.1045695 2.8954305 0 4l-1 1m-3 3-1 1c-1.1045695 1.1045695-2.8954305 1.1045695-4 0s-1.1045695-2.8954305 0-4l1-1" />
+                <path d="m3.5 8.5 5-5" />
             </g>
         </svg>
     );
