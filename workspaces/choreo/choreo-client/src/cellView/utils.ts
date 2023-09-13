@@ -17,6 +17,7 @@ import {
     CMResourceFunction,
     CMService,
     ComponentModel,
+    ComponentType,
     Project as ProjectModel
 } from "@wso2-enterprise/ballerina-languageclient";
 import { existsSync, readFileSync } from "fs";
@@ -40,6 +41,7 @@ export const webAppComponents = [ComponentDisplayType.ByocWebApp, ComponentDispl
 export const jobComponents = [ComponentDisplayType.ByocCronjob, ComponentDisplayType.ByocJob];
 
 const MODEL_VERSION = "0.4.0";
+const CHOREO_CONNECTION_ID_PREFIX = "choreo://";
 
 export function getDefaultServiceModel(): CMService {
     return {
@@ -55,7 +57,7 @@ export function getDefaultServiceModel(): CMService {
 
 export function getServiceModels(endpoints: Endpoint[],
                                  orgName: string,
-                                 projectName: string,
+                                 projectId: string,
                                  componentName: string,
                                  componentPath: string,
                                  yamlPath: string) {
@@ -66,7 +68,7 @@ export function getServiceModels(endpoints: Endpoint[],
         for (const endpoint of endpoints) {
             let resources: CMResourceFunction[] = [];
 
-            const serviceId = `${orgName}:${projectName}:${componentName}:${endpoint.name}`;
+            const serviceId = `${orgName}:${projectId}:${componentName}:${endpoint.name}`;
             const defaultService = getDefaultServiceModel();
 
             if (endpoint.schemaFilePath) {
@@ -98,15 +100,27 @@ export function getServiceModels(endpoints: Endpoint[],
     return services;
 }
 
-export function getConnectionModels(connections: Connection[]) {
+export function getConnectionModels(orgName: string, connections: Connection[], projectNameToIdMap: Map<string, string>) {
     const connectionModels: CMDependency[] = [];
 
     if (connections && Array.isArray(connections)) {
         for (const connection of connections) {
+            const isChoreoConnection = connection.id.startsWith(CHOREO_CONNECTION_ID_PREFIX);
+            let connectionId = connection.id;
+            if (isChoreoConnection) {
+                const connectionIdParts = connection.id.split('/');
+                const projectName = connectionIdParts[2];
+                const componentName = connectionIdParts[3];
+                const endpointName = connectionIdParts[5];
+                const projectId = projectNameToIdMap.has(projectName) ? projectNameToIdMap.get(projectName) : projectName;
+                
+                connectionId = `${orgName}:${projectId}:${componentName}:${endpointName}`;
+            }
             const hasServiceUrl = connection.mappings.some(mapping => Object.keys(mapping).includes('service.url'));
             connectionModels.push({
-                id: connection.id,
-                type: hasServiceUrl ? "service" : "connector"
+                id: connectionId,
+                isWithinPlatform: isChoreoConnection,
+                type: hasServiceUrl ? "http" : "connector"
             });
         }
     }
@@ -134,6 +148,7 @@ export function getDefaultComponentModel(component: Component, organization: Org
         orgName: organization.name,
         version: component.version,
         modelVersion: MODEL_VERSION,
+        type: component.displayType as ComponentType,
         services: serviceMap,
         entities: new Map(),
         hasCompilationErrors: true,

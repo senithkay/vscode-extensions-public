@@ -14,6 +14,7 @@ export interface ComponentModel {
     modelVersion: string;
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
+    type?: ComponentType;
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
@@ -89,6 +90,7 @@ export interface CMAnnotation extends CMNode {
 export interface CMDependency extends CMNode {
     id: string;
     type: string;
+    isWithinPlatform?: boolean;
     serviceLabel?: string;
 }
 
@@ -149,4 +151,25 @@ export interface CMDeploymentMetadata {
             isExposed: boolean;
         }
     }
+}
+
+export enum ComponentType {
+    RestApi = "restAPI",
+    ManualTrigger = "manualTrigger",
+    ScheduledTask = "scheduledTask",
+    Webhook = "webhook",
+    Websocket = "webSocket",
+    Proxy = "proxy",
+    ByocCronjob = "byocCronjob",
+    ByocJob = "byocJob",
+    GraphQL = "graphql",
+    ByocWebApp = "byocWebApp",
+    ByocWebAppDockerLess = "byocWebAppsDockerfileLess",
+    ByocRestApi = "byocRestApi",
+    ByocWebhook = "byocWebhook",
+    MiRestApi = "miRestApi",
+    MiEventHandler = "miEventHandler",
+    Service = "ballerinaService",
+    ByocService = "byocService",
+    MiApiService = "miApiService"
 }

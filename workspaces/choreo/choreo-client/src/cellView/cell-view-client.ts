@@ -19,6 +19,7 @@ import {
     Connection,
     Endpoint,
     Organization,
+    Project,
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
@@ -43,6 +44,9 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
     constructor(private _projectClient: ChoreoProjectClient) {
     }
 
+    private projects: Project[] = [];
+    private projectNameToIdMap: Map<string, string> = new Map();
+
     async getProjectModel(organization: Organization, projectId: string) {
 
         const workspaceFile = workspace.workspaceFile;
@@ -50,9 +54,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             throw new Error("Workspace file not found");
         }
 
-        const project = (await this._projectClient.getProjects(
-            {orgId: organization.id, orgHandle: organization.handle}
-        )).find(project => project.id === projectId);
+        const project = (await this.getProjects(organization)).find(project => project.id === projectId);
 
         if (!project) {
             throw new Error(`Project with id ${projectId} not found under organization ${organization.name}`);
@@ -71,7 +73,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             {projId: projectId, orgId, orgHandle, orgUuid}
         );
 
-        choreoComponents?.forEach((component) => {
+        choreoComponents?.forEach(async (component) => {
             const defaultComponentModel = getDefaultComponentModel(component, organization);
             const componentPath = getComponentDirPath(component, workspaceFileLocation);
 
@@ -89,14 +91,17 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                     const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
                     const connections: Connection[] = (endpointsContent as any).connections;
 
-                    const serviceModels = getServiceModels(endpoints, orgName, project.name, component.name,
+                    const serviceModels = getServiceModels(endpoints, orgName, projectId, component.name,
                         componentPath, yamlPath);
                     const servicesRecord: Record<string, CMService> = {};
                     serviceModels.forEach(service => {
                         servicesRecord[service.id] = service;
                     });
+
                     defaultComponentModel.services = servicesRecord as any;
-                    defaultComponentModel.connections = getConnectionModels(connections);
+
+                    const projectNameToIdMap = await this.getProjectNameToIdMap(organization);
+                    defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
                 }
             } else if (webAppComponents.includes(displayType)) {
                 const service: CMService = {
@@ -126,5 +131,24 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
         });
 
         return projectModel;
+    }
+
+    async getProjects(organization: Organization) {
+        if (this.projects.length === 0) {
+            this.projects = await this._projectClient.getProjects(
+                {orgId: organization.id, orgHandle: organization.handle}
+            );
+        }
+        return this.projects;
+    }
+
+    async getProjectNameToIdMap(organization: Organization) {
+        if (this.projectNameToIdMap.size === 0) {
+            const projects = await this.getProjects(organization);
+            projects.forEach(project => {
+                this.projectNameToIdMap.set(project.name, project.id);
+            });
+        }
+        return this.projectNameToIdMap;
     }
 }
