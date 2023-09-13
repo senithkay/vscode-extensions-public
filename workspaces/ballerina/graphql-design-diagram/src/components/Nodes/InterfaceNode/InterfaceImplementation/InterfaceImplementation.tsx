@@ -38,7 +38,7 @@ export function InterfaceImplWidget(props: InterfaceImplWidgetProps) {
                     port={node.getPort(`left-${field.componentName}`)}
                     engine={engine}
                 />
-                <FieldName>{field.componentName}</FieldName>
+                <FieldName data-testid={`interface-implementation-${field.componentName}`}>{field.componentName}</FieldName>
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${field.componentName}`)}
                     engine={engine}

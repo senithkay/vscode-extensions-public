@@ -42,7 +42,7 @@ export function RecordHeadWidget(props: RecordHeadProps) {
             filePath={node.recordObject?.position?.filePath}
             position={node.recordObject?.position && getFormattedPosition(node.recordObject.position)}
         >
-            <RecordHead>
+            <RecordHead data-testid={`record-head-${displayName}`}>
                 <RecordIcon />
                 <GraphqlBasePortWidget
                     port={node.getPort(`left-${node.getID()}`)}

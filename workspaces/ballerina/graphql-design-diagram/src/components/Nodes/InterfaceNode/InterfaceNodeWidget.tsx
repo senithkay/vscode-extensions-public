@@ -33,7 +33,7 @@ export function InterfaceNodeWidget(props: InterfaceNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.interfaceObject.name;
 
     return (
-        <ServiceNode isSelected={isNodeSelected}>
+        <ServiceNode isSelected={isNodeSelected} data-testid={`interface-node-${node?.interfaceObject?.name}`}>
             <InterfaceHeadWidget node={node} engine={engine}/>
             {node.interfaceObject.resourceFunctions?.map((resourceFunction, index) => {
                 return (
