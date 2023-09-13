@@ -26,7 +26,8 @@ export const ComponentNode: React.FC<any> = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    gap: 10px;
+    padding: 2px;
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
@@ -44,7 +45,6 @@ export const ComponentHead: React.FC<any> = styled.div`
 `;
 
 export const ComponentName: React.FC<any> = styled.span`
-    margin-top: 10px;
     cursor: pointer;
     font-size: ${LABEL_FONT_SIZE}px;
     white-space: nowrap;
@@ -60,9 +60,14 @@ export const ComponentName: React.FC<any> = styled.span`
 `;
 
 export const IconWrapper: React.FC<any> = styled.div`
-    height: 24px;
-    width: 24px;
-    svg {
+    height: 32px;
+    width: 32px;
+    /* svg {
         fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
-    }
+    } */
+`;
+
+export const PortsContainer = styled.div`
+    display: flex;
+    justify-content: center;
 `;

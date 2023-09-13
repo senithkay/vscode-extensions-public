@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellBounds, CellModel } from "./CellModel";
-import { CellNode, TopPortCircle, LeftPortCircle, RightPortCircle, BottomPortWrapper, DotWrapper, Dot, IconWrapper } from "./styles";
+import { CellNode, TopPortCircle, LeftPortCircle, BottomPortsWrapper, DotWrapper, Dot, IconWrapper, RightPortsWrapper } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId } from "./cell-util";
 import { MAIN_CELL } from "../../../resources";
@@ -79,12 +79,25 @@ export function CellWidget(props: CellWidgetProps) {
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.WestBound, PortModelAlignment.RIGHT))} engine={engine} />
             </LeftPortCircle>
 
-            <RightPortCircle>
-                <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.LEFT))} engine={engine} />
-                <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.RIGHT))} engine={engine} />
-            </RightPortCircle>
-
-            <BottomPortWrapper>
+            <RightPortsWrapper>
+                {node.connectionNodes?.map((connectionNode) => {
+                    return (
+                        <DotWrapper key={connectionNode.getID()}>
+                            <Dot>
+                                <CellPortWidget
+                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.LEFT, connectionNode.getID()))}
+                                    engine={engine}
+                                />
+                                <CellPortWidget
+                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.RIGHT, connectionNode.getID()))}
+                                    engine={engine}
+                                />
+                            </Dot>
+                        </DotWrapper>
+                    );
+                })}
+            </RightPortsWrapper>
+            <BottomPortsWrapper>
                 {node.connectorNodes?.map((connectorNode) => {
                     return (
                         <DotWrapper key={connectorNode.getID()}>
@@ -101,7 +114,7 @@ export function CellWidget(props: CellWidgetProps) {
                         </DotWrapper>
                     );
                 })}
-            </BottomPortWrapper>
+            </BottomPortsWrapper>
         </CellNode>
     );
 }

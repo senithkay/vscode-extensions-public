@@ -9,6 +9,6 @@
 
 export * from './constants';
 
-export { PrimaryKeyIcon } from './assets/icons/PrimaryKeyIcon';
+export * from './assets/icons';
 
 export { default as CanvasBackground } from './assets/PatternBg.svg';

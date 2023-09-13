@@ -12,7 +12,8 @@ import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
 import { ComponentModel } from "../ComponentModel";
 import { ComponentHead, IconWrapper } from "../styles";
-import { ServiceIcon } from "../../../../resources/assets/icons/ServiceIcon";
+import { ComponentType } from "../../../../types";
+import { WebAppIcon, ScheduledTaskIcon, ServiceIcon } from "../../../../resources/assets/icons";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -24,7 +25,7 @@ interface ServiceHeadProps {
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isCollapsed, isFocused } = props;
+    const { engine, node, isSelected, isCollapsed } = props;
     const headPorts = useRef<PortModel[]>([]);
     const [_isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -40,6 +41,17 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
         }
     };
 
+    const getComponentIcon = () => {
+        switch (node.component.type) {
+            case ComponentType.WEB_APP:
+                return <WebAppIcon />;
+            case ComponentType.SCHEDULED_TASK:
+                return <ScheduledTaskIcon />;
+            default:
+                return <ServiceIcon />;
+        }
+    };
+
     return (
         <ComponentHead
             isSelected={isSelected}
@@ -47,9 +59,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
             onMouseLeave={() => handleOnHover("UNSELECT")}
             isCollapsed={isCollapsed}
         >
-            <IconWrapper isFocused={isFocused} >
-                <ServiceIcon />
-            </IconWrapper>
+            <IconWrapper>{getComponentIcon()}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
         </ComponentHead>

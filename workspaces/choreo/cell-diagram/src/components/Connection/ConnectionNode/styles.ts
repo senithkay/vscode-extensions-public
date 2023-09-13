@@ -9,6 +9,7 @@
 
 import styled from "@emotion/styled";
 import { CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { Orientation } from "./ConnectionModel";
 
 const PRIMARY_HOVER: string = "#2c09ed";
 interface StyleProps {
@@ -17,16 +18,18 @@ interface StyleProps {
     isClickable?: boolean;
     isCollapsed?: boolean;
     isFocused?: boolean;
+    orientation?: Orientation;
 }
 
 export const ConnectionNode: React.FC<any> = styled.div`
     color: ${Colors.DEFAULT_TEXT};
     display: flex;
-    flex-direction: column;
+    flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? 'column': 'row')};;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 10px;
+    gap: 10px;
+    padding: 2px;
 `;
 
 export const ConnectionHead: React.FC<any> = styled.div`
@@ -43,7 +46,6 @@ export const ConnectionHead: React.FC<any> = styled.div`
 `;
 
 export const ConnectionName: React.FC<any> = styled.span`
-    margin-top: 10px;
     cursor: pointer;
     font-size: ${LABEL_FONT_SIZE}px;
     white-space: nowrap;
@@ -58,14 +60,9 @@ export const ConnectionName: React.FC<any> = styled.span`
     }
 `;
 
-export const InclusionPortsContainer = styled.div`
-    display: flex;
-    justify-content: center;
-`;
-
 export const IconWrapper: React.FC<any> = styled.div`
-    height: 24px;
-    width: 24px;
+    height: 32px;
+    width: 32px;
     svg {
         fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER)};
     }

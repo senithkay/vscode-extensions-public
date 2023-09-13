@@ -8,42 +8,54 @@
  */
 
 export interface Project {
-    id: string
-    name: string
-    components: Component[]
-    modelVersion: string
+    id: string;
+    name: string;
+    components: Component[];
+    configurations?: Connection[];
+    modelVersion: string;
 }
 
+export enum ComponentType {
+    SERVICE = "service",
+    WEB_APP = "web-app",
+    SCHEDULED_TASK = "scheduled-task",
+    MANUAL_TASK = "manual-task",
+    API_PROXY = "api-proxy",
+    WEB_HOOK = "web-hook",
+    EVENT_HANDLER = "event-handler",
+    TEST = "test",
+}
 export interface Component {
-    id: string
-    version: string
-    services: Services
-    connections: Connection[]
+    id: string;
+    version: string;
+    type: ComponentType;
+    services: Services;
+    connections: Connection[];
 }
 
 export interface Services {
-    [key: string]: Service
+    [key: string]: Service;
 }
 
 export interface Service {
-    id: string
-    label: string
-    type: string
-    dependencyIds: string[]
-    isExposedToInternet: boolean
+    id: string;
+    label: string;
+    type: string;
+    dependencyIds: string[];
+    isExposedToInternet: boolean;
 }
 
 export interface Connection {
-    id: string
-    type: ConnectionType,
-    projectId?: string,
-    onPlatform: boolean,
+    id: string;
+    type: ConnectionType;
+    onPlatform?: boolean;
 }
 
 export enum ConnectionType {
     HTTP = "http",
     GRPC = "grpc",
     Connector = "connector",
+    Datastore = "datastore",
 }
 
 export interface ServiceMetadata {

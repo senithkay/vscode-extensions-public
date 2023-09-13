@@ -11,7 +11,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ConnectionModel } from "../ConnectionModel";
 import { ConnectionHead, IconWrapper } from "../styles";
-import { DefaultConnectorIcon } from "../../../../resources/assets/icons/DefaultConnectorIcon";
+import { ConnectionIcon, DatabaseIcon } from "../../../../resources/assets/icons";
+import { ConnectionPortWidget } from "../../ConnectionPort/ConnectionPortWidget";
+import { ConnectionType } from "../../../../types";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -22,7 +24,7 @@ interface ServiceHeadProps {
 }
 
 export function ConnectionHeadWidget(props: ServiceHeadProps) {
-    const { node, isSelected, isCollapsed } = props;
+    const { engine, node, isSelected, isCollapsed } = props;
     const headPorts = useRef<PortModel[]>([]);
     const [_isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -38,6 +40,16 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
         }
     };
 
+    // get connection icon
+    const getConnectionIcon = () => {
+        switch (node.connection.type) {
+            case ConnectionType.Datastore:
+                return <DatabaseIcon />;
+            default:
+                return <ConnectionIcon />;
+        }
+    };
+
     return (
         <ConnectionHead
             isSelected={isSelected}
@@ -46,8 +58,10 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
             isCollapsed={isCollapsed}
         >
             <IconWrapper>
-                <DefaultConnectorIcon />
+                {getConnectionIcon()}
             </IconWrapper>
+            <ConnectionPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
+            <ConnectionPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
         </ConnectionHead>
     );
 }

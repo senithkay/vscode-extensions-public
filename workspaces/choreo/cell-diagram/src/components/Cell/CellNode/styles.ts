@@ -92,12 +92,21 @@ export const RightPortCircle: React.FC<any> = styled(Dot)`
     right: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
 `;
 
-export const BottomPortWrapper: React.FC<any> = styled.div`
+export const BottomPortsWrapper: React.FC<any> = styled.div`
     position: absolute;
     bottom: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
     display: flex;
     flex-direction: row;
     justify-content: center;
+    gap: ${CIRCLE_WIDTH}px;
+`;
+
+export const RightPortsWrapper: React.FC<any> = styled.div`
+    position: absolute;
+    right: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: ${CIRCLE_WIDTH}px;
 `;
 
@@ -112,8 +121,8 @@ export const Label: React.FC<any> = styled.div`
 `;
 
 export const IconWrapper: React.FC<any> = styled.div`
-    height: 24px;
-    width: 24px;
+    height: 32px;
+    width: 32px;
     svg {
         fill: ${Colors.NODE_BORDER};
     }

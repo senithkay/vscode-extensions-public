@@ -10,9 +10,9 @@
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { SharedNodeModel } from '../../shared-node/shared-node';
 import { CellPortModel } from '../CellPort/CellPortModel';
-import { ConnectorModel } from '../../Connector/ConnectorNode/ConnectorModel';
 import { getCellPortName } from './cell-util';
 import { MAIN_CELL_DEFAULT_HEIGHT } from '../../../resources';
+import { ConnectionModel } from '../../Connection/ConnectionNode/ConnectionModel';
 
 export enum CellBounds {
     NorthBound = "nb",
@@ -23,12 +23,14 @@ export enum CellBounds {
 
 export class CellModel extends SharedNodeModel {
     width: number;
-    readonly connectorNodes?: ConnectorModel[];
+    readonly connectorNodes?: ConnectionModel[];
+    readonly connectionNodes?: ConnectionModel[];
 
-    constructor(cellName: string, width = MAIN_CELL_DEFAULT_HEIGHT, connectorNodes?: ConnectorModel[]) {
+    constructor(cellName: string, width = MAIN_CELL_DEFAULT_HEIGHT, connectorNodes?: ConnectionModel[], connectionNodes?: ConnectionModel[]) {
         super('cellNode', cellName);
         this.width = width;
         this.connectorNodes = connectorNodes;
+        this.connectionNodes = connectionNodes;
         this.setLocked(true);
 
         // North bound ports - for public exposed APIs
@@ -36,22 +38,26 @@ export class CellModel extends SharedNodeModel {
         this.addPort(new CellPortModel(northBoundPortName , PortModelAlignment.TOP));
         this.addPort(new CellPortModel(northBoundPortName, PortModelAlignment.BOTTOM));
         
-        // East bound ports
-        const eastBoundPortName = getCellPortName(cellName, CellBounds.EastBound);
-        this.addPort(new CellPortModel(eastBoundPortName, PortModelAlignment.LEFT));
-        this.addPort(new CellPortModel(eastBoundPortName, PortModelAlignment.RIGHT));
-        
         // West bound ports
         const westBoundPortName = getCellPortName(cellName, CellBounds.WestBound);
         this.addPort(new CellPortModel(westBoundPortName, PortModelAlignment.LEFT));
         this.addPort(new CellPortModel(westBoundPortName, PortModelAlignment.RIGHT));
         
-        // South bound ports - for connectors
+        // East bound ports - for other project connections
+        if (this.connectionNodes) {
+            this.connectionNodes.forEach((connectionNode: ConnectionModel) => {
+                const portName = getCellPortName(cellName, CellBounds.EastBound, connectionNode.getID());
+                this.addPort(new CellPortModel(portName, PortModelAlignment.LEFT));
+                this.addPort(new CellPortModel(portName, PortModelAlignment.RIGHT));
+            });
+        }
+
+        // South bound ports - for non platform connectors
         if (this.connectorNodes) {
-            this.connectorNodes.forEach((connectorNode: ConnectorModel) => {
-                const southBoundPortName = getCellPortName(cellName, CellBounds.SouthBound, connectorNode.getID());
-                this.addPort(new CellPortModel(southBoundPortName, PortModelAlignment.TOP));
-                this.addPort(new CellPortModel(southBoundPortName, PortModelAlignment.BOTTOM));
+            this.connectorNodes.forEach((connectorNode: ConnectionModel) => {
+                const portName = getCellPortName(cellName, CellBounds.SouthBound, connectorNode.getID());
+                this.addPort(new CellPortModel(portName, PortModelAlignment.TOP));
+                this.addPort(new CellPortModel(portName, PortModelAlignment.BOTTOM));
             });
         }
     }

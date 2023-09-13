@@ -12,11 +12,11 @@ import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import { ConnectionModel } from './ConnectionModel';
 import { ConnectionWidget } from './ConnectionWidget';
-import { CONNECTOR_NODE } from '../../../resources';
+import { CONNECTION_NODE } from '../../../resources';
 
 export class ConnectionFactory extends AbstractReactFactory<ConnectionModel, DiagramEngine> {
     constructor() {
-        super(CONNECTOR_NODE);
+        super(CONNECTION_NODE);
     }
 
     generateReactWidget(event: { model: ConnectionModel }): JSX.Element {

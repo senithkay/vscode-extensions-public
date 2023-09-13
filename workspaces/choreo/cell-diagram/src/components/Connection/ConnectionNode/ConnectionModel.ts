@@ -7,18 +7,25 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { SharedNodeModel } from '../../shared-node/shared-node';
-import { ConnectionPortModel } from '../ConnectionPort/ConnectionPortModel';
-import { Connection } from '../../../types';
-import { CONNECTOR_NODE } from '../../../resources';
+import { PortModelAlignment } from "@projectstorm/react-diagrams";
+import { SharedNodeModel } from "../../shared-node/shared-node";
+import { ConnectionPortModel } from "../ConnectionPort/ConnectionPortModel";
+import { Connection } from "../../../types";
+import { CONNECTION_NODE } from "../../../resources";
+
+export enum Orientation {
+    VERTICAL = "vertical",
+    HORIZONTAL = "horizontal",
+}
 
 export class ConnectionModel extends SharedNodeModel {
     readonly connection: Connection;
+    readonly orientation: Orientation;
 
-    constructor(connectionName: string, connection: Connection) {
-        super(CONNECTOR_NODE, connectionName);
+    constructor(connectionName: string, connection: Connection, orientation?: Orientation) {
+        super(CONNECTION_NODE, connectionName);
         this.connection = connection;
+        this.orientation = orientation || Orientation.VERTICAL;
 
         this.addPort(new ConnectionPortModel(connectionName, PortModelAlignment.TOP));
         this.addPort(new ConnectionPortModel(connectionName, PortModelAlignment.BOTTOM));

@@ -44,7 +44,7 @@ export const NO_CELL_NODE = 'Could not detect cell.';
 
 // node types
 export const COMPONENT_NODE = "componentNode";
-export const CONNECTOR_NODE = "connectorNode";
+export const CONNECTION_NODE = "connectionNode";
 export const MAIN_CELL = "mainCell";
 export const EMPTY_NODE = "emptyNode";
 

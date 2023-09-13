@@ -11,11 +11,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ConnectionModel } from "./ConnectionModel";
 import { ConnectionHeadWidget } from "./ConnectionHead/ConnectionHead";
-import { ConnectionName, ConnectionNode, InclusionPortsContainer } from "./styles";
+import { ConnectionName, ConnectionNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { ConnectionPortWidget } from "../ConnectionPort/ConnectionPortWidget";
 import { ExternalLinkModel } from "../../External/ExternalLink/ExternalLinkModel";
-import { getMetadataFromConnection } from "../../../utils";
+import { getConnectionMetadata } from "../../../utils";
 import { ConnectionType } from "../../../types";
 
 interface ConnectionWidgetProps {
@@ -28,8 +27,11 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
     const { collapsedMode, selectedNodeId, focusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ExternalLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
-    const metadata = getMetadataFromConnection(node.connection);
-    const displayName = (metadata.type === ConnectionType.Connector ? metadata.organization : metadata.component) || node.connection.id;
+    const metadata = getConnectionMetadata(node.connection);
+    const displayName =
+        (metadata.type === ConnectionType.Connector || metadata.type === ConnectionType.Datastore
+            ? metadata.organization
+            : `${metadata.project} / ${metadata.component}`) || node.connection.id;
 
     useEffect(() => {
         node.registerListener({
@@ -55,6 +57,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
         <ConnectionNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
+            orientation={node.orientation}
         >
             <ConnectionHeadWidget
                 engine={engine}
@@ -64,10 +67,6 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 setCollapsedStatus={setCollapsibleStatus}
             />
             <ConnectionName onClick={handleOnHeaderWidgetClick}>{displayName}</ConnectionName>
-            <InclusionPortsContainer>
-                <ConnectionPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
-                <ConnectionPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
-            </InclusionPortsContainer>
         </ConnectionNode>
     );
 }

@@ -12,10 +12,9 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentModel } from "./ComponentModel";
 import { ComponentLinkModel } from "../ComponentLink/ComponentLinkModel";
 import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
-import { ComponentName, ComponentNode } from "./styles";
+import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
-import { InclusionPortsContainer } from "../../Connector/ConnectorNode/styles";
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -28,7 +27,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
 
-    const displayName: string = node.componentObject.id || node.getID().slice(node.getID().lastIndexOf(":") + 1);
+    const displayName: string = node.component.id;
 
     useEffect(() => {
         node.registerListener({
@@ -65,10 +64,10 @@ export function ComponentWidget(props: ComponentWidgetProps) {
             />
             <ComponentName onClick={handleOnHeaderWidgetClick}>{displayName}</ComponentName>
 
-            <InclusionPortsContainer>
+            <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
                 <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
-            </InclusionPortsContainer>
+            </PortsContainer>
         </ComponentNode>
     );
 }

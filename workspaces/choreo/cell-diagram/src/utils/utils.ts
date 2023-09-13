@@ -16,7 +16,6 @@ import {
     ComponentFactory,
     ComponentLinkFactory,
     ComponentPortFactory,
-    ConnectorPortModel,
     CellFactory,
     CellLinkFactory,
     CellPortFactory,
@@ -31,11 +30,13 @@ import {
     ConnectionPortFactory,
     ConnectionFactory,
     ConnectionModel,
+    ConnectionPortModel,
 } from "../components";
-import { Connection, ConnectionMetadata, ConnectionType, ConnectorMetadata, Project } from "../types";
+import { Connection, ConnectionMetadata, ConnectionType, ConnectorMetadata, Project, ServiceMetadata } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getEmptyNodeName, getNodePortId } from "../components/Cell/CellNode/cell-util";
-import { CIRCLE_WIDTH, COMPONENT_NODE, DOT_WIDTH, EMPTY_NODE, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
+import { CIRCLE_WIDTH, COMPONENT_NODE, CONNECTION_NODE, DOT_WIDTH, EMPTY_NODE, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
+import { Orientation } from "../components/Connection/ConnectionNode/ConnectionModel";
 
 export type CommonModel = ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
 interface NodesAndLinks {
@@ -59,7 +60,7 @@ export function generateEngine(): DiagramEngine {
     engine.getLinkFactories().registerFactory(new ComponentLinkFactory());
     engine.getPortFactories().registerFactory(new ComponentPortFactory());
     engine.getNodeFactories().registerFactory(new ComponentFactory());
-    
+
     engine.getPortFactories().registerFactory(new ConnectionPortFactory());
     engine.getNodeFactories().registerFactory(new ConnectionFactory());
 
@@ -78,25 +79,29 @@ export function generateEngine(): DiagramEngine {
 
 export function getNodesNLinks(project: Project): NodesAndLinks {
     const componentNodes: Map<string, CommonModel> = generateComponentNodes(project);
+    const connectorNodes: Map<string, ConnectionModel> = generateConnectorNodes(project);
     const connectionNodes: Map<string, ConnectionModel> = generateConnectionNodes(project);
     const externalNodes: Map<string, ExternalModel> = generateExternalNodes();
-    const emptyNodes: Map<string, EmptyModel> = generateEmptyNodes(connectionNodes);
+    const emptyNodes: Map<string, EmptyModel> = generateEmptyNodes(project.name, [...connectionNodes.values(), ...connectorNodes.values()]);
 
     const componentLinks: Map<string, ComponentLinkModel> = generateComponentLinks(project, componentNodes);
     const cellLinks: Map<string, ComponentLinkModel> = generateCellLinks(project, emptyNodes, componentNodes);
-    const connectionLinks: Map<string, ExternalLinkModel> = generateConnectorLinks(emptyNodes, connectionNodes);
+    const connectorLinks: Map<string, ExternalLinkModel> = generateConnectorLinks(emptyNodes, connectorNodes);
+    const connectionLinks: Map<string, ExternalLinkModel> = generateConnectionLinks(emptyNodes, connectionNodes);
     const externalLinks: Map<string, ExternalLinkModel> = generateExternalLinks(emptyNodes, externalNodes);
 
     return {
         nodes: {
             componentNodes,
             connectionNodes,
+            connectorNodes,
             externalNodes,
             emptyNodes,
         },
         links: {
             componentLinks,
             cellLinks,
+            connectorLinks,
             connectionLinks,
             externalLinks,
         },
@@ -181,13 +186,17 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
             if (portData.length > 2 && portData[2] === CellBounds.EastBound && portData[0] === PortModelAlignment.RIGHT) {
                 const portPosition = port.getPosition().clone();
                 // change east bound external link position
-                portPosition.x = portPosition.x + externalLinkOffset;
-                model.getNode(portData[2])?.setPosition(portPosition);
+                const connectionNode = model.getNode(portData[3]);
+                if (connectionNode) {
+                    portPosition.x = portPosition.x + externalLinkOffset;
+                    portPosition.y = portPosition.y - connectionNode.height / 2;
+                    connectionNode.setPosition(portPosition);
+                }
             }
             if (portData.length > 2 && portData[2] === CellBounds.EastBound && portData[0] === PortModelAlignment.LEFT) {
                 const portPosition = port.getPosition().clone();
                 // change east bound empty node position
-                model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.EastBound)).setPosition(portPosition);
+                model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.EastBound, portData[3])).setPosition(portPosition);
             }
             // // change west bound external link position
             if (portData.length > 2 && portData[2] === CellBounds.WestBound && portData[0] === PortModelAlignment.LEFT) {
@@ -215,10 +224,9 @@ export function getComponentDiagramBoundaries(model: DiagramModel) {
         maxX = 0,
         maxY = 0;
     model.getNodes().forEach((node) => {
-        if (node.getType() !== COMPONENT_NODE ) {
+        if (!(node.getType() === COMPONENT_NODE || (node.getType() === CONNECTION_NODE && (node as ConnectionModel).connection.onPlatform))) {
             return;
         }
-        console.debug(node);
         const nodePosition = node.getPosition().clone();
         minX = Math.min(minX, nodePosition.x);
         minY = Math.min(minY, nodePosition.y);
@@ -235,22 +243,28 @@ function generateComponentNodes(project: Project): Map<string, CommonModel> {
         nodes.set(component.id, componentNode);
         component.connections?.forEach((connection) => {
             // add platform connections
-            if (connection.type === ConnectionType.Connector && connection.onPlatform) {
+            if (isConnectorConnection(connection) && connection.onPlatform) {
                 const connectionNode = new ConnectionModel(connection.id, connection);
                 nodes.set(connection.id, connectionNode);
             }
         });
     });
+    project.configurations?.forEach((connection, _key) => {
+        if (isConnectorConnection(connection) && connection.onPlatform) {
+            const connectionNode = new ConnectionModel(connection.id, connection);
+            nodes.set(connection.id, connectionNode);
+        }
+    });
 
     return nodes;
 }
-// third party connection nodes ( not platform connections )
+// other project connection nodes
 function generateConnectionNodes(project: Project): Map<string, ConnectionModel> {
     const nodes: Map<string, ConnectionModel> = new Map<string, ConnectionModel>();
     project.components?.forEach((component, _key) => {
         component.connections?.forEach((connection) => {
-            if (connection.type === ConnectionType.Connector && !connection.onPlatform) {
-                const connectionNode = new ConnectionModel(connection.id, connection);
+            if (isExternalService(project.name, connection)) {
+                const connectionNode = new ConnectionModel(connection.id, connection, Orientation.HORIZONTAL);
                 nodes.set(connection.id, connectionNode);
             }
         });
@@ -259,24 +273,26 @@ function generateConnectionNodes(project: Project): Map<string, ConnectionModel>
     return nodes;
 }
 
-// function generateOrgConnectionNodes(project: Project): Map<string, ConnectorModel> {
-//     const nodes: Map<string, ConnectorModel> = new Map<string, ConnectorModel>();
-//     project.components?.forEach((component, _key) => {
-//         component.connections?.forEach((connection) => {
-//             const connectionMetadata = getMetadataFromConnection(connection);
-//             if (
-//                 connectionMetadata &&
-//                 (connectionMetadata.type === ConnectionType.HTTP || connectionMetadata.type === ConnectionType.GRPC) &&
-//                 connectionMetadata.project !== project.id
-//             ) {
-//                 const connectionNode = new ConnectorModel(connection.id, connection);
-//                 nodes.set(connection.id, connectionNode);
-//             }
-//         });
-//     });
+// third party connector nodes ( not platform connector )
+function generateConnectorNodes(project: Project): Map<string, ConnectionModel> {
+    const nodes: Map<string, ConnectionModel> = new Map<string, ConnectionModel>();
+    project.components?.forEach((component, _key) => {
+        component.connections?.forEach((connection) => {
+            if (isConnectorConnection(connection) && !connection.onPlatform) {
+                const connectionNode = new ConnectionModel(connection.id, connection);
+                nodes.set(connection.id, connectionNode);
+            }
+        });
+    });
+    project.configurations?.forEach((connection, _key) => {
+        if (isConnectorConnection(connection) && !connection.onPlatform) {
+            const connectionNode = new ConnectionModel(connection.id, connection);
+            nodes.set(connection.id, connectionNode);
+        }
+    });
 
-//     return nodes;
-// }
+    return nodes;
+}
 
 function generateExternalNodes(): Map<string, ExternalModel> {
     const nodes: Map<string, ExternalModel> = new Map<string, ExternalModel>();
@@ -293,7 +309,7 @@ function generateExternalNodes(): Map<string, ExternalModel> {
     return nodes;
 }
 
-function generateEmptyNodes(connectionNodes: Map<string, ConnectionModel>): Map<string, EmptyModel> {
+function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[]): Map<string, EmptyModel> {
     const DIAGRAM_END = 1000;
     const nodes: Map<string, EmptyModel> = new Map<string, EmptyModel>();
 
@@ -305,15 +321,17 @@ function generateEmptyNodes(connectionNodes: Map<string, ConnectionModel>): Map<
     westBoundEmptyNode.setPosition(DIAGRAM_END * -1, 0);
     nodes.set(westBoundEmptyNode.getID(), westBoundEmptyNode);
 
-    const eastBoundEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.EastBound, DOT_WIDTH);
-    eastBoundEmptyNode.setPosition(DIAGRAM_END, 0);
-    nodes.set(eastBoundEmptyNode.getID(), eastBoundEmptyNode);
-
     let count = 0;
     connectionNodes.forEach((connectionNode, _key) => {
-        const connectionEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.SouthBound, DOT_WIDTH, connectionNode.getID());
-        connectionEmptyNode.setPosition(count++ * 30, DIAGRAM_END);
-        nodes.set(connectionEmptyNode.getID(), connectionEmptyNode);
+        if (isConnectorConnection(connectionNode.connection)) {
+            const connectionEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.SouthBound, DOT_WIDTH, connectionNode.getID());
+            connectionEmptyNode.setPosition(count++ * 30, DIAGRAM_END);
+            nodes.set(connectionEmptyNode.getID(), connectionEmptyNode);
+        } else if (isExternalService(projectId, connectionNode.connection)) {
+            const connectionEmptyNode = new EmptyModel(EMPTY_NODE, CellBounds.EastBound, DOT_WIDTH, connectionNode.getID());
+            connectionEmptyNode.setPosition(DIAGRAM_END, count++ * 30);
+            nodes.set(connectionEmptyNode.getID(), connectionEmptyNode);
+        }
     });
 
     return nodes;
@@ -326,13 +344,11 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
         const callingComponent: ComponentModel | undefined = nodes.get(component.id) as ComponentModel;
 
         component.connections.forEach((connection) => {
-            const connectionMetadata = getMetadataFromConnection(connection);
+            const connectionMetadata = getConnectionMetadata(connection);
             if (
                 connectionMetadata &&
                 (connectionMetadata.type === ConnectionType.HTTP || connectionMetadata.type === ConnectionType.GRPC) &&
-                connection.projectId &&
-                project.id === connection.projectId &&
-                connection.onPlatform
+                !isExternalService(project.name, connection)
             ) {
                 const associatedComponent = nodes.get(connectionMetadata.component) as ComponentModel;
                 if (callingComponent && associatedComponent) {
@@ -348,11 +364,11 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                     }
                 }
             }
-            if (connectionMetadata && connectionMetadata.type === ConnectionType.Connector &&  connection.onPlatform) {
+            if (isConnectorConnection(connection) && connection.onPlatform) {
                 const associatedComponent = nodes.get(connection.id) as ConnectionModel;
                 if (callingComponent && associatedComponent) {
                     const sourcePort: ComponentPortModel | null = callingComponent.getPort(`bottom-${callingComponent.getID()}`);
-                    const targetPort: ConnectorPortModel | null = associatedComponent.getPort(`top-${associatedComponent.getID()}`);
+                    const targetPort: ConnectionPortModel | null = associatedComponent.getPort(`top-${associatedComponent.getID()}`);
 
                     if (sourcePort && targetPort) {
                         const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
@@ -369,22 +385,45 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
     return links;
 }
 
-function generateConnectorLinks(emptyNodes: Map<string, EmptyModel>, connectionNodes: Map<string, ConnectionModel>): Map<string, ExternalLinkModel> {
+function generateConnectorLinks(emptyNodes: Map<string, EmptyModel>, connectorNodes: Map<string, ConnectionModel>): Map<string, ExternalLinkModel> {
     const links: Map<string, ExternalLinkModel> = new Map();
 
-    connectionNodes?.forEach((connectionNode, _key) => {
+    connectorNodes?.forEach((connectionNode, _key) => {
         const southBoundEmptyNode = emptyNodes.get(getEmptyNodeName(EMPTY_NODE, CellBounds.SouthBound, connectionNode.getID()));
         if (!southBoundEmptyNode) {
             return;
         }
         const sourcePort: CellPortModel | null = southBoundEmptyNode.getPort(getNodePortId(southBoundEmptyNode.getID(), PortModelAlignment.BOTTOM));
-        const targetPort: ConnectorPortModel | null = connectionNode.getPort(`top-${connectionNode.getID()}`);
+        const targetPort: ConnectionPortModel | null = connectionNode.getPort(`top-${connectionNode.getID()}`);
 
         if (sourcePort && targetPort) {
             const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
             const link: ExternalLinkModel = new ExternalLinkModel(linkId);
             links.set(linkId, createLinks(sourcePort, targetPort, link) as ExternalLinkModel);
             link.setSourceNode(southBoundEmptyNode.getID());
+            link.setTargetNode(connectionNode.getID());
+        }
+    });
+
+    return links;
+}
+
+function generateConnectionLinks(emptyNodes: Map<string, EmptyModel>, connectionNodes: Map<string, ConnectionModel>): Map<string, ExternalLinkModel> {
+    const links: Map<string, ExternalLinkModel> = new Map();
+
+    connectionNodes?.forEach((connectionNode, _key) => {
+        const eastboundEmptyNode = emptyNodes.get(getEmptyNodeName(EMPTY_NODE, CellBounds.EastBound, connectionNode.getID()));
+        if (!eastboundEmptyNode) {
+            return;
+        }
+        const sourcePort: CellPortModel | null = eastboundEmptyNode.getPort(getNodePortId(eastboundEmptyNode.getID(), PortModelAlignment.RIGHT));
+        const targetPort: ConnectionPortModel | null = connectionNode.getPort(`left-${connectionNode.getID()}`);
+
+        if (sourcePort && targetPort) {
+            const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+            const link: ExternalLinkModel = new ExternalLinkModel(linkId);
+            links.set(linkId, createLinks(sourcePort, targetPort, link) as ExternalLinkModel);
+            link.setSourceNode(eastboundEmptyNode.getID());
             link.setTargetNode(connectionNode.getID());
         }
     });
@@ -419,32 +458,9 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                 }
             }
         }
-        // org service links
-        component.connections.forEach((connection) => {
-            const connectionMetadata = getMetadataFromConnection(connection);
-            if (
-                connectionMetadata &&
-                (connectionMetadata.type === ConnectionType.HTTP || connectionMetadata.type === ConnectionType.GRPC) &&
-                connectionMetadata.project !== project.id
-            ) {
-                const eastBoundEmptyNode = emptyNodes.get(getEmptyNodeName(EMPTY_NODE, CellBounds.EastBound));
-                if (targetComponent && eastBoundEmptyNode) {
-                    const sourcePort: ComponentPortModel | null = targetComponent.getPort(`right-${targetComponent.getID()}`);
-                    const targetPort: CellPortModel | null = eastBoundEmptyNode.getPort(getNodePortId(eastBoundEmptyNode.getID(), PortModelAlignment.LEFT));
-
-                    if (sourcePort && targetPort) {
-                        const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
-                        const link: CellLinkModel = new CellLinkModel(linkId);
-                        links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
-                        link.setSourceNode(targetComponent.getID());
-                        link.setTargetNode(eastBoundEmptyNode.getID());
-                    }
-                }
-            }
-        });
         // connection links
         component.connections.forEach((connection) => {
-            if (connection.type === ConnectionType.Connector) {
+            if (isConnectorConnection(connection)) {
                 const southBoundEmptyNode = emptyNodes.get(getEmptyNodeName(EMPTY_NODE, CellBounds.SouthBound, connection.id));
                 if (targetComponent && southBoundEmptyNode) {
                     const sourcePort: ComponentPortModel | null = targetComponent.getPort(`bottom-${targetComponent.getID()}`);
@@ -456,6 +472,20 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(southBoundEmptyNode.getID());
+                    }
+                }
+            } else if (isExternalService(project.name, connection)) {
+                const eastBoundEmptyNode = emptyNodes.get(getEmptyNodeName(EMPTY_NODE, CellBounds.EastBound, connection.id));
+                if (targetComponent && eastBoundEmptyNode) {
+                    const sourcePort: ComponentPortModel | null = targetComponent.getPort(`right-${targetComponent.getID()}`);
+                    const targetPort: CellPortModel | null = eastBoundEmptyNode.getPort(getNodePortId(eastBoundEmptyNode.getID(), PortModelAlignment.LEFT));
+
+                    if (sourcePort && targetPort) {
+                        const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                        const link: CellLinkModel = new CellLinkModel(linkId);
+                        links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
+                        link.setSourceNode(targetComponent.getID());
+                        link.setTargetNode(eastBoundEmptyNode.getID());
                     }
                 }
             }
@@ -546,7 +576,7 @@ function getOppositeAlignment(alignment: PortModelAlignment): PortModelAlignment
     }
 }
 
-export function getMetadataFromConnection(connection: Connection): ConnectionMetadata | null {
+export function getConnectionMetadata(connection: Connection): ConnectionMetadata | null {
     const ids = connection.id.split(":");
     if (ids.length == 4) {
         return {
@@ -555,13 +585,13 @@ export function getMetadataFromConnection(connection: Connection): ConnectionMet
             project: ids[1],
             component: ids[2],
             service: ids[3],
-        };
-    } else if (connection.type === ConnectionType.Connector && ids.length == 2) {
+        } as ServiceMetadata;
+    } else if (isConnectorConnection(connection) && ids.length == 2) {
         return {
-            type: ConnectionType.Connector,
+            type: connection.type,
             organization: ids[0],
             package: ids[1],
-        };
+        } as ConnectorMetadata;
     }
     return null;
 }
@@ -571,6 +601,7 @@ export function getConnectionIdFromMetadata(metadata: ConnectionMetadata): strin
         case ConnectionType.HTTP:
             return `${metadata.organization}:${metadata.project}:${metadata.component}:${metadata.service}`;
         case ConnectionType.Connector:
+        case ConnectionType.Datastore:
             return `${metadata.organization}:${(metadata as ConnectorMetadata).package}`;
         default:
             return "";
@@ -579,4 +610,16 @@ export function getConnectionIdFromMetadata(metadata: ConnectionMetadata): strin
 
 export function getComponentIdFromMetadata(organization: string, project: string, component: string): string {
     return `${organization}:${project}:${component}`;
+}
+
+// check external service
+export function isExternalService(projectId: string, connection: Connection): boolean {
+    const metadata = getConnectionMetadata(connection);
+    return !isConnectorConnection(connection) && metadata && (metadata as ServiceMetadata).project !== projectId;
+}
+
+// check is connector connection
+export function isConnectorConnection(connection: Connection): boolean {
+    // connector and datastore treat as connector connections
+    return connection.type === ConnectionType.Connector || connection.type === ConnectionType.Datastore;
 }
