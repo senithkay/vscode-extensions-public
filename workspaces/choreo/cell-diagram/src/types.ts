@@ -42,7 +42,7 @@ export interface Service {
     label: string;
     type: string;
     dependencyIds: string[];
-    isExposedToInternet: boolean;
+    deploymentMetadata?: DeploymentMetadata;
 }
 
 export interface Connection {
@@ -73,3 +73,14 @@ export interface ConnectorMetadata {
 }
 
 export type ConnectionMetadata = ServiceMetadata | ConnectorMetadata;
+
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    }
+}

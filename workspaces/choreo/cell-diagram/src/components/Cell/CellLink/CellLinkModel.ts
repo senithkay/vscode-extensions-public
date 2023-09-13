@@ -41,8 +41,13 @@ export class CellLinkModel extends SharedLinkModel {
 
         if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP
             && getEmptyNodeName(EMPTY_NODE, CellBounds.NorthBound) === this.sourceNode.nodeId) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10} ${targetPort.y - 15},
+                points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10} ${targetPort.y - 15},
 					${targetPort.x - 10} ${targetPort.y - 15}`;
+        }
+        if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT
+            && getEmptyNodeName(EMPTY_NODE, CellBounds.WestBound) === this.sourceNode.nodeId) {
+                points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14} ${targetPort.y + 10},
+                    ${targetPort.x - 14} ${targetPort.y - 10}`;
         }
         return points;
     }

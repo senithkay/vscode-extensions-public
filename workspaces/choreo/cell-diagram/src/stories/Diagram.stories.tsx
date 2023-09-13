@@ -24,7 +24,16 @@ const singleComponentModel: Project = {
                     label: "basepath",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
             },
             connections: [],
@@ -47,7 +56,16 @@ const singleExposedComponentModel: Project = {
                     label: "basepath",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: true,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
                 },
             },
             connections: [],
@@ -70,14 +88,32 @@ const simpleModel: Project = {
                     label: "users",
                     type: "http",
                     dependencyIds: ["ABC:A:Users:svc2Basepath"],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
                 "ABC:A:Users:admin": {
                     id: "ABC:A:Users:admin",
                     label: "admin",
                     type: "http",
                     dependencyIds: ["ABC:A:Inventories:svc2Basepath", "salesforce://salesforceCorporate"],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -107,7 +143,16 @@ const simpleModel: Project = {
                     label: "inventories",
                     type: "http",
                     dependencyIds: ["ABC:A:Inventories:svc2Basepath"],
-                    isExposedToInternet: true,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -136,7 +181,16 @@ const simpleModel: Project = {
                     label: "payments",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -166,7 +220,16 @@ const simpleModel: Project = {
                     label: "basepath",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: true,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
                 },
             },
             connections: [],
@@ -208,7 +271,16 @@ const complexModel: Project = {
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: true,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -228,7 +300,16 @@ const complexModel: Project = {
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -248,7 +329,16 @@ const complexModel: Project = {
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -281,7 +371,16 @@ const complexModel: Project = {
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -302,7 +401,16 @@ const complexModel: Project = {
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: true,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
                 },
             },
             connections: [
@@ -332,7 +440,16 @@ const complexModel: Project = {
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
-                    isExposedToInternet: false,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
                 },
             },
             connections: [],
@@ -364,7 +481,6 @@ const complexModel: Project = {
             services: {},
             connections: [],
         },
-        // ... Repeat for other components
     ],
     configurations: [
         {

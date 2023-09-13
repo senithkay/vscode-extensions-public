@@ -436,19 +436,41 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
 
     project.components?.forEach((component, _key) => {
         const targetComponent: ComponentModel | undefined = nodes.get(component.id) as ComponentModel;
-        // public exposed services links
+        // internet/public exposed services links
         if (targetComponent) {
             let isExposed = false;
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
                     const service = component.services[serviceId];
-                    isExposed = isExposed || service.isExposedToInternet;
+                    isExposed = isExposed || service.deploymentMetadata?.gateways.internet.isExposed;
                 }
             }
             const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(EMPTY_NODE, CellBounds.NorthBound));
             if (isExposed && northBoundEmptyNode) {
                 const sourcePort: CellPortModel | null = northBoundEmptyNode.getPort(getNodePortId(northBoundEmptyNode.getID(), PortModelAlignment.BOTTOM));
                 const targetPort: ComponentPortModel | null = targetComponent.getPort(`top-${targetComponent.getID()}`);
+                if (sourcePort && targetPort) {
+                    const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                    const link: CellLinkModel = new CellLinkModel(linkId);
+                    links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
+                    link.setSourceNode(northBoundEmptyNode.getID());
+                    link.setTargetNode(targetComponent.getID());
+                }
+            }
+        }
+        // intranet/org exposed services links
+        if (targetComponent) {
+            let isExposed = false;
+            for (const serviceId in component.services) {
+                if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
+                    const service = component.services[serviceId];
+                    isExposed = isExposed || service.deploymentMetadata?.gateways.intranet.isExposed;
+                }
+            }
+            const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(EMPTY_NODE, CellBounds.WestBound));
+            if (isExposed && northBoundEmptyNode) {
+                const sourcePort: CellPortModel | null = northBoundEmptyNode.getPort(getNodePortId(northBoundEmptyNode.getID(), PortModelAlignment.RIGHT));
+                const targetPort: ComponentPortModel | null = targetComponent.getPort(`left-${targetComponent.getID()}`);
                 if (sourcePort && targetPort) {
                     const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
                     const link: CellLinkModel = new CellLinkModel(linkId);
