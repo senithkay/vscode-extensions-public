@@ -47,7 +47,7 @@ export function UnionField(props: UnionFieldProps) {
                     port={node.getPort(`left-${field}`)}
                     engine={engine}
                 />
-                <FieldName style={{ marginLeft: '7px' }}>
+                <FieldName style={{ marginLeft: '7px' }} data-testid={`union-field-${field}`}>
                     {field}
                 </FieldName>
                 <GraphqlBasePortWidget

@@ -58,16 +58,16 @@ export function ResourceField(props: ResourceFieldProps) {
     const classes = popOverStyle();
 
     return (
-        <NodeFieldContainer>
+        <NodeFieldContainer data-testid={`hierarchical-field-card-${resource.identifier}`}>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${path}`)}
                 engine={engine}
             />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }} data-testid={`hierarchical-field-${resource.identifier}`}>
                 {resource.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
-                <FieldType>{resource.returns}</FieldType>
+                <FieldType data-testid={`hierarchical-field-type-${resource.returns}`}>{resource.returns}</FieldType>
             </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}

@@ -31,7 +31,7 @@ export function RecordNodeWidget(props: RecordNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.recordObject.name;
 
     return (
-        <RecordNode isSelected={isNodeSelected}>
+        <RecordNode isSelected={isNodeSelected} data-testid={`record-node-${node?.recordObject?.name}`}>
             <RecordHeadWidget engine={engine} node={node} />
             {node.recordObject.recordFields.map((field, index) => {
                 return (

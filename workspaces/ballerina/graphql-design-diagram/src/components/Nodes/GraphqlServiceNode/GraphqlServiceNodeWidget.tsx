@@ -26,7 +26,7 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
     const { node, engine } = props;
 
     return (
-        <ServiceNode>
+        <ServiceNode data-testid={`graphql-root-node-${node.serviceObject.serviceName ? node.serviceObject.serviceName : "/root"}`}>
             <ServiceHeadWidget
                 engine={engine}
                 node={node}

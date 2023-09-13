@@ -107,7 +107,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            <div onClick={handleCanvasClick}>
+            <div onClick={handleCanvasClick} data-testid="graphql-canvas-widget">
                 <CanvasWidgetContainer>
                     <NavigationWrapperCanvasWidget
                         diagramEngine={diagramEngine}

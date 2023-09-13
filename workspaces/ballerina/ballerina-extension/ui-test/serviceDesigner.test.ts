@@ -44,7 +44,6 @@ service /breakingbad on new http:Listener(9090) {
         workbench = new Workbench();
         driver = browser.driver;
         webview = new WebView();
-        await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         const textEditor = new TextEditor();
         await textEditor.setText(ORIGINAL_CONTENT);
