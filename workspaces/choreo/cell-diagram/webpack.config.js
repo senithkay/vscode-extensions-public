@@ -59,7 +59,7 @@ module.exports = {
   },
   devServer: {
     allowedHosts: 'all',
-    port: 9000,
+    port: 3001,
     headers: {
       'Access-Control-Allow-Origin': '*',
     },

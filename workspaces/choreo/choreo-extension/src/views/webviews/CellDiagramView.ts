@@ -72,8 +72,8 @@ export class CellDiagramView {
                 <script>
                     function render() {
                         cellDiagram.renderDiagram(
-							document.getElementById("root"),
-							${JSON.stringify(project)}
+                            ${JSON.stringify(project)},
+							document.getElementById("root")
 						);
                     }
                     render();

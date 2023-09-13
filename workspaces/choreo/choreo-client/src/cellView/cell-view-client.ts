@@ -11,34 +11,41 @@
  *  associated services.
  */
 import { IChoreoCellViewClient } from "./types";
-import {
-    CMDependency,
-    CMResourceFunction,
-    CMService,
-    ComponentModel,
-    Project as ProjectModel
-} from "@wso2-enterprise/ballerina-languageclient";
+import { CMService } from "@wso2-enterprise/ballerina-languageclient";
 import { workspace } from "vscode";
 import { existsSync, readFileSync } from "fs";
 import {
-    Component,
     ComponentDisplayType,
     Connection,
     Endpoint,
     Organization,
+    Project,
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
 import { ChoreoProjectClient } from "../project";
-import { dirname, join } from "path";
 import * as yaml from 'js-yaml';
-
-const MODEL_VERSION = "0.4.0";
+import { CHOREO_CONFIG_DIR,
+    COMPONENTS_FILE,
+    ENDPOINTS_FILE,
+    getComponentDirPath,
+    getConnectionModels,
+    getDefaultComponentModel,
+    getDefaultProjectModel,
+    getDefaultServiceModel,
+    getServiceModels,
+    jobComponents,
+    serviceComponents,
+    webAppComponents
+} from "./utils";
 
 export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
     constructor(private _projectClient: ChoreoProjectClient) {
     }
+
+    private projects: Project[] = [];
+    private projectNameToIdMap: Map<string, string> = new Map();
 
     async getProjectModel(organization: Organization, projectId: string) {
 
@@ -47,9 +54,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             throw new Error("Workspace file not found");
         }
 
-        const project = (await this._projectClient.getProjects(
-            {orgId: organization.id, orgHandle: organization.handle}
-        )).find(project => project.id === projectId);
+        const project = (await this.getProjects(organization)).find(project => project.id === projectId);
 
         if (!project) {
             throw new Error(`Project with id ${projectId} not found under organization ${organization.name}`);
@@ -58,189 +63,92 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
         const projectModel = getDefaultProjectModel(projectId, project.name);
         const workspaceFileLocation = workspaceFile.fsPath;
 
-        if (workspaceFileLocation) {
-            const { id: orgId, handle: orgHandle, uuid: orgUuid, name: orgName  } = organization;
-
-            const choreoComponents = await this._projectClient.getComponents(
-                {projId: projectId, orgId, orgHandle, orgUuid}
-            );
-            const nonBalComponents = choreoComponents?.filter((item) => item.displayType?.startsWith("byoc"));
-
-            nonBalComponents?.forEach((component) => {
-                const defaultComponentModel = getDefaultComponentModel(component, organization);
-                const componentPath = getComponentDirPath(component, workspaceFileLocation);
-
-                if (component.displayType === ComponentDisplayType.ByocService && componentPath) {
-                    const yamlPath = path.join(componentPath, ".choreo", "component.yaml");
-
-                    if (existsSync(yamlPath)) {
-                        const endpointsContent = yaml.load(readFileSync(yamlPath, "utf8"));
-                        const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
-                        const connections: Connection[] = (endpointsContent as any).connections;
-
-                        const serviceModels = getServiceModels(endpoints, orgName, project.name, component.name,
-                            componentPath, yamlPath);
-                        const servicesRecord: Record<string, CMService> = {};
-                        serviceModels.forEach(service => {
-                            servicesRecord[service.id] = service;
-                        });
-                        defaultComponentModel.services = servicesRecord as any;
-                        defaultComponentModel.connections = getConnectionModels(connections);
-                    }
-                }
-                projectModel.components.push(defaultComponentModel);
-            });
+        if (!workspaceFileLocation) {
+            throw new Error("Workspace file location not found");
         }
+            
+        const { id: orgId, handle: orgHandle, uuid: orgUuid, name: orgName  } = organization;
+
+        const choreoComponents = await this._projectClient.getComponents(
+            {projId: projectId, orgId, orgHandle, orgUuid}
+        );
+
+        choreoComponents?.forEach(async (component) => {
+            const defaultComponentModel = getDefaultComponentModel(component, organization);
+            const componentPath = getComponentDirPath(component, workspaceFileLocation);
+
+            if (!componentPath) {
+                throw new Error(`Component path not found for component ${component.name}`);
+            }
+
+            const displayType = component.displayType as ComponentDisplayType;
+            if (serviceComponents.includes(displayType)) {
+                const yamlPath = path.join(componentPath, CHOREO_CONFIG_DIR, COMPONENTS_FILE)
+                    || path.join(componentPath, CHOREO_CONFIG_DIR, ENDPOINTS_FILE);
+
+                if (existsSync(yamlPath)) {
+                    const endpointsContent = yaml.load(readFileSync(yamlPath, "utf8"));
+                    const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
+                    const connections: Connection[] = (endpointsContent as any).connections;
+
+                    const serviceModels = getServiceModels(endpoints, orgName, projectId, component.name,
+                        componentPath, yamlPath);
+                    const servicesRecord: Record<string, CMService> = {};
+                    serviceModels.forEach(service => {
+                        servicesRecord[service.id] = service;
+                    });
+
+                    defaultComponentModel.services = servicesRecord as any;
+
+                    const projectNameToIdMap = await this.getProjectNameToIdMap(organization);
+                    defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
+                }
+            } else if (webAppComponents.includes(displayType)) {
+                const service: CMService = {
+                    ...getDefaultServiceModel(),
+                    type: ServiceTypes.WEBAPP,
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: { isExposed: true },
+                            intranet: { isExposed: false }
+                        }
+                    },
+                };
+                defaultComponentModel.services = {[component.name]: service} as any;
+            } else if (jobComponents.includes(displayType)) {
+                defaultComponentModel.functionEntryPoint = {
+                    id: 'main',
+                    label: component.name,
+                    annotation: { id: component.name, label: "" },
+                    type: component.displayType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask",
+                    dependencies: [],
+                    interactions: [],
+                    parameters: [],
+                    returns: []
+                }
+            }
+            projectModel.components.push(defaultComponentModel);
+        });
 
         return projectModel;
     }
-}
 
-export function getDefaultServiceModel(): CMService {
-    return {
-        id: "",
-        label: "",
-        remoteFunctions: [],
-        resourceFunctions: [],
-        type: ServiceTypes.OTHER,
-        dependencies: [],
-        annotation: { id: "", label: "" },
-    };
-}
+    async getProjects(organization: Organization) {
+        if (this.projects.length === 0) {
+            this.projects = await this._projectClient.getProjects(
+                {orgId: organization.id, orgHandle: organization.handle}
+            );
+        }
+        return this.projects;
+    }
 
-export function getServiceModels(endpoints: Endpoint[],
-                                 orgName: string,
-                                 projectName: string,
-                                 componentName: string,
-                                 componentPath: string,
-                                 yamlPath: string) {
-
-    const services: CMService[] = [];
-
-    if (endpoints && Array.isArray(endpoints)) {
-        for (const endpoint of endpoints) {
-            let resources: CMResourceFunction[] = [];
-
-            const serviceId = `${orgName}:${projectName}:${componentName}:${endpoint.name}`;
-            const defaultService = getDefaultServiceModel();
-
-            if (endpoint.schemaFilePath) {
-                const openApiPath = path.join(componentPath, endpoint.schemaFilePath);
-                resources = getResourcesFromOpenApiFile(openApiPath, serviceId);
-            }
-
-            services.push({
-                ...defaultService,
-                id: serviceId,
-                type: endpoint?.type || ServiceTypes.HTTP,
-                resourceFunctions: resources,
-                annotation: {id: serviceId, label: endpoint.name},
-                sourceLocation: {
-                    filePath: yamlPath,
-                    startPosition: {line: 0, offset: 0},
-                    endPosition: {line: 0, offset: 0},
-                },
-                deploymentMetadata: {
-                    gateways: {
-                        internet: {isExposed: endpoint?.networkVisibility === "Public"},
-                        intranet: {isExposed: endpoint?.networkVisibility === "Organization"},
-                    },
-                },
+    async getProjectNameToIdMap(organization: Organization) {
+        if (this.projectNameToIdMap.size === 0) {
+            const projects = await this.getProjects(organization);
+            projects.forEach(project => {
+                this.projectNameToIdMap.set(project.name, project.id);
             });
         }
+        return this.projectNameToIdMap;
     }
-
-    return services;
-}
-
-export function getConnectionModels(connections: Connection[]) {
-    const connectionModels: CMDependency[] = [];
-
-    if (connections && Array.isArray(connections)) {
-        for (const connection of connections) {
-            const hasServiceUrl = connection.mappings.some(mapping => Object.keys(mapping).includes('service.url'));
-            connectionModels.push({
-                id: connection.id,
-                type: hasServiceUrl ? "service" : "connector"
-            });
-        }
-    }
-
-    return connectionModels;
-}
-
-export function getDefaultComponentModel(component: Component, organization: Organization): ComponentModel {
-    const services: CMService[] = [];
-
-    services.push({
-        id: "SAMPLE_SVC_ID",
-        label: "",
-        remoteFunctions: [],
-        resourceFunctions: [],
-        type: ServiceTypes.OTHER,
-        dependencies: [],
-        annotation: { id: "", label: "" }
-    });
-    // Create a map of services
-    const serviceMap: Map<string, CMService> = new Map();
-    serviceMap.set("SAMPLE_SVC_ID", services[0]);
-    return {
-        id: component.name,
-        orgName: organization.name,
-        version: component.version,
-        modelVersion: MODEL_VERSION,
-        services: serviceMap,
-        entities: new Map(),
-        hasCompilationErrors: true,
-        connections: []
-    };
-}
-
-export function getDefaultProjectModel(id: string, name: string): ProjectModel {
-    return {
-        id: id,
-        name: name,
-        components: [],
-        version: MODEL_VERSION
-    };
-}
-
-export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: string) => {
-    const resourceList: CMResourceFunction[] = [];
-    if (existsSync(openApiFilePath)) {
-        const apiSchema: any = yaml.load(readFileSync(openApiFilePath, "utf8"));
-        const paths = apiSchema.paths;
-        for (const pathKey of Object.keys(paths)) {
-            for (const pathMethod of Object.keys(paths[pathKey])) {
-                resourceList.push({
-                    id: `${serviceId}:${pathKey}:${pathMethod}`,
-                    label: "",
-                    path: pathKey,
-                    interactions: [],
-                    parameters: [],
-                    returns: [],
-                });
-            }
-        }
-    }
-    return resourceList;
-};
-
-export const getComponentDirPath = (component: Component, projectLocation: string) => {
-    const repository = component.repository;
-    if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
-        const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
-        if (appSubPath) {
-            return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
-        } else if (byocWebAppBuildConfig) {
-            if (byocWebAppBuildConfig?.dockerContext) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.dockerContext);
-            } else if (byocWebAppBuildConfig?.outputDirectory) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.outputDirectory);
-            }
-        } else if (byocBuildConfig) {
-            return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
-        }
-    }
-    return undefined;
 }
