@@ -33,6 +33,11 @@ export interface EnumType {
     value: ResolvedTypeForExpression;
 }
 
+export interface EnumInfo {
+    filePath: string;
+    enum: ComponentInfo;
+  }
+
 export interface DMEnumTypeDecl {
     varName: string;
     type: Type;
@@ -51,7 +56,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
     public hasNoMatchingFields: boolean;
     public x: number;
     public numberOfFields: number;
-    private enums: ComponentInfo[];
+    private enums: EnumInfo[];
 
     constructor(public context: IDataMapperContext, public value: Map<string, ModuleVariable>) {
         super(context, ENUM_TYPE_SOURCE_NODE_TYPE);
@@ -93,7 +98,10 @@ export class EnumTypeNode extends DataMapperNodeModel {
         for (const pkg of componentResponse.packages) {
             for (const mdl of pkg.modules) {
                 for (const enumType of mdl.enums) {
-                    this.enums.push(enumType);
+                    this.enums.push({
+                        filePath: pkg.filePath,
+                        enum: enumType,
+                    });
                 }
             }
         }
@@ -108,16 +116,21 @@ export class EnumTypeNode extends DataMapperNodeModel {
                     offset: type.requestedRange.startLine.offset,
                 }
             );
+            const path1 = Uri.parse(definitionPosition.defFilePath).fsPath;
             for (const enumType of this.enums) {
-                const contains = containsWithin(definitionPosition.syntaxTree?.position, {
-                    startLine: enumType.startLine,
-                    startColumn: enumType.startColumn,
-                    endLine: enumType.endLine,
-                    endColumn: enumType.endColumn,
+                const path2 = Uri.parse(enumType.filePath + enumType.enum.filePath).fsPath;
+                const contains = containsWithin(
+                    path1,
+                    path2,
+                    definitionPosition.syntaxTree?.position, {
+                    startLine: enumType.enum.startLine,
+                    startColumn: enumType.enum.startColumn,
+                    endLine: enumType.enum.endLine,
+                    endColumn: enumType.enum.endColumn,
                 });
                 if (contains) {
                     enumTypes.push({
-                        enumName: enumType.name,
+                        enumName: enumType.enum.name,
                         value: type,
                     });
                     break;

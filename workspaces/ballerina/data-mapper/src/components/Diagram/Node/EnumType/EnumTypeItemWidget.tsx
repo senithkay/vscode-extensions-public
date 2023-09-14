@@ -15,16 +15,21 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import classNames from "classnames";
 
-import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../Port";
+import {
+    DataMapperPortWidget,
+    PortState,
+    RecordFieldPortModel,
+} from "../../Port";
 import { getTypeName } from "../../utils/dm-utils";
 import { InputSearchHighlight } from "../commons/Search";
 
-import { DMEnumTypeDecl } from "./EnumTypeNode";
+import { DMEnumTypeDecl, DMEnumTypeMember } from "./EnumTypeNode";
 import { useStyles } from "./styles";
 
 export interface EnumTypeItemWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
-    enumType: DMEnumTypeDecl;
+    enumType?: DMEnumTypeDecl;
+    enumMember?: DMEnumTypeMember;
     engine: DiagramEngine;
     treeDepth?: number;
     getPort: (portId: string) => RecordFieldPortModel;
@@ -37,6 +42,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
     const {
         engine,
         enumType,
+        enumMember,
         id,
         treeDepth = 0,
         getPort,
@@ -49,17 +55,20 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
 
-    const typeName = getTypeName(enumType.type);
+    const enumValue = enumType || enumMember;
+    const isType = treeDepth === 0;
+    const typeName = getTypeName(enumValue.type);
     const portOut = getPort(`${id}.OUT`);
     const expanded = !(portOut && portOut.collapsed);
-    const hasFields = !!enumType?.fields?.length;
 
-    const indentation = hasFields ? 0 : (treeDepth + 1) * 16 + 8;
-    const isHeader = treeDepth === 0;
+    const indentation = isType ? 0 : (treeDepth + 1) * 16 + 8;
 
     const label = (
         <span style={{ marginRight: "auto" }}>
-            <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
+            <span
+                className={classes.valueLabel}
+                style={{ marginLeft: indentation }}
+            >
                 <InputSearchHighlight>{valueLabel}</InputSearchHighlight>
                 {typeName && ":"}
             </span>
@@ -88,22 +97,28 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
             <div
                 id={"recordfield-" + id}
                 className={classNames(
-                    isHeader ? classes.headerTreeLabel : classes.treeLabel,
-                    portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
+                    isType ? classes.headerTreeLabel : classes.treeLabel,
+                    portState !== PortState.Unselected
+                        ? classes.treeLabelPortSelected
+                        : "",
                     hasHoveredParent ? classes.treeLabelParentHovered : ""
                 )}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
-                    {hasFields && (
+                    {isType && (
                         <IconButton
                             id={"button-wrapper-" + id}
                             className={classes.expandIcon}
                             style={{ marginLeft: treeDepth * 16 }}
                             onClick={handleExpand}
                         >
-                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                            {expanded ? (
+                                <ExpandMoreIcon />
+                            ) : (
+                                <ChevronRightIcon />
+                            )}
                         </IconButton>
                     )}
                     {label}
@@ -118,7 +133,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
                     )}
                 </span>
             </div>
-            {hasFields &&
+            {isType &&
                 expanded &&
                 enumType.fields.map((subField) => {
                     return (
@@ -126,7 +141,7 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
                             key={`${id}.${subField.varName}`}
                             id={`${id}.${subField.varName}`}
                             engine={engine}
-                            enumType={subField}
+                            enumMember={subField}
                             treeDepth={treeDepth + 1}
                             getPort={getPort}
                             handleCollapse={handleCollapse}

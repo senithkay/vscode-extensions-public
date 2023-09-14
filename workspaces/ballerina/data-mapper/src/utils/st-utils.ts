@@ -31,9 +31,14 @@ export function isPositionsEquals(position1: NodePosition, position2: NodePositi
         position1?.endColumn === position2?.endColumn;
 }
 
-export function containsWithin(position: NodePosition, within: NodePosition) {
-    return position.startLine >= within.startLine &&
-        position.endLine <= within.endLine
+export function containsWithin(
+    filePath1: string,
+    filePath2: string,
+    position1: NodePosition,
+    position2: NodePosition) {
+    return (filePath1 === filePath2) &&
+    (position1.startLine >= position2.startLine &&
+        position1.endLine <= position2.endLine)
 }
 
 export function genLetClauseVariableName(intermediateClauses: (STNode)[]): string {
