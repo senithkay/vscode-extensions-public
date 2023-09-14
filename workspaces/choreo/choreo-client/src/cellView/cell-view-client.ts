@@ -73,7 +73,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             {projId: projectId, orgId, orgHandle, orgUuid}
         );
 
-        choreoComponents?.forEach(async (component) => {
+        for (const component of choreoComponents) {
             const defaultComponentModel = getDefaultComponentModel(component, organization);
             const componentPath = getComponentDirPath(component, workspaceFileLocation);
 
@@ -128,7 +128,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                 }
             }
             projectModel.components.push(defaultComponentModel);
-        });
+        };
 
         return projectModel;
     }
