@@ -16,9 +16,10 @@ import {
     getNodesNLinks,
     manualDistribute,
     calculateCellWidth,
+    isRenderInsideCell,
 } from "./utils";
 import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
-import { Colors, NO_ENTITIES_DETECTED, MAIN_CELL, NO_CELL_NODE, COMPONENT_NODE } from "./resources";
+import { Colors, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
@@ -39,6 +40,7 @@ export function CellDiagram(props: CellDiagramProps) {
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>("");
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
+
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
 
     const styles = useStyles();
@@ -100,7 +102,7 @@ export function CellDiagram(props: CellDiagramProps) {
         );
 
         models.forEach((item) => {
-            if (item.getType() === COMPONENT_NODE) {
+            if (isRenderInsideCell(item)) {
                 item.registerListener({
                     eventDidFire: (e) => {
                         if (e.function === "positionChanged") {
@@ -131,7 +133,7 @@ export function CellDiagram(props: CellDiagramProps) {
             }
             // update diagram
             diagramEngine.setModel(model);
-        }, 30);
+        }, 10);
     };
 
     // refresh diagram
@@ -148,6 +150,7 @@ export function CellDiagram(props: CellDiagramProps) {
             setUserMessage(NO_CELL_NODE); // TODO: handle error properly
             return;
         }
+        
         cellNode.width = cellWidth;
         cellNode.updateDimensions({ width: cellWidth, height: cellWidth });
         cellNodeWidth.current = cellWidth;
@@ -158,7 +161,7 @@ export function CellDiagram(props: CellDiagramProps) {
             // update diagram
             diagramEngine.setModel(model);
             diagramEngine.repaintCanvas();
-        }, 30);
+        }, 10);
     };
 
     const ctx = {

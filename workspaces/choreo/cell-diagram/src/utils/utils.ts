@@ -8,6 +8,7 @@
  */
 
 import createEngine, { DiagramEngine, DiagramModel, NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams";
+import { BaseModel, BaseModelGenerics } from "@projectstorm/react-canvas-core";
 import {
     ComponentLinkModel,
     ComponentModel,
@@ -230,7 +231,7 @@ export function getComponentDiagramBoundaries(model: DiagramModel) {
         maxX = 0,
         maxY = 0;
     model.getNodes().forEach((node) => {
-        if (!(node.getType() === COMPONENT_NODE || (node.getType() === CONNECTION_NODE && (node as ConnectionModel).connection.onPlatform))) {
+        if (!isRenderInsideCell(node)) {
             return;
         }
         const nodePosition = node.getPosition().clone();
@@ -240,6 +241,10 @@ export function getComponentDiagramBoundaries(model: DiagramModel) {
         maxY = Math.max(maxY, nodePosition.y + node.height);
     });
     return { maxX, minX, maxY, minY };
+}
+
+export function isRenderInsideCell(node: BaseModel<BaseModelGenerics>): boolean {
+    return node.getType() === COMPONENT_NODE || (node.getType() === CONNECTION_NODE && (node as ConnectionModel).connection.onPlatform);
 }
 
 function generateComponentNodes(project: Project): Map<string, CommonModel> {
