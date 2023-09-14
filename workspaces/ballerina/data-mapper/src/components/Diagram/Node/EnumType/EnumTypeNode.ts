@@ -116,12 +116,12 @@ export class EnumTypeNode extends DataMapperNodeModel {
                     offset: type.requestedRange.startLine.offset,
                 }
             );
-            const path1 = Uri.parse(definitionPosition.defFilePath).fsPath;
+            const enumTypePath = Uri.parse(definitionPosition.defFilePath).fsPath;
             for (const enumType of this.enums) {
-                const path2 = Uri.parse(enumType.filePath + enumType.enum.filePath).fsPath;
+                const enumMemberPath = Uri.parse(enumType.filePath + enumType.enum.filePath).fsPath;
                 const contains = containsWithin(
-                    path1,
-                    path2,
+                    enumTypePath,
+                    enumMemberPath,
                     definitionPosition.syntaxTree?.position, {
                     startLine: enumType.enum.startLine,
                     startColumn: enumType.enum.startColumn,
