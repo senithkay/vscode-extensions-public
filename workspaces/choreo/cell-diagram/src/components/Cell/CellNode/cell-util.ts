@@ -7,10 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NAME_JOIN_CHAR } from "../../../resources/constants";
 import { CellBounds } from "./CellModel";
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
-
-export const PORT_NAME_JOIN_CHAR = "--";
 
 export function getCellPortId(name: string, bound: CellBounds, align?: PortModelAlignment, ...args: string[]): string {
     const portName = getCellPortIdWithoutAlignment(name, bound, ...args);
@@ -24,14 +23,14 @@ export function getCellPortId(name: string, bound: CellBounds, align?: PortModel
 export function getCellPortIdWithoutAlignment(name: string, bound: CellBounds, ...args: string[]): string {
     let rest = "";
     if (args.length > 0) {
-        rest = `${PORT_NAME_JOIN_CHAR}${args.join(PORT_NAME_JOIN_CHAR)}`;
+        rest = `${NAME_JOIN_CHAR}${args.join(NAME_JOIN_CHAR)}`;
     }
-    return `${name}${PORT_NAME_JOIN_CHAR}${bound}${rest !== "" ? `${rest}` : ""}`;
+    return `${name}${NAME_JOIN_CHAR}${bound}${rest !== "" ? `${rest}` : ""}`;
 }
 
 // destruct the port name to get the name, bound, alignment and args
 export function getCellPortMetadata(cellPortId: string): { name: string, bound: CellBounds, align?: PortModelAlignment, args: string[] } {
-    const parts = cellPortId.split(PORT_NAME_JOIN_CHAR);
+    const parts = cellPortId.split(NAME_JOIN_CHAR);
     const nameAndAlign = parts[0].split('-');
     let name: string;
     let align: PortModelAlignment;

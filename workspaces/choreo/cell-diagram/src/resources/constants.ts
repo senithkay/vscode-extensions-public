@@ -37,6 +37,8 @@ export const dagreEngine = new DagreEngine({
     includeLinks: true,
 });
 
+export const NAME_JOIN_CHAR = "--";
+
 // error messages
 export const NO_ENTITIES_DETECTED = 'Could not detect any components in the project.';
 export const ERRONEOUS_MODEL = 'Please resolve the diagnostics to view the cell diagram.';

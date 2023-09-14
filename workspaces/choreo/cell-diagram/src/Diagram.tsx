@@ -62,10 +62,10 @@ export function CellDiagram(props: CellDiagramProps) {
     // draw diagram
     const drawDiagram = () => {
         // check if project has components
-        if (!project?.components?.length) {
-            setUserMessage(NO_ENTITIES_DETECTED);
-            return;
-        }
+        // if (!project?.components?.length) {
+        //     setUserMessage(NO_ENTITIES_DETECTED);
+        //     return;
+        // }
         // get node and links
         const nodeNLinks = getNodesNLinks(project);
         // auto distribute component nodes, component links, empty nodes and cell links

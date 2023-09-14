@@ -37,6 +37,7 @@ import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getEmptyNodeName, getNodePortId, getCellPortMetadata } from "../components/Cell/CellNode/cell-util";
 import { CIRCLE_WIDTH, COMPONENT_NODE, CONNECTION_NODE, DOT_WIDTH, EMPTY_NODE, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
 import { Orientation } from "../components/Connection/ConnectionNode/ConnectionModel";
+import { getComponentId } from "../components/Component/ComponentNode/component-util";
 
 export type CommonModel = ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
 interface NodesAndLinks {
@@ -157,9 +158,8 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
     for (const key in cellNode.getPorts()) {
         if (Object.prototype.hasOwnProperty.call(cellNode.getPorts(), key)) {
             const port = cellNode.getPorts()[key];
-            // const portData = port.getID().split(PORT_NAME_JOIN_CHAR);
             const { bound, align, args } = getCellPortMetadata(port.getID());
-            if(!bound || !align){
+            if (!bound || !align) {
                 console.error("Cannot get cell node port metadata from port id", port.getID());
                 return;
             }
@@ -245,8 +245,9 @@ export function getComponentDiagramBoundaries(model: DiagramModel) {
 function generateComponentNodes(project: Project): Map<string, CommonModel> {
     const nodes: Map<string, CommonModel> = new Map<string, ComponentModel>();
     project.components?.forEach((component, _key) => {
-        const componentNode = new ComponentModel(component.id, component);
-        nodes.set(component.id, componentNode);
+        const componentId = getComponentId(component);
+        const componentNode = new ComponentModel(componentId, component);
+        nodes.set(componentId, componentNode);
         component.connections?.forEach((connection) => {
             // add platform connections
             if (isConnectorConnection(connection) && connection.onPlatform) {
@@ -347,7 +348,8 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
     const links: Map<string, ComponentLinkModel> = new Map();
 
     project.components?.forEach((component, _key) => {
-        const callingComponent: ComponentModel | undefined = nodes.get(component.id) as ComponentModel;
+        const componentId = getComponentId(component);
+        const callingComponent: ComponentModel | undefined = nodes.get(componentId) as ComponentModel;
 
         component.connections.forEach((connection) => {
             const connectionMetadata = getConnectionMetadata(connection);
@@ -441,7 +443,8 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
     const links: Map<string, CellLinkModel> = new Map();
 
     project.components?.forEach((component, _key) => {
-        const targetComponent: ComponentModel | undefined = nodes.get(component.id) as ComponentModel;
+        const componentId = getComponentId(component);
+        const targetComponent: ComponentModel | undefined = nodes.get(componentId) as ComponentModel;
         // internet/public exposed services links
         if (targetComponent) {
             let isExposed = false;
