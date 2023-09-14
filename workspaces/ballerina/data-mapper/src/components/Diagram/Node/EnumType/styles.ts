@@ -44,7 +44,6 @@ export const useStyles = makeStyles(
             },
             treeLabelInPort: {
                 float: "left",
-                // marginRight: "5px",
                 width: "fit-content",
                 display: "flex",
                 alignItems: "center",
