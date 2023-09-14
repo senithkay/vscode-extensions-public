@@ -7,3 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NAME_JOIN_CHAR } from "../../../resources";
+import { Component } from "../../../types";
+
+// get unique component id name from component
+export function getComponentId(component: Component): string {
+    return `${component.type}${NAME_JOIN_CHAR}${component.id}`; // TODO: add uuid to make it unique
+}
+
+export function getComponentMetadata(componentId: string): { type: string, id: string } {
+    const parts = componentId.split(NAME_JOIN_CHAR);
+    return { type: parts[0], id: parts[1] };
+}
