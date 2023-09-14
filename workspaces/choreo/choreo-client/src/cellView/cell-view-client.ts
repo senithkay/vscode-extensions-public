@@ -26,19 +26,19 @@ import * as path from "path";
 import { dirname } from "path";
 import { ChoreoProjectClient } from "../project";
 import * as yaml from 'js-yaml';
-import { CHOREO_CONFIG_DIR,
+import {
+    CHOREO_CONFIG_DIR,
     CHOREO_PROJECT_ROOT,
     COMPONENTS_FILE,
     ENDPOINTS_FILE,
+    getComoponentKind,
     getComponentDirPath,
     getConnectionModels,
     getDefaultComponentModel,
     getDefaultProjectModel,
     getDefaultServiceModel,
-    getServiceModels,
-    jobComponents,
-    serviceComponents,
-    webAppComponents
+    getGeneralizedComponentType,
+    getServiceModels
 } from "./utils";
 
 export class ChoreoCellViewClient implements IChoreoCellViewClient {
@@ -82,10 +82,11 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             
             if (existsSync(componentYamlPath)) {
                 const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8"));
-                const componentType = (componentYamlContent as any)?.type || ComponentType.Service;
-                const defaultComponentModel = getDefaultComponentModel(orgName, folder.name, componentType);
+                const componentType = (componentYamlContent as any)?.type || ComponentType.SERVICE;
+                const componentKind = getComoponentKind();
+                const defaultComponentModel = getDefaultComponentModel(orgName, folder.name, componentType, componentKind);
 
-                if (serviceComponents.includes(componentType)) {
+                if (componentType === ComponentType.SERVICE) {
                     const endpoints: Endpoint[] = (componentYamlContent as any).endpoints;
                     const connections: Connection[] = (componentYamlContent as any).connections;
 
@@ -100,7 +101,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                     const projectNameToIdMap = await this.getProjectNameToIdMap(orgId, orgHandle);
                     defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
-                } else if (webAppComponents.includes(componentType)) {
+                } else if (componentType === ComponentType.WEB_APP) {
                     const service: CMService = {
                         ...getDefaultServiceModel(),
                         type: ServiceTypes.WEBAPP,
@@ -112,7 +113,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                         },
                     };
                     defaultComponentModel.services = {[folder.name]: service} as any;
-                } else if (jobComponents.includes(componentType)) {
+                } else if (componentType === ComponentType.MANUAL_TASK || componentType === ComponentType.SCHEDULED_TASK) {
                     defaultComponentModel.functionEntryPoint = {
                         id: 'main',
                         label: folder.name,
@@ -160,16 +161,17 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
         );
 
         for (const component of choreoComponents) {
-            const defaultComponentModel = getDefaultComponentModel(orgName,
-                component.name, component.displayName as ComponentType, component.version);
+            const displayType = component.displayType as ComponentDisplayType;
+            const componentType = getGeneralizedComponentType(displayType);
+            const defaultComponentModel = getDefaultComponentModel(orgName, component.name,
+                componentType, displayType, component.version);
             const componentPath = getComponentDirPath(component, workspaceFileLocation);
 
             if (!componentPath) {
                 throw new Error(`Component path not found for component ${component.name}`);
             }
 
-            const displayType = component.displayType as ComponentDisplayType;
-            if (serviceComponents.includes(displayType)) {
+            if (componentType === ComponentType.SERVICE) {
                 const yamlPath = path.join(componentPath, CHOREO_CONFIG_DIR, COMPONENTS_FILE)
                     || path.join(componentPath, CHOREO_CONFIG_DIR, ENDPOINTS_FILE);
 
@@ -190,7 +192,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                     const projectNameToIdMap = await this.getProjectNameToIdMap(orgId, orgHandle);
                     defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
                 }
-            } else if (webAppComponents.includes(displayType)) {
+            } else if (componentType === ComponentType.WEB_APP) {
                 const service: CMService = {
                     ...getDefaultServiceModel(),
                     type: ServiceTypes.WEBAPP,
@@ -202,7 +204,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                     },
                 };
                 defaultComponentModel.services = {[component.name]: service} as any;
-            } else if (jobComponents.includes(displayType)) {
+            } else if (componentType === ComponentType.MANUAL_TASK || componentType === ComponentType.SCHEDULED_TASK) {
                 defaultComponentModel.functionEntryPoint = {
                     id: 'main',
                     label: component.name,

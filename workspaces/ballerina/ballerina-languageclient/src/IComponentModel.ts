@@ -15,6 +15,7 @@ export interface ComponentModel {
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
     type?: ComponentType;
+    kind?: ComponentDisplayType;
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
@@ -154,6 +155,17 @@ export interface CMDeploymentMetadata {
 }
 
 export enum ComponentType {
+    SERVICE = "service",
+    WEB_APP = "web-app",
+    SCHEDULED_TASK = "scheduled-task",
+    MANUAL_TASK = "manual-task",
+    API_PROXY = "api-proxy",
+    WEB_HOOK = "web-hook",
+    EVENT_HANDLER = "event-handler",
+    TEST = "test",
+}
+
+export declare enum ComponentDisplayType {
     RestApi = "restAPI",
     ManualTrigger = "manualTrigger",
     ScheduledTask = "scheduledTask",
