@@ -541,9 +541,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 				return bindingPattern?.variableName?.value === expr.source.trim();
 			} else if (node instanceof LetExpressionNode) {
 				return node.letVarDecls.some(decl => decl.varName === expr.source.trim());
-			} else if (node instanceof ModuleVariableNode) {
-				return node.value.has(expr.source.trim());
-			} else if (node instanceof EnumTypeNode) {
+			} else if (node instanceof ModuleVariableNode || node instanceof EnumTypeNode) {
 				return node.value.has(expr.source.trim());
 			} else if (node instanceof JoinClauseNode) {
 				const bindingPattern = (node.value as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
@@ -639,8 +637,7 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			if (paramType instanceof ModuleVariableNode) {
 				return dmNodes.find(node => node instanceof ModuleVariableNode) as ModuleVariableNode;
 			} else if (paramType instanceof EnumTypeNode) {
-				const nodes = dmNodes.find(node => node instanceof EnumTypeNode) as EnumTypeNode;
-				return nodes
+				return dmNodes.find(node => node instanceof EnumTypeNode) as EnumTypeNode;
 			}
 		} else {
 			return findNodeByValueNode(paramNode, dmNode);
