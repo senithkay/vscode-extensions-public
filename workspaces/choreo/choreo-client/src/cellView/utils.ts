@@ -25,7 +25,6 @@ import {
     Component,
     Connection,
     Endpoint,
-    Organization,
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
@@ -35,6 +34,7 @@ import * as yaml from 'js-yaml';
 export const CHOREO_CONFIG_DIR = ".choreo";
 export const COMPONENTS_FILE = "component.yaml";
 export const ENDPOINTS_FILE = "endpoint.yaml";
+export const CHOREO_PROJECT_ROOT = "choreo-project-root";
 
 export const serviceComponents = [ComponentDisplayType.Service, ComponentDisplayType.ByocService];
 export const webAppComponents = [ComponentDisplayType.ByocWebApp, ComponentDisplayType.ByocWebAppDockerLess];
@@ -128,7 +128,10 @@ export function getConnectionModels(orgName: string, connections: Connection[], 
     return connectionModels;
 }
 
-export function getDefaultComponentModel(component: Component, organization: Organization): ComponentModel {
+export function getDefaultComponentModel(orgName: string,
+                                        componentName: string,
+                                        componentType: ComponentType,
+                                        componentVersion?: string): ComponentModel {
     const services: CMService[] = [];
 
     services.push({
@@ -143,12 +146,14 @@ export function getDefaultComponentModel(component: Component, organization: Org
     // Create a map of services
     const serviceMap: Map<string, CMService> = new Map();
     serviceMap.set("SAMPLE_SVC_ID", services[0]);
+    
     return {
-        id: component.name,
-        orgName: organization.name,
-        version: component.version,
+        id: componentName,
+        orgName: orgName,
+        version: componentVersion,
+        ...(componentVersion && { version: componentVersion }),
         modelVersion: MODEL_VERSION,
-        type: component.displayType as ComponentType,
+        type: componentType,
         services: serviceMap,
         entities: new Map(),
         hasCompilationErrors: true,

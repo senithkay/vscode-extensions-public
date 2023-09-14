@@ -19,4 +19,5 @@ export interface GetProjectModelRequestParams {
     projectId: string;
 }
 
-export const GetProjectModelRequest: RequestType<GetProjectModelRequestParams, Project> = { method: 'cellView/getProjectModel' };
+export const GetProjectModelFromFsRequest: RequestType<GetProjectModelRequestParams, Project> = { method: 'cellView/getProjectModelFromFs' };
+export const GetProjectModelFromChoreoRequest: RequestType<GetProjectModelRequestParams, Project> = { method: 'cellView/getProjectModelFromChoreo' };
