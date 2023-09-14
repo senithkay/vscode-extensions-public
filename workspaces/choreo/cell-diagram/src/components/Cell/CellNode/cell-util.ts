@@ -8,37 +8,57 @@
  */
 
 import { CellBounds } from "./CellModel";
-import { PortModelAlignment } from '@projectstorm/react-diagrams';
+import { PortModelAlignment } from "@projectstorm/react-diagrams";
 
+export const PORT_NAME_JOIN_CHAR = "--";
 
 export function getCellPortId(name: string, bound: CellBounds, align?: PortModelAlignment, ...args: string[]): string {
-    let rest = '';
-    if (args.length > 0) {
-        rest = `-${args.join('-')}`;
+    const portName = getCellPortIdWithoutAlignment(name, bound, ...args);
+    if (align) {
+        return `${align}-${portName}`;
     }
-    return `${align ? `${align}-` : ''}${name}-${bound}${rest !== '' ? `${rest}` : ''}`;
+    return portName;
 }
 
-export function getCellPortName(name: string, bound: CellBounds, ...args: string[]): string {
-    let rest = '';
-    args?.forEach((arg) => {
-        if (arg) {
-            rest += `-${arg}`;
-        }
-    });
-    return `${name}-${bound}${rest !== '' ? `${rest}` : ''}`;
+// this will return the port name without the alignment
+export function getCellPortIdWithoutAlignment(name: string, bound: CellBounds, ...args: string[]): string {
+    let rest = "";
+    if (args.length > 0) {
+        rest = `${PORT_NAME_JOIN_CHAR}${args.join(PORT_NAME_JOIN_CHAR)}`;
+    }
+    return `${name}${PORT_NAME_JOIN_CHAR}${bound}${rest !== "" ? `${rest}` : ""}`;
+}
+
+// destruct the port name to get the name, bound, alignment and args
+export function getCellPortMetadata(cellPortId: string): { name: string, bound: CellBounds, align?: PortModelAlignment, args: string[] } {
+    const parts = cellPortId.split(PORT_NAME_JOIN_CHAR);
+    const nameAndAlign = parts[0].split('-');
+    let name: string;
+    let align: PortModelAlignment;
+    if (nameAndAlign.length == 1) {
+        name = nameAndAlign[0];
+    }else{
+        name = nameAndAlign[1];
+        align = nameAndAlign[0] as PortModelAlignment;
+    }
+    const bound = parts[1] as CellBounds;
+    let args: string[] = [];
+    if (parts.length > 2) {
+        args = parts.slice(2);
+    }
+    return { name, bound, align, args };
 }
 
 export function getNodePortId(name: string, align?: PortModelAlignment): string {
-    return `${align ? `${align}-` : ''}${name}`;
+    return `${align ? `${align}-` : ""}${name}`;
 }
 
 export function getEmptyNodeName(name: string, bound: CellBounds, ...args: string[]): string {
-    let rest = '';
+    let rest = "";
     args?.forEach((arg) => {
         if (arg) {
             rest += `-${arg}`;
         }
     });
-    return `${name}-${bound}${rest !== '' ? `${rest}` : ''}`;
+    return `${name}-${bound}${rest !== "" ? `${rest}` : ""}`;
 }

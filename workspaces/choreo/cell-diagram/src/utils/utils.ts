@@ -34,7 +34,7 @@ import {
 } from "../components";
 import { Connection, ConnectionMetadata, ConnectionType, ConnectorMetadata, Project, ServiceMetadata } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
-import { getEmptyNodeName, getNodePortId } from "../components/Cell/CellNode/cell-util";
+import { getEmptyNodeName, getNodePortId, getCellPortMetadata } from "../components/Cell/CellNode/cell-util";
 import { CIRCLE_WIDTH, COMPONENT_NODE, CONNECTION_NODE, DOT_WIDTH, EMPTY_NODE, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
 import { Orientation } from "../components/Connection/ConnectionNode/ConnectionModel";
 
@@ -157,12 +157,18 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
     for (const key in cellNode.getPorts()) {
         if (Object.prototype.hasOwnProperty.call(cellNode.getPorts(), key)) {
             const port = cellNode.getPorts()[key];
-            const portData = port.getID().split("-");
+            // const portData = port.getID().split(PORT_NAME_JOIN_CHAR);
+            const { bound, align, args } = getCellPortMetadata(port.getID());
+            if(!bound || !align){
+                console.error("Cannot get cell node port metadata from port id", port.getID());
+                return;
+            }
+            const connectionId = args?.length > 0 ? args[0] : undefined;
             // change south bound positions
-            if (portData.length > 3 && portData[2] === CellBounds.SouthBound && portData[0] === PortModelAlignment.BOTTOM) {
+            if (bound === CellBounds.SouthBound && align === PortModelAlignment.BOTTOM) {
                 const portPosition = port.getPosition().clone();
                 // change connection link positions
-                const connectionNode = model.getNode(portData[3]);
+                const connectionNode = model.getNode(connectionId);
                 const defaultNodeWidth = CIRCLE_WIDTH + 24; // padding + circle border width
                 if (connectionNode) {
                     portPosition.x = portPosition.x - connectionNode.width / 2;
@@ -177,42 +183,42 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
                             : externalLinkOffset;
                 }
             }
-            if (portData.length > 3 && portData[2] === CellBounds.SouthBound && portData[0] === PortModelAlignment.TOP) {
+            if (connectionId && bound === CellBounds.SouthBound && align === PortModelAlignment.TOP) {
                 const portPosition = port.getPosition().clone();
                 // change south bound empty node position
-                model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.SouthBound, portData[3])).setPosition(portPosition);
+                model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.SouthBound, connectionId)).setPosition(portPosition);
             }
             // change east bound positions
-            if (portData.length > 2 && portData[2] === CellBounds.EastBound && portData[0] === PortModelAlignment.RIGHT) {
+            if (connectionId && bound === CellBounds.EastBound && align === PortModelAlignment.RIGHT) {
                 const portPosition = port.getPosition().clone();
                 // change east bound external link position
-                const connectionNode = model.getNode(portData[3]);
+                const connectionNode = model.getNode(connectionId);
                 if (connectionNode) {
                     portPosition.x = portPosition.x + externalLinkOffset;
                     portPosition.y = portPosition.y - connectionNode.height / 2;
                     connectionNode.setPosition(portPosition);
                 }
             }
-            if (portData.length > 2 && portData[2] === CellBounds.EastBound && portData[0] === PortModelAlignment.LEFT) {
+            if (connectionId && bound === CellBounds.EastBound && align === PortModelAlignment.LEFT) {
                 const portPosition = port.getPosition().clone();
                 // change east bound empty node position
-                model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.EastBound, portData[3])).setPosition(portPosition);
+                model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.EastBound, connectionId)).setPosition(portPosition);
             }
-            // // change west bound external link position
-            if (portData.length > 2 && portData[2] === CellBounds.WestBound && portData[0] === PortModelAlignment.LEFT) {
+            // change west bound external link position
+            if (bound === CellBounds.WestBound && align === PortModelAlignment.LEFT) {
                 const portPosition = port.getPosition().clone();
                 model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.WestBound)).setPosition(portPosition.clone());
                 portPosition.x = portPosition.x - externalLinkOffset;
-                model.getNode(portData[2])?.setPosition(portPosition);
+                model.getNode(bound)?.setPosition(portPosition);
             }
             // change north bound positions
-            if (portData.length > 2 && portData[2] === CellBounds.NorthBound && portData[0] === PortModelAlignment.TOP) {
+            if (bound === CellBounds.NorthBound && align === PortModelAlignment.TOP) {
                 const portPosition = port.getPosition().clone();
                 // change north bound empty node position
                 model.getNode(getEmptyNodeName(EMPTY_NODE, CellBounds.NorthBound)).setPosition(portPosition.clone());
                 // change north bound external link position
                 portPosition.y = portPosition.y - externalLinkOffset;
-                model.getNode(portData[2])?.setPosition(portPosition);
+                model.getNode(bound)?.setPosition(portPosition);
             }
         }
     }

@@ -25,6 +25,7 @@ export enum ComponentType {
     EVENT_HANDLER = "event-handler",
     TEST = "test",
 }
+
 export interface Component {
     id: string;
     version: string;
