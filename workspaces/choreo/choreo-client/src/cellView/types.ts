@@ -15,5 +15,6 @@ import { Project } from "@wso2-enterprise/ballerina-languageclient";
 import { Organization } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoCellViewClient {
-    getProjectModel(org: Organization, projectId: string): Promise<Project>;
+    getProjectModelFromFs(org: Organization, projectId: string): Promise<Project>;
+    getProjectModelFromChoreo(org: Organization, projectId: string): Promise<Project>;
 }

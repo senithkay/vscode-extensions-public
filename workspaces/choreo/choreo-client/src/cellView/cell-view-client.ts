@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { IChoreoCellViewClient } from "./types";
-import { CMService } from "@wso2-enterprise/ballerina-languageclient";
+import { CMService, ComponentType } from "@wso2-enterprise/ballerina-languageclient";
 import { workspace } from "vscode";
 import { existsSync, readFileSync } from "fs";
 import {
@@ -23,20 +23,22 @@ import {
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
+import { dirname } from "path";
 import { ChoreoProjectClient } from "../project";
 import * as yaml from 'js-yaml';
-import { CHOREO_CONFIG_DIR,
+import {
+    CHOREO_CONFIG_DIR,
+    CHOREO_PROJECT_ROOT,
     COMPONENTS_FILE,
     ENDPOINTS_FILE,
+    getComoponentKind,
     getComponentDirPath,
     getConnectionModels,
     getDefaultComponentModel,
     getDefaultProjectModel,
     getDefaultServiceModel,
-    getServiceModels,
-    jobComponents,
-    serviceComponents,
-    webAppComponents
+    getGeneralizedComponentType,
+    getServiceModels
 } from "./utils";
 
 export class ChoreoCellViewClient implements IChoreoCellViewClient {
@@ -47,42 +49,129 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
     private projects: Project[] = [];
     private projectNameToIdMap: Map<string, string> = new Map();
 
-    async getProjectModel(organization: Organization, projectId: string) {
+    async getProjectModelFromFs(organization: Organization, projectId: string) {
 
+        const { id: orgId, name: orgName, handle: orgHandle } = organization;
         const workspaceFile = workspace.workspaceFile;
         if (!workspaceFile) {
             throw new Error("Workspace file not found");
         }
 
-        const project = (await this.getProjects(organization)).find(project => project.id === projectId);
+        const workspaceFileLocation = workspaceFile.fsPath;
+        if (!workspaceFileLocation) {
+            throw new Error("Workspace file location not found");
+        }
 
+        const workspaceContent = JSON.parse(readFileSync(workspaceFileLocation, "utf8"));
+        const folders = workspaceContent.folders;
+
+        const project = (await this.getProjects(orgId, orgHandle)).find(project => project.id === projectId);
         if (!project) {
             throw new Error(`Project with id ${projectId} not found under organization ${organization.name}`);
         }
 
         const projectModel = getDefaultProjectModel(projectId, project.name);
-        const workspaceFileLocation = workspaceFile.fsPath;
 
+        for (const folder of folders) {
+            if (folder.name === CHOREO_PROJECT_ROOT && folder.path === ".") {
+                continue;
+            }
+
+            const choreoDirPath = path.join(dirname(workspaceFileLocation), folder.path, '.choreo');
+            const componentYamlPath = path.join(choreoDirPath, 'component.yaml');
+            
+            if (existsSync(componentYamlPath)) {
+                const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8"));
+                const componentType = (componentYamlContent as any)?.type || ComponentType.SERVICE;
+                const componentKind = getComoponentKind();
+                const defaultComponentModel = getDefaultComponentModel(orgName, folder.name, componentType, componentKind);
+
+                if (componentType === ComponentType.SERVICE) {
+                    const endpoints: Endpoint[] = (componentYamlContent as any).endpoints;
+                    const connections: Connection[] = (componentYamlContent as any).connections;
+
+                    const serviceModels = getServiceModels(endpoints, orgName, projectId, folder.name,
+                        folder.path, componentYamlPath);
+                    const servicesRecord: Record<string, CMService> = {};
+                    serviceModels.forEach(service => {
+                        servicesRecord[service.id] = service;
+                    });
+
+                    defaultComponentModel.services = servicesRecord as any;
+
+                    const projectNameToIdMap = await this.getProjectNameToIdMap(orgId, orgHandle);
+                    defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
+                } else if (componentType === ComponentType.WEB_APP) {
+                    const service: CMService = {
+                        ...getDefaultServiceModel(),
+                        type: ServiceTypes.WEBAPP,
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: { isExposed: true },
+                                intranet: { isExposed: false }
+                            }
+                        },
+                    };
+                    defaultComponentModel.services = {[folder.name]: service} as any;
+                } else if (componentType === ComponentType.MANUAL_TASK || componentType === ComponentType.SCHEDULED_TASK) {
+                    defaultComponentModel.functionEntryPoint = {
+                        id: 'main',
+                        label: folder.name,
+                        annotation: { id: folder.name, label: "" },
+                        type: componentType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask",
+                        dependencies: [],
+                        interactions: [],
+                        parameters: [],
+                        returns: []
+                    }
+                }
+
+                projectModel.components.push(defaultComponentModel);
+            } else {
+                console.warn(`component.yaml not found in ${choreoDirPath}`);
+            }
+            
+        }
+
+        return projectModel;
+    }
+
+    async getProjectModelFromChoreo(organization: Organization, projectId: string) {
+
+        const { id: orgId, name: orgName, handle: orgHandle, uuid: orgUuid } = organization;
+        const workspaceFile = workspace.workspaceFile;
+        if (!workspaceFile) {
+            throw new Error("Workspace file not found");
+        }
+
+        const workspaceFileLocation = workspaceFile.fsPath;
         if (!workspaceFileLocation) {
             throw new Error("Workspace file location not found");
         }
-            
-        const { id: orgId, handle: orgHandle, uuid: orgUuid, name: orgName  } = organization;
+
+        const project = (await this.getProjects(orgId, orgHandle)).find(project => project.id === projectId);
+        if (!project) {
+            throw new Error(`Project with id ${projectId} not found under organization ${organization.name}`);
+        }
+
+        const projectModel = getDefaultProjectModel(projectId, project.name);
 
         const choreoComponents = await this._projectClient.getComponents(
             {projId: projectId, orgId, orgHandle, orgUuid}
         );
 
-        choreoComponents?.forEach(async (component) => {
-            const defaultComponentModel = getDefaultComponentModel(component, organization);
+        for (const component of choreoComponents) {
+            const displayType = component.displayType as ComponentDisplayType;
+            const componentType = getGeneralizedComponentType(displayType);
+            const defaultComponentModel = getDefaultComponentModel(orgName, component.name,
+                componentType, displayType, component.version);
             const componentPath = getComponentDirPath(component, workspaceFileLocation);
 
             if (!componentPath) {
                 throw new Error(`Component path not found for component ${component.name}`);
             }
 
-            const displayType = component.displayType as ComponentDisplayType;
-            if (serviceComponents.includes(displayType)) {
+            if (componentType === ComponentType.SERVICE) {
                 const yamlPath = path.join(componentPath, CHOREO_CONFIG_DIR, COMPONENTS_FILE)
                     || path.join(componentPath, CHOREO_CONFIG_DIR, ENDPOINTS_FILE);
 
@@ -100,10 +189,10 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                     defaultComponentModel.services = servicesRecord as any;
 
-                    const projectNameToIdMap = await this.getProjectNameToIdMap(organization);
+                    const projectNameToIdMap = await this.getProjectNameToIdMap(orgId, orgHandle);
                     defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
                 }
-            } else if (webAppComponents.includes(displayType)) {
+            } else if (componentType === ComponentType.WEB_APP) {
                 const service: CMService = {
                     ...getDefaultServiceModel(),
                     type: ServiceTypes.WEBAPP,
@@ -115,7 +204,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                     },
                 };
                 defaultComponentModel.services = {[component.name]: service} as any;
-            } else if (jobComponents.includes(displayType)) {
+            } else if (componentType === ComponentType.MANUAL_TASK || componentType === ComponentType.SCHEDULED_TASK) {
                 defaultComponentModel.functionEntryPoint = {
                     id: 'main',
                     label: component.name,
@@ -128,23 +217,21 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                 }
             }
             projectModel.components.push(defaultComponentModel);
-        });
+        }
 
         return projectModel;
     }
 
-    async getProjects(organization: Organization) {
+    async getProjects(orgId: number, orgHandle: string) {
         if (this.projects.length === 0) {
-            this.projects = await this._projectClient.getProjects(
-                {orgId: organization.id, orgHandle: organization.handle}
-            );
+            this.projects = await this._projectClient.getProjects({orgId, orgHandle});
         }
         return this.projects;
     }
 
-    async getProjectNameToIdMap(organization: Organization) {
+    async getProjectNameToIdMap(orgId: number, orgHandle: string) {
         if (this.projectNameToIdMap.size === 0) {
-            const projects = await this.getProjects(organization);
+            const projects = await this.getProjects(orgId, orgHandle);
             projects.forEach(project => {
                 this.projectNameToIdMap.set(project.name, project.id);
             });

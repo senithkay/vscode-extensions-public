@@ -24,7 +24,7 @@ export const CellViewButton = () => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: OPEN_CELL_DIAGRAM_EVENT,
         });
-        const project = await ChoreoWebViewAPI.getInstance().getChoreoCellView().getProjectModel(currentProjectOrg, choreoProject?.id);
+        const project = await ChoreoWebViewAPI.getInstance().getChoreoCellView().getProjectModelFromFs(currentProjectOrg, choreoProject?.id);
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view", project);
     };
 

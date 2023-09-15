@@ -33,7 +33,7 @@ export function ChoreoCellView(props: ChoreoCellViewProps) {
         if (orgName && projectId) {
             const org = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
             const projectModel =
-                await ChoreoWebViewAPI.getInstance().getChoreoCellView().getProjectModel(org, projectId);
+                await ChoreoWebViewAPI.getInstance().getChoreoCellView().getProjectModelFromFs(org, projectId);
             return projectModel;
         }
         throw new Error("Error while loading project resources.");

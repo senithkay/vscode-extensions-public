@@ -11,9 +11,10 @@
  *  associated services.
  */
 import { Messenger } from "vscode-messenger";
-import { GetProjectModelRequest } from "./types";
+import { GetProjectModelFromChoreoRequest, GetProjectModelFromFsRequest } from "./types";
 import { IChoreoCellViewClient } from "../types";
 
 export function registerChoreoCellViewRPCHandlers(messenger: Messenger, cellViewClient: IChoreoCellViewClient ) {
-   messenger.onRequest(GetProjectModelRequest, (params) => cellViewClient.getProjectModel(params.org, params.projectId));
+   messenger.onRequest(GetProjectModelFromFsRequest, (params) => cellViewClient.getProjectModelFromFs(params.org, params.projectId));
+   messenger.onRequest(GetProjectModelFromChoreoRequest, (params) => cellViewClient.getProjectModelFromChoreo(params.org, params.projectId));
 }

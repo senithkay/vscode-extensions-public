@@ -25,7 +25,6 @@ import {
     Component,
     Connection,
     Endpoint,
-    Organization,
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
@@ -35,10 +34,7 @@ import * as yaml from 'js-yaml';
 export const CHOREO_CONFIG_DIR = ".choreo";
 export const COMPONENTS_FILE = "component.yaml";
 export const ENDPOINTS_FILE = "endpoint.yaml";
-
-export const serviceComponents = [ComponentDisplayType.Service, ComponentDisplayType.ByocService];
-export const webAppComponents = [ComponentDisplayType.ByocWebApp, ComponentDisplayType.ByocWebAppDockerLess];
-export const jobComponents = [ComponentDisplayType.ByocCronjob, ComponentDisplayType.ByocJob];
+export const CHOREO_PROJECT_ROOT = "choreo-project-root";
 
 const MODEL_VERSION = "0.4.0";
 const CHOREO_CONNECTION_ID_PREFIX = "choreo://";
@@ -128,7 +124,11 @@ export function getConnectionModels(orgName: string, connections: Connection[], 
     return connectionModels;
 }
 
-export function getDefaultComponentModel(component: Component, organization: Organization): ComponentModel {
+export function getDefaultComponentModel(orgName: string,
+                                        componentName: string,
+                                        componentType: ComponentType,
+                                        componentKind: ComponentDisplayType,
+                                        componentVersion?: string): ComponentModel {
     const services: CMService[] = [];
 
     services.push({
@@ -143,12 +143,15 @@ export function getDefaultComponentModel(component: Component, organization: Org
     // Create a map of services
     const serviceMap: Map<string, CMService> = new Map();
     serviceMap.set("SAMPLE_SVC_ID", services[0]);
+    
     return {
-        id: component.name,
-        orgName: organization.name,
-        version: component.version,
+        id: componentName,
+        orgName: orgName,
+        version: componentVersion,
+        ...(componentVersion && { version: componentVersion }),
         modelVersion: MODEL_VERSION,
-        type: component.displayType as ComponentType,
+        type: componentType,
+        kind: componentKind,
         services: serviceMap,
         entities: new Map(),
         hasCompilationErrors: true,
@@ -165,7 +168,7 @@ export function getDefaultProjectModel(id: string, name: string): ProjectModel {
     };
 }
 
-export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: string) => {
+export function getResourcesFromOpenApiFile(openApiFilePath: string, serviceId: string) {
     const resourceList: CMResourceFunction[] = [];
     if (existsSync(openApiFilePath)) {
         const apiSchema: any = yaml.load(readFileSync(openApiFilePath, "utf8"));
@@ -184,9 +187,9 @@ export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: 
         }
     }
     return resourceList;
-};
+}
 
-export const getComponentDirPath = (component: Component, projectLocation: string) => {
+export function getComponentDirPath(component: Component, projectLocation: string) {
     const repository = component.repository;
     if (projectLocation && (repository?.appSubPath || repository?.byocBuildConfig)) {
         const { organizationApp, nameApp, appSubPath, byocWebAppBuildConfig, byocBuildConfig } = repository;
@@ -205,4 +208,40 @@ export const getComponentDirPath = (component: Component, projectLocation: strin
         }
     }
     return undefined;
+}
+
+export function getGeneralizedComponentType(type: ComponentDisplayType): ComponentType {
+    switch (type) {
+        case ComponentDisplayType.RestApi:
+        case ComponentDisplayType.Service:
+        case ComponentDisplayType.ByocService:
+        case ComponentDisplayType.GraphQL:
+        case ComponentDisplayType.MiApiService:
+        case ComponentDisplayType.MiRestApi:
+            return ComponentType.SERVICE;
+        case ComponentDisplayType.ManualTrigger:
+        case ComponentDisplayType.ByocJob:
+            return ComponentType.MANUAL_TASK;
+        case ComponentDisplayType.ScheduledTask:
+        case ComponentDisplayType.ByocCronjob:
+            return ComponentType.SCHEDULED_TASK;
+        case ComponentDisplayType.Webhook:
+        case ComponentDisplayType.ByocWebhook:
+            return ComponentType.WEB_HOOK;
+        case ComponentDisplayType.Proxy:
+            return ComponentType.API_PROXY;
+        case ComponentDisplayType.ByocWebApp:
+        case ComponentDisplayType.ByocWebAppDockerLess:
+            return ComponentType.WEB_APP;
+        case ComponentDisplayType.Websocket:
+        case ComponentDisplayType.MiEventHandler:
+            return ComponentType.EVENT_HANDLER;
+        default:
+            return ComponentType.SERVICE;
+    }
+}
+
+export function getComoponentKind(): ComponentDisplayType {
+    // TODO: Evaluate the component build pack and return the component kind (ballerinaService, byocService, etc.)
+    return ComponentDisplayType.Service;
 }
