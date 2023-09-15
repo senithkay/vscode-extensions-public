@@ -36,7 +36,7 @@ export interface EnumType {
 export interface EnumInfo {
     filePath: string;
     enum: ComponentInfo;
-  }
+}
 
 export interface DMEnumTypeDecl {
     varName: string;
@@ -48,7 +48,7 @@ export interface DMEnumTypeMember {
     varName: string;
     kind: ModuleVarKind;
     type: Type;
-    node: STNode
+    node: STNode;
 }
 
 export class EnumTypeNode extends DataMapperNodeModel {
@@ -62,7 +62,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
         super(context, ENUM_TYPE_SOURCE_NODE_TYPE);
         this.numberOfFields = 1;
         this.enumTypeDecls = [];
-        this.enums = [];
+        this.enums = context.moduleVariables ? context.moduleVariables.enumDecls : [];
     }
 
     async initPorts() {
@@ -86,27 +86,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
             exprRanges
         );
 
-        const componentResponse = await (
-            await this.context.langClientPromise
-        ).getBallerinaProjectComponents({
-            documentIdentifiers: [
-                {
-                    uri: Uri.file(this.context.filePath).toString(),
-                },
-            ],
-        });
-        for (const pkg of componentResponse.packages) {
-            for (const mdl of pkg.modules) {
-                for (const enumType of mdl.enums) {
-                    this.enums.push({
-                        filePath: pkg.filePath,
-                        enum: enumType,
-                    });
-                }
-            }
-        }
-
-        const enumTypes: EnumType[] = [];
+        const allEnumTypeDecls: DMEnumTypeDecl[] = [];
         for (const type of types) {
             const definitionPosition = await getDefinitionPosition(
                 this.context.filePath,
@@ -116,70 +96,71 @@ export class EnumTypeNode extends DataMapperNodeModel {
                     offset: type.requestedRange.startLine.offset,
                 }
             );
-            const enumTypePath = Uri.parse(definitionPosition.defFilePath).fsPath;
-            for (const enumType of this.enums) {
-                const enumMemberPath = Uri.parse(enumType.filePath + enumType.enum.filePath).fsPath;
-                const contains = containsWithin(
-                    enumTypePath,
-                    enumMemberPath,
-                    definitionPosition.syntaxTree?.position, {
-                    startLine: enumType.enum.startLine,
-                    startColumn: enumType.enum.startColumn,
-                    endLine: enumType.enum.endLine,
-                    endColumn: enumType.enum.endColumn,
-                });
-                if (contains) {
-                    enumTypes.push({
-                        enumName: enumType.enum.name,
-                        value: type,
-                    });
-                    break;
-                }
-            }
-        }
-
-        const allEnumTypeDecls: DMEnumTypeDecl[] = [];
-        for (const [varName, item] of this.value) {
-            for (const type of enumTypes) {
-                if (
-                    isPositionsEquals(item.exprPosition, {
-                        startLine: type.value.requestedRange.startLine.line,
-                        startColumn: type.value.requestedRange.startLine.offset,
-                        endLine: type.value.requestedRange.endLine.line,
-                        endColumn: type.value.requestedRange.endLine.offset,
-                    })
-                ) {
-                    let typeDeclared: boolean = false;
-                    const typeDecl: Type = { name: varName, ...type.value.type };
-                    for (const enumTypeDecl of allEnumTypeDecls) {
-                        if (enumTypeDecl.varName === type.enumName) {
-                            enumTypeDecl.fields.push({
-                                varName,
-                                kind: item.kind,
-                                node: item.node,
-                                type: typeDecl,
-                            });
-                            typeDeclared = true;
-                            break;
+            if (definitionPosition.parseSuccess) {
+                const enumTypePath = Uri.parse(definitionPosition.defFilePath).fsPath;
+                for (const enumType of this.enums) {
+                    const enumMemberPath = Uri.parse(
+                        enumType.filePath + enumType.enum.filePath
+                    ).fsPath;
+                    const contains = containsWithin(
+                        enumTypePath,
+                        enumMemberPath,
+                        definitionPosition.syntaxTree?.position,
+                        {
+                            startLine: enumType.enum.startLine,
+                            startColumn: enumType.enum.startColumn,
+                            endLine: enumType.enum.endLine,
+                            endColumn: enumType.enum.endColumn,
                         }
+                    );
+                    if (contains) {
+                        for (const [varName, item] of this.value) {
+                            if (
+                                isPositionsEquals(item.exprPosition, {
+                                    startLine: type.requestedRange.startLine.line,
+                                    startColumn: type.requestedRange.startLine.offset,
+                                    endLine: type.requestedRange.endLine.line,
+                                    endColumn: type.requestedRange.endLine.offset,
+                                })
+                            ) {
+                                let typeDeclared: boolean = false;
+                                const typeDecl: Type = {
+                                    name: varName,
+                                    ...type.type,
+                                };
+                                for (const enumTypeDecl of allEnumTypeDecls) {
+                                    if (enumTypeDecl.varName === enumType.enum.name) {
+                                        enumTypeDecl.fields.push({
+                                            varName,
+                                            kind: item.kind,
+                                            node: item.node,
+                                            type: typeDecl,
+                                        });
+                                        typeDeclared = true;
+                                        break;
+                                    }
+                                }
+                                if (!typeDeclared)
+                                    allEnumTypeDecls.push({
+                                        varName: enumType.enum.name,
+                                        type: {
+                                            ...type.type,
+                                            typeName: PrimitiveBalType.Enum,
+                                        },
+                                        fields: [
+                                            {
+                                                varName,
+                                                kind: item.kind,
+                                                node: item.node,
+                                                type: typeDecl,
+                                            },
+                                        ],
+                                    });
+                                break;
+                            }
+                        }
+                        break;
                     }
-                    if (!typeDeclared)
-                        allEnumTypeDecls.push({
-                            varName: type.enumName,
-                            type: {
-                                ...type.value.type,
-                                typeName: PrimitiveBalType.Enum,
-                            },
-                            fields: [
-                                {
-                                    varName,
-                                    kind: item.kind,
-                                    node: item.node,
-                                    type: typeDecl,
-                                },
-                            ],
-                        });
-                    break;
                 }
             }
         }

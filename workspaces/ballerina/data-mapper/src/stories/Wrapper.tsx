@@ -44,6 +44,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
     const [fileContent, setFileContent] = React.useState("");
     const [, setLastUpdated] = React.useState(lastUpdatedAt);
     const [functionST, setFunctionST] = React.useState<FunctionDefinition>(undefined);
+    const [moduleVariables, setModuleVaribles] = React.useState(undefined);
 
     const classes = useStyles();
 
@@ -67,6 +68,48 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
         });
         await updateFileContentOverride(filePath, stModifyResp.source);
     }
+
+    const getModuleVariables = async () => {
+        const
+        moduleVars = [],
+        consts = [],
+        enums = []
+        const langClient = await langClientPromise;
+        const componentResponse = await langClient.getBallerinaProjectComponents({
+            documentIdentifiers: [
+                {
+                    uri: Uri.file(filePath).toString(),
+                }
+            ]
+        })
+        for (const pkg of componentResponse.packages) {
+            for (const mdl of pkg.modules) {
+                for (const moduleVariable of mdl.moduleVariables) {
+                    moduleVars.push(moduleVariable);
+                }
+                for (const constant of mdl.constants) {
+                    consts.push(constant);
+                }
+                for (const enumType of mdl.enums) {
+                    enums.push({
+                        filePath: pkg.filePath,
+                        enum: enumType,
+                    });
+                }
+            }
+        }
+        setModuleVaribles({
+            moduleVarDecls: moduleVars,
+            constDecls: consts,
+            enumDecls: enums,
+        })
+    }
+
+    useEffect(() => {
+        (async () => {
+            await getModuleVariables()
+        })();
+    }, [fileContent])
 
     useEffect(() => {
         async function getSyntaxTree() {
@@ -128,6 +171,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                     <Grid item={true} xs={8}>
                         <DataMapper
                             fnST={functionST}
+                            moduleVariables={moduleVariables}
                             langClientPromise={langClientPromise}
                             filePath={filePath}
                             applyModifications={applyModifications}

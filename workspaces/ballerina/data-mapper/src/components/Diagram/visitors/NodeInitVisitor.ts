@@ -87,8 +87,8 @@ export class NodeInitVisitor implements Visitor {
     async beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
-        let moduleVariables: Map<string, ModuleVariable> = await getModuleVariables(exprFuncBody, this.context.filePath, this.context.langClientPromise);
-        let enumTypes: Map<string, ModuleVariable> = await getEnumTypes(exprFuncBody, this.context.filePath, this.context.langClientPromise);
+        let moduleVariables: Map<string, ModuleVariable> = await getModuleVariables(exprFuncBody, this.context.filePath, this.context.langClientPromise, this.context);
+        let enumTypes: Map<string, ModuleVariable> = await getEnumTypes(exprFuncBody, this.context.filePath, this.context.langClientPromise, this.context);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
             let returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
@@ -238,8 +238,8 @@ export class NodeInitVisitor implements Visitor {
                         this.queryNode = queryNode;
                         queryNode.targetPorts = expandedHeaderPorts;
                         queryNode.height = intermediateClausesHeight;
-                        moduleVariables = await getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise);
-                        enumTypes = await getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise);
+                        moduleVariables = await getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
+                        enumTypes = await getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
                     } else {
                         if (returnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
@@ -560,7 +560,7 @@ export class NodeInitVisitor implements Visitor {
                 this.otherInputNodes.push(letExprNode);
 
                 // create node for module variables
-                const moduleVariables: Map<string, ModuleVariable> = await getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise);
+                const moduleVariables: Map<string, ModuleVariable> = await getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
                 if (moduleVariables.size > 0) {
                     const moduleVarNode = new ModuleVariableNode(
                         this.context,
@@ -571,7 +571,7 @@ export class NodeInitVisitor implements Visitor {
                 }
 
                 // create node for enums
-                const enumTypes: Map<string, ModuleVariable> = await getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise);
+                const enumTypes: Map<string, ModuleVariable> = await getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
                 if (enumTypes.size > 0) {
                     const enumTypeNode = new EnumTypeNode(
                         this.context,
