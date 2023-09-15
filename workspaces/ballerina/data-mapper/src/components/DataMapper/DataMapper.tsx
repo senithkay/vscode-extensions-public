@@ -111,7 +111,8 @@ export interface DataMapperProps {
     };
     openedViaPlus?: boolean;
     ballerinaVersion?: string;
-    stSymbolInfo?: STSymbolInfo
+    stSymbolInfo?: STSymbolInfo;
+    moduleVariables: any;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
     goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
@@ -196,6 +197,7 @@ function DataMapperC(props: DataMapperProps) {
         currentFile,
         openedViaPlus,
         stSymbolInfo,
+        moduleVariables,
         applyModifications,
         updateFileContent,
         goToSource,
@@ -346,6 +348,7 @@ function DataMapperC(props: DataMapperProps) {
                     langClientPromise,
                     currentFile,
                     stSymbolInfo,
+                    moduleVariables,
                     handleSelectedST,
                     applyModifications,
                     goToSource,

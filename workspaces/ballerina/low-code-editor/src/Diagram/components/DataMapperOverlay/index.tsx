@@ -12,6 +12,7 @@ import React, { useContext, useEffect, useRef } from "react";
 import { DataMapper } from "@wso2-enterprise/ballerina-data-mapper";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ComponentInfo,
     ComponentViewInfo,
     ConfigOverlayFormStatus,
     DiagramEditorLangClientInterface,
@@ -66,6 +67,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
         React.useState<FunctionDefinition>(undefined);
     const [newFnName, setNewFnName] = React.useState("");
     const isMounted = useRef(false);
+    const [moduleVariables, setModuleVaribles] = React.useState(undefined);
 
     useEffect(() => {
         (async () => {
@@ -84,10 +86,52 @@ export function DataMapperOverlay(props: DataMapperProps) {
     }, [currentFile.content]);
 
     useEffect(() => {
+        (async () => {
+            await getModuleVariables()
+        })();
+    }, [currentFile.content])
+
+    useEffect(() => {
         if (model && STKindChecker.isFunctionDefinition(model)) {
             setFunctionST(model);
         }
     }, [model]);
+
+    const getModuleVariables = async () => {
+        const
+        moduleVars = [],
+        consts = [],
+        enums = []
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+        const componentResponse = await langClient.getBallerinaProjectComponents({
+            documentIdentifiers: [
+                {
+                    uri: Uri.file(currentFile.path).toString(),
+                }
+            ]
+        })
+        for (const pkg of componentResponse.packages) {
+            for (const mdl of pkg.modules) {
+                for (const moduleVariable of mdl.moduleVariables) {
+                    moduleVars.push(moduleVariable);
+                }
+                for (const constant of mdl.constants) {
+                    consts.push(constant);
+                }
+                for (const enumType of mdl.enums) {
+                    enums.push({
+                        filePath: pkg.filePath,
+                        enum: enumType,
+                    });
+                }
+            }
+        }
+        setModuleVaribles({
+            moduleVarDecls: moduleVars,
+            constDecls: consts,
+            enumDecls: enums,
+        })
+    }
 
     const handleFunctionST = async (funcName: string) => {
         const langClient: DiagramEditorLangClientInterface =
@@ -155,6 +199,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                     currentFile={currentFile}
                     openedViaPlus={openedViaPlus}
                     stSymbolInfo={stSymbolInfo}
+                    moduleVariables={moduleVariables}
                     ballerinaVersion={ballerinaVersion}
                     applyModifications={modifyDiagram}
                     updateFileContent={updateFileContent}

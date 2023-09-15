@@ -22,6 +22,7 @@ import { containsWithin } from "../../../utils/st-utils";
 import { EnumInfo } from "../Node/EnumType";
 import { ModuleVariable, ModuleVarKind } from "../Node/ModuleVariable";
 import { getDefinitionPosition } from "../utils/ls-utils";
+import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 
 export class ModuleVariablesFindingVisitor implements Visitor {
     private readonly moduleVariables: Map<string, ModuleVariable>;
@@ -35,7 +36,8 @@ export class ModuleVariablesFindingVisitor implements Visitor {
 
     constructor(
         filePath: string,
-        langClientPromise: Promise<IBallerinaLangClient>
+        langClientPromise: Promise<IBallerinaLangClient>,
+        context: IDataMapperContext
     ) {
         this.moduleVariables = new Map<string, ModuleVariable>();
         this.enumTypes = new Map<string, ModuleVariable>();
@@ -43,37 +45,9 @@ export class ModuleVariablesFindingVisitor implements Visitor {
         this.langClientPromise = langClientPromise;
         this.queryExpressionDepth = 0;
 
-        this.moduleVarDecls = [];
-        this.constDecls = [];
-        this.enums = [];
-    }
-
-    public async init() {
-        const langClient = await this.langClientPromise;
-        const componentResponse =
-            await langClient.getBallerinaProjectComponents({
-                documentIdentifiers: [
-                    {
-                        uri: Uri.file(this.filePath).toString(),
-                    },
-                ],
-            });
-        for (const pkg of componentResponse.packages) {
-            for (const mdl of pkg.modules) {
-                for (const moduleVariable of mdl.moduleVariables) {
-                    this.moduleVarDecls.push(moduleVariable);
-                }
-                for (const constant of mdl.constants) {
-                    this.constDecls.push(constant);
-                }
-                for (const enumType of mdl.enums) {
-                    this.enums.push({
-                        filePath: pkg.filePath,
-                        enum: enumType,
-                    });
-                }
-            }
-        }
+        this.moduleVarDecls = context.moduleVariables ? context.moduleVariables.moduleVarDecls : [];
+        this.constDecls = context.moduleVariables ? context.moduleVariables.constDecls : [];
+        this.enums = context.moduleVariables ? context.moduleVariables.enumDecls : [];
     }
 
     public async beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {
@@ -84,10 +58,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
             this.queryExpressionDepth === 0
         ) {
             const varName = node.source.trim().split(".")[0];
-            const moduleVarKind = await this.getModuleVarKind(
-                varName,
-                node.position
-            );
+            const moduleVarKind = await this.getModuleVarKind(varName, node.position);
             if (moduleVarKind !== undefined) {
                 this.moduleVariables.set(varName, {
                     kind: moduleVarKind,
@@ -97,10 +68,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
         }
     }
 
-    public async beginVisitOptionalFieldAccess(
-        node: OptionalFieldAccess,
-        parent?: STNode
-    ) {
+    public async beginVisitOptionalFieldAccess(node: OptionalFieldAccess, parent?: STNode) {
         if (
             (!parent ||
                 (!STKindChecker.isFieldAccess(parent) &&
@@ -108,10 +76,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
             this.queryExpressionDepth === 0
         ) {
             const varName = node.source.trim().split(".")[0];
-            const moduleVarKind = await this.getModuleVarKind(
-                varName,
-                node.position
-            );
+            const moduleVarKind = await this.getModuleVarKind(varName, node.position);
             if (moduleVarKind !== undefined) {
                 this.moduleVariables.set(varName, {
                     kind: moduleVarKind,
@@ -121,10 +86,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
         }
     }
 
-    public async beginVisitSimpleNameReference(
-        node: SimpleNameReference,
-        parent?: STNode
-    ) {
+    public async beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
         if (
             STKindChecker.isIdentifierToken(node.name) &&
             (!parent ||
@@ -133,10 +95,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
                     !STKindChecker.isOptionalFieldAccess(parent))) &&
             this.queryExpressionDepth === 0
         ) {
-            const moduleVarKind = await this.getModuleVarKind(
-                node.name.value,
-                node.position
-            );
+            const moduleVarKind = await this.getModuleVarKind(node.name.value, node.position);
             if (moduleVarKind === ModuleVarKind.Enum) {
                 this.enumTypes.set(node.name.value, {
                     kind: moduleVarKind,
@@ -173,19 +132,17 @@ export class ModuleVariablesFindingVisitor implements Visitor {
             }
         });
         if (this.enums) {
-            for (const component of this.enums) {
-                const definitionPosition = await getDefinitionPosition(
-                    this.filePath,
-                    this.langClientPromise,
-                    {
-                        line: position.startLine,
-                        offset: position.startColumn,
-                    }
-                );
-                if (definitionPosition.parseSuccess) {
-                    const enumTypePath = Uri.parse(
-                        definitionPosition.defFilePath
-                    ).fsPath;
+            const definitionPosition = await getDefinitionPosition(
+                this.filePath,
+                this.langClientPromise,
+                {
+                    line: position.startLine,
+                    offset: position.startColumn,
+                }
+            );
+            if (definitionPosition.parseSuccess) {
+                const enumTypePath = Uri.parse(definitionPosition.defFilePath).fsPath;
+                for (const component of this.enums) {
                     const enumMemberPath = Uri.parse(
                         component.filePath + component.enum.filePath
                     ).fsPath;

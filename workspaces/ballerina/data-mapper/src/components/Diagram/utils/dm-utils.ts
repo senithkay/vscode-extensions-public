@@ -91,6 +91,7 @@ import {
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
+import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -935,16 +936,14 @@ export function getInputNodes(node: STNode) {
 	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
-export async function getModuleVariables(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>) {
-	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise);
-	await moduleVarFindingVisitor.init();
+export async function getModuleVariables(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
+	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise, context);
 	await traversNodeAsync(node, moduleVarFindingVisitor);
 	return moduleVarFindingVisitor.getModuleVariables();
 }
 
-export async function getEnumTypes(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>) {
-	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise);
-	await enumTypeFindingVisitor.init();
+export async function getEnumTypes(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
+	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise, context);
 	await traversNodeAsync(node, enumTypeFindingVisitor);
 	return enumTypeFindingVisitor.getEnumTypes();
 }
