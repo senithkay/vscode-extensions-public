@@ -33,9 +33,12 @@ import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
+import { WorkspaceFolder } from "../../../DiagramGenerator/vscode/Diagram";
 
 export interface DataMapperProps {
     model?: STNode;
+    currentProject?: WorkspaceFolder;
+    lastUpdatedAt?: string;
     targetPosition?: NodePosition;
     ballerinaVersion?: string;
     onCancel?: () => void;
@@ -44,7 +47,7 @@ export interface DataMapperProps {
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model, openedViaPlus } = props;
+    const { currentProject, lastUpdatedAt, targetPosition, ballerinaVersion, onCancel: onClose, model, openedViaPlus } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -89,7 +92,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
         (async () => {
             await getModuleVariables()
         })();
-    }, [currentFile.content])
+    }, [currentProject, lastUpdatedAt])
 
     useEffect(() => {
         if (model && STKindChecker.isFunctionDefinition(model)) {
