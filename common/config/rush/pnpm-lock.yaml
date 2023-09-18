@@ -2793,7 +2793,9 @@ importers:
       '@types/react-dom': 17.0.14
       '@typescript-eslint/eslint-plugin': ^6.2.1
       '@typescript-eslint/parser': ^6.2.1
+      '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       classnames: ^2.2.6
       eslint: ^8.32.0
       eslint-plugin-react: ^7.33.1
@@ -2813,7 +2815,9 @@ importers:
       '@projectstorm/react-canvas-core': 6.7.4_react@17.0.2
       '@projectstorm/react-diagrams': 6.7.4_tngsxvm4cqu54pqeaphftrfwoy
       '@projectstorm/react-diagrams-core': 6.7.4_react@17.0.2
+      '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': 1.2.2_react@17.0.2
+      '@wso2-enterprise/font-wso2-vscode': link:../font-wso2-vscode
       classnames: 2.3.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -14449,6 +14453,10 @@ packages:
       '@vscode-logging/types': 0.1.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@vscode/codicons/0.0.33:
+    resolution: {integrity: sha512-VdgpnD75swH9hpXjd34VBgQ2w2quK63WljodlUcOoJDPKiV+rPjHrcUc2sjLCNKxhl6oKqmsZgwOWcDAY2GKKQ==}
     dev: false
 
   /@vscode/extension-telemetry/0.7.7:
