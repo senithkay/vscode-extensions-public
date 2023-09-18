@@ -27,7 +27,7 @@ export function EnumFieldCard(props: EnumFieldCardProps) {
 
     return (
         <EnumFieldContainer>
-            <FieldName>{enumField.name}</FieldName>
+            <FieldName data-testid={`enum-field-${enumField.name}`}>{enumField.name}</FieldName>
         </EnumFieldContainer>
     );
 }

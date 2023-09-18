@@ -55,11 +55,11 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 engine={engine}
             />
             {resource.subscription ? <GraphqlSubscriptionIcon /> : <GraphqlQueryIcon />}
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}  data-testid={`resource-identifier-${resource.identifier}`}>
                 {resource.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
-                <FieldType>{resource.returns}</FieldType>
+                <FieldType data-testid={`resource-type-${resource.returns}`}>{resource.returns}</FieldType>
             </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${resourcePath}`)}
