@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "gen-icons": "fantasticon ./src/icons/ -o ./fw-vscode --normalize -n wso2-vscode -p fw && node src/searchableInput/addSearch.js",
-    "start": "open fw-vscode/wso2-vscode.html",
-    "build": "echo Method not implemeted"
+    "build": "fantasticon ./src/icons/ -o ./fw-vscode --normalize -n wso2-vscode -p fw && node src/searchableInput/addSearch.js && npm run copy-icons",
+    "copy-icons": "node src/plugin-icons/configurePlugins.js",
+    "start": "open fw-vscode/wso2-vscode.html"
   },
   "author": "",
   "license": "ISC",

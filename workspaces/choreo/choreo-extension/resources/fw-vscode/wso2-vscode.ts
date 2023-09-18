@@ -1,5 +1,6 @@
 export type Wso2VscodeId =
   | "ballerina"
+  | "choreo-2"
   | "choreo"
   | "configurable-icon"
   | "custom"
@@ -36,6 +37,7 @@ export type Wso2VscodeId =
 
 export type Wso2VscodeKey =
   | "Ballerina"
+  | "Choreo_2"
   | "Choreo"
   | "ConfigurableIcon"
   | "Custom"
@@ -72,6 +74,7 @@ export type Wso2VscodeKey =
 
 export enum Wso2Vscode {
   Ballerina = "ballerina",
+  Choreo_2 = "choreo-2",
   Choreo = "choreo",
   ConfigurableIcon = "configurable-icon",
   Custom = "custom",
@@ -109,37 +112,38 @@ export enum Wso2Vscode {
 
 export const WSO2_VSCODE_CODEPOINTS: { [key in Wso2Vscode]: string } = {
   [Wso2Vscode.Ballerina]: "61697",
-  [Wso2Vscode.Choreo]: "61698",
-  [Wso2Vscode.ConfigurableIcon]: "61699",
-  [Wso2Vscode.Custom]: "61700",
-  [Wso2Vscode.DataMapper]: "61701",
-  [Wso2Vscode.Debug]: "61702",
-  [Wso2Vscode.Delete]: "61703",
-  [Wso2Vscode.DesignView]: "61704",
-  [Wso2Vscode.Disable]: "61705",
-  [Wso2Vscode.Doc]: "61706",
-  [Wso2Vscode.EditIcon]: "61707",
-  [Wso2Vscode.Email]: "61708",
-  [Wso2Vscode.EnableInverse]: "61709",
-  [Wso2Vscode.Enable]: "61710",
-  [Wso2Vscode.Loading]: "61711",
-  [Wso2Vscode.LogoGithub]: "61712",
-  [Wso2Vscode.Manual]: "61713",
-  [Wso2Vscode.NewFile]: "61714",
-  [Wso2Vscode.NewFolder]: "61715",
-  [Wso2Vscode.NewModule]: "61716",
-  [Wso2Vscode.Organization]: "61717",
-  [Wso2Vscode.PersistDiagram]: "61718",
-  [Wso2Vscode.Project]: "61719",
-  [Wso2Vscode.RunConf]: "61720",
-  [Wso2Vscode.Schedule]: "61721",
-  [Wso2Vscode.SignIn]: "61722",
-  [Wso2Vscode.SignOut]: "61723",
-  [Wso2Vscode.SourceView]: "61724",
-  [Wso2Vscode.Start]: "61725",
-  [Wso2Vscode.Tab]: "61726",
-  [Wso2Vscode.Trash]: "61727",
-  [Wso2Vscode.User]: "61728",
-  [Wso2Vscode.Webhook]: "61729",
-  [Wso2Vscode.WhileIcon]: "61730",
+  [Wso2Vscode.Choreo_2]: "61698",
+  [Wso2Vscode.Choreo]: "61699",
+  [Wso2Vscode.ConfigurableIcon]: "61700",
+  [Wso2Vscode.Custom]: "61701",
+  [Wso2Vscode.DataMapper]: "61702",
+  [Wso2Vscode.Debug]: "61703",
+  [Wso2Vscode.Delete]: "61704",
+  [Wso2Vscode.DesignView]: "61705",
+  [Wso2Vscode.Disable]: "61706",
+  [Wso2Vscode.Doc]: "61707",
+  [Wso2Vscode.EditIcon]: "61708",
+  [Wso2Vscode.Email]: "61709",
+  [Wso2Vscode.EnableInverse]: "61710",
+  [Wso2Vscode.Enable]: "61711",
+  [Wso2Vscode.Loading]: "61712",
+  [Wso2Vscode.LogoGithub]: "61713",
+  [Wso2Vscode.Manual]: "61714",
+  [Wso2Vscode.NewFile]: "61715",
+  [Wso2Vscode.NewFolder]: "61716",
+  [Wso2Vscode.NewModule]: "61717",
+  [Wso2Vscode.Organization]: "61718",
+  [Wso2Vscode.PersistDiagram]: "61719",
+  [Wso2Vscode.Project]: "61720",
+  [Wso2Vscode.RunConf]: "61721",
+  [Wso2Vscode.Schedule]: "61722",
+  [Wso2Vscode.SignIn]: "61723",
+  [Wso2Vscode.SignOut]: "61724",
+  [Wso2Vscode.SourceView]: "61725",
+  [Wso2Vscode.Start]: "61726",
+  [Wso2Vscode.Tab]: "61727",
+  [Wso2Vscode.Trash]: "61728",
+  [Wso2Vscode.User]: "61729",
+  [Wso2Vscode.Webhook]: "61730",
+  [Wso2Vscode.WhileIcon]: "61731",
 };

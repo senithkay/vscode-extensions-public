@@ -98,7 +98,7 @@
         {
           "id": "wso2-choreo",
           "title": "Choreo",
-          "icon": "resources/icons/choreo-2.svg"
+          "icon": "$(distro-choreo-2)"
         }
       ]
     },
@@ -219,7 +219,16 @@
           }
         ]
       }
-    ]
+    ],
+    "icons": {
+      "distro-choreo-2": {
+        "description": "choreo-2",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f102"
+        }
+      }
+    }
   },
   "scripts": {
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
