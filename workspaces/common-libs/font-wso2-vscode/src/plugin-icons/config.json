@@ -1,6 +1,15 @@
 {
     "ballerinaExtIcons": [
-
+        "new-module.svg",
+        "refresh.svg",
+        "new-file.svg",
+        "new-folder.svg",
+        "delete.svg",
+        "design-view.svg",
+        "start.svg",
+        "debug.svg",
+        "source-view.svg",
+        "persist-diagram.svg"
     ],
     "choreoExtIcons": [
         "choreo-2.svg"

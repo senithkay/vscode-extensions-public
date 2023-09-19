@@ -307,58 +307,37 @@
         "command": "ballerina.new.module",
         "title": "Add Module",
         "category": "Ballerina",
-        "icon": {
-          "light": "./resources/images/icons/new-module.svg",
-          "dark": "./resources/images/icons/new-module-inverse.svg"
-        }
+        "icon": "$(distro-new-module)"
       },
       {
         "command": "ballerina.refreshPackageTree",
         "title": "Refresh",
-        "icon": {
-          "light": "./resources/images/icons/refresh.svg",
-          "dark": "./resources/images/icons/refresh-inverse.svg"
-        }
+        "icon": "$(distro-refresh)"
       },
       {
         "command": "ballerina.refreshExplorerTree",
         "title": "Refresh",
-        "icon": {
-          "light": "./resources/images/icons/refresh.svg",
-          "dark": "./resources/images/icons/refresh-inverse.svg"
-        }
+        "icon": "$(distro-refresh)"
       },
       {
         "command": "ballerina.newFileExplorerTree",
         "title": "New File",
-        "icon": {
-          "light": "./resources/images/icons/new-file.svg",
-          "dark": "./resources/images/icons/new-file-inverse.svg"
-        }
+        "icon": "$(distro-new-file)"
       },
       {
         "command": "ballerina.newFolderExplorerTree",
         "title": "New Folder",
-        "icon": {
-          "light": "./resources/images/icons/new-folder.svg",
-          "dark": "./resources/images/icons/new-folder-inverse.svg"
-        }
+        "icon": "$(distro-new-folder)"
       },
       {
         "command": "ballerina.deleteFileExplorerTree",
         "title": "Delete",
-        "icon": {
-          "light": "./resources/images/icons/delete.svg",
-          "dark": "./resources/images/icons/delete-inverse.svg"
-        }
+        "icon": "$(distro-delete)"
       },
       {
         "command": "ballerina.show.diagram",
         "title": "Show Diagram",
-        "icon": {
-          "dark": "./resources/images/icons/design-view-inverse.svg",
-          "light": "./resources/images/icons/design-view.svg"
-        },
+        "icon": "$(distro-design-view)",
         "category": "Ballerina"
       },
       {
@@ -386,19 +365,13 @@
       {
         "command": "ballerina.source.debug",
         "title": "Debug",
-        "icon": {
-          "dark": "./resources/images/icons/debug-inverse.svg",
-          "light": "./resources/images/icons/debug.svg"
-        },
+        "icon": "$(distro-debug)",
         "category": "Ballerina"
       },
       {
         "command": "ballerina.show.source",
         "title": "Show Source",
-        "icon": {
-          "dark": "./resources/images/icons/source-view-inverse.svg",
-          "light": "./resources/images/icons/source-view.svg"
-        },
+        "icon": "$(source-view)",
         "category": "Ballerina"
       },
       {
@@ -419,10 +392,7 @@
       {
         "command": "ballerina.notebook.restartNotebook",
         "title": "Restart Notebook",
-        "icon": {
-          "light": "./resources/images/icons/refresh.svg",
-          "dark": "./resources/images/icons/refresh-inverse.svg"
-        },
+        "icon": "$(distro-refresh)",
         "category": "Ballerina",
         "when": "notebookType == 'ballerina-notebook'"
       },
@@ -475,10 +445,7 @@
       {
         "command": "ballerina.view.entityDiagram",
         "title": "Entity Relationship Diagram",
-        "icon": {
-          "light": "./resources/images/icons/persist-diagram.svg",
-          "dark": "./resources/images/icons/persist-diagram-inverse.svg"
-        },
+        "icon": "$(distro-persist-diagram)",
         "category": "Ballerina"
       }
     ],
@@ -625,7 +592,71 @@
         ]
       }
     ],
-    "icons": {}
+    "icons": {
+      "distro-new-module": {
+        "description": "new-module",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f11e"
+        }
+      },
+      "distro-new-file": {
+        "description": "new-file",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f11c"
+        }
+      },
+      "distro-new-folder": {
+        "description": "new-folder",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f11d"
+        }
+      },
+      "distro-delete": {
+        "description": "delete",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f10d"
+        }
+      },
+      "distro-design-view": {
+        "description": "design-view",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f10e"
+        }
+      },
+      "distro-start": {
+        "description": "start",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f128"
+        }
+      },
+      "distro-debug": {
+        "description": "debug",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f10c"
+        }
+      },
+      "distro-source-view": {
+        "description": "source-view",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f127"
+        }
+      },
+      "distro-persist-diagram": {
+        "description": "persist-diagram",
+        "default": {
+          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontCharacter": "\\f120"
+        }
+      }
+    }
   },
   "main": "./dist/extension",
   "scripts": {
