@@ -59,7 +59,6 @@ function generateIconsContribution(selectedIconJson) {
   const iconsContribution = {};
   for (const selectedIconName of selectedIconJson) {
     for (const fontName in fontJson) {
-      console.log("Compare",selectedIconName, ":",  `${fontName}.svg` );
       if (selectedIconName === `${fontName}.svg`) {
         const contentValue = extractContentValue(fontName);
   
