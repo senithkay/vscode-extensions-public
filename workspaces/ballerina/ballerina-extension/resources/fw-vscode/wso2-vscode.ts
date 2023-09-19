@@ -33,6 +33,7 @@ export type Wso2VscodeId =
   | "persist-diagram"
   | "project"
   | "proxy"
+  | "refresh"
   | "run-conf"
   | "schedule"
   | "sign-in"
@@ -40,7 +41,6 @@ export type Wso2VscodeId =
   | "source-view"
   | "start"
   | "sync-alt-round"
-  | "tab"
   | "trash"
   | "user"
   | "webhook-round"
@@ -82,6 +82,7 @@ export type Wso2VscodeKey =
   | "PersistDiagram"
   | "Project"
   | "Proxy"
+  | "Refresh"
   | "RunConf"
   | "Schedule"
   | "SignIn"
@@ -89,7 +90,6 @@ export type Wso2VscodeKey =
   | "SourceView"
   | "Start"
   | "SyncAltRound"
-  | "Tab"
   | "Trash"
   | "User"
   | "WebhookRound"
@@ -131,6 +131,7 @@ export enum Wso2Vscode {
   PersistDiagram = "persist-diagram",
   Project = "project",
   Proxy = "proxy",
+  Refresh = "refresh",
   RunConf = "run-conf",
   Schedule = "schedule",
   SignIn = "sign-in",
@@ -138,7 +139,6 @@ export enum Wso2Vscode {
   SourceView = "source-view",
   Start = "start",
   SyncAltRound = "sync-alt-round",
-  Tab = "tab",
   Trash = "trash",
   User = "user",
   WebhookRound = "webhook-round",
@@ -181,14 +181,14 @@ export const WSO2_VSCODE_CODEPOINTS: { [key in Wso2Vscode]: string } = {
   [Wso2Vscode.PersistDiagram]: "61728",
   [Wso2Vscode.Project]: "61729",
   [Wso2Vscode.Proxy]: "61730",
-  [Wso2Vscode.RunConf]: "61731",
-  [Wso2Vscode.Schedule]: "61732",
-  [Wso2Vscode.SignIn]: "61733",
-  [Wso2Vscode.SignOut]: "61734",
-  [Wso2Vscode.SourceView]: "61735",
-  [Wso2Vscode.Start]: "61736",
-  [Wso2Vscode.SyncAltRound]: "61737",
-  [Wso2Vscode.Tab]: "61738",
+  [Wso2Vscode.Refresh]: "61731",
+  [Wso2Vscode.RunConf]: "61732",
+  [Wso2Vscode.Schedule]: "61733",
+  [Wso2Vscode.SignIn]: "61734",
+  [Wso2Vscode.SignOut]: "61735",
+  [Wso2Vscode.SourceView]: "61736",
+  [Wso2Vscode.Start]: "61737",
+  [Wso2Vscode.SyncAltRound]: "61738",
   [Wso2Vscode.Trash]: "61739",
   [Wso2Vscode.User]: "61740",
   [Wso2Vscode.WebhookRound]: "61741",

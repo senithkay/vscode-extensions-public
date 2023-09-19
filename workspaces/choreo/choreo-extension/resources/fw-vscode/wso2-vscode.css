@@ -1,8 +1,8 @@
 @font-face {
     font-family: "wso2-vscode";
-    src: url("./wso2-vscode.eot?874b8fcbbb89f9bea0fe06d05d7ae5b0#iefix") format("embedded-opentype"),
-url("./wso2-vscode.woff2?874b8fcbbb89f9bea0fe06d05d7ae5b0") format("woff2"),
-url("./wso2-vscode.woff?874b8fcbbb89f9bea0fe06d05d7ae5b0") format("woff");
+    src: url("./wso2-vscode.eot?1dde2db5c543e23cd7d36c813580d198#iefix") format("embedded-opentype"),
+url("./wso2-vscode.woff2?1dde2db5c543e23cd7d36c813580d198") format("woff2"),
+url("./wso2-vscode.woff?1dde2db5c543e23cd7d36c813580d198") format("woff");
 }
 
 i[class^="fw-"]:before, i[class*=" fw-"]:before {
@@ -118,28 +118,28 @@ i[class^="fw-"]:before, i[class*=" fw-"]:before {
 .fw-proxy:before {
     content: "\f122";
 }
-.fw-run-conf:before {
+.fw-refresh:before {
     content: "\f123";
 }
-.fw-schedule:before {
+.fw-run-conf:before {
     content: "\f124";
 }
-.fw-sign-in:before {
+.fw-schedule:before {
     content: "\f125";
 }
-.fw-sign-out:before {
+.fw-sign-in:before {
     content: "\f126";
 }
-.fw-source-view:before {
+.fw-sign-out:before {
     content: "\f127";
 }
-.fw-start:before {
+.fw-source-view:before {
     content: "\f128";
 }
-.fw-sync-alt-round:before {
+.fw-start:before {
     content: "\f129";
 }
-.fw-tab:before {
+.fw-sync-alt-round:before {
     content: "\f12a";
 }
 .fw-trash:before {
