@@ -26,17 +26,14 @@ describe('Swagger view UI Tests', () => {
     let driver: WebDriver;
     let workbench : Workbench;
     
-    beforeEach(async () => {
+    before(async () => {
+        await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await VSBrowser.instance.waitForWorkbench();
-        const editorView = new EditorView();
-        await editorView.closeAllEditors();
-        
-        workbench = new Workbench();
-        await workbench.executeCommand(DND_PALETTE_COMMAND);
-
         browser = VSBrowser.instance;
         driver = browser.driver;
-        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        workbench = new Workbench();
+
+        await workbench.executeCommand(DND_PALETTE_COMMAND);
         await clickOnActivity(EXPLORER_ACTIVITY);
     });
 

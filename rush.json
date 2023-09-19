@@ -419,6 +419,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/font-wso2-vscode",
+      "projectFolder": "workspaces/common-libs/font-wso2-vscode",
+      "versionPolicyName": "font-wso2-vscode"
+    },
+    {
       "packageName": "@wso2-enterprise/ui-toolkit",
       "projectFolder": "workspaces/common-libs/ui-toolkit",
       "versionPolicyName": "ui-toolkit"

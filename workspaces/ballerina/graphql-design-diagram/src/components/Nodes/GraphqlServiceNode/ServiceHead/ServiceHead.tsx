@@ -44,7 +44,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
             filePath={node.serviceObject?.position?.filePath}
             position={node.serviceObject?.position && getFormattedPosition(node.serviceObject.position)}
         >
-            <ServiceHead>
+            <ServiceHead data-testid={`graphql-root-head-${displayName}`}>
                 <GraphQLIcon />
                 <GraphqlBasePortWidget
                     port={node.getPort(`left-${node.getID()}`)}

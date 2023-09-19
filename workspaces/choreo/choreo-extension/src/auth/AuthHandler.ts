@@ -16,7 +16,7 @@ import { getLogger } from "../logger/logger";
 import { AccessToken, ChoreoAuthClient, ChoreoOrgClient, ChoreoUserManagementClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoEnvConfig } from "./config";
 import { Organization, SIGN_IN_SUCCESS_EVENT, UserInfo } from "@wso2-enterprise/choreo-core";
-import { getDefaultSelectedOrg, promptToOpenSignupPage } from "./auth";
+import { promptToOpenSignupPage } from "./auth";
 import { ext } from "../extensionVariables";
 import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT } from "../constants";
 import { lock } from "./lock";
@@ -76,10 +76,7 @@ export class AuthHandler {
                 getLogger().debug("Successfully exchanged auth code to Asgardio token.");
                 getLogger().debug("Auth code exchange time: " + (Date.now() - currentTime));
                 const userInfo = await this._validateUser(response.accessToken);
-                const selectedOrg = await getDefaultSelectedOrg(userInfo?.organizations);
-                if (!selectedOrg) {
-                    throw new Error("No organizations found for the user.");
-                }
+                const selectedOrg = await ext.api.getSelectedOrg(userInfo);
                 await this.exchangeChoreoSTSToken(response.accessToken, selectedOrg.handle, selectedOrg.id);
                 await this.signin();
                 sendTelemetryEvent(SIGN_IN_SUCCESS_EVENT);
@@ -151,10 +148,7 @@ export class AuthHandler {
         if (!updatedUserInfo) {
             throw new Error("No user found in the keychain.");
         }
-        const selectedOrg = await getDefaultSelectedOrg(updatedUserInfo?.organizations);
-        if (!selectedOrg) {
-            throw new Error("No organizations found for the user.");
-        }
+        const selectedOrg = await ext.api.getSelectedOrg(userInfo);
         const orgAccessToken = await this.getToken(selectedOrg?.id);
         if (!orgAccessToken?.accessToken) {
             throw new Error("Asgardio token not found in token store!");

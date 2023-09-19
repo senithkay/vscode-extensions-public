@@ -32,7 +32,7 @@ export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.classObject.serviceName;
 
     return (
-        <ServiceNode isSelected={isNodeSelected}>
+        <ServiceNode isSelected={isNodeSelected} data-testid={`service-class-node-${node?.classObject?.serviceName}`}>
             <ServiceClassHeadWidget node={node} engine={engine} />
             {node.classObject.functions?.map((classFunction, index) => {
                 return (

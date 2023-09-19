@@ -22,7 +22,7 @@ import { GitUtils } from "./GitUtils";
 export class ProjectWizardView {
     /** Configure github related details relevant for the mono-repo */
     private static async selectGithubRepo(gitOrgName: string, gitRepoName: string) {
-        await CommonUtils.waitAndClickById("GitHub-card");
+        await CommonUtils.waitAndClickById("card-select-GitHub-card");
         await CommonUtils.waitForIdToDisappear("project-repo-progress", 30000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("git-org-selector"), gitOrgName, 60000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("git-repo-selector"), gitRepoName);
@@ -32,11 +32,12 @@ export class ProjectWizardView {
 
     /** Configure bitbucket related details relevant for the mono-repo */
     private static async selectBitbucketRepo(credentialName: string, workspaceName: string, repoName: string) {
-        await CommonUtils.waitAndClickById("BitBucket-card");
+        await CommonUtils.waitAndClickById("card-select-BitBucket-card");
         await CommonUtils.waitForIdToDisappear("bitbucket-credential-progress");
         await CommonUtils.waitAndClickById("cred-drop-down");
         await CommonUtils.waitAndClickById(`cred-item-${credentialName}`);
         await CommonUtils.waitAndClickById("cred-drop-down");
+        await CommonUtils.waitForIdToDisappear("project-repo-progress", 30000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("bitbucket-workspace-select"), workspaceName, 60000);
         await CommonUtils.waitAndTypeInAutoComplete(By.id("bitbucket-repo-select"), repoName);
         await CommonUtils.waitForIdToDisappear("project-repo-progress");
@@ -56,11 +57,8 @@ export class ProjectWizardView {
         console.log(`Creating new project: ${projectName}`);
         await CommonUtils.switchToDefaultFrame();
         await new Workbench().executeCommand(ADD_CHOREO_PROJECT_COMMAND);
-        await CommonUtils.setQuickInputFieldValue({
-            inputValue: process.env.TEST_USER_ORG_HANDLE!,
-            title: "Select Organization",
-        });
 
+        await CommonUtils.waitForIFrameCount(3,20000);
         await CommonUtils.switchToIFrame("Create New Project");
         await CommonUtils.waitUntil(By.xpath('//h3[contains(text(), "Project Details")]'));
         await CommonUtils.waitAndTypeById("project-name-input", projectName);

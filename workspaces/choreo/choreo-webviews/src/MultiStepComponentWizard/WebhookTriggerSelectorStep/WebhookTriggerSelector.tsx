@@ -14,7 +14,7 @@ import React, { useRef } from "react";
 
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { BallerinaTriggerInfo, DisplayAnnotation, ServiceType, Trigger } from '@wso2-enterprise/ballerina-languageclient';
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoWebViewAPI } from '../../utilities/WebViewRpc';
 
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
@@ -22,7 +22,7 @@ import { ComponentWizardState } from "../types";
 import { ChoreoComponentType, TriggerDetails } from "@wso2-enterprise/choreo-core";
 import styled from "@emotion/styled";
 import { useQuery } from "@tanstack/react-query";
-
+import { SectionWrapper } from "../../ProjectWizard/ProjectWizard";
 
 const DEFAULT_ERROR_MSG = "Could not load the Webhook triggers.";
 const GET_TRIGGERS_PATH = "https://api.central.ballerina.io/2.0/registry/triggers";
@@ -34,6 +34,7 @@ const StepContainer = styled.div`
     gap: 20px;
     width: 100%;
     min-width: 400px;
+    min-height: calc(100vh - 160px);
 `;
 
 const DropDownContainer = styled.div`
@@ -172,58 +173,61 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
 
     return (
         <StepContainer>
-            <DropDownContainer>
-                <label htmlFor="trigger-dropdown">Select Trigger</label>
-                {fetchingTriggers && <VSCodeProgressRing />}
-                {triggers && triggers.length > 0 && (
-                    <TriggerSelectorContainer>
-                        <VSCodeDropdown
-                            id="trigger-dropdown"
-                            onChange={(e: any) => {
-                                handleTriggerChange(e.target.value);
-                            }}
-                            style={{ flex: 4, zIndex: 100 }}
-                        >
-                            {triggers.map((trigger: Trigger) => (
-                                <VSCodeOption id={trigger.id} value={trigger.id} key={trigger.id} selected={+triggerId === +trigger.id}>
-                                    {trigger.displayAnnotation?.label || trigger.moduleName}
-                                </VSCodeOption>
-                            ))}
-                        </VSCodeDropdown>
-                        <VSCodeLink onClick={() => refetchTriggers()} style={{ flex: 1 }}>
-                            Refresh
-                        </VSCodeLink>
-                    </TriggerSelectorContainer>
-                )}
-                {triggersError && <ErrorBanner errorMsg={triggersError as any} />}
-            </DropDownContainer>            
-            {formData.mode === "fromScratch" && (
-                <ServiceContainer>
-                    <div>
-                        <label htmlFor="service-dropdown">Select one or more Trigger Services</label>
-                        <VSCodeLink onClick={() => refetchTrigger()} style={{ marginLeft: 20 }}>
-                            Refresh
-                        </VSCodeLink>
-                    </div>
-                    {fetchingTrigger && <VSCodeProgressRing />}
-                    {trigger && (trigger as BallerinaTriggerInfo).serviceTypes?.length > 0 && (
-                        <ServiceListContainer>
-                            {trigger.serviceTypes.map((service: TriggerServiceType) => (
-                                <VSCodeCheckbox
-                                    key={service.name}
-                                    name={service.name}
-                                    checked={triggerServices?.includes(service.name)}
-                                    onChange={handleServiceChange}
-                                >
-                                    {service.displayAnnotation?.label || service.name}
-                                </VSCodeCheckbox>
-                            ))}
-                        </ServiceListContainer>
+            <SectionWrapper>
+                <Typography variant="h3">Configure Webhook Trigger</Typography>
+                <DropDownContainer>
+                    <label htmlFor="trigger-dropdown">Select Trigger</label>
+                    {fetchingTriggers && <VSCodeProgressRing />}
+                    {triggers && triggers.length > 0 && (
+                        <TriggerSelectorContainer>
+                            <VSCodeDropdown
+                                id="trigger-dropdown"
+                                onChange={(e: any) => {
+                                    handleTriggerChange(e.target.value);
+                                }}
+                                style={{ flex: 4, zIndex: 100 }}
+                            >
+                                {triggers.map((trigger: Trigger) => (
+                                    <VSCodeOption id={trigger.id} value={trigger.id} key={trigger.id} selected={+triggerId === +trigger.id}>
+                                        {trigger.displayAnnotation?.label || trigger.moduleName}
+                                    </VSCodeOption>
+                                ))}
+                            </VSCodeDropdown>
+                            <VSCodeLink onClick={() => refetchTriggers()} style={{ flex: 1 }}>
+                                Refresh
+                            </VSCodeLink>
+                        </TriggerSelectorContainer>
                     )}
-                    {triggerError && <ErrorBanner errorMsg={triggerError as any} />}
-                </ServiceContainer>
-            )}
-            {stepValidationErrors["trigger"] && <ErrorBanner errorMsg={stepValidationErrors["trigger"]} />}
+                    {triggersError && <ErrorBanner errorMsg={triggersError as any} />}
+                </DropDownContainer>            
+                {formData.mode === "fromScratch" && (
+                    <ServiceContainer>
+                        <div>
+                            <label htmlFor="service-dropdown">Select one or more Trigger Services</label>
+                            <VSCodeLink onClick={() => refetchTrigger()} style={{ marginLeft: 20 }}>
+                                Refresh
+                            </VSCodeLink>
+                        </div>
+                        {fetchingTrigger && <VSCodeProgressRing />}
+                        {trigger && (trigger as BallerinaTriggerInfo).serviceTypes?.length > 0 && (
+                            <ServiceListContainer>
+                                {trigger.serviceTypes.map((service: TriggerServiceType) => (
+                                    <VSCodeCheckbox
+                                        key={service.name}
+                                        name={service.name}
+                                        checked={triggerServices?.includes(service.name)}
+                                        onChange={handleServiceChange}
+                                    >
+                                        {service.displayAnnotation?.label || service.name}
+                                    </VSCodeCheckbox>
+                                ))}
+                            </ServiceListContainer>
+                        )}
+                        {triggerError && <ErrorBanner errorMsg={triggerError as any} />}
+                    </ServiceContainer>
+                )}
+                {stepValidationErrors["trigger"] && <ErrorBanner errorMsg={stepValidationErrors["trigger"]} />}
+            </SectionWrapper>
         </StepContainer>
     );
 }
