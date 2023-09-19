@@ -66,7 +66,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 isCollapsed={isCollapsed}
                 setCollapsedStatus={setCollapsibleStatus}
             />
-            <ConnectionName onClick={handleOnHeaderWidgetClick}>{displayName}</ConnectionName>
+            <ConnectionName onClick={handleOnHeaderWidgetClick} orientation={node.orientation}>{displayName}</ConnectionName>
         </ConnectionNode>
     );
 }

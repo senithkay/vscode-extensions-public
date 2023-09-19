@@ -24,7 +24,7 @@ interface StyleProps {
 export const ConnectionNode: React.FC<any> = styled.div`
     color: ${Colors.DEFAULT_TEXT};
     display: flex;
-    flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? 'column': 'row')};;
+    flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? 'column': 'row')};
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -52,7 +52,7 @@ export const ConnectionName: React.FC<any> = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
-    max-width: ${LABEL_MAX_WIDTH}px;
+    max-width: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? LABEL_MAX_WIDTH: 'unset')};
     &:hover {
         color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
         cursor: ${(props: StyleProps) => (props.isClickable ? `grabbing` : ``)};
