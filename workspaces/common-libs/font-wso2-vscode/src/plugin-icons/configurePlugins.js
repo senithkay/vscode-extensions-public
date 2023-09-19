@@ -107,4 +107,6 @@ ballerinaExtPackageJson.contributes.icons = { ...ballerinaExtPackageJson.contrib
 
 // Write the modified package.json files back to the file system
 fs.writeFileSync(choreoExtPackageJsonPath, JSON.stringify(choreoExtPackageJson, null, 2), 'utf-8');
+fs.appendFileSync(choreoExtPackageJsonPath, '\n');
 fs.writeFileSync(ballerinaExtPackageJsonPath, JSON.stringify(ballerinaExtPackageJson, null, 2), 'utf-8');
+fs.appendFileSync(ballerinaExtPackageJsonPath, '\n');
