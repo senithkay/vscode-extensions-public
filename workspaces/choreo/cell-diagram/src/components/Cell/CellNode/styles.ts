@@ -40,7 +40,7 @@ export const CellNode: React.FC<any> = styled.div`
         left: 0;
     }
 
-    polygon {
+    path:first-child {
         stroke: ${Colors.NODE_BORDER};
         stroke-width: 2;
         fill: none;

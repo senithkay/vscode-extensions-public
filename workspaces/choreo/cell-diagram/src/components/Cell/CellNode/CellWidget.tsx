@@ -12,7 +12,7 @@ import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams"
 import { CellBounds, CellModel } from "./CellModel";
 import { CellNode, TopPortCircle, LeftPortCircle, BottomPortsWrapper, DotWrapper, Dot, IconWrapper, RightPortsWrapper } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
-import { getCellPortId } from "./cell-util";
+import { getCellPortId, getRoundedOctagonSVG } from "./cell-util";
 import { MAIN_CELL } from "../../../resources";
 import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
 
@@ -33,21 +33,12 @@ export function CellWidget(props: CellWidgetProps) {
         resizeCellHeight();
     }, [node.width]);
 
-    const generateOctagonSVG = (height: number) => {
-        const points = [
-            `${(height * 30) / 100},${0}`,
-            `${(height * 70) / 100},${0}`,
-            `${height},${(height * 30) / 100}`,
-            `${height},${(height * 70) / 100}`,
-            `${(height * 70) / 100},${height}`,
-            `${(height * 30) / 100},${height}`,
-            `${0},${(height * 70) / 100}`,
-            `${0},${(height * 30) / 100}`,
-        ].join(" ");
-
+    const generateRoundedOctagonSVG = (diagramHeight: number) => {
+        const sideLength = (diagramHeight * 4.14) / 10;
+        const { width, height, path } = getRoundedOctagonSVG(sideLength, sideLength * 0.1);
         return (
-            <svg width={height} height={height} id={MAIN_CELL}>
-                <polygon points={points} />
+            <svg width={width} height={height} id={MAIN_CELL} transform={`rotate(${45 / 2})`}>
+                <path d={path} />
             </svg>
         );
     };
@@ -61,7 +52,7 @@ export function CellWidget(props: CellWidgetProps) {
 
     return (
         <CellNode height={cellHeight}>
-            {generateOctagonSVG(cellHeight)}
+            {generateRoundedOctagonSVG(cellHeight)}
 
             <TopPortCircle>
                 <IconWrapper>
