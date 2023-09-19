@@ -1,8 +1,8 @@
 @font-face {
     font-family: "wso2-vscode";
-    src: url("./wso2-vscode.eot?ac2e0500b02b7f4be6f5939fe8f738e0#iefix") format("embedded-opentype"),
-url("./wso2-vscode.woff2?ac2e0500b02b7f4be6f5939fe8f738e0") format("woff2"),
-url("./wso2-vscode.woff?ac2e0500b02b7f4be6f5939fe8f738e0") format("woff");
+    src: url("./wso2-vscode.eot?e9ba378c993a03867e65d27e67903fca#iefix") format("embedded-opentype"),
+url("./wso2-vscode.woff2?e9ba378c993a03867e65d27e67903fca") format("woff2"),
+url("./wso2-vscode.woff?e9ba378c993a03867e65d27e67903fca") format("woff");
 }
 
 i[class^="fw-"]:before, i[class*=" fw-"]:before {
@@ -16,108 +16,141 @@ i[class^="fw-"]:before, i[class*=" fw-"]:before {
     -moz-osx-font-smoothing: grayscale;
 }
 
-.fw-ballerina:before {
+.fw-add-check-round:before {
     content: "\f101";
 }
-.fw-choreo-2:before {
+.fw-alarm-round:before {
     content: "\f102";
 }
-.fw-choreo:before {
+.fw-ballerina:before {
     content: "\f103";
 }
-.fw-configurable-icon:before {
+.fw-browser-round:before {
     content: "\f104";
 }
-.fw-custom:before {
+.fw-choreo:before {
     content: "\f105";
 }
-.fw-dataMapper:before {
+.fw-click-round:before {
     content: "\f106";
 }
-.fw-debug:before {
+.fw-configurable-icon:before {
     content: "\f107";
 }
-.fw-delete:before {
+.fw-custom:before {
     content: "\f108";
 }
-.fw-design-view:before {
+.fw-database-round:before {
     content: "\f109";
 }
-.fw-disable:before {
+.fw-dataMapper:before {
     content: "\f10a";
 }
-.fw-doc:before {
+.fw-debug:before {
     content: "\f10b";
 }
-.fw-editIcon:before {
+.fw-delete:before {
     content: "\f10c";
 }
-.fw-email:before {
+.fw-design-view:before {
     content: "\f10d";
 }
-.fw-enable-inverse:before {
+.fw-disable:before {
     content: "\f10e";
 }
-.fw-enable:before {
+.fw-doc:before {
     content: "\f10f";
 }
-.fw-loading:before {
+.fw-editIcon:before {
     content: "\f110";
 }
-.fw-logo-github:before {
+.fw-email:before {
     content: "\f111";
 }
-.fw-manual:before {
+.fw-enable-inverse:before {
     content: "\f112";
 }
-.fw-new-file:before {
+.fw-enable:before {
     content: "\f113";
 }
-.fw-new-folder:before {
+.fw-event-round:before {
     content: "\f114";
 }
-.fw-new-module:before {
+.fw-inventory-round:before {
     content: "\f115";
 }
-.fw-organization:before {
+.fw-kite-round:before {
     content: "\f116";
 }
-.fw-persist-diagram:before {
+.fw-link-round:before {
     content: "\f117";
 }
-.fw-project:before {
+.fw-loading:before {
     content: "\f118";
 }
-.fw-run-conf:before {
+.fw-logo-github:before {
     content: "\f119";
 }
-.fw-schedule:before {
+.fw-manual:before {
     content: "\f11a";
 }
-.fw-sign-in:before {
+.fw-new-file:before {
     content: "\f11b";
 }
-.fw-sign-out:before {
+.fw-new-folder:before {
     content: "\f11c";
 }
-.fw-source-view:before {
+.fw-new-module:before {
     content: "\f11d";
 }
-.fw-start:before {
+.fw-organization:before {
     content: "\f11e";
 }
-.fw-tab:before {
+.fw-persist-diagram:before {
     content: "\f11f";
 }
-.fw-trash:before {
+.fw-project:before {
     content: "\f120";
 }
-.fw-user:before {
+.fw-proxy:before {
     content: "\f121";
 }
-.fw-webhook:before {
+.fw-run-conf:before {
     content: "\f122";
 }
-.fw-while-icon:before {
+.fw-schedule:before {
     content: "\f123";
+}
+.fw-sign-in:before {
+    content: "\f124";
+}
+.fw-sign-out:before {
+    content: "\f125";
+}
+.fw-source-view:before {
+    content: "\f126";
+}
+.fw-start:before {
+    content: "\f127";
+}
+.fw-sync-alt-round:before {
+    content: "\f128";
+}
+.fw-tab:before {
+    content: "\f129";
+}
+.fw-trash:before {
+    content: "\f12a";
+}
+.fw-user:before {
+    content: "\f12b";
+}
+.fw-webhook-round:before {
+    content: "\f12c";
+}
+.fw-webhook:before {
+    content: "\f12d";
+}
+.fw-while-icon:before {
+    content: "\f12e";
 }
