@@ -10,7 +10,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Define the source folder for fonts and related files
-const fontDir = path.join(__dirname, '..', '..', 'fw-vscode');
+const fontDir = path.join(__dirname, '..', '..', 'dist');
 
 // Read the CSS and JSON files
 const cssPath = path.join(fontDir, 'wso2-vscode.css');
@@ -69,7 +69,7 @@ function generateIconsContribution(selectedIconJson) {
           iconsContribution[`distro-${fontName}`] = {
             description: iconDescription,
             default: {
-              fontPath: "./resources/fw-vscode/wso2-vscode.woff",
+              fontPath: "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
               fontCharacter: iconCharacter
             }
           };
@@ -108,5 +108,5 @@ ballerinaExtPackageJson.contributes.icons = { ...ballerinaExtPackageJson.contrib
 // Write the modified package.json files back to the file system
 fs.writeFileSync(choreoExtPackageJsonPath, JSON.stringify(choreoExtPackageJson, null, 2), 'utf-8');
 fs.appendFileSync(choreoExtPackageJsonPath, '\n');
-fs.writeFileSync(ballerinaExtPackageJsonPath, JSON.stringify(ballerinaExtPackageJson, null, 2), 'utf-8');
+fs.writeFileSync(ballerinaExtPackageJsonPath, JSON.stringify(ballerinaExtPackageJson, null, 4), 'utf-8');
 fs.appendFileSync(ballerinaExtPackageJsonPath, '\n');

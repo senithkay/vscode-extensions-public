@@ -224,7 +224,7 @@
       "distro-choreo-2": {
         "description": "choreo-2",
         "default": {
-          "fontPath": "./resources/fw-vscode/wso2-vscode.woff",
+          "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
           "fontCharacter": "\\f105"
         }
       }
@@ -302,6 +302,7 @@
     "@wso2-enterprise/choreo-client": "workspace:*",
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",
+    "@wso2-enterprise/font-wso2-vscode": "workspace:*",
     "byline": "^5.0.0",
     "chai": "^4.3.4",
     "dotenv": "^16.0.3",

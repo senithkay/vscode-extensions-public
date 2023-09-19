@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import "@wso2-enterprise/font-wso2-vscode/fw-vscode/wso2-vscode.css";
+import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 
 import styled from "@emotion/styled";
 

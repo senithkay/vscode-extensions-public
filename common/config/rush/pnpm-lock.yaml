@@ -23,6 +23,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       axios: ^1.2.2
       chai: ^4.3.4
@@ -79,6 +80,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/choreo-client': link:../../choreo/choreo-client
       '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       cors-anywhere: 0.4.4
       del-cli: 5.0.1
@@ -2548,6 +2550,7 @@ importers:
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/choreo-vscode-webviews': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
       axios: ^1.2.2
       byline: ^5.0.0
@@ -2595,6 +2598,7 @@ importers:
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/choreo-vscode-webviews': link:../choreo-webviews
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       byline: 5.0.0
       chai: 4.3.8
       dotenv: 16.3.1
@@ -2735,9 +2739,11 @@ importers:
     specifiers:
       fantasticon: ^2.0.0
       icon-font-generator: ^2.1.11
+      jsonc-parser: ^3.2.0
     devDependencies:
       fantasticon: 2.0.0
       icon-font-generator: 2.1.11
+      jsonc-parser: 3.2.0
 
   ../../workspaces/common-libs/playwright-vscode-tester:
     specifiers:
