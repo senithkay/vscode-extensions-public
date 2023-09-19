@@ -73,3 +73,7 @@ common/autoinstallers/*/.npmrc
 # Heft temporary files
 .cache
 .heft
+
+# TypeScript output folder
+lib
+build
