@@ -15,27 +15,74 @@ const singleComponentModel: Project = {
     name: "A",
     components: [
         {
-            id: "Users",
+            id: "User Service",
             version: "0.2.0",
             type: "service",
-            services: {
-                "ABC:A:Users:basepath": {
-                    id: "ABC:A:Users:basepath",
-                    label: "basepath",
-                    type: "http",
-                    dependencyIds: [],
-                    deploymentMetadata: {
-                        gateways: {
-                            internet: {
-                                isExposed: false,
-                            },
-                            intranet: {
-                                isExposed: false,
-                            },
-                        },
-                    },
-                },
-            },
+            services: {},
+            connections: [],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+const allComponentModel: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "User Service",
+            version: "0.2.0",
+            type: "service",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Wep App",
+            version: "0.2.0",
+            type: "web-app",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Scheduled Task",
+            version: "0.2.0",
+            type: "scheduled-task",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Manual Task",
+            version: "0.2.0",
+            type: "manual-task",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Api Proxy",
+            version: "0.2.0",
+            type: "api-proxy",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Web Hook",
+            version: "0.2.0",
+            type: "web-hook",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Event Handler",
+            version: "0.2.0",
+            type: "event-handler",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Test",
+            version: "0.2.0",
+            type: "test",
+            services: {},
             connections: [],
         },
     ],
@@ -68,6 +115,90 @@ const singleExposedComponentModel: Project = {
                     },
                 },
             },
+            connections: [],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+const componentDependencyModel: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "Users",
+            version: "0.2.0",
+            type: "api-proxy",
+            services: {
+                "ABC:A:Users:basepath": {
+                    id: "ABC:A:Users:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "Courses",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Courses:basepath": {
+                    id: "ABC:A:Courses:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "ABC:A:Users:basepath",
+                    type: "http",
+                },
+                {
+                    id: "ABC:A:Task",
+                    type: "http",
+                },
+            ],
+        },
+        {
+            id: "Task",
+            version: "0.2.0",
+            type: "manual-task",
+            services: {},
+            connections: [
+                {
+                    id: "ABC:A:WebApp",
+                    type: "http",
+                },
+            ],
+        },
+        {
+            id: "WebApp",
+            version: "0.2.0",
+            type: "web-app",
+            services: {},
             connections: [],
         },
     ],
@@ -197,6 +328,7 @@ const simpleModel: Project = {
                 {
                     id: "ABC:A:Users:users",
                     type: "http",
+                    onPlatform: true,
                 },
                 {
                     id: "mysql://mysql",
@@ -232,7 +364,13 @@ const simpleModel: Project = {
                     },
                 },
             },
-            connections: [],
+            connections: [
+                {
+                    id: "firebase://firebase",
+                    type: "datastore",
+                    onPlatform: false,
+                },
+            ],
         },
         {
             id: "Notifications",
@@ -515,5 +653,7 @@ const complexModel: Project = {
 storiesOf("Cell Diagram", module).add("No Components", () => <CellDiagram project={noComponentModel} />);
 storiesOf("Cell Diagram", module).add("Single Component", () => <CellDiagram project={singleComponentModel} />);
 storiesOf("Cell Diagram", module).add("Single Component with expose link", () => <CellDiagram project={singleExposedComponentModel} />);
+storiesOf("Cell Diagram", module).add("All Component types", () => <CellDiagram project={allComponentModel} />);
+storiesOf("Cell Diagram", module).add("Component dependencies", () => <CellDiagram project={componentDependencyModel} />);
 storiesOf("Cell Diagram", module).add("Simple", () => <CellDiagram project={simpleModel} />);
 storiesOf("Cell Diagram", module).add("Complex", () => <CellDiagram project={complexModel} />);

@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { CellLinkModel, ComponentLinkModel, ComponentModel, ConnectionModel, EmptyModel, ExternalLinkModel, ExternalModel } from "./components";
+
 export interface Project {
     id: string;
     name: string;
@@ -55,25 +57,25 @@ export interface Connection {
 export enum ConnectionType {
     HTTP = "http",
     GRPC = "grpc",
+    WebSocket = "web-socket",
     Connector = "connector",
     Datastore = "datastore",
 }
 
-export interface ServiceMetadata {
+export interface ComponentMetadata {
     type: ConnectionType;
     organization: string;
     project: string;
     component: string;
-    service: string;
+    service?: string;
 }
-
 export interface ConnectorMetadata {
     type: ConnectionType.Connector;
     organization: string;
     package: string;
 }
 
-export type ConnectionMetadata = ServiceMetadata | ConnectorMetadata;
+export type ConnectionMetadata = ComponentMetadata | ConnectorMetadata;
 
 export interface DeploymentMetadata {
     gateways: {
@@ -84,4 +86,20 @@ export interface DeploymentMetadata {
             isExposed: boolean;
         }
     }
+}
+
+// Util function types
+
+export type CommonModel = ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
+export interface NodesAndLinks {
+    nodes: Nodes;
+    links: Links;
+}
+
+export interface Nodes {
+    [key: string]: Map<string, CommonModel>;
+}
+
+export interface Links {
+    [key: string]: Map<string, ComponentLinkModel | ExternalLinkModel | CellLinkModel>;
 }

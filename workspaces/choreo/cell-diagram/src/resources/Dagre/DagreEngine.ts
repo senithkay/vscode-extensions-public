@@ -3,7 +3,7 @@ import * as dagre from 'dagre';
 import * as _ from 'lodash';
 import { GraphLabel } from 'dagre';
 import { Point } from '@projectstorm/geometry';
-import { COMPONENT_NODE, EMPTY_NODE, MAIN_CELL } from './constants';
+import { COMPONENT_NODE, EMPTY_NODE, MAIN_CELL } from '../constants';
 
 export interface DagreEngineOptions {
     graph?: GraphLabel;
