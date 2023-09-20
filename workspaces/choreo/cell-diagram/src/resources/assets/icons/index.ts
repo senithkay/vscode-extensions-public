@@ -11,7 +11,12 @@ export { GatewayIcon } from "./GatewayIcon";
 
 export { ServiceIcon } from "./ServiceIcon";
 export { WebAppIcon } from "./WebAppIcon";
+export { ProxyIcon } from "./ProxyIcon";
+export { EventIcon } from "./EventIcon";
+export { ManualTaskIcon } from "./ManualTaskIcon";
 export { ScheduledTaskIcon } from "./ScheduledTaskIcon";
+export { AddCheckIcon } from "./AddCheckIcon";
+export { WebhookIcon } from "./WebhookIcon";
+export { DatabaseIcon } from "./DatabaseIcon";
 
 export { ConnectionIcon } from "./ConnectionIcon"; 
-export { DatabaseIcon } from "./DatabaseIcon";

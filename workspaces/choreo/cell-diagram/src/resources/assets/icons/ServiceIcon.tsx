@@ -11,11 +11,11 @@ import React, { CSSProperties } from "react";
 
 export function ServiceIcon(props: { styles?: CSSProperties }) {
     return (
-        <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" style={{ ...props.styles }}>
-            <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" transform="translate(2 3)">
-                <path d="m1.5 4.5h14v7.9976807c0 1.1045695-.8954305 2-2 2h-10c-1.1045695 0-2-.8954305-2-2zm0-3.9777832h14c.5522847 0 1 .44771525 1 1v1.9777832c0 .55228475-.4477153 1-1 1h-14c-.55228475 0-1-.44771525-1-1v-1.9777832c0-.55228475.44771525-1 1-1z" />
-                <path d="m6.5 7.5h4" />
-            </g>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ ...props.styles }}>
+            <path
+                fill="currentColor"
+                d="M5 22q-.825 0-1.413-.588T3 20V8.725q-.45-.275-.725-.713T2 7V4q0-.825.588-1.413T4 2h16q.825 0 1.413.588T22 4v3q0 .575-.275 1.012T21 8.725V20q0 .825-.588 1.413T19 22H5ZM5 9v11h14V9H5ZM4 7h16V4H4v3Zm6 7h4q.425 0 .713-.288T15 13q0-.425-.288-.713T14 12h-4q-.425 0-.713.288T9 13q0 .425.288.713T10 14Zm2 .5Z"
+            />
         </svg>
     );
 }

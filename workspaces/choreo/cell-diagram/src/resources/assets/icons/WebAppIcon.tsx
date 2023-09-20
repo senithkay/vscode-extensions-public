@@ -11,16 +11,16 @@ import React, { CSSProperties } from "react";
 
 export function WebAppIcon(props: { styles?: CSSProperties }) {
     return (
-        <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" style={{ ...props.styles }}>
-            <g fill="none" fill-rule="evenodd" transform="translate(2 2)">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style={{ ...props.styles }}>
+            <g fill="none">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M42 18v22a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V18" />
+                <path stroke="currentColor" stroke-linejoin="round" stroke-width="4" d="M6 8a2 2 0 0 1 2-2h32a2 2 0 0 1 2 2v10H6V8Z" />
                 <path
-                    d="m2.5.5h12.0269119c1.1045695 0 2 .8954305 2 2v11.9907459c0 1.0543618-.8158778 1.9181651-1.8507376 1.9945143l-.1588615.0054627-12.02691193-.0577246c-1.10080997-.0052835-1.99040087-.8991544-1.99040087-1.999977v-11.9330213c0-1.1045695.8954305-2 2-2z"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    fill="currentColor"
+                    fill-rule="evenodd"
+                    d="M12 14a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm6 0a2 2 0 1 0 0-4a2 2 0 0 0 0 4Zm6 0a2 2 0 1 0 0-4a2 2 0 0 0 0 4Z"
+                    clip-rule="evenodd"
                 />
-                <path d="m.5 4.5h16.027" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                <circle cx="12.5" cy="12.5" fill="currentColor" r="1" />
             </g>
         </svg>
     );
