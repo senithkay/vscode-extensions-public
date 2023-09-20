@@ -18,11 +18,11 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "monaco-editor";
 
+import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { containsWithin } from "../../../utils/st-utils";
 import { EnumInfo } from "../Node/EnumType";
 import { ModuleVariable, ModuleVarKind } from "../Node/ModuleVariable";
 import { getDefinitionPosition } from "../utils/ls-utils";
-import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 
 export class ModuleVariablesFindingVisitor implements Visitor {
     private readonly moduleVariables: Map<string, ModuleVariable>;
