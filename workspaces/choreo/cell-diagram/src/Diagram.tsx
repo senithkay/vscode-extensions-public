@@ -56,11 +56,6 @@ export function CellDiagram(props: CellDiagramProps) {
 
     // draw diagram
     const drawDiagram = () => {
-        // check if project has components
-        // if (!project?.components?.length) {
-        //     setUserMessage(NO_ENTITIES_DETECTED);
-        //     return;
-        // }
         // get node and links
         const nodeNLinks = getNodesNLinks(project);
         // auto distribute component nodes, component links, empty nodes and cell links
@@ -134,10 +129,7 @@ export function CellDiagram(props: CellDiagramProps) {
         // calculate component diagram width
         const model = diagramEngine.getModel();
         const cellWidth = calculateCellWidth(model);
-        // check if cell node width should change
-        if (cellWidth === cellNodeWidth.current) {
-            return;
-        }
+        // TODO: check if cell node width should change
         const cellNode = model.getNode(MAIN_CELL);
         // change cell node width
         if (!cellNode) {
@@ -153,6 +145,7 @@ export function CellDiagram(props: CellDiagramProps) {
             // update diagram
             diagramEngine.setModel(model);
             diagramEngine.repaintCanvas();
+            // update cell node width
             cellNodeWidth.current = cellWidth;
         }, 4);
     };
