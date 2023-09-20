@@ -7,19 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { SharedNodeModel } from '../../shared-node/shared-node';
-import { CellPortModel } from '../../Cell/CellPort/CellPortModel';
-
+import { PortModelAlignment } from "@projectstorm/react-diagrams";
+import { SharedNodeModel } from "../../shared-node/shared-node";
+import { CellPortModel } from "../../Cell/CellPort/CellPortModel";
+import { EXTERNAL_NODE } from "../../../resources";
+import { getExternalNodeName } from "./external-node-util";
 
 export class ExternalModel extends SharedNodeModel {
+    constructor(id: string) {
+        const name = getExternalNodeName(id);
+        super(EXTERNAL_NODE, name);
 
-    constructor(externalName: string) {
-        super('externalNode', externalName);
-        
-        this.addPort(new CellPortModel(externalName , PortModelAlignment.LEFT));
-        this.addPort(new CellPortModel(externalName , PortModelAlignment.RIGHT));
-        this.addPort(new CellPortModel(externalName , PortModelAlignment.TOP));
-        this.addPort(new CellPortModel(externalName , PortModelAlignment.BOTTOM));        
+        this.addPort(new CellPortModel(name, PortModelAlignment.LEFT));
+        this.addPort(new CellPortModel(name, PortModelAlignment.RIGHT));
+        this.addPort(new CellPortModel(name, PortModelAlignment.TOP));
+        this.addPort(new CellPortModel(name, PortModelAlignment.BOTTOM));
     }
 }

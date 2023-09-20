@@ -24,6 +24,6 @@ export class ConnectionFactory extends AbstractReactFactory<ConnectionModel, Dia
     }
 
     generateModel(event: { initialConfig: any }) {
-        return new ConnectionModel(event.initialConfig.key, event.initialConfig.connection);
+        return new ConnectionModel(event.initialConfig.connection);
     }
 }

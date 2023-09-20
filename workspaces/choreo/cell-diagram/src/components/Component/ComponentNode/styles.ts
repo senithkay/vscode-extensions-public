@@ -60,11 +60,18 @@ export const ComponentName: React.FC<any> = styled.span`
 `;
 
 export const IconWrapper: React.FC<any> = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 32px;
     width: 32px;
-    /* svg {
+
+    color: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
+    font-size: 32px;
+
+    svg {
         fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
-    } */
+    }
 `;
 
 export const PortsContainer = styled.div`

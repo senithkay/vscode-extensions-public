@@ -24,6 +24,6 @@ export class ComponentFactory extends AbstractReactFactory<ComponentModel, Diagr
     }
 
     generateModel(event: { initialConfig: any }) {
-        return new ComponentModel(event.initialConfig.key, event.initialConfig.component);
+        return new ComponentModel(event.initialConfig.component);
     }
 }

@@ -13,7 +13,16 @@ import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
 import { ComponentModel } from "../ComponentModel";
 import { ComponentHead, IconWrapper } from "../styles";
 import { ComponentType } from "../../../../types";
-import { WebAppIcon, ScheduledTaskIcon, ServiceIcon } from "../../../../resources/assets/icons";
+import {
+    WebAppIcon,
+    ScheduledTaskIcon,
+    ServiceIcon,
+    ProxyIcon,
+    EventIcon,
+    AddCheckIcon,
+    ManualTaskIcon,
+    WebhookIcon,
+} from "../../../../resources/assets/icons";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -43,12 +52,33 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
 
     const getComponentIcon = () => {
         switch (node.component.type) {
-            case ComponentType.WEB_APP:
-                return <WebAppIcon />;
+            case ComponentType.API_PROXY:
+                return <ProxyIcon />;
+            // return <i className="fw-proxy"></i>;
+            case ComponentType.EVENT_HANDLER:
+                return <EventIcon />;
+            // return <i className="fw-event-round"></i>;
+            case ComponentType.MANUAL_TASK:
+                return <ManualTaskIcon />;
+            // return <i className="fw-click-round"></i>;
             case ComponentType.SCHEDULED_TASK:
                 return <ScheduledTaskIcon />;
+            // return <i className="fw-alarm-round"></i>;
+            case ComponentType.SERVICE:
+                return <ServiceIcon />;
+            // return <i className="fw-inventory-round"></i>;
+            case ComponentType.TEST:
+                return <AddCheckIcon />;
+            // return <i className="fw-add-check-round"></i>;
+            case ComponentType.WEB_APP:
+                return <WebAppIcon />;
+            // return <i className="fw-browser-round"></i>;
+            case ComponentType.WEB_HOOK:
+                return <WebhookIcon />;
+            // return <i className="fw-webhook-round"></i>;
             default:
                 return <ServiceIcon />;
+            // return <i className="fw-kite-round"></i>;
         }
     };
 
