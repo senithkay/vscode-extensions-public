@@ -19,28 +19,12 @@ import {
     OPEN_GITHUB_REPO_PAGE_EVENT,
 } from "@wso2-enterprise/choreo-core";
 import {
-    ContextMenu,
+    ContextMenu, MenuItem,
 } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { BitBucketIcon, GithubIcon } from "../../icons";
-import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
-
-export interface MenuItem {
-    id: number | string;
-    label: React.ReactNode;
-    onClick: () => void;
-    disabled?: boolean;
-}
-
-const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
-    text-align: left;
-    width: 220px;
-    display: flex;
-    align-items: center;
-    padding: 6px 10px;
-`;
 
 const InlineIcon = styled(Codicon)`
     vertical-align: sub;
@@ -142,26 +126,6 @@ export const ComponentContextMenu = (props: {
     const icon = (<Codicon name="ellipsis" />);
 
     return (
-        <ContextMenu icon={icon} isLoading={deletingComponent} menuId={component.displayName} sx={{right: 0, marginTop: 50}}>
-            <VSCodeDataGrid aria-label="Context Menu">
-                {menuItems.map((item) => (
-                    <VSCodeDataGridRow
-                        key={item.id}
-                        onClick={() => {
-                            if (!item.disabled) {
-                                item.onClick();;
-                            }
-                        }}
-                        style={{
-                            cursor: item.disabled ? "not-allowed" : "pointer",
-                            opacity: item.disabled ? 0.5 : 1,
-                        }}
-                        id={`component-list-menu-${item.id}`}
-                    >
-                        <VSCodeDataGridInlineCell>{item.label}</VSCodeDataGridInlineCell>
-                    </VSCodeDataGridRow>
-                ))}
-            </VSCodeDataGrid>
-        </ContextMenu>
+        <ContextMenu icon={icon} menuItems={menuItems} isLoading={deletingComponent} menuId={component.displayName} sx={{right: 0, marginTop: 50}}/>
     );
 };

@@ -10,14 +10,11 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 
 import { ContextMenu } from "./ContextMenu";
-import { colors } from "../Commons/Colors";
 
 const ComponentStory = () => {
 
     return (
-        <ContextMenu>
-            <div style={{color: colors.editorForeground}}> Sample Context Menu</div>
-        </ContextMenu>
+        <ContextMenu menuItems={[{id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}}]}/>
     );
 };
 
