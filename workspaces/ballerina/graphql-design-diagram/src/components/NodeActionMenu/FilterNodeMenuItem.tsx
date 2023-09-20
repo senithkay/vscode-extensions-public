@@ -31,7 +31,7 @@ export function FilterNodeMenuItem(props: FocusToNodeMenuProps) {
     };
 
     return (
-        <MenuItem onClick={handleOnClick} className={menuStyles.menuItem}>
+        <MenuItem onClick={handleOnClick} className={menuStyles.menuItem} data-testid="show-subgraph-menu">
             <ListItemIcon className={menuStyles.menuIcon}>
                 <CenterFocusWeakIcon fontSize="small" />
             </ListItemIcon>

@@ -32,7 +32,7 @@ export function UnionNodeWidget(props: UnionNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.unionObject.name;
 
     return (
-        <NodeContainer isSelected={isNodeSelected}>
+        <NodeContainer isSelected={isNodeSelected} data-testid={`union-node-${node?.unionObject?.name}`}>
             <UnionNodeHeadWidget node={node} engine={engine}/>
             {node.unionObject.possibleTypes.map((field, index) => {
                 return (

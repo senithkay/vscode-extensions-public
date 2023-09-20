@@ -17,6 +17,7 @@ import {
     ActivityBar,
     BottomBarPanel,
     InputBox,
+    WebView
 } from "vscode-extension-tester";
 import { DEFAULT_TIME_OUT, DND_PALETTE_COMMAND, VSCODE_ZOOM_TIME } from "./constants";
 import { fail } from "assert";
@@ -54,6 +55,41 @@ export async function waitForMultipleElementsLocated(
         driver.wait(until.elementLocated(locator), timeout)
     );
     await Promise.all(promises);
+}
+
+export function getElementByXPathUsingTestID(
+    testID: string
+) {
+    return By.xpath("//*[@data-testid='" + testID + "']");
+}
+
+export function getInputElementByXPathUsingValue(
+    value: string
+) {
+    return By.xpath("//input[@value='" + value + "']");
+}
+
+export function getElementByXPathUsingTitle(
+    title: string
+) {
+    return By.xpath("//*[@title='" + title + "']");
+}
+
+export async function waitForElementToAppear(
+    testId: string,
+) {
+    waitUntil(getElementByXPathUsingTestID(testId));
+}
+
+export async function clickListItem(webview: WebView, className: string, text: string) {
+    const options = await webview.findWebElement(By.xpath(`//li[contains(@class, '${className}') and contains(text(), '${text}')]`));
+    await waitUntilVisible(options);
+    await options.click();
+}
+
+export async function clickWebElement(webview: WebView, locator: Locator) {
+    const element = await webview.findWebElement(locator);
+    await element.click();
 }
 
 export async function waitForElementToDisappear(
@@ -175,6 +211,10 @@ export async function workbenchZoomOut(workbench, times) {
         await workbench.executeCommand("View: Zoom Out");
         await wait(VSCODE_ZOOM_TIME); // This is a constant wait to apply zoom effect into the vscode
     }
+}
+
+export function waitUntilVisible(element: WebElement, timeout: number = DEFAULT_TIME_OUT) {
+    return VSBrowser.instance.driver.wait(until.elementIsVisible(element), timeout);
 }
 
 export async function enableDndMode(workbench) {

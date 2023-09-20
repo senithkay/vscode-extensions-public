@@ -74,6 +74,7 @@ export function FunctionCard(props: FunctionCardProps) {
             <FunctionContainer
                 onMouseOver={() => handleOnHover('SELECT')}
                 onMouseLeave={() => handleOnHover('UNSELECT')}
+                data-testid={`function-card-${functionElement.identifier}`}
             >
                 {isResourceFunction ? (
                     <ResourceFunctionWidget

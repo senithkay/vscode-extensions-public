@@ -185,8 +185,8 @@ export async function getRecordCompletions(
             const importRecCompletions = importCompletions.filter((item) => item.kind === CompletionItemKind.Struct);
 
             importRecCompletions.forEach((item) => {
-                if (!completionMap.has(item.insertText)) {
-                    completionMap.set(item.insertText, { ...item, module: moduleName });
+                if (!completionMap.has(`${item.insertText}${moduleName}`)) {
+                    completionMap.set(`${item.insertText}${moduleName}`, { ...item, module: moduleName });
                 }
             });
         }

@@ -78,6 +78,7 @@ export function GraphqlServiceLinkWidget(props: WidgetProps) {
             />
 
             <path
+                data-testid={link.getSourcePort().getName() + "-" + link.getTargetPort().getName()}
                 id={link.getID()}
                 cursor={'pointer'}
                 d={link.getCurvePath()}
