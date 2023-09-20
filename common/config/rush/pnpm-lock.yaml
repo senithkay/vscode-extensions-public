@@ -23,7 +23,6 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
-      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       axios: ^1.2.2
       chai: ^4.3.4
@@ -80,7 +79,6 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/choreo-client': link:../../choreo/choreo-client
       '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
-      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       cors-anywhere: 0.4.4
       del-cli: 5.0.1
