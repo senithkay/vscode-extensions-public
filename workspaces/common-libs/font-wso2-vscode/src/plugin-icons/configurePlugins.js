@@ -22,26 +22,6 @@ const fontJson = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
 const configPath = path.join(__dirname, 'config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 
-// Define a function to copy files and folders
-function copyFontToPlugins(source, target) {
-  if (!fs.existsSync(target)) {
-    fs.mkdirSync(target, { recursive: true });
-  }
-
-  const files = fs.readdirSync(source);
-
-  files.forEach((file) => {
-    const sourceFilePath = path.join(source, file);
-    const targetFilePath = path.join(target, file);
-
-    if (fs.lstatSync(sourceFilePath).isDirectory()) {
-      copyFontToPlugins(sourceFilePath, targetFilePath);
-    } else {
-      fs.copyFileSync(sourceFilePath, targetFilePath);
-    }
-  });
-}
-
 // Define a function to extract content value from CSS
 function extractContentValue(iconName) {
   const classRegex = new RegExp(`\\.fw-${iconName}:before\\s*{\\s*content:\\s*"\\\\([a-fA-F0-9]+)";\\s*}`, 'g');
@@ -80,13 +60,6 @@ function generateIconsContribution(selectedIconJson) {
   }
   return iconsContribution;
 }
-
-// Copy fonts to plugins
-const choreoExtFontPath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'resources', 'fw-vscode');
-const ballerinaExtFontPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'resources', 'fw-vscode');
-
-copyFontToPlugins(fontDir, choreoExtFontPath);
-copyFontToPlugins(fontDir, ballerinaExtFontPath);
 
 // Generate icons contribution for Ballerina and Choreo extensions
 const ballerinaIcons = config.ballerinaExtIcons || [];
