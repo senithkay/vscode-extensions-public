@@ -409,6 +409,7 @@ const complexModel: Project = {
             id: "Products",
             version: "0.1.0",
             type: "service",
+            kind: "ballerina",
             services: {
                 "ABC:EStore:Products:service1": {
                     id: "ABC:EStore:Products:service1",
@@ -438,6 +439,7 @@ const complexModel: Project = {
             id: "Inventories",
             version: "0.1.0",
             type: "service",
+            kind: "java",
             services: {
                 "ABC:EStore:Inventories:service1": {
                     id: "ABC:EStore:Inventories:service1",
