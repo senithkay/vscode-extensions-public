@@ -84,11 +84,11 @@ export class NodeInitVisitor implements Visitor {
         private selection: SelectionState
     ) { }
 
-    beginVisitFunctionDefinition(node: FunctionDefinition) {
+    async beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
-        let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.filePath, this.context.langClientPromise, this.context);
-        let enumTypes: Map<string, ModuleVariable> = getEnumTypes(exprFuncBody, this.context.filePath, this.context.langClientPromise, this.context);
+        let moduleVariables: Map<string, ModuleVariable> = await getModuleVariables(exprFuncBody, this.context.filePath, this.context.langClientPromise, this.context);
+        let enumTypes: Map<string, ModuleVariable> = await getEnumTypes(exprFuncBody, this.context.filePath, this.context.langClientPromise, this.context);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
             let returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
@@ -238,8 +238,8 @@ export class NodeInitVisitor implements Visitor {
                         this.queryNode = queryNode;
                         queryNode.targetPorts = expandedHeaderPorts;
                         queryNode.height = intermediateClausesHeight;
-                        moduleVariables = getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
-                        enumTypes = getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
+                        moduleVariables = await getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
+                        enumTypes = await getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
                     } else {
                         if (returnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
@@ -349,7 +349,7 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
+    async beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
         const isLetVarDecl = STKindChecker.isLetVarDecl(parent);
@@ -560,7 +560,7 @@ export class NodeInitVisitor implements Visitor {
                 this.otherInputNodes.push(letExprNode);
 
                 // create node for module variables
-                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
+                const moduleVariables: Map<string, ModuleVariable> = await getModuleVariables(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
                 if (moduleVariables.size > 0) {
                     const moduleVarNode = new ModuleVariableNode(
                         this.context,
@@ -571,7 +571,7 @@ export class NodeInitVisitor implements Visitor {
                 }
 
                 // create node for enums
-                const enumTypes: Map<string, ModuleVariable> = getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
+                const enumTypes: Map<string, ModuleVariable> = await getEnumTypes(selectClause.expression, this.context.filePath, this.context.langClientPromise, this.context);
                 if (enumTypes.size > 0) {
                     const enumTypeNode = new EnumTypeNode(
                         this.context,
