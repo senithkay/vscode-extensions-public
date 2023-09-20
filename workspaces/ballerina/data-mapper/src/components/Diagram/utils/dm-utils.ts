@@ -40,6 +40,7 @@ import {
 	STKindChecker,
 	STNode,
 	traversNode,
+	traversNodeAsync,
 	TypeCastExpression
 } from "@wso2-enterprise/syntax-tree";
 
@@ -935,15 +936,15 @@ export function getInputNodes(node: STNode) {
 	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
-export function getModuleVariables(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
+export async function getModuleVariables(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
 	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise, context);
-	traversNode(node, moduleVarFindingVisitor);
+	await traversNodeAsync(node, moduleVarFindingVisitor);
 	return moduleVarFindingVisitor.getModuleVariables();
 }
 
-export function getEnumTypes(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
+export async function getEnumTypes(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
 	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise, context);
-	traversNode(node, enumTypeFindingVisitor);
+	await traversNodeAsync(node, enumTypeFindingVisitor);
 	return enumTypeFindingVisitor.getEnumTypes();
 }
 
