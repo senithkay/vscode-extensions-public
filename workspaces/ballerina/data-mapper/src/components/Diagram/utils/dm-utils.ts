@@ -45,6 +45,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
+import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DMNode } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
@@ -91,7 +92,6 @@ import {
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
-import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
