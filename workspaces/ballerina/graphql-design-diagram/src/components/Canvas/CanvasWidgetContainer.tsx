@@ -36,7 +36,7 @@ export const Container: React.FC<any> = styled.div`
 export class CanvasWidgetContainer extends React.Component {
     render() {
         return (
-            <Container className="dotted-background">
+            <Container className="dotted-background" data-testid="graphql-canvas-widget-container">
                 {this.props.children}
             </Container>
         );
