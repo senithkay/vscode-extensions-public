@@ -35,7 +35,7 @@ export interface ContextMenuProps {
     sx?: any;
 }
 
-export interface ContainerProps {
+interface ContainerProps {
     sx?: any;
 }
 
