@@ -42,6 +42,27 @@ export const ComponentHead: React.FC<any> = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
+`;
+
+export const ComponentKind: React.FC<any> = styled.div`
+    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
+    border: ${(props: StyleProps) => `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
+    border-radius: 50%;
+
+    height: ${COMPONENT_CIRCLE_WIDTH / 3}px;
+    width: ${COMPONENT_CIRCLE_WIDTH / 3}px;
+
+    position: relative;
+    bottom: -28px;
+    right: 28px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 4px;
 `;
 
 export const ComponentName: React.FC<any> = styled.span`
@@ -63,14 +84,16 @@ export const IconWrapper: React.FC<any> = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 32px;
-    width: 32px;
+    height: 100%;
+    width: 100%;
 
     color: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
     font-size: 32px;
 
     svg {
         fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
+        height: 32px;
+        width: 32px;
     }
 `;
 

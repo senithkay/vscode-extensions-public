@@ -20,3 +20,10 @@ export { WebhookIcon } from "./WebhookIcon";
 export { DatabaseIcon } from "./DatabaseIcon";
 
 export { ConnectionIcon } from "./ConnectionIcon"; 
+
+export { CodeIcon } from "./CodeIcon";
+export { BallerinaIcon } from "./lang/BallerinaIcon";
+export { JavaIcon } from "./lang/JavaIcon";
+export { GoIcon } from "./lang/GoIcon";
+export { NodeJsIcon } from "./lang/NodeJsIcon";
+export { PythonIcon } from "./lang/PythonIcon";

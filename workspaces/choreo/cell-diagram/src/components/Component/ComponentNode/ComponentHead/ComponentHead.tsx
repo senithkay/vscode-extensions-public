@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
 import { ComponentModel } from "../ComponentModel";
-import { ComponentHead, IconWrapper } from "../styles";
+import { ComponentHead, ComponentKind, IconWrapper } from "../styles";
 import { ComponentType } from "../../../../types";
 import {
     WebAppIcon,
@@ -22,6 +22,12 @@ import {
     AddCheckIcon,
     ManualTaskIcon,
     WebhookIcon,
+    CodeIcon,
+    BallerinaIcon,
+    JavaIcon,
+    GoIcon,
+    NodeJsIcon,
+    PythonIcon,
 } from "../../../../resources/assets/icons";
 
 interface ServiceHeadProps {
@@ -50,8 +56,8 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
         }
     };
 
-    const getComponentIcon = () => {
-        switch (node.component.type) {
+    const getComponentTypeIcon = (type: ComponentType) => {
+        switch (type) {
             case ComponentType.API_PROXY:
                 return <ProxyIcon />;
             // return <i className="fw-proxy"></i>;
@@ -82,6 +88,23 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
         }
     };
 
+    const getComponentKindIcon = (kind: string) => {
+        switch (kind) {
+            case "ballerina":
+                return <BallerinaIcon />;
+            case "go":
+                return <GoIcon />;
+            case "java":
+                return <JavaIcon />;
+            case "node":
+                return <NodeJsIcon />;
+            case "python":
+                return <PythonIcon />;
+            default:
+                return <CodeIcon />;
+        }
+    };
+
     return (
         <ComponentHead
             isSelected={isSelected}
@@ -89,9 +112,10 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
             onMouseLeave={() => handleOnHover("UNSELECT")}
             isCollapsed={isCollapsed}
         >
-            <IconWrapper>{getComponentIcon()}</IconWrapper>
+            <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
+            {node.component.kind && <ComponentKind>{getComponentKindIcon(node.component.kind)}</ComponentKind>}
         </ComponentHead>
     );
 }

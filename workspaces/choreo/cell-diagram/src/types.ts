@@ -32,6 +32,7 @@ export interface Component {
     id: string;
     version: string;
     type: ComponentType;
+    kind?: string; // Component implemented language
     services: Services;
     connections: Connection[];
 }

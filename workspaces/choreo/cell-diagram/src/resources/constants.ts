@@ -59,4 +59,4 @@ export const DOT_WIDTH = 20;
 export const COMPONENT_CIRCLE_WIDTH = 80;
 
 export const LABEL_FONT_SIZE = 20;
-export const LABEL_MAX_WIDTH = 120;
+export const LABEL_MAX_WIDTH = 160;

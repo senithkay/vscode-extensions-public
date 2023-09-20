@@ -14,11 +14,11 @@ export function getComponentName(component: Component): string {
     return getComponentNameById(component.id);
 }
 
-export function getComponentNameById(id:string): string {
+export function getComponentNameById(id: string): string {
     return `${COMPONENT_NODE}${NAME_JOIN_CHAR}${id}`;
 }
 
-export function getComponentMetadataByName(name: string): { type: string, id: string } {
+export function getComponentMetadataByName(name: string): { type: string; id: string } {
     const parts = name.split(NAME_JOIN_CHAR);
     return { type: parts[0], id: parts[1] };
 }
