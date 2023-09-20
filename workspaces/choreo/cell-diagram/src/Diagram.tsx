@@ -10,14 +10,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-import {
-    generateEngine,
-    getComponentDiagramWidth,
-    getNodesNLinks,
-    manualDistribute,
-    calculateCellWidth,
-    isRenderInsideCell,
-} from "./utils";
+import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
 import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
 import { Colors, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
@@ -141,6 +134,7 @@ export function CellDiagram(props: CellDiagramProps) {
         // calculate component diagram width
         const model = diagramEngine.getModel();
         const cellWidth = calculateCellWidth(model);
+        // check if cell node width should change
         if (cellWidth === cellNodeWidth.current) {
             return;
         }
@@ -150,10 +144,8 @@ export function CellDiagram(props: CellDiagramProps) {
             setUserMessage(NO_CELL_NODE); // TODO: handle error properly
             return;
         }
-        
         cellNode.width = cellWidth;
         cellNode.updateDimensions({ width: cellWidth, height: cellWidth });
-        cellNodeWidth.current = cellWidth;
 
         setTimeout(() => {
             // manual distribute - update empty node, external node and connector node position based on cell node position
@@ -161,7 +153,8 @@ export function CellDiagram(props: CellDiagramProps) {
             // update diagram
             diagramEngine.setModel(model);
             diagramEngine.repaintCanvas();
-        }, 10);
+            cellNodeWidth.current = cellWidth;
+        }, 4);
     };
 
     const ctx = {

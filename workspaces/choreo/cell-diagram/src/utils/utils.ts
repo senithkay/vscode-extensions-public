@@ -109,7 +109,8 @@ export function getComponentDiagramWidth(models: NodesAndLinks): number {
         ...models.nodes.componentNodes.values(),
         ...models.links.componentLinks.values(),
         ...models.nodes.emptyNodes.values(),
-        ...models.links.cellLinks.values()
+        ...models.links.cellLinks.values(),
+        ...models.nodes.connectionNodes.values()
     );
     // auto distribute component nodes, component links, empty nodes and cell links
     dagreEngine.redistribute(tempModel);
@@ -356,7 +357,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
         component.connections.forEach((connection) => {
             const connectionMetadata = getConnectionMetadata(connection);
             if (connectionMetadata && !isConnectorConnection(connection) && !isExternalConnection(project.name, connection)) {
-                const associatedComponent = nodes.get(getComponentNameById(connectionMetadata.component)) as ComponentModel;
+                const associatedComponent = nodes.get(getComponentNameById((connectionMetadata as ComponentMetadata).component)) as ComponentModel;
                 if (callingComponent && associatedComponent) {
                     const sourcePort: ComponentPortModel | null = callingComponent.getPort(`right-${callingComponent.getID()}`);
                     const targetPort: ComponentPortModel | null = associatedComponent.getPort(`left-${associatedComponent.getID()}`);
