@@ -6,30 +6,16 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from "react";
+import React from "react";
 import { storiesOf } from "@storybook/react";
 
 import { ContextMenu } from "./ContextMenu";
-import { Codicon } from "../Codicon/Codicon";
 import { colors } from "../Commons/Colors";
 
 const ComponentStory = () => {
-    const [isOpen, setIsOpen] = useState(false);
 
-    const handleOpen = () => {
-        setIsOpen(true);
-    };
-    const handleClose = () => {
-        setIsOpen(false);
-    };
-    const icon = (<Codicon name="ellipsis" />);
     return (
-        <ContextMenu
-            isOpen={isOpen}
-            onClick={handleOpen}
-            onClose={handleClose}
-            icon={icon}
-        >
+        <ContextMenu>
             <div style={{color: colors.editorForeground}}> Sample Context Menu</div>
         </ContextMenu>
     );

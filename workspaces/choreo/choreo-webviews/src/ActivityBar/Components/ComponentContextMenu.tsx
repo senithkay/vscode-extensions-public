@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import styled from "@emotion/styled";
 import {
     Component,
@@ -59,8 +59,6 @@ export const ComponentContextMenu = (props: {
 }) => {
     const { component, deletingComponent, handleDeleteComponentClick } = props;
     const { choreoUrl, currentProjectOrg } = useChoreoWebViewContext();
-
-    const [isOpen, setIsOpen] = useState(false);
 
     const componentBaseUrl = `${choreoUrl}/organizations/${currentProjectOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
     const openComponentUrl = useCallback(() => {
@@ -141,34 +139,17 @@ export const ComponentContextMenu = (props: {
         disabled: deletingComponent,
     });
 
-    const handleItemClick = (item: MenuItem) => {
-        item.onClick();
-        setIsOpen(false);
-    };
-
-    const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        event.stopPropagation();
-        setIsOpen(true);
-    };
-
-    const handleMenuClose = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        event.stopPropagation();
-        setIsOpen(false);
-    };
-
     const icon = (<Codicon name="ellipsis" />);
 
     return (
-        <ContextMenu isOpen={isOpen} icon={icon} isLoading={deletingComponent} menuId={component.displayName} onClick={handleClick} onClose={handleMenuClose} sx={{right: 0, marginTop: 50}}>
+        <ContextMenu icon={icon} isLoading={deletingComponent} menuId={component.displayName} sx={{right: 0, marginTop: 50}}>
             <VSCodeDataGrid aria-label="Context Menu">
                 {menuItems.map((item) => (
                     <VSCodeDataGridRow
                         key={item.id}
-                        onClick={(event) => {
+                        onClick={() => {
                             if (!item.disabled) {
-                                event.stopPropagation();
-                                handleItemClick(item);
-                                setIsOpen(false);
+                                item.onClick();;
                             }
                         }}
                         style={{
