@@ -40,7 +40,7 @@ export const CellNode: React.FC<any> = styled.div`
         left: 0;
     }
 
-    path:first-child {
+    #mainCell path {
         stroke: ${Colors.NODE_BORDER};
         stroke-width: 2;
         fill: none;
@@ -75,9 +75,6 @@ export const TopPortCircle: React.FC<any> = styled(Circle)`
     position: absolute;
     top: -${CIRCLE_WIDTH / 2}px;
     left: 50% - ${CIRCLE_WIDTH / 2}px;
-    svg {
-        transform: rotate(90deg);
-    }
 `;
 
 export const LeftPortCircle: React.FC<any> = styled(Circle)`
@@ -123,7 +120,16 @@ export const Label: React.FC<any> = styled.div`
 export const IconWrapper: React.FC<any> = styled.div`
     height: 32px;
     width: 32px;
-    svg {
-        fill: ${Colors.NODE_BORDER};
-    }
+    color: ${Colors.NODE_BORDER};
+    font-size: 28px;
 `;
+
+export const TopIconWrapper: React.FC<any> = styled.div`
+    height: 32px;
+    width: 32px;
+    color: ${Colors.NODE_BORDER};
+    font-size: 28px;
+    transform: rotate(90deg);
+`;
+
+

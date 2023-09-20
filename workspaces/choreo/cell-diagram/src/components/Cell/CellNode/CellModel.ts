@@ -46,7 +46,7 @@ export class CellModel extends SharedNodeModel {
         // East bound ports - for other project connections
         if (this.connectionNodes) {
             this.connectionNodes.forEach((connectionNode: ConnectionModel) => {
-                const portName = getCellPortIdWithoutAlignment(cellName, CellBounds.EastBound, connectionNode.getID());
+                const portName = getCellPortIdWithoutAlignment(cellName, CellBounds.EastBound, connectionNode.connection.id);
                 this.addPort(new CellPortModel(portName, PortModelAlignment.LEFT));
                 this.addPort(new CellPortModel(portName, PortModelAlignment.RIGHT));
             });
@@ -55,7 +55,7 @@ export class CellModel extends SharedNodeModel {
         // South bound ports - for non platform connectors
         if (this.connectorNodes) {
             this.connectorNodes.forEach((connectorNode: ConnectionModel) => {
-                const portName = getCellPortIdWithoutAlignment(cellName, CellBounds.SouthBound, connectorNode.getID());
+                const portName = getCellPortIdWithoutAlignment(cellName, CellBounds.SouthBound, connectorNode.connection.id);
                 this.addPort(new CellPortModel(portName, PortModelAlignment.TOP));
                 this.addPort(new CellPortModel(portName, PortModelAlignment.BOTTOM));
             });

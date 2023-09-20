@@ -10,7 +10,7 @@
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { SharedNodeModel } from '../../shared-node/shared-node';
 import { CellPortModel } from '../CellPort/CellPortModel';
-import { getEmptyNodeName } from '../CellNode/cell-util';
+import { getEmptyNodeName } from './empty-node-util';
 import { CellBounds } from '../CellNode/CellModel';
 import { CIRCLE_WIDTH, EMPTY_NODE } from '../../../resources';
 
@@ -18,17 +18,16 @@ export class EmptyModel extends SharedNodeModel {
     readonly bound: CellBounds;
     readonly width: number;
 
-    constructor(name: string, bound: CellBounds, width?:number, suffix?: string) {
-        const nodeName = getEmptyNodeName(name, bound, suffix);
-        
-        super(EMPTY_NODE, nodeName);
+    constructor(bound: CellBounds, width?:number, suffix?: string) {
+        const name = getEmptyNodeName(bound, suffix);        
+        super(EMPTY_NODE, name);
         this.bound = bound;
         this.width = width || CIRCLE_WIDTH;
         this.setLocked(true);
 
-        this.addPort(new CellPortModel(nodeName , PortModelAlignment.TOP));
-        this.addPort(new CellPortModel(nodeName, PortModelAlignment.BOTTOM));
-        this.addPort(new CellPortModel(nodeName, PortModelAlignment.LEFT));
-        this.addPort(new CellPortModel(nodeName, PortModelAlignment.RIGHT));       
+        this.addPort(new CellPortModel(name , PortModelAlignment.TOP));
+        this.addPort(new CellPortModel(name, PortModelAlignment.BOTTOM));
+        this.addPort(new CellPortModel(name, PortModelAlignment.LEFT));
+        this.addPort(new CellPortModel(name, PortModelAlignment.RIGHT));       
     }
 }
