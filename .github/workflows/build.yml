@@ -229,6 +229,7 @@ jobs:
 
       - name: Run tests
         run: |
+          npx playwright install
           cd workspaces/choreo/choreo-extension 
           pnpm run e2e-test-setup
           export $(dbus-launch)
