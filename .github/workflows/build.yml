@@ -55,7 +55,7 @@ jobs:
           echo "runChoreoExtTests=false" >> $GITHUB_OUTPUT
           # Get list of all changed files in the PR
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
-            git remote set-url origin https://${{ secrets.BALLERINA_BOT_USERNAME }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
+            git remote set-url origin https://$BOT_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
             git fetch refs/remotes/origin/main
             CHANGED_DIRS=$(git diff --name-only HEAD..main | grep -E "^workspaces/*" || true)
           else
@@ -78,6 +78,7 @@ jobs:
             echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
           fi
         env:
+          BOT_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
       - name: Block if have non related diff files
