@@ -548,6 +548,16 @@
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "test-gpt",
+      "projectFolder": "workspaces/test-gpt/extension",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/testgpt-vscode-webviews",
+      "projectFolder": "workspaces/test-gpt/webviews",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }
