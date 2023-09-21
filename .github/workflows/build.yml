@@ -55,10 +55,10 @@ jobs:
           echo "runChoreoExtTests=false" >> $GITHUB_OUTPUT
           # Get list of all changed files in the PR
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
-            TRIGGERED_BRANCH=$(echo $GITHUB_REF | awk -F'/' '{print $3}')
-            CHANGED_DIRS=$(git diff --name-only origin/$TRIGGERED_BRANCH..origin/main | grep -E "^workspaces/*" || true)
+            git fetch origin/main
+            CHANGED_DIRS=$(git diff --name-only HEAD..main | grep -E "^workspaces/*" || true)
           else
-            CHANGED_DIRS=$(git diff --name-only origin/HEAD^..origin/HEAD | grep -E "^workspaces/*" || true)
+            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
           fi
 
           # Ballerina ext
