@@ -14,17 +14,38 @@ inputs:
     required: true
   bot_token:
     description: 'Ballerina bot token'
-    required: true      
+    required: true
+  choreo:
+    description: 'Is Choreo'
+    type: boolean
+    required: true
+  ballerina:
+   description: 'Is Ballerina'    
+    type: boolean
+    required: true
 runs:
   using: "composite"
   steps:
+      - name: Config git
+        shell: bash
+        run: |
+          git config --global user.name ${{ inputs.bot_username }}
+          git config --global user.email ${{ inputs.bot_email }}
+
+      - name: Add Ballerina git changes
+        if: ${{ inputs.ballerina == 'true' }}
+        shell: bash
+        run: git add workspaces/ballerina/*/*.json
+
+      - name: Add Choreo git changes
+        if: ${{ inputs.choreo == 'true' }}
+        shell: bash
+        run: git add workspaces/choreo/*/*.json
+
       - name: Commit version
         shell: bash
         id: commit
         run: |
-          git config --global user.name ${{ inputs.bot_username }}
-          git config --global user.email ${{ inputs.bot_email }}
-          git add workspaces/*/*.json
           git commit -m "Update version to ${{ inputs.version }}"
           git checkout -b "${{ inputs.version }}"
           git remote set-url origin https://${{ inputs.bot_username }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
