@@ -16,6 +16,7 @@ export * from './components/ContextMenu/ContextMenu';
 export * from './components/Icon/Icon';
 export * from './components/ComponentCard/ComponentCard';
 export * from './components/Typography/Typography';
+export * from './components/Button/Button';
 
 export * from './components/Commons/ErrorBanner';
 
