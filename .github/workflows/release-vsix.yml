@@ -83,11 +83,11 @@ jobs:
             echo "releaseMode=latest" >> $GITHUB_OUTPUT
           fi 
 
-      - name: Create a release in wso2/ballerina-plugin-vscode repo
+      - name: Create a release in wso2/ballerina-vscode repo
         if: ${{ github.event.inputs.ballerina == 'true' }}
         uses: ./.github/actions/release
         with:
-          repo: wso2/ballerina-plugin-vscode
+          repo: wso2/ballerina-vscode
           name: ballerina
           token: ${{ secrets.PUBLISH_PAT }}
           threadId: ${{ github.run_id }}
@@ -114,7 +114,7 @@ jobs:
 
   Notify:
     needs: [Release]
-    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/ballerina-plugin-vscode'}}
+    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/vscode-extensions'}}
     runs-on: ubuntu-latest
     steps:
       - name: "Release Notification"
@@ -131,7 +131,7 @@ jobs:
                     "widgets": [
                       {
                         "textParagraph": {
-                            "text": "<b>&#x274C; Repository: <font color=\"#ff0000\">wso2-enterprise/ballerina-plugin-vscode</font></b>"
+                            "text": "<b>&#x274C; Repository: <font color=\"#ff0000\">wso2-enterprise/vscode-extensions</font></b>"
                         }
                       },
                       {
@@ -143,7 +143,7 @@ jobs:
                               "text": "View Workflow",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://github.com/wso2-enterprise/ballerina-plugin-vscode/actions/runs/${{ github.run_id }}"
+                                  "url": "https://github.com/wso2-enterprise/vscode-extensions/actions/runs/${{ github.run_id }}"
                                 }
                               }
                             }
