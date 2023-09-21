@@ -48,7 +48,7 @@ jobs:
         id: testMatrix
         run: |
           testArray=""
-          if [[ ${{ inputs.isPreRelease }} = 'false' ]]; then
+          if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
             # Get list of all changed files in the PR
             CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
 
