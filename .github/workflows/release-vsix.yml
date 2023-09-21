@@ -28,32 +28,38 @@ on:
           - 'N/A'     
 
 jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      isPreRelease: ${{ inputs.isPreRelease }}
+      enableCache: false
+      ballerina: ${{ inputs.ballerina }}
+      choreo: ${{ inputs.choreo }}
+      version: ${{ inputs.version }}
+
   Release:
     name: Release VSIX
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/build.yml
-        secrets: inherit
+      - name: Restore build
+        uses: actions/download-artifact@v3
         with:
-          isPreRelease: ${{ inputs.isPreRelease }}
-          enableCache: false
-          ballerina: ${{ inputs.ballerina }}
-          choreo: ${{ inputs.choreo }}
-          version: ${{ inputs.version }}
+          name: ExtBuild
+          path: ./
 
-      - uses: actions/setup-node@v3
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
         with:
-          always-auth: true
-          node-version: 16.x
-          registry-url: "https://npm.pkg.github.com"
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7.26.3
-
-      - run: |
-          node common/scripts/install-run-rush.js install
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
 
       - name: Get version
         id: vsix
