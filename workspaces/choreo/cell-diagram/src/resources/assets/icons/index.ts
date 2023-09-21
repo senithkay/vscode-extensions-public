@@ -7,8 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+// Cell icons
 export { GatewayIcon } from "./GatewayIcon";
-
+export { ConnectionIcon } from "./ConnectionIcon"; 
+// Component type icons
 export { ServiceIcon } from "./ServiceIcon";
 export { WebAppIcon } from "./WebAppIcon";
 export { ProxyIcon } from "./ProxyIcon";
@@ -18,12 +20,12 @@ export { ScheduledTaskIcon } from "./ScheduledTaskIcon";
 export { AddCheckIcon } from "./AddCheckIcon";
 export { WebhookIcon } from "./WebhookIcon";
 export { DatabaseIcon } from "./DatabaseIcon";
-
-export { ConnectionIcon } from "./ConnectionIcon"; 
-
+// Language icons
 export { CodeIcon } from "./CodeIcon";
 export { BallerinaIcon } from "./lang/BallerinaIcon";
 export { JavaIcon } from "./lang/JavaIcon";
 export { GoIcon } from "./lang/GoIcon";
 export { NodeJsIcon } from "./lang/NodeJsIcon";
 export { PythonIcon } from "./lang/PythonIcon";
+export { RubyIcon } from "./lang/RubyIcon";
+export { RustIcon } from "./lang/RustIcon";

@@ -8,6 +8,7 @@
  */
 
 import React, { useEffect, useRef, useState } from "react";
+import { camelCase, startCase } from "lodash";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
 import { ComponentModel } from "../ComponentModel";
@@ -22,13 +23,8 @@ import {
     AddCheckIcon,
     ManualTaskIcon,
     WebhookIcon,
-    CodeIcon,
-    BallerinaIcon,
-    JavaIcon,
-    GoIcon,
-    NodeJsIcon,
-    PythonIcon,
 } from "../../../../resources/assets/icons";
+import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -89,20 +85,9 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     const getComponentKindIcon = (kind: string) => {
-        switch (kind) {
-            case "ballerina":
-                return <BallerinaIcon />;
-            case "go":
-                return <GoIcon />;
-            case "java":
-                return <JavaIcon />;
-            case "node":
-                return <NodeJsIcon />;
-            case "python":
-                return <PythonIcon />;
-            default:
-                return <CodeIcon />;
-        }
+        const icon = startCase(camelCase(kind)).replace(/ /g, "") + "Icon";
+        const IconComponent = icons[icon] || icons.CodeIcon;
+        return <IconComponent />;
     };
 
     return (
