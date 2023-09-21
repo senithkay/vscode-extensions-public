@@ -23,6 +23,9 @@ on:
         default: 'N/A'
         type: string
         required: false
+      isReleaseBuild:  
+        type: boolean
+        default: false
 
 env:
   ballerina_version: 2201.7.2
@@ -48,9 +51,15 @@ jobs:
         id: testMatrix
         run: |
           testArray=""
+          echo "runBalExtTests=false" >> $GITHUB_OUTPUT
+          echo "runChoreoExtTests=false" >> $GITHUB_OUTPUT
           if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
             # Get list of all changed files in the PR
-            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+            if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
+              CHANGED_DIRS=$(git diff --name-only HEAD..main | grep -E "^workspaces/*" || true)
+            else
+              CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+            fi
 
             # Ballerina ext
             if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then

@@ -37,6 +37,7 @@ jobs:
       ballerina: ${{ inputs.ballerina }}
       choreo: ${{ inputs.choreo }}
       version: ${{ inputs.version }}
+      isReleaseBuild: true
 
   Release:
     name: Release VSIX
