@@ -55,7 +55,7 @@ jobs:
           echo "runChoreoExtTests=false" >> $GITHUB_OUTPUT
           # Get list of all changed files in the PR
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
-            git fetch origin/main
+            git fetch refs/remotes/origin/main
             CHANGED_DIRS=$(git diff --name-only HEAD..main | grep -E "^workspaces/*" || true)
           else
             CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
