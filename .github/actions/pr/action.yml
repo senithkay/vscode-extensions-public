@@ -46,7 +46,6 @@ runs:
         shell: bash
         id: commit
         run: |
-          git add workspaces/*/*.json
           git commit -m "Update version to ${{ inputs.version }}"
           git checkout -b "${{ inputs.version }}"
           git remote set-url origin https://${{ inputs.bot_username }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
