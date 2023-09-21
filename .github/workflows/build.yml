@@ -53,30 +53,28 @@ jobs:
           testArray=""
           echo "runBalExtTests=false" >> $GITHUB_OUTPUT
           echo "runChoreoExtTests=false" >> $GITHUB_OUTPUT
-          if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
-            # Get list of all changed files in the PR
-            if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
-              CHANGED_DIRS=$(git diff --name-only HEAD..main | grep -E "^workspaces/*" || true)
-            else
-              CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
-            fi
+          # Get list of all changed files in the PR
+          if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
+            CHANGED_DIRS=$(git diff --name-only HEAD..main | grep -E "^workspaces/*" || true)
+          else
+            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+          fi
 
-            # Ballerina ext
-            if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
-              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
-            fi 
-
-            # Choreo ext
-            if [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
-              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
-            fi
-
-            # Common
-            if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]]; then
-              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
-              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
-            fi            
+          # Ballerina ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
+            echo "runBalExtTests=true" >> $GITHUB_OUTPUT
           fi 
+
+          # Choreo ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
+            echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Common
+          if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]]; then
+            echo "runBalExtTests=true" >> $GITHUB_OUTPUT
+            echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Block if have non related diff files
         if: ${{ !inputs.isPreRelease }}
@@ -103,7 +101,7 @@ jobs:
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || (inputs.isPreRelease && needs.Build_Stage.outputs.runBalExtTests) || github.base_ref == 'main' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -148,7 +146,7 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || (inputs.isPreRelease && needs.Build_Stage.outputs.runBalExtTests) || github.base_ref == 'main' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -214,7 +212,7 @@ jobs:
 
   UiTest_Choreo:
     name: Run Choreo e2e tests
-    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.base_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || (inputs.isPreRelease && needs.Build_Stage.outputs.runChoreoExtTests) || github.base_ref == 'main' }}
     needs: Build_Stage
     timeout-minutes: 120
     runs-on: ubuntu-latest
