@@ -1,0 +1,260 @@
+name: Build and run Tests
+
+on: 
+  workflow_call:
+    inputs: 
+      isPreRelease:
+        default: true
+        type: boolean  
+      enableCache:
+        default: true
+        type: boolean  
+      ballerina:
+        description: Update Ballerina extension version
+        type: boolean
+        required: false
+        default: true
+      choreo:
+        description: Update Choreo extension version
+        type: boolean
+        required: false
+        default: true      
+      version:
+        default: 'N/A'
+        type: string
+        required: false
+
+env:
+  ballerina_version: 2201.7.2
+  ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.7.2/ballerina-2201.7.2-swan-lake.zip
+  ballerina_deb_url: https://dist.ballerina.io/downloads/2201.7.2/ballerina-2201.7.2-swan-lake-linux-x64.deb
+
+jobs:
+  Build_Stage:
+    name: Build repo
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    outputs:
+      runBalExtTests: ${{ steps.testMatrix.outputs.runBalExtTests }}
+      runChoreoExtTests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          isPreRelease: ${{ inputs.isPreRelease }}
+          enableCache: ${{ inputs.enableCache }}
+          ballerina: ${{ inputs.ballerina }}
+          choreo: ${{ inputs.choreo }}
+          version: ${{ inputs.version }}
+
+      - name: Set test matrix
+        shell: bash
+        id: testMatrix
+        run: |
+          testArray=""
+          if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
+            # Get list of all changed files in the PR
+            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+
+            if [[ "${CHANGED_DIRS[@]}" =~ "ballerina-languageclient" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "expression-editor" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "lang-service" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "low-code-editor-commons" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "low-code-ui-components" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "statement-editor" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "syntax-tree" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "ballerina-extension" ]]; then
+              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
+            fi 
+
+            if [[ "${CHANGED_DIRS[@]}" =~ "choreo-client" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "choreo-core" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "choreo-extension" ]] || 
+            [[ "${CHANGED_DIRS[@]}" =~ "choreo-webviews" ]]; then
+              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+            fi
+          fi  
+
+  ExtTest_Ballerina:
+    name: Run Ballerina extension tests
+    needs: Build_Stage
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - name: Set up Ballerina
+        run: |
+          cd workspaces/ballerina/ballerina-extension
+          mkdir extractedDistribution
+          wget ${{ env.ballerina_zip_url }}
+          unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
+          rm ballerina-${{ env.ballerina_version }}-swan-lake.zip
+          balVersion=$(ls ./extractedDistribution)
+          balHome=./extractedDistribution/$balVersion
+
+          echo "$balHome/bin" >> $GITHUB_PATH
+
+      - name: Run Test
+        run: |
+          cd workspaces/ballerina/ballerina-extension
+          xvfb-run --auto-servernum pnpm run test
+        env:
+          balVersion: ${{ steps.set-version.outputs.balVersion }}
+          balHome: ${{ steps.set-version.outputs.balHome }}
+
+  UiTest_Ballerina:
+    name: Run Ballerina e2e tests
+    needs: Build_Stage
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
+
+      - name: install packages
+        run: |
+          sudo apt-get install ffmpeg
+          sudo apt-get install xvfb
+
+      - name: Runs Tests
+        run: |
+          cd workspaces/ballerina/ballerina-extension
+          sudo apt-get install xvfb
+          pnpm run e2e-test-setup
+          export DISPLAY=:98.0
+          sh e2e-test-runner.sh
+
+      - name: Publish e2e test recording
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/ballerina/ballerina-extension/test-resources/e2e-test-out.mp4
+          name: Ballerina-e2e-test-recording-${{ github.run_attempt }}
+        if: failure()
+
+      - name: Publish e2e test Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/ballerina/ballerina-extension/test-resources/screenshots/
+          name: Ballerina-e2e-test-screenshots-${{ github.run_attempt }}
+        if: failure()
+
+  UiTest_Choreo:
+    name: Run Choreo e2e tests
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.base_ref == 'main' }}
+    needs: Build_Stage
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
+
+      - name: install packages
+        run: |
+          sudo apt-get install ffmpeg
+          sudo apt-get install xvfb
+          sudo apt-get install -y gnome-keyring
+          sudo apt-get install libsecret-1.0
+          sudo apt install dbus-x11
+          npx playwright install
+
+      - name: Run tests
+        run: |
+          cd workspaces/choreo/choreo-extension 
+          pnpm run e2e-test-setup
+          export $(dbus-launch)
+          export DISPLAY=:98.0
+          git config --global user.email "choreo-test-user@wso2.com"
+          git config --global user.name "choreo-user"
+          sh e2e-test-runner.sh
+        env:
+          TEST_CHOREO_EXT_ENV: prod
+          TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
+          TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
+          TEST_USER_ORG_HANDLE: choreouser
+          TEST_GITHUB_USERNAME: choreo-test-user@wso2.com
+          TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
+          TEST_GITHUB_ORG: choreo-test-apps
+          TEST_GITHUB_MONO_REPO: vscode-ext-mono-repo-tests-prod
+          TEST_BITBUCKET_USERNAME: choreo-test-user
+          TEST_BITBUCKET_PASSWORD: ${{ secrets.TEST_BITBUCKET_PASSWORD }}
+          TEST_BITBUCKET_CHOREO_CREDENTIAL: vscode-test-credentials
+          TEST_BITBUCKET_WORKSPACE: vscode-tests
+          TEST_BITBUCKET_REPO: vscode-test-mono-repo-prod
+
+      - name: Publish e2e test recording
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo/choreo-extension/test-resources/e2e-test-out.mp4
+          name: Choreo-e2e-test-recording-${{ github.run_attempt }}
+        if: failure()
+
+      - name: Publish e2e test Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo/choreo-extension/test-resources/screenshots/
+          name: Choreo-e2e-test-screenshots-${{ github.run_attempt }}
+        if: failure()

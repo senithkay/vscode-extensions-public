@@ -1,0 +1,193 @@
+name: Release VSIX
+
+on:
+  workflow_dispatch:
+    inputs:
+      isPreRelease:
+        required: true
+        type: boolean 
+      ballerina:
+        description: Release Ballerina extension
+        type: boolean
+        required: true
+        default: false
+      choreo:
+        description: Release Choreo extension
+        type: boolean
+        required: true
+        default: false
+      packages:
+        description: Release packages to registry
+        type: boolean
+        required: true
+        default: false   
+      version:
+        type: choice
+        description: 'Enter the version type'
+        required: true
+        default: 'N/A'
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+          - 'prepatch'
+          - 'preminor'
+          - 'premajor'
+          - 'prerelease'     
+          - 'N/A'     
+
+jobs:
+  Release:
+    name: Release VSIX
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+    
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          isPreRelease: ${{ inputs.isPreRelease }}
+          enableCache: false
+          ballerina: ${{ inputs.ballerina }}
+          choreo: ${{ inputs.choreo }}
+          version: ${{ inputs.version }}
+          packages: ${{ inputs.packages }}
+
+      - uses: actions/setup-node@v3
+        with:
+          always-auth: true
+          node-version: 16.x
+          registry-url: "https://npm.pkg.github.com"
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - run: |
+          node common/scripts/install-run-rush.js install
+
+      - name: Get version
+        id: vsix
+        run: |
+          if [[ "${{ github.event.inputs.ballerina }}" == "true" && "${{ github.event.inputs.choreo }}" == "true" ]]; then
+            ballerinaFile=$(ls ballerina*.vsix)
+            ballerinaFileName=${ballerinaFile#*-}
+            ballerinaVersion=${ballerinaFileName%.*}
+            choreoFile=$(ls choreo*.vsix)
+            choreoFileName=${choreoFile#*-}
+            choreoVersion=${choreoFileName%.*}
+            version=ballerina-$ballerinaVersion-choreo-$choreoVersion
+          elif [[ "${{ github.event.inputs.ballerina }}" == "true" ]]; then
+            file=$(ls ballerina*.vsix)
+            fileName=${file#*-}
+            version=ballerina-${fileName%.*}
+          elif [[ "${{ github.event.inputs.choreo }}" == "true" ]]; then
+            file=$(ls choreo*.vsix)
+            fileName=${file#*-}
+            version=choreo-${fileName%.*}  
+          elif [[ "${{ github.event.inputs.packages }}" == "true" ]]; then
+            version=packages-$(date +%Y%m%d%H%M)
+          fi
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+          if [[ "${{ github.event.inputs.isPreRelease }}" == "true" ]]; then
+            echo "releaseMode=next" >> $GITHUB_OUTPUT
+          else
+            echo "releaseMode=latest" >> $GITHUB_OUTPUT
+          fi 
+
+      - name: Publish low code diagram
+        if: ${{ github.event.inputs.packages == 'true' }}
+        run: |
+          cd workspaces
+          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "choreo-core" "project-design-diagrams")
+          for workspace in "${workspaces[@]}"; do
+            cd $workspace
+            pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }} --no-git-checks
+            cd ..
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
+      - name: Create a release in wso2/ballerina-plugin-vscode repo
+        if: ${{ github.event.inputs.ballerina == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/ballerina-plugin-vscode
+          name: ballerina
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
+
+      - name: Create a release in wso2/choreo-vscode repo
+        if: ${{ github.event.inputs.choreo == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/choreo-vscode
+          name: choreo
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
+
+      - name: Create PR and notify
+        uses: ./.github/actions/pr
+        with:
+          version: v${{ steps.vsix.outputs.version }}
+          threadId: ${{ github.run_id }}
+          bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
+          bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+
+  Notify:
+    needs: [Release]
+    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/ballerina-plugin-vscode'}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Release Notification"
+        run: |
+          body=$(cat << EOF
+          {
+            "cards": [
+              {
+                "header": {
+                    "title": "Release Failed"
+                },
+                "sections": [
+                  {
+                    "widgets": [
+                      {
+                        "textParagraph": {
+                            "text": "<b>&#x274C; Repository: <font color=\"#ff0000\">wso2-enterprise/ballerina-plugin-vscode</font></b>"
+                        }
+                      },
+                      {
+                        "keyValue": {
+                          "topLabel": "Workflow run ID",
+                          "content": "${{ github.run_id }}",
+                          "button": {
+                            "textButton": {
+                              "text": "View Workflow",
+                              "onClick": {
+                                "openLink": {
+                                  "url": "https://github.com/wso2-enterprise/ballerina-plugin-vscode/actions/runs/${{ github.run_id }}"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+          curl \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ github.run_id }}" \
+            -d "$body"
