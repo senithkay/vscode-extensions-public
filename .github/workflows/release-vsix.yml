@@ -16,11 +16,6 @@ on:
         type: boolean
         required: true
         default: false
-      packages:
-        description: Release packages to registry
-        type: boolean
-        required: true
-        default: false   
       version:
         type: choice
         description: 'Enter the version type'
@@ -29,11 +24,7 @@ on:
         options:
           - 'patch'
           - 'minor'
-          - 'major'
-          - 'prepatch'
-          - 'preminor'
-          - 'premajor'
-          - 'prerelease'     
+          - 'major'    
           - 'N/A'     
 
 jobs:
@@ -42,20 +33,14 @@ jobs:
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          fetch-depth: 2
-    
-      - name: Build
-        uses: ./.github/actions/build
+      - uses: ./.github/workflows/build.yml
+        secrets: inherit
         with:
           isPreRelease: ${{ inputs.isPreRelease }}
           enableCache: false
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           version: ${{ inputs.version }}
-          packages: ${{ inputs.packages }}
 
       - uses: actions/setup-node@v3
         with:
@@ -89,8 +74,6 @@ jobs:
             file=$(ls choreo*.vsix)
             fileName=${file#*-}
             version=choreo-${fileName%.*}  
-          elif [[ "${{ github.event.inputs.packages }}" == "true" ]]; then
-            version=packages-$(date +%Y%m%d%H%M)
           fi
           echo "version=$version" >> $GITHUB_OUTPUT
 
@@ -99,19 +82,6 @@ jobs:
           else
             echo "releaseMode=latest" >> $GITHUB_OUTPUT
           fi 
-
-      - name: Publish low code diagram
-        if: ${{ github.event.inputs.packages == 'true' }}
-        run: |
-          cd workspaces
-          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "choreo-core" "project-design-diagrams")
-          for workspace in "${workspaces[@]}"; do
-            cd $workspace
-            pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }} --no-git-checks
-            cd ..
-          done
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         if: ${{ github.event.inputs.ballerina == 'true' }}

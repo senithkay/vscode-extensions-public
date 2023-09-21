@@ -49,23 +49,19 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
 
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          isPreRelease: false
-          enableCache: false
-          ballerina: false
-          choreo: false
-
       - uses: actions/setup-node@v3
         with:
           always-auth: true
           node-version: 16.x
           registry-url: "https://npm.pkg.github.com"
 
-      - uses: pnpm/action-setup@v2
+      - uses: ./.github/workflows/build.yml
+        secrets: inherit
         with:
-          version: 7.26.3
+          isPreRelease: false
+          enableCache: false
+          ballerina: false
+          choreo: false
 
       - run: |
           node common/scripts/install-run-rush.js install
