@@ -55,7 +55,8 @@ jobs:
           echo "runChoreoExtTests=false" >> $GITHUB_OUTPUT
           # Get list of all changed files in the PR
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
-            CHANGED_DIRS=$(git diff --name-only HEAD..main | grep -E "^workspaces/*" || true)
+            TRIGGERED_BRANCH=$(echo $GITHUB_REF | awk -F'/' '{print $3}')
+            CHANGED_DIRS=$(git diff --name-only $TRIGGERED_BRANCH..main | grep -E "^workspaces/*" || true)
           else
             CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
           fi
