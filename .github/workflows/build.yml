@@ -164,12 +164,20 @@ jobs:
           sudo apt-get install xvfb
 
       - name: Runs Tests
+        timeout-minute: 30
         run: |
           cd workspaces/ballerina/ballerina-extension
           sudo apt-get install xvfb
           pnpm run e2e-test-setup
           export DISPLAY=:98.0
           sh e2e-test-runner.sh
+
+      - name: Publish e2e test output
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/ballerina/ballerina-extension/test-resources/output.txt
+          name: Ballerina-e2e-test-output-${{ github.run_attempt }}
+        if: failure()
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
@@ -228,6 +236,7 @@ jobs:
           cd workspaces/choreo/choreo-extension && npx playwright install
 
       - name: Run tests
+        timeout-minute: 15
         run: |
           cd workspaces/choreo/choreo-extension 
           pnpm run e2e-test-setup
@@ -250,6 +259,13 @@ jobs:
           TEST_BITBUCKET_CHOREO_CREDENTIAL: vscode-test-credentials
           TEST_BITBUCKET_WORKSPACE: vscode-tests
           TEST_BITBUCKET_REPO: vscode-test-mono-repo-prod
+
+      - name: Publish e2e test output
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo/choreo-extension/test-resources/output.txt
+          name: Choreo-e2e-test-output-${{ github.run_attempt }}
+        if: failure()
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
