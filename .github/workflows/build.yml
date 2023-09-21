@@ -43,6 +43,45 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
 
+      - name: Set test matrix
+        shell: bash
+        id: testMatrix
+        run: |
+          testArray=""
+          if [[ ${{ inputs.isPreRelease }} = 'false' ]]; then
+            # Get list of all changed files in the PR
+            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+
+            # Ballerina ext
+            if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
+              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
+            fi 
+
+            # Choreo ext
+            if [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
+              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+            fi
+
+            # Common
+            if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]]; then
+              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
+              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+            fi            
+          fi 
+
+      - name: Block if have non related diff files
+        if: ${{ !inputs.isPreRelease }}
+        run: |
+          if [[ ${{ steps.testMatrix.outputs.runBalExtTests }} == "true" && !${{ inputs.ballerina }} ]]; then
+            echo "Ballerina Changes found in the non Ballerina release"
+            exit 1
+          fi
+
+          if [[ ${{ steps.testMatrix.outputs.runChoreoExtTests }} == "true" && !${{ inputs.choreo }} ]]; then
+            echo "Choreo Changes found in the non Choreo release"
+            exit 1
+          fi
+
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -51,34 +90,6 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           version: ${{ inputs.version }}
-
-      - name: Set test matrix
-        shell: bash
-        id: testMatrix
-        run: |
-          testArray=""
-          if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
-            # Get list of all changed files in the PR
-            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
-
-            if [[ "${CHANGED_DIRS[@]}" =~ "ballerina-languageclient" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "expression-editor" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "lang-service" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "low-code-editor-commons" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "low-code-ui-components" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "statement-editor" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "syntax-tree" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "ballerina-extension" ]]; then
-              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
-            fi 
-
-            if [[ "${CHANGED_DIRS[@]}" =~ "choreo-client" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-core" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-extension" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-webviews" ]]; then
-              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
-            fi
-          fi  
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
