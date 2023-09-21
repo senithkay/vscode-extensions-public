@@ -40,6 +40,7 @@ jobs:
 
   Release:
     name: Release VSIX
+    needs: Build
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
