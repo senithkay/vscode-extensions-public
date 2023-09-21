@@ -218,12 +218,9 @@ jobs:
         with:
           version: ${{ env.ballerina_version }}
 
-<<<<<<< HEAD
       - name: update packages
         run: sudo apt-get update
 
-=======
->>>>>>> test-gpt-kaumini/integrateToExt
       - name: install packages
         run: |
           sudo apt-get install ffmpeg
