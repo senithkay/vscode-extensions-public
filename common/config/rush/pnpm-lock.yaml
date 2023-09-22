@@ -2922,6 +2922,7 @@ importers:
       '@vscode/vsce': ^2.21.0
       axios: ^1.5.0
       copyfiles: ^2.4.1
+      dotenv: ~16.3.1
       eslint: ^8.49.0
       glob: ^8.1.0
       mocha: ^10.2.0
@@ -2935,6 +2936,7 @@ importers:
       yaml: ^2.3.2
     dependencies:
       axios: 1.5.0
+      dotenv: 16.3.1
       ts-loader: 9.4.4_dtthwp2bsqb7yvb7hoeealjg4i
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5

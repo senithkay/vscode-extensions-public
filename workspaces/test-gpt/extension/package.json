@@ -88,11 +88,12 @@
   },
   "dependencies": {
     "axios": "^1.5.0",
+    "dotenv": "~16.3.1",
+    "ts-loader": "~9.4.4",
     "vscode-messenger": "^0.4.5",
     "vscode-messenger-common": "^0.4.5",
-    "xstate": "^4.38.2",
-    "yaml": "^2.3.2",
     "webpack": "~5.88.2",
-    "ts-loader": "~9.4.4"
+    "xstate": "^4.38.2",
+    "yaml": "^2.3.2"
   }
 }

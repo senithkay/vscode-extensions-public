@@ -8,23 +8,34 @@
  */
 
 import axios from "axios";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 // Set config defaults when creating the instance
 const instance = axios.create({
     baseURL: 'https://f2c7f522-ef47-48ce-a429-3fc2f15d2011-prod.e1-us-east-azure.choreoapis.dev/dlsm/testgptservice/endpoint-9090-803/1.1.0'
 });
 
+const path = require('path')
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 const auth = axios.create({
     baseURL: 'https://sts.choreo.dev/oauth2'
 })
+
+const apiKey = process.env.API_KEY;
 
 // Resolve Oauth client credential
 const resolveOauthClientCredential = async () => {
     // Your code here to resolve Oauth client credential
     try {
+        if (!apiKey) {
+            throw new Error('API_KEY is not defined in the environment variables');
+        }
+
         const response = await auth.post('/token', "grant_type=client_credentials", {
             headers: {
-                Authorization: `Basic ${Buffer.from('ny23GsQFUtiKdLe88MGtgXInBdUa:kjBQ9dOGN9BB8flt5dpKZaf8SbMa').toString('base64')}`
+                Authorization: `Basic ${Buffer.from(apiKey).toString('base64')}`
             }
         });
         const accessToken = response.data.access_token;
