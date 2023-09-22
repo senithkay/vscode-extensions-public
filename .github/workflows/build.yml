@@ -83,6 +83,8 @@ jobs:
         shell: bash
         id: testMatrix
         run: |
+          echo "Ballerina Tests: ${{ steps.diff.outputs.hasBalDiff }}"
+          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
           echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
 
@@ -98,10 +100,6 @@ jobs:
             echo "Choreo Changes found in the non Choreo release"
             exit 1
           fi
-
-      - run: |
-          echo "Ballerina Tests: ${{ steps.diff.outputs.hasBalDiff }}"
-          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
 
       - name: Build
         uses: ./.github/actions/build
