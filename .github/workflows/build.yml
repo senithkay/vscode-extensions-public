@@ -57,6 +57,7 @@ jobs:
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
             git remote set-url origin https://$BOT_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
             git remote -v
+            git branch -a
             git fetch origin/dev
             git fetch origin/main
             CHANGED_DIRS=$(git diff --name-only HEAD..refs/remotes/origin/main | grep -E "^workspaces/*" || true)
