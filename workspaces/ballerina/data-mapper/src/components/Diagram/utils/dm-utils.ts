@@ -40,7 +40,6 @@ import {
 	STKindChecker,
 	STNode,
 	traversNode,
-	traversNodeAsync,
 	TypeCastExpression
 } from "@wso2-enterprise/syntax-tree";
 
@@ -597,8 +596,12 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 					} else if (node instanceof JoinClauseNode) {
 						const bindingPattern = (node.value as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
 						return bindingPattern?.source?.trim() === valueExpr.source
+					} else if (node instanceof EnumTypeNode) {
+						return node.enumTypeDecls.some(decl => {
+							return decl.varName === expr.source.trim()
+						});
 					}
-				}) as LetClauseNode | JoinClauseNode | LetExpressionNode | ModuleVariableNode)?.value;
+				}) as LetClauseNode | JoinClauseNode | LetExpressionNode | ModuleVariableNode | EnumTypeNode)?.value;
 			}
 
 			if (!paramNode) {
@@ -936,15 +939,15 @@ export function getInputNodes(node: STNode) {
 	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
-export async function getModuleVariables(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
-	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise, context);
-	await traversNodeAsync(node, moduleVarFindingVisitor);
+export function getModuleVariables(node: STNode, context: IDataMapperContext) {
+	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor( context);
+	traversNode(node, moduleVarFindingVisitor);
 	return moduleVarFindingVisitor.getModuleVariables();
 }
 
-export async function getEnumTypes(node: STNode, filePath: string, langClientPromise: Promise<IBallerinaLangClient>, context: IDataMapperContext) {
-	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(filePath, langClientPromise, context);
-	await traversNodeAsync(node, enumTypeFindingVisitor);
+export function getEnumTypes(node: STNode, context: IDataMapperContext) {
+	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context);
+	traversNode(node, enumTypeFindingVisitor);
 	return enumTypeFindingVisitor.getEnumTypes();
 }
 

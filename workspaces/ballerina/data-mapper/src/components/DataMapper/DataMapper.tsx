@@ -21,7 +21,7 @@ import {
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { FunctionDefinition, NodePosition, STNode, traversNode, traversNodeAsync } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
@@ -377,24 +377,22 @@ function DataMapperC(props: DataMapperProps) {
     }, [selection.selectedST, collapsedFields, isStmtEditorCanceled]);
 
     useEffect(() => {
-        void (async () => {
-            if (dmContext && selection?.selectedST?.stNode) {
-                const nodeInitVisitor = new NodeInitVisitor(dmContext, selection);
-                try {
-                    await traversNodeAsync(selection.selectedST.stNode, nodeInitVisitor);
-                    const nodes = nodeInitVisitor.getNodes();
-                    if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
-                        setDmNodes(nodes);
-                    }
-                } catch (e) {
-                    setHasInternalError(true);
-                    // tslint:disable-next-line:no-console
-                    console.error(e);
+        if (dmContext && selection?.selectedST?.stNode) {
+            const nodeInitVisitor = new NodeInitVisitor(dmContext, selection);
+            try {
+                traversNode(selection.selectedST.stNode, nodeInitVisitor);
+                const nodes = nodeInitVisitor.getNodes();
+                if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
+                    setDmNodes(nodes);
                 }
-            } else {
-                setDmNodes([]);
+            } catch (e) {
+                setHasInternalError(true);
+                // tslint:disable-next-line:no-console
+                console.error(e);
             }
-        })();
+        } else {
+            setDmNodes([]);
+        }
     }, [selection?.selectedST?.stNode, dmContext, inputSearch, outputSearch, typeStoreStatus]);
 
     const dMSupported = isDMSupported(ballerinaVersion);

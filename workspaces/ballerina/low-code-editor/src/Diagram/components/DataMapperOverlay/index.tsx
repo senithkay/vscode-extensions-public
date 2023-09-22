@@ -27,13 +27,13 @@ import {
 import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
+import { WorkspaceFolder } from "../../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
 import { extractFilePath, isPathEqual } from "../../../DiagramViewManagerClone/utils";
 import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
-import { WorkspaceFolder } from "../../../DiagramGenerator/vscode/Diagram";
 
 export interface DataMapperProps {
     model?: STNode;
@@ -101,10 +101,9 @@ export function DataMapperOverlay(props: DataMapperProps) {
     }, [model]);
 
     const getModuleVariables = async () => {
-        const
-        moduleVars = [],
-        consts = [],
-        enums = []
+        const moduleVars = []
+        const consts = []
+        const enums = []
         const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
         const componentResponse = await langClient.getBallerinaProjectComponents({
             documentIdentifiers: [
