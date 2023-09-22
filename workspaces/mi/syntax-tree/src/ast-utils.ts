@@ -13,7 +13,7 @@ import { STNode } from './syntax-tree-interfaces';
 const metaNodes = ['viewState', 'position', 'parent'];
 
 export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
-    let beginVisitFn: any = (visitor as any)[`beginVisit${node.tag}`];
+    let beginVisitFn: any = (visitor as any)[`beginVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitSTNode && visitor.beginVisitSTNode;
     }

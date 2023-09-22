@@ -8,250 +8,315 @@
  */
 
 export interface STNode {
-  tag: string;
-  value?: any;
-  parent?: STNode;
-  viewState?: any;
-  position?: NodePosition;
-}
-
-export interface Mediator extends STNode {
-  children: Mediator[];
-}
-
-export interface Connector extends STNode {}
-
-export interface Api extends STNode {
-  children: Resource[];
-}
-
-export interface Proxy extends STNode {
+  attributes: STNodeAttributes[];
   children: STNode[];
+  end: number
+  endTagOffOffset: number
+  endTagOpenOffset: number
+  hasTextNode: boolean
+  selfClosed: boolean
+  start: number
+  startTagOffOffset: number
+  startTagOpenOffset: number
+  tag: string
 }
 
-export interface InSequence extends STNode {
-  children: STNode[];
-}
-
-export interface OutSequence extends STNode {
-  children: STNode[];
-}
-
-export interface Resource extends STNode {
-  children: STNode[];
-}
-
-export interface Log extends STNode {
-  children: STNode[];
-}
-
-export interface CallTemplate extends STNode {
-  children: STNode[];
-}
-
-export interface Drop extends STNode {
-  children: STNode[];
-}
-
-export interface LoopBack extends STNode {
-  children: STNode[];
-}
-
-export interface Property extends STNode {
-  children: STNode[];
-}
-
-export interface PropertyGroup extends STNode {
-  children: STNode[];
-}
-
-export interface Respond extends STNode {
-  children: STNode[];
-}
-
-export interface Sequence extends STNode {
-  children: STNode[];
-}
-
-export interface Store extends STNode {
-  children: STNode[];
-}
-
-export interface ConditionalRouter extends STNode {
-  children: STNode[];
-}
-
-export interface Bean extends STNode {
-  children: STNode[];
-}
-
-export interface Class extends STNode {
-  children: STNode[];
-}
-
-export interface Command extends STNode {
-  children: STNode[];
-}
-
-export interface Ejb extends STNode {
-  children: STNode[];
-}
-
-export interface Script extends STNode {
-  children: STNode[];
-}
-
-export interface Spring extends STNode {
-  children: STNode[];
-}
-
-export interface Enrich extends STNode {
-  children: STNode[];
+export interface STNodeAttributes {
+  closed: boolean;
+  hasDelimiter: boolean;
+  name: string;
+  nameTagOffOffset: number;
+  nameTagOpenOffset: number;
+  originalValue: string
+  quotelessValue: string
+  valueTagOffOffset: number
+  valueTagOpenOffset: number
 }
 
 export interface Fault extends STNode {
-  children: STNode[];
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  name: string;
+  element: string;
 }
 
-export interface Header extends STNode {
-  children: STNode[];
+export interface Documentation extends STNode {
+  otherAttributes: any;
+  content: any[];
 }
 
-export interface PayloadFactory extends STNode {
-  children: STNode[];
+export interface Interface extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  name: string;
+  styleDefault: {
+  };
 }
 
-export interface Smooks extends STNode {
-  children: STNode[];
+export interface Endpoint extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  name: string;
+  binding: string;
+  address: string;
 }
 
-export interface URLrewrite extends STNode {
-  children: STNode[];
+export interface Definitions extends STNode {
+  documentation: {
+    content: any[];
+  };
+  any: any[];
+  targetNamespace: string;
+  name: string;
 }
 
-export interface XQuery extends STNode {
-  children: STNode[];
+export interface Input extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  messageLabel: string;
 }
 
-export interface XSLT extends STNode {
-  children: STNode[];
+export interface Service extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  endpointOrAny: Endpoint[];
+  name: string;
 }
 
-export interface DataMapper extends STNode {
-  children: STNode[];
+export interface Infault extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  ref: string;
+  messageLabel: string;
 }
 
-export interface FastXSLT extends STNode {
-  children: STNode[];
+export interface Log extends STNode {
+  property: {
+    otherAttributes: any;
+    content: any[];
+    name: string;
+    value: string;
+    expression: string;
+  }[];
+  level: string;
+  separator: string;
+  category: string;
+  description: string;
 }
 
-export interface JsonTransform extends STNode {
-  children: STNode[];
+export interface Output extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  messageLabel: string;
+  element: string;
 }
 
-export interface DataServiceCall extends STNode {
-  children: STNode[];
+export interface Binding extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  name: string;
+  type: string;
 }
 
-export interface DBLookup extends STNode {
-  children: STNode[];
+export interface Outfault extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  ref: string;
+  messageLabel: string;
 }
 
-export interface DBReport extends STNode {
-  children: STNode[];
+export interface Description extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  targetNamespace: string;
 }
 
-export interface Enqueue extends STNode {
-  children: STNode[];
+export interface Resource extends STNode {
+  location: string;
+  key: string;
 }
 
-export interface Event extends STNode {
-  children: STNode[];
+export interface Parameter extends STNode {
+  otherAttributes: any;
+  content: any[];
+  name: string;
+  key: string;
+  locked: Boolean;
 }
 
-export interface Transaction extends STNode {
-  children: STNode[];
+export interface Operation extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  ref: string;
 }
 
-export interface Callout extends STNode {
-  children: STNode[];
+export interface Include extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  location: string;
 }
 
-export interface Oauth extends STNode {
-  children: STNode[];
+export interface Import extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  namespace: string;
+  location: string;
 }
 
-export interface Ntlm extends STNode {
-  children: STNode[];
+export interface Feature extends STNode {
+  name: string;
+  value: Boolean;
 }
 
-export interface Builder extends STNode {
-  children: STNode[];
+export interface Types extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
 }
 
-export interface Bam extends STNode {
-  children: STNode[];
+export interface Import extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  namespace: string;
+  location: string;
 }
 
-export interface Publish extends STNode {
-  children: STNode[];
+export interface Interface extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  name: string;
+  styleDefault: {
+  };
 }
 
-export interface Call extends STNode {
-  children: STNode[];
+export interface Output extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  messageLabel: string;
+  element: string;
 }
 
-export interface Send extends STNode {
-  children: STNode[];
+export interface Infault extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  ref: string;
+  messageLabel: string;
 }
 
-export interface Filter extends STNode {
-  children: STNode[];
+export interface Operation extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  name: string;
+  pattern: string;
+  safe: Boolean;
+  style: string;
 }
 
-export interface Switch extends STNode {
-  children: STNode[];
+export interface Description extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  targetNamespace: string;
 }
 
-export interface Validate extends STNode {
-  children: STNode[];
+export interface Sequence extends STNode {
+  name: string;
+  onError: string;
+  description: string;
+  statistics: string;
+  trace: string;
 }
 
-export interface Cache extends STNode {
-  children: STNode[];
+export interface Definitions extends STNode {
+  documentation: {
+    content: any[];
+  };
+  any: any[];
+  targetNamespace: string;
+  name: string;
 }
 
-export interface Throttle extends STNode {
-  children: STNode[];
+export interface Outfault extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  ref: string;
+  messageLabel: string;
 }
 
-export interface Aggregate extends STNode {
-  children: STNode[];
+export interface Types extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
 }
 
-export interface Clone extends STNode {
-  children: STNode[];
+export interface Parameter extends STNode {
+  otherAttributes: any;
+  content: any[];
+  name: string;
+  key: string;
+  locked: Boolean;
 }
 
-export interface Iterate extends STNode {
-  children: STNode[];
+export interface Documentation extends STNode {
+  otherAttributes: any;
+  content: any[];
 }
 
-export interface ForEach extends STNode {
-  children: STNode[];
+export interface Input extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  messageLabel: string;
+  element: string;
 }
 
-export interface Entitlement extends STNode {
-  children: STNode[];
+export interface Include extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  location: string;
 }
 
-export interface Rule extends STNode {
-  children: STNode[];
+export interface Binding extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  name: string;
+  type: string;
 }
 
-export interface NodePosition {
-  startLine?: number;
-  startColumn?: number;
-  endLine?: number;
-  endColumn?: number;
+export interface Resource extends STNode {
+  location: string;
+  key: string;
+}
+
+export interface Feature extends STNode {
+  name: string;
+  value: Boolean;
+}
+
+export interface Endpoint extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  any: any[];
+  name: string;
+  binding: string;
+  address: string;
+}
+
+export interface Service extends STNode {
+  documentation: Documentation[];
+  otherAttributes: any;
+  endpointOrAny: Endpoint[];
+  name: string;
 }
