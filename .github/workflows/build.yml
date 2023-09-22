@@ -91,12 +91,12 @@ jobs:
       - name: Block if have non related diff files
         if: ${{ !inputs.isPreRelease }}
         run: |
-          if [[ ${{ steps.diff.outputs.hasBalDiff }} == "true" && !${{ inputs.ballerina }} ]]; then
+          if [[ ${{ steps.diff.outputs.hasBalDiff }} == "true" ]] && [[ !${{ inputs.ballerina }} ]]; then
             echo "Ballerina Changes found in the non Ballerina release"
             exit 1
           fi
 
-          if [[ ${{ steps.diff.outputs.hasChoreoDiff }} == "true" && !${{ inputs.choreo }} ]]; then
+          if [[ ${{ steps.diff.outputs.hasChoreoDiff }} == "true" ]] && [[ !${{ inputs.choreo }} ]]; then
             echo "Choreo Changes found in the non Choreo release"
             exit 1
           fi
