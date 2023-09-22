@@ -23,6 +23,9 @@ on:
         default: 'N/A'
         type: string
         required: false
+      isReleaseBuild:  
+        type: boolean
+        default: false
 
 env:
   ballerina_version: 2201.7.2
@@ -43,41 +46,57 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
 
+      - name: Analyze diff
+        shell: bash
+        id: diff
+        run: |
+          testArray=""
+          echo "hasBalDiff=false" >> $GITHUB_OUTPUT
+          echo "hasChoreoDiff=false" >> $GITHUB_OUTPUT
+          # Get list of all changed files in the PR
+          if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
+            git fetch origin main
+            CHANGED_DIRS=$(git diff --name-only HEAD..refs/remotes/origin/main | grep -E "^workspaces/*" || true)
+          else
+            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+          fi
+
+          echo $CHANGED_DIRS
+
+          # Ballerina ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
+            echo "hasBalDiff=true" >> $GITHUB_OUTPUT
+          fi 
+
+          # Choreo ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
+            echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Common
+          if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]]; then
+            echo "hasBalDiff=true" >> $GITHUB_OUTPUT
+            echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set test matrix
         shell: bash
         id: testMatrix
         run: |
-          testArray=""
-          if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
-            # Get list of all changed files in the PR
-            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
-
-            # Ballerina ext
-            if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
-              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
-            fi 
-
-            # Choreo ext
-            if [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
-              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
-            fi
-
-            # Common
-            if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]]; then
-              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
-              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
-            fi            
-          fi 
+          echo "Ballerina Tests: ${{ steps.diff.outputs.hasBalDiff }}"
+          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
+          echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
+          echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
 
       - name: Block if have non related diff files
         if: ${{ !inputs.isPreRelease }}
         run: |
-          if [[ ${{ steps.testMatrix.outputs.runBalExtTests }} == "true" && !${{ inputs.ballerina }} ]]; then
+          if [[ ${{ steps.diff.outputs.hasBalDiff }} == "true" && ${{ inputs.ballerina }} != "true" ]]; then
             echo "Ballerina Changes found in the non Ballerina release"
             exit 1
           fi
 
-          if [[ ${{ steps.testMatrix.outputs.runChoreoExtTests }} == "true" && !${{ inputs.choreo }} ]]; then
+          if [[ ${{ steps.diff.outputs.hasChoreoDiff }} == "true" && ${{ inputs.choreo }} != "true" ]]; then
             echo "Choreo Changes found in the non Choreo release"
             exit 1
           fi

@@ -76,17 +76,17 @@ jobs:
             echo "releaseMode= " >> $GITHUB_OUTPUT
           fi  
 
-      - name: Create a release in wso2/ballerina-plugin-vscode repo
+      - name: Create a release in wso2/ballerina-vscode repo
         if: ${{ github.event.inputs.extension == 'ballerina' && github.event.inputs.isPreRelease == 'false' }}
         run: |
           id=`curl -X GET  -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" \
-          https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases/tags/v${{ steps.vsix.outputs.version }} \
+          https://api.github.com/repos/wso2/ballerina-vscode/releases/tags/v${{ steps.vsix.outputs.version }} \
            | jq -r .id` && \
            updateResponse=`curl -X PATCH -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" \
             -d '{"draft":false,"prerelease":false}' \
-            https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id`         
+            https://api.github.com/repos/wso2/ballerina-vscode/releases/$id`         
 
       - name: Publish to VSCode marketplace
         if: ${{ github.event.inputs.vscode == 'true' }}
