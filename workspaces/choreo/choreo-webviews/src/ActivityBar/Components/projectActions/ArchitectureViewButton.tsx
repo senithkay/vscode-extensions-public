@@ -13,8 +13,8 @@
 import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
+import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
-import { ProjectActionButton } from "../ProjectActionButton";
 import { ArchitectureViewIcon } from "../../../icons";
 
 export const ArchiViewButton = () => {
@@ -28,12 +28,14 @@ export const ArchiViewButton = () => {
     };
 
     return (
-        <ProjectActionButton
+        <Button 
+            appearance="icon"
             onClick={handleClick}
-            label="Architecture"
-            icon={<ArchitectureViewIcon />}
             tooltip={isBalExtInstalled ? "Open Architecture Diagram" : "Please install Ballerina VSCode extension"}
             disabled={!isBalExtInstalled}
-        />
+        >
+            <ArchitectureViewIcon />
+            <IconLabel>Architecture</IconLabel>
+        </Button>
     );
 };
