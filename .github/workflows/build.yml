@@ -48,11 +48,11 @@ jobs:
 
       - name: Analyze diff
         shell: bash
-        id: testMatrix
+        id: diff
         run: |
           testArray=""
-          echo "runBalExtTests=false" >> $GITHUB_OUTPUT
-          echo "runChoreoExtTests=false" >> $GITHUB_OUTPUT
+          echo "hasBalDiff=false" >> $GITHUB_OUTPUT
+          echo "hasChoreoDiff=false" >> $GITHUB_OUTPUT
           # Get list of all changed files in the PR
           if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
             git fetch origin main
@@ -65,36 +65,43 @@ jobs:
 
           # Ballerina ext
           if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
-            echo "runBalExtTests=true" >> $GITHUB_OUTPUT
+            echo "hasBalDiff=true" >> $GITHUB_OUTPUT
           fi 
 
           # Choreo ext
           if [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
-            echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+            echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
           fi
 
           # Common
           if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]]; then
-            echo "runBalExtTests=true" >> $GITHUB_OUTPUT
-            echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
+            echo "hasBalDiff=true" >> $GITHUB_OUTPUT
+            echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Set test matrix
+        shell: bash
+        id: testMatrix
+        run: |
+          echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
+          echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
 
       - name: Block if have non related diff files
         if: ${{ !inputs.isPreRelease }}
         run: |
-          if [[ ${{ steps.testMatrix.outputs.runBalExtTests }} == "true" && !${{ inputs.ballerina }} ]]; then
+          if [[ ${{ steps.diff.outputs.hasBalDiff }} == "true" && !${{ inputs.ballerina }} ]]; then
             echo "Ballerina Changes found in the non Ballerina release"
             exit 1
           fi
 
-          if [[ ${{ steps.testMatrix.outputs.runChoreoExtTests }} == "true" && !${{ inputs.choreo }} ]]; then
+          if [[ ${{ steps.diff.outputs.hasChoreoDiff }} == "true" && !${{ inputs.choreo }} ]]; then
             echo "Choreo Changes found in the non Choreo release"
             exit 1
           fi
 
       - run: |
-          echo "Ballerina Tests: ${{ steps.testMatrix.outputs.runBalExtTests }}"
-          echo "Choreo Tests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}"
+          echo "Ballerina Tests: ${{ steps.diff.outputs.hasBalDiff }}"
+          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
 
       - name: Build
         uses: ./.github/actions/build
@@ -108,7 +115,7 @@ jobs:
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || (inputs.isPreRelease && needs.Build_Stage.outputs.runBalExtTests) || github.base_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -153,7 +160,7 @@ jobs:
   UiTest_Ballerina:
     name: Run Ballerina e2e tests
     needs: Build_Stage
-    if: ${{ !inputs.isPreRelease || (inputs.isPreRelease && needs.Build_Stage.outputs.runBalExtTests) || github.base_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests || github.base_ref == 'main' }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -216,7 +223,7 @@ jobs:
 
   UiTest_Choreo:
     name: Run Choreo e2e tests
-    if: ${{ !inputs.isPreRelease || (inputs.isPreRelease && needs.Build_Stage.outputs.runChoreoExtTests) || github.base_ref == 'main' }}
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runChoreoExtTests || github.base_ref == 'main' }}
     needs: Build_Stage
     timeout-minutes: 120
     runs-on: ubuntu-latest
