@@ -46,7 +46,7 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
 
-      - name: Set test matrix
+      - name: Analyze diff
         shell: bash
         id: testMatrix
         run: |
