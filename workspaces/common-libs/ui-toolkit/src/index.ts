@@ -12,6 +12,7 @@ export * from './components/ProgressIndicator/ProgressIndicator';
 export { Stepper } from './components/Stepper/Stepper';
 export * from './components/TextField/TextField';
 export * from './components/Commons/Colors';
+export * from './components/ContextMenu/ContextMenu';
 export * from './components/Icon/Icon';
 export * from './components/ComponentCard/ComponentCard';
 export * from './components/Typography/Typography';
