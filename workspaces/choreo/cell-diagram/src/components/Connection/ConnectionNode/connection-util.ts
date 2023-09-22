@@ -7,18 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { COMPONENT_NODE, NAME_JOIN_CHAR } from "../../../resources";
-import { Component } from "../../../types";
+import { CONNECTION_NODE, NAME_JOIN_CHAR } from "../../../resources";
+import { Connection } from "../../../types";
 
-export function getComponentName(component: Component): string {
-    return getComponentNameById(component.id);
+export function getConnectionName(connection: Connection): string {
+    return getConnectionNameById(connection.id);
 }
 
-export function getComponentNameById(id: string): string {
-    return `${COMPONENT_NODE}${NAME_JOIN_CHAR}${id}`;
+export function getConnectionNameById(id:string): string {
+    return `${CONNECTION_NODE}${NAME_JOIN_CHAR}${id}`;
 }
 
-export function getComponentMetadataByName(name: string): { type: string; id: string } {
+export function getConnectionMetadataByName(name: string): { type: string, id: string } {
     const parts = name.split(NAME_JOIN_CHAR);
     return { type: parts[0], id: parts[1] };
 }

@@ -9,12 +9,12 @@
 
 import React, { CSSProperties } from "react";
 
-export function ServiceIcon(props: { styles?: CSSProperties }) {
+export function BallerinaIcon(props: { styles?: CSSProperties }) {
     return (
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ ...props.styles }}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32" style={{ ...props.styles }}>
             <path
-                fill="currentColor"
-                d="M5 22q-.825 0-1.413-.588T3 20V8.725q-.45-.275-.725-.713T2 7V4q0-.825.588-1.413T4 2h16q.825 0 1.413.588T22 4v3q0 .575-.275 1.012T21 8.725V20q0 .825-.588 1.413T19 22H5ZM5 9v11h14V9H5ZM4 7h16V4H4v3Zm6 7h4q.425 0 .713-.288T15 13q0-.425-.288-.713T14 12h-4q-.425 0-.713.288T9 13q0 .425.288.713T10 14Zm2 .5Z"
+                fill="#20b4ae"
+                d="M8 9.859V2h6.818v10.376Zm0 2.461l4.666 1.723L8 15.764Zm6.818 3.389v3.805L11.5 30H8V18.225ZM24 9.859V2h-6.819v10.376Zm0 2.461l-4.668 1.723L24 15.764Zm-6.819 3.389v3.805L20.5 30H24V18.225Z"
             />
         </svg>
     );

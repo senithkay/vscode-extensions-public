@@ -12,6 +12,7 @@ import { SharedNodeModel } from "../../shared-node/shared-node";
 import { ConnectionPortModel } from "../ConnectionPort/ConnectionPortModel";
 import { Connection } from "../../../types";
 import { CONNECTION_NODE } from "../../../resources";
+import { getConnectionName } from "./connection-util";
 
 export enum Orientation {
     VERTICAL = "vertical",
@@ -22,15 +23,16 @@ export class ConnectionModel extends SharedNodeModel {
     readonly connection: Connection;
     readonly orientation: Orientation;
 
-    constructor(connectionName: string, connection: Connection, orientation?: Orientation) {
-        super(CONNECTION_NODE, connectionName);
+    constructor(connection: Connection, orientation?: Orientation) {
+        const name = getConnectionName(connection);
+        super(CONNECTION_NODE, name);
         this.connection = connection;
         this.orientation = orientation || Orientation.VERTICAL;
 
-        this.addPort(new ConnectionPortModel(connectionName, PortModelAlignment.TOP));
-        this.addPort(new ConnectionPortModel(connectionName, PortModelAlignment.BOTTOM));
+        this.addPort(new ConnectionPortModel(name, PortModelAlignment.TOP));
+        this.addPort(new ConnectionPortModel(name, PortModelAlignment.BOTTOM));
 
-        this.addPort(new ConnectionPortModel(connectionName, PortModelAlignment.LEFT));
-        this.addPort(new ConnectionPortModel(connectionName, PortModelAlignment.RIGHT));
+        this.addPort(new ConnectionPortModel(name, PortModelAlignment.LEFT));
+        this.addPort(new ConnectionPortModel(name, PortModelAlignment.RIGHT));
     }
 }

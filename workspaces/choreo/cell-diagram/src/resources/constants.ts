@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DagreEngine } from '../resources/DagreEngine'; // TODO: Update library props to support node parents
+import { DagreEngine } from './Dagre/DagreEngine'; // TODO: Update library props to support node parents
 
 export enum Colors {
     DEFAULT_TEXT = '#40404B',
@@ -37,7 +37,7 @@ export const dagreEngine = new DagreEngine({
     includeLinks: true,
 });
 
-export const NAME_JOIN_CHAR = "--";
+export const NAME_JOIN_CHAR = "|";
 
 // error messages
 export const NO_ENTITIES_DETECTED = 'Could not detect any components in the project.';
@@ -49,6 +49,7 @@ export const COMPONENT_NODE = "componentNode";
 export const CONNECTION_NODE = "connectionNode";
 export const MAIN_CELL = "mainCell";
 export const EMPTY_NODE = "emptyNode";
+export const EXTERNAL_NODE = "externalNode";
 
 // node dimensions
 export const MAIN_CELL_DEFAULT_HEIGHT = 500;
@@ -58,4 +59,4 @@ export const DOT_WIDTH = 20;
 export const COMPONENT_CIRCLE_WIDTH = 80;
 
 export const LABEL_FONT_SIZE = 20;
-export const LABEL_MAX_WIDTH = 120;
+export const LABEL_MAX_WIDTH = 160;

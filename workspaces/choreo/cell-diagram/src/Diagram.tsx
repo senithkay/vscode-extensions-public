@@ -10,14 +10,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-import {
-    generateEngine,
-    getComponentDiagramWidth,
-    getNodesNLinks,
-    manualDistribute,
-    calculateCellWidth,
-    isRenderInsideCell,
-} from "./utils";
+import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
 import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
 import { Colors, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
@@ -63,11 +56,6 @@ export function CellDiagram(props: CellDiagramProps) {
 
     // draw diagram
     const drawDiagram = () => {
-        // check if project has components
-        // if (!project?.components?.length) {
-        //     setUserMessage(NO_ENTITIES_DETECTED);
-        //     return;
-        // }
         // get node and links
         const nodeNLinks = getNodesNLinks(project);
         // auto distribute component nodes, component links, empty nodes and cell links
@@ -141,19 +129,15 @@ export function CellDiagram(props: CellDiagramProps) {
         // calculate component diagram width
         const model = diagramEngine.getModel();
         const cellWidth = calculateCellWidth(model);
-        if (cellWidth === cellNodeWidth.current) {
-            return;
-        }
+        // TODO: check if cell node width should change
         const cellNode = model.getNode(MAIN_CELL);
         // change cell node width
         if (!cellNode) {
             setUserMessage(NO_CELL_NODE); // TODO: handle error properly
             return;
         }
-        
         cellNode.width = cellWidth;
         cellNode.updateDimensions({ width: cellWidth, height: cellWidth });
-        cellNodeWidth.current = cellWidth;
 
         setTimeout(() => {
             // manual distribute - update empty node, external node and connector node position based on cell node position
@@ -161,7 +145,9 @@ export function CellDiagram(props: CellDiagramProps) {
             // update diagram
             diagramEngine.setModel(model);
             diagramEngine.repaintCanvas();
-        }, 10);
+            // update cell node width
+            cellNodeWidth.current = cellWidth;
+        }, 4);
     };
 
     const ctx = {
