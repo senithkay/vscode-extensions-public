@@ -36,11 +36,6 @@ class Console {
         this._panel = panel;
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
-        // if (!ProjectOverview._rpcHandler) {
-        //   ProjectOverview._rpcHandler = new WebViewPanelRpc(this._panel);
-        // } else if (ProjectOverview._rpcHandler.panel !== panel) {
-        //   ProjectOverview._rpcHandler = new WebViewPanelRpc(this._panel);
-        // }
         this._panel.onDidChangeViewState(e => {
             if (e.webviewPanel.visible) {
                 //
