@@ -92,6 +92,10 @@ jobs:
             exit 1
           fi
 
+      - run: |
+          echo "Ballerina Tests: ${{ steps.testMatrix.outputs.runBalExtTests }}"
+          echo "Choreo Tests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}"
+
       - name: Build
         uses: ./.github/actions/build
         with:
