@@ -89,15 +89,15 @@ export function generateTSInterfaces() {
         `export interface STNode {
     attributes: STNodeAttributes[];
     children: STNode[];
-    end: number
-    endTagOffOffset: number
-    endTagOpenOffset: number
-    hasTextNode: boolean
-    selfClosed: boolean
-    start: number
-    startTagOffOffset: number
-    startTagOpenOffset: number
-    tag: string
+    end: number;
+    endTagOffOffset: number;
+    endTagOpenOffset: number;
+    hasTextNode: boolean;
+    selfClosed: boolean;
+    start: number;
+    startTagOffOffset: number;
+    startTagOpenOffset: number;
+    tag: string;
 }
 
 export interface STNodeAttributes {
