@@ -7,26 +7,36 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as vscode from 'vscode';
 import * as path from 'path';
 import { RegisterWebViewPanelRpc } from '../WebviewRPC';
+import { ExtensionContext, Uri, ViewColumn, Webview, window } from 'vscode';
 
-export function createDiagramWebview(context: vscode.ExtensionContext) {
-    // Get the path to the `diagram.js` file
-    const diagramPath = vscode.Uri.file(
-        path.join(context.extensionPath, 'resources', 'jslibs', 'MIDiagram.js')
-    );
+const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
+
+function getComposerJSFiles(context: ExtensionContext, componentName: string, webView: Webview): string[] {
+    const filePath = path.join(context.extensionPath, 'resources', 'jslibs', componentName + '.js');
+    return [
+        isDevMode ? path.join(process.env.WEB_VIEW_DEV_HOST!, componentName + '.js')
+            : webView.asWebviewUri(Uri.file(filePath)).toString(),
+        isDevMode ? 'http://localhost:8097' : '' // For React Dev Tools
+    ];
+}
+
+export function createDiagramWebview(context: ExtensionContext) {
 
     // Create a new webview panel
-    const panel = vscode.window.createWebviewPanel(
+    const panel = window.createWebviewPanel(
         'diagram',
-        'Diagram',
-        vscode.ViewColumn.One,
+        'Integration Studio Diagram View',
+        ViewColumn.One,
         {
             enableScripts: true,
-            localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'resources'))]
+            localResourceRoots: [Uri.file(path.join(context.extensionPath, 'resources'))]
         }
     );
+
+    const scripts = getComposerJSFiles(context, 'MIDiagram', panel.webview).map(jsFile =>
+        '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
 
     new RegisterWebViewPanelRpc(panel);
     panel.webview.html = `
@@ -36,13 +46,13 @@ export function createDiagramWebview(context: vscode.ExtensionContext) {
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
                     <meta name="theme-color" content="#000000">
-                    <title>Choreo Architecture View</title>
-                    <script src="${panel.webview.asWebviewUri(diagramPath)}"></script>
+                    <title>Integration Studio Diagram View</title>
                 </head>
                 <body>
                     <noscript>You need to enable JavaScript to run this app.</noscript>
                     <div id="mi-diagram-container"></div>
                 </body>
+                ${scripts}
                 <script>
                     function render() {
                         MIDiagram.renderMIDiagram(
