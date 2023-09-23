@@ -72,4 +72,7 @@ export interface Visitor {
 
     beginVisitService?(node: Synapse.Service): void;
     endVisitService?(node: Synapse.Service): void;
+
+    beginVisitLog?(node: Synapse.Log): void;
+    endVisitLog?(node: Synapse.Log): void;
 }
