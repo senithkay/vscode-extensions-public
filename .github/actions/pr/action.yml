@@ -20,7 +20,7 @@ inputs:
     type: boolean
     required: true
   ballerina:
-   description: 'Is Ballerina'    
+    description: 'Is Ballerina'    
     type: boolean
     required: true
 runs:
