@@ -83,13 +83,8 @@ jobs:
             fileName=${file#*-}
             version=choreo-${fileName%.*}  
           fi
+          echo $version
           echo "version=$version" >> $GITHUB_OUTPUT
-
-          if [[ "${{ github.event.inputs.isPreRelease }}" == "true" ]]; then
-            echo "releaseMode=next" >> $GITHUB_OUTPUT
-          else
-            echo "releaseMode=latest" >> $GITHUB_OUTPUT
-          fi 
 
       - name: Create a release in wso2/ballerina-vscode repo
         if: ${{ github.event.inputs.ballerina == 'true' }}
