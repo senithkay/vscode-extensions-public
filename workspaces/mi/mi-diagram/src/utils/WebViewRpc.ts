@@ -12,6 +12,7 @@ import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
     ExecuteCommandRequest,
+    GetSyntaxTreeRequest,
     ShowErrorMessage
 } from "@wso2-enterprise/mi-core";
 
@@ -38,5 +39,9 @@ export class MIWebViewAPI {
 
     public showErrorMsg(error: string) {
         this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
+    }
+
+    public getSyntaxTree() {
+        return this._messenger.sendRequest(GetSyntaxTreeRequest, HOST_EXTENSION);
     }
 }

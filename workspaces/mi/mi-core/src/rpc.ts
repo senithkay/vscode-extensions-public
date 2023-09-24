@@ -11,6 +11,7 @@ import { RequestType, NotificationType } from 'vscode-messenger-common';
 
 // request types 
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
+export const GetSyntaxTreeRequest: RequestType<unknown, unknown> = { method: 'xml/getSynapseSyntaxTree' };
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };

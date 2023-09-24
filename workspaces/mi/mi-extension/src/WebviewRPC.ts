@@ -7,12 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { commands, WebviewPanel, window, WebviewView } from "vscode";
+import { commands, WebviewPanel, window, WebviewView, workspace } from "vscode";
 import { Messenger } from "vscode-messenger";
 import {
     ExecuteCommandRequest,
-    ShowErrorMessage
+    GetSyntaxTreeRequest,
+    ShowErrorMessage,
 } from "@wso2-enterprise/mi-core";
+import { MILanguageClient } from "./lang-client/activator";
 
 // Register handlers
 export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
@@ -23,6 +25,15 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return result;
         }
     });
+
+    messenger.onRequest(GetSyntaxTreeRequest, async () => {
+        return (await MILanguageClient.getInstance()).languageClient!.getSyntaxTree({
+            documentIdentifier: {
+                uri: window.activeTextEditor?.document.uri.toString() || "",
+            },
+        });
+    });
+
     messenger.onNotification(ShowErrorMessage, (error: string) => {
         window.showErrorMessage(error);
     });
