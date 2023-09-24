@@ -35,7 +35,8 @@
     "copyfiles": "~2.4.1",
     "@wso2-enterprise/mi-core": "workspace:*",
     "vscode-messenger-common": "~0.4.5",
-    "vscode-messenger-webview": "~0.4.5"
+    "vscode-messenger-webview": "~0.4.5",
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",

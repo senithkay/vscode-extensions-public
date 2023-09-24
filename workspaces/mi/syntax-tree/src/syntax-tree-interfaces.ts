@@ -103,9 +103,9 @@ export interface Log extends STNode {
     expression: string;
   }[];
   level: string;
-  separator: string;
-  category: string;
-  description: string;
+  separator?: string;
+  category?: string;
+  description?: string;
 }
 
 export interface Output extends STNode {
