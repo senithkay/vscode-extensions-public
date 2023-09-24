@@ -12,24 +12,29 @@ import React from "react";
 
 import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MEDIATOR_NODE, MediatorNodeModel } from "./MediatorNodeModel";
-import { MediatorNodeWidget } from "./MediatorNodeWidget";
+import { MediatorNodeWidget } from "./LogMediatorWidget";
+import { LOG_NODE, LogMediatorNodeModel } from "./LogMediatorModel";
 
 interface GenerateReactWidgetProps {
-    model: MediatorNodeModel;
+    model: LogMediatorNodeModel;
 }
 
-export class MediatorNodeFactory extends AbstractReactFactory<MediatorNodeModel, DiagramEngine> {
+export class LogMediatorNodeFactory extends AbstractReactFactory<LogMediatorNodeModel, DiagramEngine> {
     constructor() {
-        super(MEDIATOR_NODE);
+        super(LOG_NODE);
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
-        return <MediatorNodeWidget diagramEngine={this.engine} node={event.model}/>;
+        return <MediatorNodeWidget
+            diagramEngine={this.engine}
+            node={event.model}
+            width={70}
+            height={70}
+            level={event.model.level}
+        />;
     }
 
     generateModel(event: { initialConfig: any }) {
-        console.log(event);
-        return new MediatorNodeModel(event.initialConfig.model);
+        return new LogMediatorNodeModel(event.initialConfig.model);
     }
 }

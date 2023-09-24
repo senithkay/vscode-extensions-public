@@ -8,9 +8,17 @@
  */
 
 import { LinkModel, NodeModel, NodeModelGenerics, PortModel } from '@projectstorm/react-diagrams';
-import { MediatorBaseLinkModel } from '../base-link/base-link';
+import { MediatorBaseLinkModel as BaseLinkModel } from '../base-link/base-link';
+import { NodeProps } from "@projectstorm/react-diagrams-core";
 
-export class MediatorBaseNode extends NodeModel<NodeModelGenerics> {
+export interface BaseNodeProps extends NodeProps {
+    node: BaseNodeModel;
+    diagramEngine: any;
+    width: number;
+    height: number;
+}
+
+export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     constructor(type: string, id: string) {
         super({
             type: type,
@@ -31,7 +39,7 @@ export class MediatorBaseNode extends NodeModel<NodeModelGenerics> {
         }
     }
 
-    isNodeSelected = (selectedLink: MediatorBaseLinkModel, portIdentifier: string): boolean => {
+    isNodeSelected = (selectedLink: BaseLinkModel, portIdentifier: string): boolean => {
         if (selectedLink) {
             if (selectedLink.getSourcePort().getNode().getID() === this.getID()) {
                 let sourcePortID: string = selectedLink.getSourcePort().getID();
@@ -42,5 +50,9 @@ export class MediatorBaseNode extends NodeModel<NodeModelGenerics> {
             }
         }
         return false;
+    }
+
+    getPortByAllignment(allignment: string): PortModel | undefined {
+        return this.ports[`${allignment}-${this.getID()}`];
     }
 }

@@ -9,10 +9,10 @@
 
 import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
 import { MediatorLinkFactory } from "../components/link/MediatorLinkFactory";
-import { MediatorNodeFactory } from "../components/node/MediatorNodeFactory";
 import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
 import { MediatorPortModel } from "../components/port/MediatorPortModel";
 import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
+import { LogMediatorNodeFactory } from "../components/nodes/mediators/log/LogMediatorFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -21,7 +21,7 @@ export function generateEngine(): DiagramEngine {
     });
     engine.getLinkFactories().registerFactory(new MediatorLinkFactory());
     engine.getPortFactories().registerFactory(new MediatorPortFactory());
-    engine.getNodeFactories().registerFactory(new MediatorNodeFactory());
+    engine.getNodeFactories().registerFactory(new LogMediatorNodeFactory());
     // engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return engine;
 }
