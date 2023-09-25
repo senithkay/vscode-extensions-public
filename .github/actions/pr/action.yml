@@ -20,7 +20,7 @@ inputs:
     type: boolean
     required: true
   ballerina:
-   description: 'Is Ballerina'    
+    description: 'Is Ballerina'    
     type: boolean
     required: true
 runs:
@@ -46,7 +46,7 @@ runs:
         shell: bash
         id: commit
         run: |
-          git commit -m "Update version to ${{ inputs.version }}"
+          git diff --staged --quiet || git commit -m "Update version to ${{ inputs.version }}"
           git checkout -b "${{ inputs.version }}"
           git remote set-url origin https://${{ inputs.bot_username }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
           git tag ${{ inputs.version }}
