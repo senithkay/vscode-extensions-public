@@ -18,7 +18,7 @@ Follow these steps to set up and start using the TestGPT VS Code extension:
 Before you begin, make sure you have the following prerequisites installed on your system:
 
 1. [Visual Studio Code](https://code.visualstudio.com/download)
-2. [TestGPT VS Code Extension](https://marketplace.visualstudio.com/items?itemName=your-extension-name) version 1.0.0 or later.
+2. [TestGPT VS Code Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.test-gpt) version 1.0.0 or later.
 
 ### Installation
 
