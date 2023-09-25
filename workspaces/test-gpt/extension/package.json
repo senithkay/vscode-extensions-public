@@ -1,8 +1,10 @@
 {
   "name": "test-gpt",
-  "displayName": "test-gpt",
+  "displayName": "WSO2 TestGPT",
   "description": "Test APIs with OpenAPI descriptions",
   "version": "0.0.1",
+  "publisher": "wso2",
+  "icon": "resources/images/testgpt.png",
   "engines": {
     "vscode": "^1.80.0"
   },
