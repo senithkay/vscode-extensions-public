@@ -24,7 +24,7 @@ Before you begin, make sure you have the following prerequisites installed on yo
 
 1. Open Visual Studio Code.
 2. Go to the Extensions view by clicking on the Extensions icon in the Activity Bar on the side of the window.
-3. Search for "TestGPT" in the Extensions view search box.
+3. Search for "WSO2 TestGPT" in the Extensions view search box.
 4. Click the Install button for the TestGPT extension.
 5. Wait for the extension to be installed and activated.
 
