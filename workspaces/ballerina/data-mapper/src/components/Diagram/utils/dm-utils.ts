@@ -940,7 +940,7 @@ export function getInputNodes(node: STNode) {
 }
 
 export function getModuleVariables(node: STNode, context: IDataMapperContext) {
-	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor( context);
+	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context);
 	traversNode(node, moduleVarFindingVisitor);
 	return moduleVarFindingVisitor.getModuleVariables();
 }
