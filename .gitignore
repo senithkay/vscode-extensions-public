@@ -12,6 +12,7 @@ coverage
 extractedDistribution
 .npmrc
 test-resources
+.env
 
 # gradle
 .gradle
