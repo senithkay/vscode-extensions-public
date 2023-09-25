@@ -18,10 +18,12 @@ import {
     OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT,
     OPEN_GITHUB_REPO_PAGE_EVENT,
 } from "@wso2-enterprise/choreo-core";
+import {
+    ContextMenu, MenuItem,
+} from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ContextMenu, MenuItem } from "../../Commons/ContextMenu";
 import { BitBucketIcon, GithubIcon } from "../../icons";
 
 const InlineIcon = styled(Codicon)`
@@ -121,5 +123,9 @@ export const ComponentContextMenu = (props: {
         disabled: deletingComponent,
     });
 
-    return <ContextMenu items={menuItems} loading={deletingComponent} menuId={component.displayName} />;
+    const icon = (<Codicon name="ellipsis" />);
+
+    return (
+        <ContextMenu icon={icon} menuItems={menuItems} isLoading={deletingComponent} menuId={component.displayName} sx={{right: 0, marginTop: 50}}/>
+    );
 };
