@@ -77,13 +77,14 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                 continue;
             }
 
-            const choreoDirPath = path.join(dirname(workspaceFileLocation), folder.path, '.choreo');
+            const componentPath = path.join(dirname(workspaceFileLocation), folder.path);
+            const choreoDirPath = path.join(componentPath, '.choreo');
             const componentYamlPath = path.join(choreoDirPath, 'component.yaml');
             
             if (existsSync(componentYamlPath)) {
                 const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8"));
                 const componentType = (componentYamlContent as any)?.type || ComponentType.SERVICE;
-                const componentKind = getComoponentKind();
+                const componentKind = getComoponentKind(componentPath, componentType);
                 const defaultComponentModel = getDefaultComponentModel(orgName, folder.name, componentType, componentKind);
 
                 if (componentType === ComponentType.SERVICE) {

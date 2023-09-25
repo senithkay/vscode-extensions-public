@@ -241,7 +241,27 @@ export function getGeneralizedComponentType(type: ComponentDisplayType): Compone
     }
 }
 
-export function getComoponentKind(): ComponentDisplayType {
-    // TODO: Evaluate the component build pack and return the component kind (ballerinaService, byocService, etc.)
-    return ComponentDisplayType.Service;
+export function getComoponentKind(componentPath: string, componentType: ComponentType): ComponentDisplayType {
+    let isBallerinaComponent = false;
+    if (existsSync(join(componentPath, "Ballerina.toml"))) {
+        isBallerinaComponent = true;
+    }
+    switch (componentType) {
+        case ComponentType.SERVICE:
+            return isBallerinaComponent ? ComponentDisplayType.Service : ComponentDisplayType.ByocService;
+        case ComponentType.WEB_APP:
+            return ComponentDisplayType.ByocWebApp;
+        case ComponentType.SCHEDULED_TASK:
+            return isBallerinaComponent ? ComponentDisplayType.ScheduledTask : ComponentDisplayType.ByocCronjob;
+        case ComponentType.MANUAL_TASK:
+            return isBallerinaComponent ? ComponentDisplayType.ManualTrigger : ComponentDisplayType.ByocJob;
+        case ComponentType.API_PROXY:
+            return ComponentDisplayType.Proxy
+        case ComponentType.EVENT_HANDLER:
+            return ComponentDisplayType.MiEventHandler
+        case ComponentType.TEST:
+            return ComponentDisplayType.ByocJob
+        default:
+            return ComponentDisplayType.ByocJob;
+    }
 }
