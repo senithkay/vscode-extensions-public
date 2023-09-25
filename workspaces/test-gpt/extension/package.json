@@ -3,7 +3,7 @@
   "displayName": "WSO2 TestGPT",
   "description": "Test APIs with OpenAPI descriptions",
   "version": "0.0.1",
-  "publisher": "wso2",
+  "publisher": "WSO2",
   "icon": "resources/images/testgpt.png",
   "engines": {
     "vscode": "^1.80.0"
@@ -61,6 +61,7 @@
     }
   },
   "scripts": {
+    "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "vscode:prepublish": "pnpm run compile",
     "compile": "webpack --mode production",
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../webviews/build/*.js ./resources/jslibs",
@@ -69,8 +70,11 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "unit-test": "tsc && mocha --ui tdd   out/test/unit/*.test.js ",
-    "build": "pnpm run compile && pnpm run copy-webview-lib",
-    "package": "pnpm run build && pnpm vsce package --no-dependencies"
+    "build": "pnpm run compile && pnpm run copy-webview-lib && pnpm run package && pnpm run postbuild",
+    "package": "pnpm vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/",
+    "copyVSIX": "copyfiles *.vsix ./vsix",
+    "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
+    "postbuild": "pnpm run copyVSIX"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
