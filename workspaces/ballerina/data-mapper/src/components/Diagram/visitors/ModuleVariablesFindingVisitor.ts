@@ -118,7 +118,7 @@ export class ModuleVariablesFindingVisitor implements Visitor {
                 kind = ModuleVarKind.Variable;
             }
         });
-        if(node && node.typeData?.symbol?.kind === "ENUM_MEMBER"){
+        if (node && node.typeData?.symbol?.kind === "ENUM_MEMBER"){
             kind = ModuleVarKind.Enum;
         }
 
