@@ -272,7 +272,7 @@ function generateConnectionNodes(project: Project): Map<string, ConnectionModel>
     const nodes: Map<string, ConnectionModel> = new Map<string, ConnectionModel>();
     project.components?.forEach((component, _key) => {
         component.connections?.forEach((connection) => {
-            if (isExternalConnection(project.name, connection)) {
+            if (isExternalConnection(project.id, connection)) {
                 const connectionNode = new ConnectionModel(connection, Orientation.HORIZONTAL);
                 nodes.set(connectionNode.getID(), connectionNode);
             }
@@ -356,7 +356,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
 
         component.connections.forEach((connection) => {
             const connectionMetadata = getConnectionMetadata(connection);
-            if (connectionMetadata && !isConnectorConnection(connection) && !isExternalConnection(project.name, connection)) {
+            if (connectionMetadata && !isConnectorConnection(connection) && !isExternalConnection(project.id, connection)) {
                 const associatedComponent = nodes.get(getComponentNameById((connectionMetadata as ComponentMetadata).component)) as ComponentModel;
                 if (callingComponent && associatedComponent) {
                     const sourcePort: ComponentPortModel | null = callingComponent.getPort(`right-${callingComponent.getID()}`);
@@ -504,7 +504,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setTargetNode(southBoundEmptyNode.getID());
                     }
                 }
-            } else if (isExternalConnection(project.name, connection)) {
+            } else if (isExternalConnection(project.id, connection)) {
                 const eastBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.EastBound, connection.id));
                 if (targetComponent && eastBoundEmptyNode) {
                     const sourcePort: ComponentPortModel | null = targetComponent.getPort(`right-${targetComponent.getID()}`);
@@ -637,7 +637,7 @@ export function getConnectionMetadata(connection: Connection): ConnectionMetadat
 
 export function isExternalConnection(projectId: string, connection: Connection): boolean {
     const metadata = getConnectionMetadata(connection);
-    return !isConnectorConnection(connection) && metadata && (metadata as ComponentMetadata).project !== projectId;
+    return !isConnectorConnection(connection) && !connection.onPlatform && metadata && (metadata as ComponentMetadata).project !== projectId;
 }
 
 // check is connector connection
