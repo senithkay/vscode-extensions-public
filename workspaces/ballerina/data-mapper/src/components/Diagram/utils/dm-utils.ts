@@ -939,14 +939,14 @@ export function getInputNodes(node: STNode) {
 	return inputNodeFindingVisitor.getFieldAccessNodes();
 }
 
-export function getModuleVariables(node: STNode, context: IDataMapperContext) {
-	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context.moduleVariables);
+export function getModuleVariables(node: STNode, moduleVariables: any) {
+	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(moduleVariables);
 	traversNode(node, moduleVarFindingVisitor);
 	return moduleVarFindingVisitor.getModuleVariables();
 }
 
-export function getEnumTypes(node: STNode, context: IDataMapperContext) {
-	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context.moduleVariables);
+export function getEnumTypes(node: STNode, moduleVariables: any) {
+	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(moduleVariables);
 	traversNode(node, enumTypeFindingVisitor);
 	return enumTypeFindingVisitor.getEnumTypes();
 }
