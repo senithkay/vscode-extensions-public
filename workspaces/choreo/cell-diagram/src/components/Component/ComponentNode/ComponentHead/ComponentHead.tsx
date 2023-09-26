@@ -56,35 +56,26 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
         switch (type) {
             case ComponentType.API_PROXY:
                 return <ProxyIcon />;
-            // return <i className="fw-proxy"></i>;
             case ComponentType.EVENT_HANDLER:
                 return <EventIcon />;
-            // return <i className="fw-event-round"></i>;
             case ComponentType.MANUAL_TASK:
                 return <ManualTaskIcon />;
-            // return <i className="fw-click-round"></i>;
             case ComponentType.SCHEDULED_TASK:
                 return <ScheduledTaskIcon />;
-            // return <i className="fw-alarm-round"></i>;
             case ComponentType.SERVICE:
                 return <ServiceIcon />;
-            // return <i className="fw-inventory-round"></i>;
             case ComponentType.TEST:
                 return <AddCheckIcon />;
-            // return <i className="fw-add-check-round"></i>;
             case ComponentType.WEB_APP:
                 return <WebAppIcon />;
-            // return <i className="fw-browser-round"></i>;
             case ComponentType.WEB_HOOK:
                 return <WebhookIcon />;
-            // return <i className="fw-webhook-round"></i>;
             default:
                 return <ServiceIcon />;
-            // return <i className="fw-kite-round"></i>;
         }
     };
 
-    const getComponentKindIcon = (kind: string) => {
+    const getComponentBuildIcon = (kind: string) => {
         const icon = startCase(camelCase(kind)).replace(/ /g, "") + "Icon";
         const IconComponent = icons[icon] || icons.CodeIcon;
         return <IconComponent />;
@@ -100,7 +91,9 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
             <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
-            {node.component.kind && <ComponentKind>{getComponentKindIcon(node.component.kind)}</ComponentKind>}
+            {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (
+                <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
+            )}
         </ComponentHead>
     );
 }

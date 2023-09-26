@@ -32,7 +32,7 @@ export interface Component {
     id: string;
     version: string;
     type: ComponentType;
-    kind?: string; // Component implemented language
+    buildPack?: string; // Component implemented language
     services: Services;
     connections: Connection[];
 }
@@ -51,7 +51,7 @@ export interface Service {
 
 export interface Connection {
     id: string;
-    type: ConnectionType;
+    type?: ConnectionType;
     onPlatform?: boolean;
 }
 
