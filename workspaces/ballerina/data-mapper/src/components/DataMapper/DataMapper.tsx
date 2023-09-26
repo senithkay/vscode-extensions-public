@@ -234,6 +234,7 @@ function DataMapperC(props: DataMapperProps) {
     const [hasInternalError, setHasInternalError] = useState(false);
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
+    const [selections, setSelections] = useState<string[]>([]);
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -243,6 +244,10 @@ function DataMapperC(props: DataMapperProps) {
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
         resetSearchStore();
+    }
+
+    const handleSelections = (selectedParams: []) => {
+        setSelections(selectedParams);
     }
 
     const onConfigOpen = () => {
@@ -292,6 +297,11 @@ function DataMapperC(props: DataMapperProps) {
 
     const handleLocalVarConfigPanel = (showPanel: boolean) => {
         setShowLocalVarConfigPanel(showPanel);
+    }
+
+    const selectionManager = {
+        selections,
+        handleSelections
     }
 
     useEffect(() => {
@@ -363,7 +373,8 @@ function DataMapperC(props: DataMapperProps) {
                     ballerinaVersion,
                     handleLocalVarConfigPanel,
                     updateActiveFile,
-                    updateSelectedComponent
+                    updateSelectedComponent,
+                    selectionManager
                 );
 
                 if (shouldRestoreTypes) {
@@ -534,6 +545,7 @@ function DataMapperC(props: DataMapperProps) {
                                     onCancel={cancelStatementEditor}
                                     onClose={closeStatementEditor}
                                     importStatements={importStatements}
+                                    selections={selections}
                                 />
                             )}
                             {showLocalVarConfigPanel && (

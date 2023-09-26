@@ -44,6 +44,10 @@ export interface IDataMapperContext {
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     updateActiveFile?: (currentFile: FileListEntry) => void;
     updateSelectedComponent?: (info: ComponentViewInfo) => void;
+    selectionManager?: {
+        selections: string[],
+        handleSelections: (selectionParams: string[]) => void
+    }
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -72,7 +76,11 @@ export class DataMapperContext implements IDataMapperContext {
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
         public updateActiveFile?: (currentFile: FileListEntry) => void,
-        public updateSelectedComponent?: (info: ComponentViewInfo) => void
+        public updateSelectedComponent?: (info: ComponentViewInfo) => void,
+        public selectionManager?: {
+            selections: string[],
+            handleSelections: (selectionParams: string[]) => void;
+        }
     ){}
 
     public get functionST(): FunctionDefinition {

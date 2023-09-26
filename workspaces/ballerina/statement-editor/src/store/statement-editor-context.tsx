@@ -97,7 +97,8 @@ export const StatementEditorContext = React.createContext({
     isExpressionMode: false,
     ballerinaVersion: null,
     isCodeServerInstance: false,
-    openExternalUrl: (url: string) => {}
+    openExternalUrl: (url: string) => {},
+    selections: []
 });
 
 export interface CtxProviderProps extends LowCodeEditorProps {
@@ -136,7 +137,8 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         editors?: EditorModel[]
     },
     targetPosition: NodePosition,
-    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>
+    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>,
+    selections?: string[]
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -179,6 +181,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         isCodeServerInstance,
         openExternalUrl,
         updateFileContent,
+        selections,
         ...restProps
     } = props;
 
@@ -241,6 +244,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 isCodeServerInstance,
                 openExternalUrl,
                 updateFileContent,
+                selections,
                 ...restProps
             }}
         >
