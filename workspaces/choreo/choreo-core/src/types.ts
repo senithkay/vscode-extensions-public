@@ -497,6 +497,7 @@ export interface Endpoint {
 
 export interface Connection {
     id: string;
+    kind: string;
     mappings: Mapping[];
 }
 

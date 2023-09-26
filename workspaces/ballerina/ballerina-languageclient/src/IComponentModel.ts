@@ -7,6 +7,17 @@ export interface Project {
     version?: string;
 }
 
+export enum BuildPack {
+    Ballerina = "ballerina",
+    Java = "java",
+    Go = "go",
+    NodeJs = "nodejs",
+    Python = "python",
+    Ruby = "ruby",
+    Rust = "rust",
+    Other = "other"
+}
+
 export interface ComponentModel {
     id: string;
     orgName: string;
@@ -15,7 +26,7 @@ export interface ComponentModel {
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
     type?: ComponentType;
-    kind?: ComponentDisplayType;
+    buildPack?: BuildPack;
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
@@ -91,7 +102,7 @@ export interface CMAnnotation extends CMNode {
 export interface CMDependency extends CMNode {
     id: string;
     type: string;
-    isWithinPlatform?: boolean;
+    onPlatform?: boolean;
     serviceLabel?: string;
 }
 

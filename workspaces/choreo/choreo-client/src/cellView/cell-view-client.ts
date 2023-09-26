@@ -31,7 +31,8 @@ import {
     CHOREO_PROJECT_ROOT,
     COMPONENTS_FILE,
     ENDPOINTS_FILE,
-    getComoponentKind,
+    getBuildPackFromChoreo,
+    getBuildPackFromFs,
     getComponentDirPath,
     getConnectionModels,
     getDefaultComponentModel,
@@ -84,8 +85,8 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             if (existsSync(componentYamlPath)) {
                 const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8"));
                 const componentType = (componentYamlContent as any)?.type || ComponentType.SERVICE;
-                const componentKind = getComoponentKind(componentPath, componentType);
-                const defaultComponentModel = getDefaultComponentModel(orgName, folder.name, componentType, componentKind);
+                const buildPack = getBuildPackFromFs(componentPath);
+                const defaultComponentModel = getDefaultComponentModel(orgName, folder.name, componentType, buildPack);
 
                 if (componentType === ComponentType.SERVICE) {
                     const endpoints: Endpoint[] = (componentYamlContent as any).endpoints;
@@ -163,9 +164,10 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
         for (const component of choreoComponents) {
             const displayType = component.displayType as ComponentDisplayType;
+            const buildPack = getBuildPackFromChoreo(displayType);
             const componentType = getGeneralizedComponentType(displayType);
             const defaultComponentModel = getDefaultComponentModel(orgName, component.name,
-                componentType, displayType, component.version);
+                componentType, buildPack, component.version);
             const componentPath = getComponentDirPath(component, workspaceFileLocation);
 
             if (!componentPath) {
