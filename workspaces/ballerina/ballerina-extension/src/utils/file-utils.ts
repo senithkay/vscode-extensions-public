@@ -312,7 +312,11 @@ function setNextStartingUpFile(ballerinaExtInstance: BallerinaExtension, selecte
 
 // Function to open the stored cloned file path from the global state
 export async function openClonedTempFile(ballerinaExtInstance: BallerinaExtension) {
-    const isRepo = await pullLatestChanges(ballerinaExtInstance);
+    const isRepo = await isRepositoryLocation(ballerinaExtInstance);
+    if (isRepo) {
+        // Get latests changes
+        await commands.executeCommand('git.pull');
+    }
     const pathValue = ballerinaExtInstance.context.globalState.get(NEXT_STARTING_UP_FILE) as string;
     if (isRepo && pathValue) {
         try {
@@ -327,7 +331,7 @@ export async function openClonedTempFile(ballerinaExtInstance: BallerinaExtensio
 }
 
 
-async function pullLatestChanges(ballerinaExtInstance: BallerinaExtension) {
+async function isRepositoryLocation(ballerinaExtInstance: BallerinaExtension) {
     // Repository locations are stored in global state
     let repositoryLocations: Record<string, string> | undefined = ballerinaExtInstance.context.globalState.get(REPO_LOCATIONS);
     const workspaceFolders = workspace.workspaceFolders;
@@ -335,8 +339,6 @@ async function pullLatestChanges(ballerinaExtInstance: BallerinaExtension) {
         const workspaceFolder = workspaceFolders[0];
         const workspaceFolderPath = workspaceFolder.uri.fsPath;
         if (isPathInRepositoryLocations(workspaceFolderPath, repositoryLocations)) {
-            // Get latests changes
-            await commands.executeCommand('git.pull');
             return true;
         }
     }
@@ -429,30 +431,33 @@ function findBallerinaTomlFile(filePath) {
     return null; // Ballerina.toml not found in any parent folder
 }
 
-export function handleResolveMissingDependencies(ballerinaExtInstance: BallerinaExtension) {
+export async function handleResolveMissingDependencies(ballerinaExtInstance: BallerinaExtension) {
     openClonedTempFile(ballerinaExtInstance);
     const langClient = ballerinaExtInstance.langClient;
-    // Listen for diagnostic changes
-    languages.onDidChangeDiagnostics(async (e) => {
-        const activeEditor = window.activeTextEditor;
-        if (activeEditor && activeEditor.document.languageId === 'ballerina') {
-            const uri = activeEditor.document.uri;
-            const diagnostics = languages.getDiagnostics(uri);
-            if (diagnostics.length > 0 && diagnostics.filter(diag => diag.code === "BCE2003").length > 0) {
-                if (!ballerinaExtInstance.getIsOpenedOnce()) {
-                    ballerinaExtInstance.setIsOpenedOnce(true);
-                    resolveModules(langClient, uri.fsPath);
-                } else {
-                    const message = `Unresolved modules found.`;
-                    const pullModules: MessageItem = { title: "Pull Modules" };
-                    const result = await window.showInformationMessage(message, pullModules);
-                    if (result === pullModules) {
+    // Listen for diagnostic changes for cloned repo using vscode open feature
+    const isRepo = await isRepositoryLocation(ballerinaExtInstance);
+    if (isRepo) {
+        languages.onDidChangeDiagnostics(async (e) => {
+            const activeEditor = window.activeTextEditor;
+            if (activeEditor && activeEditor.document.languageId === 'ballerina') {
+                const uri = activeEditor.document.uri;
+                const diagnostics = languages.getDiagnostics(uri);
+                if (diagnostics.length > 0 && diagnostics.filter(diag => diag.code === "BCE2003").length > 0) {
+                    if (!ballerinaExtInstance.getIsOpenedOnce()) {
+                        ballerinaExtInstance.setIsOpenedOnce(true);
                         resolveModules(langClient, uri.fsPath);
+                    } else {
+                        const message = `Unresolved modules found.`;
+                        const pullModules: MessageItem = { title: "Pull Modules" };
+                        const result = await window.showInformationMessage(message, pullModules);
+                        if (result === pullModules) {
+                            resolveModules(langClient, uri.fsPath);
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 }
 
 async function setRepositoryLocation(ballerinaExtInstance: BallerinaExtension, gitUrl: string, location: string) {
