@@ -25,92 +25,6 @@ const singleComponentModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const allComponentModel: Project = {
-    id: "A",
-    name: "A",
-    components: [
-        {
-            id: "Ballerina Service",
-            version: "0.2.0",
-            type: "service",
-            kind: "ballerina",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Wep App",
-            version: "0.2.0",
-            type: "web-app",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Scheduled Task ABCDEFGHT",
-            version: "0.2.0",
-            type: "scheduled-task",
-            kind: "java",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Manual Task",
-            version: "0.2.0",
-            type: "manual-task",
-            kind: "python",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Api Proxy",
-            version: "0.2.0",
-            type: "api-proxy",
-            kind: "go",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Web Hook",
-            version: "0.2.0",
-            type: "web-hook",
-            kind: "node-js",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Event Handler",
-            version: "0.2.0",
-            type: "event-handler",
-            kind: "php",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Test",
-            version: "0.2.0",
-            type: "test",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Ruby Service",
-            version: "0.2.0",
-            type: "service",
-            kind: "ruby",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Rust Service",
-            version: "0.2.0",
-            type: "service",
-            kind: "rust",
-            services: {},
-            connections: [],
-        },
-    ],
-    modelVersion: "0.4.0",
-};
-
 const singleExposedComponentModel: Project = {
     id: "A",
     name: "A",
@@ -137,6 +51,118 @@ const singleExposedComponentModel: Project = {
                     },
                 },
             },
+            connections: [
+                {
+                    id: "madusha:B:C:endpoint1",
+                    onPlatform: true,
+                },
+                {
+                    id: "dynamoDb://dynamoDb",
+                    onPlatform: false,
+                    type: "datastore",
+                },
+            ],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+const allComponentModel: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "Ballerina Service",
+            version: "0.2.0",
+            type: "service",
+            buildPack: "ballerina",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Wep App",
+            version: "0.2.0",
+            type: "web-app",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Scheduled Task ABCDEFGHT",
+            version: "0.2.0",
+            type: "scheduled-task",
+            buildPack: "java",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Manual Task",
+            version: "0.2.0",
+            type: "manual-task",
+            buildPack: "python",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Api Proxy",
+            version: "0.2.0",
+            type: "api-proxy",
+            buildPack: "go",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Web Hook",
+            version: "0.2.0",
+            type: "web-hook",
+            buildPack: "node-js",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Event Handler",
+            version: "0.2.0",
+            type: "event-handler",
+            buildPack: "php",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Test",
+            version: "0.2.0",
+            type: "test",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Ruby Service",
+            version: "0.2.0",
+            type: "service",
+            buildPack: "ruby",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Rust Service",
+            version: "0.2.0",
+            type: "service",
+            buildPack: "rust",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "Docker Service",
+            version: "0.2.0",
+            type: "service",
+            buildPack: "docker",
+            services: {},
+            connections: [],
+        },
+        {
+            id: "XYZ Service",
+            version: "0.2.0",
+            type: "service",
+            buildPack: "xyz",
+            services: {},
             connections: [],
         },
     ],
@@ -236,11 +262,11 @@ const simpleModel: Project = {
             version: "0.1.0",
             type: "service",
             services: {
-                "ABC:A:Users:users": {
-                    id: "ABC:A:Users:users",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:users": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:users",
                     label: "users",
                     type: "http",
-                    dependencyIds: ["ABC:A:Users:svc2Basepath"],
+                    dependencyIds: ["ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:svc2Basepath"],
                     deploymentMetadata: {
                         gateways: {
                             internet: {
@@ -252,11 +278,11 @@ const simpleModel: Project = {
                         },
                     },
                 },
-                "ABC:A:Users:admin": {
-                    id: "ABC:A:Users:admin",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:admin": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:admin",
                     label: "admin",
                     type: "http",
-                    dependencyIds: ["ABC:A:Inventories:svc2Basepath", "salesforce://salesforceCorporate"],
+                    dependencyIds: ["ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Inventories:svc2Basepath", "salesforce://salesforceCorporate"],
                     deploymentMetadata: {
                         gateways: {
                             internet: {
@@ -281,7 +307,7 @@ const simpleModel: Project = {
                     onPlatform: false,
                 },
                 {
-                    id: "ABC:EStore:Members:members",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Members:members",
                     type: "http",
                 },
             ],
@@ -291,11 +317,11 @@ const simpleModel: Project = {
             version: "0.1.1",
             type: "service",
             services: {
-                "ABC:A:Inventories:inventories": {
-                    id: "ABC:A:Inventories:inventories",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Inventories:inventories": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Inventories:inventories",
                     label: "inventories",
                     type: "http",
-                    dependencyIds: ["ABC:A:Inventories:svc2Basepath"],
+                    dependencyIds: ["ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Inventories:svc2Basepath"],
                     deploymentMetadata: {
                         gateways: {
                             internet: {
@@ -310,7 +336,7 @@ const simpleModel: Project = {
             },
             connections: [
                 {
-                    id: "ABC:A:Payments:payments",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:payments",
                     type: "http",
                 },
                 {
@@ -319,7 +345,7 @@ const simpleModel: Project = {
                     onPlatform: true,
                 },
                 {
-                    id: "ABC:EStore:Products:products",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:products",
                     type: "grpc",
                 },
             ],
@@ -329,8 +355,8 @@ const simpleModel: Project = {
             version: "0.2.0",
             type: "service",
             services: {
-                "ABC:A:Payments:payments": {
-                    id: "ABC:A:Payments:payments",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:payments": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:payments",
                     label: "payments",
                     type: "http",
                     dependencyIds: [],
@@ -348,7 +374,7 @@ const simpleModel: Project = {
             },
             connections: [
                 {
-                    id: "ABC:A:Users:users",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:users",
                     type: "http",
                     onPlatform: true,
                 },
@@ -369,8 +395,8 @@ const simpleModel: Project = {
             version: "0.2.0",
             type: "service",
             services: {
-                "ABC:A:Offers:basepath": {
-                    id: "ABC:A:Offers:basepath",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:basepath": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:basepath",
                     label: "basepath",
                     type: "http",
                     dependencyIds: [],
@@ -425,10 +451,10 @@ const complexModel: Project = {
             id: "Products",
             version: "0.1.0",
             type: "service",
-            kind: "ballerina",
+            buildPack: "ballerina",
             services: {
-                "ABC:EStore:Products:service1": {
-                    id: "ABC:EStore:Products:service1",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:service1": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:service1",
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
@@ -455,10 +481,10 @@ const complexModel: Project = {
             id: "Inventories",
             version: "0.1.0",
             type: "service",
-            kind: "java",
+            buildPack: "java",
             services: {
-                "ABC:EStore:Inventories:service1": {
-                    id: "ABC:EStore:Inventories:service1",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Inventories:service1": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Inventories:service1",
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
@@ -476,7 +502,7 @@ const complexModel: Project = {
             },
             connections: [
                 {
-                    id: "ABC:EStore:Products:service1",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:service1",
                     type: "http",
                 },
             ],
@@ -486,8 +512,8 @@ const complexModel: Project = {
             version: "0.1.0",
             type: "service",
             services: {
-                "ABC:EStore:Payments:service1": {
-                    id: "ABC:EStore:Payments:service1",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:service1": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:service1",
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
@@ -505,15 +531,15 @@ const complexModel: Project = {
             },
             connections: [
                 {
-                    id: "ABC:EStore:Products:service1",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:service1",
                     type: "http",
                 },
                 {
-                    id: "ABC:EStore:Inventories:service1",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Inventories:service1",
                     type: "http",
                 },
                 {
-                    id: "ABC:EStore:Users:service1",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:service1",
                     type: "http",
                 },
                 { id: "dynamoDb://dynamoDb", type: "datastore", onPlatform: false },
@@ -528,8 +554,8 @@ const complexModel: Project = {
             version: "0.1.0",
             type: "service",
             services: {
-                "ABC:EStore:Users:service1": {
-                    id: "ABC:EStore:Users:service1",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:service1": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:service1",
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
@@ -558,8 +584,8 @@ const complexModel: Project = {
             version: "0.1.0",
             type: "scheduled-task",
             services: {
-                "ABC:EStore:Offers:service1": {
-                    id: "ABC:EStore:Offers:service1",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:service1": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Offers:service1",
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
@@ -597,8 +623,8 @@ const complexModel: Project = {
             version: "0.1.0",
             type: "scheduled-task",
             services: {
-                "ABC:EStore:Subscription:service1": {
-                    id: "ABC:EStore:Subscription:service1",
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Subscription:service1": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Subscription:service1",
                     label: "service1",
                     type: "http",
                     dependencyIds: [],
@@ -623,15 +649,15 @@ const complexModel: Project = {
             services: {},
             connections: [
                 {
-                    id: "ABC:EStore:Products:service1",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:service1",
                     type: "http",
                 },
                 {
-                    id: "ABC:EStore:Products:service1",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:service1",
                     type: "http",
                 },
                 {
-                    id: "ABC:EStore:Users:service1",
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Users:service1",
                     type: "http",
                 },
             ],

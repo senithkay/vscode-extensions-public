@@ -9,7 +9,7 @@
 
 // Cell icons
 export { GatewayIcon } from "./GatewayIcon";
-export { ConnectionIcon } from "./ConnectionIcon"; 
+export { ConnectionIcon } from "./ConnectionIcon";
 // Component type icons
 export { ServiceIcon } from "./ServiceIcon";
 export { WebAppIcon } from "./WebAppIcon";
@@ -29,3 +29,5 @@ export { NodeJsIcon } from "./lang/NodeJsIcon";
 export { PythonIcon } from "./lang/PythonIcon";
 export { RubyIcon } from "./lang/RubyIcon";
 export { RustIcon } from "./lang/RustIcon";
+export { PhpIcon } from "./lang/PhpIcon";
+export { DockerIcon } from "./lang/DockerIcon";
