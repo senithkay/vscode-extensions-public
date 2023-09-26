@@ -13,6 +13,7 @@
 
 import { ComponentDisplayType } from "@wso2-enterprise/choreo-core";
 import {
+    BuildPack,
     CMDependency,
     CMResourceFunction,
     CMService,
@@ -112,11 +113,10 @@ export function getConnectionModels(orgName: string, connections: Connection[], 
                 
                 connectionId = `${orgName}:${projectId}:${componentName}:${endpointName}`;
             }
-            const hasServiceUrl = connection.mappings.some(mapping => Object.keys(mapping).includes('service.url'));
             connectionModels.push({
                 id: connectionId,
-                isWithinPlatform: isChoreoConnection,
-                type: hasServiceUrl ? "http" : "connector"
+                onPlatform: isChoreoConnection,
+                type: connection.kind
             });
         }
     }
@@ -127,7 +127,7 @@ export function getConnectionModels(orgName: string, connections: Connection[], 
 export function getDefaultComponentModel(orgName: string,
                                         componentName: string,
                                         componentType: ComponentType,
-                                        componentKind: ComponentDisplayType,
+                                        buildPack: BuildPack,
                                         componentVersion?: string): ComponentModel {
     const services: CMService[] = [];
 
@@ -151,7 +151,7 @@ export function getDefaultComponentModel(orgName: string,
         ...(componentVersion && { version: componentVersion }),
         modelVersion: MODEL_VERSION,
         type: componentType,
-        kind: componentKind,
+        buildPack: buildPack,
         services: serviceMap,
         entities: new Map(),
         hasCompilationErrors: true,
@@ -241,7 +241,22 @@ export function getGeneralizedComponentType(type: ComponentDisplayType): Compone
     }
 }
 
-export function getComoponentKind(): ComponentDisplayType {
-    // TODO: Evaluate the component build pack and return the component kind (ballerinaService, byocService, etc.)
-    return ComponentDisplayType.Service;
+export function getBuildPackFromFs(componentPath: string): BuildPack {
+    if (existsSync(join(componentPath, "Ballerina.toml"))) {
+        return BuildPack.Ballerina;
+    }
+    return BuildPack.Other;
+}
+
+export function getBuildPackFromChoreo(componentDisplayType: ComponentDisplayType): BuildPack {
+    if (componentDisplayType === ComponentDisplayType.GraphQL
+         || componentDisplayType === ComponentDisplayType.ManualTrigger
+         || componentDisplayType === ComponentDisplayType.Proxy
+         || componentDisplayType === ComponentDisplayType.ScheduledTask
+         || componentDisplayType === ComponentDisplayType.Service
+         || componentDisplayType === ComponentDisplayType.Webhook
+         || componentDisplayType === ComponentDisplayType.Websocket) {
+        return BuildPack.Ballerina;        
+    }
+    return BuildPack.Other;
 }
