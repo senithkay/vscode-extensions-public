@@ -16,7 +16,6 @@ import {
     Visitor,
 } from "@wso2-enterprise/syntax-tree";
 
-import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { ModuleVariable, ModuleVarKind } from "../Node/ModuleVariable";
 
 export class ModuleVariablesFindingVisitor implements Visitor {
@@ -27,14 +26,14 @@ export class ModuleVariablesFindingVisitor implements Visitor {
     private constDecls: ComponentInfo[];
 
     constructor(
-        context: IDataMapperContext
+        moduleVariables: any
     ) {
         this.moduleVariables = new Map<string, ModuleVariable>();
         this.enumTypes = new Map<string, ModuleVariable>();
         this.queryExpressionDepth = 0;
 
-        this.moduleVarDecls = context.moduleVariables ? context.moduleVariables.moduleVarDecls : [];
-        this.constDecls = context.moduleVariables ? context.moduleVariables.constDecls : [];
+        this.moduleVarDecls = moduleVariables ? moduleVariables.moduleVarDecls : [];
+        this.constDecls = moduleVariables ? moduleVariables.constDecls : [];
     }
 
     public beginVisitFieldAccess(node: FieldAccess, parent?: STNode) {

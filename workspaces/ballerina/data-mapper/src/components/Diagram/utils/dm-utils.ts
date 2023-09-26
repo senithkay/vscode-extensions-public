@@ -940,13 +940,13 @@ export function getInputNodes(node: STNode) {
 }
 
 export function getModuleVariables(node: STNode, context: IDataMapperContext) {
-	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context);
+	const moduleVarFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context.moduleVariables);
 	traversNode(node, moduleVarFindingVisitor);
 	return moduleVarFindingVisitor.getModuleVariables();
 }
 
 export function getEnumTypes(node: STNode, context: IDataMapperContext) {
-	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context);
+	const enumTypeFindingVisitor: ModuleVariablesFindingVisitor = new ModuleVariablesFindingVisitor(context.moduleVariables);
 	traversNode(node, enumTypeFindingVisitor);
 	return enumTypeFindingVisitor.getEnumTypes();
 }
