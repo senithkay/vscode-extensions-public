@@ -98,7 +98,7 @@ export const StatementEditorContext = React.createContext({
     ballerinaVersion: null,
     isCodeServerInstance: false,
     openExternalUrl: (url: string) => {},
-    selections: []
+    currentReferences: []
 });
 
 export interface CtxProviderProps extends LowCodeEditorProps {
@@ -138,7 +138,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     },
     targetPosition: NodePosition,
     updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>,
-    selections?: string[]
+    currentReferences?: string[]
 }
 
 export const StatementEditorContextProvider = (props: CtxProviderProps) => {
@@ -181,7 +181,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         isCodeServerInstance,
         openExternalUrl,
         updateFileContent,
-        selections,
+        currentReferences,
         ...restProps
     } = props;
 
@@ -244,7 +244,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 isCodeServerInstance,
                 openExternalUrl,
                 updateFileContent,
-                selections,
+                currentReferences,
                 ...restProps
             }}
         >

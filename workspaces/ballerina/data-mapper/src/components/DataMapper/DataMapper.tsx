@@ -234,7 +234,7 @@ function DataMapperC(props: DataMapperProps) {
     const [hasInternalError, setHasInternalError] = useState(false);
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
-    const [selections, setSelections] = useState<string[]>([]);
+    const [currentReferences, setCurrentReferences] = useState<string[]>([]);
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -246,8 +246,8 @@ function DataMapperC(props: DataMapperProps) {
         resetSearchStore();
     }
 
-    const handleSelections = (selectedParams: []) => {
-        setSelections(selectedParams);
+    const handleCurrentReferences = (referencedFields: []) => {
+        setCurrentReferences(referencedFields);
     }
 
     const onConfigOpen = () => {
@@ -299,9 +299,9 @@ function DataMapperC(props: DataMapperProps) {
         setShowLocalVarConfigPanel(showPanel);
     }
 
-    const selectionManager = {
-        selections,
-        handleSelections
+    const referenceManager = {
+        currentReferences,
+        handleCurrentReferences
     }
 
     useEffect(() => {
@@ -374,7 +374,7 @@ function DataMapperC(props: DataMapperProps) {
                     handleLocalVarConfigPanel,
                     updateActiveFile,
                     updateSelectedComponent,
-                    selectionManager
+                    referenceManager
                 );
 
                 if (shouldRestoreTypes) {
@@ -545,7 +545,7 @@ function DataMapperC(props: DataMapperProps) {
                                     onCancel={cancelStatementEditor}
                                     onClose={closeStatementEditor}
                                     importStatements={importStatements}
-                                    selections={selections}
+                                    currentReferences={currentReferences}
                                 />
                             )}
                             {showLocalVarConfigPanel && (

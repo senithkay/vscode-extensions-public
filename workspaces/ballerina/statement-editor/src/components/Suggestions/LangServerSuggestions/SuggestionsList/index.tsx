@@ -22,7 +22,7 @@ export interface SuggestionsListProps {
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
     selection?: string;
     header?: string;
-    isSelectedSuggestion?: boolean
+    isReference?: boolean
 }
 
 export function SuggestionsList(props: SuggestionsListProps) {
@@ -33,7 +33,7 @@ export function SuggestionsList(props: SuggestionsListProps) {
         selection,
         currentGroup,
         header,
-        isSelectedSuggestion = false
+        isReference = false
     } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
@@ -68,12 +68,12 @@ export function SuggestionsList(props: SuggestionsListProps) {
                             }
                             suggestion={suggestion}
                             onClickLSSuggestion={onClickLSSuggestion}
-                            isSelectedSuggestion={isSelectedSuggestion}
+                            isReference={isReference}
                         />
                     ))
                 }
             </List>
-            {isSelectedSuggestion && (
+            {isReference && (
                 <div className={stmtEditorHelperClasses.selectionWrapper}>
                     <div className={stmtEditorHelperClasses.selectionSeparator} />
                     <br />

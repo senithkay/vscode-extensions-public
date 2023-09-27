@@ -473,10 +473,10 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getSuggestionIconStyle(suggestionType: number, isSelectedSuggetion: boolean): SuggestionIcon {
+export function getSuggestionIconStyle(suggestionType: number, isReference: boolean): SuggestionIcon {
     let suggestionIconColor: string;
     let suggestionIcon: IconType;
-    if (isSelectedSuggetion) {
+    if (isReference) {
         suggestionIcon = VscLightbulb
         suggestionIconColor = "#b280d9";
     } else {

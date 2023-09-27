@@ -44,9 +44,9 @@ export interface IDataMapperContext {
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     updateActiveFile?: (currentFile: FileListEntry) => void;
     updateSelectedComponent?: (info: ComponentViewInfo) => void;
-    selectionManager?: {
-        selections: string[],
-        handleSelections: (selectionParams: string[]) => void
+    referenceManager?: {
+        currentReferences: string[],
+        handleCurrentReferences: (referencedFields: string[]) => void
     }
 }
 
@@ -77,9 +77,9 @@ export class DataMapperContext implements IDataMapperContext {
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
         public updateActiveFile?: (currentFile: FileListEntry) => void,
         public updateSelectedComponent?: (info: ComponentViewInfo) => void,
-        public selectionManager?: {
-            selections: string[],
-            handleSelections: (selectionParams: string[]) => void;
+        public referenceManager?: {
+            currentReferences: string[],
+            handleCurrentReferences: (referencedFields: string[]) => void;
         }
     ){}
 

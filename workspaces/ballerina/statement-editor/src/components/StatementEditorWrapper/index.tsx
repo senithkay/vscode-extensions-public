@@ -72,7 +72,7 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     extraModules?: Set<string>;
     isHeaderHidden?: boolean;
     skipSemicolon?: boolean;
-    selections?: string[];
+    currentReferences?: string[];
 }
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
@@ -103,7 +103,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         isCodeServerInstance,
         openExternalUrl,
         isHeaderHidden,
-        selections
+        currentReferences
     } = props;
 
     const {
@@ -252,7 +252,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             isCodeServerInstance={isCodeServerInstance}
                             openExternalUrl={openExternalUrl}
                             isHeaderHidden={isHeaderHidden}
-                            selections={selections}
+                            currentReferences={currentReferences}
                         />
                     </>
                 )}

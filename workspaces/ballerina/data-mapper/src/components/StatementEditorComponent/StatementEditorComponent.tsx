@@ -28,7 +28,7 @@ export interface StatementEditorComponentProps {
     onCancel: () => void;
     onClose: () => void;
     importStatements: string[];
-    selections?: string[];
+    currentReferences?: string[];
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
     const {
@@ -41,7 +41,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         onCancel,
         onClose,
         importStatements,
-        selections
+        currentReferences
     } = props;
 
     const stmtEditorComponent = StatementEditorWrapper(
@@ -70,7 +70,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             onCancel,
             isExpressionMode: true,
             importStatements,
-            selections
+            currentReferences
         }
     );
 

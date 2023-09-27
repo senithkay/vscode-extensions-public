@@ -55,7 +55,7 @@ export function LSSuggestions() {
         },
         targetPosition,
         config,
-        selections
+        currentReferences
     } = useContext(StatementEditorContext);
     const selectionForSecondLevel = lsSecondLevelSuggestions?.selection;
     const secondLevelSuggestions = lsSecondLevelSuggestions?.secondLevelSuggestions;
@@ -64,7 +64,7 @@ export function LSSuggestions() {
     const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
     const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(null);
-    const [selectionSuggestions, setSelectionSuggestions] = useState<SuggestionItem[]>([]);
+    const [references, setReferences] = useState<SuggestionItem[]>([]);
 
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
@@ -72,13 +72,13 @@ export function LSSuggestions() {
     }, [lsSuggestions, lsSecondLevelSuggestions, currentModel.model]);
 
     useEffect(() => {
-        const suggestions: SuggestionItem[] = selections?.map(selection => {
+        const referencedFields: SuggestionItem[] = currentReferences?.map(field => {
             return {
-                value: selection
+                value: field
             }
         })
-        setSelectionSuggestions(suggestions);
-    }, [selections])
+        setReferences(referencedFields);
+    }, [currentReferences])
 
 
     const changeSelectionOnRightLeft = (key: number) => {
@@ -89,7 +89,7 @@ export function LSSuggestions() {
                 let suggestionList: SuggestionItem[];
                 switch (newGroup) {
                     case 0:
-                        suggestionList = selectionSuggestions;
+                        suggestionList = references;
                         break;
                     case 1:
                         suggestionList = filteredSuggestions;
@@ -110,7 +110,7 @@ export function LSSuggestions() {
     const changeSelectionOnUpDown = (key: number) => {
         if (selectedSuggestion === null) {
             setSelectedSuggestion((prevState) => {
-                if (selectionSuggestions?.length >= 0) {
+                if (references?.length >= 0) {
                     return { selectedListItem: 0, selectedGroup: 0 };
                 } else if (filteredSuggestions?.length >= 0) {
                     return { selectedListItem: 0, selectedGroup: 1 };
@@ -126,7 +126,7 @@ export function LSSuggestions() {
                 let suggestionList: SuggestionItem[];
                 switch (newGroup) {
                     case 0:
-                        suggestionList = selectionSuggestions;
+                        suggestionList = references;
                         break;
                     case 1:
                         suggestionList = filteredSuggestions;
@@ -152,7 +152,7 @@ export function LSSuggestions() {
                         newGroup = selectedSuggestion.selectedGroup - 1;
                         switch (newGroup) {
                             case 0:
-                                newSelected = selectionSuggestions.length - 1;
+                                newSelected = references.length - 1;
                                 break;
                             case 1:
                                 newSelected = filteredSuggestions.length - 1;
@@ -171,7 +171,7 @@ export function LSSuggestions() {
             let enteredSuggestion: SuggestionItem;
             switch (selectedSuggestion.selectedGroup) {
                 case 0:
-                    enteredSuggestion = selectionSuggestions[selectedSuggestion.selectedListItem]
+                    enteredSuggestion = references[selectedSuggestion.selectedListItem]
                     break;
                 case 1:
                     enteredSuggestion = filteredSuggestions[selectedSuggestion.selectedListItem]
@@ -272,14 +272,14 @@ export function LSSuggestions() {
             (
                 <div className={stmtEditorHelperClasses.lsSuggestionList}>
                     <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
-                        {selectionSuggestions?.length > 0 && (
+                        {references?.length > 0 && (
                             <SuggestionsList
-                                lsSuggestions={selectionSuggestions}
+                                lsSuggestions={references}
                                 selectedSuggestion={selectedSuggestion}
                                 currentGroup={0}
                                 onClickLSSuggestion={onClickLSSuggestion}
                                 header={CURRENT_REFERENCES_TITLE}
-                                isSelectedSuggestion={true}
+                                isReference={true}
                             />
                         )}
                         {!!filteredSuggestions?.length && (

@@ -135,8 +135,8 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     };
 
     const onClickEdit = (evt?: React.MouseEvent<HTMLDivElement>) => {
-        const selection = (link.getSourcePort() as RecordFieldPortModel).fieldFQN;
-        context.selectionManager.handleSelections([selection]);
+        const currentReference = (link.getSourcePort() as RecordFieldPortModel).fieldFQN;
+        context.referenceManager.handleCurrentReferences([currentReference]);
         if (evt) {
             evt.preventDefault();
             evt.stopPropagation();
