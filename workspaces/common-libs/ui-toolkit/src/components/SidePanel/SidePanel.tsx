@@ -13,7 +13,7 @@ import { colors } from '../Commons/Colors';
 
 export interface SidePanelProps {
 	isOpen?: boolean;
-    alignmanet?: "left" | "right";
+	alignmanet?: "left" | "right";
 	width?: number;
 	children?: React.ReactNode;
 	sx?: any;
@@ -37,7 +37,6 @@ const SidePanelContainer = styled.div<SidePanelProps>`
     
 export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
     const { isOpen = false, alignmanet = "right", width = 312, children, sx } = props;
-    console.log("isOpen", alignmanet);
     return (
         <>
             {isOpen && (<Overlay sx={{background: colors.vscodeEditorInactiveSelectionBackground, opacity: 0.4}}/>)}
