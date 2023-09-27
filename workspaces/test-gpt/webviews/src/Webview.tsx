@@ -9,7 +9,7 @@
 
 import React, { useEffect } from "react";
 import { ConsoleAPI, StateChangeEvent, TestCommand, TestResult, Queries } from "./ConsoleAPI";
-import { VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 import { } from '@vscode/webview-ui-toolkit';
 import styled from "@emotion/styled";
 import ScrollToBottom from 'react-scroll-to-bottom';
@@ -17,9 +17,17 @@ import { css } from "@emotion/css";
 import ReactJson, { ThemeKeys } from 'react-json-view'
 
 const ConsoleWrapper = styled.div({
-    padding: "10px 20px 20px 20px",
-    color: "var(--vscode-editorCodeLens-foreground)"
+    padding: "10px 20px 30px 20px",
+    color: "var(--vscode-editorCodeLens-foreground)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+});
 
+const Headline = styled.div({
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
 });
 
 const TestCommandWrapper = styled.div({
@@ -93,6 +101,20 @@ const ScenarioTitle = styled.div({
     fontWeight: "bolder"
 });
 
+const Toolbar = styled.div({
+    display: "flex",
+    marginLeft: "auto"
+});
+
+const BtnWrapper = styled(VSCodeButton)`
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    height: 10px;
+    width: 10px;
+    padding: 5px;
+`;
+
 function getColorTheme(): ThemeKeys {
     const body = document.querySelector('body');
     if (body) {
@@ -137,6 +159,14 @@ function Webview() {
         setTestInput(event.target.value);
     };
 
+    const clearLogs = () => {
+        ConsoleAPI.getInstance().clearTestLogs();
+    }
+
+    const refreshConsole = () => {
+        ConsoleAPI.getInstance().refreshConsole();
+    }
+
     useEffect(() => {
         console.log("trigger");
         // Set state when component loads
@@ -150,7 +180,29 @@ function Webview() {
     return (<>
         <ScrollToBottom className={ROOT_CSS}>
             <ConsoleWrapper>
-                <h2>Test your APIs with natural language</h2>
+                <Headline>
+                    <h2>Test your APIs with natural language</h2>
+                    <Toolbar>
+                        <BtnWrapper
+                            appearance="icon"
+                            onClick={() => refreshConsole()}
+                            title="Refresh Console"
+                            disabled={(state === "executing" || state === "loading")}
+                            id='refresh-btn'
+                        >
+                            <i className="codicon codicon-refresh" aria-hidden="true"></i>
+                        </BtnWrapper>
+                        <BtnWrapper
+                            appearance="icon"
+                            onClick={() => clearLogs()}
+                            title="Clear logs"
+                            disabled={(!logs.length) || (state === "executing")}
+                            id='clear-btn'
+                        >
+                            <i className="codicon codicon-clear-all" aria-hidden="true"></i>
+                        </BtnWrapper>
+                    </Toolbar>
+                </Headline>
                 <>
                     {queries && queries.length > 0 && state !== "loading" && <>
                         <p>Click on the following scenarios to try out</p>
@@ -172,7 +224,6 @@ function Webview() {
                     </>
                     }
                 </>
-
                 {logs.map((log) => {
                     if (log.type === "COMMAND") {
                         return <TestTitleWrapper>
