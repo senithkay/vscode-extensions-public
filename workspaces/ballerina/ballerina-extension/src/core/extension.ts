@@ -121,6 +121,7 @@ export class BallerinaExtension {
     private webviewContext: WebviewContext;
     private perfForecastContext: PerformanceForecastContext;
     private ballerinaConfigPath: string;
+    private isOpenedOnce: boolean;
 
     constructor() {
         this.ballerinaHome = '';
@@ -672,6 +673,14 @@ export class BallerinaExtension {
 
     public setNotebookDebugModeEnabled(value: boolean) {
         commands.executeCommand('setContext', 'isNotebookDebugModeEnabled', value);
+    }
+
+    public getIsOpenedOnce(): boolean {
+        return this.isOpenedOnce;
+    }
+
+    public setIsOpenedOnce(state: boolean) {
+        this.isOpenedOnce = state;
     }
 }
 

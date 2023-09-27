@@ -358,6 +358,8 @@ export function DiagramViewManager(props: EditorProps) {
             && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent = (
                 <DataMapperOverlay
+                    currentProject={currentProject}
+                    lastUpdatedAt={updatedTimeStamp}
                     targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
                     model={focusedST}
                     ballerinaVersion={balVersion}
