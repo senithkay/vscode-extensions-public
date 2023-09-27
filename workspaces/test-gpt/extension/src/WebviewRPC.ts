@@ -10,7 +10,7 @@
 import * as vscode from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { NotificationType, RequestType } from "vscode-messenger-common";
-import { getService, runExecute, clearLogs, TestMachineContext, getState, TestCommand, TestResult, Queries } from './TestEngine';
+import { getService, runExecute, clearLogs, TestMachineContext, getState, TestCommand, TestResult, Queries, refresh } from './TestEngine';
 
 export const messenger = new Messenger();
 
@@ -26,6 +26,7 @@ const stateChanged: NotificationType<StateChangeEvent> = { method: 'stateChanged
 const getContext: RequestType<string, TestMachineContext> = { method: 'getContext' };
 const getStateValue: RequestType<string, string> = { method: 'getState' };
 const clearTestLogs: NotificationType<void> = { method: 'clearLogs' };
+const refreshConsole: NotificationType<void> = { method: 'refreshConsole' };
 
 
 
@@ -49,6 +50,11 @@ messenger.onRequest(getStateValue, () => {
 // Clear Logs
 messenger.onRequest(clearTestLogs, () => {
     clearLogs();
+});
+
+// Refresh the console
+messenger.onRequest(refreshConsole, () => {
+    refresh();
 });
 
 function stateString(state: any) {

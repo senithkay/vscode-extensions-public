@@ -78,6 +78,10 @@ export class ConsoleAPI {
         return this.messenger.sendRequest({ method: 'clearLogs' }, { type: 'extension' });
     }
 
+    public refreshConsole() {
+        return this.messenger.sendRequest({ method: 'refreshConsole' }, { type: 'extension' });
+    }
+
     public onStateChanged(callbal: (state: StateChangeEvent) => void) {
         this.messenger.onNotification({ method: 'stateChanged' }, callbal);
     }

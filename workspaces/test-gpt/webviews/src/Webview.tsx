@@ -26,6 +26,7 @@ const ConsoleWrapper = styled.div({
 
 const Headline = styled.div({
     display: "flex",
+    justifyContent: "space-between",
     alignItems: "center"
 });
 
@@ -100,7 +101,12 @@ const ScenarioTitle = styled.div({
     fontWeight: "bolder"
 });
 
-const ClearBtn = styled(VSCodeButton)`
+const Toolbar = styled.div({
+    display: "flex",
+    marginLeft: "auto"
+});
+
+const BtnWrapper = styled(VSCodeButton)`
     margin-left: auto;
     display: flex;
     justify-content: center;
@@ -157,6 +163,10 @@ function Webview() {
         ConsoleAPI.getInstance().clearTestLogs();
     }
 
+    const refreshConsole = () => {
+        ConsoleAPI.getInstance().refreshConsole();
+    }
+
     useEffect(() => {
         console.log("trigger");
         // Set state when component loads
@@ -172,19 +182,26 @@ function Webview() {
             <ConsoleWrapper>
                 <Headline>
                     <h2>Test your APIs with natural language</h2>
-                    {state !== "loading" &&
-                        <>
-                            <ClearBtn
-                                appearance="icon"
-                                onClick={() => clearLogs()}
-                                title="Clear logs"
-                                disabled={(!logs.length) || (state === "executing")}
-                                id='clear-btn'
-                            >
-                                <i className="codicon codicon-clear-all" aria-hidden="true"></i>
-                            </ClearBtn>
-                        </>
-                    }
+                    <Toolbar>
+                        <BtnWrapper
+                            appearance="icon"
+                            onClick={() => refreshConsole()}
+                            title="Refresh Console"
+                            disabled={(state === "executing" || state === "loading")}
+                            id='refresh-btn'
+                        >
+                            <i className="codicon codicon-refresh" aria-hidden="true"></i>
+                        </BtnWrapper>
+                        <BtnWrapper
+                            appearance="icon"
+                            onClick={() => clearLogs()}
+                            title="Clear logs"
+                            disabled={(!logs.length) || (state === "executing")}
+                            id='clear-btn'
+                        >
+                            <i className="codicon codicon-clear-all" aria-hidden="true"></i>
+                        </BtnWrapper>
+                    </Toolbar>
                 </Headline>
                 <>
                     {queries && queries.length > 0 && state !== "loading" && <>
