@@ -30,6 +30,7 @@ export interface IDataMapperContext {
         size: number
     };
     stSymbolInfo: STSymbolInfo;
+    moduleVariables: any;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
@@ -58,6 +59,7 @@ export class DataMapperContext implements IDataMapperContext {
             size: number
         },
         public stSymbolInfo: STSymbolInfo,
+        public moduleVariables: any,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => Promise<void>,
         public goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void,
