@@ -135,6 +135,7 @@ export class ResourceForm {
             const createRecordBtn = await waitUntil(By.xpath("//*[contains(text(), 'Create Record')]"));
             await createRecordBtn.click();
             await this.Driver().wait(until.stalenessOf(createRecordBtn));
+            await wait(3000);
         }
 
         const responseSaveBtn = await webview.findWebElement(By.xpath("//*[@data-testid='path-segment-add-btn']"));
