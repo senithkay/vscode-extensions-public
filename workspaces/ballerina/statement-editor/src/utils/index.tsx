@@ -9,6 +9,7 @@
 import React, {ReactNode} from 'react';
 import {IconType} from "react-icons";
 import {
+    VscLightbulb,
     VscSymbolEnum,
     VscSymbolEnumMember,
     VscSymbolEvent,
@@ -472,46 +473,51 @@ export function getClassNameForToken(model: STNode): string {
     return className;
 }
 
-export function getSuggestionIconStyle(suggestionType: number): SuggestionIcon {
+export function getSuggestionIconStyle(suggestionType: number, isSelectedSuggetion: boolean): SuggestionIcon {
     let suggestionIconColor: string;
     let suggestionIcon: IconType;
-    switch (suggestionType) {
-        case 3:
-            suggestionIcon = VscSymbolMethod;
-            suggestionIconColor = "#652d90";
-            break;
-        case 5:
-            suggestionIcon = VscSymbolField;
-            suggestionIconColor = "#007acc";
-            break;
-        case 6:
-            suggestionIcon = VscSymbolVariable;
-            suggestionIconColor = "#007acc";
-            break;
-        case 11:
-            suggestionIcon = VscSymbolRuler;
-            suggestionIconColor = "#616161";
-            break;
-        case 14:
-            suggestionIcon = VscSymbolKeyword;
-            suggestionIconColor = "#616161";
-            break;
-        case 20:
-            suggestionIcon = VscSymbolEnumMember;
-            suggestionIconColor = "#007acc";
-            break;
-        case 22:
-            suggestionIcon = VscSymbolStructure;
-            suggestionIconColor = "#616161";
-            break;
-        case 25:
-            suggestionIcon = VscSymbolParameter;
-            suggestionIconColor = "#616161";
-            break;
-        default:
-            suggestionIcon = VscSymbolVariable;
-            suggestionIconColor = "#007acc";
-            break;
+    if (isSelectedSuggetion) {
+        suggestionIcon = VscLightbulb
+        suggestionIconColor = "#b280d9";
+    } else {
+        switch (suggestionType) {
+            case 3:
+                suggestionIcon = VscSymbolMethod;
+                suggestionIconColor = "#652d90";
+                break;
+            case 5:
+                suggestionIcon = VscSymbolField;
+                suggestionIconColor = "#007acc";
+                break;
+            case 6:
+                suggestionIcon = VscSymbolVariable;
+                suggestionIconColor = "#007acc";
+                break;
+            case 11:
+                suggestionIcon = VscSymbolRuler;
+                suggestionIconColor = "#616161";
+                break;
+            case 14:
+                suggestionIcon = VscSymbolKeyword;
+                suggestionIconColor = "#616161";
+                break;
+            case 20:
+                suggestionIcon = VscSymbolEnumMember;
+                suggestionIconColor = "#007acc";
+                break;
+            case 22:
+                suggestionIcon = VscSymbolStructure;
+                suggestionIconColor = "#616161";
+                break;
+            case 25:
+                suggestionIcon = VscSymbolParameter;
+                suggestionIconColor = "#616161";
+                break;
+            default:
+                suggestionIcon = VscSymbolVariable;
+                suggestionIconColor = "#007acc";
+                break;
+        }
     }
     return {
         SuggestIcon: suggestionIcon,

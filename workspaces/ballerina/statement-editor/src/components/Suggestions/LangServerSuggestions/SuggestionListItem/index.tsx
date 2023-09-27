@@ -22,12 +22,13 @@ export interface SuggestionListItemProps {
     suggestion: SuggestionItem;
     isSelected: boolean
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
+    isSelectedSuggestion: boolean
 }
 
 export function SuggestionListItem(props: SuggestionListItemProps) {
-    const { key, suggestion, onClickLSSuggestion, isSelected } = props;
+    const { key, suggestion, onClickLSSuggestion, isSelected, isSelectedSuggestion } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const { SuggestIcon, color } = getSuggestionIconStyle(suggestion.completionKind);
+    const { SuggestIcon, color } = getSuggestionIconStyle(suggestion.completionKind, isSelectedSuggestion);
 
     const onClickOnListItem = () => {
         onClickLSSuggestion(suggestion);

@@ -21,14 +21,32 @@ export interface SuggestionsListProps {
     currentGroup: number;
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
     selection?: string;
+    header?: string;
+    isSelectedSuggestion?: boolean
 }
 
 export function SuggestionsList(props: SuggestionsListProps) {
-    const { lsSuggestions, selectedSuggestion, onClickLSSuggestion, selection, currentGroup } = props;
+    const { 
+        lsSuggestions,
+        selectedSuggestion,
+        onClickLSSuggestion,
+        selection,
+        currentGroup,
+        header,
+        isSelectedSuggestion = false
+    } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     return (
         <>
+            {(header) && (
+                <>
+                    <div className={stmtEditorHelperClasses.groupHeaderWrapper}>
+                        <div className={stmtEditorHelperClasses.groupHeader}>{header}</div>
+                        <div className={stmtEditorHelperClasses.selectionSeparator} />
+                    </div>
+                </>
+            )}
             {(selection) && (
                 <>
                     <br/>
@@ -50,10 +68,17 @@ export function SuggestionsList(props: SuggestionsListProps) {
                             }
                             suggestion={suggestion}
                             onClickLSSuggestion={onClickLSSuggestion}
+                            isSelectedSuggestion={isSelectedSuggestion}
                         />
                     ))
                 }
             </List>
+            {isSelectedSuggestion && (
+                <div className={stmtEditorHelperClasses.selectionWrapper}>
+                    <div className={stmtEditorHelperClasses.selectionSeparator} />
+                    <br />
+                </div>
+            )}
         </>
     );
 }
