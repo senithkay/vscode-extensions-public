@@ -24,6 +24,11 @@ const ConsoleWrapper = styled.div({
     justifyContent: "space-between",
 });
 
+const Headline = styled.div({
+    display: "flex",
+    alignItems: "center"
+});
+
 const TestCommandWrapper = styled.div({
 });
 
@@ -104,12 +109,6 @@ const ClearBtn = styled(VSCodeButton)`
     padding: 5px;
 `;
 
-const Separator = styled.div({
-    width: "100%",
-    backgroundColor: "var(--vscode-menu-separatorBackground)",
-    height: "1px"
-});
-
 function getColorTheme(): ThemeKeys {
     const body = document.querySelector('body');
     if (body) {
@@ -171,7 +170,22 @@ function Webview() {
     return (<>
         <ScrollToBottom className={ROOT_CSS}>
             <ConsoleWrapper>
-                <h2>Test your APIs with natural language</h2>
+                <Headline>
+                    <h2>Test your APIs with natural language</h2>
+                    {state !== "loading" &&
+                        <>
+                            <ClearBtn
+                                appearance="icon"
+                                onClick={() => clearLogs()}
+                                title="Clear logs"
+                                disabled={(!logs.length) || (state === "executing")}
+                                id='clear-btn'
+                            >
+                                <i className="codicon codicon-clear-all" aria-hidden="true"></i>
+                            </ClearBtn>
+                        </>
+                    }
+                </Headline>
                 <>
                     {queries && queries.length > 0 && state !== "loading" && <>
                         <p>Click on the following scenarios to try out</p>
@@ -193,20 +207,6 @@ function Webview() {
                     </>
                     }
                 </>
-                {state !== "loading" &&
-                    <>
-                        <Separator />
-                        <ClearBtn
-                            appearance="icon"
-                            onClick={() => clearLogs()}
-                            title="Clear logs"
-                            disabled={(!logs.length) || (state === "executing")}
-                            id='clear-btn'
-                        >
-                            <i className="codicon codicon-clear-all" aria-hidden="true"></i>
-                        </ClearBtn>
-                    </>
-                }
                 {logs.map((log) => {
                     if (log.type === "COMMAND") {
                         return <TestTitleWrapper>
