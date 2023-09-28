@@ -10,22 +10,24 @@
 import React from "react";
 
 import styled from "@emotion/styled";
+import { isDarkMode } from "./utils/Utils";
 
 const background = require('./resources/assets/PatternBg.svg') as string;
 
-const headerHeight = 110;
-
 export const Container: React.FC<any> = styled.div`
-  // should take up full height minus the height of the header
-  height: calc(100vh - ${headerHeight}px);
-  background-image: url('${background}');
-  background-repeat: repeat;
-  display: flex;
-  font-family: 'GilmerRegular';
-
+  height: 200px;
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('${background}');
+    filter: invert(${isDarkMode() ? "1" : "0"});
+  }
   > * {
     height: 100%;
-    min-height: 100%;
+    min-height: 10%;
     width: 100%;
   }
   svg:not(:root) {
@@ -34,13 +36,13 @@ export const Container: React.FC<any> = styled.div`
 `;
 
 type Props = {
-	children: React.ReactNode
+  children: React.ReactNode
 }
 
 export const CanvasContainer: React.FC<Props> = (props) => {
-	return (
-		<Container className="dotted-background">
-			{props.children}
-		</Container>
-	);
+  return (
+    <Container className="dotted-background">
+      {props.children}
+    </Container>
+  );
 }
