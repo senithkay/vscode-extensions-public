@@ -10,6 +10,7 @@
 import { LinkModel, NodeModel, NodeModelGenerics, PortModel } from '@projectstorm/react-diagrams';
 import { MediatorBaseLinkModel as BaseLinkModel } from '../base-link/base-link';
 import { NodeProps } from "@projectstorm/react-diagrams-core";
+import { STNode } from '@wso2-enterprise/mi-syntax-tree/lib';
 
 export interface BaseNodeProps extends NodeProps {
     node: BaseNodeModel;
@@ -19,11 +20,14 @@ export interface BaseNodeProps extends NodeProps {
 }
 
 export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
-    constructor(type: string, id: string) {
+    private readonly parentNode?: STNode;
+
+    constructor(type: string, id: string, parentNode?: STNode) {
         super({
             type: type,
             id: id
         });
+        this.parentNode = parentNode;
     }
 
     handleHover = (ports: PortModel[], task: string) => {
@@ -54,5 +58,9 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
 
     getPortByAllignment(allignment: string): PortModel | undefined {
         return this.ports[`${allignment}-${this.getID()}`];
+    }
+
+    getParentNode(): STNode | undefined {
+        return this.parentNode;
     }
 }
