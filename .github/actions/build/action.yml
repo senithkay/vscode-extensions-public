@@ -22,12 +22,7 @@ inputs:
     required: false
   balVersion:
     default: 2201.7.1
-    type: string  
-  packages:
-    description: Update packages version
-    type: boolean
-    required: false
-    default: false    
+    type: string 
 
 runs:
   using: "composite"
@@ -136,18 +131,6 @@ runs:
         newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
         echo $newVersion
         npm version $newVersion --preid beta --no-git-tag-version
-
-    - name: Update package versions
-      shell: bash
-      if: ${{ inputs.packages == 'true' }}
-      run: |
-        cd workspaces
-        workspaces=("ballerina/ballerina-languageclient" "configurable-editor" "ballerina/data-mapper" "ballerina/expression-editor" "ballerina/lang-service" "ballerina/low-code-diagram" "ballerina/low-code-distribution" "ballerina/low-code-editor" "ballerina/low-code-editor-commons" "ballerina/low-code-ui-components" "ballerina/statement-editor" "ballerina/syntax-tree" "choreo/choreo-core" "ballerina/project-design-diagrams")
-        for workspace in "${workspaces[@]}"; do
-          cd $workspace
-          pnpm version ${{ inputs.version }} --no-git-tag-version
-          cd ..
-        done
 
     - name: Build repo
       shell: bash

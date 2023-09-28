@@ -23,6 +23,9 @@ on:
         default: 'N/A'
         type: string
         required: false
+      isReleaseBuild:  
+        type: boolean
+        default: false
 
 env:
   ballerina_version: 2201.7.2
@@ -43,6 +46,61 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
 
+      - name: Analyze diff
+        shell: bash
+        id: diff
+        run: |
+          testArray=""
+          echo "hasBalDiff=false" >> $GITHUB_OUTPUT
+          echo "hasChoreoDiff=false" >> $GITHUB_OUTPUT
+          # Get list of all changed files in the PR
+          if [[ ${{ inputs.isReleaseBuild }} = 'true' ]]; then
+            git fetch origin main
+            CHANGED_DIRS=$(git diff --name-only HEAD..refs/remotes/origin/main | grep -E "^workspaces/*" || true)
+          else
+            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+          fi
+
+          echo $CHANGED_DIRS
+
+          # Ballerina ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "ballerina" ]]; then
+            echo "hasBalDiff=true" >> $GITHUB_OUTPUT
+          fi 
+
+          # Choreo ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "choreo" ]]; then
+            echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Common
+          if  [[ "${CHANGED_DIRS[@]}" =~ "common-libs" ]]; then
+            echo "hasBalDiff=true" >> $GITHUB_OUTPUT
+            echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set test matrix
+        shell: bash
+        id: testMatrix
+        run: |
+          echo "Ballerina Tests: ${{ steps.diff.outputs.hasBalDiff }}"
+          echo "Choreo Tests: ${{ steps.diff.outputs.hasChoreoDiff }}"
+          echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
+          echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
+
+      - name: Block if have non related diff files
+        if: ${{ !inputs.isPreRelease }}
+        run: |
+          if [[ ${{ steps.diff.outputs.hasBalDiff }} == "true" && ${{ inputs.ballerina }} != "true" ]]; then
+            echo "Ballerina Changes found in the non Ballerina release"
+            exit 1
+          fi
+
+          if [[ ${{ steps.diff.outputs.hasChoreoDiff }} == "true" && ${{ inputs.choreo }} != "true" ]]; then
+            echo "Choreo Changes found in the non Choreo release"
+            exit 1
+          fi
+
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -51,34 +109,6 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           version: ${{ inputs.version }}
-
-      - name: Set test matrix
-        shell: bash
-        id: testMatrix
-        run: |
-          testArray=""
-          if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
-            # Get list of all changed files in the PR
-            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
-
-            if [[ "${CHANGED_DIRS[@]}" =~ "ballerina-languageclient" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "expression-editor" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "lang-service" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "low-code-editor-commons" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "low-code-ui-components" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "statement-editor" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "syntax-tree" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "ballerina-extension" ]]; then
-              echo "runBalExtTests=true" >> $GITHUB_OUTPUT
-            fi 
-
-            if [[ "${CHANGED_DIRS[@]}" =~ "choreo-client" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-core" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-extension" ]] || 
-            [[ "${CHANGED_DIRS[@]}" =~ "choreo-webviews" ]]; then
-              echo "runChoreoExtTests=true" >> $GITHUB_OUTPUT
-            fi
-          fi  
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
@@ -166,7 +196,14 @@ jobs:
           sudo apt-get install xvfb
           pnpm run e2e-test-setup
           export DISPLAY=:98.0
-          sh e2e-test-runner.sh
+          timeout 1800 sh e2e-test-runner.sh
+
+      - name: Publish e2e test output
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/ballerina/ballerina-extension/test-resources/output.txt
+          name: Ballerina-e2e-test-output-${{ github.run_attempt }}
+        if: failure()
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
@@ -219,7 +256,7 @@ jobs:
           sudo apt-get install -y gnome-keyring
           sudo apt-get install libsecret-1.0
           sudo apt install dbus-x11
-          npx playwright install
+          cd workspaces/choreo/choreo-extension && npx playwright install
 
       - name: Run tests
         run: |
@@ -229,7 +266,7 @@ jobs:
           export DISPLAY=:98.0
           git config --global user.email "choreo-test-user@wso2.com"
           git config --global user.name "choreo-user"
-          sh e2e-test-runner.sh
+          timeout 900 sh e2e-test-runner.sh
         env:
           TEST_CHOREO_EXT_ENV: prod
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
@@ -244,6 +281,13 @@ jobs:
           TEST_BITBUCKET_CHOREO_CREDENTIAL: vscode-test-credentials
           TEST_BITBUCKET_WORKSPACE: vscode-tests
           TEST_BITBUCKET_REPO: vscode-test-mono-repo-prod
+
+      - name: Publish e2e test output
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo/choreo-extension/test-resources/output.txt
+          name: Choreo-e2e-test-output-${{ github.run_attempt }}
+        if: failure()
 
       - name: Publish e2e test recording
         uses: actions/upload-artifact@v3
