@@ -47,7 +47,7 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
         traversNode(childNode, visitor, node);
     });
 
-    let endVisitFn: any = (visitor as any)[`endVisit${node.tag}`];
+    let endVisitFn: any = (visitor as any)[`endVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
     if (!endVisitFn) {
         endVisitFn = visitor.endVisitSTNode && visitor.endVisitSTNode;
     }
@@ -58,7 +58,7 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
 }
 
 export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: STNode) {
-    let beginVisitFn: any = (visitor as any)[`beginVisit${node.tag}`];
+    let beginVisitFn: any = (visitor as any)[`beginVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitSTNode && visitor.beginVisitSTNode;
     }
@@ -92,7 +92,7 @@ export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: 
         await traversNodeAsync(childNode, visitor, node);
     }
 
-    let endVisitFn: any = (visitor as any)[`endVisit${node.tag}`];
+    let endVisitFn: any = (visitor as any)[`endVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
     if (!endVisitFn) {
         endVisitFn = visitor.endVisitSTNode && visitor.endVisitSTNode;
     }
