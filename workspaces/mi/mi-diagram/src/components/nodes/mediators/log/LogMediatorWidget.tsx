@@ -9,8 +9,6 @@
 
 import React from 'react';
 import { PortWidget } from '@projectstorm/react-diagrams-core';
-import styled from '@emotion/styled';
-import { Colors } from '../../../../resources/assets/Constants';
 import { BaseNodeProps } from '../../../base/base-node/base-node';
 
 export interface LogMediatorWidgetProps extends BaseNodeProps {
@@ -163,12 +161,3 @@ export function MediatorNodeWidget(props: LogMediatorWidgetProps) {
     );
 }
 
-export const EntityNode: React.FC<any> = styled.div`
-    background-color: ${Colors.SECONDARY_SELECTED};
-    border: ${`1px solid ${Colors.PRIMARY_SELECTED}`};
-    border-radius: 6px !important;
-    color: ${Colors.DEFAULT_TEXT};
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-`;
