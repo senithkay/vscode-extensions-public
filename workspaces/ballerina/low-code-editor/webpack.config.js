@@ -7,6 +7,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = fs.realpathSync(path.resolve(__dirname, './node_modules/monaco-editor'));
 const DATA_MAPPER_DIR = path.resolve(__dirname, '../data-mapper');
+const FONT_DIR = path.resolve(__dirname, '../../common-libs/font-wso2-vscode');
 
 module.exports = (env, argv) => ({
     mode: 'none',
@@ -45,6 +46,16 @@ module.exports = (env, argv) => ({
                     'ts-loader'
                 ],
                 exclude: '/node_modules/'
+            },
+            {
+                test: /\.css$/,
+                include: FONT_DIR,
+                use: ['style-loader', 'css-loader'],
+            },
+            {
+                test: /\.(woff|woff2|ttf|otf|eot)$/,
+                include: [FONT_DIR],
+                type: 'asset/inline'
             },
             {
                 test: /\.s[ac]ss$/i,

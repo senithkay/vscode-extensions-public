@@ -9,7 +9,7 @@
 const fs = require('fs');
 
 // Read the generated HTML file
-const htmlFilePath = 'fw-vscode/wso2-vscode.html'; // Adjust the path to your generated HTML file
+const htmlFilePath = 'dist/wso2-vscode.html'; // Adjust the path to your generated HTML file
 const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
 
 let modifiedHtml = htmlContent.replace(
