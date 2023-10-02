@@ -2372,6 +2372,12 @@ importers:
       tslint: 6.1.3_typescript@4.9.5
       typescript: 4.9.5
 
+  workspaces/test-gpt/extension:
+    specifiers:
+      '@vscode/codicons': ^0.0.33
+    dependencies:
+      '@vscode/codicons': 0.0.33
+
   workspaces/ui-toolkit:
     specifiers:
       '@typescript-eslint/eslint-plugin': ^6.2.1
@@ -12198,6 +12204,10 @@ packages:
       '@vscode-logging/types': 0.1.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@vscode/codicons/0.0.33:
+    resolution: {integrity: sha512-VdgpnD75swH9hpXjd34VBgQ2w2quK63WljodlUcOoJDPKiV+rPjHrcUc2sjLCNKxhl6oKqmsZgwOWcDAY2GKKQ==}
     dev: false
 
   /@vscode/test-electron/2.2.3:

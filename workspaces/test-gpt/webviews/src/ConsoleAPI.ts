@@ -66,6 +66,10 @@ export class ConsoleAPI {
         return this.messenger.sendRequest({ method: 'executeTest' }, { type: 'extension' }, input);
     }
 
+    public setUrl(input: string) {
+        return this.messenger.sendRequest({ method: 'setUrl' }, { type: 'extension' }, input);
+    }
+
     public getContext() {
         return this.messenger.sendRequest({ method: 'getContext' }, { type: 'extension' });
     }

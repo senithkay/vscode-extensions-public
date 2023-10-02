@@ -7,13 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import * as vscode from 'vscode';
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { interfaces } from 'mocha';
-import { start } from 'repl';
 import { actions, createMachine, interpret, State, assign, EventObject } from 'xstate';
 import API from './API';
 import { error, log } from 'console';
 
+
+
+const outputChannel = vscode.window.createOutputChannel('TestGPT');
 
 export type TestCommand = {
     type: "COMMAND";
@@ -44,7 +46,8 @@ export interface TestResult {
 
 
 export interface TestMachineContext {
-    openapi: object | undefined;
+    openapi?: object;
+    baseURL?: string;
     apiClient?: AxiosInstance;
     apiSpec?: any;
     queries?: any;
@@ -137,10 +140,7 @@ function replacePathParameters(request: Request): string {
 }
 
 const assignOpenAPI = assign<TestMachineContext, SetOpenAPIEvent>({
-    openapi: (context, event) => event.openapi,
-    apiClient: (context: any, event: { openapi: any; }) => axios.create({
-        baseURL: extractApiUrl(event.openapi)
-    })
+    openapi: (context, event) => event.openapi
 });
 
 const assignCommand = assign<TestMachineContext, SetCommandEvent>({
@@ -163,7 +163,8 @@ const getTools = (context: TestMachineContext, event: any) => {
                     }
                 })
                 .catch((error: any) => {
-                    console.log(error)
+                    outputChannel.append("Error while fetching tools");
+                    outputChannel.append(error.message);
                     reject(error);
                 });
         });
@@ -186,7 +187,6 @@ const executeCommand = (context: TestMachineContext, event: any) => {
                     } else {
                         console.log(response);
                         reject(response.data);
-
                     }
                 })
                 .catch((error: any) => {
@@ -253,9 +253,24 @@ const processRequest = (context: TestMachineContext, event: any) => {
     });
 };
 
+const createClient = (context: TestMachineContext, event: any) => {
+    return new Promise((resolve, reject) => {
+        if (context.baseURL === undefined) {
+            const url = extractApiUrl(context.openapi);
+            if (url === undefined) {
+                reject();
+            }
+            context.baseURL = url;
+        }
+        const client = axios.create({
+            baseURL: context.baseURL
+        })
+        resolve(client);
+    });
+}
 
 const testMachine = createMachine({
-    /** @xstate-layout N4IgpgJg5mDOIC5QBU4BcCiA7KBLLYAdPrmgMQDKGyA+gPIAKGAcgIIMCSA2gAwC6iUAAcA9rFK4RWQSAAeiAIwAWABw9CAVgDMygGwKATDyUHVBgDQgAnogC0BjUsIB2LQ4Cc25wp8H3BgF8Ay1RYTBx8IgAbEQBDCHwoMggpInwANxEAayIYNGQRESjYXgEkEFFxNElpcvkEBRVlQgMtd10VXQ1PEy7LGwQTAxaldzGFHi1dd1UFLSCQ9Gw8AkIY+MSyMAAnbZFtwiEo2LQAM32AW0I8gqKS-hlKiSkZesb3dTdTUZ53ZyUNAZdP1FHNCCpWrolFoeBoJkoAc4FiBQuEVtE4gkcJRqPQmGxOKVHmJnrVQG9nM4VIQtD9DGMeAZWkoQQhbHN3IRJkYNCodBpnFDdMjUctIoRtmB4lYyBgABoYADCAFVkBgieUntUXnVFH5dIRGt0VH8eP9phZrIh3ApORp7bpdKZJgC+SKlhFVpLpTjaIwWOxuA9NSTtWS5IoOloWs52japgZKUpnKygeoumpJr8s41hcEUR70RKpRAZYqADIYVgAJQ1wlDNVeiCMCmcMd+ui0KmcaeUqcd4MMGlh0JNQIU7rCYtWYFkYAAxgBXarYgBiHGYHAoAAk6xUGzryZH9ODph8oQK-lDWbHhvpAbGBVpn7zJ2jxbOF8vNlQ-fjA3uWqNrqDSulyfJuJSkwqBCwJWgg0xtjwKjGkoPA8E6+iBPmoqekQn5LiuUCEKcYBoPOAAW1ZgAAjou6DJKkxBYJkOSEARy5gIBB7hvUzgaIQNr8Sh8aCrSGisvaAm2h8jQKJ2JiCm+074XOhGJCRZGUdRdEMTsewHEcJznNsVwcWgXHBvWVTAUeCBqE4Wa3t0UnQpJCgCe4tJKF0rT2om8w4YWH5qd+ODsaFFk6fRYSMasGTZKpX5RbRMVoNxNmHhGCBAp5uhJm4radFMN7eDSnSGOhPj2r8yl4RFyUaeZYDRXpuz7IcxxnJcDWES1qXoBlpJNjl0IxpSw4Pt2yGstV0Y1X4BgTICPCGHVRbmRpQh7POcCwK1sUpPFLGJYcO17Qd6VWfumW8YgClcmaPy8lS3isvl0ZLRCXlmkY-HYYsU71Zt4XbSIu2wPtA2HUxCVsWDENQ7pYRcAoZTWcNIFTE4Wi8gYMF8rokzXvBOhOGOSjyUCDLnutIWNaD52Q5dWztYZXUmVcCMXdDV3ozdmN2d0TiOk0toaE6riOrNq2OZBuNS8m+h0zObNkNW1DVgAmkNYYjY0xgtG0HRdD0uWss+hovpTbRmp43xBPmWAiBAcAyLh6LErdI32OoyGmMoyFOlM9osvBtjeG2RhtGMS3Js4xgq2kWCkF7gvZcosaaOOvkS5HKisrYTqcgnaETIYgpGCoSdrJiiRp3rIHKO0hqxvJPnG2YhcGgnYz2z47RtPjNfeqWDe2dlRitIQ0JiZe0zDpaAxTG2OimD0-xaAngWA++M6RfXIbeyBiaCa2vLdHMYkInBAxMqv-iUx0iZDInQVAxtB-haR5FUbz49ZXqO4akPYZi4x8vlAmWgLbNC8sODy3YoTKAnO-PeSV1LhWapdABd0cpNHBG3Hotomj6Ekq4TQnQX5UkpuhHeBYP70wwcRbmzN-5H3TvUF6hAOjdFth5R+0D4IwRLsAjsEwzxrVQSpXqYViJgCwBAHBI0mjqDzvAqECcr6zVMHlKCJhjDlwBvQtB7E2ZKKbjMA0-tlCQizDNcOwwTBoRhI0IwHwJbKEdgEIAA */
+    /** @xstate-layout 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-Hc-wvggA */
     id: "TestEngine",
     initial: "init",
     predictableActionArguments: true,
@@ -277,24 +292,48 @@ const testMachine = createMachine({
         },
 
         loading: {
-            invoke: {
-                id: "getTools",
-                src: getTools,
-                onDone: {
-                    target: "ready",
-                    actions: assign({
-                        apiSpec: (context, event) => event.data.apiSpec,
-                        queries: (context, event) => event.data.queries
-                    })
+            initial: "getTools",
+
+            states: {
+                getTools: {
+                    invoke: {
+                        id: "getTools",
+                        src: getTools,
+                        onDone: {
+                            target: "createClient",
+                            actions: assign({
+                                apiSpec: (context, event) => event.data.apiSpec,
+                                queries: (context, event) => event.data.queries
+                            })
+                        },
+                        onError: "#TestEngine.error"
+                    }
                 },
-                onError: {
-                    target: "error"
-                }
-            },
-            on: {
-                SET_OPENAPI: {
-                    target: "loading",
-                    actions: assignOpenAPI
+                createClient: {
+
+                    invoke: {
+                        id: "createClient",
+                        src: createClient,
+                        onDone: {
+                            target: "#TestEngine.ready",
+                            actions: assign({
+                                apiClient: (context: any, event: { data: any; }) => event.data,
+                            })
+                        },
+                        onError: {
+                            target: "getUrl"
+                        }
+                    }
+                },
+                getUrl: {
+                    on: {
+                        SET_URL: {
+                            target: "createClient",
+                            actions: assign({
+                                baseURL: (context: any, event: { url: string }) => event.url
+                            })
+                        }
+                    }
                 }
             }
         },
@@ -304,25 +343,20 @@ const testMachine = createMachine({
                     target: "executing",
                     actions: assignCommand
                 },
-                SET_OPENAPI: {
-                    target: "loading",
-                    actions: assignOpenAPI
-                },
+
                 CLEAR: {
                     target: "ready",
                     actions: clearTestLogs
-                }
+                },
+
+                CONFIGURE_CLIENT: "loading.createClient"
             }
         },
 
         executing: {
             initial: "initExecution",
             on: {
-                FINISH: "ready",
-                SET_OPENAPI: {
-                    target: "loading",
-                    actions: assignOpenAPI
-                }
+                FINISH: "ready"
             },
             states: {
                 initExecution: {
@@ -440,3 +474,6 @@ export function refresh() {
     service.send({ type: "SET_OPENAPI", openapi: service.getSnapshot().context.openapi });
 }
 
+export function setUrl(url: string) {
+    service.send({ type: "SET_URL", url: url });
+}
