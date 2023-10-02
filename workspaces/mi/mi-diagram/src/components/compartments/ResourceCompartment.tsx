@@ -9,12 +9,23 @@
 
 import React from "react";
 import { SequenceDiagram } from "./Sequence";
+import { traversNode } from "@wso2-enterprise/mi-syntax-tree/lib";
+import { NodeInitVisitor } from "../../utils/visitors/NodeInitVisitor";
 
 interface Props {
     name: string;
+    stNode: any;
 }
 
 export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
+
+    const visitor = new NodeInitVisitor();
+    traversNode(props.stNode, visitor);
+
+    const inSequenceNodes = visitor.getInSequenceNodes();
+    const outSequenceNodes = visitor.getOutSequenceNodes();
+
+    console.log(inSequenceNodes);
     return (
         <div style={{
             display: "flex",
@@ -63,11 +74,11 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
                     borderColor: "var(--vscode-panel-dropBorder)"
                 }}>
                     {/* Input & Output sequences */}
-                    <SequenceDiagram></SequenceDiagram>
+                    <SequenceDiagram nodes={inSequenceNodes}></SequenceDiagram>
                     <hr style={{
                         borderColor: "var(--vscode-panel-dropBorder)"
                     }}></hr>
-                    <SequenceDiagram invertDirection={true}></SequenceDiagram>
+                    <SequenceDiagram nodes={outSequenceNodes} invertDirection={true}></SequenceDiagram>
                 </div>
                 <div style={{
                     flex: "0 0 100px",

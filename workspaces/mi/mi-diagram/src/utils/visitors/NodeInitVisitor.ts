@@ -9,21 +9,48 @@
 
 import {
     Log,
+    STNode,
+    Sequence,
     Visitor,
 } from '@wso2-enterprise/mi-syntax-tree/lib';
 import { LogMediatorNodeModel } from '../../components/nodes/mediators/log/LogMediatorModel';
-import { NodeModel } from '@projectstorm/react-diagrams-core';
 import { mapNode } from './ModelMapper';
+import { BaseNodeModel } from '../../components/base/base-node/base-node';
 
 export class NodeInitVisitor implements Visitor {
-    private nodes: NodeModel[] = [];
+    private currentSequence: BaseNodeModel[];
+    private inSequenceNodes: BaseNodeModel[] = [];
+    private outSequenceNodes: BaseNodeModel[] = [];
+    private parents: STNode[] = [];
 
     beginVisitLog(node: Log) {
-        this.nodes.push(new LogMediatorNodeModel(mapNode(node as any)));
+        this.currentSequence.push(new LogMediatorNodeModel(mapNode(node as any), this.parents[this.parents.length - 1]));
     }
 
-    getNodes(): NodeModel[] {
-        return this.nodes;
+    beginVisitInSequence(node: Sequence): void {
+        this.currentSequence = this.inSequenceNodes;
+        this.parents.push(node);
+    }
+
+    endVisitInSequence(): void {
+        this.parents.pop();
+    }
+
+    beginVisitOutSequence(node: Sequence): void {
+        this.currentSequence = this.outSequenceNodes;
+        this.parents.push(node);
+    }
+
+    endVisitOutSequence(): void {
+        this.parents.pop();
+    }
+
+    getInSequenceNodes(): BaseNodeModel[] {
+        return this.inSequenceNodes;
+    }
+
+    getOutSequenceNodes(): BaseNodeModel[] {
+        return this.outSequenceNodes;
     }
 }
 

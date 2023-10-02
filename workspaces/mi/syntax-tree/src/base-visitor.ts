@@ -75,4 +75,11 @@ export interface Visitor {
 
     beginVisitLog?(node: Synapse.Log): void;
     endVisitLog?(node: Synapse.Log): void;
+
+    // Manually added methods.
+    beginVisitInSequence?(node: Synapse.Sequence): void;
+    endVisitInSequence?(node: Synapse.Sequence): void;
+
+    beginVisitOutSequence?(node: Synapse.Sequence): void;
+    endVisitOutSequence?(node: Synapse.Sequence): void;
 }
