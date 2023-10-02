@@ -281,7 +281,7 @@ function setLinkPorts(sourceNode: ServiceNodeModels, targetNode: ServiceNodeMode
 
     if (sourcePort && targetPort) {
         let link: ServiceLinkModel = new ServiceLinkModel(sourceFunction ? Level.TWO : Level.ONE, location,
-            `service-link-${sourceNode?.nodeObject?.annotation?.label || sourceNode?.nodeObject?.annotation?.id}-${targetNode?.nodeObject?.annotation?.label
+            `service-link-${sourceNode?.nodeObject?.label}-${targetNode?.nodeObject?.annotation?.label
                 || targetNode?.nodeObject?.annotation?.id}`);
         return createLinks(sourcePort, targetPort, link);
     }

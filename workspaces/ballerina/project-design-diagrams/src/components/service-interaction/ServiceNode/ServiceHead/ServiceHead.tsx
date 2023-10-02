@@ -81,7 +81,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     onMouseOver={() => { handleOnHover('SELECT') }}
                     onMouseLeave={() => { handleOnHover('UNSELECT') }}
                     dataInProgress={node.nodeObject.dataInProgress}
-                    data-testid={`service-head-${node?.nodeObject?.annotation?.label || node?.nodeObject?.id}`}
+                    data-testid={`service-head-${node?.nodeObject?.label}`}
                 >
                     {/*Render this Icon on console side when the data is being fetched*/}
                     {node.nodeObject.dataInProgress ?
