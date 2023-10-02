@@ -15,6 +15,7 @@ export * from './components/Commons/Colors';
 export * from './components/Icon/Icon';
 export * from './components/ComponentCard/ComponentCard';
 export * from './components/Typography/Typography';
+export * from './components/Badge/Badge';
 
 export * from './components/Commons/ErrorBanner';
 
