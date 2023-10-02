@@ -62,7 +62,7 @@ export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: 
   for (let j = 0; j < keys.length; j++) {
     const key = keys[j];
     if (metaNodes.includes(key)) {
-      return;
+      continue;
     }
 
     const childNode = (node as any)[key] as any;
@@ -70,15 +70,15 @@ export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: 
       for (let i = 0; i < childNode.length; i++) {
         const elementNode = childNode[i];
         if (!elementNode?.kind) {
-          return;
+          continue;
         }
         await traversNodeAsync(elementNode, visitor, node);
 
       }
-      return;
+      continue;
     }
-    if (!childNode.kind) {
-      return;
+    if (!childNode?.kind) {
+      continue;
     }
     await traversNodeAsync(childNode, visitor, node);
   }
