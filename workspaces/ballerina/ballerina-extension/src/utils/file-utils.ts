@@ -380,7 +380,7 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
                 window.showErrorMessage("Failed to pull modules");
             }
             buildStatusItem.hide();
-        })
+        });
     }
 }
 

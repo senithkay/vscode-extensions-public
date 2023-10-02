@@ -9,7 +9,9 @@
     "vscode": "^1.80.0"
   },
   "categories": [
-    "Machine Learning", "Testing", "Other"
+    "Machine Learning",
+    "Testing",
+    "Other"
   ],
   "activationEvents": [
     "onLanguage:yaml"
@@ -65,12 +67,13 @@
     "vscode:prepublish": "pnpm run compile",
     "compile": "webpack --mode production",
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../webviews/build/*.js ./resources/jslibs",
+    "copy-codicons": "copyfiles -f ./node_modules/@vscode/codicons/dist/* ./resources/codicons",
     "watch": "tsc -watch -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "unit-test": "tsc && mocha --ui tdd   out/test/unit/*.test.js ",
-    "build": "pnpm run compile && pnpm run copy-webview-lib && pnpm run package && pnpm run postbuild",
+    "build": "pnpm run compile && pnpm run copy-codicons && pnpm run copy-webview-lib && pnpm run package && pnpm run postbuild",
     "package": "pnpm vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
@@ -93,6 +96,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@vscode/codicons": "^0.0.33",
     "axios": "^1.5.0",
     "dotenv": "~16.3.1",
     "ts-loader": "~9.4.4",

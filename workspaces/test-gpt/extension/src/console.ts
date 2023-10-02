@@ -79,6 +79,7 @@ class Console {
               <style>
                 body {
                   padding: 0;
+                  height:100vh;
                 }
               </style>             
               <script src="${scriptUri}"></script>
@@ -131,7 +132,6 @@ export function activateConsole(context: vscode.ExtensionContext) {
                     }
                 }
             }
-
         })
     );
     context.subscriptions.push(

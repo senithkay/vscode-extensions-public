@@ -10,7 +10,8 @@
 import * as vscode from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { NotificationType, RequestType } from "vscode-messenger-common";
-import { getService, runExecute, clearLogs, TestMachineContext, getState, TestCommand, TestResult, Queries, refresh } from './TestEngine';
+import { getService, runExecute, clearLogs, getState, TestCommand, TestResult, Queries, refresh, setUrl } from './TestEngine';
+import { error } from 'console';
 
 export const messenger = new Messenger();
 
@@ -22,8 +23,8 @@ interface StateChangeEvent {
 
 // Handle incoming view notification
 const executeTest: NotificationType<string> = { method: 'executeTest' };
+const setUrlNotification: NotificationType<string> = { method: 'setUrl' };
 const stateChanged: NotificationType<StateChangeEvent> = { method: 'stateChanged' };
-const getContext: RequestType<string, TestMachineContext> = { method: 'getContext' };
 const getStateValue: RequestType<string, string> = { method: 'getState' };
 const clearTestLogs: NotificationType<void> = { method: 'clearLogs' };
 const refreshConsole: NotificationType<void> = { method: 'refreshConsole' };
@@ -41,11 +42,16 @@ messenger.onRequest(executeTest, (params: string) => {
     runExecute(params);
 });
 
+// Execute Tests
+messenger.onRequest(setUrlNotification, (params: string) => {
+    setUrl(params);
+});
+
 // Get the initial state for console
 messenger.onRequest(getStateValue, () => {
     return stateString(getState());
-
 });
+
 
 // Clear Logs
 messenger.onRequest(clearTestLogs, () => {
@@ -57,12 +63,17 @@ messenger.onRequest(refreshConsole, () => {
     refresh();
 });
 
-function stateString(state: any) {
+function stateString(state: any): string {
     if (typeof state === 'string') {
         return state;
-    } else if (typeof state === 'object' && state.hasOwnProperty('executing')) {
-        return "executing";
+    } else if (typeof state === 'object') {
+        const stateString = Object.entries(state).map(([key, value]) => `${key}.${value}`).at(0);
+        if (stateString === undefined) {
+            throw error("Undefined state");
+        } else {
+            return stateString;
+        }
     } else {
-        return ""
+        throw error("Undefined state");
     }
 }
