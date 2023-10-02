@@ -8,83 +8,48 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {
-	DiagramModel,
-	DagreEngine,
-	DiagramEngine
-} from '@projectstorm/react-diagrams';
-
-import { CanvasContainer } from './Canvas';
-import { createLinks, generateEngine } from './utils/Utils';
-import { MediatorNodeModel } from './components/node/MediatorNodeModel';
-import { MediatorPortModel } from './components/port/MediatorPortModel';
-import { NavigationWrapperCanvasWidget } from './components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget';
-import { MediatorLinkModel } from './components/link/MediatorLinkModel';
 import { MIWebViewAPI } from './utils/WebViewRpc';
-
-const dagreEngine = new DagreEngine({
-	graph: {
-		rankdir: 'LR',
-		ranksep: 175,
-		edgesep: 20,
-		nodesep: 60,
-		ranker: 'longest-path',
-		marginx: 40,
-		marginy: 40
-	}
-});
+import { APICompartment } from './components/compartments/APICompartment';
+import { ResourceCompartment } from './components/compartments/ResourceCompartment';
+import { Refresh } from '@wso2-enterprise/mi-core';
 
 export interface MIDiagramProps {
 	data?: string;
 }
 
 export function MIDiagram(_props: MIDiagramProps) {
-	const [diagramEngine, setEngine] = useState<DiagramEngine>(undefined);
-	const [model, setDiagramModel] = useState<DiagramModel>(new DiagramModel());
+	const [isLoading, setLoading] = useState<boolean>(true);
+	const [lastUpdated, setLastUpdated] = useState<number>(0);
+	const [stNode, setSTNode] = useState<number>(0);
+
+	MIWebViewAPI.getInstance().getMessenger().onNotification(Refresh, () => {
+		setLastUpdated(Date.now());
+	});
 
 	useEffect(() => {
-		const e = generateEngine();
+		setLoading(true);
 
-		var node1 = new MediatorNodeModel({ name: 'Mahinda' });
-		var node2 = new MediatorNodeModel({ name: ' Ranil' });
-		let sourcePort: MediatorPortModel = node1.getPort(`right-${node1.getID()}`);
-		let targetPort: MediatorPortModel = node2.getPort(`left-${node2.getID()}`);
+		(async () => {
+			const st = await MIWebViewAPI.getInstance().getSyntaxTree();
+			const stNode = (st as any).syntaxTree.node;
+			setSTNode(stNode);
+			setLoading(false);
+		})();
+	}, [lastUpdated]);
 
-		const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
-		let link: MediatorLinkModel = new MediatorLinkModel(linkId);
-		link = createLinks(sourcePort, targetPort, link);
-
-		model.addAll(node1, node2, link);
-		e.setModel(model);
-
-		dagreEngine.redistribute(e.getModel());
-
-		e.setModel(model);
-		setDiagramModel(model);
-		setEngine(e);
-		autoDistribute();
-
-		MIWebViewAPI.getInstance().showErrorMsg('Hello from React');
-	}, []);
-
-	const autoDistribute = () => {
-		setTimeout(() => {
-			dagreEngine.redistribute(diagramEngine.getModel());
-			diagramEngine.setModel(model);
-		}, 30);
-	};
+	let canvas;
+	if (isLoading) {
+		canvas = <h1>Loading...</h1>;
+	} else {
+		canvas = stNode &&
+			<APICompartment name='API'>
+				<ResourceCompartment name='Resource' stNode={stNode} />
+			</APICompartment>;
+	}
 
 	return (
 		<>
-			{diagramEngine && diagramEngine.getModel() &&
-				<div>
-					<CanvasContainer>
-						<NavigationWrapperCanvasWidget
-							diagramEngine={diagramEngine}
-						/>
-					</CanvasContainer>
-				</div>
-			}
+			{canvas}
 		</>
 	);
 }

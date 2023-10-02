@@ -15,6 +15,7 @@ export const GetSyntaxTreeRequest: RequestType<unknown, unknown> = { method: 'xm
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
+export const Refresh: NotificationType<void> = { method: 'refresh' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

@@ -44,4 +44,8 @@ export class MIWebViewAPI {
     public getSyntaxTree() {
         return this._messenger.sendRequest(GetSyntaxTreeRequest, HOST_EXTENSION);
     }
+    
+    public getMessenger() {
+        return this._messenger;
+    }
 }
