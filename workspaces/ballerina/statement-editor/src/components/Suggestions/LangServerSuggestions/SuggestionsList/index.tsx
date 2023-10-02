@@ -26,7 +26,7 @@ export interface SuggestionsListProps {
 }
 
 export function SuggestionsList(props: SuggestionsListProps) {
-    const { 
+    const {
         lsSuggestions,
         selectedSuggestion,
         onClickLSSuggestion,

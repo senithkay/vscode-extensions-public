@@ -154,7 +154,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         }
     } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
-    
+
     const onClickEdit = () => {
         const valueNode = props.node.valueNode;
         const currentReferences = node.sourcePorts.map((port) => port.fieldFQN);
