@@ -17,12 +17,15 @@ import { ChoreoServiceType } from "@wso2-enterprise/choreo-core";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ConfigCardList } from './ConfigCardList';
 import { ComponentWizardState } from "./types";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     gap: 20px;
+    min-height: calc(100vh - 160px);
 `;
 
 export const ServiceTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
@@ -30,23 +33,26 @@ export const ServiceTypeStepC = (props: StepProps<Partial<ComponentWizardState>>
 
     return (
         <StepContainer>
-            <ConfigCardList 
-                formKey='serviceType'
-                formData={formData}
-                onFormDataChange={onFormDataChange}
-                items={[
-                    {
-                        label: "REST",
-                        description: "Create a REST API service",
-                        value: ChoreoServiceType.RestApi
-                    },
-                    {
-                        label: "GraphQL",
-                        description: "Create a GraphQL API service",
-                        value: ChoreoServiceType.GraphQL
-                    }
-                ]}
-            />
+            <SectionWrapper>
+                <Typography variant="h3">Service Type</Typography>
+                <ConfigCardList 
+                    formKey='serviceType'
+                    formData={formData}
+                    onFormDataChange={onFormDataChange}
+                    items={[
+                        {
+                            label: "REST",
+                            description: "Create a REST API service",
+                            value: ChoreoServiceType.RestApi
+                        },
+                        {
+                            label: "GraphQL",
+                            description: "Create a GraphQL API service",
+                            value: ChoreoServiceType.GraphQL
+                        }
+                    ]}
+                />
+            </SectionWrapper>
         </StepContainer>
     );
 };

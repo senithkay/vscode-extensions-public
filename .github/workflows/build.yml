@@ -185,6 +185,9 @@ jobs:
         with:
           version: ${{ env.ballerina_version }}
 
+      - name: update packages
+        run: sudo apt-get update
+
       - name: install packages
         run: |
           sudo apt-get install ffmpeg
@@ -248,6 +251,9 @@ jobs:
         name: Install Ballerina
         with:
           version: ${{ env.ballerina_version }}
+
+      - name: update packages
+        run: sudo apt-get update
 
       - name: install packages
         run: |

@@ -28,7 +28,7 @@ export function HierarchicalNodeWidget(props: HierarchicalNodeWidgetProps) {
     const { node, engine } = props;
 
     return (
-        <ServiceNode>
+        <ServiceNode data-testid={`hierarchical-node-${node?.resourceObject?.name}`}>
             <HierarchicalHeadWidget node={node} engine={engine}/>
             {node.resourceObject.hierarchicalResources?.map((resource, index) => {
                 return (

@@ -41,7 +41,7 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
             filePath={node.classObject?.position?.filePath}
             position={node.classObject?.position && getFormattedPosition(node.classObject.position)}
         >
-            <NodeHeader>
+            <NodeHeader data-testid={`service-class-head-${displayName}`}>
                 <ServiceClassIcon />
                 <GraphqlBasePortWidget
                     port={node.getPort(`left-${node.getID()}`)}

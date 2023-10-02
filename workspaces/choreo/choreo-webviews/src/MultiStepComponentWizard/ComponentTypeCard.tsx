@@ -15,6 +15,12 @@ import React from "react";
 import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType } from "@wso2-enterprise/choreo-core";
 import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ComponentWizardState } from "./types";
+import styled from "@emotion/styled";
+
+const IconContainer = styled.div`
+    height: 50px;
+    width: 50px;
+`
 
 export interface ComponentTypeCardProps {
     formData: Partial<ComponentWizardState>;
@@ -23,10 +29,11 @@ export interface ComponentTypeCardProps {
     formKey: keyof ComponentWizardState;
     label: string;
     description: string;
+    icon?: string;
 }
 
 export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
-    const { value, label, description, formData, formKey, onFormDataChange } = props;
+    const { value, label, description, formData, formKey, onFormDataChange, icon } = props;
 
     const isSelected = formData[formKey] === value;
 
@@ -35,8 +42,18 @@ export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
     };
 
     return (
-        <ComponentCard id={value} isSelected={isSelected} onClick={setSelectedType} tooltip={description}>
-            <Typography variant="h4">{label}</Typography>
-        </ComponentCard>
+        <>
+            <ComponentCard id={value} isSelected={isSelected} onClick={setSelectedType} tooltip={description} sx={{height: '60px', width: '180px'}}>
+                {icon && (
+                    <IconContainer>
+                        <img
+                            src={icon}
+                            alt={"service"}
+                        />
+                    </IconContainer>
+                )}
+                <Typography variant="h4">{label}</Typography>
+            </ComponentCard>
+        </>
     );
 };

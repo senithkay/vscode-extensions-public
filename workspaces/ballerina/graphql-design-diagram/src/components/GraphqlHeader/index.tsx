@@ -31,7 +31,7 @@ export function GraphqlHeader(props: GraphqlHeaderProps) {
         <HeaderContainer>
             <Title> GraphQL Designer </Title>
             <FilterBar>
-                <NodeFilter nodeList={nodeList} />
+                <NodeFilter nodeList={nodeList} data-testid="node-filter"/>
                 <TypeFilter
                     updateFilter={updateFilter}
                     isFilterDisabled={filteredNode ? (filteredNode.type !== NodeCategory.GRAPHQL_SERVICE) : false}
