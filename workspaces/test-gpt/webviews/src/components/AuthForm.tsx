@@ -13,7 +13,6 @@ type AuthFormProps = {
 
 function AuthForm({ onAuthSubmit, onClose }: AuthFormProps) {
 
-
     const [authType, setAuthType] = useState('basic');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');

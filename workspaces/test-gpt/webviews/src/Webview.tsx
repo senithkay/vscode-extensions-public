@@ -17,7 +17,7 @@ const Webview = () => {
     const [state, setState] = React.useState("");
     const [logs, setLogs] = React.useState<(TestCommand | TestResult)[]>([]);
     const [queries, setQueries] = React.useState<Queries[]>([]);
-    const [showAuthForm, setShowAuthForm] = React.useState(true);
+    const [showAuthForm, setShowAuthForm] = React.useState(false);
 
     useEffect(() => {
         // set the state when component loads
