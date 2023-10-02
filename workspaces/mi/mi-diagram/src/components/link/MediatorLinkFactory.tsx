@@ -24,6 +24,6 @@ export class MediatorLinkFactory extends DefaultLinkFactory {
     }
 
     generateReactWidget(event: { model: MediatorLinkModel }): JSX.Element {
-        return <MediatorLinkWidget link={event.model} engine={this.engine}/>;
+        return <MediatorLinkWidget link={event.model} engine={this.engine} addArrow={event.model.addArrow} />;
     }
 }

@@ -17,7 +17,8 @@ import { Colors } from "../../resources/assets/Constants";
 
 interface WidgetProps {
     engine: DiagramEngine,
-    link: MediatorLinkModel
+    link: MediatorLinkModel,
+    addArrow: boolean
 }
 
 export function MediatorLinkWidget(props: WidgetProps) {
@@ -47,10 +48,10 @@ export function MediatorLinkWidget(props: WidgetProps) {
 
     return (
         <g>
-            <polygon
+            {props.addArrow && <polygon
                 points={link.getArrowHeadPoints()}
                 fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
-            />
+            />}
 
             <path
                 id={link.getID()}
