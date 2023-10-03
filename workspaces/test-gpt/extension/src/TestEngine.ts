@@ -77,6 +77,7 @@ export interface TestMachineContext {
     lastResult?: Response;
     logs: (TestCommand | TestResult)[];
     authData: AuthBasic | AuthBearer | AuthKey | AuthNone;
+    errorMessage?: string;
 }
 
 interface SetOpenAPIEvent {
@@ -191,7 +192,7 @@ const assignAuthData = assign<TestMachineContext, SetAuthData>({
 const getTools = (context: TestMachineContext, event: any) => {
     return new Promise((resolve, reject) => {
         API.ready.then((client: any) => {
-            client.post('/prepare', { openapi: context.openapi })
+            client.post('/preparei', { openapi: context.openapi })
                 .then((response: { status: number; data: unknown; }) => {
                     if (response.status === 201) {
                         resolve(response.data);
@@ -200,9 +201,7 @@ const getTools = (context: TestMachineContext, event: any) => {
                     }
                 })
                 .catch((error: any) => {
-                    outputChannel.append("Error while fetching tools");
-                    outputChannel.append(error.message);
-                    reject(error);
+                    reject(error.message);
                 });
         });
     });
@@ -362,7 +361,12 @@ const testMachine = createMachine({
                                 queries: (context, event) => event.data.queries
                             })
                         },
-                        onError: "#TestEngine.error"
+                        onError: {
+                            target: "#TestEngine.error",
+                            actions: assign({
+                                errorMessage: (context, event) => event.data
+                            })
+                        }
                     }
                 },
                 createClient: {

@@ -13,6 +13,8 @@ import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { ConsoleAPI, StateChangeEvent, TestCommand, TestResult, Queries } from "./ConsoleAPI";
 import APIChat from './components/APIChat';
 import AuthForm from './components/AuthForm';
+import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
+import { Codicon } from './Codicon/Codicon';
 import styled from "@emotion/styled";
 
 const StatusMessage = styled.div({
@@ -32,12 +34,15 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
     width: 20px;
 `;
 
+
 const Webview = () => {
     const [state, setState] = React.useState("");
     const [logs, setLogs] = React.useState<(TestCommand | TestResult)[]>([]);
     const [queries, setQueries] = React.useState<Queries[]>([]);
+    const [errorMessage, setErrorMessage] = React.useState<string>("");
     const [showAuthForm, setShowAuthForm] = React.useState(false);
     const [authData, setAuthData] = React.useState({ type: "none" });
+    const [showErrorDetails, setShowErrorDetails] = React.useState(false);
 
     useEffect(() => {
         // set the state when component loads
@@ -61,6 +66,7 @@ const Webview = () => {
             setState(state.state);
             setLogs(state.logs);
             setQueries(state.queries);
+            setErrorMessage(state.errorMessage);
         });
     }, [state, logs, queries]);
 
@@ -81,6 +87,10 @@ const Webview = () => {
     const handleCloseAuthForm = () => {
         setShowAuthForm(false);
     }
+
+    const reTry = () => {
+        ConsoleAPI.getInstance().refreshConsole();
+    };
 
     return <>
         {(() => {
@@ -106,7 +116,14 @@ const Webview = () => {
                     case "executing.end":
                         return <APIChat state={state} logs={logs} queries={queries} showAuthForm={handleShowAuth} />;
                     default:
-                        return <div>An error occured please retry again - {state}</div>;
+                        return <div>
+                            <div>An error occurred. Please retry again</div>
+                            {showErrorDetails && <div>Error Details: {errorMessage}</div>}
+                            {!showErrorDetails &&
+                                <a href="#" onClick={() => setShowErrorDetails(!showErrorDetails)}>Show more</a>
+                            }
+                            <VSCodeButton onClick={reTry}><Codicon name='refresh' /> Retry</VSCodeButton>
+                        </div>;
                 }
             }
         })()}
