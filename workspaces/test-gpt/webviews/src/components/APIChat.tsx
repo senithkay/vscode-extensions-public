@@ -136,25 +136,25 @@ const APIChat = (props: {
                     {props.state === "executing.initExecution" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Executing initExecution...</div>
+                            <div>Initializing request...</div>
                         </StatusMessage>
                     )}
                     {props.state === "executing.fetchRequest" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Executing fetchRequest...</div>
+                            <div>Fetching request...</div>
                         </StatusMessage>
                     )}
                     {props.state === "executing.executeRequest" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Executing executeRequest...</div>
+                            <div>Executing request...</div>
                         </StatusMessage>
                     )}
                     {props.state === "executing.processRequest" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Executing processRequest...</div>
+                            <div>Executing request...</div>
                         </StatusMessage>
                     )}
                     {props.state === "executing.end" && (
