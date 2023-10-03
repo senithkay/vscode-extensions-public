@@ -116,14 +116,17 @@ const Webview = () => {
                     case "executing.end":
                         return <APIChat state={state} logs={logs} queries={queries} showAuthForm={handleShowAuth} />;
                     default:
-                        return <div>
-                            <div>An error occurred. Please retry again</div>
-                            {showErrorDetails && <div>Error Details: {errorMessage}</div>}
-                            {!showErrorDetails &&
-                                <a href="#" onClick={() => setShowErrorDetails(!showErrorDetails)}>Show more</a>
-                            }
+                        return <StatusMessage style={{ flexDirection: "column" }}>
+                            <div>
+                                An error occurred. Please retry again. &nbsp;
+                                {!showErrorDetails &&
+                                    <a href="#" onClick={() => setShowErrorDetails(!showErrorDetails)}>Show Error</a>
+                                }
+                            </div>
+                            {showErrorDetails && <div>Error: {errorMessage}</div>}
+
                             <VSCodeButton onClick={reTry}><Codicon name='refresh' /> Retry</VSCodeButton>
-                        </div>;
+                        </StatusMessage>;
                 }
             }
         })()}

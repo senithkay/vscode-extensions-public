@@ -192,7 +192,7 @@ const assignAuthData = assign<TestMachineContext, SetAuthData>({
 const getTools = (context: TestMachineContext, event: any) => {
     return new Promise((resolve, reject) => {
         API.ready.then((client: any) => {
-            client.post('/preparei', { openapi: context.openapi })
+            client.post('/prepare', { openapi: context.openapi })
                 .then((response: { status: number; data: unknown; }) => {
                     if (response.status === 201) {
                         resolve(response.data);
