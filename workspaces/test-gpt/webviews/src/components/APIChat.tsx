@@ -117,6 +117,21 @@ const APIChat = (props: {
                         })
                         }
                     </>
+                    {props.state === "executing.initExecution" && (
+                        <div>Executing initExecution...</div>
+                    )}
+                    {props.state === "executing.fetchRequest" && (
+                        <div>Executing fetchRequest...</div>
+                    )}
+                    {props.state === "executing.executeRequest" && (
+                        <div>Executing executeRequest...</div>
+                    )}
+                    {props.state === "executing.processRequest" && (
+                        <div>Executing processRequest...</div>
+                    )}
+                    {props.state === "executing.end" && (
+                        <div>Executing end...</div>
+                    )}
                 </ScrollToBottom>
             </DisplayPanel>
             <CommandPanel>

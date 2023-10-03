@@ -12,7 +12,7 @@ import { Uri, Webview } from "vscode";
 import { messenger } from './WebviewRPC';
 import { setOpenAPI } from './TestEngine';
 import { parse } from 'yaml';
-import { clearLogs, refresh } from './TestEngine';
+import { clearLogs, refresh, reset } from './TestEngine';
 
 
 
@@ -128,6 +128,7 @@ export function activateConsole(context: vscode.ExtensionContext) {
                         // Parse the YAML file
                         const yamlContent = activeDocument.getText();
                         const parsedYaml = parse(yamlContent);
+                        reset();
                         setOpenAPI(parsedYaml);
                     }
                 }
