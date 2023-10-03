@@ -66,7 +66,7 @@ export class AccountView implements vscode.WebviewViewProvider {
 		]);
 	
 		const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
-		const fontsUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "resources", "fw-vscode", "wso2-vscode.css"));
+		const fontsUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 	
 		return /*html*/ `
 			  <!DOCTYPE html>
