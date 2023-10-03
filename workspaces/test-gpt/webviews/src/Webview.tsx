@@ -18,6 +18,7 @@ const Webview = () => {
     const [logs, setLogs] = React.useState<(TestCommand | TestResult)[]>([]);
     const [queries, setQueries] = React.useState<Queries[]>([]);
     const [showAuthForm, setShowAuthForm] = React.useState(false);
+    const [authData, setAuthData] = React.useState({ type: "none" });
 
     useEffect(() => {
         // set the state when component loads
@@ -25,7 +26,15 @@ const Webview = () => {
             .then((newState: string) => {
                 setState(newState);
             });
-    }, [state]);
+    }, []);
+
+    useEffect(() => {
+        // set the state when component loads
+        ConsoleAPI.getInstance().getAuthentication()
+            .then((authData: any) => {
+                setAuthData(authData);
+            });
+    }, []);
 
     useEffect(() => {
         // update on state change
@@ -37,7 +46,6 @@ const Webview = () => {
     }, [state, logs, queries]);
 
     const handleURLSubmit = (url: string) => {
-        console.log(url);
         ConsoleAPI.getInstance().setUrl(url);
     };
 
@@ -45,18 +53,20 @@ const Webview = () => {
         setShowAuthForm(true);
     };
 
-    const handleAuthSubmit = () => {
-
+    const handleAuthSubmit = (authData: any) => {
+        setAuthData(authData);
+        ConsoleAPI.getInstance().setAuthentication(authData);
+        setShowAuthForm(false);
     }
 
     const handleCloseAuthForm = () => {
-
+        setShowAuthForm(false);
     }
 
     return <>
         {(() => {
             if (showAuthForm) {
-                return <AuthForm onAuthSubmit={handleAuthSubmit} onClose={handleCloseAuthForm} />
+                return <AuthForm onAuthSubmit={handleAuthSubmit} onClose={handleCloseAuthForm} authData={authData} />
             } else {
                 switch (state) {
                     case "loading.getUrl":

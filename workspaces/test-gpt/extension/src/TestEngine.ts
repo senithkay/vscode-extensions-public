@@ -11,7 +11,7 @@ import * as vscode from 'vscode';
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { actions, createMachine, interpret, State, assign, EventObject } from 'xstate';
 import API from './API';
-import { error, log } from 'console';
+
 
 
 
@@ -43,7 +43,26 @@ export interface TestResult {
     output: Response;
 }
 
+export interface AuthBasic {
+    type: "basic";
+    username: string;
+    password: string;
+}
 
+export interface AuthBearer {
+    type: "bearer";
+    token: string;
+}
+
+export interface AuthKey {
+    type: "key";
+    headerName: string;
+    headerValue: string;
+}
+
+export interface AuthNone {
+    type: "none"
+}
 
 export interface TestMachineContext {
     openapi?: object;
@@ -57,6 +76,7 @@ export interface TestMachineContext {
     testCaseId?: string;
     lastResult?: Response;
     logs: (TestCommand | TestResult)[];
+    authData: AuthBasic | AuthBearer | AuthKey | AuthNone;
 }
 
 interface SetOpenAPIEvent {
@@ -68,6 +88,13 @@ interface SetCommandEvent {
     command: string,
     type: string
 }
+
+interface SetAuthData {
+    authData: AuthBasic | AuthBearer | AuthKey | AuthNone;
+    type: string;
+}
+
+
 
 export interface Queries {
     queries: string;
@@ -85,30 +112,35 @@ function extractApiUrl(openapi: any): string | undefined {
     return undefined;
 }
 
-function makeRequest(apiClient: AxiosInstance, request: Request) {
+function makeRequest(apiClient: AxiosInstance, request: Request, authData: any) {
     const path = replacePathParameters(request);
     request.path = path;
-    console.log(`curl -X ${request.method} ${apiClient.getUri()}${path} -d '${JSON.stringify(request.inputs.requestBody)}'`);
+    // console.log(`curl -X ${request.method} ${apiClient.getUri()}${path} -d '${JSON.stringify(request.inputs.requestBody)}'`);
 
     switch (request.method) {
         case 'GET':
-            return apiClient.get(path)
+            return apiClient.get(path, {
+                headers: generateAuthHeaders(authData)
+            })
         case 'POST':
             return apiClient.post(path, request.inputs.requestBody, {
                 headers: {
                     'Content-Type': 'application/json',
+                    ...generateAuthHeaders(authData)
                 }
             });
         case 'PUT':
             return apiClient.put(path, request.inputs.requestBody, {
                 headers: {
                     'Content-Type': 'application/json',
+                    ...generateAuthHeaders(authData)
                 }
             });
         case 'PATCH':
             return apiClient.patch(path, request.inputs.requestBody, {
                 headers: {
                     'Content-Type': 'application/json',
+                    ...generateAuthHeaders(authData)
                 }
             });
         case 'DELETE':
@@ -151,6 +183,11 @@ const clearTestLogs = assign<TestMachineContext>({
     logs: (context) => []
 });
 
+const assignAuthData = assign<TestMachineContext, SetAuthData>({
+    authData: (context, event) => event.authData
+});
+
+
 const getTools = (context: TestMachineContext, event: any) => {
     return new Promise((resolve, reject) => {
         API.ready.then((client: any) => {
@@ -172,7 +209,6 @@ const getTools = (context: TestMachineContext, event: any) => {
 };
 
 const executeCommand = (context: TestMachineContext, event: any) => {
-    console.log("execute command");
     return new Promise((resolve, reject) => {
         const payload = (context.taskStatus === undefined) ?
             { apiSpec: context.apiSpec, command: context.command } :
@@ -185,12 +221,10 @@ const executeCommand = (context: TestMachineContext, event: any) => {
                     if (response.status === 201) {
                         resolve(response.data);
                     } else {
-                        console.log(response);
                         reject(response.data);
                     }
                 })
                 .catch((error: any) => {
-                    console.log(error);
                     reject(error);
                 });
         });
@@ -208,7 +242,6 @@ const initExecution = (context: TestMachineContext, event: any) => {
 }
 
 const executeRequest = (context: TestMachineContext, event: any) => {
-    console.log("executeRequest");
     return new Promise((resolve, reject) => {
         const apiClient = context.apiClient;
         const request = context.nextRequest;
@@ -219,7 +252,7 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                 reject("Request is not defined");
             }
             else {
-                makeRequest(apiClient, request)
+                makeRequest(apiClient, request, context.authData)
                     .then((response: AxiosResponse) => {
                         const mappedResponse: Response = {
                             code: response.status,
@@ -269,6 +302,28 @@ const createClient = (context: TestMachineContext, event: any) => {
     });
 }
 
+const generateAuthHeaders = (authData: AuthBasic | AuthBearer | AuthKey | AuthNone): Record<string, string> => {
+    let headers: Record<string, string> = {};
+
+    switch (authData.type) {
+        case "none":
+            break;
+        case "basic":
+            headers["Authorization"] = `Basic ${btoa(`${authData.username}:${authData.password}`)}`;
+            break;
+        case "bearer":
+            headers["Authorization"] = `Bearer ${authData.token}`;
+            break;
+        case "key":
+            headers[authData.headerName] = authData.headerValue;
+            break;
+        default:
+            break;
+    }
+
+    return headers;
+};
+
 const testMachine = createMachine({
     /** @xstate-layout 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-Hc-wvggA */
     id: "TestEngine",
@@ -279,7 +334,8 @@ const testMachine = createMachine({
     },
     context: {
         openapi: undefined,
-        logs: []
+        logs: [],
+        authData: { type: "none" }
     },
     states: {
         init: {
@@ -349,7 +405,10 @@ const testMachine = createMachine({
                     actions: clearTestLogs
                 },
 
-                CONFIGURE_CLIENT: "loading.createClient"
+                CONFIGURE_CLIENT: {
+                    target: "loading.createClient",
+                    actions: assignAuthData
+                }
             }
         },
 
@@ -431,10 +490,26 @@ const testMachine = createMachine({
                 RETRY: "loading"
             }
         }
+    },
+    on: {
+        RESET: {
+            target: "init",
+            // @ts-ignore
+            actions: assign(ctx => {
+                return { openapi: undefined, logs: [], authData: { type: "none" } };
+            })
+        },
+        REFRESH: {
+            target: "loading",
+            // @ts-ignore
+            actions: assign(ctx => {
+                return { logs: [] };
+            })
+        }
     }
 });
 
-const service = interpret(testMachine);
+let service = interpret(testMachine);
 service.start();
 
 export function getService() {
@@ -458,8 +533,7 @@ export function runExecute(command: string) {
 }
 
 export function reset() {
-    service.stop();
-    service.start();
+    service.send({ type: "RESET" });
 }
 
 export function getLogs() {
@@ -471,9 +545,17 @@ export function clearLogs() {
 }
 
 export function refresh() {
-    service.send({ type: "SET_OPENAPI", openapi: service.getSnapshot().context.openapi });
+    service.send({ type: "REFRESH" });
 }
 
 export function setUrl(url: string) {
     service.send({ type: "SET_URL", url: url });
+}
+
+export function setAuthentication(authData: AuthBasic | AuthBearer | AuthKey | AuthNone) {
+    service.send({ type: "CONFIGURE_CLIENT", authData: authData });
+}
+
+export function getAuthentication(): AuthBasic | AuthBearer | AuthKey | AuthNone {
+    return service.getSnapshot().context.authData;
 }

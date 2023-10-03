@@ -36,6 +36,26 @@ export interface Queries {
     scenario: string;
 }
 
+export interface AuthBasic {
+    type: "basic";
+    username: string;
+    password: string;
+}
+
+export interface AuthBearer {
+    type: "bearer";
+    token: string;
+}
+
+export interface AuthKey {
+    type: "key";
+    headerName: string;
+    headerValue: string;
+}
+
+export interface AuthNone {
+    type: "none"
+}
 
 export interface StateChangeEvent {
     state: string;
@@ -88,6 +108,14 @@ export class ConsoleAPI {
 
     public onStateChanged(callbal: (state: StateChangeEvent) => void) {
         this.messenger.onNotification({ method: 'stateChanged' }, callbal);
+    }
+
+    public getAuthentication() {
+        return this.messenger.sendRequest({ method: 'getAuthentication' }, { type: 'extension' });
+    }
+
+    public setAuthentication(input: AuthBasic | AuthBearer | AuthKey | AuthNone) {
+        return this.messenger.sendRequest({ method: 'setAuthentication' }, { type: 'extension' }, input);
     }
 }
 

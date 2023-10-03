@@ -10,7 +10,11 @@
 import * as vscode from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { NotificationType, RequestType } from "vscode-messenger-common";
-import { getService, runExecute, clearLogs, getState, TestCommand, TestResult, Queries, refresh, setUrl } from './TestEngine';
+import {
+    getService, runExecute, clearLogs, getState, TestCommand,
+    TestResult, Queries, refresh, setUrl, setAuthentication, getAuthentication,
+    AuthBasic, AuthBearer, AuthKey, AuthNone
+} from './TestEngine';
 import { error } from 'console';
 
 export const messenger = new Messenger();
@@ -28,7 +32,8 @@ const stateChanged: NotificationType<StateChangeEvent> = { method: 'stateChanged
 const getStateValue: RequestType<string, string> = { method: 'getState' };
 const clearTestLogs: NotificationType<void> = { method: 'clearLogs' };
 const refreshConsole: NotificationType<void> = { method: 'refreshConsole' };
-
+const setAuthenticationNotification: NotificationType<void> = { method: 'setAuthentication' };
+const getAuthenticationNotification: NotificationType<void> = { method: 'getAuthentication' };
 
 
 // Inform console of changing state
@@ -77,3 +82,11 @@ function stateString(state: any): string {
         throw error("Undefined state");
     }
 }
+
+messenger.onRequest(setAuthenticationNotification, (authData: AuthBasic | AuthBearer | AuthKey | AuthNone) => {
+    return setAuthentication(authData);
+});
+
+messenger.onRequest(getAuthenticationNotification, () => {
+    return getAuthentication();
+});
