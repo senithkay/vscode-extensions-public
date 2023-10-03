@@ -10,21 +10,23 @@ import styled from "@emotion/styled";
 import React from "react";
 export interface OverlayProps {
     onClose?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+    sx?: any;
 }
 
-const OverlayContainer = styled.div`
+const OverlayContainer = styled.div<OverlayProps>`
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    z-index: 10;
+    z-index: 100;
+    ${(props: OverlayProps) => props.sx};
 `;
 
 export const Overlay: React.FC<OverlayProps> = (props: OverlayProps) => {
-    const { onClose } = props;
+    const { sx, onClose } = props;
 
     return (
-        <OverlayContainer onClick={onClose} />
+        <OverlayContainer sx={sx} onClick={onClose} />
     );
 };

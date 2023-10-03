@@ -50,7 +50,7 @@ const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
 const ExpandedMenu = styled.div<ContainerProps>`
     position: absolute;
     margin-top: 40px;
-    z-index: 15;
+    z-index: 200;
     background: var(--vscode-editor-background);
     box-shadow: var(--vscode-widget-shadow) 0px 4px 10px;
     ${(props: ContextMenuProps) => props.sx};
