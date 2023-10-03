@@ -10,12 +10,23 @@
 import React from 'react';
 import { PortWidget } from '@projectstorm/react-diagrams-core';
 import { BaseNodeProps } from '../../base/base-node/base-node';
+import { MIWebViewAPI } from '../../../utils/WebViewRpc';
 
 export interface PlusNodeWidgetProps extends BaseNodeProps {
     level: string;
+    nodePosition: number;
+    documentUri: string;
 }
 
 export function PlusNodeWidget(props: PlusNodeWidgetProps) {
+    function handleClick() {
+        MIWebViewAPI.getInstance().applyEdit({
+            offset: props.nodePosition,
+            text: "<log level=\"debug\"/>",
+            documentUri: props.documentUri
+        });
+    }
+
     return (
         <>
             <svg
@@ -27,6 +38,7 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
             >
                 <g
                     style={{ cursor: "pointer" }}
+                    onClick={handleClick}
                 >
                     <circle cx="300" cy="300" r="300" fill="#fff" stroke="#000" strokeWidth="2" filter="url(#shadow)" />
                     <path d="M300 200V400M200 300H400" stroke="#000" strokeWidth="40" strokeLinecap="round" />

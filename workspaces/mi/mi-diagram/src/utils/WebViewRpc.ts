@@ -11,6 +11,8 @@ import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
+    ApplyEdit,
+    ApplyEditParams,
     ExecuteCommandRequest,
     GetSyntaxTreeRequest,
     ShowErrorMessage
@@ -41,10 +43,14 @@ export class MIWebViewAPI {
         this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
     }
 
-    public getSyntaxTree() {
-        return this._messenger.sendRequest(GetSyntaxTreeRequest, HOST_EXTENSION);
+    public getSyntaxTree(documentUri: string) {
+        return this._messenger.sendRequest(GetSyntaxTreeRequest, HOST_EXTENSION, documentUri);
     }
-    
+
+    public applyEdit(params: ApplyEditParams) {
+        this._messenger.sendNotification(ApplyEdit, HOST_EXTENSION, params);
+    }
+
     public getMessenger() {
         return this._messenger;
     }

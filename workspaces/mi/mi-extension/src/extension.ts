@@ -9,15 +9,31 @@
 
 import * as vscode from 'vscode';
 import { createDiagramWebview } from './diagram/webview';
-import { launch } from './lang-server/activator';
+import { MILanguageClient } from './lang-client/activator';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('integration-studio.helloWorld', () => {
-		vscode.window.showInformationMessage('Hello Worldd from Integration Studio!');
-		createDiagramWebview(context);
+		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
 	});
 
 	context.subscriptions.push(disposable);
 
-	launch(context, __dirname);
+	// activate language client
+	const languageClient = (await MILanguageClient.getInstance()).languageClient;
+	const st = await languageClient!.getSyntaxTree({
+		documentIdentifier: {
+			uri: vscode.window.activeTextEditor!.document.uri.toString()
+		}
+	});
+
+	const cm = await languageClient!.getCompletion({
+		textDocument: {
+			fsPath: vscode.window.activeTextEditor!.document.uri.fsPath,
+			uri: vscode.window.activeTextEditor!.document.uri.toString()
+		},
+		offset: 102,
+		context: {
+			triggerKind: 0
+		}
+	});
 }

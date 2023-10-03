@@ -7,16 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
+import createEngine, { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { MediatorLinkFactory } from "../components/link/MediatorLinkFactory";
 import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
-import { MediatorPortModel } from "../components/port/MediatorPortModel";
 import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
 import { LogMediatorNodeFactory } from "../components/nodes/mediators/log/LogMediatorFactory";
 import { InvisibleNodeFactory } from "../components/nodes/InvisibleNode/InvisibleNodeFactory";
 import { DefaultState } from "../components/canvas/DefaultState";
 import { PlusNodeFactory } from "../components/nodes/plusNode/PlusNodeFactory";
 import { PlusNodeModel } from "../components/nodes/plusNode/PlusNodeModel";
+import { BaseNodeModel } from "../components/base/base-node/base-node";
+import { InvisibleNodeModel } from "../components/nodes/InvisibleNode/InvisibleNodeModel";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -35,12 +36,19 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-export function createLinks(sourcePort: MediatorPortModel, targetPort: MediatorPortModel, addPlus: boolean, addArrow: boolean = true): any[] {
+export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel,
+    addPlus: boolean, addArrow: boolean = true): any[] {
     const portsAndNodes = [];
+    let sourcePort = sourceNode.getPort(sourceNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `right-${sourceNode.getID()}`);
+    const targetPort = targetNode.getPort(targetNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `left-${targetNode.getID()}`);
+
+    if (!sourcePort || !targetPort) {
+        return;
+    }
+
     if (addPlus) {
-        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`);
-        const plusNodePort = plusNode.getPort(`left-${plusNode.getID()}`);
-        const link = createLinks(sourcePort, plusNodePort, false, false);
+        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getNodePosition(), sourceNode.getDocumentUri());
+        const link = createLinks(sourceNode, plusNode, false, false);
         sourcePort = plusNode.getPort(`right-${plusNode.getID()}`);
         portsAndNodes.push(plusNode, ...link);
     }

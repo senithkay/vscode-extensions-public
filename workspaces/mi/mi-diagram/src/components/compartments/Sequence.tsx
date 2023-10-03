@@ -11,8 +11,7 @@ import React, { useEffect, useState } from 'react';
 import {
     DiagramModel,
     DagreEngine,
-    DiagramEngine,
-    PortModelAlignment
+    DiagramEngine
 } from '@projectstorm/react-diagrams';
 
 import { CanvasContainer } from '../../Canvas';
@@ -62,9 +61,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     for (let i = 0; i < nodes.length; i++) {
                         for (let j = i + 1; j < nodes.length; j++) {
                             if (nodes[i].getParentNode() == nodes[j].getParentNode()) {
-                                const sourcePort = nodes[i].getPort(`right-${nodes[i].getID()}`);
-                                const targetPort = nodes[j].getPort(`left-${nodes[j].getID()}`);
-                                const link = createLinks(sourcePort, targetPort, true);
+                                const link = createLinks(nodes[i], nodes[j], true, true);
                                 model.addAll(...link);
                                 break;
                             }
@@ -72,18 +69,14 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     }
                 }
 
-                const canvasPortNode = new InvisibleNodeModel("insequence");
+                const canvasPortNode = new InvisibleNodeModel("border", -1, null);
                 let canvasPortLink;
                 if (props.invertDirection) {
-                    const sourcePort = nodes[nodes.length - 1].getPort(`left-${nodes[nodes.length - 1].getID()}`);
-                    const targetPort = canvasPortNode.getPort(PortModelAlignment.RIGHT);
-
-                    canvasPortLink = createLinks(sourcePort, targetPort, false);
+                    canvasPortLink = createLinks(nodes[nodes.length - 1], canvasPortNode, false, true);
                 } else {
-                    const sourcePort = canvasPortNode.getPort(PortModelAlignment.RIGHT);
-                    const targetPort = nodes[0].getPort(`left-${nodes[0].getID()}`);
-                    canvasPortLink = createLinks(sourcePort, targetPort, false);
+                    canvasPortLink = createLinks(canvasPortNode, nodes[0], false);
                 }
+
                 canvasPortNode.setPosition(0, 100);
 
                 model.setLocked(true);

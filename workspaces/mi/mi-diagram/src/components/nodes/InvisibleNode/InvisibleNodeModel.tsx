@@ -14,8 +14,8 @@ export const INVISIBLE_NODE = "InvisibleNode";
 
 export class InvisibleNodeModel extends BaseNodeModel {
 
-    constructor(id: string) {
-        super(INVISIBLE_NODE, id);
+    constructor(id: string, nodePosition: number, documentUri: string) {
+        super(INVISIBLE_NODE, id, nodePosition, documentUri);
         this.addPort(new DefaultPortModel(false, PortModelAlignment.RIGHT));
     }
 }

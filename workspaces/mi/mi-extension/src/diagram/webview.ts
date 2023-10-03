@@ -9,7 +9,9 @@
 
 import * as path from 'path';
 import { RegisterWebViewPanelRpc } from '../WebviewRPC';
-import { ExtensionContext, Uri, ViewColumn, Webview, window } from 'vscode';
+import { ExtensionContext, Uri, ViewColumn, Webview, WebviewPanel, window, workspace } from 'vscode';
+import { Refresh } from '@wso2-enterprise/mi-core';
+import { debounce } from "lodash";
 
 const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
@@ -21,24 +23,46 @@ function getComposerJSFiles(context: ExtensionContext, componentName: string, we
         isDevMode ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
+let diagramWebview: WebviewPanel | undefined;
 
-export function createDiagramWebview(context: ExtensionContext) {
+export function createDiagramWebview(context: ExtensionContext, documentUri: string) {
+    if (diagramWebview && diagramWebview.active) {
+        diagramWebview.reveal();
+        return;
+    }
 
     // Create a new webview panel
     const panel = window.createWebviewPanel(
         'diagram',
         'Integration Studio Diagram View',
-        ViewColumn.One,
+        ViewColumn.Two,
         {
             enableScripts: true,
             localResourceRoots: [Uri.file(path.join(context.extensionPath, 'resources'))]
         }
     );
+    diagramWebview = panel;
 
     const scripts = getComposerJSFiles(context, 'MIDiagram', panel.webview).map(jsFile =>
         '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
 
-    new RegisterWebViewPanelRpc(panel);
+    const rpc = new RegisterWebViewPanelRpc(panel);
+
+    const refreshDiagram = debounce(() => {
+        if (refreshDiagram) {
+            rpc.getMessenger().sendNotification(Refresh, { type: 'webview', webviewType: 'diagram' });
+        }
+    }, 500);
+
+
+    workspace.onDidChangeTextDocument(function () {
+        refreshDiagram();
+    }, context);
+
+    diagramWebview.onDidDispose(() => {
+        diagramWebview = undefined;
+    });
+
     panel.webview.html = `
             <!DOCTYPE html>
             <html lang="en">
@@ -56,6 +80,7 @@ export function createDiagramWebview(context: ExtensionContext) {
                 <script>
                     function render() {
                         MIDiagram.renderMIDiagram(
+                            ${JSON.stringify(documentUri)},
 							document.getElementById("root")
 						);
                     }

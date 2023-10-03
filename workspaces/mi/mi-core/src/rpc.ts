@@ -9,13 +9,20 @@
 
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 
+export interface ApplyEditParams {
+   offset: number;
+   text: string;
+   documentUri: string;
+}
+
 // request types 
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
-export const GetSyntaxTreeRequest: RequestType<unknown, unknown> = { method: 'xml/getSynapseSyntaxTree' };
+export const GetSyntaxTreeRequest: RequestType<string, unknown> = { method: 'xml/getSynapseSyntaxTree' };
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 export const Refresh: NotificationType<void> = { method: 'refresh' };
+export const ApplyEdit: NotificationType<ApplyEditParams> = { method: 'applyEdit' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

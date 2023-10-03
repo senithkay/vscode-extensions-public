@@ -11,9 +11,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { MIDiagram } from "./MIDiagram";
 
-export function renderMIDiagram(data: any) {
+export function renderMIDiagram(documentUri: string) {
     ReactDOM.render(
-        <MIDiagram data={data}></MIDiagram>,
+        <MIDiagram documentUri={documentUri}></MIDiagram>,
         document.getElementById("mi-diagram-container")
     );
 }

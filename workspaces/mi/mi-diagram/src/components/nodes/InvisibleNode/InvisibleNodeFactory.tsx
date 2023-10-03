@@ -34,6 +34,10 @@ export class InvisibleNodeFactory extends AbstractReactFactory<InvisibleNodeMode
     }
 
     generateModel(event: { initialConfig: any }) {
-        return new InvisibleNodeModel(event.initialConfig.model);
+        return new InvisibleNodeModel(
+            event.initialConfig.model.id,
+            null,
+            null
+        );
     }
 }

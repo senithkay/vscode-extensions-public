@@ -22,9 +22,21 @@ export class NodeInitVisitor implements Visitor {
     private inSequenceNodes: BaseNodeModel[] = [];
     private outSequenceNodes: BaseNodeModel[] = [];
     private parents: STNode[] = [];
+    private documentUri: string;
+
+    constructor(documentUri: string) { 
+        this.documentUri = documentUri;
+    };
 
     beginVisitLog(node: Log) {
-        this.currentSequence.push(new LogMediatorNodeModel(mapNode(node as any), this.parents[this.parents.length - 1]));
+        this.currentSequence.push(
+            new LogMediatorNodeModel(
+                mapNode(node as any),
+                node.end,
+                this.documentUri,
+                this.parents[this.parents.length - 1]
+            )
+        );
     }
 
     beginVisitInSequence(node: Sequence): void {

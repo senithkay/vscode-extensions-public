@@ -16,8 +16,8 @@ export const PLUS_NODE = "PlusNode";
 export class PlusNodeModel extends BaseNodeModel {
     readonly id: string;
 
-    constructor(id: string) {
-        super(PLUS_NODE, id);
+    constructor(id: string, nodePosition: number, documentUri: string) {
+        super(PLUS_NODE, id, nodePosition, documentUri);
 
         this.id = id;
 

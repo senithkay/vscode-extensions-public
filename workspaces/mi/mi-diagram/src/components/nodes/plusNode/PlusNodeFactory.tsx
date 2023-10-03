@@ -31,10 +31,16 @@ export class PlusNodeFactory extends AbstractReactFactory<PlusNodeModel, Diagram
             width={30}
             height={70}
             level={"event.model.level"}
+            nodePosition={event.model.getNodePosition()}
+            documentUri={event.model.getDocumentUri()}
         />;
     }
 
     generateModel(event: { initialConfig: any }) {
-        return new PlusNodeModel(event.initialConfig.model);
+        return new PlusNodeModel(
+            event.initialConfig.model.id,
+            event.initialConfig.model.nodePosition,
+            event.initialConfig.model.documentUri
+        );
     }
 }

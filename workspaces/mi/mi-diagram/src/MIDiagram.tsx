@@ -14,10 +14,10 @@ import { ResourceCompartment } from './components/compartments/ResourceCompartme
 import { Refresh } from '@wso2-enterprise/mi-core';
 
 export interface MIDiagramProps {
-	data?: string;
+	documentUri: string;
 }
 
-export function MIDiagram(_props: MIDiagramProps) {
+export function MIDiagram(props: MIDiagramProps) {
 	const [isLoading, setLoading] = useState<boolean>(true);
 	const [lastUpdated, setLastUpdated] = useState<number>(0);
 	const [stNode, setSTNode] = useState<number>(0);
@@ -30,8 +30,9 @@ export function MIDiagram(_props: MIDiagramProps) {
 		setLoading(true);
 
 		(async () => {
-			const st = await MIWebViewAPI.getInstance().getSyntaxTree();
+			const st = await MIWebViewAPI.getInstance().getSyntaxTree(props.documentUri);
 			const stNode = (st as any).syntaxTree.node;
+			console.log(st);
 			setSTNode(stNode);
 			setLoading(false);
 		})();
@@ -43,7 +44,7 @@ export function MIDiagram(_props: MIDiagramProps) {
 	} else {
 		canvas = stNode &&
 			<APICompartment name='API'>
-				<ResourceCompartment name='Resource' stNode={stNode} />
+				<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
 			</APICompartment>;
 	}
 

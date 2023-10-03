@@ -15,17 +15,17 @@ import { NodeInitVisitor } from "../../utils/visitors/NodeInitVisitor";
 interface Props {
     name: string;
     stNode: any;
+    documentUri: string;
 }
 
 export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
 
-    const visitor = new NodeInitVisitor();
+    const visitor = new NodeInitVisitor(props.documentUri);
     traversNode(props.stNode, visitor);
 
     const inSequenceNodes = visitor.getInSequenceNodes();
     const outSequenceNodes = visitor.getOutSequenceNodes();
 
-    console.log(inSequenceNodes);
     return (
         <div style={{
             display: "flex",

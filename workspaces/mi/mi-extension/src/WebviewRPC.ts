@@ -7,9 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { commands, WebviewPanel, window, WebviewView, workspace } from "vscode";
+import { commands, WebviewPanel, window, WebviewView, workspace, Range, WorkspaceEdit, Position, Uri } from "vscode";
 import { Messenger } from "vscode-messenger";
 import {
+    ApplyEdit,
+    ApplyEditParams,
     ExecuteCommandRequest,
     GetSyntaxTreeRequest,
     ShowErrorMessage,
@@ -26,16 +28,30 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
     });
 
-    messenger.onRequest(GetSyntaxTreeRequest, async () => {
+    messenger.onRequest(GetSyntaxTreeRequest, async (documentUri: string) => {
         return (await MILanguageClient.getInstance()).languageClient!.getSyntaxTree({
             documentIdentifier: {
-                uri: window.activeTextEditor?.document.uri.toString() || "",
+                uri: documentUri,
             },
         });
     });
 
     messenger.onNotification(ShowErrorMessage, (error: string) => {
         window.showErrorMessage(error);
+    });
+
+    messenger.onNotification(ApplyEdit, async (params: ApplyEditParams) => {
+        const edit = new WorkspaceEdit();
+        let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
+
+        if (!document) {
+            document = await workspace.openTextDocument(Uri.parse(params.documentUri));
+        }
+
+        const positionAt = document.positionAt(params.offset);
+        const position = new Position(positionAt.line, positionAt.character);
+        edit.insert(Uri.parse(params.documentUri), position, params.text);
+        await workspace.applyEdit(edit);
     });
 }
 
@@ -59,6 +75,10 @@ export class RegisterWebViewPanelRpc {
         } else {
             throw new Error("Panel already registered");
         }
+    }
+
+    public getMessenger() {
+        return this._messenger;
     }
 }
 

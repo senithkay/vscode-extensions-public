@@ -21,13 +21,19 @@ export interface BaseNodeProps extends NodeProps {
 
 export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     private readonly parentNode?: STNode;
+    private readonly node?: STNode;
+    private readonly nodePosition: number;
+    private readonly documentUri: string;
 
-    constructor(type: string, id: string, parentNode?: STNode) {
+    constructor(type: string, id: string, nodePosition: number, documentUri: string, node?: STNode, parentNode?: STNode) {
         super({
             type: type,
             id: id
         });
+        this.node = node;
         this.parentNode = parentNode;
+        this.nodePosition = nodePosition;
+        this.documentUri = documentUri;
     }
 
     handleHover = (ports: PortModel[], task: string) => {
@@ -62,5 +68,17 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
 
     getParentNode(): STNode | undefined {
         return this.parentNode;
+    }
+
+    getNode(): STNode {
+        return this.node;
+    }
+
+    getNodePosition(): number {
+        return this.nodePosition;
+    }
+
+    getDocumentUri(): string {
+        return this.documentUri;
     }
 }
