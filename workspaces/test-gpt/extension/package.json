@@ -48,16 +48,16 @@
           "group": "navigation"
         },
         {
-          "when": "viewItem == testgpt-console",
+          "when": "activeWebviewPanelId == testgpt-console",
           "command": "test-gpt.clear",
           "alt": "test-gpt.clear",
-          "group": "edit"
+          "group": "navigation@1"
         },
         {
-          "when": "viewItem == testgpt-console",
           "command": "test-gpt.refresh",
+          "when": "activeWebviewPanelId == testgpt-console",
           "alt": "test-gpt.refresh",
-          "group": "edit"
+          "group": "navigation@2"
         }
       ]
     }

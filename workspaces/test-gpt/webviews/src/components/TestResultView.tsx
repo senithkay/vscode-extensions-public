@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
-import { VSCodeBadge, VSCodeButton, VSCodeTextArea } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton, VSCodeTextArea } from '@vscode/webview-ui-toolkit/react';
+import { Badge } from "@wso2-enterprise/ui-toolkit";
 import { TestResult } from "../ConsoleAPI";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
@@ -11,6 +12,14 @@ const colors = {
     "POST": '#fca130',
     "DELETE": '#f93e3e',
     "PATCH": '#986ee2',
+}
+
+const codeColors = {
+    "INFORMATIONAL": "#6C757D",
+    "SUCCESSFUL": "#28A745",
+    "REDIRECTION": "#007aff",
+    "CLIENTERROR": "#FFC107",
+    "SERVERERROR": "#f93E3E"
 }
 
 function getColorByMethod(method: string) {
@@ -30,13 +39,29 @@ function getColorByMethod(method: string) {
     }
 }
 
+function getColorByCode(code: number) {
+    const firstDigit = parseInt(code.toString()[0]);
+    switch (firstDigit) {
+        case 1:
+            return codeColors.INFORMATIONAL;
+        case 2:
+            return codeColors.SUCCESSFUL;
+        case 3:
+            return codeColors.REDIRECTION;
+        case 4:
+            return codeColors.CLIENTERROR;
+        case 5:
+            return codeColors.SERVERERROR;
+        default:
+            return '#FFF'; // Default color
+    }
+}
 
 const Method = styled.div({
     display: 'inline-block',
     fontWeight: "bolder",
     padding: "4px 20px 4px 0"
 });
-
 
 const TestResultBlock = styled.div<{ isExpanded: boolean }>(({ isExpanded }) => ({
     margin: "10px",
@@ -65,7 +90,7 @@ const TestResult = ({ log }: { log: TestResult }) => {
     return (
         <TestResultBlock isExpanded={isExpanded}>
             <TestResultHeader onClick={toggleExpansion} style={{ padding: "5px 0 5px 0" }}>
-                <VSCodeBadge style={{ marginRight: "10px", marginLeft: "10px" }}>{log.output.code}</VSCodeBadge>
+                <Badge color={getColorByCode(log.output.code)}>{log.output.code}</Badge>
                 <Method style={{ color: getColorByMethod(log.request.method), width: "30px" }}>{log.request.method}</Method>
                 <span>{log.request.path}</span>
                 {isExpanded ?
