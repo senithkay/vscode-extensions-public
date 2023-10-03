@@ -11,8 +11,7 @@ const DATA_MAPPER_DIR = path.resolve(__dirname, '../data-mapper');
 const FONT_DIR = path.resolve(__dirname, '../../common-libs/font-wso2-vscode');
 
 const CODICON_GLOB_PATH = path.resolve(__dirname, '../../../common/temp/node_modules/.pnpm/@vscode+codicons@*/node_modules/@vscode/codicons/dist');
-const codiconPaths = glob.sync(CODICON_GLOB_PATH);
-const CODICON_DIR = codiconPaths.length > 0 ? codiconPaths[0] : null;
+const CODICON_DIRS = glob.sync(CODICON_GLOB_PATH);
 
 module.exports = (env, argv) => ({
     mode: 'none',
@@ -54,12 +53,12 @@ module.exports = (env, argv) => ({
             },
             {
                 test: /\.css$/,
-                include: [FONT_DIR, CODICON_DIR],
+                include: [FONT_DIR, ...CODICON_DIRS],
                 use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.(woff|woff2|ttf|otf|eot)$/,
-                include: [FONT_DIR, CODICON_DIR],
+                include: [FONT_DIR, ...CODICON_DIRS],
                 type: 'asset/inline'
             },
             {
