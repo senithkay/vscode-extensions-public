@@ -9,6 +9,7 @@
 import { window, Uri, workspace, ProgressLocation, ConfigurationTarget, MessageItem, Progress, commands, StatusBarAlignment, languages } from "vscode";
 import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
 import axios from "axios";
+import { createHash } from "crypto";
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -31,11 +32,12 @@ interface ProgressMessage {
     increment?: number;
 }
 
-const allowedOrgList = ['ballerina-platform', 'ballerina-guides', 'ballerinax', 'wso2'];
-const gitDomain = "github.com";
-const gistOwner = "ballerina-github-bot";
-const tempStartingFile = "tempStartingFile";
-const ballerinaToml = "Ballerina.toml";
+const ALLOWED_ORG_LIST = ['ballerina-platform', 'ballerina-guides', 'ballerinax', 'wso2'];
+const GIT_DOMAIN = "github.com";
+const GIST_OWNER = "ballerina-github-bot";
+const NEXT_STARTING_UP_FILE = "next-starting-up-file";
+const BALLERINA_TOML = "Ballerina.toml";
+const REPO_LOCATIONS = "repository-locations";
 
 const buildStatusItem = window.createStatusBarItem(StatusBarAlignment.Left, 100);
 
@@ -51,10 +53,10 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
     if (repoFileUrl) {
         const url = new URL(repoFileUrl);
         const mainDomain = url.hostname;
-        validDomain = mainDomain === gitDomain;
+        validDomain = mainDomain === GIT_DOMAIN;
         if (validDomain) {
             const username = getGithubUsername(repoFileUrl);
-            if (allowedOrgList.includes(username)) {
+            if (ALLOWED_ORG_LIST.includes(username)) {
                 validRepo = true;
             }
         }
@@ -82,7 +84,7 @@ export async function handleOpenFile(ballerinaExtInstance: BallerinaExtension, g
                     const gistDetails = response.data;
                     rawFileLink = gistDetails.files[fileName].raw_url;
                     const responseOwner = gistDetails.owner.login;
-                    validGist = gistOwner === responseOwner;
+                    validGist = GIST_OWNER === responseOwner;
                 }
                 if (validGist || validRepo) {
                     await handleDownloadFile(rawFileLink, filePath, progress, cancelled);
@@ -121,22 +123,33 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
         const defaultDownloadsPath = path.join(os.homedir(), 'Downloads'); // Construct the default downloads path
         const selectedPath = ballerinaExtInstance.getFileDownloadPath() || defaultDownloadsPath;
         const username = getGithubUsername(repoUrl);
-        if (allowedOrgList.includes(username)) {
-            const message = `Repository will be cloned to the following directory.`;
-            const cloneAnyway: MessageItem = { title: "Clone Now" };
-            const changePath: MessageItem = { title: 'Change Directory' };
-            const result = await window.showInformationMessage(message, { detail: `${selectedPath}`, modal: true }, cloneAnyway, changePath);
-            if (result === cloneAnyway) {
-                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CLONE_NOW, CMP_OPEN_VSCODE_URL);
-                cloneRepo(repoUrl, selectedPath, specificFileName, ballerinaExtInstance);
-            } else if (result === changePath) {
-                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CHANGE_PATH, CMP_OPEN_VSCODE_URL);
-                const newPath = await selectFileDownloadPath();
-                cloneRepo(repoUrl, newPath, specificFileName, ballerinaExtInstance);
+        if (ALLOWED_ORG_LIST.includes(username)) {
+            const cleanRepoUrl = repoUrl.replace(".git", "");
+            const repoLocation = await getRepositoryLocation(ballerinaExtInstance, cleanRepoUrl);
+            if (repoLocation) {
+                if (specificFileName) {
+                    const filePath = path.join(repoLocation, specificFileName);
+                    setNextStartingUpFile(ballerinaExtInstance, filePath);
+                }
+                openRepoInVSCode(ballerinaExtInstance, repoLocation);
             } else {
-                sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
-                window.showErrorMessage(`Repository clone canceled.`);
-                return;
+                const message = `Ballerina : Opening Repository.`;
+                const details = `You requested to open “${repoUrl}” in vscode.\nThe repository will be cloned to \n“${selectedPath}”`;
+                const cloneAnyway: MessageItem = { title: "Clone Now" };
+                const changePath: MessageItem = { title: 'Change Directory' };
+                const result = await window.showInformationMessage(message, { detail: details, modal: true }, cloneAnyway, changePath);
+                if (result === cloneAnyway) {
+                    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CLONE_NOW, CMP_OPEN_VSCODE_URL);
+                    cloneRepo(repoUrl, selectedPath, specificFileName, ballerinaExtInstance);
+                } else if (result === changePath) {
+                    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CHANGE_PATH, CMP_OPEN_VSCODE_URL);
+                    const newPath = await selectFileDownloadPath();
+                    cloneRepo(repoUrl, newPath, specificFileName, ballerinaExtInstance);
+                } else {
+                    sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
+                    window.showErrorMessage(`Repository clone canceled.`);
+                    return;
+                }
             }
         } else {
             window.showErrorMessage(`Unauthorized repository.`);
@@ -149,17 +162,15 @@ export async function handleOpenRepo(ballerinaExtInstance: BallerinaExtension, r
 }
 
 async function cloneRepo(repoUrl: string, selectedPath: string, specificFileName: string, ballerinaExtInstance: BallerinaExtension) {
-    const repoFolderName = path.basename(new URL(repoUrl).pathname).replace(".git", "");
+    const cleanRepoUrl = repoUrl.replace(".git", "");
+    const repoFolderName = path.basename(new URL(cleanRepoUrl).pathname);
     const repoPath = path.join(selectedPath, repoFolderName);
+    await setRepositoryLocation(ballerinaExtInstance, cleanRepoUrl, repoPath);
     if (specificFileName) {
         const filePath = path.join(repoPath, specificFileName);
-        writeClonedFilePathToTemp(ballerinaExtInstance, filePath);
+        setNextStartingUpFile(ballerinaExtInstance, filePath);
     }
-    if (folderExists(repoPath)) {
-        openRepoInVSCode(ballerinaExtInstance, repoPath);
-    } else {
-        await commands.executeCommand('git.clone', repoUrl, selectedPath);
-    }
+    await commands.executeCommand('git.clone', repoUrl, selectedPath);
 }
 
 async function downloadFile(url, filePath, progressCallback) {
@@ -194,7 +205,7 @@ async function downloadFile(url, filePath, progressCallback) {
 }
 
 async function selectFileDownloadPath() {
-    const folderPath = await window.showOpenDialog({ title: 'Ballerina samples download directory', canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Folder' });
+    const folderPath = await window.showOpenDialog({ title: 'Ballerina extension downloads directory', canSelectFolders: true, canSelectFiles: false, openLabel: 'Select Folder' });
     if (folderPath && folderPath.length > 0) {
         const newlySelectedFolder = folderPath[0].fsPath;
         try {
@@ -265,7 +276,7 @@ async function openRepoInVSCode(ballerinaExtInstance: BallerinaExtension, filePa
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_REPO_CANCELED, CMP_OPEN_VSCODE_URL);
         return; // User cancelled
     }
-    handleSameWorkspaceFileOpen(ballerinaExtInstance, filePath); // If opened workspace is same open the file
+    handleSameWorkspaceFileOpen(ballerinaExtInstance, filePath); // If opened workspace is same as cloned open the file
     try {
         switch (result) {
             case newWindow:
@@ -284,45 +295,63 @@ async function openRepoInVSCode(ballerinaExtInstance: BallerinaExtension, filePa
     }
 }
 
-function handleSameWorkspaceFileOpen(ballerinaExtInstance: BallerinaExtension, filePath: string) {
+async function handleSameWorkspaceFileOpen(ballerinaExtInstance: BallerinaExtension, filePath: string) {
     const workspaceFolders = workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
         const workspaceFolder = workspaceFolders[0];
         const workspaceFolderPath = workspaceFolder.uri.fsPath;
         if (filePath === workspaceFolderPath) {
-            readStoredClonedFilePathFromTemp(ballerinaExtInstance);
+            openClonedTempFile(ballerinaExtInstance);
         }
     }
 }
 
-function writeClonedFilePathToTemp(ballerinaExtInstance: BallerinaExtension, selectedPath) {
-    ballerinaExtInstance.context.globalState.update(tempStartingFile, selectedPath);
+function setNextStartingUpFile(ballerinaExtInstance: BallerinaExtension, selectedPath) {
+    ballerinaExtInstance.context.globalState.update(NEXT_STARTING_UP_FILE, selectedPath); // NEXT_STARTING_UP_FILE
 }
 
 // Function to open the stored cloned file path from the global state
-export async function readStoredClonedFilePathFromTemp(ballerinaExtInstance: BallerinaExtension) {
-    const pathValue = ballerinaExtInstance.context.globalState.get(tempStartingFile) as string;
-    if (pathValue) {
+export async function openClonedTempFile(ballerinaExtInstance: BallerinaExtension) {
+    const isRepo = await isRepositoryLocation(ballerinaExtInstance);
+    if (isRepo) {
+        // Get latests changes
+        await commands.executeCommand('git.pull');
+    }
+    const pathValue = ballerinaExtInstance.context.globalState.get(NEXT_STARTING_UP_FILE) as string;
+    if (isRepo && pathValue) {
         try {
             // Open the specific file
             const document = await workspace.openTextDocument(pathValue);
             await window.showTextDocument(document);
-            ballerinaExtInstance.setVscodeUrlCommandState(true);
         } catch (error) {
             window.showErrorMessage(`Error opening ${pathValue}: ${error}`);
         }
-        writeClonedFilePathToTemp(ballerinaExtInstance, "");
+        setNextStartingUpFile(ballerinaExtInstance, "");
     }
 }
 
-// Function to check if a folder with the given name exists
-function folderExists(folderPath) {
-    try {
-        const stats = fs.statSync(folderPath);
-        return stats.isDirectory();
-    } catch (error) {
-        return false;
+
+async function isRepositoryLocation(ballerinaExtInstance: BallerinaExtension) {
+    // Repository locations are stored in global state
+    let repositoryLocations: Record<string, string> | undefined = ballerinaExtInstance.context.globalState.get(REPO_LOCATIONS);
+    const workspaceFolders = workspace.workspaceFolders;
+    if (workspaceFolders && workspaceFolders.length > 0) {
+        const workspaceFolder = workspaceFolders[0];
+        const workspaceFolderPath = workspaceFolder.uri.fsPath;
+        if (isPathInRepositoryLocations(workspaceFolderPath, repositoryLocations)) {
+            return true;
+        }
     }
+    return false;
+}
+
+// Check if the given path exists in the repositoryLocations Map
+function isPathInRepositoryLocations(pathToCheck: string, repositoryLocations: Record<string, string> | undefined): boolean {
+    if (repositoryLocations) {
+        const values = Object.values(repositoryLocations);
+        return values.includes(pathToCheck);
+    }
+    return false; // Location not found in the map or map is undefined
 }
 
 // Function to extract the organization/username
@@ -355,15 +384,18 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
         await window.withProgress({
             location: ProgressLocation.Notification,
             title: `Pulling all missing ballerina modules...`,
-            cancellable: false
-        }, async (progress) => {
+            cancellable: true
+        }, async (progress, cancellationToken) => {
+            cancellationToken.onCancellationRequested(async () => {
+                buildStatusItem.hide();
+            });
             progress.report({ increment: 30 });
             // Resolve missing dependencies.
             const dependenciesResponse = await langClient.resolveMissingDependencies({
                 documentIdentifier: {
                     uri: uriString
                 }
-            });
+            }, cancellationToken);
             const response = dependenciesResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess) {
                 progress.report({ increment: 60 });
@@ -380,7 +412,7 @@ async function resolveModules(langClient: ExtendedLangClient, pathValue) {
                 window.showErrorMessage("Failed to pull modules");
             }
             buildStatusItem.hide();
-        })
+        });
     }
 }
 
@@ -388,7 +420,7 @@ function findBallerinaTomlFile(filePath) {
     let currentFolderPath = path.dirname(filePath);
 
     while (currentFolderPath !== path.sep) {
-        const tomlFilePath = path.join(currentFolderPath, ballerinaToml);
+        const tomlFilePath = path.join(currentFolderPath, BALLERINA_TOML);
         if (fs.existsSync(tomlFilePath)) {
             return currentFolderPath;
         }
@@ -399,27 +431,74 @@ function findBallerinaTomlFile(filePath) {
     return null; // Ballerina.toml not found in any parent folder
 }
 
-export function handleResolveMissingDependencies(ballerinaExtInstance: BallerinaExtension) {
+export async function handleResolveMissingDependencies(ballerinaExtInstance: BallerinaExtension) {
+    openClonedTempFile(ballerinaExtInstance);
     const langClient = ballerinaExtInstance.langClient;
-    // Listen for diagnostic changes
-    languages.onDidChangeDiagnostics(async (e) => {
-        const activeEditor = window.activeTextEditor;
-        if (activeEditor && activeEditor.document.languageId === 'ballerina') {
-            const uri = activeEditor.document.uri;
-            const diagnostics = languages.getDiagnostics(uri);
-            if (diagnostics.length > 0 && diagnostics.filter(diag => diag.code === "BCE2003").length > 0) {
-                if (ballerinaExtInstance.getIsVscodeUrlCommand()) {
-                    resolveModules(langClient, uri.fsPath);
-                    ballerinaExtInstance.setVscodeUrlCommandState(false);
-                } else {
-                    const message = `Unresolved modules found.`;
-                    const pullModules: MessageItem = { title: "Pull Modules" };
-                    const result = await window.showInformationMessage(message, pullModules);
-                    if (result === pullModules) {
+    // Listen for diagnostic changes for cloned repo using vscode open feature
+    const isRepo = await isRepositoryLocation(ballerinaExtInstance);
+    if (isRepo) {
+        languages.onDidChangeDiagnostics(async (e) => {
+            const activeEditor = window.activeTextEditor;
+            if (activeEditor && activeEditor.document.languageId === 'ballerina') {
+                const uri = activeEditor.document.uri;
+                const diagnostics = languages.getDiagnostics(uri);
+                if (diagnostics.length > 0 && diagnostics.filter(diag => diag.code === "BCE2003").length > 0) {
+                    if (!ballerinaExtInstance.getIsOpenedOnce()) {
+                        ballerinaExtInstance.setIsOpenedOnce(true);
                         resolveModules(langClient, uri.fsPath);
+                    } else {
+                        const message = `Unresolved modules found.`;
+                        const pullModules: MessageItem = { title: "Pull Modules" };
+                        const result = await window.showInformationMessage(message, pullModules);
+                        if (result === pullModules) {
+                            resolveModules(langClient, uri.fsPath);
+                        }
                     }
                 }
             }
+        });
+    }
+}
+
+async function setRepositoryLocation(ballerinaExtInstance: BallerinaExtension, gitUrl: string, location: string) {
+    // Repository locations are stored in global state
+    let repositoryLocations: Record<string, string> | undefined = ballerinaExtInstance.context.globalState.get(REPO_LOCATIONS);
+    // If the locations are not set before create the location map
+    if (repositoryLocations === undefined) {
+        repositoryLocations = {};
+    }
+    const gitUrlHash = urlToUniqueID(gitUrl);
+    repositoryLocations[gitUrlHash] = location; // Get URL hash value as the projectID
+    ballerinaExtInstance.context.globalState.update(REPO_LOCATIONS, repositoryLocations);
+}
+
+async function _removeLocation(ballerinaExtInstance: BallerinaExtension, gitUrlHash: string) {
+    let repositoryLocations: Record<string, string> | undefined = ballerinaExtInstance.context.globalState.get(REPO_LOCATIONS);
+    // If the locations are not set before create the location map
+    if (repositoryLocations === undefined) {
+        repositoryLocations = {};
+    }
+    delete repositoryLocations[gitUrlHash];
+    ballerinaExtInstance.context.globalState.update(REPO_LOCATIONS, repositoryLocations);
+}
+
+async function getRepositoryLocation(ballerinaExtInstance: BallerinaExtension, gitUrl: string): Promise<string | undefined> {
+    let repositoryLocations: Record<string, string> | undefined = ballerinaExtInstance.context.globalState.get(REPO_LOCATIONS);
+    const gitUrlHash = urlToUniqueID(gitUrl);
+    const filePath: string | undefined = (repositoryLocations) ? repositoryLocations[gitUrlHash] : undefined;
+    if (filePath !== undefined) {
+        if (fs.existsSync(filePath)) {
+            return filePath;
+        } else {
+            _removeLocation(ballerinaExtInstance, gitUrlHash);
         }
-    });
+    }
+    // If not, remove the location from the state
+    return undefined;
+}
+
+function urlToUniqueID(url) {
+    const hash = createHash('sha256');
+    hash.update(url);
+    return hash.digest('hex');
 }

@@ -10,11 +10,10 @@ import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult } from "vscode";
 import { BallerinaExtension } from "./core";
 import { getChoreoExtAPI } from "./choreo-features/activate";
-import { handleOpenFile, handleOpenRepo, readStoredClonedFilePathFromTemp } from "./utils";
+import { handleOpenFile, handleOpenRepo } from "./utils";
 import { CMP_OPEN_VSCODE_URL, TM_EVENT_OPEN_FILE_URL_START, TM_EVENT_OPEN_REPO_URL_START, sendTelemetryEvent } from "./telemetry";
 
 export function activateUriHandlers(ballerinaExtInstance: BallerinaExtension) {
-    readStoredClonedFilePathFromTemp(ballerinaExtInstance);
     window.registerUriHandler({
         handleUri(uri: Uri): ProviderResult<void> {
             const urlParams = new URLSearchParams(uri.query);
