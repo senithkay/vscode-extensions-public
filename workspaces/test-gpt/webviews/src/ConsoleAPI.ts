@@ -61,6 +61,7 @@ export interface StateChangeEvent {
     state: string;
     logs: (TestCommand | TestResult)[];
     queries: Queries[];
+    errorMessage?: string;
 }
 
 export class ConsoleAPI {

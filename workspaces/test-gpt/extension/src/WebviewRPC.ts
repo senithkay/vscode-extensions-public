@@ -23,6 +23,7 @@ interface StateChangeEvent {
     state: string;
     logs: (TestCommand | TestResult)[];
     queries: Queries[];
+    errorMessage?: string;
 }
 
 // Handle incoming view notification
@@ -38,7 +39,12 @@ const getAuthenticationNotification: NotificationType<void> = { method: 'getAuth
 
 // Inform console of changing state
 getService().onTransition((state) => {
-    const snapshot: StateChangeEvent = { state: stateString(state.value), logs: state.context.logs, queries: state.context.queries };
+    const snapshot: StateChangeEvent = {
+        state: stateString(state.value),
+        logs: state.context.logs,
+        queries: state.context.queries,
+        errorMessage: state.context.errorMessage
+    };
     messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'testgpt-console' }, snapshot);
 });
 
