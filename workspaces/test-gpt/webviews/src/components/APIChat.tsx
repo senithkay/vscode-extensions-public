@@ -13,7 +13,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { ConsoleAPI, TestCommand, TestResult, Queries } from "../ConsoleAPI";
-import { VSCodeButton, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeButton, VSCodeTextField, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { } from '@vscode/webview-ui-toolkit';
 import styled from "@emotion/styled";
 import Welcome from './Welcome';
@@ -52,6 +52,22 @@ const DisplayPanel = styled.div({
 const FlexRow = styled.div({
     display: "flex",
     flexDirection: "row",
+});
+
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 3px);
+    width: calc(var(--design-unit) * 3px);
+    margin-top: auto;
+    padding: 4px;
+`;
+
+const StatusMessage = styled.div({
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "6px",
+    padding: "10px",
+    marginLeft: "8px"
 });
 
 const ROOT_CSS = css({
@@ -118,19 +134,34 @@ const APIChat = (props: {
                         }
                     </>
                     {props.state === "executing.initExecution" && (
-                        <div>Executing initExecution...</div>
+                        <StatusMessage>
+                            <SmallProgressRing />
+                            <div>Initializing request...</div>
+                        </StatusMessage>
                     )}
                     {props.state === "executing.fetchRequest" && (
-                        <div>Executing fetchRequest...</div>
+                        <StatusMessage>
+                            <SmallProgressRing />
+                            <div>Fetching request...</div>
+                        </StatusMessage>
                     )}
                     {props.state === "executing.executeRequest" && (
-                        <div>Executing executeRequest...</div>
+                        <StatusMessage>
+                            <SmallProgressRing />
+                            <div>Executing request...</div>
+                        </StatusMessage>
                     )}
                     {props.state === "executing.processRequest" && (
-                        <div>Executing processRequest...</div>
+                        <StatusMessage>
+                            <SmallProgressRing />
+                            <div>Executing request...</div>
+                        </StatusMessage>
                     )}
                     {props.state === "executing.end" && (
-                        <div>Executing end...</div>
+                        <StatusMessage>
+                            <SmallProgressRing />
+                            <div>Executing end...</div>
+                        </StatusMessage>
                     )}
                 </ScrollToBottom>
             </DisplayPanel>

@@ -9,9 +9,28 @@
 
 import React, { useEffect } from 'react';
 import URLForm from './components/URLForm';
+import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { ConsoleAPI, StateChangeEvent, TestCommand, TestResult, Queries } from "./ConsoleAPI";
 import APIChat from './components/APIChat';
 import AuthForm from './components/AuthForm';
+import styled from "@emotion/styled";
+
+const StatusMessage = styled.div({
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+    padding: "10px",
+    marginLeft: "8px",
+    height: "90vh",
+    fontSize: "16px"
+});
+
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: 20px;
+    width: 20px;
+`;
 
 const Webview = () => {
     const [state, setState] = React.useState("");
@@ -73,7 +92,12 @@ const Webview = () => {
                         return <URLForm onURLSubmit={handleURLSubmit} onClose={() => { }}></URLForm>
                     case "loading.getTools":
                     case "loading.createClient":
-                        return <div>Analysing OpenAPI, Please wait ...</div>;
+                        return (
+                            <StatusMessage>
+                                <SmallProgressRing />
+                                <div>Analysing OpenAPI, Please wait ...</div>
+                            </StatusMessage>
+                        );
                     case "ready":
                     case "executing.initExecution":
                     case "executing.fetchRequest":
