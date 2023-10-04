@@ -2,7 +2,7 @@
   "name": "test-gpt",
   "displayName": "WSO2 TestGPT",
   "description": "Test APIs with OpenAPI descriptions",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "WSO2",
   "icon": "resources/images/testgpt.png",
   "engines": {
