@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import "../../../resources/codicons/codicon.css"
+import "@vscode/codicons/dist/codicon.css";
 
 import styled from "@emotion/styled";
 
