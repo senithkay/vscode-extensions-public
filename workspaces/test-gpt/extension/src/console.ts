@@ -49,7 +49,7 @@ class Console {
             Console.currentPanel = new Console(panel, extensionUri);
             panel.reveal(vscode.ViewColumn.Two);
         } else {
-            const panel = vscode.window.createWebviewPanel("testgpt-console", "TestGPT Console", vscode.ViewColumn.Two, {
+            const panel = vscode.window.createWebviewPanel("testgpt-console", "APIChat Console", vscode.ViewColumn.Two, {
                 enableScripts: true, retainContextWhenHidden: true
             });
             messenger.registerWebviewPanel(panel);
