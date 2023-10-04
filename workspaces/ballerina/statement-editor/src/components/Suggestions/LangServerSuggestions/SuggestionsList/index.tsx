@@ -40,12 +40,10 @@ export function SuggestionsList(props: SuggestionsListProps) {
     return (
         <>
             {(header) && (
-                <>
-                    <div className={stmtEditorHelperClasses.groupHeaderWrapper}>
-                        <div className={stmtEditorHelperClasses.groupHeader}>{header}</div>
-                        <div className={stmtEditorHelperClasses.selectionSeparator} />
-                    </div>
-                </>
+                <div className={stmtEditorHelperClasses.groupHeaderWrapper}>
+                    <div className={stmtEditorHelperClasses.groupHeader}>{header}</div>
+                    <div className={stmtEditorHelperClasses.selectionSeparator} />
+                </div>
             )}
             {(selection) && (
                 <>
