@@ -1,6 +1,6 @@
 {
   "name": "test-gpt",
-  "displayName": "WSO2 TestGPT",
+  "displayName": "WSO2 APIChat",
   "description": "Test APIs with OpenAPI descriptions",
   "version": "0.9.1",
   "publisher": "WSO2",
