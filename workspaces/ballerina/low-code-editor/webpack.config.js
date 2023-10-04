@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const glob = require('glob');
 const webpack = require('webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
@@ -8,6 +9,9 @@ const APP_DIR = path.resolve(__dirname, './src');
 const MONACO_DIR = fs.realpathSync(path.resolve(__dirname, './node_modules/monaco-editor'));
 const DATA_MAPPER_DIR = path.resolve(__dirname, '../data-mapper');
 const FONT_DIR = path.resolve(__dirname, '../../common-libs/font-wso2-vscode');
+
+const CODICON_GLOB_PATH = path.resolve(__dirname, '../../../common/temp/node_modules/.pnpm/@vscode+codicons@*/node_modules/@vscode/codicons/dist');
+const CODICON_DIRS = glob.sync(CODICON_GLOB_PATH);
 
 module.exports = (env, argv) => ({
     mode: 'none',
@@ -49,12 +53,12 @@ module.exports = (env, argv) => ({
             },
             {
                 test: /\.css$/,
-                include: FONT_DIR,
+                include: [FONT_DIR, ...CODICON_DIRS],
                 use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.(woff|woff2|ttf|otf|eot)$/,
-                include: [FONT_DIR],
+                include: [FONT_DIR, ...CODICON_DIRS],
                 type: 'asset/inline'
             },
             {
