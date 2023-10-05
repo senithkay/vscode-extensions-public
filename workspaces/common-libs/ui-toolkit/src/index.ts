@@ -20,7 +20,7 @@ export * from './components/Button/Button';
 export * from './components/ActionButtons/ActionButtons';
 export * from './components/SidePanel/SidePanel';
 export * from './components/TextArea/TextArea';
-export * from './components/Devider/Devider';
+export * from './components/Divider/Divider';
 
 export * from './components/Commons/ErrorBanner';
 

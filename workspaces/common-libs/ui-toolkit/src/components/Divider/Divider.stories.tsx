@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Devider, DeviderProps } from "./Devider";
+import { Devider, DeviderProps } from "./Divider";
 
 const Template: ComponentStory<typeof Devider> = (args: DeviderProps) => <Devider {...args} />;
 
