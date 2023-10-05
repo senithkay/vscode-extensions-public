@@ -24,54 +24,54 @@ export class ServiceNodeModel extends SharedNodeModel {
 	readonly isBalService: boolean;
 
 	constructor(serviceObject: Service, level: Level, version: string, targetGateways?: GatewayType[]) {
-		super('serviceNode', serviceObject.serviceId);
+		super('serviceNode', serviceObject.id);
 
 		this.level = level;
 		this.modelVersion = version;
 		this.nodeObject = serviceObject;
 		this.serviceType = this.getServiceType();
 		this.targetGateways = targetGateways ?? [];
-		this.isBalService = serviceObject?.elementLocation?.filePath.endsWith('.bal') ?? false;
+		this.isBalService = serviceObject?.sourceLocation?.filePath.endsWith('.bal') ?? false;
 
-		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT));
-		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.RIGHT));
+		this.addPort(new ServicePortModel(this.nodeObject.id, PortModelAlignment.LEFT));
+		this.addPort(new ServicePortModel(this.nodeObject.id, PortModelAlignment.RIGHT));
 
 		if (targetGateways) {
-			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.TOP));
-			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT, true));
+			this.addPort(new ServicePortModel(this.nodeObject.id, PortModelAlignment.TOP));
+			this.addPort(new ServicePortModel(this.nodeObject.id, PortModelAlignment.LEFT, true));
 		}
 
 		if (level === Level.TWO) {
-			this.nodeObject.resources.forEach(resource => {
-				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.LEFT));
-				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.RIGHT));
+			this.nodeObject.resourceFunctions.forEach(resource => {
+				this.addPort(new ServicePortModel(resource.id, PortModelAlignment.LEFT));
+				this.addPort(new ServicePortModel(resource.id, PortModelAlignment.RIGHT));
 			});
 			this.nodeObject.remoteFunctions.forEach(remoteFunc => {
-				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.LEFT));
-				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.RIGHT));
+				this.addPort(new ServicePortModel(remoteFunc.id, PortModelAlignment.LEFT));
+				this.addPort(new ServicePortModel(remoteFunc.id, PortModelAlignment.RIGHT));
 			})
 		}
 	}
 
 	getServiceType = (): ServiceTypes => {
-		if (this.nodeObject.serviceType) {
-			if (this.nodeObject.serviceType.includes('ballerina/grpc:')) {
+		if (this.nodeObject.type) {
+			if (this.nodeObject.type.includes('ballerina/grpc:')) {
 				return ServiceTypes.GRPC;
-			} else if (this.nodeObject.serviceType.includes('ballerina/http:')) {
+			} else if (this.nodeObject.type.includes('ballerina/http:')) {
 				return ServiceTypes.HTTP;
-			} else if (this.nodeObject.serviceType.includes('ballerina/graphql:')) {
+			} else if (this.nodeObject.type.includes('ballerina/graphql:')) {
 				return ServiceTypes.GRAPHQL;
-			} else if (this.nodeObject.serviceType.includes('ballerina/websocket:')) {
+			} else if (this.nodeObject.type.includes('ballerina/websocket:')) {
 				return ServiceTypes.WEBSOCKET
-			} else if (this.nodeObject.serviceType.includes('ballerinax/trigger.')) {
+			} else if (this.nodeObject.type.includes('ballerinax/trigger.')) {
 				return ServiceTypes.WEBHOOK;
-			} else if (this.nodeObject.serviceType === 'REST' || this.nodeObject.serviceType === ServiceTypes.HTTP) {
+			} else if (this.nodeObject.type === 'REST' || this.nodeObject.type === ServiceTypes.HTTP) {
 				return ServiceTypes.HTTP;
-			} else if (this.nodeObject.serviceType === ServiceTypes.GRAPHQL) {
+			} else if (this.nodeObject.type === ServiceTypes.GRAPHQL) {
 				return ServiceTypes.GRAPHQL;
-			} else if (this.nodeObject.serviceType === ServiceTypes.GRPC) {
+			} else if (this.nodeObject.type === ServiceTypes.GRPC) {
 				return ServiceTypes.GRPC;
-			} else if (this.nodeObject.serviceType === ServiceTypes.WEBAPP) {
+			} else if (this.nodeObject.type === ServiceTypes.WEBAPP) {
 				return ServiceTypes.WEBAPP;
 			}
 		}

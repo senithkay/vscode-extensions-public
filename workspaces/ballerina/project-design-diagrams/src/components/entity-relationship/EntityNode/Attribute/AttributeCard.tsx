@@ -50,7 +50,7 @@ export function AttributeWidget(props: AttributeProps) {
     }
 
     return (
-        <CtrlClickGo2Source location={attribute.elementLocation}>
+        <CtrlClickGo2Source location={attribute.sourceLocation}>
             <AttributeContainer
                 isSelected={isSelected || isHovered}
                 onMouseOver={() => handleOnHover('SELECT')}
@@ -68,10 +68,10 @@ export function AttributeWidget(props: AttributeProps) {
                     >
                         {attributeType}
                     </AttributeType>
-                    {isHovered && attribute.elementLocation && editingEnabled &&
+                    {isHovered && attribute.sourceLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={Colors.SECONDARY}
-                            location={attribute.elementLocation}
+                            location={attribute.sourceLocation}
                         />
                     }
                 <EntityPortWidget

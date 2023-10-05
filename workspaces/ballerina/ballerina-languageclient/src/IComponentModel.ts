@@ -1,12 +1,26 @@
 import { LinePosition } from "./IBallerinaLanguageClient";
 
 export interface ComponentModel {
-    packageId: CMPackageID;
+    id: string;
+    orgName: string;
     version?: string;
+    modelVersion: string;
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
+    hasCompilationErrors: boolean;
+    hasModelErrors?: boolean;
+    connections: CMDependency[];
+}
+
+export interface ComponentModelDeprecated {
+    packageId: CMPackageID;
+    version?: string;
+    services: Map<string, any>;
+    entities: Map<string, CMEntity>;
+    diagnostics?: CMDiagnostics[];
+    functionEntryPoint?: any;
     hasCompilationErrors: boolean;
 }
 
@@ -29,11 +43,13 @@ export interface CMLocation {
 }
 
 interface CMNode {
-    elementLocation?: CMLocation;
+    sourceLocation?: CMLocation;
     diagnostics?: CMDiagnostics[];
 }
 
 interface CMFunctionNode extends CMNode {
+    id: string;
+    label: string;
     interactions: CMInteraction[];
     parameters: CMParameter[];
     returns: string[];
@@ -41,18 +57,18 @@ interface CMFunctionNode extends CMNode {
 
 export interface CMEntryPoint extends CMFunctionNode {
     annotation: CMAnnotation;
-    dependencies: CMDependency[];
     type?: 'scheduledTask' | 'manualTrigger';
+    dependencies: string[];
 }
 
 export interface CMService extends CMNode {
-    annotation: CMAnnotation;
-    path: string;
-    serviceId: string;
-    dependencies: CMDependency[];
+    id: string;
+    label: string;
     remoteFunctions: CMRemoteFunction[];
-    resources: CMResourceFunction[];
-    serviceType: string;
+    resourceFunctions: CMResourceFunction[];
+    type: string;
+    dependencies: string[];
+    annotation: CMAnnotation;
     deploymentMetadata?: CMDeploymentMetadata;
     isNoData?: boolean;
     dataInProgress?: boolean;
@@ -64,14 +80,13 @@ export interface CMAnnotation extends CMNode {
 }
 
 export interface CMDependency extends CMNode {
-    connectorType: string;
-    serviceId: string;
+    id: string;
+    type: string;
     serviceLabel?: string;
 }
 
 export interface CMResourceFunction extends CMFunctionNode {
-    identifier: string;
-    resourceId: CMResourceId;
+    path: string;
 }
 
 export interface CMRemoteFunction extends CMFunctionNode {
@@ -79,8 +94,10 @@ export interface CMRemoteFunction extends CMFunctionNode {
 }
 
 export interface CMInteraction extends CMNode {
-    resourceId: CMResourceId;
-    connectorType: string;
+    id: string;
+    type: string;
+    serviceId: string;
+    serviceLabel?: string;
 }
 
 export interface CMParameter extends CMNode {
@@ -88,13 +105,6 @@ export interface CMParameter extends CMNode {
     isRequired: boolean;
     name: string;
     type: string[];
-}
-
-export interface CMResourceId {
-    action: string;
-    path: string;
-    serviceId: string;
-    serviceLabel?: string;
 }
 
 export interface CMEntity extends CMNode {

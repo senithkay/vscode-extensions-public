@@ -27,7 +27,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
     return (
         <>
             <ServicePortWidget
-                port={node.getPort(`left-${remoteFunc.name}`)}
+                port={node.getPort(`left-${remoteFunc.id}`)}
                 engine={engine}
             />
                 {node.serviceType === ServiceTypes.GRAPHQL && <GraphQLMutationIcon />}
@@ -35,7 +35,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                     {remoteFunc.name}
                 </RemoteName>
             <ServicePortWidget
-                port={node.getPort(`right-${remoteFunc.name}`)}
+                port={node.getPort(`right-${remoteFunc.id}`)}
                 engine={engine}
             />
         </>

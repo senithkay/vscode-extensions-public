@@ -75,7 +75,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	}
 
 	const nodeLevel: Level = node.nodeObject.isNoData ||
-        (!node.nodeObject.remoteFunctions?.length && !node.nodeObject.resources?.length) ? Level.ONE : node.level;
+        (!node.nodeObject.remoteFunctions?.length && !node.nodeObject.resourceFunctions?.length) ? Level.ONE : node.level;
 
 	return (
 		<ServiceNode
@@ -96,14 +96,14 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			/>
 
 			{node.level === Level.TWO &&
-				node.nodeObject.resources.map((resource, index) => {
+				node.nodeObject.resourceFunctions.map((resource, index) => {
 					return (
 						<FunctionCard
 							key={index}
 							engine={engine}
 							node={node}
 							functionElement={resource}
-							isSelected={node.checkSelectedList(selectedLinks, `${resource.resourceId.action}/${resource.identifier}`)}
+							isSelected={node.checkSelectedList(selectedLinks, resource.id)}
 						/>
 					)
 				})
