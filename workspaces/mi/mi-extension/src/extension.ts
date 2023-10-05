@@ -12,7 +12,7 @@ import { createDiagramWebview } from './diagram/webview';
 import { MILanguageClient } from './lang-client/activator';
 
 export async function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('integration-studio.helloWorld', () => {
+	let disposable = vscode.commands.registerCommand('integration.showDiagram', () => {
 		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
 	});
 
