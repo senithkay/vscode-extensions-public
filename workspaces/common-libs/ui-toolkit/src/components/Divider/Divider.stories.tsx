@@ -8,11 +8,11 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Devider, DeviderProps } from "./Divider";
+import { Divider, DeviderProps } from "./Divider";
 
-const Template: ComponentStory<typeof Devider> = (args: DeviderProps) => <Devider {...args} />;
+const Template: ComponentStory<typeof Divider> = (args: DeviderProps) => <Divider {...args} />;
 
 export const ProgressBar = Template.bind();
 ProgressBar.args = {};
 
-export default { component: ProgressBar, title: "Devider" };
+export default { component: ProgressBar, title: "Divider" };

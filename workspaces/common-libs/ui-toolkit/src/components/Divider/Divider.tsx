@@ -18,7 +18,7 @@ const Container = styled.div<DeviderProps>`
 	${(props: DeviderProps) => props.sx};
 `;
 
-export const Devider: React.FC<DeviderProps> = (props: DeviderProps) => {
+export const Divider: React.FC<DeviderProps> = (props: DeviderProps) => {
     const { sx } = props;
     return (
         <Container sx={sx} />
