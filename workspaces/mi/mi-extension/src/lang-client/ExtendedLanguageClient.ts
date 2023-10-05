@@ -61,7 +61,7 @@ export interface LogSnippet {
 export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
-        return this.sendRequest(GetSyntaxTreeRequest.method, { uri: "file:///Users/chamupathi/Documents/projects/wso2/synapse/sample.xml" });
+        return this.sendRequest(GetSyntaxTreeRequest.method, { uri: Uri.parse(req.documentIdentifier.uri).toString() });
     }
 
     async getCompletion(params: GetCompletionParams): Promise<CompletionResponse[]> {
@@ -69,17 +69,17 @@ export class ExtendedLanguageClient extends LanguageClient {
         const doc = await workspace.openTextDocument(Uri.file(params.textDocument.fsPath));
         position = doc.positionAt(params.offset + 1);
         const completionParams: CompletionParams = {
-                textDocument: {
-                    uri: params.textDocument.uri
-                },
-                position: {
-                    character: position.character + 1,
-                    line: position.line
-                },
-                context: {
-                    triggerKind: params.context.triggerKind
-                }
+            textDocument: {
+                uri: params.textDocument.uri
+            },
+            position: {
+                character: position.character + 1,
+                line: position.line
+            },
+            context: {
+                triggerKind: params.context.triggerKind
             }
+        }
 
         return this.sendRequest("textDocument/completion", completionParams);
 
