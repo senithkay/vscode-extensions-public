@@ -21,25 +21,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(disposable);
 
-	// activate language client
-	const languageClient = (await MILanguageClient.getInstance()).languageClient;
-	const st = await languageClient!.getSyntaxTree({
-		documentIdentifier: {
-			uri: vscode.window.activeTextEditor!.document.uri.toString()
-		}
-	});
-
-	const cm = await languageClient!.getCompletion({
-		textDocument: {
-			fsPath: vscode.window.activeTextEditor!.document.uri.fsPath,
-			uri: vscode.window.activeTextEditor!.document.uri.toString()
-		},
-		offset: 102,
-		context: {
-			triggerKind: 0
-		}
-	});
-
 	let prompt = vscode.commands.registerCommand('integrationStudio.addMediator', async () => {
 		let userInput = await vscode.window.showInputBox({ prompt: 'What you want to add?' });
 		let editor = vscode.window.activeTextEditor;
