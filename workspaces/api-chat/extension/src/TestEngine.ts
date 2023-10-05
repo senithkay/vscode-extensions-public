@@ -15,7 +15,7 @@ import API from './API';
 
 
 
-const outputChannel = vscode.window.createOutputChannel('TestGPT');
+const outputChannel = vscode.window.createOutputChannel('api-chat');
 
 export type TestCommand = {
     type: "COMMAND";

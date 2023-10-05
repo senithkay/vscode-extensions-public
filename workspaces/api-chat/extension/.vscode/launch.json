@@ -10,7 +10,7 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"env": {
-				"WEB_VIEW_DEV_MODE": "true",
+				"WEB_VIEW_DEV_MODE": "false",
 				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
 				"REQUEST_TRACE_ENABLED": "true",
 				"API_KEY": "ny23GsQFUtiKdLe88MGtgXInBdUa:kjBQ9dOGN9BB8flt5dpKZaf8SbMa"

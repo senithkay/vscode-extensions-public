@@ -45,7 +45,7 @@ getService().onTransition((state) => {
         queries: state.context.queries,
         errorMessage: state.context.errorMessage
     };
-    messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'testgpt-console' }, snapshot);
+    messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'APIChatConsole' }, snapshot);
 });
 
 // Execute Tests
