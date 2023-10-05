@@ -13,7 +13,7 @@ import { join } from "path";
 import toml from "toml";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service, CMResourceFunction } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ExtendedLangClient } from "../../../core";
 import { STResponse, terminateActivation } from "../../activator";
@@ -50,7 +50,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
                 for (let [_key, packageModel] of packageModels) {
                     if (packageModel.hasCompilationErrors) {
                         response.diagnostics.push({
-                            name: packageModel.packageId.name
+                            name: packageModel.id
                         });
                         break;
                     }
@@ -113,23 +113,28 @@ function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponent
         const pkg: TomlPackageData = workspacePkgs.get(pkgId);
         const pkgServices: { [key: string]: Service } = {};
         pkgServices[pkgId] = {
-            serviceId: pkgId,
-            serviceType: undefined,
+            id: pkgId,
+            label: pkg.name,
+            type: undefined,
             annotation: {
                 id: pkgId,
                 label: pkg.name
             },
-            path: "",
             dependencies: [],
             remoteFunctions: [],
-            resources: [],
+            resourceFunctions: [],
             isNoData: true
         };
         retrievedModel.componentModels[pkgId] = {
-            packageId: pkg,
+            id: pkg.name,
+            orgName: pkg.org,
+            version: pkg.version,
+            modelVersion: retrievedModel.componentModels[pkgId].modelVersion,
             hasCompilationErrors: true,
+            hasModelErrors: false,
             services: pkgServices as any,
-            entities: new Map()
+            entities: new Map(),
+            connections: []
         };
     });
 

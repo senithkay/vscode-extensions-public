@@ -24,6 +24,8 @@ interface ResourceFunctionProps {
 
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
     const { engine, node, resource, resourcePath } = props;
+    const resourceAction = resource.id.slice(resource.id.lastIndexOf(':') + 1);
+
     return (
         <>
             <ServicePortWidget
@@ -31,15 +33,15 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 engine={engine}
             />
             {node.serviceType === ServiceTypes.GRAPHQL ?
-                resource.resourceId.action === GRAPHQL_SUBSCRIBE_ACTION ?
+                resourceAction === GRAPHQL_SUBSCRIBE_ACTION ?
                     <GraphQLSubscriptionIcon /> :
                     <GraphQLQueryIcon /> :
-                <ResourceAction color={ActionColors.get(resource.resourceId.action)}>
-                    {resource.resourceId.action}
+                <ResourceAction color={ActionColors.get(resourceAction)}>
+                    {resourceAction}
                 </ResourceAction>
             }
             <ResourceName>
-                {resource.resourceId.path}
+                {resource.path}
             </ResourceName>
             <ServicePortWidget
                 port={node.getPort(`right-${resourcePath}`)}
