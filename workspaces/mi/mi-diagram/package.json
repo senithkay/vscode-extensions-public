@@ -36,7 +36,10 @@
     "@wso2-enterprise/mi-core": "workspace:*",
     "vscode-messenger-common": "~0.4.5",
     "vscode-messenger-webview": "~0.4.5",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*"
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
+    "css-loader": "~6.8.1",
+    "style-loader": "~3.3.3",
+    "@material-ui/core": "~4.12.4"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",

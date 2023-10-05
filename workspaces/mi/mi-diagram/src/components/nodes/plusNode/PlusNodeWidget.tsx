@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { PortWidget } from '@projectstorm/react-diagrams-core';
 import { BaseNodeProps } from '../../base/base-node/base-node';
-import { MIWebViewAPI } from '../../../utils/WebViewRpc';
+import SidePanelContext from '../../sidePanel/SidePanelContexProvider';
 
 export interface PlusNodeWidgetProps extends BaseNodeProps {
     level: string;
@@ -19,12 +19,11 @@ export interface PlusNodeWidgetProps extends BaseNodeProps {
 }
 
 export function PlusNodeWidget(props: PlusNodeWidgetProps) {
+    const sidePanelContext = useContext(SidePanelContext)
+
     function handleClick() {
-        MIWebViewAPI.getInstance().applyEdit({
-            offset: props.nodePosition,
-            text: "<log level=\"debug\"/>",
-            documentUri: props.documentUri
-        });
+        sidePanelContext.setNodePosition(props.nodePosition);
+        sidePanelContext.setIsOpen(true);
     }
 
     return (

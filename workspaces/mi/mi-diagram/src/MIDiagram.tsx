@@ -12,6 +12,10 @@ import { MIWebViewAPI } from './utils/WebViewRpc';
 import { APICompartment } from './components/compartments/APICompartment';
 import { ResourceCompartment } from './components/compartments/ResourceCompartment';
 import { Refresh } from '@wso2-enterprise/mi-core';
+import { SidePanel, SidePanelTitleContainer } from './components/sidePanel/SidePanel';
+import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvider';
+import { Button } from '@wso2-enterprise/ui-toolkit';
+import AddMediator from './components/sidePanel/Pages/AddMediator';
 
 export interface MIDiagramProps {
 	documentUri: string;
@@ -21,6 +25,8 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [isLoading, setLoading] = useState<boolean>(true);
 	const [lastUpdated, setLastUpdated] = useState<number>(0);
 	const [stNode, setSTNode] = useState<number>(0);
+	const [isSidePanelOpen, setSidePanelOpen] = useState<boolean>(false);
+	const [nodePosition, setSidePanelNodePosition] = useState<number>();
 
 	MIWebViewAPI.getInstance().getMessenger().onNotification(Refresh, () => {
 		setLastUpdated(Date.now());
@@ -38,14 +44,36 @@ export function MIDiagram(props: MIDiagramProps) {
 		})();
 	}, [lastUpdated]);
 
+	const closePanel = () => {
+		setSidePanelOpen(false);
+	};
+
 	let canvas;
 	if (isLoading) {
 		canvas = <h1>Loading...</h1>;
 	} else {
 		canvas = stNode &&
-			<APICompartment name='API'>
-				<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
-			</APICompartment>;
+			<div>
+				<SidePanelProvider value={{ setIsOpen: setSidePanelOpen, setNodePosition: setSidePanelNodePosition }}>
+					<SidePanel
+						isOpen={isSidePanelOpen}
+						alignmanet="right"
+					>
+						<SidePanelTitleContainer>
+							<div>Add Mediator</div>
+							<Button onClick={closePanel} appearance="icon">X</Button>
+						</SidePanelTitleContainer>
+						<AddMediator
+							nodePosition={nodePosition}
+							file={props.documentUri}
+						/>
+					</SidePanel>
+					<APICompartment name='API'>
+						<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
+					</APICompartment>
+				</SidePanelProvider>
+			</div >
+			;
 	}
 
 	return (
