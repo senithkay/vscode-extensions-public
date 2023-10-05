@@ -49,7 +49,7 @@ export function createDiagramWebview(context: ExtensionContext, documentUri: str
     const rpc = new RegisterWebViewPanelRpc(panel);
 
     const refreshDiagram = debounce(() => {
-        if (refreshDiagram) {
+        if (diagramWebview) {
             rpc.getMessenger().sendNotification(Refresh, { type: 'webview', webviewType: 'diagram' });
         }
     }, 500);
