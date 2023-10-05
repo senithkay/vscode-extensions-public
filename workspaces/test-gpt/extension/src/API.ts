@@ -13,7 +13,7 @@ dotenv.config();
 
 // Set config defaults when creating the instance
 const instance = axios.create({
-    baseURL: 'https://f2c7f522-ef47-48ce-a429-3fc2f15d2011-prod.e1-us-east-azure.choreoapis.dev/dlsm/testgptservice/endpoint-9090-803/1.1.0'
+    baseURL: 'https://f2c7f522-ef47-48ce-a429-3fc2f15d2011-prod.e1-us-east-azure.choreoapis.dev/dlsm/testgptservice/endpoint-9090-803/v1'
 });
 
 const path = require('path')
