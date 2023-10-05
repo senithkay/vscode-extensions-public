@@ -22,16 +22,27 @@ export interface SuggestionListItemProps {
     suggestion: SuggestionItem;
     isSelected: boolean
     onClickLSSuggestion: (suggestion: SuggestionItem) => void;
+    isReference: boolean
 }
 
 export function SuggestionListItem(props: SuggestionListItemProps) {
-    const { key, suggestion, onClickLSSuggestion, isSelected } = props;
+    const { key, suggestion, onClickLSSuggestion, isSelected, isReference } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
-    const { SuggestIcon, color } = getSuggestionIconStyle(suggestion.completionKind);
+    const { SuggestIcon, color } = getSuggestionIconStyle(suggestion.completionKind, isReference);
 
     const onClickOnListItem = () => {
         onClickLSSuggestion(suggestion);
     };
+
+    const simplifyValue = (text: string) => {
+        const splittedText = text.split(".");
+        const prefix = splittedText[0].length > 3 ? splittedText[0].slice(0, 3) : splittedText[0];
+        if (splittedText.length === 2) {
+            return prefix + "." + splittedText[1];
+        } else {
+            return prefix + "..." + splittedText[splittedText.length - 1];
+        }
+    }
 
     return (
         <StatementEditorHint
@@ -54,7 +65,7 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                     style={{ flex: 'none', maxWidth: '80%' }}
                     primary={(
                         <Typography className={stmtEditorHelperClasses.suggestionValue}>
-                            {suggestion.value}
+                            {isReference ? simplifyValue(suggestion.value) : suggestion.value}
                         </Typography>
                     )}
                 />
