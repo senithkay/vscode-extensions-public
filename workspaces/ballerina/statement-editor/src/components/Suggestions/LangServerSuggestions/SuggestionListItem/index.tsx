@@ -37,7 +37,7 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
     const simplifyValue = (text: string) => {
         const splittedText = text.split(".");
         const prefix = splittedText[0].length > 3 ? splittedText[0].slice(0, 3) : splittedText[0];
-        if (splittedText.length == 2) {
+        if (splittedText.length === 2) {
             return prefix + "." + splittedText[1];
         } else {
             return prefix + "..." + splittedText[splittedText.length - 1];
