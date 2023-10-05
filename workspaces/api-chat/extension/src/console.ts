@@ -49,7 +49,7 @@ class Console {
             Console.currentPanel = new Console(panel, extensionUri);
             panel.reveal(vscode.ViewColumn.Two);
         } else {
-            const panel = vscode.window.createWebviewPanel("testgpt-console", "APIChat Console", vscode.ViewColumn.Two, {
+            const panel = vscode.window.createWebviewPanel("APIChatConsole", "APIChat Console", vscode.ViewColumn.Two, {
                 enableScripts: true, retainContextWhenHidden: true
             });
             messenger.registerWebviewPanel(panel);
@@ -74,7 +74,7 @@ class Console {
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
               <meta name="theme-color" content="#000000">
-              <title>TestGPT</title>
+              <title>api-chat</title>
               <link rel="stylesheet" href="${codiconUri}">
               <style>
                 body {
@@ -90,7 +90,7 @@ class Console {
             </body>
             <script>
               function render() {
-                testGPTConsole.renderConsole(
+                APIChatConsole.renderConsole(
                   document.getElementById("root"), 
                   "ProjectOverview", 
                 );
@@ -118,7 +118,7 @@ class Console {
 
 export function activateConsole(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('test-gpt.console', () => {
+        vscode.commands.registerCommand('api-chat.console', () => {
             Console.render(context.extensionUri);
             const activeDocument = vscode.window.activeTextEditor?.document;
             if (activeDocument) {
@@ -136,12 +136,12 @@ export function activateConsole(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('test-gpt.clear', () => {
+        vscode.commands.registerCommand('api-chat.clear', () => {
             clearLogs();
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand('test-gpt.refresh', () => {
+        vscode.commands.registerCommand('api-chat.refresh', () => {
             refresh();
         })
     );

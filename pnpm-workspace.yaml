@@ -2,4 +2,4 @@ packages:
   - 'workspaces/*'
   - 'workspaces/ballerina/*'
   - 'workspaces/choreo/*'
-  - 'workspaces/test-gpt/*'
+  - 'workspaces/api-chat/*'

@@ -118,20 +118,20 @@
 			"preLaunchTask": "compile:choreo-tests"
 		},
         {
-            "name": "TestGPT Extension",
+            "name": "APIChat Extension",
             "type": "extensionHost",
             "request": "launch",
             "env": {
                 "WEB_VIEW_DEV_MODE": "false",
-                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js"
             },
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/test-gpt/extension"
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/api-chat/extension"
             ],
             "outFiles": [
-                "${workspaceFolder}/workspaces/test-gpt/extension/dist/**/*.js"
+                "${workspaceFolder}/workspaces/api-chat/extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch-testgpt"
+            "preLaunchTask": "npm: watch-api-chat"
         }
     ]
 }
