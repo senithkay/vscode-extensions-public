@@ -10,9 +10,12 @@
 import * as vscode from 'vscode';
 import { createDiagramWebview } from './diagram/webview';
 import { MILanguageClient } from './lang-client/activator';
+import axios from 'axios';
+import { generatePrompt } from './ai/prompt';
+import { unescape } from 'querystring';
 
 export async function activate(context: vscode.ExtensionContext) {
-	let disposable = vscode.commands.registerCommand('integration.showDiagram', () => {
+	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
 		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
 	});
 
@@ -36,4 +39,58 @@ export async function activate(context: vscode.ExtensionContext) {
 			triggerKind: 0
 		}
 	});
+
+	let prompt = vscode.commands.registerCommand('integrationStudio.addMediator', async () => {
+		let userInput = await vscode.window.showInputBox({ prompt: 'What you want to add?' });
+		let editor = vscode.window.activeTextEditor;
+		if (userInput && editor) {
+			let document = editor.document;
+			let text = document.getText();
+
+			const prompt = unescape(generatePrompt(text, userInput));
+
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: "Processing...",
+				cancellable: false
+			}, async (progress) => {
+				progress.report({ increment: 0 });
+
+				try {
+					const apiKey = vscode.workspace.getConfiguration('integrationStudio').get('apiKey');
+					if (!apiKey) {
+						vscode.window.showErrorMessage('Please set your OpenAI API key in the settings.');
+						return;
+					}
+					const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+						model: "gpt-3.5-turbo",
+						"messages": [{ "role": "user", "content": prompt }],
+						temperature: 0.2,
+					}, {
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': `Bearer ${apiKey}`
+						}
+					});
+
+					progress.report({ increment: 50 });
+
+					const data = response.data;
+					if (editor) {
+						const position = editor.selection.active;
+						await editor.edit(editBuilder => {
+							const content = data.choices[0].message.content;
+							editBuilder.replace(new vscode.Range(document.positionAt(0), document.positionAt(text.length)), content);
+						});
+					}
+
+					progress.report({ increment: 100 });
+				} catch (error) {
+					vscode.window.showErrorMessage('An error occurred while processing your request.');
+				}
+			});
+		}
+	});
+
+	context.subscriptions.push(prompt);
 }
