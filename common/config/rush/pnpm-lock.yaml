@@ -2670,6 +2670,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': workspace:*
       classnames: ~2.3.2
       clean-webpack-plugin: ^4.0.0
+      copyfiles: ~2.4.1
       css-loader: ^6.7.3
       file-loader: ^6.2.0
       idb-keyval: ~6.2.0
@@ -2705,6 +2706,7 @@ importers:
       '@wso2-enterprise/project-design-diagrams': link:../../ballerina/project-design-diagrams
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       classnames: 2.3.2
+      copyfiles: 2.4.1
       idb-keyval: 6.2.1
       lodash.debounce: 4.0.8
       path: 0.12.7

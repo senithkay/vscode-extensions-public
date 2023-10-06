@@ -6,7 +6,8 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "start": "webpack serve --mode development",
-    "build": "tsc --pretty && webpack"
+    "build": "tsc --pretty && webpack && npm run copy:assets",
+    "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" lib/"
   },
   "keywords": [],
   "author": "",
@@ -31,7 +32,8 @@
     "@wso2-enterprise/ballerina-languageclient": "workspace:*",
     "idb-keyval": "~6.2.0",
     "@tanstack/react-query-persist-client": "~4.28.0",
-    "@tanstack/react-query": "~4.28.0"
+    "@tanstack/react-query": "~4.28.0",
+    "copyfiles": "~2.4.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.19",
