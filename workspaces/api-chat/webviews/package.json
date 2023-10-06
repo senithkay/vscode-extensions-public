@@ -1,5 +1,5 @@
 {
-  "name": "@wso2-enterprise/testgpt-vscode-webviews",
+  "name": "@wso2-enterprise/api-chat-vscode-webviews",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",

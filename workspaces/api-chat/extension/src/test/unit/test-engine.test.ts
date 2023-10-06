@@ -73,7 +73,7 @@ import { error } from 'console';
 // });
 
 // function loadPetstoreData() {
-//     const petstoreYaml = '/home/jo/test-gpt/test-gpt/src/test/suite/resources/petstore.yaml';
+//     const petstoreYaml = '/home/jo/api-chat/api-chat/src/test/suite/resources/petstore.yaml';
 //     const fs = require('fs');
 
 //     let petstoreData = {};

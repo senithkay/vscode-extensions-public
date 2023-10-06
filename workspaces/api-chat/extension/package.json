@@ -1,10 +1,10 @@
 {
-  "name": "test-gpt",
+  "name": "api-chat",
   "displayName": "WSO2 APIChat",
   "description": "Test APIs with OpenAPI descriptions",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "publisher": "WSO2",
-  "icon": "resources/images/testgpt.png",
+  "icon": "resources/images/apichat.png",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -20,22 +20,22 @@
   "contributes": {
     "commands": [
       {
-        "command": "test-gpt.console",
+        "command": "api-chat.console",
         "title": "Open Test Console",
-        "category": "TestGPT",
+        "category": "api-chat",
         "when": "editorLangId == yaml && isFileOpenAPI",
         "icon": "$(beaker)"
       },
       {
-        "command": "test-gpt.clear",
+        "command": "api-chat.clear",
         "title": "Clear",
-        "category": "TestGPT",
+        "category": "api-chat",
         "icon": "$(clear-all)"
       },
       {
-        "command": "test-gpt.refresh",
+        "command": "api-chat.refresh",
         "title": "Refresh ",
-        "category": "TestGPT",
+        "category": "api-chat",
         "icon": "$(refresh)"
       }
     ],
@@ -43,27 +43,27 @@
       "editor/title": [
         {
           "when": "resourceLangId == yaml && isFileOpenAPI",
-          "command": "test-gpt.console",
-          "alt": "test-gpt.console",
+          "command": "api-chat.console",
+          "alt": "api-chat.console",
           "group": "navigation"
         },
         {
-          "when": "activeWebviewPanelId == testgpt-console",
-          "command": "test-gpt.clear",
-          "alt": "test-gpt.clear",
+          "when": "activeWebviewPanelId == APIChatConsole",
+          "command": "api-chat.clear",
+          "alt": "api-chat.clear",
           "group": "navigation@1"
         },
         {
-          "command": "test-gpt.refresh",
-          "when": "activeWebviewPanelId == testgpt-console",
-          "alt": "test-gpt.refresh",
+          "command": "api-chat.refresh",
+          "when": "activeWebviewPanelId == APIChatConsole",
+          "alt": "api-chat.refresh",
           "group": "navigation@2"
         }
       ]
     }
   },
   "scripts": {
-    "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
+    "clean": "del-cli ./dist ./out ./resources/jslibs ./api-chat-*.vsix ./coverage ./.nyc_output",
     "vscode:prepublish": "pnpm run compile",
     "compile": "webpack --mode production",
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../webviews/build/*.js ./resources/jslibs",

@@ -550,13 +550,13 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "test-gpt",
-      "projectFolder": "workspaces/test-gpt/extension",
+      "packageName": "api-chat",
+      "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/testgpt-vscode-webviews",
-      "projectFolder": "workspaces/test-gpt/webviews",
+      "packageName": "@wso2-enterprise/api-chat-vscode-webviews",
+      "projectFolder": "workspaces/api-chat/webviews",
       "versionPolicyName": "ballerina-extension"
     }
   ]

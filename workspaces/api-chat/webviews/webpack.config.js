@@ -8,7 +8,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: 'main.js',
-        library: 'testGPTConsole'
+        library: 'APIChatConsole'
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
