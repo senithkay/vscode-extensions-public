@@ -104,6 +104,10 @@
     "vscode-messenger-common": "^0.4.5",
     "webpack": "~5.88.2",
     "xstate": "^4.38.2",
-    "yaml": "^2.3.2"
+    "yaml": "^2.3.2",
+    "@vscode-logging/types": "~0.1.4",
+    "@vscode-logging/wrapper": "~1.0.2",
+    "@vscode/extension-telemetry": "~0.7.7",
+    "@vscode-logging/logger": "~1.2.3",
   }
 }
