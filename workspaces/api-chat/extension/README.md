@@ -34,19 +34,19 @@ To get started with the APIChat VS Code extension, follow these steps:
 2. Open an OpenAPI YAML file in Visual Studio Code.
 
 3. Click the `Open Test Console` button to open the APIChat Test Console.
-![Open Test Console](docs/test-gpt-extension/images/open-test-console.png)
+![Open Test Console](docs/api-chat-extension/images/open-test-console.png)
 
 Now, you are ready to use APIChat for testing your API using natural language and AI support. Here are some common use cases:
 
 #### Test by using already available commands
 
 1. With the Test Console open, use any of the available commands in Test Console to test the API.
-![Test Using Available Commands](docs/test-gpt-extension/images/test-using-available-commands.gif)
+![Test Using Available Commands](docs/api-chat-extension/images/test-using-available-commands.gif)
 
 #### Test by Typing a Command in Natural Language
 
 1. With the Test Console open, simply type your command in natural language, and APIChat will understand and execute it.
-![Command In Natural Language](docs/test-gpt-extension/images/command-with-natural-lang.gif)
+![Command In Natural Language](docs/api-chat-extension/images/command-with-natural-lang.gif)
 
 #### Test with Authentication
 1. Authenticate using one of the following authentication types:
@@ -54,7 +54,7 @@ Now, you are ready to use APIChat for testing your API using natural language an
    - **Basic Authorization:** This method uses a username and password for authentication.
    - **Authorization Bearer:** Authenticate using an authorization bearer token.
    - **API Key:** Provide an API key for authentication.
-   ![Authentication](docs/test-gpt-extension/images/authentication.gif)
+   ![Authentication](docs/api-chat-extension/images/authentication.gif)
 
 ## Feedback and Support
 
