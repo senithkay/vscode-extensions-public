@@ -693,6 +693,7 @@
         "@wso2-enterprise/choreo-client": "workspace:*",
         "@wso2-enterprise/choreo-core": "workspace:*",
         "@wso2-enterprise/syntax-tree": "workspace:*",
+        "@wso2-enterprise/font-wso2-vscode": "workspace:*",
         "cors-anywhere": "^0.4.4",
         "del-cli": "^5.0.0",
         "file-uri-to-path": "^2.0.0",
