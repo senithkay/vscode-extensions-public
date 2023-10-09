@@ -52,6 +52,7 @@ class Console {
             const panel = vscode.window.createWebviewPanel("APIChatConsole", "API Chat Console", vscode.ViewColumn.Two, {
                 enableScripts: true, retainContextWhenHidden: true
             });
+            panel.iconPath = vscode.Uri.joinPath(extensionUri, "resources", "images", "apichat.svg");
             messenger.registerWebviewPanel(panel);
             Console.currentPanel = new Console(panel, extensionUri);
         }

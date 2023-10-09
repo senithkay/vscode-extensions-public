@@ -24,7 +24,7 @@
         "title": "Open API Chat",
         "category": "API Chat",
         "when": "editorLangId == yaml && isFileOpenAPI",
-        "icon": "$(beaker)"
+        "icon": "resources/images/apichat.svg"
       },
       {
         "command": "api-chat.clear",
