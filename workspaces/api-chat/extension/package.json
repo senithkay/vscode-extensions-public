@@ -1,6 +1,6 @@
 {
   "name": "api-chat",
-  "displayName": "WSO2 APIChat",
+  "displayName": "WSO2 API Chat",
   "description": "Test APIs with OpenAPI descriptions",
   "version": "0.9.3",
   "publisher": "WSO2",
