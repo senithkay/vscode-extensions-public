@@ -22,7 +22,7 @@ Now, you are ready to use API Chat to test your API with the support of natural 
 
 ![Command In Natural Language](docs/api-chat-extension/images/command-with-natural-lang.gif)
 
-## Authenticate with API
+### Authenticate with API
 
 1. Authenticate using one of the following authentication types:
    - **Basic Authorization:** This method uses a username and password for authentication.
