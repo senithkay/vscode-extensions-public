@@ -86,14 +86,6 @@ const choreoIconsContribution = generateIconsContribution(choreoIcons);
 const choreoExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'package.json');
 const ballerinaExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'package.json');
 
-const choreoExtResourcePath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'resources', 'font-wso2-vscode');
-const ballerinaExtResourceJsonPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'resources', 'font-wso2-vscode');
-const choreoExtFontPath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'node_modules', '@wso2-enterprise', 'font-wso2-vscode');
-const ballerinaExtFontPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'node_modules', '@wso2-enterprise', 'font-wso2-vscode');
-
-copyDirectoryContent(choreoExtFontPath, choreoExtResourcePath);
-copyDirectoryContent(ballerinaExtFontPath, ballerinaExtResourceJsonPath);
-
 const choreoExtPackageJson = require(choreoExtPackageJsonPath);
 const ballerinaExtPackageJson = require(ballerinaExtPackageJsonPath);
 
