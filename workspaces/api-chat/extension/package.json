@@ -21,21 +21,21 @@
     "commands": [
       {
         "command": "api-chat.console",
-        "title": "Open Test Console",
-        "category": "api-chat",
+        "title": "Open API Chat",
+        "category": "API Chat",
         "when": "editorLangId == yaml && isFileOpenAPI",
         "icon": "$(beaker)"
       },
       {
         "command": "api-chat.clear",
         "title": "Clear",
-        "category": "api-chat",
+        "category": "API Chat",
         "icon": "$(clear-all)"
       },
       {
         "command": "api-chat.refresh",
         "title": "Refresh ",
-        "category": "api-chat",
+        "category": "API Chat",
         "icon": "$(refresh)"
       }
     ],
