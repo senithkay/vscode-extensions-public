@@ -15,6 +15,6 @@ export interface CodiconProps {
 
 export function Codicon(props: CodiconProps) {
     return (
-        <i className={`codicon codicon-${props.name}`}></i>
+        <i className={`codicon codicon-${props.name}`} style={{ verticalAlign: "-4" }}></i>
     );
 }
