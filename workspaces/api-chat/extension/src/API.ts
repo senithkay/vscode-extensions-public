@@ -24,7 +24,7 @@ const auth = axios.create({
 })
 
 const apiKey = process.env.API_KEY;
-
+let refreshToken = "";
 // Resolve Oauth client credential
 const resolveOauthClientCredential = async () => {
     // Your code here to resolve Oauth client credential
@@ -39,6 +39,7 @@ const resolveOauthClientCredential = async () => {
             }
         });
         const accessToken = response.data.access_token;
+        refreshToken = response.data.refresh_token;
         instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     } catch (error) {
         console.error('Failed to resolve Oauth client credential:', error);
@@ -57,6 +58,38 @@ const API = {
     })
 };
 
+// Function to refresh the access token
+const refreshAccessToken = async () => {
+    try {
+        const response = await auth.post('/token', "grant_type=refresh_token", {
+            headers: {
+                Authorization: `Bearer ${refreshToken}`
+            }
+        });
+        const newAccessToken = response.data.access_token;
+        instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+        return newAccessToken;
+    } catch (error) {
+        console.error('Failed to refresh access token:', error);
+        throw error;
+    }
+};
 
+// Interceptor to automatically refresh token on 401 error
+instance.interceptors.response.use(
+    response => response,
+    async error => {
+        if (error.response && error.response.status === 401) {
+            try {
+                const newAccessToken = await refreshAccessToken();
+                error.config.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                return axios.request(error.config);
+            } catch (refreshError) {
+                return Promise.reject(refreshError);
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default API;

@@ -13,7 +13,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import {
     getService, runExecute, clearLogs, getState, TestCommand,
     TestResult, Queries, refresh, setUrl, setAuthentication, getAuthentication,
-    AuthBasic, AuthBearer, AuthKey, AuthNone
+    AuthBasic, AuthBearer, AuthKey, AuthNone, TestError
 } from './TestEngine';
 import { error } from 'console';
 
@@ -21,7 +21,7 @@ export const messenger = new Messenger();
 
 interface StateChangeEvent {
     state: string;
-    logs: (TestCommand | TestResult)[];
+    logs: (TestCommand | TestResult | TestError)[];
     queries: Queries[];
     errorMessage?: string;
 }
