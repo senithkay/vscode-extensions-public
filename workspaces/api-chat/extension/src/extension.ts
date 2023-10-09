@@ -9,10 +9,12 @@
 
 import * as vscode from 'vscode';
 import { activateConsole } from './console';
+import { activateTelemetry } from './telemetry/telemetry';
+import { getLogger, initLogger } from './logger/logger';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	// Check the content of the active document when the extension is activated
 	checkDocumentForOpenAPI(vscode.window.activeTextEditor?.document);
 
@@ -26,6 +28,9 @@ export function activate(context: vscode.ExtensionContext) {
 	}, null, context.subscriptions);
 
 	activateConsole(context);
+	activateTelemetry(context);
+	await initLogger(context);
+	getLogger().debug("Activating Choreo Extension");
 }
 
 function checkDocumentForOpenAPI(document?: vscode.TextDocument) {
