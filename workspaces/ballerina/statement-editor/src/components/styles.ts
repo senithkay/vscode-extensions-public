@@ -71,6 +71,12 @@ const statementFontStyles = {
     fontFamily: 'monospace'
 }
 
+const groupHeaderFontStyles = {
+    fontSize: "13px",
+    'user-select': 'none',
+    fontFamily: 'Gilmer',
+}
+
 const inputEditorTemplateStyles = {
     minWidth: '20px',
     letterSpacing: 0,
@@ -519,11 +525,27 @@ export const useStmtEditorHelperPanelStyles = makeStyles(() =>
             fontWeight: 500,
             paddingLeft: '10px'
         },
+        groupHeaderWrapper: {
+            display: 'flex',
+            flexDirection: 'row',
+            marginBottom: '14px'
+        },
         selectionWrapper: {
             display: 'flex',
             flexDirection: 'row',
             marginLeft: '14px',
             marginBottom: '14px'
+        },
+        groupHeader: {
+            height: 'fit-content',
+            width: 'fit-content',
+            color: '#40404B',
+            fontWeight: 500,
+            padding: '0 10px',
+            borderRadius: '5px',
+            display: 'flex',
+            alignItems: 'center',
+            ...groupHeaderFontStyles
         },
         selectionSubHeader: {
             height: 'fit-content',

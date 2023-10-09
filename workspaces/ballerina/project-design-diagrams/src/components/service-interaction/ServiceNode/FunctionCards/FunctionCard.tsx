@@ -30,8 +30,7 @@ export function FunctionCard(props: FunctionCardProps) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const functionPorts = useRef<PortModel[]>([]);
-    const path = isResource(functionElement) ? `${functionElement.resourceId.action}/${functionElement.identifier}` :
-        functionElement.name;
+    const path = functionElement.id;
 
     useEffect(() => {
         functionPorts.current.push(node.getPortFromID(`left-${path}`));
@@ -44,7 +43,7 @@ export function FunctionCard(props: FunctionCardProps) {
     }
 
     return (
-        <CtrlClickGo2Source location={functionElement.elementLocation}>
+        <CtrlClickGo2Source location={functionElement.sourceLocation}>
             <FunctionContainer
                 alignStart={isResource(functionElement) || node.serviceType === ServiceTypes.GRAPHQL}
                 isSelected={isHovered || isSelected}
@@ -64,10 +63,10 @@ export function FunctionCard(props: FunctionCardProps) {
                         remoteFunc={functionElement}
                     />
                 }
-                {isHovered && functionElement.elementLocation && editingEnabled &&
+                {isHovered && functionElement.sourceLocation && editingEnabled &&
                     <NodeMenuWidget
                         background={Colors.SECONDARY}
-                        location={functionElement.elementLocation}
+                        location={functionElement.sourceLocation}
                         resourceFunction={functionElement}
                     />
                 }
@@ -77,5 +76,5 @@ export function FunctionCard(props: FunctionCardProps) {
 }
 
 function isResource(functionObject: RemoteFunction | ResourceFunction): functionObject is ResourceFunction {
-    return (functionObject as ResourceFunction).resourceId !== undefined;
+    return "path" in functionObject;
 }

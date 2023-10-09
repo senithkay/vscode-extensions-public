@@ -13,6 +13,7 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { TextField, TextFieldProps } from "./TextField";
+import { Codicon } from "../Codicon/Codicon";
 
 const Template: ComponentStory<typeof TextField> = (args: TextFieldProps) => <TextField {...args} />;
 
@@ -24,5 +25,9 @@ RequiredTextFieldWithError.args = { value: "Sample Text", label: "TextField", er
 
 export const TextFieldWithoutLabel = Template.bind();
 TextFieldWithoutLabel.args = { value: "Sample Text", errorMsg: "Test Error", required: true, placeholder: "placeholder", onChange: null };
+
+const searchIcon = (<Codicon name="search" sx= {{cursor: "auto"}}/>)
+export const TextFieldWithIcon = Template.bind();
+TextFieldWithIcon.args = { value: "Sample Text", icon: {iconComponent: searchIcon, position: "end"}, placeholder: "Search", onChange: null };
 
 export default { component: TextField, title: "TextField" };

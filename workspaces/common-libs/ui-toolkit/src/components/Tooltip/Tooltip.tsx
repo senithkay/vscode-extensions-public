@@ -1,0 +1,69 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import React, { ReactNode } from 'react';
+import styled from "@emotion/styled";
+
+export interface TooltipProps {
+    content?: string | ReactNode;
+    position?: 'top' | 'right' | 'bottom' | 'left';
+    children?: ReactNode;
+    sx?: any;
+}
+
+const TooltipContainer = styled.div`
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+`;
+
+const TooltipContent = styled.div<TooltipProps>`
+    position: absolute;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
+    border: var(--vscode-editorHoverWidget-statusBarBackground) 1px solid;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out;
+    white-space: nowrap;
+    ${(props: TooltipProps) => {
+        switch (props.position) {
+            case 'top':
+                return 'bottom: 100%; left: 50%; transform: translateX(-50%);';
+            case 'left':
+                return 'top: 50%; right: 100%; transform: translateY(-50%);';
+            case 'right':
+                return 'top: 50%; left: 100%; transform: translateY(-50%);';
+            case 'bottom':
+                return 'top: 100%; left: 50%; transform: translateX(-50%);';
+            default:
+                return '';
+        }
+    }}
+    ${(props: TooltipProps) => props.sx};
+`;
+
+export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
+    const { content, position, children, sx } = props;
+    const [isVisible, setIsVisible] = React.useState(false);
+
+    return (
+        <TooltipContainer
+            onMouseEnter={() => setIsVisible(true)}
+            onMouseLeave={() => setIsVisible(false)}
+        >
+            {children}
+            <TooltipContent position={position} style={{ opacity: isVisible ? 1 : 0, visibility: isVisible ? 'visible' : 'hidden' }} sx={sx}>
+                {content}
+            </TooltipContent>
+        </TooltipContainer>
+    );
+};

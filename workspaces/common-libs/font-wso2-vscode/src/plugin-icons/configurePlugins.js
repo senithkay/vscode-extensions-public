@@ -49,7 +49,7 @@ function generateIconsContribution(selectedIconJson) {
           iconsContribution[`distro-${fontName}`] = {
             description: iconDescription,
             default: {
-              fontPath: "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+              fontPath: "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
               fontCharacter: iconCharacter
             }
           };
@@ -61,6 +61,20 @@ function generateIconsContribution(selectedIconJson) {
   return iconsContribution;
 }
 
+const copyDirectoryContent = (srcDir, destDir) => {
+  const files = fs.readdirSync(srcDir);
+  for (const file of files) {
+    const srcFile = path.join(srcDir, file);
+    const destFile = path.join(destDir, file);
+    if (fs.statSync(srcFile).isDirectory()) {
+      fs.mkdirSync(destFile, { recursive: true });
+      copyDirectoryContent(srcFile, destFile);
+    } else {
+      fs.copyFileSync(srcFile, destFile);
+    }
+  }
+};
+
 // Generate icons contribution for Ballerina and Choreo extensions
 const ballerinaIcons = config.ballerinaExtIcons || [];
 const choreoIcons = config.choreoExtIcons || [];
@@ -71,6 +85,14 @@ const choreoIconsContribution = generateIconsContribution(choreoIcons);
 // Merge the generated icons contribution into the existing package.json contributes
 const choreoExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'package.json');
 const ballerinaExtPackageJsonPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'package.json');
+
+const choreoExtResourcePath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'resources', 'font-wso2-vscode');
+const ballerinaExtResourceJsonPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'resources', 'font-wso2-vscode');
+const choreoExtFontPath = path.join(__dirname, '..', '..', '..', '..', 'choreo', 'choreo-extension', 'node_modules', '@wso2-enterprise', 'font-wso2-vscode');
+const ballerinaExtFontPath = path.join(__dirname, '..', '..', '..', '..', 'ballerina', 'ballerina-extension', 'node_modules', '@wso2-enterprise', 'font-wso2-vscode');
+
+copyDirectoryContent(choreoExtFontPath, choreoExtResourcePath);
+copyDirectoryContent(ballerinaExtFontPath, ballerinaExtResourceJsonPath);
 
 const choreoExtPackageJson = require(choreoExtPackageJsonPath);
 const ballerinaExtPackageJson = require(ballerinaExtPackageJsonPath);
