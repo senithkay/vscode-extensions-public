@@ -155,7 +155,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             if (error.response?.status === 403) {
                 throw new Error("Project limit exceeded.", { cause: error });
             }
-            throw new Error("Error while creating component.", { cause: error });
+            throw new Error("Error while creating project.", { cause: error });
         }
     }
 
