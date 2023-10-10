@@ -173,7 +173,7 @@ export function ProjectWizard(props: { orgId: string }) {
         if (selectedOrg) {
             try {
                 const repoString = getRepoString();
-                const createdProject = await projectClient.createProject({
+                const createdProject: any = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
                     orgId: selectedOrg.id,
@@ -184,21 +184,34 @@ export function ProjectWizard(props: { orgId: string }) {
                     branch: initMonoRepo ? selectedBranch : null,
                 });
 
-                handleCloneProject({
-                    ...createdProject,
-                    repository: selectedGHRepo,
-                    gitOrganization: selectedGHOrgName,
-                    gitProvider
-                });
+                if (createdProject && createdProject.message === 'Project limit exceeded.') {
+                    ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+                        eventName: CREATE_PROJECT_FAILURE_EVENT,
+                        properties: {
+                            name: projectName,
+                            cause: createdProject.message + " " + createdProject.cause
+                        }
+                    });
+                    setErrorMsg(createdProject.message + " " + createdProject.cause);
+                    ChoreoWebViewAPI.getInstance().showErrorMsg("Project limit exceeded.");
 
-                ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-                    eventName: CREATE_PROJECT_SUCCESS_EVENT,
-                    properties: {
-                        name: createdProject?.name,
-                        type: initMonoRepo ? "mono-repo" : "multi-repo",
-                        gitProvider: initMonoRepo ? gitProvider : undefined,
-                    },
-                });
+                } else {
+                    handleCloneProject({
+                        ...createdProject,
+                        repository: selectedGHRepo,
+                        gitOrganization: selectedGHOrgName,
+                        gitProvider
+                    });
+
+                    ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+                        eventName: CREATE_PROJECT_SUCCESS_EVENT,
+                        properties: {
+                            name: createdProject?.name,
+                            type: initMonoRepo ? "mono-repo" : "multi-repo",
+                            gitProvider: initMonoRepo ? gitProvider : undefined,
+                        },
+                    });
+                }
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({

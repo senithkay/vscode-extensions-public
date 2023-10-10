@@ -151,8 +151,11 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);
             return data.createProject;
-        } catch (error) {
-            throw new Error("Error while creating project.", { cause: error });
+        } catch (error: any) {
+            if (error.response?.status === 403) {
+                throw new Error("Project limit exceeded.", { cause: error });
+            }
+            throw new Error("Error while creating component.", { cause: error });
         }
     }
 
