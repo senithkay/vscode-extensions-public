@@ -151,7 +151,6 @@ export function CellDiagram(props: CellDiagramProps) {
     };
 
     const ctx = {
-        collapsedMode: false,
         selectedNodeId,
         setSelectedNodeId,
         setHasDiagnostics,

@@ -10,7 +10,6 @@
 import React, { createContext, ReactNode } from 'react';
 
 interface DiagramContextProps {
-    collapsedMode: boolean;
     selectedNodeId: string;
     hasDiagnostics: boolean;
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
@@ -21,7 +20,6 @@ interface DiagramContextProps {
 }
 
 interface IDiagramContext {
-    collapsedMode: boolean;
     selectedNodeId: string;
     hasDiagnostics: boolean;
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
@@ -34,13 +32,12 @@ const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function CellDiagramContext(props: DiagramContextProps) {
-    const { collapsedMode, selectedNodeId, setSelectedNodeId, setHasDiagnostics, hasDiagnostics, children, focusedNodeId, setFocusedNodeId } = props;
+    const { selectedNodeId, setSelectedNodeId, setHasDiagnostics, hasDiagnostics, children, focusedNodeId, setFocusedNodeId } = props;
 
     const context: IDiagramContext = {
-        collapsedMode,
-        selectedNodeId,
         hasDiagnostics,
         setHasDiagnostics,
+        selectedNodeId,
         setSelectedNodeId,
         focusedNodeId,
         setFocusedNodeId

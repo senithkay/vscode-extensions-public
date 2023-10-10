@@ -24,9 +24,8 @@ interface ConnectionWidgetProps {
 
 export function ConnectionWidget(props: ConnectionWidgetProps) {
     const { node, engine } = props;
-    const { collapsedMode, selectedNodeId, focusedNodeId } = useContext(DiagramContext);
+    const { selectedNodeId, focusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ExternalLinkModel>(undefined);
-    const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
     const metadata = getConnectionMetadata(node.connection);
     const displayName =
         (metadata.type === ConnectionType.Connector || metadata.type === ConnectionType.Datastore
@@ -44,10 +43,6 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
         });
     }, [node]);
 
-    useEffect(() => {
-        setCollapsibleStatus(collapsedMode);
-    }, [collapsedMode]);
-
     const handleOnHeaderWidgetClick = () => {
         // setSelectedNodeId(node.getID());
         // setFocusedNodeId(undefined);
@@ -63,8 +58,6 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-                isCollapsed={isCollapsed}
-                setCollapsedStatus={setCollapsibleStatus}
             />
             <ConnectionName onClick={handleOnHeaderWidgetClick} orientation={node.orientation}>{displayName}</ConnectionName>
         </ConnectionNode>
