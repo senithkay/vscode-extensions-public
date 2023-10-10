@@ -13,14 +13,16 @@ Now, you are ready to use API Chat to test your API with the support of natural 
 ### Tryout using already available commands
 
 1. With the API Chat Console open, use any of the available commands in the Console to try out the API.
+
 ![Tryout Using Available Commands](docs/api-chat-extension/images/test-using-available-commands.gif)
 
 ### Tryout by Typing a Command in Natural Language
 
 1. With the Test Console open, simply type your command in natural language, and API Chat will understand and execute it.
+
 ![Command In Natural Language](docs/api-chat-extension/images/command-with-natural-lang.gif)
 
-## Authenticate with API
+### Authenticate with API
 
 1. Authenticate using one of the following authentication types:
    - **Basic Authorization:** This method uses a username and password for authentication.
