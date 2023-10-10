@@ -13,9 +13,9 @@ import { ConnectionModel } from "./ConnectionModel";
 import { ConnectionHeadWidget } from "./ConnectionHead/ConnectionHead";
 import { ConnectionName, ConnectionNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { ExternalLinkModel } from "../../External/ExternalLink/ExternalLinkModel";
 import { getConnectionMetadata } from "../../../utils";
 import { ConnectionType } from "../../../types";
+import { ComponentLinkModel } from "../../Component/ComponentLink/ComponentLinkModel";
 
 interface ConnectionWidgetProps {
     node: ConnectionModel;
@@ -25,7 +25,7 @@ interface ConnectionWidgetProps {
 export function ConnectionWidget(props: ConnectionWidgetProps) {
     const { node, engine } = props;
     const { selectedNodeId, focusedNodeId } = useContext(DiagramContext);
-    const [selectedLink, setSelectedLink] = useState<ExternalLinkModel>(undefined);
+    const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const metadata = getConnectionMetadata(node.connection);
     const displayName =
         (metadata.type === ConnectionType.Connector || metadata.type === ConnectionType.Datastore
@@ -35,7 +35,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
     useEffect(() => {
         node.registerListener({
             SELECT: (event: any) => {
-                setSelectedLink(event.connection as ExternalLinkModel);
+                setSelectedLink(event.component as ComponentLinkModel);
             },
             UNSELECT: () => {
                 setSelectedLink(undefined);

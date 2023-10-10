@@ -36,7 +36,7 @@ interface ServiceHeadProps {
 export function ComponentHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
     const headPorts = useRef<PortModel[]>([]);
-    const [_isHovered, setIsHovered] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
@@ -80,7 +80,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
 
     return (
         <ComponentHead
-            isSelected={isSelected}
+            isSelected={isSelected || isHovered}
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
         >
