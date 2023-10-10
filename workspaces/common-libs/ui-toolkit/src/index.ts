@@ -21,6 +21,7 @@ export * from './components/ActionButtons/ActionButtons';
 export * from './components/SidePanel/SidePanel';
 export * from './components/TextArea/TextArea';
 export * from './components/Divider/Divider';
+export * from './components/SeachBox/SearchBox';
 
 export * from './components/Commons/ErrorBanner';
 

@@ -12,6 +12,7 @@ coverage
 extractedDistribution
 .npmrc
 test-resources
+**/resources/font-wso2-vscode
 
 # gradle
 .gradle

@@ -49,7 +49,7 @@ function generateIconsContribution(selectedIconJson) {
           iconsContribution[`distro-${fontName}`] = {
             description: iconDescription,
             default: {
-              fontPath: "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+              fontPath: "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
               fontCharacter: iconCharacter
             }
           };
@@ -60,6 +60,20 @@ function generateIconsContribution(selectedIconJson) {
   }
   return iconsContribution;
 }
+
+const copyDirectoryContent = (srcDir, destDir) => {
+  const files = fs.readdirSync(srcDir);
+  for (const file of files) {
+    const srcFile = path.join(srcDir, file);
+    const destFile = path.join(destDir, file);
+    if (fs.statSync(srcFile).isDirectory()) {
+      fs.mkdirSync(destFile, { recursive: true });
+      copyDirectoryContent(srcFile, destFile);
+    } else {
+      fs.copyFileSync(srcFile, destFile);
+    }
+  }
+};
 
 // Generate icons contribution for Ballerina and Choreo extensions
 const ballerinaIcons = config.ballerinaExtIcons || [];

@@ -593,70 +593,70 @@
             "distro-new-module": {
                 "description": "new-module",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f11e"
                 }
             },
             "distro-refresh": {
                 "description": "refresh",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f123"
                 }
             },
             "distro-new-file": {
                 "description": "new-file",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f11c"
                 }
             },
             "distro-new-folder": {
                 "description": "new-folder",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f11d"
                 }
             },
             "distro-delete": {
                 "description": "delete",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f10d"
                 }
             },
             "distro-design-view": {
                 "description": "design-view",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f10e"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f129"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f10c"
                 }
             },
             "distro-source-view": {
                 "description": "source-view",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f128"
                 }
             },
             "distro-persist-diagram": {
                 "description": "persist-diagram",
                 "default": {
-                    "fontPath": "./node_modules/@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
                     "fontCharacter": "\\f120"
                 }
             }
@@ -676,11 +676,12 @@
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
         "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/ballerina-plugin-vscode/raw/HEAD/; fi",
+        "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode",
         "copyVSIX": "copyfiles *.vsix ./vsix",
         "copyVSIXToRoot": "copyfiles -f ./vsix/*.vsix ../../..",
         "build": "pnpm run compile && pnpm run lint && pnpm run post",
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run post",
-        "post": "pnpm -r run postbuild && pnpm run package && pnpm run copyVSIX"
+        "post": "pnpm -r run postbuild && pnpm run copyFonts && pnpm run package && pnpm run copyVSIX"
     },
     "dependencies": {
         "@types/lodash": "^4.14.189",
@@ -693,6 +694,7 @@
         "@wso2-enterprise/choreo-client": "workspace:*",
         "@wso2-enterprise/choreo-core": "workspace:*",
         "@wso2-enterprise/syntax-tree": "workspace:*",
+        "@wso2-enterprise/font-wso2-vscode": "workspace:*",
         "cors-anywhere": "^0.4.4",
         "del-cli": "^5.0.0",
         "file-uri-to-path": "^2.0.0",

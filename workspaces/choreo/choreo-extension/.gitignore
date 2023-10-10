@@ -1,5 +1,6 @@
 .nyc_output
 resources/jslibs/main.js
+resources/font-wso2-vscode
 !src/test/lib
 .vscode-test
 test-resources
