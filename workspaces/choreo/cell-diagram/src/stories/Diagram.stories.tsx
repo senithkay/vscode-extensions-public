@@ -1,7 +1,13 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import styled from "@emotion/styled";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
+
+export const Container = styled.div`
+    height: calc(100vh - 40px);
+    width: calc(100vw - 30px);
+`;
 
 const noComponentModel: Project = {
     id: "A",
@@ -700,10 +706,44 @@ const complexModel: Project = {
     modelVersion: "0.4.0",
 };
 
-storiesOf("Cell Diagram", module).add("No Components", () => <CellDiagram project={noComponentModel} />);
-storiesOf("Cell Diagram", module).add("Single Component", () => <CellDiagram project={singleComponentModel} />);
-storiesOf("Cell Diagram", module).add("Single Component with expose link", () => <CellDiagram project={singleExposedComponentModel} />);
-storiesOf("Cell Diagram", module).add("All Component types", () => <CellDiagram project={allComponentModel} />);
-storiesOf("Cell Diagram", module).add("Component dependencies", () => <CellDiagram project={componentDependencyModel} />);
-storiesOf("Cell Diagram", module).add("Simple", () => <CellDiagram project={simpleModel} />);
-storiesOf("Cell Diagram", module).add("Complex", () => <CellDiagram project={complexModel} />);
+storiesOf("Cell Diagram", module).add("No Components", () => (
+    <Container>
+        <CellDiagram project={noComponentModel} />
+    </Container>
+));
+
+storiesOf("Cell Diagram", module).add("Single Component", () => (
+    <Container>
+        <CellDiagram project={singleComponentModel} />
+    </Container>
+));
+
+storiesOf("Cell Diagram", module).add("Single Component with expose link", () => (
+    <Container>
+        <CellDiagram project={singleExposedComponentModel} />
+    </Container>
+));
+
+storiesOf("Cell Diagram", module).add("All Component types", () => (
+    <Container>
+        <CellDiagram project={allComponentModel} />
+    </Container>
+));
+
+storiesOf("Cell Diagram", module).add("Component dependencies", () => (
+    <Container>
+        <CellDiagram project={componentDependencyModel} />
+    </Container>
+));
+
+storiesOf("Cell Diagram", module).add("Simple", () => (
+    <Container>
+        <CellDiagram project={simpleModel} />
+    </Container>
+));
+
+storiesOf("Cell Diagram", module).add("Complex", () => (
+    <Container>
+        <CellDiagram project={complexModel} />
+    </Container>
+));

@@ -17,29 +17,29 @@ export const useStyles = makeStyles(() =>
         canvas: {
             backgroundImage: `url('${CanvasBackground}')`,
             backgroundRepeat: 'repeat',
-            minHeight: 'calc(100vh - 50px)',
-            minWidth: '100vw'
+            height: '100%',
+            width: '100%'
         }
     })
 );
 
 export const Container = styled.div`
-    align-items: center;
+    height: 100%;
+    width: 100%;
     display: flex;
+    align-items: center;
     flex-direction: column;
-    height: 100vh;
     justify-content: center;
-    width: 100vw;
 `;
 
 export const DiagramContainer = styled.div`
-    align-items: center;
     background-image: url(${CanvasBackground});
+    height: 100%;
+    width: 100%;
     display: flex;
+    align-items: center;
     flex-direction: column;
-    height: calc(100vh - 50px);
     justify-content: center;
-    width: 100vw;
     svg:not(:root) {
         overflow: visible;
     }
