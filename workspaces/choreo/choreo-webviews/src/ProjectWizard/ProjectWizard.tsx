@@ -193,7 +193,7 @@ export function ProjectWizard(props: { orgId: string }) {
                         }
                     });
                     setErrorMsg(createdProject.message + " " + createdProject.cause);
-                    ChoreoWebViewAPI.getInstance().showErrorMsg("Project limit exceeded.");
+                    ChoreoWebViewAPI.getInstance().showErrorMsg("Project creation failed due to reaching the maximum number of projects allowed within the free tier.");
 
                 } else {
                     handleCloneProject({
