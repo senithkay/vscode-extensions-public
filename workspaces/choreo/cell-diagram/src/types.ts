@@ -53,6 +53,7 @@ export interface Connection {
     id: string;
     type?: ConnectionType;
     onPlatform?: boolean;
+    observations?: Observations;
 }
 
 export enum ConnectionType {
@@ -82,11 +83,24 @@ export interface DeploymentMetadata {
     gateways: {
         internet: {
             isExposed: boolean;
-        },
+            observations?: Observations;
+        };
         intranet: {
             isExposed: boolean;
-        }
-    }
+            observations?: Observations;
+        };
+    };
+}
+
+export interface Observations {
+    sourceNodeId: number;
+    destinationNodeId: number;
+    avgLatency: number;
+    errorCount: number;
+    p50Latency: number;
+    p90Latency: number;
+    p99Latency: number;
+    requestCount: number;
 }
 
 // Util function types

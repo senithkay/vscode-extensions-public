@@ -706,6 +706,117 @@ const complexModel: Project = {
     modelVersion: "0.4.0",
 };
 
+const observationsModel: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "Users",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Users:basepath": {
+                    id: "ABC:A:Users:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                                observations: {
+                                    avgLatency: 136631633,
+                                    destinationNodeId: 1,
+                                    errorCount: 0,
+                                    p50Latency: 21132684,
+                                    p90Latency: 1043810050,
+                                    p99Latency: 2199582500,
+                                    requestCount: 36,
+                                    sourceNodeId: 0,
+                                },
+                            },
+                            intranet: {
+                                isExposed: true,
+                                observations: {
+                                    avgLatency: 207605809,
+                                    destinationNodeId: 2,
+                                    errorCount: 4,
+                                    p50Latency: 22461844,
+                                    p90Latency: 1469733900,
+                                    p99Latency: 1469733900,
+                                    requestCount: 8,
+                                    sourceNodeId: 0,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "ABC:A:Products:basepath",
+                    onPlatform: true,
+                    observations: {
+                        avgLatency: 191934320,
+                        destinationNodeId: 1,
+                        errorCount: 0,
+                        p50Latency: 191934320,
+                        p90Latency: 191934320,
+                        p99Latency: 191934320,
+                        requestCount: 1,
+                        sourceNodeId: 2,
+                    },
+                },
+                {
+                    id: "dynamoDb://dynamoDb",
+                    onPlatform: false,
+                    type: "datastore",
+                },
+            ],
+        },
+        {
+            id: "Products",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Products:basepath": {
+                    id: "ABC:A:Products:basepath",
+                    label: "basepath",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "madusha:B:C:endpoint1",
+                    onPlatform: true,
+                    observations: {
+                        avgLatency: 191934320,
+                        destinationNodeId: 1,
+                        errorCount: 0,
+                        p50Latency: 191934320,
+                        p90Latency: 191934320,
+                        p99Latency: 191934320,
+                        requestCount: 1,
+                        sourceNodeId: 2,
+                    },
+                },
+            ],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
 storiesOf("Cell Diagram", module).add("No Components", () => (
     <Container>
         <CellDiagram project={noComponentModel} />
@@ -745,5 +856,11 @@ storiesOf("Cell Diagram", module).add("Simple", () => (
 storiesOf("Cell Diagram", module).add("Complex", () => (
     <Container>
         <CellDiagram project={complexModel} />
+    </Container>
+));
+
+storiesOf("Observability", module).add("Complex", () => (
+    <Container>
+        <CellDiagram project={observationsModel} />
     </Container>
 ));
