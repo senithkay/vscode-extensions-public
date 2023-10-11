@@ -35,7 +35,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const [showSupportTooltip, setShowSupportTooltip] = useState<boolean>(false);
 
-    const displayName: string = node.nodeObject.annotation?.label || node.nodeObject.path || node.nodeObject.serviceId;
+    const displayName: string = node.nodeObject.label || node.nodeObject.annotation?.label || node.nodeObject.id;
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
@@ -53,10 +53,10 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     }
 
     const nodeLevel: Level = node.nodeObject.isNoData ||
-        (!node.nodeObject.remoteFunctions?.length && !node.nodeObject.resources?.length) ? Level.ONE : node.level;
+        (!node.nodeObject.remoteFunctions?.length && !node.nodeObject.resourceFunctions?.length) ? Level.ONE : node.level;
 
     return (
-        <CtrlClickGo2Source location={node.nodeObject.elementLocation}>
+        <CtrlClickGo2Source location={node.nodeObject.sourceLocation}>
             <Tooltip
                 open={showSupportTooltip}
                 onClose={() => setShowSupportTooltip(false)}
@@ -81,7 +81,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     onMouseOver={() => { handleOnHover('SELECT') }}
                     onMouseLeave={() => { handleOnHover('UNSELECT') }}
                     dataInProgress={node.nodeObject.dataInProgress}
-                    data-testid={`service-head-${node?.nodeObject?.annotation?.label || node?.nodeObject?.serviceId}`}
+                    data-testid={`service-head-${node?.nodeObject?.label}`}
                 >
                     {/*Render this Icon on console side when the data is being fetched*/}
                     {node.nodeObject.dataInProgress ?
@@ -110,10 +110,10 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                         engine={engine}
                     />
                     <ServiceName>{displayName}</ServiceName>
-                    {isHovered && node.nodeObject.elementLocation && editingEnabled &&
+                    {isHovered && node.nodeObject.sourceLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={nodeLevel === Level.ONE ? Colors.SECONDARY : 'white'}
-                            location={node.nodeObject.elementLocation}
+                            location={node.nodeObject.sourceLocation}
                             linkingEnabled={currentView === Views.L1_SERVICES}
                             node={node}
                         />

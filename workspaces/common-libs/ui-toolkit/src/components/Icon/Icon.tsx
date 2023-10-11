@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from "react";
-import * as Icons from "../../assets/icons";
+import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 
 import styled from "@emotion/styled";
 
@@ -33,10 +33,10 @@ export const Icon: React.FC<IconProps> = (props: IconProps) => {
     const handleComponentClick = () => {
         onClick();
     }
-    const SpecificIcon = Icons[name as keyof typeof Icons];
+    const icon = (<i className={`fw-${name}`} />);
     return (
         <IconContainer sx={sx} onClick={handleComponentClick}>
-            {SpecificIcon && <SpecificIcon />}
+            {icon}
         </IconContainer>
     );
 };

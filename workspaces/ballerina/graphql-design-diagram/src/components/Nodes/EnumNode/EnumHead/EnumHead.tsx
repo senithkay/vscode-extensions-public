@@ -43,7 +43,7 @@ export function EnumHeadWidget(props: EnumHeadProps) {
             filePath={node.enumObject?.position?.filePath}
             position={node.enumObject?.position && getFormattedPosition(node.enumObject.position)}
         >
-            <EnumHead>
+            <EnumHead data-testid={`enum-head-${displayName}`}>
                 <EnumIcon />
                 <GraphqlBasePortWidget
                     port={node.getPort(`left-${node.getID()}`)}

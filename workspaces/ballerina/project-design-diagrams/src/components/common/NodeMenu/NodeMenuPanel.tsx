@@ -49,7 +49,7 @@ export function NodeMenuPanel(props: MenuProps) {
                     <>
                         {node instanceof ServiceNodeModel && <GoToDesign element={node.nodeObject} />}
                         {resource && node && <GoToDesign element={resource} />}
-                        {annotation && (annotation.elementLocation || node?.nodeObject.elementLocation) && (
+                        {annotation && (annotation.sourceLocation || node?.nodeObject.sourceLocation) && (
                             <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
                         )}
                         {node && location && deleteComponent && (

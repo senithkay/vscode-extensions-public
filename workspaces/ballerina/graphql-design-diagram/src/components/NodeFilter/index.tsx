@@ -50,6 +50,7 @@ export function NodeFilter(props: NodeFilterProps) {
             {
                 nodeList && (
                     <Autocomplete
+                        data-testid="node-filter-autocomplete"
                         id="node-filter-select"
                         options={nodeList}
                         defaultValue={filteredNode ? filteredNode : nodeList[0]}

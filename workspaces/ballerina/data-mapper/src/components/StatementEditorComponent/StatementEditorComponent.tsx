@@ -28,6 +28,7 @@ export interface StatementEditorComponentProps {
     onCancel: () => void;
     onClose: () => void;
     importStatements: string[];
+    currentReferences?: string[];
 }
 function StatementEditorC(props: StatementEditorComponentProps) {
     const {
@@ -39,7 +40,8 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         library,
         onCancel,
         onClose,
-        importStatements
+        importStatements,
+        currentReferences
     } = props;
 
     const stmtEditorComponent = StatementEditorWrapper(
@@ -67,7 +69,8 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             },
             onCancel,
             isExpressionMode: true,
-            importStatements
+            importStatements,
+            currentReferences
         }
     );
 

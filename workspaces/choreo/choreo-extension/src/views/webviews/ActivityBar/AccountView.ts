@@ -66,6 +66,7 @@ export class AccountView implements vscode.WebviewViewProvider {
 		]);
 	
 		const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
+		const fontsUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 	
 		return /*html*/ `
 			  <!DOCTYPE html>
@@ -76,7 +77,9 @@ export class AccountView implements vscode.WebviewViewProvider {
 				  <meta name="theme-color" content="#000000">
 				  <title>Choreo Webview Wizard</title>
 				  <link rel="stylesheet" href="${codiconUri}">
+				  <link rel="stylesheet" href="${fontsUri}">
 				  <script src="${scriptUri}"></script>
+				  <script src="${fontsUri}"></script>
 				</head>
 				<body>
 				  <noscript>You need to enable JavaScript to run this app.</noscript>
