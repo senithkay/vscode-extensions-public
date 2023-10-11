@@ -5,12 +5,13 @@
     "files": [
         "lib"
     ],
-    "main": "lib/cellDiagram.js",
-    "types": "lib/cellDiagram.d.ts",
+    "main": "lib/Diagram.js",
+    "types": "lib/Diagram.d.ts",
     "scripts": {
         "start": "webpack-dev-server --progress --mode=development",
-        "build": "webpack && pnpm run postbuild",
+        "build": "tsc --pretty && npm run copy:assets && webpack && pnpm run postbuild",
         "watch:webpack": "webpack-dev-server --mode=development --progress",
+        "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
         "deploy": "npm publish",
         "storybook": "start-storybook -p 6006",
         "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../choreo-extension/resources/jslibs"

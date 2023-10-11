@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "module": "es2020",
+    "outDir": "./lib",
     "rootDir": "./src",
     "lib": [
       "dom",
@@ -8,6 +10,8 @@
     ],
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationDir": "./lib",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -26,8 +30,6 @@
   },
   "include": [
     "src/index.tsx",
-    "src/SimpleDiagram.tsx",
-    "src/Diagram.tsx",
     "src/custom.d.ts"
   ],
   "exclude": [
