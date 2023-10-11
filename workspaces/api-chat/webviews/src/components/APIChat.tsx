@@ -12,7 +12,7 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { ConsoleAPI, TestCommand, TestResult, Queries } from "../ConsoleAPI";
+import { ConsoleAPI, TestCommand, TestResult, Queries, TestError } from "../ConsoleAPI";
 import { VSCodeButton, VSCodeTextField, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { } from '@vscode/webview-ui-toolkit';
 import styled from "@emotion/styled";
@@ -28,6 +28,11 @@ const Command = styled.div({
     borderBottom: "1px solid var(--vscode-chat-requestBorder)",
     borderTop: "1px solid var(--vscode-chat-requestBorder)",
     padding: "0 20px"
+});
+
+const Error = styled.div({
+    padding: "0 20px",
+    color: "var(--vscode-inputValidation-errorBorder)",
 });
 
 const Layout = styled.div({
@@ -76,7 +81,7 @@ const ROOT_CSS = css({
 
 const APIChat = (props: {
     state: string,
-    logs: (TestCommand | TestResult)[],
+    logs: (TestCommand | TestResult | TestError)[],
     queries: Queries[]
     showAuthForm: () => void;
 }) => {
@@ -128,6 +133,11 @@ const APIChat = (props: {
                             }
                             if (log.type === "RESULT") {
                                 return <TestResultView log={log} />
+                            }
+                            if (log.type === "ERROR") {
+                                return <Error>
+                                    <p><Codicon name="error" />&nbsp; {log.message}</p>
+                                </Error>;
                             }
                             return null;
                         })
