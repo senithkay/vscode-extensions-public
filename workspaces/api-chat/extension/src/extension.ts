@@ -15,6 +15,11 @@ import { getLogger, initLogger } from './logger/logger';
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
+	// Initialize logger
+	activateTelemetry(context);
+	await initLogger(context);
+	getLogger().debug("Activating API Chat Extension");
+
 	// Check the content of the active document when the extension is activated
 	checkDocumentForOpenAPI(vscode.window.activeTextEditor?.document);
 
@@ -28,9 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	}, null, context.subscriptions);
 
 	activateConsole(context);
-	activateTelemetry(context);
-	await initLogger(context);
-	getLogger().debug("Activating Choreo Extension");
+	getLogger().debug("API Chat Extension activated");
 }
 
 function checkDocumentForOpenAPI(document?: vscode.TextDocument) {

@@ -50,12 +50,6 @@ export async function initLogger(context: ExtensionContext): Promise<void> {
     await readFile(resolve(context.extensionPath, "package.json"), "utf8")
   );
 
-  // By asserting the existence of the properties in the package.json
-  // at runtime, we avoid many copy-pasta mistakes...
-  const configProps = meta?.contributes?.configuration?.properties;
-  ok(configProps?.[LOGGING_LEVEL_PROP]);
-  ok(configProps?.[SOURCE_LOCATION_PROP]);
-
   const extLogger = configureLogger({
     extName: meta.displayName,
     logPath: context.logUri.fsPath,
