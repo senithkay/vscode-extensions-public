@@ -351,7 +351,7 @@ const generateAuthHeaders = (authData: AuthBasic | AuthBearer | AuthKey | AuthNo
 };
 
 const testMachine = createMachine({
-    /** @xstate-layout N4IgpgJg5mDOIC5QBU4BcCiA7KBLLYAxAEoYDKGyA2gAwC6ioADgPay5q4taMgAeiAIw0AHADoArACYA7IIDMUwYIAsK+TJkBOADQgAnogC0msSqnzBWrTPkTVcgGwBfZ3tSxMOfEVIAxUjIACVoGJBBWdk5uXgEEKXUZMS0VeyUREXtHCT1DBCMVRzEMkS1ZO0FS2xTXd3RsPAIxfA5CCmQAfQB5AAUMADkAQR6ASVDeSI4uHnC4q3kiwQlHcus7TRFcxFlxGilRDRE9o4ktWpAPL0awMQAbFgBDCHwoMRg0ZBYWW9hCCG4bvgAG4sADWN3en2+sHG4Um0RmoDiFgsYkc6JkiRo8nMIhUWwQyxoYg0EhoyhEjmEgnOlwaPjuj2eODeYA+Xx+hDAACduSxuWImLcHmgAGb8gC2rPZ0NhzDYUxis22MikEkklhxgnReJojgJakEYkEauxNBkRxo5hcbgu9W8TXuTxeYgAxtywCKwABhW64MBYNB-AHNLAg8Fuj1e33+wNyiIKhGxFVqjUKFTaxy6-UGFOSfYiLWFRwpVS0+3XRnOlnuz1oH1+gNBnl8gVCkXi7lS2vRxtx+gTRPTZPxRTyNEYrE4qR4gmyI0aFTWCTyGwrPHlzz0x1Ml3vACq3NubUoHX3xAAMvH4cPlaPUejHJiNNjcfjcwhLOIRJitBlHPIIgWFa8iblcDJRhA+iEBgAAaGDevuyAYNeQ5KkiQgyE+JKaMo1iqjOKibB+ygKGImjmloSz-gBYHbjckHQd6F4YIMxCoVEt4YZ+ezqjsVL2KIjjvnkwlFDO1gZiWpwAWctp0g6DGelBhDel0-R+CMADi54YB0zEjAM1ADnCaGIvw2ynLs5irpkKxSOiBJ2WYEhASIpGCcsdGKWIYB8GAroAK6cDghCaf0IzBBxirmciNA0Oqqortk2hWtIxF5NY4g2FhpRLCWjg0HJdRbj5fkBcFLotJg-lBQiwZNMCYKAlgHAYK6FUItFSZ3hYRQJVYNhlHqQESCJiAqJiaJWsI1gmquRESN5lblXVLqimyroABbEGAACOgXoA1LXhjcq3BWA3VcRZCCFeOWiufI5IOeoAHjQgcgqMkqXJcsCglstDLnSFrwbWg227QdR0tvygrCmKkq+bVF1XehN13ckj3PcJCw4gaUhaGICTLmawjmEt8kVkDyMg0jnVgJDh2eMdoanXTdUM-tTNoKjsWIFoOLGhR2RkulUgEjI8XkQToiSZqlSA00wMusDnNQ8zMNtvDnZSqrjPoLzI5aCWySVNICWFio5pOeoJIzmqTgONIitnTTLpMHyHWwLA+vM-8jVhs1gqe3APtcwbJnypxaNzOoUjkQcihOBsGWIDjxoJBkEi2IUOUu+zlUsh7LBe2H6tBv7J1B8Xpe+zzghhFHMVG4LgjCxIov2wSpz3a5aolnqRXZPnytFyH3t11yvKw+2CNdsHJeh3Xht3qoigJ4WSfain3cPWixMWNnsgATSlOlSt0-ciQlDEAAmiv3H7CkaKqIVWjYuiRVOUaZLxeSwhSCUF5c4WAWAQDgLwBS1xBzRz5vkBIBIjDai+q5P8tgViYiXKqfO1UYHNzvHiNEVFt5PWkH1d6JoUEzhxHNFYk1yT5ydMyKAeCeqP1Ii-QoRUP5vwJJUccj0cT2EloA6ijDdwskhByeAplYEjiAYTKkXD34LF4R+dQxIfxkm1HqeYJobQlXAjuasrwez1hjE2Vh11kRZDMNoGcSwVGlDnJLciS40G2QegsFQ4iTHSkPLcKxMdthWCKI+C0cgspKBceqB6hYZYW0mjIfOjEglwJnEBEk6gfyEU0H1JyywXKFnNEoY2GgDF2nPtTTqLw0nyPetOMQBwEhjTKB3VUPiz5GNdjUlk1UMBuzRjeYJH1xbqLJMaK0RVVQpEwVIEebsWRgwhuHTwdS7zmC+u-Kk6JTgyDGtaA0EyybTIJpNNQ8yun0QLrTPWqy0DrO4lheOBNtTSDecbbOEsyIFgsNoH8eoNALN6a8GuS97mPJuvo4kMzVAZFEcIVOhJMg4SXKITIhR7AiGBWtFkAYICQrmLYJIZNKjv2kCsbI3cjhCyIniQsVg9in0MdczWhLtjv0UbhKiWZAGnByB+d+TTN6KEKqNYS2LXDOCAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QBU4BcCiA7KBLLYAxAEoYDKGyA2gAwC6ioADgPay5q4taMgAeiAIw0AHADoArACYA7IIDMUwYIAsK+TJkBOADQgAnogC0msSqnzBWrTPkTVcgGwBfZ3tSxMOfEVIAxUjIACVoGJBBWdk5uXgEEKXUZMS0VeyUREXtHCT1DBCMVRzEMkS1ZO0FS2xTXd3RsPAIxfA5CCmQAfQB5AAUMADkAQR6ASVDeSI4uHnC4q3kiwQlHcus7TRFcxFlxGilRDRE9o4ktWpAPL0awMQAbFgBDCHwoMRg0ZBYWW9hCCG4bvgAG4sADWN3en2+sHG4Um0RmoDiFgsYkc6JkiRo8nMIhUWwQyxoYg0EhoyhEjmEgnOlwaPjuj2eODeYA+Xx+hDAACduSxuWImLcHmgAGb8gC2rPZ0NhzDYUxis22MikEkklhxgnReJojgJakEYkEauxNBkRxo5hcbgu9W8TXuTxeYgAxtywCKwABhW64MBYNB-AHNLAg8Fuj1e33+wNyiIKhGxFVqjUKFTaxy6-UGFOSfYiLWFRwpVS0+3XRnOlnuz1oH1+gNBnl8gVCkXi7lS2vRxtx+gTRPTZPxRTyNEYrE4qR4gmyI0aFTWCTyGwrPHlzz0x1Ml3vACq3NubUoHX3xAAMvH4cPlaPUejHJiNNjcfjcwhLOIRJitBlHPIIgWFa8iblcDJRhA+iEBgAAaGDevuyAYNeQ5KkiQgyE+JKaMo1iqjOKibB+ygKGImjmloSz-gBYHbjckHQd6F4YIMxCoVEt4YZ+ezqjsVL2KIjjvnkwlFDO1gZiWpwAWctp0g6DGelBhDel0-R+CMADi54YB0zEjAM1ADnCaGIvw2ynLs5irpkKxSOiBJ2WYEhASIpGCcsdGKWIYB8GAroAK6cDghCaf0IzBBxirmciNA0Oqqortk2hWtIxF5NY4g2FhpRLCWjg0HJdRbj5fkBcFLotJg-lBQiwZNMCYKAlgHAYK6FUItFSZ3hYRQJVYNhlHqQESCJiAqJiaJWsI1gmquRESN5lblXVLqimyroABbEGAACOgXoA1LXhjcq3BWA3VcRZCCFeOWiufI5IOeoAHjQgcgqMkqXJcsCglstDLnSFrwbWg227QdR0tvygrCmKkq+bVF1XehN13ckj3PcJCw4gaUhaGICTLmawjmEt8kVkDyMg0jnVgJDh2eMdoanXTdUM-tTNoKjsWIFoOLGhR2RkulUgEjI8XkQToiSZqlSA00wMusDnNQ8zMNtvDnZSqrjPoLzI5aCWySVNICWFio5pOeoJIzmqTgONIitnTTLpMHyHWwLA+vM-8jVhs1gqe3APtcwbJnypxaNzOoUjkQcihOBsGWIDjxoJBkEi2IUOUu+zlUsh7LBe2H6tBv7J1B8Xpe+zzghhFHMVG4LgjCxIov2wSpz3a5aolnqRXZPnytFyH3t11yvKw+2CNdsHJeh3Xht3qoigJ4WSfain3cPWixMWNnsgATSlOlSt0-ciQlDEAAmiv3H7CkaKqIVWjYuiRVOUaZLxeSwhSCUF5M+4ElZuxZGDCG4dmZkGQL0B+N0xpFEKkuI47k7oWgJAA+OX4lgOQtFmICI9wGvD1tAoMsD4GRwTNHPmH0BbGlEFaC0xsjgWAJGUQmb9SgaCUFbCmtosAsAgHAXgClriDloSOIwCQCRGG1F9MolgkqSypJNKQ+dqqSObnePEaIqLbyetIPq70TRfXSjiOaKxJrknzk6ZkUBtE9UfqRF+hQiofzflgwsRNf6qGWDiSkog7G7hZJCDk8BTJSN6ksLhr8PELC8R+dQxIfxkm1HqeYJobQlVATcexLoez1hjE2Jx11kRZDMNoGcsTsSlDnJLciS4-zVFKMlFQITqyvAPEeMpMdthWGQRiH8g0gKCAaeqB6hYZYW0mjIfOjE+l0JnEBEk6gfyEU0H1JyywXKFnNEoY2Ggcl2nPtTTqLwlkjlkR+LUTT8KYhFr+DpID6IF1ptVDAbs0Y3n6R9cWySySMKtjYAmk01AaNeWVEhYhIE7XIVcu85hFGZPRKcGQY1rQGiBWTIqqoUiYnMMQi5LIyHl0RdxLC8cCbamkLS422cJZkQLBYbQP49QaGJWtMei8J4IqiTo7i2TiT4tUBkQByhRDd0yDhJcohMiFHsCILlhdSFYAgBSm6bcNDAsqO-aQKxsjSuJG3IieJCxWD2KfXJbzNaauRO-LhuEqJZkAacHIH535iETooQqo1hLKtcM4IAA */
     id: "TestEngine",
     initial: "init",
     predictableActionArguments: true,
@@ -479,6 +479,10 @@ const testMachine = createMachine({
                             })
                         }
                     },
+
+                    on: {
+                        STOP: "end"
+                    }
                 },
                 executeRequest: {
                     invoke: {
@@ -493,6 +497,10 @@ const testMachine = createMachine({
                         onError: {
                             target: "end",
                         }
+                    },
+
+                    on: {
+                        STOP: "end"
                     }
                 },
                 processRequest: {
@@ -591,4 +599,8 @@ export function setAuthentication(authData: AuthBasic | AuthBearer | AuthKey | A
 
 export function getAuthentication(): AuthBasic | AuthBearer | AuthKey | AuthNone {
     return service.getSnapshot().context.authData;
+}
+
+export function stopExecution() {
+    service.send({ type: "STOP" });
 }

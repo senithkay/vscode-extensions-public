@@ -92,6 +92,11 @@ const Webview = () => {
         ConsoleAPI.getInstance().refreshConsole();
     };
 
+    const handleStopExecution = () => {
+        ConsoleAPI.getInstance().stopExecution();
+    }
+
+
     return <>
         {(() => {
             if (showAuthForm) {
@@ -114,7 +119,12 @@ const Webview = () => {
                     case "executing.executeRequest":
                     case "executing.processRequest":
                     case "executing.end":
-                        return <APIChat state={state} logs={logs} queries={queries} showAuthForm={handleShowAuth} />;
+                        return <APIChat
+                            state={state}
+                            logs={logs}
+                            queries={queries}
+                            showAuthForm={handleShowAuth}
+                            stopExecution={handleStopExecution} />;
                     default:
                         return <StatusMessage style={{ flexDirection: "column" }}>
                             <div>
