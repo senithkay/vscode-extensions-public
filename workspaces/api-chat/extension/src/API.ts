@@ -9,6 +9,7 @@
 
 import axios from "axios";
 import * as dotenv from "dotenv";
+import { getLogger } from "./logger/logger";
 dotenv.config();
 
 // Set config defaults when creating the instance
@@ -30,6 +31,7 @@ const resolveOauthClientCredential = async () => {
     // Your code here to resolve Oauth client credential
     try {
         if (!apiKey) {
+            getLogger().error('API_KEY is not defined in the environment variables');
             throw new Error('API_KEY is not defined in the environment variables');
         }
 
@@ -41,7 +43,9 @@ const resolveOauthClientCredential = async () => {
         const accessToken = response.data.access_token;
         refreshToken = response.data.refresh_token;
         instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        getLogger().debug("Succesfully resolve Oauth client credential");
     } catch (error) {
+        getLogger().error('Failed to resolve Oauth client credential:', error);
         console.error('Failed to resolve Oauth client credential:', error);
     }
 };
@@ -61,6 +65,7 @@ const API = {
 // Function to refresh the access token
 const refreshAccessToken = async () => {
     try {
+        getLogger().debug("Refreshing access token");
         const response = await auth.post('/token', "grant_type=refresh_token", {
             headers: {
                 Authorization: `Bearer ${refreshToken}`
@@ -68,8 +73,10 @@ const refreshAccessToken = async () => {
         });
         const newAccessToken = response.data.access_token;
         instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+        getLogger().debug("Succesfully refresh access token");
         return newAccessToken;
     } catch (error) {
+        getLogger().error('Failed to refresh access token:', error);
         console.error('Failed to refresh access token:', error);
         throw error;
     }

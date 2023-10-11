@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { actions, createMachine, interpret, State, assign, EventObject } from 'xstate';
 import API from './API';
+import { getLogger } from './logger/logger';
 
 
 
@@ -124,6 +125,7 @@ function extractApiUrl(openapi: any): string | undefined {
 }
 
 function makeRequest(apiClient: AxiosInstance, request: Request, authData: any) {
+    getLogger().debug("Generating request");
     const path = replacePathParameters(request);
     request.path = path;
     // console.log(`curl -X ${request.method} ${apiClient.getUri()}${path} -d '${JSON.stringify(request.inputs.requestBody)}'`);
@@ -218,6 +220,7 @@ const getTools = (context: TestMachineContext, event: any) => {
 };
 
 const executeCommand = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Executing command");
     return new Promise((resolve, reject) => {
         const payload = (context.taskStatus === undefined) ?
             { apiSpec: context.apiSpec, command: context.command } :
@@ -246,6 +249,7 @@ const executeCommand = (context: TestMachineContext, event: any) => {
 };
 
 const initExecution = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Initializing execution");
     return new Promise((resolve, reject) => {
         if (context.command) {
             const log: TestCommand = { command: context.command, type: "COMMAND" };
@@ -256,6 +260,7 @@ const initExecution = (context: TestMachineContext, event: any) => {
 }
 
 const executeRequest = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Executing request");
     return new Promise((resolve, reject) => {
         const apiClient = context.apiClient;
         const request = context.nextRequest;
@@ -280,12 +285,14 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                         };
                         resolve(mappedResponse);
                     });
+                getLogger().debug("Succesfully execute request");
             }
         }
     });
 };
 
 const processRequest = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Processing request");
     return new Promise((resolve, reject) => {
         if (context.executionError) {
             const log: TestError = { message: context.executionError, type: "ERROR" };
@@ -300,6 +307,7 @@ const processRequest = (context: TestMachineContext, event: any) => {
             };
             context.logs.push(log);
         }
+        getLogger().error("Succesfully process request");
         resolve({ taskStatus: context.taskStatus });
     });
 };
