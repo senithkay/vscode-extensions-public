@@ -14,6 +14,7 @@
   "scripts": {
     "prebuild": "pnpm run lint",
     "build": "pnpm run clean && tsc --pretty",
+    "build:tools": "tsc ./generator/generator.ts --outDir ./lib/generator",
     "watch": "tsc --pretty --watch",
     "clean": "rimraf build/ && rimraf lib/",
     "clean:nm": "rimraf node_modules",
