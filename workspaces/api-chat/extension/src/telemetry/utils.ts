@@ -40,12 +40,3 @@ export function sendTelemetryException(
     const reporter = getTelemetryReporter();
     reporter.sendTelemetryException(error, { ...properties }, measurements);
 }
-
-// Create common properties for all events
-// export function getCommonProperties(): { [key: string]: string; } {
-//     return {
-//         'idpId': ext.api.userInfo?.idpId || '',
-//         // check if the email ends with "@wso2.com"
-//         'isWSO2User': ext.api.userInfo?.userEmail?.endsWith('@wso2.com') ? 'true' : 'false',
-//     };
-// }
