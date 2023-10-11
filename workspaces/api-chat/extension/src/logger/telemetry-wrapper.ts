@@ -13,11 +13,12 @@
 
 import { IChildLogger } from "@vscode-logging/logger";
 import TelemetryReporter from "@vscode/extension-telemetry";
-import { ERROR_OCCURRED_EVENT } from "@wso2-enterprise/choreo-core";
 
 // This is the telemetry wrapper class that is used to send telemetry data to the App Insights backend.
 // It will implment the IChildLogger interface by wrapping a provided logger instance.
 // It will only send telemetry for error events.
+
+const ERROR_OCCURRED_EVENT = "vscode-error-occurred";
 
 export class TelemetryWrapper implements IChildLogger {
     private logger: IChildLogger;
