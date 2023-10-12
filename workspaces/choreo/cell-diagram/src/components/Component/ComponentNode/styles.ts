@@ -49,16 +49,15 @@ export const ComponentHead: React.FC<any> = styled.div`
 `;
 
 export const ComponentKind: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
-    border: ${(props: StyleProps) => `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
+    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
     border-radius: 50%;
 
     height: ${COMPONENT_CIRCLE_WIDTH / 3}px;
     width: ${COMPONENT_CIRCLE_WIDTH / 3}px;
 
     position: relative;
-    bottom: -28px;
-    right: 28px;
+    bottom: -16px;
+    right: 44px;
 
     display: flex;
     flex-direction: column;
