@@ -479,6 +479,7 @@ const complexModel: Project = {
             connections: [
                 {
                     id: "ABC:BookStore:Products:Products",
+                    label: "BookStore Products",
                     type: "http",
                 },
             ],
@@ -679,6 +680,7 @@ const complexModel: Project = {
     configurations: [
         {
             id: "mysql://mysql",
+            label: "MySQL",
             type: "datastore",
             onPlatform: true,
         },
@@ -689,6 +691,7 @@ const complexModel: Project = {
         },
         {
             id: "twilio://twilio",
+            label: "Twilio",
             type: "connector",
             onPlatform: false,
         },
@@ -699,6 +702,7 @@ const complexModel: Project = {
         },
         {
             id: "dynamoDb://dynamoDb",
+            label: "DynamoDB",
             type: "datastore",
             onPlatform: false,
         },
