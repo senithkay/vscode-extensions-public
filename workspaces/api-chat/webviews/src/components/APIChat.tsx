@@ -84,6 +84,7 @@ const APIChat = (props: {
     logs: (TestCommand | TestResult | TestError)[],
     queries: Queries[]
     showAuthForm: () => void;
+    stopExecution: () => void;
 }) => {
 
     const [testInput, setTestInput] = React.useState("");
@@ -152,7 +153,7 @@ const APIChat = (props: {
                     {props.state === "executing.fetchRequest" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Fetching request...</div>
+                            <div>Generating request...</div>
                         </StatusMessage>
                     )}
                     {props.state === "executing.executeRequest" && (
@@ -170,10 +171,18 @@ const APIChat = (props: {
                     {props.state === "executing.end" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Executing end...</div>
+                            <div>Executing request...</div>
                         </StatusMessage>
                     )}
+
                 </ScrollToBottom>
+                {["executing.initExecution", "executing.fetchRequest", "executing.executeRequest", "executing.processRequest"].includes(props.state) && (
+                    <div style={{ position: "absolute", bottom: "100px", right: "50%", transform: "translateX(50%)" }}>
+                        <VSCodeButton onClick={props.stopExecution} appearance="icon">
+                            <Codicon name="debug-stop" /> &nbsp;Stop Execution
+                        </VSCodeButton>
+                    </div>
+                )}
             </DisplayPanel>
             <CommandPanel>
                 <FlexRow>

@@ -123,5 +123,9 @@ export class ConsoleAPI {
     public setAuthentication(input: AuthBasic | AuthBearer | AuthKey | AuthNone) {
         return this.messenger.sendRequest({ method: 'setAuthentication' }, { type: 'extension' }, input);
     }
+
+    public stopExecution() {
+        return this.messenger.sendRequest({ method: 'stopExecution' }, { type: 'extension' });
+    }
 }
 

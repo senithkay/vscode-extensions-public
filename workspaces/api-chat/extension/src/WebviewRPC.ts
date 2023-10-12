@@ -13,7 +13,7 @@ import { NotificationType, RequestType } from "vscode-messenger-common";
 import {
     getService, runExecute, clearLogs, getState, TestCommand,
     TestResult, Queries, refresh, setUrl, setAuthentication, getAuthentication,
-    AuthBasic, AuthBearer, AuthKey, AuthNone, TestError
+    AuthBasic, AuthBearer, AuthKey, AuthNone, TestError, stopExecution
 } from './TestEngine';
 import { error } from 'console';
 
@@ -35,6 +35,7 @@ const clearTestLogs: NotificationType<void> = { method: 'clearLogs' };
 const refreshConsole: NotificationType<void> = { method: 'refreshConsole' };
 const setAuthenticationNotification: NotificationType<void> = { method: 'setAuthentication' };
 const getAuthenticationNotification: NotificationType<void> = { method: 'getAuthentication' };
+const stopExecutionNotification: NotificationType<void> = { method: 'stopExecution' };
 
 
 // Inform console of changing state
@@ -72,6 +73,10 @@ messenger.onRequest(clearTestLogs, () => {
 // Refresh the console
 messenger.onRequest(refreshConsole, () => {
     refresh();
+});
+
+messenger.onRequest(stopExecutionNotification, () => {
+    stopExecution();
 });
 
 function stateString(state: any): string {
