@@ -61,7 +61,7 @@ export function OperationForm(props: OperationFormProps) {
     const { props: { stSymbolInfo, environment } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-        mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition, connectorInfo } = props;
+            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition, connectorInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
