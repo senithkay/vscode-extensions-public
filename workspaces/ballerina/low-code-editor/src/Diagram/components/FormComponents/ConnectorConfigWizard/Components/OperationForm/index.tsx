@@ -29,7 +29,7 @@ import {
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import classNames from 'classnames';
 
-import {DocIcon} from "../../../../../../assets";
+import { DocIcon } from "../../../../../../assets";
 import { Context } from '../../../../../../Contexts/Diagram';
 import { checkVariableName, getActionReturnType } from "../../../../Portals/utils";
 import { VariableTypeInput } from '../../../ConfigForms/Components/VariableTypeInput';
@@ -37,7 +37,7 @@ import { Form } from "../../../DynamicConnectorForm";
 import { useStyles } from "../../../DynamicConnectorForm/style";
 import { FormTextInput } from "../../../FormFieldComponents/TextField/FormTextInput";
 import { ExpressionInjectablesProps } from '../../../FormGenerator';
-import {generateDocUrl} from "../../../Utils";
+import { generateDocUrl } from "../../../Utils";
 import { wizardStyles } from "../../style";
 import { ConnectorOperation } from '../ConnectorForm';
 import { OperationDropdown } from '../OperationDropdown';
@@ -58,10 +58,10 @@ export interface OperationFormProps {
 }
 
 export function OperationForm(props: OperationFormProps) {
-    const { props: { stSymbolInfo, environment }, api: { webView: { showDocumentationView } } } = useContext(Context);
+    const { props: { stSymbolInfo, environment } } = useContext(Context);
     const symbolInfo: STSymbolInfo = stSymbolInfo;
     const { selectedOperation, showConnectionName, onSave, connectionDetails, onConnectionChange,
-            mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition, connectorInfo } = props;
+        mutationInProgress, isNewConnectorInitWizard, functionDefInfo, expressionInjectables, targetPosition, connectorInfo } = props;
     const wizardClasses = wizardStyles();
     const classes = useStyles();
     const intl = useIntl();
@@ -198,7 +198,7 @@ export function OperationForm(props: OperationFormProps) {
                 id: "lowcode.develop.configForms.connectorOperations.tooltip.title",
                 defaultMessage: "Add a valid name for the response variable. Avoid using special characters, having spaces in the middle, starting with a numerical character, and including keywords such as Return, Foreach, Resource, and Object."
             }),
-    }
+        }
     };
 
     const operations: ConnectorOperation[] = [];
@@ -225,26 +225,6 @@ export function OperationForm(props: OperationFormProps) {
         return typeDescStatus;
     }
 
-    const onToolTipURL = () => {
-        if (docUrl){
-            showDocumentationView(docUrl);
-        }
-    }
-
-    const docLinkComponent = (
-        <>
-            <p>{tooltipInfo}</p>
-            <a className={classes.buttonLink} onClick={onToolTipURL}>more info</a>
-        </>
-    );
-
-    const docToolTip = (
-        <div className={classes.tooltipContainer}>
-            <TooltipIcon title={docLinkComponent} />
-        </div>
-    );
-
-
     return (
         <div>
             {(!selectedOperationState || selectedOperationState === "") && <OperationDropdown operations={operations} onOperationSelect={handleOperationChange} connectionDetails={connectionDetails} showConnectionName={showConnectionName} />}
@@ -253,15 +233,6 @@ export function OperationForm(props: OperationFormProps) {
                     <div className={classNames(wizardClasses.configWizardAPIContainerAuto, wizardClasses.bottomRadius)}>
                         <div className={classes.fullWidth}>
                             <>
-                                <div className={classes.operationTitle}>
-                                    <p className={wizardClasses.subTitle}>Operation<span className={wizardClasses.titleLabelRequired}>*</span></p>
-                                    {docUrl && (
-                                        <IconButton onClick={onToolTipURL} className={classes.docButton}>
-                                            <img src={DocIcon}/>
-                                        </IconButton>
-                                    )}
-                                    {docUrl && docToolTip}
-                                </div>
                                 <Box border={1} borderRadius={5} className={wizardClasses.box}>
                                     <Typography variant="subtitle2">
                                         {(operationLabel?.length > operationLabelMaxLength ? operationLabel?.slice(0, operationLabelMaxLength) + "..." : operationLabel)
@@ -289,7 +260,7 @@ export function OperationForm(props: OperationFormProps) {
                                 )}
                             </div>
 
-                            { operationReturnType?.hasReturn && (
+                            {operationReturnType?.hasReturn && (
                                 <FormTextInput
                                     customProps={{
                                         validate: validateNameValue,
@@ -302,7 +273,7 @@ export function OperationForm(props: OperationFormProps) {
                                     label={addResponseVariableLabel}
                                     errorMessage={responseVarError}
                                 />
-                            ) }
+                            )}
                             {operationReturnType?.hasReturn && hasTypeDesc() && (
                                 <Box className="exp-wrapper">
                                     <VariableTypeInput

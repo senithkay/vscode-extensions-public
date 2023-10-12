@@ -15,14 +15,13 @@ import { commands, Uri, window, workspace } from 'vscode';
 import {
     TREE_ELEMENT_EXECUTE_COMMAND, EXPLORER_TREE_REFRESH_COMMAND, EXPLORER_TREE_NEW_FILE_COMMAND,
     EXPLORER_TREE_NEW_FOLDER_COMMAND, ExplorerTreeItem, EXPLORER_TREE_NEW_MODULE_COMMAND,
-    EXPLRER_TREE_DELETE_FILE_COMMAND, EXPLORER_ITEM_KIND, DOCUMENTATION_VIEW, Module
+    EXPLRER_TREE_DELETE_FILE_COMMAND, EXPLORER_ITEM_KIND, Module
 } from "./model";
 import { ExplorerDataProvider } from "./explorer-tree-data-provider";
 import { existsSync, mkdirSync, open, readFileSync, rm, rmdir } from 'fs';
 import { join, sep } from 'path';
 import { BALLERINA_COMMANDS, PALETTE_COMMANDS, runCommand } from "../project";
 import { showChoreoPushMessage } from "../editor-support/git-status";
-import { showDocumentationView } from "../documentation/docPanel";
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
 
@@ -121,10 +120,6 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             startColumn,
             name
         });
-    });
-
-    commands.registerCommand(DOCUMENTATION_VIEW, async (url: string) => {
-        await showDocumentationView(url);
     });
 
     // ballerinaExtInstance.getDocumentContext().onDiagramTreeElementClicked((construct: ConstructIdentifier) => {
