@@ -18,7 +18,6 @@ import {
 import { activateDebugConfigProvider } from './debugger';
 import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
-import { activate as activatePackageOverview } from './tree-view';
 import { activate as activateTesting } from './testing/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
@@ -81,8 +80,6 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
     activateUriHandlers(ballerinaExtInstance);
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
-        // Enable package overview
-        activatePackageOverview(ballerinaExtInstance);
         // Enable Ballerina diagram
         activateDiagram(ballerinaExtInstance);
         // Enable Ballerina by examples
