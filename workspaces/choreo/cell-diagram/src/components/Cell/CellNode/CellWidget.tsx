@@ -78,11 +78,15 @@ export function CellWidget(props: CellWidgetProps) {
                         <DotWrapper key={connectionNode.getID()}>
                             <Dot>
                                 <CellPortWidget
-                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.LEFT, connectionNode.connection.id))}
+                                    port={node.getPort(
+                                        getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.LEFT, connectionNode.connection.id)
+                                    )}
                                     engine={engine}
                                 />
                                 <CellPortWidget
-                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.RIGHT, connectionNode.connection.id))}
+                                    port={node.getPort(
+                                        getCellPortId(node.getID(), CellBounds.EastBound, PortModelAlignment.RIGHT, connectionNode.connection.id)
+                                    )}
                                     engine={engine}
                                 />
                             </Dot>
@@ -96,11 +100,15 @@ export function CellWidget(props: CellWidgetProps) {
                         <DotWrapper key={connectorNode.getID()}>
                             <Dot>
                                 <CellPortWidget
-                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.TOP, connectorNode.connection.id))}
+                                    port={node.getPort(
+                                        getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.TOP, connectorNode.connection.id)
+                                    )}
                                     engine={engine}
                                 />
                                 <CellPortWidget
-                                    port={node.getPort(getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.BOTTOM, connectorNode.connection.id))}
+                                    port={node.getPort(
+                                        getCellPortId(node.getID(), CellBounds.SouthBound, PortModelAlignment.BOTTOM, connectorNode.connection.id)
+                                    )}
                                     engine={engine}
                                 />
                             </Dot>

@@ -31,6 +31,7 @@ export const CellNode: React.FC<any> = styled.div`
     text-align: center;
     position: relative;
     overflow: visible;
+    pointer-events: none;
 
     #mainCell svg {
         width: 100%;
@@ -38,12 +39,14 @@ export const CellNode: React.FC<any> = styled.div`
         position: absolute;
         top: 0;
         left: 0;
+        pointer-events: none;
     }
 
     #mainCell path {
         stroke: ${Colors.NODE_BORDER};
         stroke-width: 2;
         fill: none;
+        pointer-events: none;
     }
 `;
 

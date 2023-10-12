@@ -16,9 +16,11 @@ import { EmptyModel } from "../Cell/EmptyNode/EmptyModel";
 import { CellBounds } from "../Cell/CellNode/CellModel";
 import { getCellPortMetadata } from "../Cell/CellNode/cell-util";
 import { getEmptyNodeName } from "../Cell/EmptyNode/empty-node-util";
+import { Observations } from "../../types";
 
 export class SharedLinkModel extends DefaultLinkModel {
     diagramEngine: DiagramEngine;
+    observations: Map<string, Observations>;
 
     constructor(id: string, type: string) {
         super({
@@ -194,5 +196,20 @@ export class SharedLinkModel extends DefaultLinkModel {
 					${targetPort.x - 10} ${targetPort.y - 15}`;
         }
         return points;
+    };
+
+    getTooltipPosition = () => {
+        const sourcePortPosition = this.getSourcePort().getPosition();
+        const targetPortPosition = this.getTargetPort().getPosition();
+        const offset = 120;
+        // Get midpoint of the link line
+        return {
+            x: (sourcePortPosition.x + targetPortPosition.x) / 2 - offset,
+            y: (sourcePortPosition.y + targetPortPosition.y) / 2 - offset,
+        };
+    };
+
+    setObservations = (observations: Map<string, Observations>) => {
+        this.observations = observations;
     };
 }

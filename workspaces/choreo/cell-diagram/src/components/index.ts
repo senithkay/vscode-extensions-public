@@ -61,3 +61,5 @@ export * from './DiagramContext/DiagramContext';
 export * from './PromptScreen/PromptScreen';
 
 export * from './Header/Header';
+
+export * from "./ObservationLabel/ObservationLabel";

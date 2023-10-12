@@ -92,10 +92,8 @@ export function CellDiagram(props: CellDiagramProps) {
         models.forEach((item) => {
             if (isRenderInsideCell(item)) {
                 item.registerListener({
-                    eventDidFire: (e) => {
-                        if (e.function === "positionChanged") {
-                            refreshDiagram();
-                        }
+                    positionChanged: () => {
+                        refreshDiagram();
                     },
                 });
             }
@@ -121,7 +119,7 @@ export function CellDiagram(props: CellDiagramProps) {
             }
             // update diagram
             diagramEngine.setModel(model);
-        }, 10);
+        }, 16);
     };
 
     // refresh diagram
@@ -147,7 +145,7 @@ export function CellDiagram(props: CellDiagramProps) {
             diagramEngine.repaintCanvas();
             // update cell node width
             cellNodeWidth.current = cellWidth;
-        }, 4);
+        }, 8);
     };
 
     const ctx = {

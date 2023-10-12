@@ -28,6 +28,7 @@ export const ComponentNode: React.FC<any> = styled.div`
     align-items: center;
     gap: 10px;
     padding: 2px;
+    pointer-events: all;
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`

@@ -7,19 +7,19 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-import styled from '@emotion/styled';
+import { createStyles, makeStyles } from "@material-ui/core/styles";
+import styled from "@emotion/styled";
 
-import { CanvasBackground } from '../resources';
+import { CanvasBackground, MAIN_CELL } from "../resources";
 
 export const useStyles = makeStyles(() =>
     createStyles({
         canvas: {
             backgroundImage: `url('${CanvasBackground}')`,
-            backgroundRepeat: 'repeat',
-            height: '100%',
-            width: '100%'
-        }
+            backgroundRepeat: "repeat",
+            height: "100%",
+            width: "100%",
+        },
     })
 );
 
@@ -42,5 +42,8 @@ export const DiagramContainer = styled.div`
     justify-content: center;
     svg:not(:root) {
         overflow: visible;
+    }
+    [data-nodeid="${MAIN_CELL}"] {
+        pointer-events: none;
     }
 `;

@@ -29,7 +29,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const displayName: string = node.component.id;
 
     useEffect(() => {
-        node.registerListener({
+        const listener = node.registerListener({
             SELECT: (event: any) => {
                 setSelectedLink(event.component as ComponentLinkModel);
             },
@@ -37,6 +37,9 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 setSelectedLink(undefined);
             },
         });
+        return () => {
+            node.deregisterListener(listener);
+        };
     }, [node]);
 
     const handleOnHeaderWidgetClick = () => {

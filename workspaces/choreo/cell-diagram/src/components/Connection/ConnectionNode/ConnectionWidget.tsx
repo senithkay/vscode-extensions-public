@@ -33,7 +33,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
             : `${metadata.project} / ${metadata.component}`) || node.connection.id;
 
     useEffect(() => {
-        node.registerListener({
+        const listener = node.registerListener({
             SELECT: (event: any) => {
                 setSelectedLink(event.component as ComponentLinkModel);
             },
@@ -41,6 +41,9 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 setSelectedLink(undefined);
             },
         });
+        return () => {
+            node.deregisterListener(listener);
+        };
     }, [node]);
 
     const handleOnHeaderWidgetClick = () => {

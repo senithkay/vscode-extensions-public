@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
-import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ExternalLinkModel } from './ExternalLinkModel';
-import { Colors } from '../../../resources';
+import React, { useEffect, useState } from "react";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { ExternalLinkModel } from "./ExternalLinkModel";
+import { Colors } from "../../../resources";
 
 interface WidgetProps {
-	engine: DiagramEngine,
-	link: ExternalLinkModel
+    engine: DiagramEngine;
+    link: ExternalLinkModel;
 }
 
 export function ExternalLinkWidget(props: WidgetProps) {
@@ -23,39 +23,39 @@ export function ExternalLinkWidget(props: WidgetProps) {
     const [isSelected, setIsSelected] = useState<boolean>(false);
 
     useEffect(() => {
-        link.registerListener({
-            'SELECT': selectPath,
-            'UNSELECT': unselectPath
-        })
-    }, [link])
+        const listener = link.registerListener({
+            SELECT: selectPath,
+            UNSELECT: unselectPath,
+        });
+        return () => {
+            link.deregisterListener(listener);
+        };
+    }, [link]);
 
     const selectPath = () => {
         setIsSelected(true);
         link.selectLinkedNodes();
-    }
+    };
 
     const unselectPath = () => {
         setIsSelected(false);
         link.resetLinkedNodes();
-    }
+    };
 
     return (
         <g>
-            <polygon
-                points={link.getArrowHeadPoints()}
-                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
-            />
+            <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER} />
             <path
                 id={link.getID()}
                 d={link.getCurvePath()}
-                cursor={'pointer'}
-                fill={'none'}
+                cursor={"pointer"}
+                fill={"none"}
                 onMouseLeave={unselectPath}
                 onMouseOver={selectPath}
-                pointerEvents={'all'}
+                pointerEvents={"all"}
                 stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
                 strokeWidth={1}
             />
         </g>
-    )
+    );
 }

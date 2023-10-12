@@ -24,12 +24,13 @@ interface StyleProps {
 export const ConnectionNode: React.FC<any> = styled.div`
     color: ${Colors.DEFAULT_TEXT};
     display: flex;
-    flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? 'column': 'row')};
+    flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? "column" : "row")};
     align-items: center;
     justify-content: center;
     text-align: center;
     gap: 10px;
     padding: 2px;
+    pointer-events: all;
 `;
 
 export const ConnectionHead: React.FC<any> = styled.div`

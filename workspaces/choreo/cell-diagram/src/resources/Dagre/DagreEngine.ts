@@ -24,7 +24,7 @@ export class DagreEngine {
         // Create a new directed graph
         const g = new dagre.graphlib.Graph({
             multigraph: true,
-            compound: true
+            compound: true,
         });
         g.setGraph(this.options.graph || {});
         g.setDefaultEdgeLabel(function () {
@@ -49,7 +49,6 @@ export class DagreEngine {
             _.forEach(model.getNodes(), (node) => {
                 if (node.getType() === COMPONENT_NODE) {
                     g.setParent(node.getID(), MAIN_CELL);
-
                 }
             });
         }
@@ -60,7 +59,7 @@ export class DagreEngine {
                 g.setEdge({
                     v: link.getSourcePort().getNode().getID(),
                     w: link.getTargetPort().getNode().getID(),
-                    name: link.getID()
+                    name: link.getID(),
                 });
             }
         });
