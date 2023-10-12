@@ -450,11 +450,6 @@
       "versionPolicyName": "choreo-extension"
     },
     {
-      "packageName": "@wso2-enterprise/ballerina-configurable-editor",
-      "projectFolder": "workspaces/configurable-editor",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
       "packageName": "@wso2-enterprise/ballerina-data-mapper",
       "projectFolder": "workspaces/ballerina/data-mapper",
       "versionPolicyName": "ballerina-extension"

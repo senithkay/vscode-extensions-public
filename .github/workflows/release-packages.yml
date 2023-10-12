@@ -23,8 +23,7 @@ on:
           - 'ballerina/low-code-ui-components'
           - 'ballerina/statement-editor'
           - 'ballerina/syntax-tree'
-          - 'ballerina/project-design-diagrams'                                                                               
-          - 'configurable-editor'
+          - 'ballerina/project-design-diagrams'
       version:
         type: choice
         description: 'Enter the version type'
