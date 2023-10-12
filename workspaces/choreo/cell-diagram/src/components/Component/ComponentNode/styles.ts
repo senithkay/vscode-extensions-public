@@ -44,6 +44,8 @@ export const ComponentHead: React.FC<any> = styled.div`
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+
+    position: relative;
 `;
 
 export const ComponentKind: React.FC<any> = styled.div`
