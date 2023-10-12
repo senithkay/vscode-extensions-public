@@ -367,7 +367,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
 
         component.connections.forEach((connection) => {
             const connectionMetadata = getConnectionMetadata(connection);
-            if (connectionMetadata && !isConnectorConnection(connection) && !isExternalConnection(project.id, connection)) {
+            if (connectionMetadata && !isConnectorConnection(connection) && isInternalComponent(project.id, connection)) {
                 const associatedComponent = nodes.get(getComponentNameById((connectionMetadata as ComponentMetadata).component)) as ComponentModel;
                 if (callingComponent && associatedComponent) {
                     const sourcePort: ComponentPortModel | null = callingComponent.getPort(`right-${callingComponent.getID()}`);
@@ -672,6 +672,11 @@ export function getConnectionMetadata(connection: Connection): ConnectionMetadat
         } as ConnectorMetadata;
     }
     return null;
+}
+
+export function isInternalComponent(projectId: string, connection: Connection): boolean {
+    const metadata = getConnectionMetadata(connection);
+    return metadata && (metadata as ComponentMetadata).project === projectId;
 }
 
 export function isExternalConnection(projectId: string, connection: Connection, skipPlatform?: boolean): boolean {

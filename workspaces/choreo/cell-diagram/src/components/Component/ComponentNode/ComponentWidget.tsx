@@ -26,7 +26,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const { selectedNodeId, focusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
 
-    const displayName: string = node.component.id;
+    const displayName: string = node.component.label || node.component.id;
 
     useEffect(() => {
         const listener = node.registerListener({

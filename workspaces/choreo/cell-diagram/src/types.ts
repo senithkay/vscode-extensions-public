@@ -30,6 +30,7 @@ export enum ComponentType {
 
 export interface Component {
     id: string;
+    label?: string;
     version: string;
     type: ComponentType;
     buildPack?: string; // Component implemented language
@@ -43,7 +44,7 @@ export interface Services {
 
 export interface Service {
     id: string;
-    label: string;
+    label?: string;
     type: string;
     dependencyIds: string[];
     deploymentMetadata?: DeploymentMetadata;
@@ -51,6 +52,7 @@ export interface Service {
 
 export interface Connection {
     id: string;
+    label?: string;
     type?: ConnectionType;
     onPlatform?: boolean;
     observations?: Observations;

@@ -26,11 +26,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
     const { node, engine } = props;
     const { selectedNodeId, focusedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
-    const metadata = getConnectionMetadata(node.connection);
-    const displayName =
-        (metadata.type === ConnectionType.Connector || metadata.type === ConnectionType.Datastore
-            ? metadata.organization
-            : `${metadata.project} / ${metadata.component}`) || node.connection.id;
+    const displayName = node.connection.label || node.connection.id;
 
     useEffect(() => {
         const listener = node.registerListener({
@@ -62,7 +58,9 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             />
-            <ConnectionName onClick={handleOnHeaderWidgetClick} orientation={node.orientation}>{displayName}</ConnectionName>
+            <ConnectionName onClick={handleOnHeaderWidgetClick} orientation={node.orientation}>
+                {displayName}
+            </ConnectionName>
         </ConnectionNode>
     );
 }
