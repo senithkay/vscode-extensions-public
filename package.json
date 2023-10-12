@@ -7,7 +7,6 @@
         "build:bbe": "rush build -o @ballerina/ballerina-by-examples",
         "build:choreoClient": "rush build -o @wso2-enterprise/choreo-client",
         "build:choreoWebviews": "rush build -o @wso2-enterprise/choreo-vscode-webviews",
-        "build:configEditor": "rush build -o @wso2-enterprise/ballerina-configurable-editor",
         "build:dataMapper": "rush build -o @wso2-enterprise/ballerina-data-mapper",
         "build:expressionEditor": "rush build -o @wso2-enterprise/ballerina-expression-editor",
         "build:graphql": "rush build -o graphqlview-lib",
