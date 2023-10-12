@@ -107,11 +107,6 @@
                     "default": true,
                     "markdownDescription": "Enable Ballerina telemetry."
                 },
-                "ballerina.lowCodeMode": {
-                    "type": "boolean",
-                    "default": false,
-                    "markdownDescription": "Enable Ballerina low-code mode."
-                },
                 "ballerina.enableSemanticHighlighting": {
                     "type": "boolean",
                     "default": true,
