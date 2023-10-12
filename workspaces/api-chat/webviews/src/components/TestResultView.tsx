@@ -82,7 +82,6 @@ const RequestPanel = styled.div({
 
 const TestResult = ({ log }: { log: TestResult }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    console.log("payload", log);
 
     const toggleExpansion = () => {
         setIsExpanded(!isExpanded);
@@ -143,7 +142,6 @@ const calculateNumberOfLines = (str: string): number => {
     const approxLines = Math.ceil((str.length * charWidth) / textAreaWidth);
 
     if (lines.length > 25 || approxLines > 25) {
-        console.log("returning 25");
         return 25;
     }
     return Math.max(approxLines, lines.length);
