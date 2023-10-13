@@ -55,7 +55,7 @@ export interface Connection {
     label?: string;
     type?: ConnectionType;
     onPlatform?: boolean;
-    observations?: Observations;
+    observations?: Observations[];
 }
 
 export enum ConnectionType {
@@ -85,16 +85,17 @@ export interface DeploymentMetadata {
     gateways: {
         internet: {
             isExposed: boolean;
-            observations?: Observations;
+            observations?: Observations[];
         };
         intranet: {
             isExposed: boolean;
-            observations?: Observations;
+            observations?: Observations[];
         };
     };
 }
 
 export interface Observations {
+    version?: string;
     sourceNodeId: number;
     destinationNodeId: number;
     avgLatency: number;

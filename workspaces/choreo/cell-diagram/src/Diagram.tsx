@@ -26,13 +26,14 @@ export interface CellDiagramProps {
 
 export function CellDiagram(props: CellDiagramProps) {
     const { project } = props;
-    
+
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
-    const [userMessage, setUserMessage] = useState<string>("");
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
+    const [userMessage, setUserMessage] = useState<string>("");
+    const [observationVersion, setObservationVersion] = useState<string | undefined>(undefined);
 
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
 
@@ -108,7 +109,9 @@ export function CellDiagram(props: CellDiagramProps) {
         setTimeout(() => {
             // manual distribute - update empty node, external node and connector node position based on cell node position
             manualDistribute(model);
-            diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+            if (diagramEngine.getBoundingNodesRect) {                
+                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+            }
             // remove preloader overlay layer
             const overlayLayer = diagramEngine
                 .getModel()
@@ -119,7 +122,8 @@ export function CellDiagram(props: CellDiagramProps) {
             }
             // update diagram
             diagramEngine.setModel(model);
-        }, 16);
+            diagramEngine.repaintCanvas();
+        }, 32);
     };
 
     // refresh diagram
@@ -150,11 +154,13 @@ export function CellDiagram(props: CellDiagramProps) {
 
     const ctx = {
         selectedNodeId,
-        setSelectedNodeId,
-        setHasDiagnostics,
         hasDiagnostics,
         focusedNodeId,
+        observationVersion,
+        setSelectedNodeId,
+        setHasDiagnostics,
         setFocusedNodeId,
+        setObservationVersion,
     };
 
     const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

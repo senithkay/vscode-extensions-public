@@ -7,47 +7,50 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { createContext, ReactNode } from 'react';
-
-interface DiagramContextProps {
-    selectedNodeId: string;
-    hasDiagnostics: boolean;
-    setHasDiagnostics: (hasDiagnostics: boolean) => void;
-    setSelectedNodeId: (id: string) => void;
-    children: ReactNode;
-    focusedNodeId?: string;
-    setFocusedNodeId?: (id: string) => void;
-}
-
+import React, { createContext, ReactNode } from "react";
 interface IDiagramContext {
     selectedNodeId: string;
     hasDiagnostics: boolean;
+    focusedNodeId?: string;
+    observationVersion?: string;
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
     setSelectedNodeId: (id: string) => void;
-    focusedNodeId?: string;
     setFocusedNodeId?: (id: string) => void;
+    setObservationVersion?: (version: string) => void;
+}
+
+interface DiagramContextProps extends IDiagramContext {
+    children: ReactNode;
 }
 
 const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function CellDiagramContext(props: DiagramContextProps) {
-    const { selectedNodeId, setSelectedNodeId, setHasDiagnostics, hasDiagnostics, children, focusedNodeId, setFocusedNodeId } = props;
+    const {
+        children,
+        selectedNodeId,
+        hasDiagnostics,
+        focusedNodeId,
+        observationVersion,
+        setSelectedNodeId,
+        setHasDiagnostics,
+        setFocusedNodeId,
+        setObservationVersion,
+    } = props;
 
     const context: IDiagramContext = {
-        hasDiagnostics,
-        setHasDiagnostics,
         selectedNodeId,
-        setSelectedNodeId,
+        hasDiagnostics,
         focusedNodeId,
-        setFocusedNodeId
-    }
+        observationVersion,
+        setSelectedNodeId,
+        setHasDiagnostics,
+        setFocusedNodeId,
+        setObservationVersion,
+    };
 
-    return (
-        <DiagramContext.Provider value={{ ...context }}>
-            {children}
-        </DiagramContext.Provider>
-    );
+    return <DiagramContext.Provider value={{ ...context }}>{children}</DiagramContext.Provider>;
 }
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

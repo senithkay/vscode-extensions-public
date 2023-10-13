@@ -13,8 +13,6 @@ import { ConnectionModel } from "./ConnectionModel";
 import { ConnectionHeadWidget } from "./ConnectionHead/ConnectionHead";
 import { ConnectionName, ConnectionNode } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { getConnectionMetadata } from "../../../utils";
-import { ConnectionType } from "../../../types";
 import { ComponentLinkModel } from "../../Component/ComponentLink/ComponentLinkModel";
 
 interface ConnectionWidgetProps {
