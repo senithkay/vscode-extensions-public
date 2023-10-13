@@ -15,6 +15,7 @@ import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
+import { MoreVertMenu } from "../../MoreVertMenu/MoreVertMenu";
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -25,6 +26,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
     const { selectedNodeId, focusedNodeId, onComponentClick } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const displayName: string = node.component.label || node.component.id;
 
@@ -49,11 +51,11 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     };
 
     const handleMouseEnter = () => {
-        // console.log("mouse entered");
+        setIsHovered(true);
     };
 
     const handleMouseLeave = () => {
-        // console.log("mouse leave");
+        setIsHovered(false);
     };
 
     return (
@@ -64,6 +66,15 @@ export function ComponentWidget(props: ComponentWidgetProps) {
             onMouseLeave={handleMouseLeave}
             onClick={handleOnWidgetClick}
         >
+            {isHovered && (
+                <MoreVertMenu
+                    id={node.component.id}
+                    menuItems={[
+                        { label: "Go to source", callback: (id) => console.log("Go to source - clicked", id) },
+                        { label: "Observe", callback: (id) => console.log("Observe - clicked", id) },
+                    ]}
+                />
+            )}
             <ComponentHeadWidget
                 engine={engine}
                 node={node}

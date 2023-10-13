@@ -52,14 +52,13 @@ export { ExternalLinkModel } from './External/ExternalLink/ExternalLinkModel';
 export { ExternalLinkWidget } from './External/ExternalLink/ExternalLinkWidget';
 
 export * from './OverlayLoader';
-
-export { DiagramControls } from './Controls/DiagramControls';
-export { NodeCollapser } from './Controls/NodeCollapser';
-
-export * from './DiagramContext/DiagramContext';
-
-export * from './PromptScreen/PromptScreen';
-
-export * from './Header/Header';
-
+export * from "./PromptScreen/PromptScreen";
+export * from "./Header/Header";
 export * from "./ObservationLabel/ObservationLabel";
+export * from "./MoreVertMenu/MoreVertMenu";
+
+export { DiagramControls } from "./Controls/DiagramControls";
+export { NodeCollapser } from "./Controls/NodeCollapser";
+
+export * from "./DiagramContext/DiagramContext";
+
