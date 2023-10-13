@@ -101,19 +101,6 @@ jobs:
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
           echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
 
-      - name: Block if have non related diff files
-        if: ${{ !inputs.isPreRelease }}
-        run: |
-          if [[ ${{ steps.diff.outputs.hasBalDiff }} == "true" && ${{ inputs.ballerina }} != "true" ]]; then
-            echo "Ballerina Changes found in the non Ballerina release"
-            exit 1
-          fi
-
-          if [[ ${{ steps.diff.outputs.hasChoreoDiff }} == "true" && ${{ inputs.choreo }} != "true" ]]; then
-            echo "Choreo Changes found in the non Choreo release"
-            exit 1
-          fi
-
       - name: Build
         uses: ./.github/actions/build
         with:
