@@ -16,6 +16,11 @@ inputs:
     type: boolean
     required: false
     default: true      
+  api-chat:
+    description: Update API Chat extension version
+    type: boolean
+    required: false
+    default: false        
   version:
     default: 'N/A'
     type: string
@@ -74,7 +79,15 @@ runs:
       if: ${{ inputs.choreo == 'true' }}
       uses: ./.github/actions/updateVersion
       with:
-        path: 'ballerina/choreo-extension'
+        path: 'choreo/choreo-extension'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+
+    - name: Update version - API Chat
+      if: ${{ inputs.api-chat == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'api-chat'
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
