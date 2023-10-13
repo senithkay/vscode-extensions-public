@@ -29,6 +29,7 @@ export const ComponentNode: React.FC<any> = styled.div`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
+    cursor: pointer;
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`

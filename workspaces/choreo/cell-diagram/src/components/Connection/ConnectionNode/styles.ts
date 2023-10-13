@@ -31,6 +31,7 @@ export const ConnectionNode: React.FC<any> = styled.div`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
+    cursor: pointer;
 `;
 
 export const ConnectionHead: React.FC<any> = styled.div`
