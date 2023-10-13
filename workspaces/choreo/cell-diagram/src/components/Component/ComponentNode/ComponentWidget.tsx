@@ -23,7 +23,7 @@ interface ComponentWidgetProps {
 
 export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, focusedNodeId } = useContext(DiagramContext);
+    const { selectedNodeId, focusedNodeId, onComponentClick } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
 
     const displayName: string = node.component.label || node.component.id;
@@ -42,15 +42,27 @@ export function ComponentWidget(props: ComponentWidgetProps) {
         };
     }, [node]);
 
-    const handleOnHeaderWidgetClick = () => {
-        // setSelectedNodeId(node.getID());
-        // setFocusedNodeId(undefined);
+    const handleOnWidgetClick = () => {
+        if (onComponentClick) {
+            onComponentClick(node.component.id);
+        }
+    };
+
+    const handleMouseEnter = () => {
+        // console.log("mouse entered");
+    };
+
+    const handleMouseLeave = () => {
+        // console.log("mouse leave");
     };
 
     return (
         <ComponentNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onClick={handleOnWidgetClick}
         >
             <ComponentHeadWidget
                 engine={engine}
@@ -58,7 +70,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 isFocused={node.getID() === focusedNodeId}
             />
-            <ComponentName onClick={handleOnHeaderWidgetClick}>{displayName}</ComponentName>
+            <ComponentName>{displayName}</ComponentName>
 
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />

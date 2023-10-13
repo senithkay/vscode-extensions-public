@@ -17,6 +17,7 @@ interface IDiagramContext {
     setSelectedNodeId: (id: string) => void;
     setFocusedNodeId?: (id: string) => void;
     setObservationVersion?: (version: string) => void;
+    onComponentClick?: (componentId: string) => void;
 }
 
 interface DiagramContextProps extends IDiagramContext {
@@ -37,6 +38,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
         setHasDiagnostics,
         setFocusedNodeId,
         setObservationVersion,
+        onComponentClick,
     } = props;
 
     const context: IDiagramContext = {
@@ -48,6 +50,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
         setHasDiagnostics,
         setFocusedNodeId,
         setObservationVersion,
+        onComponentClick,
     };
 
     return <DiagramContext.Provider value={{ ...context }}>{children}</DiagramContext.Provider>;

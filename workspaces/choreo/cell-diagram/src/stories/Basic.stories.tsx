@@ -1,5 +1,6 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
+import { action } from "@storybook/addon-actions";
 import styled from "@emotion/styled";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
@@ -333,21 +334,22 @@ const observabilityModel: Project = {
                 {
                     id: "ABC:A:Users:basepath",
                     type: "http",
-                    observations: [{
-                        version: "0.2.0",
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
             ],
         },
-       
     ],
     modelVersion: "0.4.0",
 };
@@ -388,8 +390,8 @@ storiesOf("Basic", module).add("Project configurations", () => (
     </Container>
 ));
 
-storiesOf("Basic", module).add("Observability data", () => (
+storiesOf("Basic", module).add("Observability data and events", () => (
     <Container>
-        <CellDiagram project={observabilityModel} />
+        <CellDiagram project={observabilityModel} onComponentClick={action("component clicked")} />
     </Container>
 ));

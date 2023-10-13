@@ -3,6 +3,7 @@ import { storiesOf } from "@storybook/react";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
 import { Container } from "./Basic.stories";
+import { action } from "@storybook/addon-actions";
 
 const simpleModel: Project = {
     id: "110ec58a-a0f2-4ac4-8393-c866d813b8d1",
@@ -473,31 +474,35 @@ const observationsModel: Project = {
                         gateways: {
                             internet: {
                                 isExposed: true,
-                                observations: [{
-                                    version: "0.2.0",
-                                    avgLatency: 136631633,
-                                    destinationNodeId: 1,
-                                    errorCount: 0,
-                                    p50Latency: 21132684,
-                                    p90Latency: 1043810050,
-                                    p99Latency: 2199582500,
-                                    requestCount: 36,
-                                    sourceNodeId: 0,
-                                }],
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 136631633,
+                                        destinationNodeId: 1,
+                                        errorCount: 0,
+                                        p50Latency: 21132684,
+                                        p90Latency: 1043810050,
+                                        p99Latency: 2199582500,
+                                        requestCount: 36,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
                             },
                             intranet: {
                                 isExposed: true,
-                                observations: [{
-                                    version: "0.2.0",
-                                    avgLatency: 207605809,
-                                    destinationNodeId: 2,
-                                    errorCount: 4,
-                                    p50Latency: 22461844,
-                                    p90Latency: 1469733900,
-                                    p99Latency: 1469733900,
-                                    requestCount: 8,
-                                    sourceNodeId: 0,
-                                }],
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 207605809,
+                                        destinationNodeId: 2,
+                                        errorCount: 4,
+                                        p50Latency: 22461844,
+                                        p90Latency: 1469733900,
+                                        p99Latency: 1469733900,
+                                        requestCount: 8,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
                             },
                         },
                     },
@@ -511,17 +516,19 @@ const observationsModel: Project = {
                         gateways: {
                             internet: {
                                 isExposed: true,
-                                observations: [{
-                                    version: "0.2.0",
-                                    avgLatency: 136631633,
-                                    destinationNodeId: 1,
-                                    errorCount: 10,
-                                    p50Latency: 21132684,
-                                    p90Latency: 1043810050,
-                                    p99Latency: 2199582500,
-                                    requestCount: 36,
-                                    sourceNodeId: 0,
-                                }],
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 136631633,
+                                        destinationNodeId: 1,
+                                        errorCount: 10,
+                                        p50Latency: 21132684,
+                                        p90Latency: 1043810050,
+                                        p99Latency: 2199582500,
+                                        requestCount: 36,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
                             },
                             intranet: {
                                 isExposed: false,
@@ -538,17 +545,19 @@ const observationsModel: Project = {
                         gateways: {
                             internet: {
                                 isExposed: true,
-                                observations: [{
-                                    version: "0.2.0",
-                                    avgLatency: 136631633,
-                                    destinationNodeId: 1,
-                                    errorCount: 10,
-                                    p50Latency: 21132684,
-                                    p90Latency: 1043810050,
-                                    p99Latency: 2199582500,
-                                    requestCount: 36,
-                                    sourceNodeId: 0,
-                                }],
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 136631633,
+                                        destinationNodeId: 1,
+                                        errorCount: 10,
+                                        p50Latency: 21132684,
+                                        p90Latency: 1043810050,
+                                        p99Latency: 2199582500,
+                                        requestCount: 36,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
                             },
                             intranet: {
                                 isExposed: false,
@@ -561,34 +570,38 @@ const observationsModel: Project = {
                 {
                     id: "ABC:A:Products:basepath",
                     onPlatform: true,
-                    observations: [{
-                        version: "0.2.0",
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
                 {
                     id: "googleapps://firebase",
                     label: "Firebase",
                     onPlatform: false,
                     type: "datastore",
-                    observations: [{
-                        version: "0.2.0",
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
             ],
         },
@@ -619,33 +632,37 @@ const observationsModel: Project = {
                 {
                     id: "ABC:B:Users:get",
                     onPlatform: true,
-                    observations: [{
-                        version: "0.2.0",
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
                 {
                     id: "mysql://mysql",
                     onPlatform: true,
                     type: "datastore",
-                    observations: [{
-                        version: "0.2.0",
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
             ],
         },
@@ -677,47 +694,53 @@ const observationsModel: Project = {
                     label: "Org Invoices",
                     type: "http",
                     onPlatform: true,
-                    observations: [{
-                        version: "0.2.0",
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
                 {
                     id: "ABC:A:Users:get",
                     onPlatform: true,
-                    observations: [{
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
                 {
                     id: "mysql://mysql",
                     label: "MySQL DB",
                     onPlatform: true,
                     type: "datastore",
-                    observations: [{
-                        avgLatency: 191934320,
-                        destinationNodeId: 1,
-                        errorCount: 0,
-                        p50Latency: 191934320,
-                        p90Latency: 191934320,
-                        p99Latency: 191934320,
-                        requestCount: 1,
-                        sourceNodeId: 2,
-                    }],
+                    observations: [
+                        {
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
                 },
             ],
         },
@@ -725,20 +748,25 @@ const observationsModel: Project = {
     modelVersion: "0.4.0",
 };
 
+const handleComponentClick = (componentId: string) => {
+    action("component clicked")(componentId);
+    console.log("component clicked", componentId);
+};
+
 storiesOf("Complex", module).add("Component links", () => (
     <Container>
-        <CellDiagram project={simpleModel} />
+        <CellDiagram project={simpleModel} onComponentClick={handleComponentClick} />
     </Container>
 ));
 
 storiesOf("Complex", module).add("With unused configurations", () => (
     <Container>
-        <CellDiagram project={complexModel} />
+        <CellDiagram project={complexModel} onComponentClick={handleComponentClick} />
     </Container>
 ));
 
 storiesOf("Complex", module).add("With observability data", () => (
     <Container>
-        <CellDiagram project={observationsModel} />
+        <CellDiagram project={observationsModel} onComponentClick={handleComponentClick} />
     </Container>
 ));

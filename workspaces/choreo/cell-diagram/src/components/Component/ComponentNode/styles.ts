@@ -28,8 +28,7 @@ export const ComponentNode: React.FC<any> = styled.div`
     align-items: center;
     gap: 10px;
     padding: 2px;
-    pointer-events: all;
-    cursor: pointer;
+    pointer-events: all;    
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
@@ -47,6 +46,7 @@ export const ComponentHead: React.FC<any> = styled.div`
     flex-wrap: wrap;
 
     position: relative;
+    cursor: pointer;
 `;
 
 export const ComponentKind: React.FC<any> = styled.div`
@@ -69,7 +69,6 @@ export const ComponentKind: React.FC<any> = styled.div`
 `;
 
 export const ComponentName: React.FC<any> = styled.span`
-    cursor: pointer;
     font-size: ${LABEL_FONT_SIZE}px;
     white-space: nowrap;
     overflow: hidden;

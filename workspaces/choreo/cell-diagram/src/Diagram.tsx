@@ -22,10 +22,11 @@ import { CellModel } from "./components/Cell/CellNode/CellModel";
 
 export interface CellDiagramProps {
     project: Project;
+    onComponentClick?: (componentId: string) => void;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { project } = props;
+    const { project, onComponentClick } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -109,7 +110,7 @@ export function CellDiagram(props: CellDiagramProps) {
         setTimeout(() => {
             // manual distribute - update empty node, external node and connector node position based on cell node position
             manualDistribute(model);
-            if (diagramEngine.getBoundingNodesRect) {                
+            if (diagramEngine.getBoundingNodesRect) {
                 diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
             }
             // remove preloader overlay layer
@@ -161,6 +162,7 @@ export function CellDiagram(props: CellDiagramProps) {
         setHasDiagnostics,
         setFocusedNodeId,
         setObservationVersion,
+        onComponentClick,
     };
 
     const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
