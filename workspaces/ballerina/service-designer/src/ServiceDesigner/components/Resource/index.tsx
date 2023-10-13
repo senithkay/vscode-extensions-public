@@ -20,12 +20,9 @@ import { ModulePart, NodePosition, ResourceAccessorDefinition, STKindChecker, ST
 import classNames from "classnames";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
-import { Context } from "../../../../Contexts/Diagram";
-import { removeStatement } from "../../../utils";
-import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
-import { RecordEditor } from "../../FormComponents/ConfigForms";
-import { useStyles } from "../style";
-import { getKeywordTypes, HTTP_POST, isStructuredType } from "../util";
+import { useStyles } from "../../style";
+import { getKeywordTypes, HTTP_POST, isStructuredType, removeStatement } from "../../util";
+import { visitor as RecordsFinderVisitor } from "../../visitors/records-finder-visitor";
 
 import { ResourceHeader } from "./ResourceHeader";
 
@@ -33,17 +30,30 @@ export interface ResourceBodyProps {
     model: ResourceAccessorDefinition;
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
     isExpandedAll: boolean;
+    currentFile: any;
+    fullST: any;
+    modifyDiagram: any;
+    gotoSource: any;
+    getDiagramEditorLangClient: any;
+    getExpressionEditorLangClient: any;
+    handleResourceDefInternalNav: (model: ResourceAccessorDefinition) => void;
+    renderRecordPanel: (closeRecordEditor: (createdRecord?: string) => void) => JSX.Element
 }
 
 export function ResourceBody(props: ResourceBodyProps) {
-    const { model, handleDiagramEdit, isExpandedAll } = props;
     const {
-        props: { currentFile, fullST },
-        api: {
-            code: { modifyDiagram, gotoSource },
-            ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
-        },
-    } = useContext(Context);
+        model,
+        handleDiagramEdit,
+        isExpandedAll,
+        currentFile,
+        fullST,
+        modifyDiagram,
+        gotoSource,
+        getDiagramEditorLangClient,
+        getExpressionEditorLangClient,
+        renderRecordPanel,
+        handleResourceDefInternalNav
+    } = props;
 
     const editStatementTxt = "Edit in statement editor";
 
@@ -174,29 +184,6 @@ export function ResourceBody(props: ResourceBodyProps) {
             };
             return langClient.getDefinitionPosition(request);
         }
-    };
-
-    const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
-        const eofToken: NodePosition = (fullST as ModulePart).eofToken.position;
-        const lastMemberPosition: NodePosition = {
-            startLine: eofToken.endLine,
-            startColumn: eofToken.endColumn,
-            endLine: eofToken.endLine,
-            endColumn: eofToken.endColumn,
-        }
-        return (
-            <RecordEditor
-                formType={""}
-                targetPosition={lastMemberPosition}
-                name={"record"}
-                onCancel={closeRecordEditor}
-                // tslint:disable-next-line: no-empty
-                onSave={() => { }}
-                isTypeDefinition={true}
-                isDataMapper={false}
-                showHeader={true}
-            />
-        );
     };
 
     function defaultResponseCode() {
@@ -458,8 +445,6 @@ export function ResourceBody(props: ResourceBodyProps) {
         </>
     )
 
-
-
     const handleGoToSource = () => {
         gotoSource(model.position, currentFile.path);
     }
@@ -469,7 +454,14 @@ export function ResourceBody(props: ResourceBodyProps) {
             onClick={handleGoToSource}
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
-                <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
+                <ResourceHeader
+                    isExpanded={isExpanded}
+                    onExpandClick={handleIsExpand}
+                    model={model}
+                    onEdit={onEdit}
+                    onDelete={handleDeleteBtnClick}
+                    handleResourceDefInternalNav={handleResourceDefInternalNav}
+                />
                 {isExpanded && body}
             </div>
         </CtrlClickWrapper>

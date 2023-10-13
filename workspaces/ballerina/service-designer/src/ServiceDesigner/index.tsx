@@ -6,10 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js no-submodule-imports
 import React, { useContext, useEffect, useState } from "react";
 
 import { Grid, Tooltip, Typography } from "@material-ui/core";
+import { default as AddIcon } from "@material-ui/icons/Add";
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
 import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
@@ -23,13 +24,11 @@ import {
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
-import { AddIcon } from "../../../assets/icons";
-import { Context } from "../../../Contexts/Diagram";
-import { RecordEditor } from "../FormComponents/ConfigForms";
-
-import { ResourceBody } from "./Resource";
+import { ResourceBody } from "./components/Resource";
+import { ServiceHeader } from "./components/ServiceHeader/ServiceHeader";
 import { useStyles } from "./style";
 import "./style.scss";
+import { RecordEditorProps } from "./types";
 
 export interface ServiceDesignProps {
     model: STNode;
@@ -41,14 +40,33 @@ export interface ServiceDesignProps {
     };
     onClose: () => void;
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
+    fullST: any;
+    getDiagramEditorLangClient: any;
+    getExpressionEditorLangClient: any;
+    gotoSource: any;
+    handleResourceDefInternalNav: (model: ResourceAccessorDefinition) => void;
+    modifyDiagram: any;
+    recordEditor: (props: RecordEditorProps) => JSX.Element;
 }
 
-export function ServiceDesign(props: ServiceDesignProps) {
+export function ServiceDesigner(props: ServiceDesignProps) {
 
     const {
         model,
-        handleDiagramEdit
+        handleDiagramEdit,
+        currentFile,
+        fullST,
+        getDiagramEditorLangClient,
+        getExpressionEditorLangClient,
+        gotoSource,
+        handleResourceDefInternalNav,
+        langClientPromise,
+        modifyDiagram,
+        onClose,
+        recordEditor
     } = props;
+
+    const RecordEditor = recordEditor;
 
     const [isAllExpanded, setIsAllExpanded] = useState(false);
     const [children, setChildren] = useState<JSX.Element[]>([]);
@@ -56,10 +74,6 @@ export function ServiceDesign(props: ServiceDesignProps) {
     const classes = useStyles();
 
     const serviceST = model as ServiceDeclaration;
-
-    const {
-        props: { fullST },
-    } = useContext(Context);
 
     useEffect(() => {
         const cc: JSX.Element[] = [];
@@ -72,6 +86,14 @@ export function ServiceDesign(props: ServiceDesignProps) {
                             handleDiagramEdit={handleDiagramEdit}
                             model={member as ResourceAccessorDefinition}
                             isExpandedAll={isAllExpanded}
+                            renderRecordPanel={renderRecordPanel}
+                            currentFile={currentFile}
+                            fullST={fullST}
+                            getDiagramEditorLangClient={getDiagramEditorLangClient}
+                            getExpressionEditorLangClient={getExpressionEditorLangClient}
+                            gotoSource={gotoSource}
+                            handleResourceDefInternalNav={handleResourceDefInternalNav}
+                            modifyDiagram={modifyDiagram}
                         />
                     </div>
                 );
@@ -86,16 +108,6 @@ export function ServiceDesign(props: ServiceDesignProps) {
         const ex = !isAllExpanded;
         setIsAllExpanded(ex);
     }
-
-    const handlePlusClick = () => {
-        const lastMemberPosition: NodePosition = {
-            endColumn: serviceST.closeBraceToken.position.endColumn,
-            endLine: serviceST.closeBraceToken.position.endLine,
-            startColumn: serviceST.closeBraceToken.position.startColumn,
-            startLine: serviceST.closeBraceToken.position.startLine
-        }
-        handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel });
-    };
 
     const onSave = () => {
         // Record Editor Save
@@ -123,25 +135,6 @@ export function ServiceDesign(props: ServiceDesignProps) {
         );
     };
 
-    let servicePath = "";
-    let listeningOnText = "";
-    if (serviceST) {
-        serviceST.absoluteResourcePath?.forEach(item => {
-            servicePath += item.value;
-        });
-
-        if (serviceST.expressions.length > 0 && STKindChecker.isExplicitNewExpression(serviceST.expressions[0])) {
-            if (STKindChecker.isQualifiedNameReference(serviceST.expressions[0].typeDescriptor)) {
-                // serviceType = serviceST.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
-                listeningOnText = serviceST.expressions[0].source;
-            }
-        }
-    }
-
-    const handleServiceConfigureFormClick = () => {
-        handleDiagramEdit(model, model?.position, { formType: "ServiceDeclaration", isLoading: false });
-    }
-
     const emptyView = (
         <Grid
             container={true}
@@ -167,27 +160,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
         <div className={classes.root} data-testid="service-design-view">
             {serviceST && (
                 <>
-                    <div className={classes.serviceTitle}>
-                        <div className={classes.flexRow}>
-                            <Typography variant="h4">
-                                Service {servicePath}
-                            </Typography>
-                            <Typography variant="h4" className={classes.listenerText}>
-                                {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ""}
-                            </Typography>
-                        </div>
-                        <div className={classes.flexRow}>
-                            <div data-testid="add-resource-btn" className={classes.resourceAdd} onClick={handlePlusClick} >
-                                <AddIcon />
-                                <div>Resource</div>
-                            </div>
-                            <Tooltip title="Service Config" placement="top" enterDelay={1000} enterNextDelay={1000}>
-                                <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
-                                    <SettingsIcon onClick={handleServiceConfigureFormClick} />
-                                </div>
-                            </Tooltip>
-                        </div>
-                    </div>
+                   <ServiceHeader model={serviceST} handleDiagramEdit={handleDiagramEdit} renderRecordPanel={renderRecordPanel} />
                     {children.length > 0 && (
                         <div className={classes.expandAll}>
                             <div className={classes.collapseBtn} onClick={onExpandAllClick}>

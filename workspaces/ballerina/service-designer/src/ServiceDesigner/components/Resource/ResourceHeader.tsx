@@ -11,18 +11,15 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Tooltip } from "@material-ui/core";
 import {
-    DesignViewIcon, EditIcon, ErrorIcon, LabelDeleteIcon, LabelEditIcon, STModification, WarningIcon
+    ComponentViewInfo, DesignViewIcon, EditIcon, ErrorIcon, LabelDeleteIcon, LabelEditIcon, STModification, WarningIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { useDiagramContext } from "../../../../Contexts/Diagram";
-import { useHistoryContext } from "../../../../DiagramViewManagerClone/context/history";
-import { ComponentViewInfo } from "../../../../OverviewDiagram/util";
-import "../style.scss";
-
 import { ResourceQueryParams } from "./ResourceQueryParams";
+import "./style.scss";
+
 
 interface ResourceHeaderProps {
     model: ResourceAccessorDefinition;
@@ -30,21 +27,15 @@ interface ResourceHeaderProps {
     isExpanded: boolean;
     onEdit: () => void;
     onDelete: () => void;
+    handleResourceDefInternalNav: (model: ResourceAccessorDefinition) => void;
 }
 
 export function ResourceHeader(props: ResourceHeaderProps) {
-    const { model, onExpandClick, isExpanded, onEdit, onDelete } = props;
-    const { history } = useHistoryContext();
-    const { api: { navigation: { updateSelectedComponent } } } = useDiagramContext();
+    const { model, onExpandClick, isExpanded, onEdit, onDelete, handleResourceDefInternalNav } = props;
 
     const handleResourceHeaderClick = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        const currentElementInfo = history[history.length - 1];
-        const componentViewInfo: ComponentViewInfo = {
-            filePath: currentElementInfo.file,
-            position: model.position
-        }
-        updateSelectedComponent(componentViewInfo);
+        handleResourceDefInternalNav(model);
     }
 
     return (

@@ -6,7 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DiagramDiagnostic, Field } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, RecordTypeDesc, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 export interface PathSegment {
     id: number;
@@ -90,4 +91,30 @@ export interface Advanced {
 export interface AdvancedResourceState {
     path: Map<number, boolean>;
     payloadSelected: Map<number, boolean>;
+}
+
+export interface RecordEditorProps {
+    name: string;
+    model?: RecordTypeDesc | TypeDefinition;
+    targetPosition?: NodePosition;
+    formType: string;
+    isTypeDefinition?: boolean;
+    isDataMapper?: boolean;
+    onCancel: (createdNewRecord?: string) => void;
+    onSave: (typeDesc: string, recModel: RecordModel) => void;
+    showHeader?: boolean;
+    filePath?: string;
+    currentST?: STNode;
+}
+export interface RecordModel {
+    name: string;
+    type?: string;
+    fields: Field[];
+    isInline?: boolean;
+    isOptional?: boolean;
+    isArray?: boolean;
+    isClosed?: boolean;
+    isActive?: boolean;
+    isTypeDefinition?: boolean;
+    isPublic?: boolean;
 }

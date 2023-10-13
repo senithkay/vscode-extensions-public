@@ -16,88 +16,6 @@ export const useStyles = makeStyles(() =>
             height: "100%",
             overflow: "hidden"
         },
-        plusButton: {
-            marginLeft: 18
-        },
-        headerContainer: {
-            width: "100%",
-            // height: 50,
-            display: "flex",
-            padding: 15,
-            backgroundColor: "white",
-            alignItems: "center",
-            borderBottom: "1px solid rgba(102,103,133,0.15)"
-        },
-        homeButton: {
-            cursor: "pointer",
-            marginRight: 10
-        },
-        closeButton: {
-            cursor: "pointer",
-        },
-        title: {
-            fontWeight: 600,
-            marginRight: 10
-        },
-        configurationButton: {
-            "& :hover": {
-                background: "#e5e6ea",
-                cursor: "pointer"
-            },
-            boxSizing: "border-box",
-            padding: "4px 16px 4px 10px",
-            background: "#F7F8FB",
-            border: "1px solid #E0E2E9",
-            boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.05)",
-            borderRadius: 5,
-            display: "inline-flex",
-            color: "#40404B",
-            alignItems: "center",
-            position: "absolute",
-            right: 15,
-        },
-        confBtnText: {
-            fontWeight: 400,
-            fontSize: 13,
-            lineHeight: 24,
-            marginLeft: 5,
-        },
-        breadCrumb: {
-            width: "100%",
-            display: "flex"
-        },
-        resourceMethodPathWrapper: {
-            display: 'flex',
-            flexDirection: 'row',
-            padding: '15px 5px'
-        },
-        methodTypeContainer: {
-            display: 'block',
-            width: '35%',
-        },
-        resourcePathWrapper: {
-            width: '63%',
-            marginLeft: theme.spacing(1.25)
-        },
-        advancedToggleWrapper: {
-            width: '10%',
-            marginTop: 32
-        },
-        plusIconWrapper: {
-            height: 16,
-            width: 16,
-            marginTop: 5
-        },
-        wizardFormControlExtended: {
-            width: 600,
-            "& .MuiFormControl-marginNormal": {
-                margin: '0 !important',
-            },
-        },
-        resourceWrapper: {
-            marginBottom: "15px",
-            padding: "5px 0"
-        },
         serviceList: {
             overflowY: "scroll",
             maxHeight: "90%"
@@ -163,10 +81,6 @@ export const useStyles = makeStyles(() =>
             marginTop: -15,
             cursor: "pointer"
         },
-        editButton: {
-            paddingRight: 16,
-            cursor: "pointer"
-        },
         serviceTitle: {
             display: "flex",
             flexDirection: "row",
@@ -181,7 +95,7 @@ export const useStyles = makeStyles(() =>
         flexRow: {
             display: "flex",
             flexDirection: "row",
-            gap: 8,
+            gap: 8
         },
         serviceConfigure: {
             cursor: "pointer",
@@ -197,32 +111,9 @@ export const useStyles = makeStyles(() =>
                 fill: "#8d91a3",
             },
         },
-        resourceAdd: {
-            cursor: "pointer",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-end",
-            borderRadius: 3,
-            padding: "4px 9px 4px 6px",
-            backgroundColor: theme.palette.primary.main,
-            color: "white",
-        },
-        navigationIcon: {
-            display: "flex",
-            margin: "0 5px",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        servicePath: {
-            fontSize: 20,
-            fontWeight: 400
-        },
         listenerText: {
             color: theme.palette.text.hint,
             fontWeight: 400
-        },
-        addResource: {
-            height: '30px !important',
         },
         gridContainer: {
             marginTop: "5%"
