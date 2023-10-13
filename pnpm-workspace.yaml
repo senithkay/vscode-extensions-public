@@ -4,3 +4,4 @@ packages:
   - 'workspaces/choreo/*'
   - 'workspaces/common-libs/*'
   - 'workspaces/api-chat/*'
+  - 'workspaces/common-libs/*'

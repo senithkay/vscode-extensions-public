@@ -49,6 +49,11 @@ export interface TestError {
     message: string;
 }
 
+export interface FinalResult {
+    type: "FINAL_RESULT";
+    message: string;
+}
+
 
 export interface AuthBasic {
     type: "basic";
@@ -86,9 +91,10 @@ export interface TestMachineContext {
     executionError?: string;
     //}
     lastResult?: Response;
-    logs: (TestCommand | TestResult | TestError)[];
+    logs: (TestCommand | TestResult | TestError | FinalResult)[];
     authData: AuthBasic | AuthBearer | AuthKey | AuthNone;
     errorMessage?: string;
+    finalResult?: string;
 }
 
 interface SetOpenAPIEvent {
@@ -262,6 +268,11 @@ const initExecution = (context: TestMachineContext, event: any) => {
 const executeRequest = (context: TestMachineContext, event: any) => {
     getLogger().debug("Executing request");
     return new Promise((resolve, reject) => {
+        // if the status is completed skip
+        if (context.taskStatus == "COMPLETED") {
+            // nothing to do return empty object
+            resolve({});
+        }
         const apiClient = context.apiClient;
         const request = context.nextRequest;
         if (apiClient === undefined) {
@@ -297,6 +308,14 @@ const processRequest = (context: TestMachineContext, event: any) => {
         if (context.executionError) {
             const log: TestError = { message: context.executionError, type: "ERROR" };
             context.logs.push(log);
+        }
+        else if (context.finalResult) {
+            let log: FinalResult = {
+                type: 'FINAL_RESULT',
+                message: context.finalResult
+            }
+            context.logs.push(log);
+            context.finalResult = undefined;
         }
         //todo combine to create log
         else if (context.nextRequest && context.lastResult) {
@@ -468,6 +487,7 @@ const testMachine = createMachine({
                                 nextRequest: (context, event) => event.data.resource,
                                 taskStatus: (context, event) => event.data.taskStatus,
                                 testCaseId: (context, event) => event.data.testCaseId,
+                                finalResult: (context, event) => event.data.result,
                                 executionError: undefined
                             })
                         },

@@ -10,7 +10,7 @@
 import React, { useEffect } from 'react';
 import URLForm from './components/URLForm';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
-import { ConsoleAPI, StateChangeEvent, TestCommand, TestResult, Queries, TestError } from "./ConsoleAPI";
+import { ConsoleAPI, StateChangeEvent, TestCommand, TestResult, Queries, TestError, FinalResult } from "./ConsoleAPI";
 import APIChat from './components/APIChat';
 import AuthForm from './components/AuthForm';
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
@@ -37,7 +37,7 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
 
 const Webview = () => {
     const [state, setState] = React.useState("");
-    const [logs, setLogs] = React.useState<(TestCommand | TestResult | TestError)[]>([]);
+    const [logs, setLogs] = React.useState<(TestCommand | TestResult | TestError | FinalResult)[]>([]);
     const [queries, setQueries] = React.useState<Queries[]>([]);
     const [errorMessage, setErrorMessage] = React.useState<string>("");
     const [showAuthForm, setShowAuthForm] = React.useState(false);

@@ -62,9 +62,14 @@ export interface AuthNone {
     type: "none"
 }
 
+export interface FinalResult {
+    type: "FINAL_RESULT";
+    message: string;
+}
+
 export interface StateChangeEvent {
     state: string;
-    logs: (TestCommand | TestResult | TestError)[];
+    logs: (TestCommand | TestResult | TestError | FinalResult)[];
     queries: Queries[];
     errorMessage?: string;
 }

@@ -12,7 +12,7 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { ConsoleAPI, TestCommand, TestResult, Queries, TestError } from "../ConsoleAPI";
+import { ConsoleAPI, TestCommand, TestResult, Queries, TestError, FinalResult } from "../ConsoleAPI";
 import { VSCodeButton, VSCodeTextField, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { } from '@vscode/webview-ui-toolkit';
 import styled from "@emotion/styled";
@@ -21,6 +21,7 @@ import { Codicon } from '../Codicon/Codicon';
 import ScrollToBottom from "react-scroll-to-bottom";
 import { css } from "@emotion/css";
 import TestResultView from "./TestResultView";
+import apichatIcon from '../../resources/images/apichat.svg';
 
 
 const Command = styled.div({
@@ -81,7 +82,7 @@ const ROOT_CSS = css({
 
 const APIChat = (props: {
     state: string,
-    logs: (TestCommand | TestResult | TestError)[],
+    logs: (TestCommand | TestResult | TestError | FinalResult)[],
     queries: Queries[]
     showAuthForm: () => void;
     stopExecution: () => void;
@@ -129,7 +130,7 @@ const APIChat = (props: {
                         {props.logs.map((log) => {
                             if (log.type === "COMMAND") {
                                 return <Command>
-                                    <p><Codicon name="beaker" />&nbsp; {log.command}</p>
+                                    <p><Codicon name="account" />&nbsp; {log.command}</p>
                                 </Command>;
                             }
                             if (log.type === "RESULT") {
@@ -139,6 +140,9 @@ const APIChat = (props: {
                                 return <Error>
                                     <p><Codicon name="error" />&nbsp; {log.message}</p>
                                 </Error>;
+                            }
+                            if (log.type === "FINAL_RESULT") {
+                                return <p><img src={apichatIcon} alt="API Chat Icon" width="16" height="16" />&nbsp; {(log as FinalResult).message}</p>
                             }
                             return null;
                         })
