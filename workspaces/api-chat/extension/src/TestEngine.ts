@@ -11,6 +11,7 @@ import * as vscode from 'vscode';
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { actions, createMachine, interpret, State, assign, EventObject } from 'xstate';
 import API from './API';
+import { getLogger } from './logger/logger';
 
 
 
@@ -43,6 +44,12 @@ export interface TestResult {
     output: Response;
 }
 
+export interface TestError {
+    type: "ERROR";
+    message: string;
+}
+
+
 export interface AuthBasic {
     type: "basic";
     username: string;
@@ -71,11 +78,15 @@ export interface TestMachineContext {
     apiSpec?: any;
     queries?: any;
     command?: string;
+    //requestState: {
+    // Following will capture state on request execution
     nextRequest?: Request;
     taskStatus?: string;
     testCaseId?: string;
+    executionError?: string;
+    //}
     lastResult?: Response;
-    logs: (TestCommand | TestResult)[];
+    logs: (TestCommand | TestResult | TestError)[];
     authData: AuthBasic | AuthBearer | AuthKey | AuthNone;
     errorMessage?: string;
 }
@@ -114,6 +125,7 @@ function extractApiUrl(openapi: any): string | undefined {
 }
 
 function makeRequest(apiClient: AxiosInstance, request: Request, authData: any) {
+    getLogger().debug("Generating request");
     const path = replacePathParameters(request);
     request.path = path;
     // console.log(`curl -X ${request.method} ${apiClient.getUri()}${path} -d '${JSON.stringify(request.inputs.requestBody)}'`);
@@ -208,6 +220,7 @@ const getTools = (context: TestMachineContext, event: any) => {
 };
 
 const executeCommand = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Executing command");
     return new Promise((resolve, reject) => {
         const payload = (context.taskStatus === undefined) ?
             { apiSpec: context.apiSpec, command: context.command } :
@@ -224,13 +237,19 @@ const executeCommand = (context: TestMachineContext, event: any) => {
                     }
                 })
                 .catch((error: any) => {
-                    reject(error);
+                    // if error has a response payload then return meesage from payload
+                    if (error.response && error.response.data && error.response.data.message) {
+                        reject(error.response.data.message);
+                    }
+                    // else return error message
+                    reject(error.message);
                 });
         });
     });
 };
 
 const initExecution = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Initializing execution");
     return new Promise((resolve, reject) => {
         if (context.command) {
             const log: TestCommand = { command: context.command, type: "COMMAND" };
@@ -241,6 +260,7 @@ const initExecution = (context: TestMachineContext, event: any) => {
 }
 
 const executeRequest = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Executing request");
     return new Promise((resolve, reject) => {
         const apiClient = context.apiClient;
         const request = context.nextRequest;
@@ -265,15 +285,21 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                         };
                         resolve(mappedResponse);
                     });
+                getLogger().debug("Succesfully execute request");
             }
         }
     });
 };
 
 const processRequest = (context: TestMachineContext, event: any) => {
+    getLogger().debug("Processing request");
     return new Promise((resolve, reject) => {
+        if (context.executionError) {
+            const log: TestError = { message: context.executionError, type: "ERROR" };
+            context.logs.push(log);
+        }
         //todo combine to create log
-        if (context.nextRequest && context.lastResult) {
+        else if (context.nextRequest && context.lastResult) {
             let log: TestResult = {
                 type: "RESULT",
                 request: context.nextRequest,
@@ -281,6 +307,7 @@ const processRequest = (context: TestMachineContext, event: any) => {
             };
             context.logs.push(log);
         }
+        getLogger().error("Succesfully process request");
         resolve({ taskStatus: context.taskStatus });
     });
 };
@@ -324,7 +351,7 @@ const generateAuthHeaders = (authData: AuthBasic | AuthBearer | AuthKey | AuthNo
 };
 
 const testMachine = createMachine({
-    /** @xstate-layout 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-Hc-wvggA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QBU4BcCiA7KBLLYAxAEoYDKGyA2gAwC6ioADgPay5q4taMgAeiAIw0AHADoArACYA7IIDMUwYIAsK+TJkBOADQgAnogC0msSqnzBWrTPkTVcgGwBfZ3tSxMOfEVIAxUjIACVoGJBBWdk5uXgEEKXUZMS0VeyUREXtHCT1DBCMVRzEMkS1ZO0FS2xTXd3RsPAIxfA5CCmQAfQB5AAUMADkAQR6ASVDeSI4uHnC4q3kiwQlHcus7TRFcxFlxGilRDRE9o4ktWpAPL0awMQAbFgBDCHwoMRg0ZBYWW9hCCG4bvgAG4sADWN3en2+sHG4Um0RmoDiFgsYkc6JkiRo8nMIhUWwQyxoYg0EhoyhEjmEgnOlwaPjuj2eODeYA+Xx+hDAACduSxuWImLcHmgAGb8gC2rPZ0NhzDYUxis22MikEkklhxgnReJojgJakEYkEauxNBkRxo5hcbgu9W8TXuTxeYgAxtywCKwABhW64MBYNB-AHNLAg8Fuj1e33+wNyiIKhGxFVqjUKFTaxy6-UGFOSfYiLWFRwpVS0+3XRnOlnuz1oH1+gNBnl8gVCkXi7lS2vRxtx+gTRPTZPxRTyNEYrE4qR4gmyI0aFTWCTyGwrPHlzz0x1Ml3vACq3NubUoHX3xAAMvH4cPlaPUejHJiNNjcfjcwhLOIRJitBlHPIIgWFa8iblcDJRhA+iEBgAAaGDevuyAYNeQ5KkiQgyE+JKaMo1iqjOKibB+ygKGImjmloSz-gBYHbjckHQd6F4YIMxCoVEt4YZ+ezqjsVL2KIjjvnkwlFDO1gZiWpwAWctp0g6DGelBhDel0-R+CMADi54YB0zEjAM1ADnCaGIvw2ynLs5irpkKxSOiBJ2WYEhASIpGCcsdGKWIYB8GAroAK6cDghCaf0IzBBxirmciNA0Oqqortk2hWtIxF5NY4g2FhpRLCWjg0HJdRbj5fkBcFLotJg-lBQiwZNMCYKAlgHAYK6FUItFSZ3hYRQJVYNhlHqQESCJiAqJiaJWsI1gmquRESN5lblXVLqimyroABbEGAACOgXoA1LXhjcq3BWA3VcRZCCFeOWiufI5IOeoAHjQgcgqMkqXJcsCglstDLnSFrwbWg227QdR0tvygrCmKkq+bVF1XehN13ckj3PcJCw4gaUhaGICTLmawjmEt8kVkDyMg0jnVgJDh2eMdoanXTdUM-tTNoKjsWIFoOLGhR2RkulUgEjI8XkQToiSZqlSA00wMusDnNQ8zMNtvDnZSqrjPoLzI5aCWySVNICWFio5pOeoJIzmqTgONIitnTTLpMHyHWwLA+vM-8jVhs1gqe3APtcwbJnypxaNzOoUjkQcihOBsGWIDjxoJBkEi2IUOUu+zlUsh7LBe2H6tBv7J1B8Xpe+zzghhFHMVG4LgjCxIov2wSpz3a5aolnqRXZPnytFyH3t11yvKw+2CNdsHJeh3Xht3qoigJ4WSfain3cPWixMWNnsgATSlOlSt0-ciQlDEAAmiv3H7CkaKqIVWjYuiRVOUaZLxeSwhSCUF5M+4ElZuxZGDCG4dmZkGQL0B+N0xpFEKkuI47k7oWgJAA+OX4lgOQtFmICI9wGvD1tAoMsD4GRwTNHPmH0BbGlEFaC0xsjgWAJGUQmb9SgaCUFbCmtosAsAgHAXgClriDloSOIwCQCRGG1F9MolgkqSypJNKQ+dqqSObnePEaIqLbyetIPq70TRfXSjiOaKxJrknzk6ZkUBtE9UfqRF+hQiofzflgwsRNf6qGWDiSkog7G7hZJCDk8BTJSN6ksLhr8PELC8R+dQxIfxkm1HqeYJobQlVATcexLoez1hjE2Jx11kRZDMNoGcsTsSlDnJLciS4-zVFKMlFQITqyvAPEeMpMdthWGQRiH8g0gKCAaeqB6hYZYW0mjIfOjE+l0JnEBEk6gfyEU0H1JyywXKFnNEoY2Ggcl2nPtTTqLwlkjlkR+LUTT8KYhFr+DpID6IF1ptVDAbs0Y3n6R9cWySySMKtjYAmk01AaNeWVEhYhIE7XIVcu85hFGZPRKcGQY1rQGiBWTIqqoUiYnMMQi5LIyHl0RdxLC8cCbamkLS422cJZkQLBYbQP49QaGJWtMei8J4IqiTo7i2TiT4tUBkQByhRDd0yDhJcohMiFHsCILlhdSFYAgBSm6bcNDAsqO-aQKxsjSuJG3IieJCxWD2KfXJbzNaauRO-LhuEqJZkAacHIH535iETooQqo1hLKtcM4IAA */
     id: "TestEngine",
     initial: "init",
     predictableActionArguments: true,
@@ -440,16 +467,22 @@ const testMachine = createMachine({
                             actions: assign({
                                 nextRequest: (context, event) => event.data.resource,
                                 taskStatus: (context, event) => event.data.taskStatus,
-                                testCaseId: (context, event) => event.data.testCaseId
+                                testCaseId: (context, event) => event.data.testCaseId,
+                                executionError: undefined
                             })
                         },
                         onError: {
-                            target: "end",
+                            target: "processRequest",
                             actions: assign({
-                                nextRequest: (context, event) => event.data,
+                                executionError: (context, event) => event.data,
+                                taskStatus: "TERMINATED"
                             })
                         }
                     },
+
+                    on: {
+                        STOP: "end"
+                    }
                 },
                 executeRequest: {
                     invoke: {
@@ -464,6 +497,10 @@ const testMachine = createMachine({
                         onError: {
                             target: "end",
                         }
+                    },
+
+                    on: {
+                        STOP: "end"
                     }
                 },
                 processRequest: {
@@ -562,4 +599,8 @@ export function setAuthentication(authData: AuthBasic | AuthBearer | AuthKey | A
 
 export function getAuthentication(): AuthBasic | AuthBearer | AuthKey | AuthNone {
     return service.getSnapshot().context.authData;
+}
+
+export function stopExecution() {
+    service.send({ type: "STOP" });
 }

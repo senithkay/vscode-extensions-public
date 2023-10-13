@@ -10,7 +10,7 @@
 import React, { useEffect } from 'react';
 import URLForm from './components/URLForm';
 import { VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
-import { ConsoleAPI, StateChangeEvent, TestCommand, TestResult, Queries } from "./ConsoleAPI";
+import { ConsoleAPI, StateChangeEvent, TestCommand, TestResult, Queries, TestError } from "./ConsoleAPI";
 import APIChat from './components/APIChat';
 import AuthForm from './components/AuthForm';
 import { VSCodeButton } from '@vscode/webview-ui-toolkit/react';
@@ -37,7 +37,7 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
 
 const Webview = () => {
     const [state, setState] = React.useState("");
-    const [logs, setLogs] = React.useState<(TestCommand | TestResult)[]>([]);
+    const [logs, setLogs] = React.useState<(TestCommand | TestResult | TestError)[]>([]);
     const [queries, setQueries] = React.useState<Queries[]>([]);
     const [errorMessage, setErrorMessage] = React.useState<string>("");
     const [showAuthForm, setShowAuthForm] = React.useState(false);
@@ -92,6 +92,11 @@ const Webview = () => {
         ConsoleAPI.getInstance().refreshConsole();
     };
 
+    const handleStopExecution = () => {
+        ConsoleAPI.getInstance().stopExecution();
+    }
+
+
     return <>
         {(() => {
             if (showAuthForm) {
@@ -114,7 +119,12 @@ const Webview = () => {
                     case "executing.executeRequest":
                     case "executing.processRequest":
                     case "executing.end":
-                        return <APIChat state={state} logs={logs} queries={queries} showAuthForm={handleShowAuth} />;
+                        return <APIChat
+                            state={state}
+                            logs={logs}
+                            queries={queries}
+                            showAuthForm={handleShowAuth}
+                            stopExecution={handleStopExecution} />;
                     default:
                         return <StatusMessage style={{ flexDirection: "column" }}>
                             <div>

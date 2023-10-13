@@ -10,6 +10,7 @@
 import * as path from 'path';
 
 import { runTests } from '@vscode/test-electron';
+import { getLogger } from '../logger/logger';
 
 async function main() {
 	try {
@@ -24,6 +25,7 @@ async function main() {
 		// Download VS Code, unzip it and run the integration test
 		await runTests({ extensionDevelopmentPath, extensionTestsPath });
 	} catch (err) {
+		getLogger().error('Failed to run tests', err);
 		console.error('Failed to run tests', err);
 		process.exit(1);
 	}

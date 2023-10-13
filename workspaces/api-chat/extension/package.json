@@ -1,6 +1,6 @@
 {
   "name": "api-chat",
-  "displayName": "WSO2 APIChat",
+  "displayName": "WSO2 API Chat",
   "description": "Test APIs with OpenAPI descriptions",
   "version": "0.9.3",
   "publisher": "WSO2",
@@ -21,21 +21,21 @@
     "commands": [
       {
         "command": "api-chat.console",
-        "title": "Open Test Console",
-        "category": "api-chat",
+        "title": "Open API Chat",
+        "category": "API Chat",
         "when": "editorLangId == yaml && isFileOpenAPI",
-        "icon": "$(beaker)"
+        "icon": "resources/images/apichat.svg"
       },
       {
         "command": "api-chat.clear",
         "title": "Clear",
-        "category": "api-chat",
+        "category": "API Chat",
         "icon": "$(clear-all)"
       },
       {
         "command": "api-chat.refresh",
         "title": "Refresh ",
-        "category": "api-chat",
+        "category": "API Chat",
         "icon": "$(refresh)"
       }
     ],
@@ -105,6 +105,9 @@
     "webpack": "~5.88.2",
     "xstate": "^4.38.2",
     "yaml": "^2.3.2",
-    "dotenv-webpack": "~8.0.1"
+    "@vscode-logging/types": "~0.1.4",
+    "@vscode-logging/wrapper": "~1.0.2",
+    "@vscode/extension-telemetry": "~0.7.7",
+    "@vscode-logging/logger": "~1.2.3"
   }
 }

@@ -12,7 +12,7 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { ConsoleAPI, TestCommand, TestResult, Queries } from "../ConsoleAPI";
+import { ConsoleAPI, TestCommand, TestResult, Queries, TestError } from "../ConsoleAPI";
 import { VSCodeButton, VSCodeTextField, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { } from '@vscode/webview-ui-toolkit';
 import styled from "@emotion/styled";
@@ -28,6 +28,11 @@ const Command = styled.div({
     borderBottom: "1px solid var(--vscode-chat-requestBorder)",
     borderTop: "1px solid var(--vscode-chat-requestBorder)",
     padding: "0 20px"
+});
+
+const Error = styled.div({
+    padding: "0 20px",
+    color: "var(--vscode-inputValidation-errorBorder)",
 });
 
 const Layout = styled.div({
@@ -76,9 +81,10 @@ const ROOT_CSS = css({
 
 const APIChat = (props: {
     state: string,
-    logs: (TestCommand | TestResult)[],
+    logs: (TestCommand | TestResult | TestError)[],
     queries: Queries[]
     showAuthForm: () => void;
+    stopExecution: () => void;
 }) => {
 
     const [testInput, setTestInput] = React.useState("");
@@ -129,6 +135,11 @@ const APIChat = (props: {
                             if (log.type === "RESULT") {
                                 return <TestResultView log={log} />
                             }
+                            if (log.type === "ERROR") {
+                                return <Error>
+                                    <p><Codicon name="error" />&nbsp; {log.message}</p>
+                                </Error>;
+                            }
                             return null;
                         })
                         }
@@ -142,7 +153,7 @@ const APIChat = (props: {
                     {props.state === "executing.fetchRequest" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Fetching request...</div>
+                            <div>Generating request...</div>
                         </StatusMessage>
                     )}
                     {props.state === "executing.executeRequest" && (
@@ -160,10 +171,18 @@ const APIChat = (props: {
                     {props.state === "executing.end" && (
                         <StatusMessage>
                             <SmallProgressRing />
-                            <div>Executing end...</div>
+                            <div>Executing request...</div>
                         </StatusMessage>
                     )}
+
                 </ScrollToBottom>
+                {["executing.initExecution", "executing.fetchRequest", "executing.executeRequest", "executing.processRequest"].includes(props.state) && (
+                    <div style={{ position: "absolute", bottom: "100px", right: "50%", transform: "translateX(50%)" }}>
+                        <VSCodeButton onClick={props.stopExecution} appearance="icon">
+                            <Codicon name="debug-stop" /> &nbsp;Stop Execution
+                        </VSCodeButton>
+                    </div>
+                )}
             </DisplayPanel>
             <CommandPanel>
                 <FlexRow>

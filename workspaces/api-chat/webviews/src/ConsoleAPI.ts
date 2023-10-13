@@ -31,6 +31,11 @@ export interface TestResult {
     output: Response;
 }
 
+export interface TestError {
+    type: "ERROR";
+    message: string;
+}
+
 export interface Queries {
     query: string;
     scenario: string;
@@ -59,7 +64,7 @@ export interface AuthNone {
 
 export interface StateChangeEvent {
     state: string;
-    logs: (TestCommand | TestResult)[];
+    logs: (TestCommand | TestResult | TestError)[];
     queries: Queries[];
     errorMessage?: string;
 }
@@ -117,6 +122,10 @@ export class ConsoleAPI {
 
     public setAuthentication(input: AuthBasic | AuthBearer | AuthKey | AuthNone) {
         return this.messenger.sendRequest({ method: 'setAuthentication' }, { type: 'extension' }, input);
+    }
+
+    public stopExecution() {
+        return this.messenger.sendRequest({ method: 'stopExecution' }, { type: 'extension' });
     }
 }
 
