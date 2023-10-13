@@ -68,7 +68,7 @@ runs:
       with:
         path: 'ballerina/ballerina-extension'
         isPreRelease: ${{ inputs.isPreRelease }}
-        version: ${{ inputs.balVersion }}
+        version: ${{ inputs.version }}
 
     - name: Update version - Choreo
       if: ${{ inputs.ballerina == 'true' }}
@@ -76,7 +76,7 @@ runs:
       with:
         path: 'ballerina/choreo-extension'
         isPreRelease: ${{ inputs.isPreRelease }}
-        version: ${{ inputs.balVersion }}
+        version: ${{ inputs.version }}
 
     - name: Build repo
       shell: bash
