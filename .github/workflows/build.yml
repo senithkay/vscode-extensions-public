@@ -23,7 +23,7 @@ on:
         description: Update API Chat extension version
         type: boolean
         required: false
-        default: true              
+        default: false              
       version:
         default: 'N/A'
         type: string
