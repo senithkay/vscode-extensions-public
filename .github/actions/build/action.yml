@@ -71,7 +71,7 @@ runs:
         version: ${{ inputs.version }}
 
     - name: Update version - Choreo
-      if: ${{ inputs.ballerina == 'true' }}
+      if: ${{ inputs.choreo == 'true' }}
       uses: ./.github/actions/updateVersion
       with:
         path: 'ballerina/choreo-extension'
