@@ -83,10 +83,6 @@ export function getDiagramProviderProps(
         runCommand(PALETTE_COMMANDS.TRY_IT, [focusFile, serviceName]);
     }
 
-    async function showDocumentationView(url: string) {
-        runCommand(PALETTE_COMMANDS.DOCUMENTATION_VIEW, [url]);
-    }
-
     async function run(args: any[]) {
         runCommand(PALETTE_COMMANDS.RUN, args);
     }
@@ -237,8 +233,7 @@ export function getDiagramProviderProps(
             //     zoomOut
             // },
             webView: {
-                showTryitView,
-                showDocumentationView
+                showTryitView
             },
             project: {
                 run
