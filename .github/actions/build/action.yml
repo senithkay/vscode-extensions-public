@@ -87,7 +87,7 @@ runs:
       if: ${{ inputs.api-chat == 'true' }}
       uses: ./.github/actions/updateVersion
       with:
-        path: 'api-chat'
+        path: 'api-chat/extension'
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
