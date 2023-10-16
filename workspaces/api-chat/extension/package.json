@@ -74,7 +74,7 @@
     "test": "node ./out/test/runTest.js",
     "unit-test": "tsc && mocha --ui tdd   out/test/unit/*.test.js ",
     "build": "pnpm run compile && pnpm run copy-codicons && pnpm run copy-webview-lib && pnpm run package && pnpm run postbuild",
-    "package": "pnpm vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/api-chat-vscode/raw/HEAD/",
+    "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/api-chat-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/api-chat-vscode/raw/HEAD/; fi",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
     "postbuild": "pnpm run copyVSIX"
