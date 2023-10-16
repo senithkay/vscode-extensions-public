@@ -7,50 +7,58 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { createContext, ReactNode } from 'react';
-
-interface DiagramContextProps {
-    collapsedMode: boolean;
-    selectedNodeId: string;
-    hasDiagnostics: boolean;
-    setHasDiagnostics: (hasDiagnostics: boolean) => void;
-    setSelectedNodeId: (id: string) => void;
-    children: ReactNode;
-    focusedNodeId?: string;
-    setFocusedNodeId?: (id: string) => void;
-}
+import React, { createContext, ReactNode } from "react";
+import { MenuItem } from "..";
 
 interface IDiagramContext {
-    collapsedMode: boolean;
     selectedNodeId: string;
     hasDiagnostics: boolean;
+    focusedNodeId?: string;
+    observationVersion?: string;
+    componentMenu?: MenuItem[];
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
     setSelectedNodeId: (id: string) => void;
-    focusedNodeId?: string;
     setFocusedNodeId?: (id: string) => void;
+    setObservationVersion?: (version: string) => void;
+    onComponentDoubleClick?: (componentId: string) => void;
+}
+
+interface DiagramContextProps extends IDiagramContext {
+    children: ReactNode;
 }
 
 const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function CellDiagramContext(props: DiagramContextProps) {
-    const { collapsedMode, selectedNodeId, setSelectedNodeId, setHasDiagnostics, hasDiagnostics, children, focusedNodeId, setFocusedNodeId } = props;
-
-    const context: IDiagramContext = {
-        collapsedMode,
+    const {
+        children,
         selectedNodeId,
         hasDiagnostics,
-        setHasDiagnostics,
-        setSelectedNodeId,
         focusedNodeId,
-        setFocusedNodeId
-    }
+        observationVersion,
+        componentMenu,
+        setSelectedNodeId,
+        setHasDiagnostics,
+        setFocusedNodeId,
+        setObservationVersion,
+        onComponentDoubleClick,
+    } = props;
 
-    return (
-        <DiagramContext.Provider value={{ ...context }}>
-            {children}
-        </DiagramContext.Provider>
-    );
+    const context: IDiagramContext = {
+        selectedNodeId,
+        hasDiagnostics,
+        focusedNodeId,
+        observationVersion,
+        componentMenu,
+        setSelectedNodeId,
+        setHasDiagnostics,
+        setFocusedNodeId,
+        setObservationVersion,
+        onComponentDoubleClick,
+    };
+
+    return <DiagramContext.Provider value={{ ...context }}>{children}</DiagramContext.Provider>;
 }
 
 export const useDiagramContext = () => React.useContext(DiagramContext);

@@ -30,26 +30,23 @@ interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ComponentModel;
     isSelected: boolean;
-    isCollapsed: boolean;
     isFocused: boolean;
-    setCollapsedStatus: (status: boolean) => void;
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isCollapsed } = props;
+    const { engine, node, isSelected } = props;
     const headPorts = useRef<PortModel[]>([]);
-    const [_isHovered, setIsHovered] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
+        headPorts.current.push(node.getPortFromID(`bottom-${node.getID()}`));
     }, [node]);
 
     const handleOnHover = (task: string) => {
         setIsHovered(task === "SELECT" ? true : false);
-        if (!isCollapsed) {
-            node.handleHover(headPorts.current, task);
-        }
+        node.handleHover(headPorts.current, task);
     };
 
     const getComponentTypeIcon = (type: ComponentType) => {
@@ -83,10 +80,9 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
 
     return (
         <ComponentHead
-            isSelected={isSelected}
+            isSelected={isSelected || isHovered}
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
-            isCollapsed={isCollapsed}
         >
             <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />

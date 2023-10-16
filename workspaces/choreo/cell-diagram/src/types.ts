@@ -30,6 +30,7 @@ export enum ComponentType {
 
 export interface Component {
     id: string;
+    label?: string;
     version: string;
     type: ComponentType;
     buildPack?: string; // Component implemented language
@@ -43,7 +44,7 @@ export interface Services {
 
 export interface Service {
     id: string;
-    label: string;
+    label?: string;
     type: string;
     dependencyIds: string[];
     deploymentMetadata?: DeploymentMetadata;
@@ -51,8 +52,10 @@ export interface Service {
 
 export interface Connection {
     id: string;
+    label?: string;
     type?: ConnectionType;
     onPlatform?: boolean;
+    observations?: Observations[];
 }
 
 export enum ConnectionType {
@@ -82,11 +85,25 @@ export interface DeploymentMetadata {
     gateways: {
         internet: {
             isExposed: boolean;
-        },
+            observations?: Observations[];
+        };
         intranet: {
             isExposed: boolean;
-        }
-    }
+            observations?: Observations[];
+        };
+    };
+}
+
+export interface Observations {
+    version?: string;
+    sourceNodeId: number;
+    destinationNodeId: number;
+    avgLatency: number;
+    errorCount: number;
+    p50Latency: number;
+    p90Latency: number;
+    p99Latency: number;
+    requestCount: number;
 }
 
 // Util function types

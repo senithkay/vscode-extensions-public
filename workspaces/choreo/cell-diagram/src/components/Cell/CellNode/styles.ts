@@ -31,6 +31,7 @@ export const CellNode: React.FC<any> = styled.div`
     text-align: center;
     position: relative;
     overflow: visible;
+    pointer-events: none;
 
     #mainCell svg {
         width: 100%;
@@ -38,12 +39,14 @@ export const CellNode: React.FC<any> = styled.div`
         position: absolute;
         top: 0;
         left: 0;
+        pointer-events: none;
     }
 
     #mainCell path {
         stroke: ${Colors.NODE_BORDER};
         stroke-width: 2;
         fill: none;
+        pointer-events: none;
     }
 `;
 
@@ -117,6 +120,47 @@ export const Label: React.FC<any> = styled.div`
     margin-top: 10px;
 `;
 
+export const PortLabel: React.FC<any> = styled.div`
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    span {
+        font-size: 14px;
+        color: ${Colors.NODE_BORDER};
+        text-align: left;
+        width: max-content;
+    }
+`;
+
+export const TopPortLabel: React.FC<any> = styled(PortLabel)`
+    top: -24px;
+    right: -168px;
+`;
+
+export const LeftPortLabel: React.FC<any> = styled(PortLabel)`
+    top: -28px;
+    left: -168px;
+    align-items: flex-end;
+    span {
+        text-align: right;
+    }
+`;
+
+export const RightPortLabel: React.FC<any> = styled(PortLabel)`
+    top: -64px;
+    right: -180px;
+`;
+
+export const BottomPortLabel: React.FC<any> = styled(PortLabel)`
+    bottom: -36px;
+    left: -168px;
+    align-items: flex-end;
+    span {
+        text-align: right;
+    }
+`;
+
 export const IconWrapper: React.FC<any> = styled.div`
     height: 32px;
     width: 32px;
@@ -131,5 +175,3 @@ export const TopIconWrapper: React.FC<any> = styled.div`
     font-size: 28px;
     transform: rotate(90deg);
 `;
-
-

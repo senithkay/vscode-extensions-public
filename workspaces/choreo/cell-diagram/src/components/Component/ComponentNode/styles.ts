@@ -28,6 +28,7 @@ export const ComponentNode: React.FC<any> = styled.div`
     align-items: center;
     gap: 10px;
     padding: 2px;
+    pointer-events: all;    
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
@@ -43,19 +44,21 @@ export const ComponentHead: React.FC<any> = styled.div`
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+
+    position: relative;
+    cursor: pointer;
 `;
 
 export const ComponentKind: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
-    border: ${(props: StyleProps) => `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
+    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
     border-radius: 50%;
 
     height: ${COMPONENT_CIRCLE_WIDTH / 3}px;
     width: ${COMPONENT_CIRCLE_WIDTH / 3}px;
 
     position: relative;
-    bottom: -28px;
-    right: 28px;
+    bottom: -16px;
+    right: 44px;
 
     display: flex;
     flex-direction: column;
@@ -66,7 +69,6 @@ export const ComponentKind: React.FC<any> = styled.div`
 `;
 
 export const ComponentName: React.FC<any> = styled.span`
-    cursor: pointer;
     font-size: ${LABEL_FONT_SIZE}px;
     white-space: nowrap;
     overflow: hidden;

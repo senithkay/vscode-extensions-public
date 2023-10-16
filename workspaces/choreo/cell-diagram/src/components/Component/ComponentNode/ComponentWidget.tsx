@@ -15,6 +15,7 @@ import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
+import { MoreVertMenu } from "../../MoreVertMenu/MoreVertMenu";
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -23,14 +24,15 @@ interface ComponentWidgetProps {
 
 export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
-    const { collapsedMode, selectedNodeId, focusedNodeId } = useContext(DiagramContext);
+    const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
-    const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [showMenu, setShowMenu] = useState<boolean>(false);
 
-    const displayName: string = node.component.id;
+    const displayName: string = node.component.label || node.component.id;
 
     useEffect(() => {
-        node.registerListener({
+        const listener = node.registerListener({
             SELECT: (event: any) => {
                 setSelectedLink(event.component as ComponentLinkModel);
             },
@@ -38,32 +40,56 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 setSelectedLink(undefined);
             },
         });
+        return () => {
+            node.deregisterListener(listener);
+        };
     }, [node]);
 
-    useEffect(() => {
-        setCollapsibleStatus(collapsedMode);
-    }, [collapsedMode]);
+    const handleOnWidgetClick = () => {
+        if (onComponentDoubleClick) {
+            onComponentDoubleClick(node.component.id);
+        }
+    };
 
-    const handleOnHeaderWidgetClick = () => {
-        // setSelectedNodeId(node.getID());
-        // setFocusedNodeId(undefined);
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+        setShowMenu(false);
+    };
+
+    const handleOnContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setShowMenu(true);
     };
 
     return (
         <ComponentNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onDoubleClick={handleOnWidgetClick}
+            onContextMenu={handleOnContextMenu}
         >
+            {isHovered && componentMenu?.length > 0 && (
+                <MoreVertMenu
+                    id={node.component.id}
+                    menuItems={componentMenu}
+                    showMenu={showMenu}
+                    setShowMenu={setShowMenu}
+                />
+            )}
             <ComponentHeadWidget
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 isFocused={node.getID() === focusedNodeId}
-                isCollapsed={isCollapsed}
-                setCollapsedStatus={setCollapsibleStatus}
             />
-            <ComponentName onClick={handleOnHeaderWidgetClick}>{displayName}</ComponentName>
-
+            <ComponentName>{displayName}</ComponentName>
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
                 <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />

@@ -7,16 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext } from 'react';
-import AddIcon from '@mui/icons-material/Add';
-import FullscreenIcon from '@mui/icons-material/Fullscreen';
-import RemoveIcon from '@mui/icons-material/Remove';
-import WarningIcon from '@mui/icons-material/Warning';
-import styled from '@emotion/styled';
-import CachedIcon from "@mui/icons-material/Cached";
-import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { CanvasControlButton } from './ControlButtons/ControlButton';
+import React, { useContext } from "react";
+import { FullScreenIcon, FitScreenIcon, AddIcon, RemoveIcon, WarningIcon, RefreshIcon } from "../../resources/assets/icons";
+import styled from "@emotion/styled";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { DiagramContext } from "../DiagramContext/DiagramContext";
+import { CanvasControlButton } from "./ControlButtons/ControlButton";
 
 interface ControlProps {
     engine: DiagramEngine;
@@ -43,39 +39,58 @@ export function DiagramControls(props: ControlProps) {
         const delta: number = zoomIn ? +5 : -5;
         engine.getModel().setZoomLevel(engine.getModel().getZoomLevel() + delta);
         engine.repaintCanvas();
-    }
+    };
 
     const zoomToFit = () => {
         engine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
-    }
+    };
+
+    const zoomToActualSize = () => {
+        engine.getModel().setZoomLevel(100);
+        engine.repaintCanvas();
+    };
 
     return (
-        <ControlPanel >
+        <ControlPanel>
             {hasDiagnostics && (
-                <CanvasControlButton onClick={showProblemPanel} tooltipTitle={'Diagnostics were detected in the model.'}>
-                    <WarningIcon sx={{ color: '#EA4C4D' }} />
+                <CanvasControlButton onClick={showProblemPanel} tooltipTitle={"Diagnostics were detected in the model."}>
+                    <WarningIcon />
                 </CanvasControlButton>
             )}
 
             {refreshDiagram && (
                 <CanvasControlButton onClick={refreshDiagram} tooltipTitle={"Refresh"}>
-                    <CachedIcon />
+                    <RefreshIcon />
                 </CanvasControlButton>
             )}
 
-            <CanvasControlButton onClick={zoomToFit} tooltipTitle={'Zoom to fit nodes'}>
-                <FullscreenIcon />
+            <CanvasControlButton onClick={zoomToFit} tooltipTitle={"Zoom to fit nodes"}>
+                <FullScreenIcon />
+            </CanvasControlButton>
+
+            <CanvasControlButton onClick={zoomToActualSize} tooltipTitle={"Zoom to actual size"}>
+                <FitScreenIcon />
             </CanvasControlButton>
 
             <div>
-                <CanvasControlButton onClick={() => { onZoom(true) }} tooltipTitle={'Zoom in'}>
+                <CanvasControlButton
+                    onClick={() => {
+                        onZoom(true);
+                    }}
+                    tooltipTitle={"Zoom in"}
+                >
                     <AddIcon />
                 </CanvasControlButton>
 
-                <CanvasControlButton onClick={() => { onZoom(false) }} tooltipTitle={'Zoom out'}>
+                <CanvasControlButton
+                    onClick={() => {
+                        onZoom(false);
+                    }}
+                    tooltipTitle={"Zoom out"}
+                >
                     <RemoveIcon />
                 </CanvasControlButton>
             </div>
         </ControlPanel>
-    )
+    );
 }

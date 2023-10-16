@@ -2,256 +2,7 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
-
-const noComponentModel: Project = {
-    id: "A",
-    name: "A",
-    components: [],
-    modelVersion: "0.4.0",
-};
-
-const singleComponentModel: Project = {
-    id: "A",
-    name: "A",
-    components: [
-        {
-            id: "User Service",
-            version: "0.2.0",
-            type: "service",
-            services: {},
-            connections: [],
-        },
-    ],
-    modelVersion: "0.4.0",
-};
-
-const singleExposedComponentModel: Project = {
-    id: "A",
-    name: "A",
-    components: [
-        {
-            id: "Users",
-            version: "0.2.0",
-            type: "service",
-            services: {
-                "ABC:A:Users:basepath": {
-                    id: "ABC:A:Users:basepath",
-                    label: "basepath",
-                    type: "http",
-                    dependencyIds: [],
-                    deploymentMetadata: {
-                        gateways: {
-                            internet: {
-                                isExposed: true,
-                            },
-                            intranet: {
-                                isExposed: true,
-                            },
-                        },
-                    },
-                },
-            },
-            connections: [
-                {
-                    id: "madusha:B:C:endpoint1",
-                    onPlatform: true,
-                },
-                {
-                    id: "dynamoDb://dynamoDb",
-                    onPlatform: false,
-                    type: "datastore",
-                },
-            ],
-        },
-    ],
-    modelVersion: "0.4.0",
-};
-
-const allComponentModel: Project = {
-    id: "A",
-    name: "A",
-    components: [
-        {
-            id: "Ballerina Service",
-            version: "0.2.0",
-            type: "service",
-            buildPack: "ballerina",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Wep App",
-            version: "0.2.0",
-            type: "web-app",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Scheduled Task ABCDEFGHT",
-            version: "0.2.0",
-            type: "scheduled-task",
-            buildPack: "java",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Manual Task",
-            version: "0.2.0",
-            type: "manual-task",
-            buildPack: "python",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Api Proxy",
-            version: "0.2.0",
-            type: "api-proxy",
-            buildPack: "go",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Web Hook",
-            version: "0.2.0",
-            type: "web-hook",
-            buildPack: "node-js",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Event Handler",
-            version: "0.2.0",
-            type: "event-handler",
-            buildPack: "php",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Test",
-            version: "0.2.0",
-            type: "test",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Ruby Service",
-            version: "0.2.0",
-            type: "service",
-            buildPack: "ruby",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Rust Service",
-            version: "0.2.0",
-            type: "service",
-            buildPack: "rust",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "Docker Service",
-            version: "0.2.0",
-            type: "service",
-            buildPack: "docker",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "XYZ Service",
-            version: "0.2.0",
-            type: "service",
-            buildPack: "xyz",
-            services: {},
-            connections: [],
-        },
-    ],
-    modelVersion: "0.4.0",
-};
-
-const componentDependencyModel: Project = {
-    id: "A",
-    name: "A",
-    components: [
-        {
-            id: "Users",
-            version: "0.2.0",
-            type: "api-proxy",
-            services: {
-                "ABC:A:Users:basepath": {
-                    id: "ABC:A:Users:basepath",
-                    label: "basepath",
-                    type: "http",
-                    dependencyIds: [],
-                    deploymentMetadata: {
-                        gateways: {
-                            internet: {
-                                isExposed: false,
-                            },
-                            intranet: {
-                                isExposed: false,
-                            },
-                        },
-                    },
-                },
-            },
-            connections: [],
-        },
-        {
-            id: "Courses",
-            version: "0.2.0",
-            type: "service",
-            services: {
-                "ABC:A:Courses:basepath": {
-                    id: "ABC:A:Courses:basepath",
-                    label: "basepath",
-                    type: "http",
-                    dependencyIds: [],
-                    deploymentMetadata: {
-                        gateways: {
-                            internet: {
-                                isExposed: false,
-                            },
-                            intranet: {
-                                isExposed: false,
-                            },
-                        },
-                    },
-                },
-            },
-            connections: [
-                {
-                    id: "ABC:A:Users:basepath",
-                    type: "http",
-                },
-                {
-                    id: "ABC:A:Task",
-                    type: "http",
-                },
-            ],
-        },
-        {
-            id: "Task",
-            version: "0.2.0",
-            type: "manual-task",
-            services: {},
-            connections: [
-                {
-                    id: "ABC:A:WebApp",
-                    type: "http",
-                },
-            ],
-        },
-        {
-            id: "WebApp",
-            version: "0.2.0",
-            type: "web-app",
-            services: {},
-            connections: [],
-        },
-    ],
-    modelVersion: "0.4.0",
-};
+import { Container, componentMenu, handleComponentDoubleClick } from "./Basic.stories";
 
 const simpleModel: Project = {
     id: "110ec58a-a0f2-4ac4-8393-c866d813b8d1",
@@ -473,6 +224,7 @@ const complexModel: Project = {
             connections: [
                 {
                     id: "ABC:BookStore:Products:Products",
+                    label: "BookStore Products",
                     type: "http",
                 },
             ],
@@ -673,6 +425,7 @@ const complexModel: Project = {
     configurations: [
         {
             id: "mysql://mysql",
+            label: "MySQL",
             type: "datastore",
             onPlatform: true,
         },
@@ -683,6 +436,7 @@ const complexModel: Project = {
         },
         {
             id: "twilio://twilio",
+            label: "Twilio",
             type: "connector",
             onPlatform: false,
         },
@@ -693,6 +447,7 @@ const complexModel: Project = {
         },
         {
             id: "dynamoDb://dynamoDb",
+            label: "DynamoDB",
             type: "datastore",
             onPlatform: false,
         },
@@ -700,10 +455,312 @@ const complexModel: Project = {
     modelVersion: "0.4.0",
 };
 
-storiesOf("Cell Diagram", module).add("No Components", () => <CellDiagram project={noComponentModel} />);
-storiesOf("Cell Diagram", module).add("Single Component", () => <CellDiagram project={singleComponentModel} />);
-storiesOf("Cell Diagram", module).add("Single Component with expose link", () => <CellDiagram project={singleExposedComponentModel} />);
-storiesOf("Cell Diagram", module).add("All Component types", () => <CellDiagram project={allComponentModel} />);
-storiesOf("Cell Diagram", module).add("Component dependencies", () => <CellDiagram project={componentDependencyModel} />);
-storiesOf("Cell Diagram", module).add("Simple", () => <CellDiagram project={simpleModel} />);
-storiesOf("Cell Diagram", module).add("Complex", () => <CellDiagram project={complexModel} />);
+const observationsModel: Project = {
+    id: "A",
+    name: "A",
+    components: [
+        {
+            id: "Users",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Users:get": {
+                    id: "ABC:A:Users:get",
+                    label: "Get Users",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 136631633,
+                                        destinationNodeId: 1,
+                                        errorCount: 0,
+                                        p50Latency: 21132684,
+                                        p90Latency: 1043810050,
+                                        p99Latency: 2199582500,
+                                        requestCount: 36,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
+                            },
+                            intranet: {
+                                isExposed: true,
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 207605809,
+                                        destinationNodeId: 2,
+                                        errorCount: 4,
+                                        p50Latency: 22461844,
+                                        p90Latency: 1469733900,
+                                        p99Latency: 1469733900,
+                                        requestCount: 8,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+                "ABC:A:Users:post": {
+                    id: "ABC:A:Users:post",
+                    label: "Add Users",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 136631633,
+                                        destinationNodeId: 1,
+                                        errorCount: 10,
+                                        p50Latency: 21132684,
+                                        p90Latency: 1043810050,
+                                        p99Latency: 2199582500,
+                                        requestCount: 36,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+                "ABC:A:Users:put": {
+                    id: "ABC:A:Users:put",
+                    label: "Update Users",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                                observations: [
+                                    {
+                                        version: "0.2.0",
+                                        avgLatency: 136631633,
+                                        destinationNodeId: 1,
+                                        errorCount: 10,
+                                        p50Latency: 21132684,
+                                        p90Latency: 1043810050,
+                                        p99Latency: 2199582500,
+                                        requestCount: 36,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "ABC:A:Products:basepath",
+                    onPlatform: true,
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
+                },
+                {
+                    id: "googleapps://firebase",
+                    label: "Firebase",
+                    onPlatform: false,
+                    type: "datastore",
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            id: "Products",
+            label: "Product App",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Products:get": {
+                    id: "ABC:A:Products:get",
+                    label: "Get Products",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "ABC:B:Users:get",
+                    onPlatform: true,
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
+                },
+                {
+                    id: "mysql://mysql",
+                    onPlatform: true,
+                    type: "datastore",
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            id: "Invoices",
+            version: "0.2.0",
+            type: "service",
+            services: {
+                "ABC:A:Invoices:get": {
+                    id: "ABC:A:Invoices:get",
+                    label: "Get Invoices",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [
+                {
+                    id: "ABC:B:Invoices:post",
+                    label: "Org Invoices",
+                    type: "http",
+                    onPlatform: true,
+                    observations: [
+                        {
+                            version: "0.2.0",
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
+                },
+                {
+                    id: "ABC:A:Users:get",
+                    onPlatform: true,
+                    observations: [
+                        {
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
+                },
+                {
+                    id: "mysql://mysql",
+                    label: "MySQL DB",
+                    onPlatform: true,
+                    type: "datastore",
+                    observations: [
+                        {
+                            avgLatency: 191934320,
+                            destinationNodeId: 1,
+                            errorCount: 0,
+                            p50Latency: 191934320,
+                            p90Latency: 191934320,
+                            p99Latency: 191934320,
+                            requestCount: 1,
+                            sourceNodeId: 2,
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+    modelVersion: "0.4.0",
+};
+
+storiesOf("Complex", module).add("Component links", () => (
+    <Container>
+        <CellDiagram project={simpleModel} onComponentDoubleClick={handleComponentDoubleClick} />
+    </Container>
+));
+
+storiesOf("Complex", module).add("With unused configurations", () => (
+    <Container>
+        <CellDiagram project={complexModel} onComponentDoubleClick={handleComponentDoubleClick} />
+    </Container>
+));
+
+storiesOf("Complex", module).add("With observability data", () => (
+    <Container>
+        <CellDiagram project={observationsModel} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
+    </Container>
+));

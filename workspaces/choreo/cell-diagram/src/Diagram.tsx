@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
-import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
+import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItem } from "./components";
 import { Colors, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
@@ -22,17 +22,22 @@ import { CellModel } from "./components/Cell/CellNode/CellModel";
 
 export interface CellDiagramProps {
     project: Project;
+    // custom component menu
+    componentMenu?: MenuItem[];
+    // custom event handler
+    onComponentDoubleClick?: (componentId: string) => void;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { project } = props;
-    
+    const { project, componentMenu, onComponentDoubleClick } = props;
+
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
-    const [userMessage, setUserMessage] = useState<string>("");
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
+    const [userMessage, setUserMessage] = useState<string>("");
+    const [observationVersion, setObservationVersion] = useState<string | undefined>(undefined);
 
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
 
@@ -92,10 +97,8 @@ export function CellDiagram(props: CellDiagramProps) {
         models.forEach((item) => {
             if (isRenderInsideCell(item)) {
                 item.registerListener({
-                    eventDidFire: (e) => {
-                        if (e.function === "positionChanged") {
-                            refreshDiagram();
-                        }
+                    positionChanged: () => {
+                        refreshDiagram();
                     },
                 });
             }
@@ -110,7 +113,9 @@ export function CellDiagram(props: CellDiagramProps) {
         setTimeout(() => {
             // manual distribute - update empty node, external node and connector node position based on cell node position
             manualDistribute(model);
-            diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+            if (diagramEngine.getBoundingNodesRect) {
+                diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+            }
             // remove preloader overlay layer
             const overlayLayer = diagramEngine
                 .getModel()
@@ -121,7 +126,8 @@ export function CellDiagram(props: CellDiagramProps) {
             }
             // update diagram
             diagramEngine.setModel(model);
-        }, 10);
+            diagramEngine.repaintCanvas();
+        }, 32);
     };
 
     // refresh diagram
@@ -147,17 +153,20 @@ export function CellDiagram(props: CellDiagramProps) {
             diagramEngine.repaintCanvas();
             // update cell node width
             cellNodeWidth.current = cellWidth;
-        }, 4);
+        }, 8);
     };
 
     const ctx = {
-        collapsedMode: false,
         selectedNodeId,
-        setSelectedNodeId,
-        setHasDiagnostics,
         hasDiagnostics,
         focusedNodeId,
+        observationVersion,
+        componentMenu,
+        setSelectedNodeId,
+        setHasDiagnostics,
         setFocusedNodeId,
+        setObservationVersion,
+        onComponentDoubleClick,
     };
 
     const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

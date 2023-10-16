@@ -7,6 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+// General icons
+export { FullScreenIcon } from "./FullScreenIcon";
+export { FitScreenIcon } from "./FitScreenIcon";
+export { AddIcon } from "./AddIcon";
+export { RemoveIcon } from "./RemoveIcon";
+export { WarningIcon } from "./WarningIcon";
+export { RefreshIcon } from "./RefreshIcon";
+export { MoreVertIcon } from "./MoreVertIcon";
 // Cell icons
 export { GatewayIcon } from "./GatewayIcon";
 export { ConnectionIcon } from "./ConnectionIcon";

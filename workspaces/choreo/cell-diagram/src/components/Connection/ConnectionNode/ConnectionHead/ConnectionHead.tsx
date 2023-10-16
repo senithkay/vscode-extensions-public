@@ -19,14 +19,12 @@ interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ConnectionModel;
     isSelected: boolean;
-    isCollapsed: boolean;
-    setCollapsedStatus: (status: boolean) => void;
 }
 
 export function ConnectionHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isCollapsed } = props;
+    const { engine, node, isSelected } = props;
     const headPorts = useRef<PortModel[]>([]);
-    const [_isHovered, setIsHovered] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
@@ -35,9 +33,7 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
 
     const handleOnHover = (task: string) => {
         setIsHovered(task === "SELECT" ? true : false);
-        if (!isCollapsed) {
-            node.handleHover(headPorts.current, task);
-        }
+        node.handleHover(headPorts.current, task);
     };
 
     // get connection icon
@@ -52,10 +48,9 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
 
     return (
         <ConnectionHead
-            isSelected={isSelected}
+            isSelected={isSelected || isHovered}
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
-            isCollapsed={isCollapsed}
         >
             <IconWrapper>
                 {getConnectionIcon()}
