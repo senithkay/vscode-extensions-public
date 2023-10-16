@@ -1,4 +1,4 @@
-# WSO2 API Chat VSCode Extension
+# API Chat VSCode Extension
 
 Use natural language to interact with APIs that have an OpenAPI description. Just describe a scenario to the API Chat extension in VS Code, and it intelligently selects and calls the relevant resources for you.
 
@@ -33,6 +33,6 @@ Now, you are ready to use API Chat to test your API with the support of natural 
 
 ## Feedback and Support
 
-We welcome your feedback and suggestions for improving the API Chat VS Code extension. If you encounter any issues or have questions, please [create a GitHub issue](https://github.com/wso2/choreo-vscode/issues) to reach out to us.
+We welcome your feedback and suggestions for improving the API Chat VS Code extension. If you encounter any issues or have questions, please [create a GitHub issue](https://github.com/wso2/api-chat-vscode/issues) to reach out to us.
 
 Happy testing with API Chat!
