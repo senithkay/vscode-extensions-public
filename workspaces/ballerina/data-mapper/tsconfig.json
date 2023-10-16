@@ -29,6 +29,11 @@
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
+        "paths": {
+          "react": [
+            "./node_modules/@types/react"
+          ]
+        },
     },
     "include": [
         "./src/**/*.*",

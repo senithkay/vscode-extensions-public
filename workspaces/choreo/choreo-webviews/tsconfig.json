@@ -26,7 +26,12 @@
     "noUnusedParameters": true,
     "typeRoots": [
       "node_modules/@types"
-    ]
+    ],
+    "paths": {
+      "react": [
+        "./node_modules/@types/react"
+      ]
+    }
   },
   "include": [
     "src/index.tsx",

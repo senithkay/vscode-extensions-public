@@ -15,7 +15,7 @@
   "dependencies": {
     "@emotion/css": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@vscode/webview-ui-toolkit": "~1.2.2",
     "@wso2-enterprise/choreo-client": "workspace:*",
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/project-design-diagrams": "workspace:*",
