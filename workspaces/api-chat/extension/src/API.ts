@@ -32,7 +32,7 @@ const resolveOauthClientCredential = async () => {
     // Your code here to resolve Oauth client credential
     try {
         if (!apiKey) {
-            getLogger().error('API_CHAT_API_KEY is not defined in the environment variables');
+            getLogger().error('API CHAT API KEY is not defined');
             throw new Error('API_CHAT_API_KEY is not defined in the environment variables');
         }
 
