@@ -6,12 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import React from "react";
+import { ComponentStory } from "@storybook/react";
+import { Divider, DeviderProps } from "./Divider";
 
-// Add icons here
-export { ArchitectureViewIcon } from './ArchitectureViewIcon';
-export { BitBucketIcon } from './BitBucketIcon';
-export { CellViewIcon } from './CellViewIcon';
-export { ChoreoIcon } from './ChoreoIcon';
-export { GithubIcon } from './GithubIcon';
+const Template: ComponentStory<typeof Divider> = (args: DeviderProps) => <Divider {...args} />;
 
-// Add images here
+export const DividerComp = Template.bind();
+DividerComp.args = {};
+
+export default { component: DividerComp, title: "Divider" };
