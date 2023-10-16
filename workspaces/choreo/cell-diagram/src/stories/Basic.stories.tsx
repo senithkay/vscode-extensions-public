@@ -4,11 +4,17 @@ import { action } from "@storybook/addon-actions";
 import styled from "@emotion/styled";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
+import { MenuItem } from "../components";
 
 export const Container = styled.div`
     height: calc(100vh - 50px);
     width: calc(100vw - 40px);
 `;
+
+export const componentMenu: MenuItem[] = [
+    { label: "Go to source", callback: (id) => action("Go to source menu item clicked")(id) },
+    { label: "Observe", callback: (id) => action("Observe menu item clicked")(id) },
+];
 
 const noComponentModel: Project = {
     id: "A",
@@ -354,6 +360,10 @@ const observabilityModel: Project = {
     modelVersion: "0.4.0",
 };
 
+export const handleComponentDoubleClick = (componentId: string) => {
+    action("component double clicked")(componentId);
+};
+
 storiesOf("Basic", module).add("Empty cell", () => (
     <Container>
         <CellDiagram project={noComponentModel} />
@@ -392,6 +402,6 @@ storiesOf("Basic", module).add("Project configurations", () => (
 
 storiesOf("Basic", module).add("Observability data and events", () => (
     <Container>
-        <CellDiagram project={observabilityModel} onComponentClick={action("component clicked")} />
+        <CellDiagram project={observabilityModel} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));

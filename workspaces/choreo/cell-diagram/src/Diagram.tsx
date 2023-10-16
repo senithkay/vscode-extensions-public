@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
-import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
+import { DiagramControls, HeaderWidget, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItem } from "./components";
 import { Colors, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
@@ -22,11 +22,14 @@ import { CellModel } from "./components/Cell/CellNode/CellModel";
 
 export interface CellDiagramProps {
     project: Project;
-    onComponentClick?: (componentId: string) => void;
+    // custom component menu
+    componentMenu?: MenuItem[];
+    // custom event handler
+    onComponentDoubleClick?: (componentId: string) => void;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { project, onComponentClick } = props;
+    const { project, componentMenu, onComponentDoubleClick } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -158,11 +161,12 @@ export function CellDiagram(props: CellDiagramProps) {
         hasDiagnostics,
         focusedNodeId,
         observationVersion,
+        componentMenu,
         setSelectedNodeId,
         setHasDiagnostics,
         setFocusedNodeId,
         setObservationVersion,
-        onComponentClick,
+        onComponentDoubleClick,
     };
 
     const handleCanvasClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

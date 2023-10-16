@@ -8,16 +8,19 @@
  */
 
 import React, { createContext, ReactNode } from "react";
+import { MenuItem } from "..";
+
 interface IDiagramContext {
     selectedNodeId: string;
     hasDiagnostics: boolean;
     focusedNodeId?: string;
     observationVersion?: string;
+    componentMenu?: MenuItem[];
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
     setSelectedNodeId: (id: string) => void;
     setFocusedNodeId?: (id: string) => void;
     setObservationVersion?: (version: string) => void;
-    onComponentClick?: (componentId: string) => void;
+    onComponentDoubleClick?: (componentId: string) => void;
 }
 
 interface DiagramContextProps extends IDiagramContext {
@@ -34,11 +37,12 @@ export function CellDiagramContext(props: DiagramContextProps) {
         hasDiagnostics,
         focusedNodeId,
         observationVersion,
+        componentMenu,
         setSelectedNodeId,
         setHasDiagnostics,
         setFocusedNodeId,
         setObservationVersion,
-        onComponentClick,
+        onComponentDoubleClick,
     } = props;
 
     const context: IDiagramContext = {
@@ -46,11 +50,12 @@ export function CellDiagramContext(props: DiagramContextProps) {
         hasDiagnostics,
         focusedNodeId,
         observationVersion,
+        componentMenu,
         setSelectedNodeId,
         setHasDiagnostics,
         setFocusedNodeId,
         setObservationVersion,
-        onComponentClick,
+        onComponentDoubleClick,
     };
 
     return <DiagramContext.Provider value={{ ...context }}>{children}</DiagramContext.Provider>;

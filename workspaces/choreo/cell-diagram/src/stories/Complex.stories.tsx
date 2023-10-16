@@ -2,8 +2,7 @@ import React from "react";
 import { storiesOf } from "@storybook/react";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
-import { Container } from "./Basic.stories";
-import { action } from "@storybook/addon-actions";
+import { Container, componentMenu, handleComponentDoubleClick } from "./Basic.stories";
 
 const simpleModel: Project = {
     id: "110ec58a-a0f2-4ac4-8393-c866d813b8d1",
@@ -748,25 +747,20 @@ const observationsModel: Project = {
     modelVersion: "0.4.0",
 };
 
-const handleComponentClick = (componentId: string) => {
-    action("component clicked")(componentId);
-    console.log("component clicked", componentId);
-};
-
 storiesOf("Complex", module).add("Component links", () => (
     <Container>
-        <CellDiagram project={simpleModel} onComponentClick={handleComponentClick} />
+        <CellDiagram project={simpleModel} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
 storiesOf("Complex", module).add("With unused configurations", () => (
     <Container>
-        <CellDiagram project={complexModel} onComponentClick={handleComponentClick} />
+        <CellDiagram project={complexModel} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
 storiesOf("Complex", module).add("With observability data", () => (
     <Container>
-        <CellDiagram project={observationsModel} onComponentClick={handleComponentClick} />
+        <CellDiagram project={observationsModel} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));

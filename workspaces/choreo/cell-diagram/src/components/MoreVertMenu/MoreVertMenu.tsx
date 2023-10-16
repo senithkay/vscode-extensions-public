@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { MoreVertIcon } from "../../resources/assets/icons";
 import { Colors } from "../../resources";
@@ -18,8 +18,10 @@ export interface MenuItem {
 }
 
 interface MoreVertMenuProps {
-    menuItems: MenuItem[];
     id: string;
+    menuItems: MenuItem[];
+    showMenu: boolean;
+    setShowMenu: (showMenu: boolean) => void;
 }
 
 const MenuButton: React.FC<any> = styled.div`
@@ -41,10 +43,16 @@ const Menu = styled.div`
     top: 4px;
     right: 0;
     background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
+    padding: 8px 0;
+
+    color: rgba(0, 0, 0, 0.87);
+    -webkit-transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
     border-radius: 4px;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
     z-index: 1;
-    box-shadow: 0 0 4px 0 ${Colors.NODE_BORDER};
     min-width: 120px;
+    max-width: 100%;
 `;
 
 const MenuItem = styled.div`
@@ -56,8 +64,7 @@ const MenuItem = styled.div`
 `;
 
 export function MoreVertMenu(props: MoreVertMenuProps) {
-    const { menuItems, id } = props;
-    const [showMenu, setShowMenu] = useState(false);
+    const { id, menuItems, showMenu, setShowMenu } = props;
 
     const handleMenuButtonClick = () => {
         setShowMenu(!showMenu);

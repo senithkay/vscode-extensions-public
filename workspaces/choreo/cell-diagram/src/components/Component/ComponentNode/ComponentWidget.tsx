@@ -24,9 +24,10 @@ interface ComponentWidgetProps {
 
 export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, focusedNodeId, onComponentClick } = useContext(DiagramContext);
+    const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [showMenu, setShowMenu] = useState<boolean>(false);
 
     const displayName: string = node.component.label || node.component.id;
 
@@ -45,8 +46,8 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     }, [node]);
 
     const handleOnWidgetClick = () => {
-        if (onComponentClick) {
-            onComponentClick(node.component.id);
+        if (onComponentDoubleClick) {
+            onComponentDoubleClick(node.component.id);
         }
     };
 
@@ -56,6 +57,13 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     const handleMouseLeave = () => {
         setIsHovered(false);
+        setShowMenu(false);
+    };
+
+    const handleOnContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setShowMenu(true);
     };
 
     return (
@@ -64,15 +72,15 @@ export function ComponentWidget(props: ComponentWidgetProps) {
             isFocused={node.getID() === focusedNodeId}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            onClick={handleOnWidgetClick}
+            onDoubleClick={handleOnWidgetClick}
+            onContextMenu={handleOnContextMenu}
         >
-            {isHovered && (
+            {isHovered && componentMenu?.length > 0 && (
                 <MoreVertMenu
                     id={node.component.id}
-                    menuItems={[
-                        { label: "Go to source", callback: (id) => console.log("Go to source - clicked", id) },
-                        { label: "Observe", callback: (id) => console.log("Observe - clicked", id) },
-                    ]}
+                    menuItems={componentMenu}
+                    showMenu={showMenu}
+                    setShowMenu={setShowMenu}
                 />
             )}
             <ComponentHeadWidget
@@ -82,7 +90,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 isFocused={node.getID() === focusedNodeId}
             />
             <ComponentName>{displayName}</ComponentName>
-
             <PortsContainer>
                 <ComponentPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
                 <ComponentPortWidget port={node.getPort(`bottom-${node.getID()}`)} engine={engine} />
