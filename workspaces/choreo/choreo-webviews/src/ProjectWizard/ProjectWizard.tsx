@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextArea, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useMemo, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
@@ -23,7 +23,7 @@ import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_PROJECT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
-import { AutoComplete, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
 import { useQuery } from "@tanstack/react-query";
 
 const WizardContainer = styled.div`
@@ -173,7 +173,7 @@ export function ProjectWizard(props: { orgId: string }) {
         if (selectedOrg) {
             try {
                 const repoString = getRepoString();
-                const createdProject = await projectClient.createProject({
+                const createdProject: any = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
                     orgId: selectedOrg.id,
@@ -184,21 +184,34 @@ export function ProjectWizard(props: { orgId: string }) {
                     branch: initMonoRepo ? selectedBranch : null,
                 });
 
-                handleCloneProject({
-                    ...createdProject,
-                    repository: selectedGHRepo,
-                    gitOrganization: selectedGHOrgName,
-                    gitProvider
-                });
+                if (createdProject && createdProject.message === 'Project limit exceeded.') {
+                    ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+                        eventName: CREATE_PROJECT_FAILURE_EVENT,
+                        properties: {
+                            name: projectName,
+                            cause: createdProject.message + " " + createdProject.cause
+                        }
+                    });
+                    setErrorMsg(createdProject.message + " " + createdProject.cause);
+                    ChoreoWebViewAPI.getInstance().showErrorMsg("Project creation failed due to reaching the maximum number of projects allowed within the free tier.");
 
-                ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-                    eventName: CREATE_PROJECT_SUCCESS_EVENT,
-                    properties: {
-                        name: createdProject?.name,
-                        type: initMonoRepo ? "mono-repo" : "multi-repo",
-                        gitProvider: initMonoRepo ? gitProvider : undefined,
-                    },
-                });
+                } else {
+                    handleCloneProject({
+                        ...createdProject,
+                        repository: selectedGHRepo,
+                        gitOrganization: selectedGHOrgName,
+                        gitProvider
+                    });
+
+                    ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+                        eventName: CREATE_PROJECT_SUCCESS_EVENT,
+                        properties: {
+                            name: createdProject?.name,
+                            type: initMonoRepo ? "mono-repo" : "multi-repo",
+                            gitProvider: initMonoRepo ? gitProvider : undefined,
+                        },
+                    });
+                }
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -278,14 +291,13 @@ export function ProjectWizard(props: { orgId: string }) {
                             autoFocus
                             required
                         />
-                        <VSCodeTextArea
+                        <TextArea
                             placeholder="Description"
-                            onInput={(e: any) => setProjectDescription(e.target.value)}
+                            label="Project Description"
+                            onChange={(text: string) => setProjectDescription(text)}
                             value={projectDescription}
                             id='project-description-input'
-                        >
-                            Project Description
-                        </VSCodeTextArea>
+                        />
                         <span>Region</span>
                         <AutoComplete items={regionLabels} selectedItem={selectedRegion} onChange={handleRegionChange}></AutoComplete>
                         <SubContainer>

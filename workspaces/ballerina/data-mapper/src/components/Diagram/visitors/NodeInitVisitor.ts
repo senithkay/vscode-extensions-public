@@ -37,6 +37,7 @@ import {
     RequiredParamNode
 } from "../Node";
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { EnumTypeNode } from "../Node/EnumType";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { JoinClauseNode } from "../Node/JoinClause";
@@ -51,6 +52,7 @@ import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Node/UnsupportedI
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
+    getEnumTypes,
     getExprBodyFromLetExpression,
     getExprBodyFromTypeCastExpression,
     getFnDefForFnCall,
@@ -85,7 +87,8 @@ export class NodeInitVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition) {
         const typeDesc = node.functionSignature?.returnTypeDesc && node.functionSignature.returnTypeDesc.type;
         const exprFuncBody = STKindChecker.isExpressionFunctionBody(node.functionBody) && node.functionBody;
-        let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
+        let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.moduleVariables);
+        let enumTypes: Map<string, ModuleVariable> = getEnumTypes(exprFuncBody, this.context.moduleVariables);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
             let returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
@@ -235,7 +238,8 @@ export class NodeInitVisitor implements Visitor {
                         this.queryNode = queryNode;
                         queryNode.targetPorts = expandedHeaderPorts;
                         queryNode.height = intermediateClausesHeight;
-                        moduleVariables = getModuleVariables(selectClause.expression, this.context.stSymbolInfo);
+                        moduleVariables = getModuleVariables(selectClause.expression, this.context.moduleVariables);
+                        enumTypes = getEnumTypes(selectClause.expression, this.context.moduleVariables);
                     } else {
                         if (returnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
@@ -332,6 +336,16 @@ export class NodeInitVisitor implements Visitor {
             );
             moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
             this.otherInputNodes.push(moduleVarNode);
+        }
+
+        // create node for enums
+        if (enumTypes.size > 0) {
+            const enumTypeNode = new EnumTypeNode(
+                this.context,
+                enumTypes
+            );
+            enumTypeNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
+            this.otherInputNodes.push(enumTypeNode);
         }
     }
 
@@ -546,7 +560,7 @@ export class NodeInitVisitor implements Visitor {
                 this.otherInputNodes.push(letExprNode);
 
                 // create node for module variables
-                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(selectClause.expression, this.context.stSymbolInfo);
+                const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(selectClause.expression, this.context.moduleVariables);
                 if (moduleVariables.size > 0) {
                     const moduleVarNode = new ModuleVariableNode(
                         this.context,
@@ -554,6 +568,17 @@ export class NodeInitVisitor implements Visitor {
                     );
                     moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
                     this.otherInputNodes.push(moduleVarNode);
+                }
+
+                // create node for enums
+                const enumTypes: Map<string, ModuleVariable> = getEnumTypes(selectClause.expression, this.context.moduleVariables);
+                if (enumTypes.size > 0) {
+                    const enumTypeNode = new EnumTypeNode(
+                        this.context,
+                        enumTypes
+                    );
+                    enumTypeNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
+                    this.otherInputNodes.push(enumTypeNode);
                 }
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY && !isLetVarDecl && parentNode) {

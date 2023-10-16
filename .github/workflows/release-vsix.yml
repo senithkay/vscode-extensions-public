@@ -16,11 +16,11 @@ on:
         type: boolean
         required: true
         default: false
-      packages:
-        description: Release packages to registry
+      api-chat:
+        description: Release API Chat extension
         type: boolean
         required: true
-        default: false   
+        default: false
       version:
         type: choice
         description: 'Enter the version type'
@@ -29,95 +29,71 @@ on:
         options:
           - 'patch'
           - 'minor'
-          - 'major'
-          - 'prepatch'
-          - 'preminor'
-          - 'premajor'
-          - 'prerelease'     
+          - 'major'    
           - 'N/A'     
 
 jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      isPreRelease: ${{ inputs.isPreRelease }}
+      enableCache: false
+      ballerina: ${{ inputs.ballerina }}
+      choreo: ${{ inputs.choreo }}
+      version: ${{ inputs.version }}
+      isReleaseBuild: true
+
   Release:
     name: Release VSIX
+    needs: Build
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Restore build
+        uses: actions/download-artifact@v3
         with:
-          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          fetch-depth: 2
-    
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          isPreRelease: ${{ inputs.isPreRelease }}
-          enableCache: false
-          ballerina: ${{ inputs.ballerina }}
-          choreo: ${{ inputs.choreo }}
-          version: ${{ inputs.version }}
-          packages: ${{ inputs.packages }}
+          name: ExtBuild
+          path: ./
 
-      - uses: actions/setup-node@v3
-        with:
-          always-auth: true
-          node-version: 16.x
-          registry-url: "https://npm.pkg.github.com"
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
 
-      - uses: pnpm/action-setup@v2
+      - name: Setup
+        uses: gigara/rush-cache@v1
         with:
-          version: 7.26.3
-
-      - run: |
-          node common/scripts/install-run-rush.js install
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
 
       - name: Get version
         id: vsix
         run: |
-          if [[ "${{ github.event.inputs.ballerina }}" == "true" && "${{ github.event.inputs.choreo }}" == "true" ]]; then
-            ballerinaFile=$(ls ballerina*.vsix)
-            ballerinaFileName=${ballerinaFile#*-}
-            ballerinaVersion=${ballerinaFileName%.*}
-            choreoFile=$(ls choreo*.vsix)
-            choreoFileName=${choreoFile#*-}
-            choreoVersion=${choreoFileName%.*}
-            version=ballerina-$ballerinaVersion-choreo-$choreoVersion
-          elif [[ "${{ github.event.inputs.ballerina }}" == "true" ]]; then
+          if [[ "${{ github.event.inputs.ballerina }}" == "true" ]]; then
             file=$(ls ballerina*.vsix)
             fileName=${file#*-}
             version=ballerina-${fileName%.*}
-          elif [[ "${{ github.event.inputs.choreo }}" == "true" ]]; then
+          fi  
+          if [[ "${{ github.event.inputs.choreo }}" == "true" ]]; then
             file=$(ls choreo*.vsix)
             fileName=${file#*-}
-            version=choreo-${fileName%.*}  
-          elif [[ "${{ github.event.inputs.packages }}" == "true" ]]; then
-            version=packages-$(date +%Y%m%d%H%M)
+            version=$version+choreo-${fileName%.*}
+          fi  
+          if [[ "${{ github.event.inputs.api-chat }}" == "true" ]]; then
+            file=$(ls api-chat*.vsix)
+            fileName=${file#*-}
+            version=$version+api-chat-${fileName%.*}  
           fi
+          echo $version
           echo "version=$version" >> $GITHUB_OUTPUT
 
-          if [[ "${{ github.event.inputs.isPreRelease }}" == "true" ]]; then
-            echo "releaseMode=next" >> $GITHUB_OUTPUT
-          else
-            echo "releaseMode=latest" >> $GITHUB_OUTPUT
-          fi 
-
-      - name: Publish low code diagram
-        if: ${{ github.event.inputs.packages == 'true' }}
-        run: |
-          cd workspaces
-          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "choreo-core" "project-design-diagrams")
-          for workspace in "${workspaces[@]}"; do
-            cd $workspace
-            pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }} --no-git-checks
-            cd ..
-          done
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
-
-      - name: Create a release in wso2/ballerina-plugin-vscode repo
+      - name: Create a release in wso2/ballerina-vscode repo
         if: ${{ github.event.inputs.ballerina == 'true' }}
         uses: ./.github/actions/release
         with:
-          repo: wso2/ballerina-plugin-vscode
+          repo: wso2/ballerina-vscode
           name: ballerina
           token: ${{ secrets.PUBLISH_PAT }}
           threadId: ${{ github.run_id }}
@@ -131,6 +107,15 @@ jobs:
           token: ${{ secrets.PUBLISH_PAT }}
           threadId: ${{ github.run_id }}
 
+      - name: Create a release in wso2/api-chat-vscode repo
+        if: ${{ github.event.inputs.api-chat == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/api-chat-vscode
+          name: api-chat
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
+
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:
@@ -139,10 +124,12 @@ jobs:
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          ballerina: ${{ inputs.ballerina }}
+          choreo: ${{ inputs.choreo }}
 
   Notify:
     needs: [Release]
-    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/ballerina-plugin-vscode'}}
+    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/vscode-extensions'}}
     runs-on: ubuntu-latest
     steps:
       - name: "Release Notification"
@@ -159,7 +146,7 @@ jobs:
                     "widgets": [
                       {
                         "textParagraph": {
-                            "text": "<b>&#x274C; Repository: <font color=\"#ff0000\">wso2-enterprise/ballerina-plugin-vscode</font></b>"
+                            "text": "<b>&#x274C; Repository: <font color=\"#ff0000\">wso2-enterprise/vscode-extensions</font></b>"
                         }
                       },
                       {
@@ -171,7 +158,7 @@ jobs:
                               "text": "View Workflow",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://github.com/wso2-enterprise/ballerina-plugin-vscode/actions/runs/${{ github.run_id }}"
+                                  "url": "https://github.com/wso2-enterprise/vscode-extensions/actions/runs/${{ github.run_id }}"
                                 }
                               }
                             }

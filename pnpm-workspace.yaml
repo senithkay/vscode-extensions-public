@@ -2,4 +2,5 @@ packages:
   - 'workspaces/*'
   - 'workspaces/ballerina/*'
   - 'workspaces/choreo/*'
+  - 'workspaces/common-libs/*'
   - 'workspaces/api-chat/*'

@@ -51,7 +51,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     }
 
     return (
-        <CtrlClickGo2Source location={node.entityObject.elementLocation}>
+        <CtrlClickGo2Source location={node.entityObject.sourceLocation}>
             <EntityHead
                 isAnonymous={node.entityObject.isAnonymous}
                 isSelected={isSelected}
@@ -70,10 +70,10 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                     >
                         {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
                     </EntityName>
-                    {isHovered && node.entityObject.elementLocation && editingEnabled &&
+                    {isHovered && node.entityObject.sourceLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={'white'}
-                            location={node.entityObject.elementLocation}
+                            location={node.entityObject.sourceLocation}
                         />
                     }
                 <EntityPortWidget

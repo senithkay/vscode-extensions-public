@@ -169,6 +169,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       axios: ^1.2.2
       chai: ^4.3.4
@@ -225,6 +226,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/choreo-client': link:../../choreo/choreo-client
       '@wso2-enterprise/choreo-core': link:../../choreo/choreo-core
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       cors-anywhere: 0.4.4
       del-cli: 5.0.1
@@ -2694,6 +2696,7 @@ importers:
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/choreo-vscode-webviews': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
       axios: ^1.2.2
       byline: ^5.0.0
@@ -2741,6 +2744,7 @@ importers:
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/choreo-vscode-webviews': link:../choreo-webviews
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       byline: 5.0.0
       chai: 4.3.8
       dotenv: 16.3.1
@@ -2812,6 +2816,7 @@ importers:
       '@wso2-enterprise/ui-toolkit': workspace:*
       classnames: ~2.3.2
       clean-webpack-plugin: ^4.0.0
+      copyfiles: ~2.4.1
       css-loader: ^6.7.3
       file-loader: ^6.2.0
       idb-keyval: ~6.2.0
@@ -2847,6 +2852,7 @@ importers:
       '@wso2-enterprise/project-design-diagrams': link:../../ballerina/project-design-diagrams
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       classnames: 2.3.2
+      copyfiles: 2.4.1
       idb-keyval: 6.2.1
       lodash.debounce: 4.0.8
       path: 0.12.7
@@ -2881,9 +2887,11 @@ importers:
     specifiers:
       fantasticon: ^2.0.0
       icon-font-generator: ^2.1.11
+      jsonc-parser: ^3.2.0
     devDependencies:
       fantasticon: 2.0.0
       icon-font-generator: 2.1.11
+      jsonc-parser: 3.2.0
 
   ../../workspaces/common-libs/playwright-vscode-tester:
     specifiers:
@@ -2939,7 +2947,9 @@ importers:
       '@types/react-dom': 17.0.14
       '@typescript-eslint/eslint-plugin': ^6.2.1
       '@typescript-eslint/parser': ^6.2.1
+      '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       classnames: ^2.2.6
       eslint: ^8.32.0
       eslint-plugin-react: ^7.33.1
@@ -2959,7 +2969,9 @@ importers:
       '@projectstorm/react-canvas-core': 6.7.4_react@17.0.2
       '@projectstorm/react-diagrams': 6.7.4_tngsxvm4cqu54pqeaphftrfwoy
       '@projectstorm/react-diagrams-core': 6.7.4_react@17.0.2
+      '@vscode/codicons': 0.0.33
       '@vscode/webview-ui-toolkit': 1.2.2_react@17.0.2
+      '@wso2-enterprise/font-wso2-vscode': link:../font-wso2-vscode
       classnames: 2.3.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2

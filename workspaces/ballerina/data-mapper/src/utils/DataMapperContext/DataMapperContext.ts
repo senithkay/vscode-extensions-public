@@ -30,6 +30,7 @@ export interface IDataMapperContext {
         size: number
     };
     stSymbolInfo: STSymbolInfo;
+    moduleVariables: any;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
@@ -43,6 +44,10 @@ export interface IDataMapperContext {
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     updateActiveFile?: (currentFile: FileListEntry) => void;
     updateSelectedComponent?: (info: ComponentViewInfo) => void;
+    referenceManager?: {
+        currentReferences: string[],
+        handleCurrentReferences: (referencedFields: string[]) => void
+    }
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -58,6 +63,7 @@ export class DataMapperContext implements IDataMapperContext {
             size: number
         },
         public stSymbolInfo: STSymbolInfo,
+        public moduleVariables: any,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
         public applyModifications: (modifications: STModification[]) => Promise<void>,
         public goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void,
@@ -70,7 +76,11 @@ export class DataMapperContext implements IDataMapperContext {
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
         public updateActiveFile?: (currentFile: FileListEntry) => void,
-        public updateSelectedComponent?: (info: ComponentViewInfo) => void
+        public updateSelectedComponent?: (info: ComponentViewInfo) => void,
+        public referenceManager?: {
+            currentReferences: string[],
+            handleCurrentReferences: (referencedFields: string[]) => void;
+        }
     ){}
 
     public get functionST(): FunctionDefinition {
