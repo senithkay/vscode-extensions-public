@@ -10,7 +10,21 @@
 import React, { useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellBounds, CellModel } from "./CellModel";
-import { CellNode, TopPortCircle, LeftPortCircle, BottomPortsWrapper, DotWrapper, Dot, IconWrapper, TopIconWrapper, RightPortsWrapper } from "./styles";
+import {
+    CellNode,
+    TopPortCircle,
+    LeftPortCircle,
+    BottomPortsWrapper,
+    DotWrapper,
+    Dot,
+    IconWrapper,
+    TopIconWrapper,
+    RightPortsWrapper,
+    TopPortLabel,
+    LeftPortLabel,
+    RightPortLabel,
+    BottomPortLabel,
+} from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId, getRoundedOctagonSVG } from "./cell-util";
 import { MAIN_CELL } from "../../../resources";
@@ -55,24 +69,31 @@ export function CellWidget(props: CellWidgetProps) {
             {generateRoundedOctagonSVG(cellHeight)}
 
             <TopPortCircle>
+                <TopPortLabel>
+                    Northbound <span>Traffic coming from internet</span>
+                </TopPortLabel>
                 <TopIconWrapper>
                     <GatewayIcon />
-                    {/* <i className="fw-sync-alt-round"></i> */}
                 </TopIconWrapper>
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.TOP))} engine={engine} />
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.BOTTOM))} engine={engine} />
             </TopPortCircle>
 
             <LeftPortCircle>
+                <LeftPortLabel>
+                    Westbound <span>Traffic coming from intranet</span>
+                </LeftPortLabel>
                 <IconWrapper>
                     <GatewayIcon />
-                    {/* <i className="fw-sync-alt-round"></i> */}
                 </IconWrapper>
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.WestBound, PortModelAlignment.LEFT))} engine={engine} />
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.WestBound, PortModelAlignment.RIGHT))} engine={engine} />
             </LeftPortCircle>
 
             <RightPortsWrapper>
+                <RightPortLabel>
+                    Eastbound <span>Organization wide connections</span>
+                </RightPortLabel>
                 {node.connectionNodes?.map((connectionNode) => {
                     return (
                         <DotWrapper key={connectionNode.getID()}>
@@ -95,6 +116,9 @@ export function CellWidget(props: CellWidgetProps) {
                 })}
             </RightPortsWrapper>
             <BottomPortsWrapper>
+                <BottomPortLabel>
+                    Southbound <span>Third party connections</span>
+                </BottomPortLabel>
                 {node.connectorNodes?.map((connectorNode) => {
                     return (
                         <DotWrapper key={connectorNode.getID()}>
