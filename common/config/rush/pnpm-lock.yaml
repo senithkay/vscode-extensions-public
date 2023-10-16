@@ -69,6 +69,7 @@ importers:
       webpack-cli: ^4.10.0
       webpack-merge-and-include-globally: ^2.3.4
       xml-js: ^1.6.11
+      xstate: ^4.38.2
       yarn: ^1.22.19
     dependencies:
       '@types/lodash': 4.14.197
@@ -101,6 +102,7 @@ importers:
       vscode-messenger: 0.4.5
       vscode-test: 1.6.1
       xml-js: 1.6.11
+      xstate: 4.38.2
     devDependencies:
       '@sentry/webpack-plugin': 1.20.1
       '@types/chai': 4.3.5
@@ -39426,6 +39428,10 @@ packages:
     engines: {node: '>=0.1'}
     deprecated: Deprecated due to CVE-2021-21366 resolved in 0.5.0
     dev: true
+
+  /xstate/4.38.2:
+    resolution: {integrity: sha512-Fba/DwEPDLneHT3tbJ9F3zafbQXszOlyCJyQqqdzmtlY/cwE2th462KK48yaANf98jHlP6lJvxfNtN0LFKXPQg==}
+    dev: false
 
   /xtend/4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}

@@ -1,5 +1,6 @@
 packages:
   - 'workspaces/*'
   - 'workspaces/ballerina/*'
+  - 'workspaces/common-libs/*'
   - 'workspaces/choreo/*'
   - 'workspaces/common-libs/*'
