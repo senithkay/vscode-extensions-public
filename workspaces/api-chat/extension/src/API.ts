@@ -33,7 +33,7 @@ const resolveOauthClientCredential = async () => {
     try {
         if (!apiKey) {
             getLogger().error('API CHAT API KEY is not defined');
-            throw new Error('API_CHAT_API_KEY is not defined in the environment variables');
+            throw new Error('API CHAT APIKEY is not defined.');
         }
 
         const response = await auth.post('/token', "grant_type=client_credentials", {
