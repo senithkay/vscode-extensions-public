@@ -4,6 +4,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
+const Dotenv = require('dotenv-webpack');
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -45,6 +46,11 @@ const config = {
                 ]
             }
         ]
-    }
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.API_CHAT_API_KEY': JSON.stringify(process.env.API_CHAT_API_KEY)
+        })
+    ]
 };
 module.exports = config;

@@ -23,6 +23,7 @@ importers:
       axios: ^1.5.0
       copyfiles: ^2.4.1
       dotenv: ~16.3.1
+      dotenv-webpack: ~8.0.1
       eslint: ^8.49.0
       glob: ^8.1.0
       mocha: ^10.2.0
@@ -42,6 +43,7 @@ importers:
       '@vscode/extension-telemetry': 0.7.7
       axios: 1.5.0
       dotenv: 16.3.1
+      dotenv-webpack: 8.0.1_webpack@5.88.2
       ts-loader: 9.4.4_dtthwp2bsqb7yvb7hoeealjg4i
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
@@ -20233,11 +20235,27 @@ packages:
     dependencies:
       is-obj: 2.0.0
 
+  /dotenv-defaults/2.0.2:
+    resolution: {integrity: sha512-iOIzovWfsUHU91L5i8bJce3NYK5JXeAwH50Jh6+ARUdLiiGlYWfGw6UkzsYqaXZH/hjE/eCd/PlfM/qqyK0AMg==}
+    dependencies:
+      dotenv: 8.6.0
+    dev: false
+
   /dotenv-expand/4.2.0:
     resolution: {integrity: sha512-pHWVt6L/YkqbBCMb1hG6e7oO0WdMhlapDIibl+BZ9PncVE3i+G77uvNr8GUxW2ItSituOK8QOYC9oOJjwWD94A==}
 
   /dotenv-expand/5.1.0:
     resolution: {integrity: sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA==}
+
+  /dotenv-webpack/8.0.1_webpack@5.88.2:
+    resolution: {integrity: sha512-CdrgfhZOnx4uB18SgaoP9XHRN2v48BbjuXQsZY5ixs5A8579NxQkmMxRtI7aTwSiSQcM2ao12Fdu+L3ZS3bG4w==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      webpack: ^4 || ^5
+    dependencies:
+      dotenv-defaults: 2.0.2
+      webpack: 5.88.2
+    dev: false
 
   /dotenv/10.0.0:
     resolution: {integrity: sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==}

@@ -24,15 +24,16 @@ const auth = axios.create({
     baseURL: 'https://sts.choreo.dev/oauth2'
 })
 
-const apiKey = process.env.API_KEY;
+const apiKey = process.env.API_CHAT_API_KEY;
 let refreshToken = "";
+
 // Resolve Oauth client credential
 const resolveOauthClientCredential = async () => {
     // Your code here to resolve Oauth client credential
     try {
         if (!apiKey) {
-            getLogger().error('API_KEY is not defined in the environment variables');
-            throw new Error('API_KEY is not defined in the environment variables');
+            getLogger().error('API CHAT API KEY is not defined');
+            throw new Error('API CHAT APIKEY is not defined.');
         }
 
         const response = await auth.post('/token', "grant_type=client_credentials", {
