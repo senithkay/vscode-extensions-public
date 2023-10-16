@@ -548,6 +548,16 @@
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "api-chat",
+      "projectFolder": "workspaces/api-chat/extension",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-chat-vscode-webviews",
+      "projectFolder": "workspaces/api-chat/webviews",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }

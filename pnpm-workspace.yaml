@@ -3,3 +3,4 @@ packages:
   - 'workspaces/ballerina/*'
   - 'workspaces/choreo/*'
   - 'workspaces/common-libs/*'
+  - 'workspaces/api-chat/*'
