@@ -25,6 +25,7 @@ on:
           - 'ballerina/syntax-tree'
           - 'ballerina/project-design-diagrams'                                                                               
           - 'configurable-editor'
+          - 'common-libs/ui-toolkit'
       version:
         type: choice
         description: 'Enter the version type'
