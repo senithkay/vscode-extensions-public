@@ -34,7 +34,7 @@ export function HierarchicalHeadWidget(props: HierarchicalHeadProps) {
     }, [node]);
 
     return (
-        <NodeHeader>
+        <NodeHeader data-testid={`hierarchical-head-${displayName}`}>
             <GraphqlQueryIcon/>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${node.getID()}`)}

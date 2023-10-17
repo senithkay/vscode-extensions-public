@@ -11,32 +11,8 @@
  *  associated services.
  */
 import React from "react";
-import cn from "classnames";
 
-import styled from "@emotion/styled";
-
-const TypeCardContainer = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    width: 150px;
-    padding: 5px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 3px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--vscode-panel-border);
-    cursor: pointer;
-    &:hover, &.active {
-        border-color: var(--vscode-focusBorder);
-    }
-`;
+import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
 
 export interface ProjectTypeCardProps {
     isCurrentMonoRepo: boolean;
@@ -58,8 +34,8 @@ export const ProjectTypeCard: React.FC<ProjectTypeCardProps> = (props) => {
     };
 
     return (
-        <TypeCardContainer className={cn({ "active": isSelected })} onClick={onSelection} id={`${label}-card`}>
-            <h4>{label}</h4>
-        </TypeCardContainer>
+        <ComponentCard isSelected={isSelected} onClick={onSelection} id={`${label}-card`}>
+            <Typography variant="h4">{label}</Typography>
+        </ComponentCard>
     );
 };

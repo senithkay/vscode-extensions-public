@@ -55,11 +55,11 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 engine={engine}
             />
             <GraphqlMutationIcon />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }} data-testid={`remote-identifier-${remoteFunc.identifier}`}>
                 {remoteFunc.identifier}
             </FieldName>
             <div onClick={updateSelectedNode}>
-                <FieldType>{remoteFunc.returns}</FieldType>
+                <FieldType data-testid={`remote-type-${remoteFunc.returns}`}>{remoteFunc.returns}</FieldType>
             </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${remotePath}`)}

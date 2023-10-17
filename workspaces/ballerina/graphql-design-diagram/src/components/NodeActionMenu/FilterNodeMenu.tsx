@@ -30,6 +30,7 @@ export function FilterNodeMenu(props: FilterNodeMenuProps) {
     return (
         <>
             <Tooltip
+                data-testid="filter-node-menu"
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
@@ -77,7 +78,8 @@ export function FilterNodeMenu(props: FilterNodeMenuProps) {
                         fontSize: '18px',
                         margin: '0px',
                         position: 'absolute',
-                        right: 0.5
+                        right: 0.5,
+                        zIndex: 1
                     }}
                 />
             </Tooltip>

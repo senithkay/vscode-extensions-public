@@ -35,7 +35,7 @@ export function UnionNodeHeadWidget(props: UnionNodeHeadWidgetProps) {
     }, [node]);
 
     return (
-        <NodeHeader>
+        <NodeHeader data-testid={`union-head-${displayName}`}>
             <UnionIcon />
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${node.getID()}`)}

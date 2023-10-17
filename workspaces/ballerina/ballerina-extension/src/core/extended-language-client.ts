@@ -36,7 +36,7 @@ import {
 import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
-import { DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { CancellationToken, DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 import { getChoreoExtAPI } from "../choreo-features/activate";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
@@ -804,9 +804,12 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
 
-    async resolveMissingDependencies(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
+    async resolveMissingDependencies(req: GetSyntaxTreeParams, cancellationToken?: CancellationToken): Promise<GetSyntaxTreeResponse | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES);
-        return isSupported ? this.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, req) :
+        if (cancellationToken?.isCancellationRequested) {
+            return Promise.resolve(NOT_SUPPORTED);
+        }
+        return isSupported ? this.sendRequest(EXTENDED_APIS.RESOLVE_MISSING_DEPENDENCIES, req, cancellationToken) :
             Promise.resolve(NOT_SUPPORTED);
     }
 

@@ -31,7 +31,7 @@ export function EnumNodeWidget(props: EnumNodeWidgetProps) {
     const isNodeSelected = selectedDiagramNode &&  getComponentName(selectedDiagramNode) === node.enumObject.name;
 
     return (
-        <EnumNode isSelected={isNodeSelected}>
+        <EnumNode isSelected={isNodeSelected} data-testid={`enum-node-${node?.enumObject?.name}`}>
             <EnumHeadWidget
                 engine={engine}
                 node={node}

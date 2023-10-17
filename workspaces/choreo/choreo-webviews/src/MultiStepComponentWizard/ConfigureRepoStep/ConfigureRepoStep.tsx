@@ -12,7 +12,7 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { useEffect, useState } from "react";
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
@@ -24,12 +24,23 @@ import { RepoStructureConfig } from "./RepoStructureConfig";
 import { useQuery } from "@tanstack/react-query";
 import { ProviderTypeCard } from "../../ProjectWizard/ProviderTypeCard";
 import { ChoreoComponentType, ChoreoImplementationType, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { Codicon } from "../../Codicon/Codicon";
+import { ProgressIndicator, Typography } from "@wso2-enterprise/ui-toolkit";
+import { SectionWrapper } from "../../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     gap: 20px;
+`;
+
+const RepoSelectorContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 30px;
 `;
 
 const GhRepoSelectorActions = styled.div`
@@ -50,18 +61,14 @@ const GhRepoSelectorOrgContainer = styled.div`
     flex-direction: column;
     gap: 5px;
     width: 200px;
+    margin-right: 80px;
 `;
 
 const GhRepoSelectorRepoContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 5px;
-    width: 300px;
-`;
-
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 4px);
-    width: calc(var(--design-unit) * 4px);
+    width: 200px;
 `;
 
 const CardContainer = styled.div`
@@ -81,6 +88,84 @@ const SubContainer = styled.div`
     gap: 20px;
 `;
 
+const RefreshBtn = styled(VSCodeButton)`
+    margin-top: auto;
+    padding: 1px;
+`;
+
+const CredSelectorActions = styled.div`
+    display  : flex;
+    flex-direction: row;
+    padding: 20px 0;
+`;
+
+const CredListContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+`;
+
+const RepoStepWrapper = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    position: relative;
+    // End Flex Props
+    // Sizing Props
+    padding: 20px;
+    gap: 10px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--vscode-panel-border);
+    cursor: default;
+`;
+
+const RepoStepNumber = styled.div`
+    //Flex Props
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-items: center;
+    // End Flex Props
+    // Sizing Props
+    width: 40px;
+    height: 40px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 50%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--vscode-panel-border);
+`;
+
+const RepoStepContent = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+`;
+
+const ListItemWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 20px;
+`;
+
+const ListWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 10px;
+`;
+
 export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange, stepValidationErrors } = props;
 
@@ -98,21 +183,18 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             return ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org?.uuid, org.id);
         },
         select: (gitCredentialsData) => {
-            return gitCredentialsData?.filter(item => item.type === GitProvider.BITBUCKET).map(({id, name}) => ({ id, name }));
+            return gitCredentialsData?.filter(item => item.type === GitProvider.BITBUCKET).map(({ id, name }) => ({ id, name }));
         },
         enabled: !!org?.uuid && gitProvider === GitProvider.BITBUCKET,
         onSuccess: (data) => {
-            if(data?.length > 0 && (!selectedCredentialId || !data.some(item => item.id === selectedCredentialId))) {
+            if (data?.length > 0 && (!selectedCredentialId || !data.some(item => item.id === selectedCredentialId))) {
                 onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, credentialID: data[0].id } }));
             }
         }
     });
 
-    const handleCredDropdownChange = (credId: string) => {
-        if (credId) {
-            setCredential(credId);
-        }
-    };
+    const selectedCredential = credentials ? credentials.find(cred => (cred.id === selectedCredentialId && cred.name)) : "";
+    const selectedCredName = selectedCredential ? selectedCredential.name : "";
 
     const handleConfigureNewCred = async () => {
         // open add credentials page in browser with vscode open external
@@ -120,16 +202,31 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         ChoreoWebViewAPI.getInstance().openExternal(`${consoleUrl}/organizations/${org.name}/settings/credentials`);
     };
 
+    const handleBitbucketDropdownChange = (credName: string) => {
+        let credId = '';
+        if (credName) {
+            credentials?.forEach(
+                (credential) => {
+                    if (credential.name === credName) {
+                        credId = credential.id;
+                    }
+                }
+            )
+
+            setCredential(credId);
+        }
+    };
+
     const { isLoading: isFetchingRepos, data: githubOrgs, refetch, isRefetching: isRefetchingRepos } = useQuery({
         queryKey: [`repoData${choreoProject?.id}`, gitProvider, selectedCredentialId], //TODO: add userId to the key instead of choreoProjectId
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
             try {
-                if(gitProvider === GitProvider.GITHUB) {
+                if (gitProvider === GitProvider.GITHUB) {
                     return ghClient.getAuthorizedRepositories(org?.id);
-                }else if(gitProvider === GitProvider.BITBUCKET && selectedCredentialId) {
+                } else if (gitProvider === GitProvider.BITBUCKET && selectedCredentialId) {
                     return ghClient.getUserRepos(selectedCredentialId, org?.id);
-                }       
+                }
                 return [];
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
@@ -138,15 +235,14 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         },
         select: (orgs) => orgs?.filter(org => org.repositories.length > 0),
         onSuccess: gitOrgList => {
-            if(gitOrgList.length > 0 && (!formData?.repository?.org || !gitOrgList.some(item => item.orgName === formData?.repository?.org))) {
+            if (gitOrgList.length > 0 && (!formData?.repository?.org || !gitOrgList.some(item => item.orgName === formData?.repository?.org))) {
                 onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org: gitOrgList[0].orgName } }));
-                if(gitOrgList[0].repositories?.length > 0 && (!formData?.repository?.repo || !gitOrgList[0].repositories.some(item => item.name === formData?.repository?.repo))) {
+                if (gitOrgList[0].repositories?.length > 0 && (!formData?.repository?.repo || !gitOrgList[0].repositories.some(item => item.name === formData?.repository?.repo))) {
                     onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, repo: gitOrgList[0].repositories[0].name } }));
                 }
             }
         }
     });
-
 
     const selectedRepoString = formData?.repository ? `${formData?.repository?.org}/${formData?.repository?.repo}` : undefined;
 
@@ -225,9 +321,36 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
     };
 
-    const handleConfigureNewRepo = () => {
-        ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
+    const handleNewRepoCreation = async () => {
+        if (gitProvider === GitProvider.GITHUB) {
+            ChoreoWebViewAPI.getInstance().openExternal(`https://github.com/new`);
+        } else if (gitProvider === GitProvider.BITBUCKET) {
+            ChoreoWebViewAPI.getInstance().openExternal(`https://bitbucket.org/${formData?.repository?.org}/workspace/create/repository`);
+        }
+    }
+
+    const handleConfigureNewRepo = async () => {
+        setGHStatus({ status: "install-inprogress" });
+        await ChoreoWebViewAPI.getInstance().setChoreoInstallOrg(org.id);
+        const success = await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
+        await ChoreoWebViewAPI.getInstance().clearChoreoInstallOrg();
+        if (success) {
+            setGHStatus({ status: "installed" });
+        } else {
+            setGHStatus({ status: "error" });
+        }
     };
+
+    let appInstallerLoaderMessage;
+    if (ghStatus.status === "install-inprogress") {
+        appInstallerLoaderMessage = "Installing Choreo App...";
+    } else {
+        appInstallerLoaderMessage = "";
+    }
+
+    const handleGuideClick = async () => {
+        ChoreoWebViewAPI.getInstance().openExternal(`https://wso2.com/choreo/docs/develop-components/deploy-a-containerized-application/#connect-your-repository-to-choreo`);
+    }
 
     const handleGhOrgChange = (e: any) => {
         const org = githubOrgs.find(org => org.orgName === e.target.value);
@@ -286,10 +409,9 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         }
     };
 
-    const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
     const showAuthorizeButton = ghStatus.status === "not-authorized" || ghStatus.status === "error";
-    const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
+    const showRepoProgressBar = isRefetchingRepos || isFetchingRepos;
     const showCredLoader = isFetchingCredentials || isRefetching;
     let loaderMessage = "Loading repositories...";
     if (ghStatus.status === "auth-inprogress") {
@@ -301,151 +423,227 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     return (
         <StepContainer>
             {!isMonoRepo && (<>
-                <SubContainer>
-                    <CardContainer>
-                        <ProviderTypeCard
-                            type={GitProvider.GITHUB}
-                            label="GitHub"
-                            currentType={gitProvider}
-                            onChange={changeGitProvider}
-                        />
-                        <ProviderTypeCard
-                            type={GitProvider.BITBUCKET}
-                            label="BitBucket"
-                            currentType={gitProvider}
-                            onChange={changeGitProvider}
-                        />
-                    </CardContainer>
-                </SubContainer>
-                {gitProvider === GitProvider.GITHUB && (
-                    <>
+                <SectionWrapper>
+                    <Typography variant="h3">Component Type</Typography>
+                    <Typography variant="h4">Git Provider Details</Typography>
+                    <SubContainer>
+                        <CardContainer>
+                            <ProviderTypeCard
+                                type={GitProvider.GITHUB}
+                                label="GitHub"
+                                currentType={gitProvider}
+                                onChange={changeGitProvider}
+                            />
+                            <ProviderTypeCard
+                                type={GitProvider.BITBUCKET}
+                                label="BitBucket"
+                                currentType={gitProvider}
+                                onChange={changeGitProvider}
+                            />
+                        </CardContainer>
+                    </SubContainer>
+                    {gitProvider === GitProvider.GITHUB && (
                         <GhRepoSelectorActions>
                             {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
-                            {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
-                            {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
-                            {!showLoader && isRefetchingRepos && <SmallProgressRing />}
+                            {showLoader && loaderMessage}
+                            {showLoader && <VSCodeProgressRing />}
                         </GhRepoSelectorActions>
-                    </>
-                )}
-                {gitProvider === GitProvider.BITBUCKET && (
-                    <>
-                        <GhRepoSelectorActions>
-                            {showRefreshButton && <VSCodeLink onClick={() => refetchCredentials()}>Refresh Credentials</VSCodeLink>}
-                            {showCredLoader && <SmallProgressRing />}
-                        </GhRepoSelectorActions>
-                        {!isFetchingCredentials && credentials.length === 0 &&
-                            <VSCodeLink onClick={handleConfigureNewCred}>Configure New Credential</VSCodeLink>
-                        }
-                        {!isFetchingCredentials &&
-                            (<>
-                                <GhRepoSelectorContainer>
-                                    <GhRepoSelectorOrgContainer>
-                                        <label htmlFor="cred-drop-down">Select Credential</label>
+                    )}
+                    {gitProvider === GitProvider.BITBUCKET && (
+                        <>
+                            {!isFetchingCredentials && credentials.length === 0 &&
+                                <CredSelectorActions>
+                                    <span>No Credentials available. Please <VSCodeLink onClick={handleConfigureNewCred}>Configure New Credential</VSCodeLink> in bitbucket.</span>
+                                </CredSelectorActions>
+                            }
+                            {!isFetchingCredentials &&
+                                (<>
+                                    <CredListContainer>
+                                        Select Credential
                                         <VSCodeDropdown
                                             id="cred-drop-down"
-                                            value={selectedCredentialId}
-                                            onChange={(e: any) => { handleCredDropdownChange(e.target.value) }}>
+                                            value={selectedCredName}
+                                            onChange={(e: any) => {
+                                                handleBitbucketDropdownChange(e.target.value)
+                                            }}>
+                                            <VSCodeOption
+                                                key={''}
+                                                value={''}
+                                                id={`cred-item-null`}
+                                            >
+                                                {''}
+                                            </VSCodeOption>
                                             {credentials.map((credential) => (
                                                 <VSCodeOption
                                                     key={credential.id}
-                                                    value={credential.id}
+                                                    value={credential.name}
                                                     id={`cred-item-${credential.name}`}
                                                 >
                                                     {credential.name}
                                                 </VSCodeOption>
                                             ))}
                                         </VSCodeDropdown>
-                                    </GhRepoSelectorOrgContainer>
-                                </GhRepoSelectorContainer>
-                            </>)
-                        }
-                        <GhRepoSelectorActions>
-                            {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
-                            {!showLoader && isRefetchingRepos && <SmallProgressRing />}
-                        </GhRepoSelectorActions>
-                    </>
-                )}
-                {showLoader && loaderMessage}
-                {showLoader && <VSCodeProgressRing />}
-                {githubOrgs && githubOrgs.length > 0 && (
-                    <GhRepoSelectorContainer>
-                        <GhRepoSelectorOrgContainer>
-                            <label htmlFor="org-drop-down">Organization</label>
-                            <VSCodeDropdown id="org-drop-down" value={formData?.repository?.org} onChange={handleGhOrgChange}>
-                                {githubOrgs.map((org) => (
-                                    <VSCodeOption
-                                        key={org.orgName}
-                                        value={org.orgName}
-                                        id={`org-item-${org.orgName}`}
-                                    >
-                                        {org.orgName}
-                                    </VSCodeOption>
-                                ))}
-                            </VSCodeDropdown>
-                        </GhRepoSelectorOrgContainer>
-                        <GhRepoSelectorRepoContainer>
-                            <label htmlFor="repo-drop-down">Repository</label>
-                            <VSCodeDropdown id="repo-drop-down" value={formData?.repository?.repo} onChange={handleGhRepoChange}>
-                                {selectedOrg?.repositories.map((repo) => (
-                                    <VSCodeOption
-                                        key={repo.name}
-                                        value={repo.name}
-                                        id={`repo-item-${repo.name}`}
-                                    >
-                                        {repo.name}
-                                    </VSCodeOption>
-                                ))}
-                            </VSCodeDropdown>
-                        </GhRepoSelectorRepoContainer>
-                    </GhRepoSelectorContainer>
-                )}
-                {
-                    !isFetchingRepos && !formData?.repository?.isCloned && !formData?.repository?.isBareRepo && !isCloneInProgress && (
-                        <>
-                            Selected Repository is not available locally in Project folder. Clone the repository to continue.
-                            <VSCodeLink onClick={handleRepoClone}>
-                                Clone Repository
-                            </VSCodeLink>
+                                        <RefreshBtn
+                                            appearance="icon"
+                                            onClick={() => refetchCredentials()}
+                                            title="Refresh credentials"
+                                            disabled={isRefetching}
+                                            id='refresh-credentials-btn'
+                                        >
+                                            <Codicon name="refresh" />
+                                        </RefreshBtn>
+                                    </CredListContainer>
+                                </>)
+                            }
+                            {showCredLoader && <ProgressIndicator />}
                         </>
-                    )
-                }
-                {
-                    !isFetchingRepos && formData?.repository?.isBareRepo && (
-                        <>
-                            Repository is not initialized. Please initialize the repository before cloning can continue.
-                            <GhRepoSelectorActions>
-                                <VSCodeLink onClick={handleRepoInit}>
-                                    Initialize
-                                </VSCodeLink>
-                                <VSCodeLink onClick={handleRepoClone}>
-                                    Recheck & Clone
-                                </VSCodeLink>
-                            </GhRepoSelectorActions>
-                        </>
-                    )
-                }
-                {
-                    isCloneInProgress && (
-                        <>
-                            <span>Cloning Repository...</span>
-                            <VSCodeProgressRing />
-                        </>
-                    )
-                }
+                    )}
+                </SectionWrapper>
+                <SectionWrapper>
+                    <RepoStepWrapper>
+                        <RepoStepNumber> 1 </RepoStepNumber>
+                        <RepoStepContent>
+                            <Typography variant="h3">  Starting from scratch?  </Typography>
+                            {gitProvider === GitProvider.GITHUB && (
+                                <StepContainer>
+                                    <ListItemWrapper>
+                                        <Codicon name="circle-filled" />
+                                        <span>Create a <VSCodeLink onClick={handleNewRepoCreation}>New Repository</VSCodeLink> in GitHub.</span>
+                                    </ListItemWrapper>
+                                    <ListWrapper>
+                                        <ListItemWrapper>
+                                            <Codicon name="circle-filled" />
+                                            <span>Give repository permissions to Choreo by installing Github Application. See <VSCodeLink onClick={handleGuideClick}>Installation Guide</VSCodeLink> for more information</span>
+                                        </ListItemWrapper>
+                                        <ListItemWrapper style={{ marginLeft: '25px' }}>
+                                            <Codicon name="circle-outline" />
+                                            <span>Install the <VSCodeLink onClick={handleConfigureNewRepo}>Choreo Application</VSCodeLink> to the repository.</span>
+                                            {appInstallerLoaderMessage}
+                                        </ListItemWrapper>
+                                    </ListWrapper>
+                                    <ListItemWrapper>
+                                        <Codicon name="circle-filled" />
+                                        <span>Select the newly created repo from Select repository.</span>
+                                    </ListItemWrapper>
+                                </StepContainer>
+                            )}
+                            {gitProvider === GitProvider.BITBUCKET && (
+                                selectedCredentialId ? (
+                                    <StepContainer>
+                                        <ListItemWrapper>
+                                            <Codicon name="circle-filled" />
+                                            <span>Create a <VSCodeLink onClick={handleNewRepoCreation}>New Repository</VSCodeLink> in bitbucket.</span>
+                                        </ListItemWrapper>
+                                        <ListItemWrapper>
+                                            <Codicon name="circle-filled" />
+                                            <span>Select the newly created repo from Select repository.</span>
+                                        </ListItemWrapper>
+                                    </StepContainer>
+                                ) : (
+                                    <span>Please select a bitbucket credential.</span>
+                                )
+                            )}
+                        </RepoStepContent>
+                    </RepoStepWrapper>
+                    <RepoStepWrapper>
+                        <RepoStepNumber> 2 </RepoStepNumber>
+                        <RepoStepContent>
+                            <Typography variant="h3">  Select repository  </Typography>
+                            {showLoader && loaderMessage}
+                            {showLoader && <VSCodeProgressRing />}
+                            {(gitProvider === GitProvider.GITHUB || selectedCredentialId) ? (
+                                <RepoSelectorContainer>
+                                    <span>Select the desired repository.</span>
+                                    {githubOrgs && githubOrgs.length > 0 && (
+                                        <GhRepoSelectorContainer>
+                                            <GhRepoSelectorOrgContainer>
+                                                <label htmlFor="org-drop-down">Organization</label>
+                                                <VSCodeDropdown id="org-drop-down" value={formData?.repository?.org} onChange={handleGhOrgChange}>
+                                                    {githubOrgs.map((org) => (
+                                                        <VSCodeOption
+                                                            key={org.orgName}
+                                                            value={org.orgName}
+                                                            id={`org-item-${org.orgName}`}
+                                                        >
+                                                            {org.orgName}
+                                                        </VSCodeOption>
+                                                    ))}
+                                                </VSCodeDropdown>
+                                            </GhRepoSelectorOrgContainer>
+                                            <GhRepoSelectorRepoContainer>
+                                                <label htmlFor="repo-drop-down">Repository</label>
+                                                <VSCodeDropdown id="repo-drop-down" value={formData?.repository?.repo} onChange={handleGhRepoChange}>
+                                                    {selectedOrg?.repositories.map((repo) => (
+                                                        <VSCodeOption
+                                                            key={repo.name}
+                                                            value={repo.name}
+                                                            id={`repo-item-${repo.name}`}
+                                                        >
+                                                            {repo.name}
+                                                        </VSCodeOption>
+                                                    ))}
+                                                </VSCodeDropdown>
+                                            </GhRepoSelectorRepoContainer>
+                                        </GhRepoSelectorContainer>
+                                    )}
+                                    {
+                                        !isFetchingRepos && !formData?.repository?.isCloned && !formData?.repository?.isBareRepo && !isCloneInProgress && (
+                                            <>
+                                                Selected Repository is not available locally in Project folder. Clone the repository to continue.
+                                                <VSCodeLink onClick={handleRepoClone}>
+                                                    Clone Repository
+                                                </VSCodeLink>
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        !isFetchingRepos && formData?.repository?.isBareRepo && (
+                                            <>
+                                                Repository is not initialized. Please initialize the repository before cloning can continue.
+                                                <GhRepoSelectorActions>
+                                                    <VSCodeLink onClick={handleRepoInit}>
+                                                        Initialize
+                                                    </VSCodeLink>
+                                                    <VSCodeLink onClick={handleRepoClone}>
+                                                        Recheck & Clone
+                                                    </VSCodeLink>
+                                                </GhRepoSelectorActions>
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        isCloneInProgress && (
+                                            <>
+                                                <span>Cloning Repository...</span>
+                                                <VSCodeProgressRing />
+                                            </>
+                                        )
+                                    }
 
-                {selectedRepoString && !isFetchingRepos && formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
-                    <GithubRepoBranchSelector
-                        formData={formData}
-                        onFormDataChange={onFormDataChange}
-                    />
-                )}
+                                    {selectedRepoString && !isFetchingRepos && formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
+                                        <GithubRepoBranchSelector
+                                            formData={formData}
+                                            onFormDataChange={onFormDataChange}
+                                        />
+                                    )}
+                                </RepoSelectorContainer>
+                            ) : (
+                                <span>"Please select a bitbucket credential."</span>
+                            )}
+
+                        </RepoStepContent>
+                        {showRepoProgressBar && <ProgressIndicator />}
+                    </RepoStepWrapper>
+                </SectionWrapper>
             </>)}
             {formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
-                <RepoStructureConfig
-                    formData={formData}
-                    onFormDataChange={onFormDataChange}
-                    formErrors={stepValidationErrors}
-                />
+                <SectionWrapper>
+                    <RepoStructureConfig
+                        formData={formData}
+                        onFormDataChange={onFormDataChange}
+                        formErrors={stepValidationErrors}
+                    />
+                </SectionWrapper>
             )}
         </StepContainer>
     );
@@ -540,7 +738,7 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
                     formData.type === ChoreoComponentType.WebApplication &&
                     formData.implementationType === ChoreoImplementationType.Docker
                 ) {
-                    return value !== undefined && value !== '';                
+                    return value !== undefined && value !== '';
                 }
                 return true;
             }

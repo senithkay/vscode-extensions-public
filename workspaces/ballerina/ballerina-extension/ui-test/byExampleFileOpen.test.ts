@@ -162,6 +162,21 @@ describe('Open ballerina samples in VSCode from URL', () => {
         await new EditorView().closeAllEditors();
     });
 
+    it('Open URL to download existing git repo and open file', async () => {
+        // Use Developer URL to excecute a URL
+        const url = 'vscode://wso2.ballerina/open-repo?repoUrl=https://github.com/wso2/choreo-sample-apps&openFile=ballerina/greeter/service.bal';
+        await executeURLdownload(workbench, url);
+
+        // Confirm Existing
+        const openFile = await waitUntil(By.linkText('Open'));
+        await openFile.click();
+
+        const editorView = new EditorView();
+        const editorTitle = await editorView.getOpenEditorTitles();
+        expect(editorTitle).to.includes('service.bal');        
+        await new EditorView().closeAllEditors();
+    });
+
     after(async () => {
         // Delete files and folders in this folder
         rmSync(samplesDownloadDirectory, { recursive: true, force: true });

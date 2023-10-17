@@ -41,7 +41,7 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
             filePath={node.interfaceObject?.position?.filePath}
             position={node.interfaceObject?.position && getFormattedPosition(node.interfaceObject.position)}
         >
-            <InterfaceNodeHeader>
+            <InterfaceNodeHeader data-testid={`interface-head-${displayName}`}>
                 <div>{"<<interface>>"}</div>
                 <InterfaceSubHeader>
                     <ServiceClassIcon />

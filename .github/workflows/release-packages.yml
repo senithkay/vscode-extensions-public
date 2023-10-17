@@ -40,23 +40,32 @@ on:
           - 'prerelease'
 
 jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      isPreRelease: ${{ inputs.isPreRelease }}
+      enableCache: false
+      ballerina: ${{ inputs.ballerina }}
+      choreo: ${{ inputs.choreo }}
+      version: ${{ inputs.version }}
+
   Release:
     name: Release VSIX
+    needs: Build
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Restore build
+        uses: actions/download-artifact@v3
         with:
-          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          fetch-depth: 2
+          name: ExtBuild
+          path: ./
 
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          isPreRelease: false
-          enableCache: false
-          ballerina: false
-          choreo: false
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
 
       - uses: actions/setup-node@v3
         with:
@@ -64,13 +73,8 @@ jobs:
           node-version: 16.x
           registry-url: "https://npm.pkg.github.com"
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7.26.3
-
       - run: |
           node common/scripts/install-run-rush.js install
-
 
       - name: Get version
         id: version
