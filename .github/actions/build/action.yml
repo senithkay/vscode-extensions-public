@@ -142,7 +142,7 @@ runs:
       if: ${{ inputs.packages == 'true' }}
       run: |
         cd workspaces
-        workspaces=("ballerina/ballerina-languageclient" "configurable-editor" "ballerina/data-mapper" "ballerina/expression-editor" "ballerina/lang-service" "ballerina/low-code-diagram" "ballerina/low-code-distribution" "ballerina/low-code-editor" "ballerina/low-code-editor-commons" "ballerina/low-code-ui-components" "ballerina/statement-editor" "ballerina/syntax-tree" "choreo/choreo-core" "ballerina/project-design-diagrams")
+        workspaces=("ballerina/ballerina-languageclient" "configurable-editor" "ballerina/data-mapper" "ballerina/expression-editor" "ballerina/lang-service" "ballerina/low-code-diagram" "ballerina/low-code-distribution" "ballerina/low-code-editor" "ballerina/low-code-editor-commons" "ballerina/low-code-ui-components" "ballerina/statement-editor" "ballerina/syntax-tree" "choreo/choreo-core" "choreo/cell-diagram" "ballerina/project-design-diagrams")
         for workspace in "${workspaces[@]}"; do
           cd $workspace
           pnpm version ${{ inputs.version }} --no-git-tag-version
