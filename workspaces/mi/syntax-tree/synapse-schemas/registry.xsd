@@ -41,26 +41,10 @@
                 in the top of the Synapse Configuration
             </xs:documentation>
         </xs:annotation>
-        <!-- <xs:sequence>
-            <xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence> -->
-       
         <xs:sequence>
-            <xs:element name="default" type="DefaultEndpoint" />
+            <xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
-
-         <xs:attribute name="provider" type="xs:string" use="required" />
-        <xs:attribute name="provider2" type="xs:int" use="required" />
-    </xs:complexType>
-
-<xs:complexType name="DefaultEndpoint">
-        <xs:annotation>
-            <xs:documentation source="description">
-                This is the type declaration of the default endpoint
-            </xs:documentation>
-        </xs:annotation>
         <xs:attribute name="provider" type="xs:string" use="required" />
-        <xs:attribute name="xx" type="xs:string" use="required" />
     </xs:complexType>
-</xs:schema>
 
+</xs:schema>
