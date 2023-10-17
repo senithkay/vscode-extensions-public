@@ -81,18 +81,19 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             const componentPath = path.join(dirname(workspaceFileLocation), folder.path);
             const choreoDirPath = path.join(componentPath, '.choreo');
             const componentYamlPath = path.join(choreoDirPath, 'component.yaml');
+            const componentName = folder.path.split(path.sep).pop();
             
             if (existsSync(componentYamlPath)) {
                 const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8"));
                 const componentType = (componentYamlContent as any)?.type || ComponentType.SERVICE;
                 const buildPack = getBuildPackFromFs(componentPath);
-                const defaultComponentModel = getDefaultComponentModel(orgName, folder.name, componentType, buildPack);
+                const defaultComponentModel = getDefaultComponentModel(orgName, componentName, componentType, buildPack);
 
                 if (componentType === ComponentType.SERVICE) {
                     const endpoints: Endpoint[] = (componentYamlContent as any).endpoints;
                     const connections: Connection[] = (componentYamlContent as any).connections;
 
-                    const serviceModels = getServiceModels(endpoints, orgName, projectId, folder.name,
+                    const serviceModels = getServiceModels(endpoints, orgName, projectId, componentName,
                         folder.path, componentYamlPath);
                     const servicesRecord: Record<string, CMService> = {};
                     serviceModels.forEach(service => {
@@ -114,12 +115,12 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                             }
                         },
                     };
-                    defaultComponentModel.services = {[folder.name]: service} as any;
+                    defaultComponentModel.services = {[componentName]: service} as any;
                 } else if (componentType === ComponentType.MANUAL_TASK || componentType === ComponentType.SCHEDULED_TASK) {
                     defaultComponentModel.functionEntryPoint = {
                         id: 'main',
-                        label: folder.name,
-                        annotation: { id: folder.name, label: "" },
+                        label: componentName,
+                        annotation: { id: componentName, label: "" },
                         type: componentType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask",
                         dependencies: [],
                         interactions: [],
