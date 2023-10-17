@@ -475,6 +475,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/ballerina-service-designer",
+      "projectFolder": "workspaces/ballerina/service-designer",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/ballerina-low-code-diagram",
       "projectFolder": "workspaces/ballerina/low-code-diagram",
       "versionPolicyName": "ballerina-extension"

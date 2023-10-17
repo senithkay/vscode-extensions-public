@@ -43,6 +43,7 @@
     "@wso2-enterprise/ballerina-low-code-diagram": "workspace:*",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
     "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "workspace:*",
+    "@wso2-enterprise/ballerina-service-designer": "workspace:*",
     "@wso2-enterprise/ballerina-statement-editor": "workspace:*",
     "@wso2-enterprise/ballerina-data-mapper": "workspace:*",
     "@wso2-enterprise/lang-service": "workspace:*",

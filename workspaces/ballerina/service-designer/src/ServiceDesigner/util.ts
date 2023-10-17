@@ -8,7 +8,7 @@
  */
 import { monaco } from "react-monaco-editor";
 
-import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, PartialSTRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, PartialSTRequest, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     CommaToken, DefaultableParam,
@@ -759,6 +759,18 @@ export async function getKeywordTypes(docUri: string, getLangClient: () => Promi
     const langClient = await getLangClient();
     const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
     return completions.filter(value => value.kind === 25);
+}
+
+export function removeStatement(targetPosition: NodePosition): STModification {
+    const removeLine: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: 'DELETE'
+    };
+
+    return removeLine;
 }
 
 export function isStructuredType(node: STNode): boolean {
