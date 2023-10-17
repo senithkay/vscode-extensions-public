@@ -27,6 +27,6 @@
         "build:ballerinExtension": "rush build -o ballerina",
         "build": "rush build",
         "setup-e2e-test-debug": "workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-vscode && workspaces/ballerina/ballerina-extension/node_modules/vscode-extension-tester/out/cli.js get-chromedriver",
-        "ui-toolkit-stories": "npm run --prefix ./workspaces/ui-toolkit serve-storybook"
+        "ui-toolkit-stories": "npm run --prefix ./workspaces/common-libs/ui-toolkit serve-storybook"
     }
 }
