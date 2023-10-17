@@ -71,6 +71,10 @@ jobs:
           node-version: 16.x
           registry-url: "https://npm.pkg.github.com"
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+          
       - run: |
           node common/scripts/install-run-rush.js install
 
