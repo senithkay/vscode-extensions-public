@@ -14,8 +14,8 @@ import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_CELL_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
-import { ProjectActionButton } from "../ProjectActionButton";
 import { CellViewIcon } from "../../../icons";
+import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit";
 
 export const CellViewButton = () => {
     const { currentProjectOrg, choreoProject } = useChoreoWebViewContext();
@@ -29,11 +29,13 @@ export const CellViewButton = () => {
     };
 
     return (
-        <ProjectActionButton
+        <Button 
+            appearance="icon"
             onClick={handleClick}
-            label="Cell View"
-            icon={<CellViewIcon />}
             tooltip={"Open Cell View"}
-        />
+        >
+            <CellViewIcon />
+            <IconLabel>Cell View</IconLabel>
+        </Button>
     );
 };

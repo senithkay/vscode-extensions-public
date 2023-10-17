@@ -10,6 +10,7 @@ import { ExpressionRange, IBallerinaLangClient } from "@wso2-enterprise/ballerin
 import {
     addToTargetPosition,
     CompletionParams,
+    LinePosition,
     PublishDiagnosticsParams,
     ResolvedTypeForExpression
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -184,8 +185,8 @@ export async function getRecordCompletions(
             const importRecCompletions = importCompletions.filter((item) => item.kind === CompletionItemKind.Struct);
 
             importRecCompletions.forEach((item) => {
-                if (!completionMap.has(item.insertText)) {
-                    completionMap.set(item.insertText, { ...item, module: moduleName });
+                if (!completionMap.has(`${item.insertText}${moduleName}`)) {
+                    completionMap.set(`${item.insertText}${moduleName}`, { ...item, module: moduleName });
                 }
             });
         }
@@ -217,4 +218,25 @@ export async function getTypesForExpressions(fileURI: string,
     });
 
     return typesFromExpression.types;
+}
+
+export async function getDefinitionPosition(
+    fileURI: string,
+    langClientPromise: Promise<IBallerinaLangClient>,
+    position: LinePosition,
+) {
+    const langClient = await langClientPromise;
+    const definitionPosition = await langClient.getDefinitionPosition(
+        {
+            textDocument: {
+                uri: Uri.file(fileURI).toString()
+            },
+            position: {
+                line: position.line,
+                character: position.offset
+            }
+        }
+    )
+
+    return definitionPosition;
 }

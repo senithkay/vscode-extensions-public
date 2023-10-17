@@ -148,12 +148,17 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
 
     const {
         enableStatementEditor,
-        updateSelectedComponent
+        updateSelectedComponent,
+        referenceManager: {
+            handleCurrentReferences
+        }
     } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickEdit = () => {
         const valueNode = props.node.valueNode;
+        const currentReferences = node.sourcePorts.map((port) => port.fieldFQN);
+        handleCurrentReferences(currentReferences)
         if (STKindChecker.isSpecificField(valueNode)) {
             enableStatementEditor({
                 valuePosition: valueNode.valueExpr.position as NodePosition,

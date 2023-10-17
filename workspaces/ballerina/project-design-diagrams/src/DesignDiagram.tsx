@@ -120,7 +120,7 @@ export function DesignDiagram(props: DiagramProps) {
                 new Map(Object.entries(response.componentModels));
             if (components && components.size > 0) {
                 const component = [...components][0][1] as any;
-                defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.orgName;
+                defaultOrg.current = component?.modelVersion ? component?.orgName : component?.packageId?.org;
             }
             if (!hasDiagnostics.current && response.diagnostics.length && editLayerAPI) {
                 editLayerAPI.showDiagnosticsWarning();

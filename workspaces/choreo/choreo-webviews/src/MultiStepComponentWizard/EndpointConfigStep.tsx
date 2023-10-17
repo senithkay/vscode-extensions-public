@@ -16,17 +16,18 @@ import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-u
 import { ComponentWizardState } from "./types";
 import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
-import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, ErrorIcon, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
+import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-content: center;
     gap: 20px;
     width: 100%;
-    min-width: 400px;
+    min-height: calc(100vh - 160px);
 `;
 
 const DropDownContainer = styled.div`
@@ -79,64 +80,67 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
     return (
         <div>
             <StepContainer>
-                <VSCodeTextField
-                    autofocus
-                    placeholder="Port"
-                    onInput={(e: any) => setPortValue(e.target.value)}
-                    value={formData?.port || ''}
-                    id='component-port-input'
-                >
-                    Port
-                    {stepValidationErrors["port"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
-                </VSCodeTextField>
-                {stepValidationErrors["port"] && <ErrorBanner errorMsg={stepValidationErrors["port"]} />}
+                <SectionWrapper>
+                    <Typography variant="h3">Configure Endpoints</Typography>
+                    <VSCodeTextField
+                        autofocus
+                        placeholder="Port"
+                        onInput={(e: any) => setPortValue(e.target.value)}
+                        value={formData?.port || ''}
+                        id='component-port-input'
+                    >
+                        Port
+                        {stepValidationErrors["port"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
+                    </VSCodeTextField>
+                    {stepValidationErrors["port"] && <ErrorBanner errorMsg={stepValidationErrors["port"]} />}
 
-                {formData?.type === ChoreoComponentType.Service && (
-                    <DropDownContainer>
-                        <label htmlFor="network-visibility">Network Visibility</label>
-                        <VSCodeDropdown value={formData.networkVisibility} id="network-visibility" onChange={(e: any) => setNetworkVisibility(e.target.value)}>
-                            <VSCodeOption value='Project'>Project</VSCodeOption>
-                            <VSCodeOption value='Organization'>Organization</VSCodeOption>
-                            <VSCodeOption value='Public'>Public</VSCodeOption>
-                        </VSCodeDropdown>
-                        <VisibilityLabel>{projectDesc[formData.networkVisibility]}</VisibilityLabel>
-                    </DropDownContainer>
-                )}
+                    {formData?.type === ChoreoComponentType.Service && (
+                        <DropDownContainer>
+                            <label htmlFor="network-visibility">Network Visibility</label>
+                            <VSCodeDropdown value={formData.networkVisibility} id="network-visibility" onChange={(e: any) => setNetworkVisibility(e.target.value)}>
+                                <VSCodeOption value='Project'>Project</VSCodeOption>
+                                <VSCodeOption value='Organization'>Organization</VSCodeOption>
+                                <VSCodeOption value='Public'>Public</VSCodeOption>
+                            </VSCodeDropdown>
+                            <VisibilityLabel>{projectDesc[formData.networkVisibility]}</VisibilityLabel>
+                        </DropDownContainer>
+                    )}
 
-                {[ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(formData?.serviceType) && (
-                    <>
-                        <VSCodeTextField
-                            autofocus
-                            placeholder="/greeting"
-                            onInput={(e: any) => setContextValue(e.target.value)}
-                            value={formData?.endpointContext || ''}
-                            id='component-context-input'
-                        >
-                            Context
-                            {stepValidationErrors["endpointContext"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
-                        </VSCodeTextField>
-                        {stepValidationErrors["endpointContext"] && <ErrorBanner errorMsg={stepValidationErrors["endpointContext"]} />}
-                    </>
-                )}
+                    {[ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(formData?.serviceType) && (
+                        <>
+                            <VSCodeTextField
+                                autofocus
+                                placeholder="/greeting"
+                                onInput={(e: any) => setContextValue(e.target.value)}
+                                value={formData?.endpointContext || ''}
+                                id='component-context-input'
+                            >
+                                Context
+                                {stepValidationErrors["endpointContext"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
+                            </VSCodeTextField>
+                            {stepValidationErrors["endpointContext"] && <ErrorBanner errorMsg={stepValidationErrors["endpointContext"]} />}
+                        </>
+                    )}
 
-                {formData.mode === 'fromExisting' && formData?.serviceType === ChoreoServiceType.RestApi && <VSCodeTextField
-                    placeholder=""
-                    onInput={(e: any) => setOpenApiFilePath(e.target.value)}
-                    value={repository?.openApiFilePath}
-                >
-                    OpenAPI file Path
-                    <RepoFileOpenDialogInput
-                        label="Browse"
-                        repo={`${repository?.org}/${repository?.repo}`}
-                        path={repository?.openApiFilePath || ''}
-                        onOpen={setOpenApiFilePath}
-                        canSelectFiles={true}
-                        canSelectFolders={false}
-                        canSelectMany={false}
-                        title="Select OpenAPI file path"
-                        filters={{ 'YAML Files': ['yaml'] }}
-                    />
-                </VSCodeTextField>}
+                    {formData.mode === 'fromExisting' && formData?.serviceType === ChoreoServiceType.RestApi && <VSCodeTextField
+                        placeholder=""
+                        onInput={(e: any) => setOpenApiFilePath(e.target.value)}
+                        value={repository?.openApiFilePath}
+                    >
+                        OpenAPI file Path
+                        <RepoFileOpenDialogInput
+                            label="Browse"
+                            repo={`${repository?.org}/${repository?.repo}`}
+                            path={repository?.openApiFilePath || ''}
+                            onOpen={setOpenApiFilePath}
+                            canSelectFiles={true}
+                            canSelectFolders={false}
+                            canSelectMany={false}
+                            title="Select OpenAPI file path"
+                            filters={{ 'YAML Files': ['yaml'] }}
+                        />
+                    </VSCodeTextField>}
+                </SectionWrapper>
             </StepContainer>
         </div>
     );

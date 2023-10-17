@@ -16,6 +16,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     ACTION,
+    CURRENT_REFERENCES_TITLE,
     FUNCTION_COMPLETION_KIND,
     FUNCTION_TYPE_DESCRIPTER,
     HTTP_ACTION,
@@ -53,7 +54,8 @@ export function LSSuggestions() {
             }
         },
         targetPosition,
-        config
+        config,
+        currentReferences
     } = useContext(StatementEditorContext);
     const selectionForSecondLevel = lsSecondLevelSuggestions?.selection;
     const secondLevelSuggestions = lsSecondLevelSuggestions?.secondLevelSuggestions;
@@ -62,12 +64,21 @@ export function LSSuggestions() {
     const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionItem[]>(lsSuggestions);
     const [filteredSecondLevelSuggestions, setFilteredSecondLevelSuggestions] = useState<SuggestionItem[]>(secondLevelSuggestions);
     const [selectedSuggestion, setSelectedSuggestion] = React.useState<Suggestion>(null);
-
+    const [references, setReferences] = useState<SuggestionItem[]>([]);
 
     useEffect(() => {
         setFilteredSuggestions(lsSuggestions);
         setFilteredSecondLevelSuggestions(secondLevelSuggestions);
     }, [lsSuggestions, lsSecondLevelSuggestions, currentModel.model]);
+
+    useEffect(() => {
+        const referencedFields: SuggestionItem[] = currentReferences?.map(field => {
+            return {
+                value: field
+            }
+        })
+        setReferences(referencedFields);
+    }, [currentReferences])
 
 
     const changeSelectionOnRightLeft = (key: number) => {
@@ -75,7 +86,18 @@ export function LSSuggestions() {
             setSelectedSuggestion((prevState) => {
                 const newSelected = prevState.selectedListItem + key;
                 const newGroup = prevState.selectedGroup;
-                const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+                let suggestionList: SuggestionItem[];
+                switch (newGroup) {
+                    case 0:
+                        suggestionList = references;
+                        break;
+                    case 1:
+                        suggestionList = filteredSuggestions;
+                        break;
+                    case 2:
+                        suggestionList = filteredSecondLevelSuggestions;
+                        break;
+                }
 
                 if (newSelected >= 0 && newSelected < suggestionList?.length) {
                     return { selectedListItem: newSelected, selectedGroup: newGroup };
@@ -88,10 +110,12 @@ export function LSSuggestions() {
     const changeSelectionOnUpDown = (key: number) => {
         if (selectedSuggestion === null) {
             setSelectedSuggestion((prevState) => {
-                if (filteredSuggestions?.length >= 0) {
+                if (references?.length >= 0) {
                     return { selectedListItem: 0, selectedGroup: 0 };
-                } else if (filteredSecondLevelSuggestions?.length >= 0) {
+                } else if (filteredSuggestions?.length >= 0) {
                     return { selectedListItem: 0, selectedGroup: 1 };
+                } else if (filteredSecondLevelSuggestions?.length >= 0) {
+                    return { selectedListItem: 0, selectedGroup: 2 };
                 }
                 return prevState;
             });
@@ -99,7 +123,18 @@ export function LSSuggestions() {
             setSelectedSuggestion((prevState) => {
                 let newSelected = prevState.selectedListItem + key;
                 let newGroup = prevState.selectedGroup;
-                const suggestionList = newGroup === 0 ? filteredSuggestions : filteredSecondLevelSuggestions;
+                let suggestionList: SuggestionItem[];
+                switch (newGroup) {
+                    case 0:
+                        suggestionList = references;
+                        break;
+                    case 1:
+                        suggestionList = filteredSuggestions;
+                        break;
+                    case 2:
+                        suggestionList = filteredSecondLevelSuggestions;
+                        break;
+                }
 
                 if (suggestionList?.length > 0) {
                     if (newSelected >= 0) {
@@ -107,7 +142,7 @@ export function LSSuggestions() {
                             return { selectedListItem: newSelected, selectedGroup: newGroup };
                         } else if ((selectedSuggestion.selectedListItem === suggestionList.length - 1 ||
                                 newSelected >= suggestionList.length) &&
-                            selectedSuggestion.selectedGroup < 1 &&
+                            selectedSuggestion.selectedGroup < 2 &&
                             filteredSecondLevelSuggestions?.length > 0) {
                             newGroup = selectedSuggestion.selectedGroup + 1;
                             newSelected = 0;
@@ -115,7 +150,14 @@ export function LSSuggestions() {
                         }
                     } else if (newSelected < 0 && newGroup > 0 && filteredSuggestions?.length > 0) {
                         newGroup = selectedSuggestion.selectedGroup - 1;
-                        newSelected = filteredSuggestions.length - 1;
+                        switch (newGroup) {
+                            case 0:
+                                newSelected = references.length - 1;
+                                break;
+                            case 1:
+                                newSelected = filteredSuggestions.length - 1;
+                                break;
+                        }
                         return { selectedListItem: newSelected, selectedGroup: newGroup };
                     }
                 }
@@ -126,9 +168,18 @@ export function LSSuggestions() {
 
     const enterOnSuggestion = () => {
         if (selectedSuggestion) {
-            const enteredSuggestion: SuggestionItem = selectedSuggestion.selectedGroup === 0 ?
-                filteredSuggestions[selectedSuggestion.selectedListItem] :
-                filteredSecondLevelSuggestions[selectedSuggestion.selectedListItem];
+            let enteredSuggestion: SuggestionItem;
+            switch (selectedSuggestion.selectedGroup) {
+                case 0:
+                    enteredSuggestion = references[selectedSuggestion.selectedListItem]
+                    break;
+                case 1:
+                    enteredSuggestion = filteredSuggestions[selectedSuggestion.selectedListItem]
+                    break;
+                case 2:
+                    enteredSuggestion = filteredSecondLevelSuggestions[selectedSuggestion.selectedListItem]
+                    break;
+            }
             onClickLSSuggestion(enteredSuggestion);
             setSelectedSuggestion(null);
         }
@@ -221,11 +272,21 @@ export function LSSuggestions() {
             (
                 <div className={stmtEditorHelperClasses.lsSuggestionList}>
                     <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
+                        {references?.length > 0 && (
+                            <SuggestionsList
+                                lsSuggestions={references}
+                                selectedSuggestion={selectedSuggestion}
+                                currentGroup={0}
+                                onClickLSSuggestion={onClickLSSuggestion}
+                                header={CURRENT_REFERENCES_TITLE}
+                                isReference={true}
+                            />
+                        )}
                         {!!filteredSuggestions?.length && (
                             <SuggestionsList
                                 lsSuggestions={filteredSuggestions}
                                 selectedSuggestion={selectedSuggestion}
-                                currentGroup={0}
+                                currentGroup={1}
                                 onClickLSSuggestion={onClickLSSuggestion}
                             />
                         )}
@@ -233,7 +294,7 @@ export function LSSuggestions() {
                             <SuggestionsList
                                 lsSuggestions={filteredSecondLevelSuggestions}
                                 selectedSuggestion={selectedSuggestion}
-                                currentGroup={1}
+                                currentGroup={2}
                                 onClickLSSuggestion={onClickLSSuggestion}
                                 selection={selectionForSecondLevel}
                             />

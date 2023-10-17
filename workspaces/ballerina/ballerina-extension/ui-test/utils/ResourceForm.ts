@@ -22,7 +22,7 @@ export class ResourceForm {
         // Find and click on the MuiSelect component to open the dropdown
         const selectComponent = await webview.findWebElement(By.className('MuiSelect-selectMenu'));
         await selectComponent.click();
-
+        await wait(500);
         // Find the option based on the optionText
         const option = await selectComponent.findElement(By.xpath(`//*[contains(text(), '${method}')]`));
         await option.click();
@@ -36,7 +36,7 @@ export class ResourceForm {
         await resourcePath.click();
         await resourcePath.sendKeys(path);
         // Wait for changes from LS
-        await wait(2000);
+        await wait(3000);
     }
 
     // Add a new query param
@@ -123,7 +123,7 @@ export class ResourceForm {
             // Find and click on the input element of the Autocomplete component
             const input = await responseTypeInput.findElement(By.className('MuiAutocomplete-input'));
             await input.sendKeys(type);
-            await wait(2000);
+            await wait(3000);
         }
 
         if (newType) {
@@ -135,16 +135,16 @@ export class ResourceForm {
             const createRecordBtn = await waitUntil(By.xpath("//*[contains(text(), 'Create Record')]"));
             await createRecordBtn.click();
             await this.Driver().wait(until.stalenessOf(createRecordBtn));
+            await wait(3000);
         }
 
         const responseSaveBtn = await webview.findWebElement(By.xpath("//*[@data-testid='path-segment-add-btn']"));
         await this.Driver().wait(until.elementIsEnabled(responseSaveBtn));
         await responseSaveBtn.click();
+        await this.waitForDisableEnableElement(webview);
     }
 
     static async saveResource(webview: WebView, method: string) {
-        // Wait for changes from LS
-        await this.waitForDisableEnableElement(webview);
 
         const resourceSaveBtn = await waitUntil(By.xpath("//*[@data-testid='save-btn']"));
         resourceSaveBtn.click();

@@ -73,6 +73,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     onCancel: () => void;
     isHeaderHidden?: boolean;
     skipSemicolon?: boolean;
+    currentReferences?: string[];
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -98,7 +99,8 @@ export function StatementEditor(props: StatementEditorProps) {
         openExternalUrl,
         isCodeServerInstance,
         isHeaderHidden,
-        skipSemicolon
+        skipSemicolon,
+        currentReferences
     } = props;
 
     const {
@@ -605,6 +607,7 @@ export function StatementEditor(props: StatementEditorProps) {
                     ballerinaVersion={ballerinaVersion}
                     isCodeServerInstance={isCodeServerInstance}
                     openExternalUrl={openExternalUrl}
+                    currentReferences={currentReferences}
                 >
                     <ViewContainer
                         isStatementValid={!stmtDiagnostics.length}

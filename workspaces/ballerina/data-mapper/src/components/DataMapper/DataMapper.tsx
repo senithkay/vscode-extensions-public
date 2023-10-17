@@ -111,7 +111,8 @@ export interface DataMapperProps {
     };
     openedViaPlus?: boolean;
     ballerinaVersion?: string;
-    stSymbolInfo?: STSymbolInfo
+    stSymbolInfo?: STSymbolInfo;
+    moduleVariables?: any;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
     goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
@@ -196,6 +197,7 @@ function DataMapperC(props: DataMapperProps) {
         currentFile,
         openedViaPlus,
         stSymbolInfo,
+        moduleVariables,
         applyModifications,
         updateFileContent,
         goToSource,
@@ -231,6 +233,8 @@ function DataMapperC(props: DataMapperProps) {
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
     const [hasInternalError, setHasInternalError] = useState(false);
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
+    const [isSelectionComplete, setIsSelectionComplete] = useState(false);
+    const [currentReferences, setCurrentReferences] = useState<string[]>([]);
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -240,6 +244,10 @@ function DataMapperC(props: DataMapperProps) {
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
         resetSearchStore();
+    }
+
+    const handleCurrentReferences = (referencedFields: []) => {
+        setCurrentReferences(referencedFields);
     }
 
     const onConfigOpen = () => {
@@ -291,6 +299,11 @@ function DataMapperC(props: DataMapperProps) {
         setShowLocalVarConfigPanel(showPanel);
     }
 
+    const referenceManager = {
+        currentReferences,
+        handleCurrentReferences
+    }
+
     useEffect(() => {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
@@ -335,6 +348,7 @@ function DataMapperC(props: DataMapperProps) {
     }, [fnST]);
 
     useEffect(() => {
+        setIsSelectionComplete(false)
         void (async () => {
             if (selection.selectedST.stNode) {
                 const diagnostics = await handleDiagnostics(filePath, langClientPromise)
@@ -346,6 +360,7 @@ function DataMapperC(props: DataMapperProps) {
                     langClientPromise,
                     currentFile,
                     stSymbolInfo,
+                    moduleVariables,
                     handleSelectedST,
                     applyModifications,
                     goToSource,
@@ -358,7 +373,8 @@ function DataMapperC(props: DataMapperProps) {
                     ballerinaVersion,
                     handleLocalVarConfigPanel,
                     updateActiveFile,
-                    updateSelectedComponent
+                    updateSelectedComponent,
+                    referenceManager
                 );
 
                 if (shouldRestoreTypes) {
@@ -371,10 +387,11 @@ function DataMapperC(props: DataMapperProps) {
                 setDmContext(context);
             }
         })();
+        setIsSelectionComplete(true)
     }, [selection.selectedST, collapsedFields, isStmtEditorCanceled]);
 
     useEffect(() => {
-        if (dmContext && selection?.selectedST?.stNode) {
+        if (isSelectionComplete && dmContext && selection?.selectedST?.stNode) {
             const nodeInitVisitor = new NodeInitVisitor(dmContext, selection);
             try {
                 traversNode(selection.selectedST.stNode, nodeInitVisitor);
@@ -387,11 +404,10 @@ function DataMapperC(props: DataMapperProps) {
                 // tslint:disable-next-line:no-console
                 console.error(e);
             }
-
         } else {
             setDmNodes([]);
         }
-    }, [selection?.selectedST?.stNode, dmContext, inputSearch, outputSearch, typeStoreStatus]);
+    }, [isSelectionComplete, dmContext, inputSearch, outputSearch, typeStoreStatus]);
 
     const dMSupported = isDMSupported(ballerinaVersion);
     const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
@@ -529,6 +545,7 @@ function DataMapperC(props: DataMapperProps) {
                                     onCancel={cancelStatementEditor}
                                     onClose={closeStatementEditor}
                                     importStatements={importStatements}
+                                    currentReferences={currentReferences}
                                 />
                             )}
                             {showLocalVarConfigPanel && (
