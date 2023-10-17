@@ -10,11 +10,15 @@
 import axios from "axios";
 import * as dotenv from "dotenv";
 import { getLogger } from "./logger/logger";
+import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
 // Set config defaults when creating the instance
 const instance = axios.create({
-    baseURL: 'https://f2c7f522-ef47-48ce-a429-3fc2f15d2011-prod.e1-us-east-azure.choreoapis.dev/dlsm/testgptservice/endpoint-9090-803/v1'
+    baseURL: 'https://f2c7f522-ef47-48ce-a429-3fc2f15d2011-prod.e1-us-east-azure.choreoapis.dev/dlsm/testgptservice/endpoint-9090-803/v1',
+    headers: {
+        "x-request-id": uuidv4()
+    }
 });
 
 const path = require('path')

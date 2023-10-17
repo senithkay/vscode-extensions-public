@@ -21,8 +21,7 @@ import { Codicon } from '../Codicon/Codicon';
 import ScrollToBottom from "react-scroll-to-bottom";
 import { css } from "@emotion/css";
 import TestResultView from "./TestResultView";
-import apichatIcon from '../../resources/images/apichat.svg';
-
+import APIChatLogo from "./APIChatLogo";
 
 const Command = styled.div({
     backgroundColor: "var(--vscode-chat-requestBackground)",
@@ -142,7 +141,7 @@ const APIChat = (props: {
                                 </Error>;
                             }
                             if (log.type === "FINAL_RESULT") {
-                                return <p><img src={apichatIcon} alt="API Chat Icon" width="16" height="16" />&nbsp; {(log as FinalResult).message}</p>
+                                return <p><APIChatLogo width="16" height="16" />&nbsp; {(log as FinalResult).message}</p>
                             }
                             return null;
                         })

@@ -219,6 +219,7 @@ const getTools = (context: TestMachineContext, event: any) => {
                     }
                 })
                 .catch((error: any) => {
+                    // if error has a response payload then return message from payload
                     reject(error.message);
                 });
         });
