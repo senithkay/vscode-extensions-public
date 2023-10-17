@@ -26,6 +26,7 @@ on:
           - 'ballerina/project-design-diagrams'
           - 'choreo/cell-diagram'                                                                               
           - 'configurable-editor'
+          - 'common-libs/ui-toolkit'
       version:
         type: choice
         description: 'Enter the version type'
@@ -46,8 +47,6 @@ jobs:
     with:
       isPreRelease: ${{ inputs.isPreRelease }}
       enableCache: false
-      ballerina: ${{ inputs.ballerina }}
-      choreo: ${{ inputs.choreo }}
       version: ${{ inputs.version }}
 
   Release:
