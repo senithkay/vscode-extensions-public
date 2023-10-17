@@ -24,3 +24,7 @@ type Output record {
 };
 
 function transform() => ();
+
+function transform2(Input input) returns Output => {
+    Assets: input.Assets
+};
