@@ -18,7 +18,7 @@ import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from './re
 import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
+import { NavigationWrapperCanvasWidget } from "./components/DiagramNavigationWrapper/NavigationWrapperCanvasWidget";
 
 interface PersistDiagramProps {
     getPersistModel: () => Promise<GetPersistERModelResponse>;
