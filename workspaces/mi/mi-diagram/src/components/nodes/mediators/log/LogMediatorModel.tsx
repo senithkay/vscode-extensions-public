@@ -10,7 +10,7 @@
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
-import { Log, STNode } from "@wso2-enterprise/mi-syntax-tree/lib";
+import { Log, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export const LOG_NODE = "LogNode";
 

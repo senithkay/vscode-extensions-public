@@ -16,9 +16,9 @@ import {
 
 import { CanvasContainer } from '../../Canvas';
 import { generateEngine, createLinks } from '../../utils/Utils';
-import { NavigationWrapperCanvasWidget } from '../DiagramNavigationWrapper/NavigationWrapperCanvasWidget';
 import { InvisibleNodeModel } from '../nodes/InvisibleNode/InvisibleNodeModel';
 import { BaseNodeModel } from '../base/base-node/base-node';
+import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 
 export interface SequenceDiagramProps {
     nodes: BaseNodeModel[];
@@ -118,7 +118,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         }}>
             <CanvasContainer>
                 {haveNodes && <NavigationWrapperCanvasWidget
-                    diagramEngine={diagramEngine}
+                    diagramEngine={diagramEngine as any}
                 />}
             </CanvasContainer>
         </div>;

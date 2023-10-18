@@ -12,7 +12,7 @@ import {
     STNode,
     Sequence,
     Visitor,
-} from '@wso2-enterprise/mi-syntax-tree/lib';
+} from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { LogMediatorNodeModel } from '../../components/nodes/mediators/log/LogMediatorModel';
 import { mapNode } from './ModelMapper';
 import { BaseNodeModel } from '../../components/base/base-node/base-node';

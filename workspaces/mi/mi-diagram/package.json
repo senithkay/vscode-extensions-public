@@ -6,6 +6,7 @@
   "scripts": {
     "start": "webpack-dev-server --open",
     "build": "webpack && pnpm run postbuild",
+    "build:tsc": "tsc --pretty",
     "storybook": "storybook dev",
     "build-storybook": "storybook build",
     "postbuild": "copyfiles -u 1 \"build/**/*\" ../mi-extension/resources/jslibs"
@@ -28,7 +29,7 @@
     "@emotion/react": "~11.11.1",
     "source-map-loader": "~4.0.1",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
-    "@types/node": "~20.5.9",
+    "@types/node": "~20.8.4",
     "@projectstorm/react-diagrams-routing": "~7.1.1",
     "@projectstorm/geometry": "~7.0.1",
     "lodash": "~4.17.21",
@@ -39,7 +40,7 @@
     "@wso2-enterprise/mi-syntax-tree": "workspace:*",
     "css-loader": "~6.8.1",
     "style-loader": "~3.3.3",
-    "@material-ui/core": "~4.12.4"
+    "@vscode/webview-ui-toolkit": "~1.2.2"
   },
   "devDependencies": {
     "@storybook/addon-actions": "~7.4.0",

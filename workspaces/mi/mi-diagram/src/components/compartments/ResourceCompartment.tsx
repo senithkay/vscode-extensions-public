@@ -9,7 +9,7 @@
 
 import React from "react";
 import { SequenceDiagram } from "./Sequence";
-import { traversNode } from "@wso2-enterprise/mi-syntax-tree/lib";
+import { traversNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { NodeInitVisitor } from "../../utils/visitors/NodeInitVisitor";
 
 interface Props {

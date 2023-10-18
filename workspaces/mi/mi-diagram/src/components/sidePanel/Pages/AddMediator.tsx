@@ -8,10 +8,11 @@
  */
 
 import React, { useContext, useState } from 'react';
-import { Button, Input, MenuItem, Select } from '@material-ui/core';
 import './AddMediator.css';
 import { MIWebViewAPI } from '../../../utils/WebViewRpc';
 import SidePanelContext from '../SidePanelContexProvider';
+import { Button } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from '@vscode/webview-ui-toolkit/react';
 
 export interface AddMediatorProps {
     file: string;
@@ -119,12 +120,13 @@ function AddMediator(props: AddMediatorProps) {
     };
 
     function getFieldComponents(fields: { key: string; value: any; selected?: string }[], isKeyEditable = false, parentKey?: string) {
+        console.log(fields);
         let fieldComponents: any[] = [];
         fields.forEach((field, index) => {
             const fieldKey = parentKey ? `${parentKey}.${field.key}` : field.key;
             if (typeof field.value === "string") {
                 const key = isKeyEditable ? <>
-                    <Input
+                    <VSCodeTextField
                         placeholder="Value"
                         value={field.key}
                         onChange={(e: any) => handleFieldChange(index, fieldKey, 'key', e.target.value)}
@@ -133,18 +135,17 @@ function AddMediator(props: AddMediatorProps) {
                 fieldComponents.push(
                     <div style={{ display: "flex", justifyContent: "space-between", gap: "5px" }}>
                         {key}
-                        <Input
+                        <VSCodeTextField
                             placeholder="Value"
                             value={field.value}
                             onChange={(e: any) => handleFieldChange(index, fieldKey, 'value', e.target.value)}
                         />
                     </div>)
             } else if (Array.isArray(field.value)) {
-                field.selected = field.value[0];
                 fieldComponents.push(
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <span style={{ margin: "auto 0" }}>{field.key}</span>
-                        <Select
+                        <VSCodeDropdown
                             label={field.key}
                             value={field.selected}
                             autoWidth={true}
@@ -152,9 +153,13 @@ function AddMediator(props: AddMediatorProps) {
                             style={{ color: 'var(--vscode-editor-foreground)', minWidth: '180px' }}
                         >
                             {field.value.map((value: string) => (
-                                <MenuItem value={value} style={{ color: 'var(--vscode-editor-foreground)', background: 'var(--vscode-editor-background)' }}>{value}</MenuItem>
+                                <VSCodeOption
+                                    style={{
+                                        color: 'var(--vscode-editor-foreground)',
+                                        background: 'var(--vscode-editor-background)'
+                                    }}>{value}</VSCodeOption>
                             ))}
-                        </Select>
+                        </VSCodeDropdown>
                     </div>)
             } else {
                 fieldComponents.push(
@@ -162,7 +167,7 @@ function AddMediator(props: AddMediatorProps) {
                         <hr style={{ border: "1px solid var(--vscode-editor-foreground)" }}></hr>
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <span style={{ margin: "auto" }}>{field.key}</span>
-                            <Button onClick={() => handleAddField(field.key)} style={{ float: "right" }}>+</Button>
+                            <Button onClick={() => handleAddField(field.key)}>+</Button>
                         </div>
                         {getFieldComponents(Object.entries(field.value).map(([key, value]) => ({ key, value })), true, field.key)}
                         <hr style={{ border: "1px solid var(--vscode-editor-foreground)" }}></hr>

@@ -3,6 +3,7 @@ module.exports = {
     entry: "./src/index.tsx",
     target: "web",
     devtool: "source-map",
+    mode: "development",
     output: {
         path: path.resolve(__dirname, "build"),
         filename: "MIDiagram.js",
@@ -10,6 +11,10 @@ module.exports = {
     },
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
+        alias: {
+            'react': path.resolve(__dirname, 'node_modules/react'),
+            'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+        },
     },
     module: {
         rules: [

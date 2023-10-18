@@ -12,10 +12,10 @@ import { MIWebViewAPI } from './utils/WebViewRpc';
 import { APICompartment } from './components/compartments/APICompartment';
 import { ResourceCompartment } from './components/compartments/ResourceCompartment';
 import { Refresh } from '@wso2-enterprise/mi-core';
-import { SidePanel, SidePanelTitleContainer } from './components/sidePanel/SidePanel';
 import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvider';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import AddMediator from './components/sidePanel/Pages/AddMediator';
+import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
 
 export interface MIDiagramProps {
 	documentUri: string;
