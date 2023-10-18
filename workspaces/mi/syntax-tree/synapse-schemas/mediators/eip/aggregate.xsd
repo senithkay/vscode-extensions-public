@@ -20,6 +20,8 @@
 
 <xs:schema 
         xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        jaxb:version="2.0"
         elementFormDefault="qualified" 
         targetNamespace="http://ws.apache.org/ns/synapse" 
         xmlns="http://ws.apache.org/ns/synapse">
@@ -57,7 +59,13 @@
                     <xs:complexType>
                         <xs:group ref="mediatorList" minOccurs="0" />
                         <xs:attribute name="expression" type="xs:string" use="required" />
-                        <xs:attribute name="sequence" type="xs:string" use="optional" />
+                        <xs:attribute name="sequence" type="xs:string" use="optional">
+                            <xs:annotation>
+                                <xs:appinfo>
+                                    <jaxb:property name="sequence_attribute" />
+                                </xs:appinfo>
+                            </xs:annotation>
+                        </xs:attribute>
                         <xs:attribute name="enclosingElementProperty" type="xs:string" use="optional" />
                         <xs:attribute name="aggregateElementType" use="optional">
                             <xs:simpleType>
@@ -76,4 +84,3 @@
     </xs:element>
 
 </xs:schema>
-
