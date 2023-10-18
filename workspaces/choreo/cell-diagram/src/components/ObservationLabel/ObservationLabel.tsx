@@ -75,12 +75,11 @@ export function ObservationLabel(props: ObservationLabelProps) {
         setActiveIndex(index);
     };
 
-    const [serviceId, observations] = observationsArray[activeIndex]; // Get the active observation
+    const [_serviceId, observations] = observationsArray[activeIndex]; // Get the active observation
 
     return (
         <Container>
             <Section>
-                <Title>{serviceId}</Title>
                 <Row>
                     <div>Error Percentage</div>
                     <div>{((observations.errorCount * 100) / observations.requestCount).toFixed(2)}%</div>

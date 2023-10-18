@@ -606,7 +606,7 @@ const observationsModel: Project = {
         },
         {
             id: "Products",
-            label: "Product App",
+            label: "Products",
             version: "0.2.0",
             type: "service",
             services: {
@@ -630,6 +630,7 @@ const observationsModel: Project = {
             connections: [
                 {
                     id: "ABC:B:Users:get",
+                    label: "Org Users",
                     onPlatform: true,
                     observations: [
                         {
