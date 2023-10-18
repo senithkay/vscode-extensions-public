@@ -29,7 +29,7 @@ import {
 import './styles/styles.css';
 import { CircularProgress } from "@mui/material";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
+import { NavigationWrapperCanvasWidget } from "./DiagramNavigationWrapper/NavigationWrapperCanvasWidget";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
