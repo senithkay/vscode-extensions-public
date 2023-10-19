@@ -13,68 +13,143 @@ export interface Visitor {
     beginVisitSTNode?(node: Synapse.STNode): void;
     endVisitSTNode?(node: Synapse.STNode): void;
 
-    beginVisitImport?(node: Synapse.Import): void;
-    endVisitImport?(node: Synapse.Import): void;
+    beginVisitTMessage?(node: Synapse.TMessage): void;
+    endVisitTMessage?(node: Synapse.TMessage): void;
 
-    beginVisitInterface?(node: Synapse.Interface): void;
-    endVisitInterface?(node: Synapse.Interface): void;
+    beginVisitTDocumentation?(node: Synapse.TDocumentation): void;
+    endVisitTDocumentation?(node: Synapse.TDocumentation): void;
 
-    beginVisitOutput?(node: Synapse.Output): void;
-    endVisitOutput?(node: Synapse.Output): void;
+    beginVisitLog?(node: Synapse.Log): void;
+    endVisitLog?(node: Synapse.Log): void;
 
-    beginVisitInfault?(node: Synapse.Infault): void;
-    endVisitInfault?(node: Synapse.Infault): void;
+    beginVisitInterfaceType?(node: Synapse.InterfaceType): void;
+    endVisitInterfaceType?(node: Synapse.InterfaceType): void;
 
-    beginVisitOperation?(node: Synapse.Operation): void;
-    endVisitOperation?(node: Synapse.Operation): void;
+    beginVisitBindingOperationType?(node: Synapse.BindingOperationType): void;
+    endVisitBindingOperationType?(node: Synapse.BindingOperationType): void;
 
-    beginVisitDescription?(node: Synapse.Description): void;
-    endVisitDescription?(node: Synapse.Description): void;
+    beginVisitExtensibleDocumentedType?(node: Synapse.ExtensibleDocumentedType): void;
+    endVisitExtensibleDocumentedType?(node: Synapse.ExtensibleDocumentedType): void;
 
-    beginVisitSequence?(node: Synapse.Sequence): void;
-    endVisitSequence?(node: Synapse.Sequence): void;
+    beginVisitDocumentedType?(node: Synapse.DocumentedType): void;
+    endVisitDocumentedType?(node: Synapse.DocumentedType): void;
 
-    beginVisitDefinitions?(node: Synapse.Definitions): void;
-    endVisitDefinitions?(node: Synapse.Definitions): void;
+    beginVisitTExtensibleAttributesDocumented?(node: Synapse.TExtensibleAttributesDocumented): void;
+    endVisitTExtensibleAttributesDocumented?(node: Synapse.TExtensibleAttributesDocumented): void;
 
-    beginVisitOutfault?(node: Synapse.Outfault): void;
-    endVisitOutfault?(node: Synapse.Outfault): void;
+    beginVisitTExtensibleDocumented?(node: Synapse.TExtensibleDocumented): void;
+    endVisitTExtensibleDocumented?(node: Synapse.TExtensibleDocumented): void;
 
-    beginVisitTypes?(node: Synapse.Types): void;
-    endVisitTypes?(node: Synapse.Types): void;
+    beginVisitTFault?(node: Synapse.TFault): void;
+    endVisitTFault?(node: Synapse.TFault): void;
 
-    beginVisitFault?(node: Synapse.Fault): void;
-    endVisitFault?(node: Synapse.Fault): void;
+    beginVisitBindingType?(node: Synapse.BindingType): void;
+    endVisitBindingType?(node: Synapse.BindingType): void;
 
-    beginVisitParameter?(node: Synapse.Parameter): void;
-    endVisitParameter?(node: Synapse.Parameter): void;
+    beginVisitTPortType?(node: Synapse.TPortType): void;
+    endVisitTPortType?(node: Synapse.TPortType): void;
 
-    beginVisitDocumentation?(node: Synapse.Documentation): void;
-    endVisitDocumentation?(node: Synapse.Documentation): void;
+    beginVisitDescriptionType?(node: Synapse.DescriptionType): void;
+    endVisitDescriptionType?(node: Synapse.DescriptionType): void;
 
-    beginVisitInput?(node: Synapse.Input): void;
-    endVisitInput?(node: Synapse.Input): void;
+    beginVisitTParam?(node: Synapse.TParam): void;
+    endVisitTParam?(node: Synapse.TParam): void;
 
-    beginVisitInclude?(node: Synapse.Include): void;
-    endVisitInclude?(node: Synapse.Include): void;
+    beginVisitIncludeType?(node: Synapse.IncludeType): void;
+    endVisitIncludeType?(node: Synapse.IncludeType): void;
 
-    beginVisitBinding?(node: Synapse.Binding): void;
-    endVisitBinding?(node: Synapse.Binding): void;
+    beginVisitTPart?(node: Synapse.TPart): void;
+    endVisitTPart?(node: Synapse.TPart): void;
+
+    beginVisitTExtensibilityElement?(node: Synapse.TExtensibilityElement): void;
+    endVisitTExtensibilityElement?(node: Synapse.TExtensibilityElement): void;
+
+    beginVisitInterfaceOperationType?(node: Synapse.InterfaceOperationType): void;
+    endVisitInterfaceOperationType?(node: Synapse.InterfaceOperationType): void;
+
+    beginVisitDocumentationType?(node: Synapse.DocumentationType): void;
+    endVisitDocumentationType?(node: Synapse.DocumentationType): void;
+
+    beginVisitEndpointType?(node: Synapse.EndpointType): void;
+    endVisitEndpointType?(node: Synapse.EndpointType): void;
+
+    beginVisitServiceType?(node: Synapse.ServiceType): void;
+    endVisitServiceType?(node: Synapse.ServiceType): void;
+
+    beginVisitTmediatorProperty?(node: Synapse.TmediatorProperty): void;
+    endVisitTmediatorProperty?(node: Synapse.TmediatorProperty): void;
+
+    beginVisitTTypes?(node: Synapse.TTypes): void;
+    endVisitTTypes?(node: Synapse.TTypes): void;
+
+    beginVisitBindingOperationFaultType?(node: Synapse.BindingOperationFaultType): void;
+    endVisitBindingOperationFaultType?(node: Synapse.BindingOperationFaultType): void;
+
+    beginVisitTImport?(node: Synapse.TImport): void;
+    endVisitTImport?(node: Synapse.TImport): void;
 
     beginVisitResource?(node: Synapse.Resource): void;
     endVisitResource?(node: Synapse.Resource): void;
 
+    beginVisitTBindingOperationMessage?(node: Synapse.TBindingOperationMessage): void;
+    endVisitTBindingOperationMessage?(node: Synapse.TBindingOperationMessage): void;
+
+    beginVisitParameter?(node: Synapse.Parameter): void;
+    endVisitParameter?(node: Synapse.Parameter): void;
+
+    beginVisitTOperation?(node: Synapse.TOperation): void;
+    endVisitTOperation?(node: Synapse.TOperation): void;
+
+    beginVisitMessageRefFaultType?(node: Synapse.MessageRefFaultType): void;
+    endVisitMessageRefFaultType?(node: Synapse.MessageRefFaultType): void;
+
+    beginVisitTDefinitions?(node: Synapse.TDefinitions): void;
+    endVisitTDefinitions?(node: Synapse.TDefinitions): void;
+
+    beginVisitExtensionElement?(node: Synapse.ExtensionElement): void;
+    endVisitExtensionElement?(node: Synapse.ExtensionElement): void;
+
+    beginVisitMediatorProperty?(node: Synapse.MediatorProperty): void;
+    endVisitMediatorProperty?(node: Synapse.MediatorProperty): void;
+
+    beginVisitBindingFaultType?(node: Synapse.BindingFaultType): void;
+    endVisitBindingFaultType?(node: Synapse.BindingFaultType): void;
+
+    beginVisitImportType?(node: Synapse.ImportType): void;
+    endVisitImportType?(node: Synapse.ImportType): void;
+
+    beginVisitTBindingOperation?(node: Synapse.TBindingOperation): void;
+    endVisitTBindingOperation?(node: Synapse.TBindingOperation): void;
+
+    beginVisitTPort?(node: Synapse.TPort): void;
+    endVisitTPort?(node: Synapse.TPort): void;
+
     beginVisitFeature?(node: Synapse.Feature): void;
     endVisitFeature?(node: Synapse.Feature): void;
 
-    beginVisitEndpoint?(node: Synapse.Endpoint): void;
-    endVisitEndpoint?(node: Synapse.Endpoint): void;
+    beginVisitTDocumented?(node: Synapse.TDocumented): void;
+    endVisitTDocumented?(node: Synapse.TDocumented): void;
 
-    beginVisitService?(node: Synapse.Service): void;
-    endVisitService?(node: Synapse.Service): void;
+    beginVisitMessageRefType?(node: Synapse.MessageRefType): void;
+    endVisitMessageRefType?(node: Synapse.MessageRefType): void;
 
-    beginVisitLog?(node: Synapse.Log): void;
-    endVisitLog?(node: Synapse.Log): void;
+    beginVisitBindingOperationMessageType?(node: Synapse.BindingOperationMessageType): void;
+    endVisitBindingOperationMessageType?(node: Synapse.BindingOperationMessageType): void;
+
+    beginVisitTypesType?(node: Synapse.TypesType): void;
+    endVisitTypesType?(node: Synapse.TypesType): void;
+
+    beginVisitTBinding?(node: Synapse.TBinding): void;
+    endVisitTBinding?(node: Synapse.TBinding): void;
+
+    beginVisitInterfaceFaultType?(node: Synapse.InterfaceFaultType): void;
+    endVisitInterfaceFaultType?(node: Synapse.InterfaceFaultType): void;
+
+    beginVisitTBindingOperationFault?(node: Synapse.TBindingOperationFault): void;
+    endVisitTBindingOperationFault?(node: Synapse.TBindingOperationFault): void;
+
+    beginVisitTService?(node: Synapse.TService): void;
+    endVisitTService?(node: Synapse.TService): void;
 
     // Manually added methods.
     beginVisitInSequence?(node: Synapse.Sequence): void;

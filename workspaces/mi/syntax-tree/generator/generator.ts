@@ -7,6 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import path = require("path");
+
+const fs = require('fs');
+
 interface Elements {
     [key: string]: {
         [key: string]: AttributeType
@@ -19,6 +23,7 @@ interface Attributes {
 
 interface AttributeType {
     type: string | Attributes | undefined,
+    name: string,
     isCollection: boolean
 }
 
@@ -26,54 +31,53 @@ function getElements(mapping: any): Elements {
     const interfaces: Elements = {};
 
     // Iterate through elementInfos in the mapping object
-    for (const elementInfo of mapping.elementInfos) {
-        const elementName = typeof elementInfo.elementName === 'string' ? elementInfo.elementName : elementInfo.elementName.localPart;
+    for (const typeInfo of mapping.typeInfos) {
+        const elementName = typeInfo.localName;
         const attributes: Attributes = {};
 
         // Find the corresponding typeInfo for this element
-        getAttributes(elementInfo.typeInfo, attributes);
+        getAttributes(typeInfo, attributes);
         // Add the element type and its attributes to the result object
+
+        if (typeInfo.baseTypeInfo) {
+            attributes.extends = typeInfo.baseTypeInfo.substring(1);
+        }
 
         interfaces[elementName] = attributes;
     }
 
     return interfaces;
 
-    function getAttributes(typeName: string, attributes: { [key: string]: AttributeType }) {
-        typeName = typeName.substring(1); // Remove the dot prefix
-        const typeInfo = mapping.typeInfos.find((info: { localName: any; }) => info.localName === typeName);
+    function getAttributes(typeInfo: any, attributes: { [key: string]: AttributeType }) {
         if (typeInfo) {
-            // get attributes from base type
-            if (typeInfo.baseTypeInfo) {
-                getAttributes(typeInfo.baseTypeInfo, attributes);
-            }
-
             // Check if the typeInfo has propertyInfos (attributes)
             if (typeInfo.propertyInfos) {
                 for (const attributeInfo of typeInfo.propertyInfos) {
                     const attributeName = attributeInfo.name;
-                    let attributeType: AttributeType = { type: undefined, isCollection: attributeInfo.collection ?? false };
+                    const type = attributeInfo.type;
+                    const typeInfo = attributeInfo.typeInfo;
+                    const attributeType: AttributeType = { type: undefined, name: attributeName, isCollection: attributeInfo.collection ?? false };
 
-                    if (attributeInfo.type === 'attribute') {
-                        attributeType.type = attributeInfo.typeInfo
-                            ? attributeInfo.typeInfo.localName ? attributeInfo.typeInfo.localName : attributeInfo.typeInfo // Use the specified data type from typeInfo
+                    if (type === 'attribute') {
+                        attributeType.type = typeInfo
+                            ? typeInfo.localName ? typeInfo.localName : typeInfo // Use the specified data type from typeInfo
                             : 'string'; // Default to 'string' if typeInfo is not provided
 
-                    } else if (attributeInfo.type === 'anyAttribute' || attributeInfo.type === 'anyElement') {
-                        attributeType.type = attributeInfo.type;
-                    } else if (attributeInfo.typeInfo) {
-                        const typeInfo = mapping.elementInfos.find((info: { typeInfo: string; }) => info.typeInfo === attributeInfo.typeInfo);
-                        if (typeInfo) {
-                            attributeType.type = typeInfo.elementName;
-                        } else {
-                            const attributes: Attributes = {};
-                            getAttributes(attributeInfo.typeInfo, attributes);
-                            attributeType.type = attributes;
+                        if (attributeInfo.attributeName!.localPart) {
+                            attributeType.name = attributeInfo.attributeName.localPart;
                         }
+
+                    } else if (type === 'anyAttribute' || type === 'anyElement') {
+                        attributeType.type = type;
+                    } else if (typeInfo) {
+                        attributeType.type = typeInfo.replaceAll(".", "");
                     }
 
                     if (attributeType.type) attributes[attributeName] = attributeType;
                 }
+            } else if (typeInfo.type === 'enumInfo') {
+                attributes._enum = typeInfo.values;
+
             }
 
         }
@@ -81,13 +85,16 @@ function getElements(mapping: any): Elements {
 }
 
 export function generateTSInterfaces() {
-    var PO = require('../../mappings/PO').PO;
+    var PO = require('../../generated/PO').PO;
 
     const tsInterfaces: Elements = getElements(PO);
+    const enums: Elements = Object.fromEntries(Object.entries(tsInterfaces).filter(([key, value]) => value._enum !== undefined));
+
+    let enumStr = "";
 
     let stInterfaces =
         `export interface STNode {
-    attributes: STNodeAttributes[];
+    attributes: STNodeAttributes[]|any;
     children: STNode[];
     end: number;
     endTagOffOffset: number;
@@ -113,7 +120,9 @@ export interface STNodeAttributes {
 }\n`;
 
     let visitor =
-`export interface Visitor {
+        `import * as Synapse from "./syntax-tree-interfaces";
+        
+export interface Visitor {
     beginVisitSTNode?(node: Synapse.STNode): void;
     endVisitSTNode?(node: Synapse.STNode): void;`;
 
@@ -121,35 +130,100 @@ export interface STNodeAttributes {
     for (const [interfaceName, attributes] of Object.entries(tsInterfaces)) {
 
         const capitalizedStr = interfaceName.charAt(0).toUpperCase() + interfaceName.slice(1);
-        stInterfaces += `\nexport interface ${capitalizedStr} extends STNode {\n`;
+        const TSInterfaceName = capitalizedStr.replaceAll(".", "");
+
+        if (attributes._enum) {
+            enumStr += `\nexport enum ${TSInterfaceName} {\n`;
+            for (const enumValue of (attributes as any)._enum) {
+                enumStr += `${getIndentation(4)}${enumValue},\n`;
+            }
+            enumStr += `}\n`;
+            continue;
+        }
+
+        if (attributes.extends) {
+            stInterfaces += `\nexport interface ${TSInterfaceName} extends ${attributes.extends}, STNode {\n`;
+            delete attributes.extends;
+        } else {
+            stInterfaces += `\nexport interface ${TSInterfaceName} extends STNode {\n`;
+        }
+
         for (const [attributeName, attributeType] of Object.entries(attributes)) {
-            if (!attributeName.startsWith("_")) stInterfaces += parseAttributeType(attributeName, attributeType, "", 4);
+            if (!attributeName.startsWith("_")) stInterfaces += parseAttributeType(attributeName, attributeType, enums, "", 4);
         }
         stInterfaces += `}\n`;
 
         // visitor
-        visitor += `\n\n${getIndentation(4)}beginVisit${capitalizedStr}?(node: ${capitalizedStr}): void;\n${getIndentation(4)}endVisit${capitalizedStr}?(node: ${capitalizedStr}): void;`;
+        visitor += `\n\n${getIndentation(4)}beginVisit${TSInterfaceName}?(node: Synapse.${TSInterfaceName}): void;`;
+        visitor += `\n${getIndentation(4)}endVisit${TSInterfaceName}?(node: Synapse.${TSInterfaceName}): void;`;
     }
-    visitor += `\n}`;
+    visitor += `\n}\n`;
 
-    console.log(stInterfaces);
-    console.log(visitor);
+    fs.writeFileSync(path.join(__dirname, '../../generated/syntax-tree-interfaces.ts'), `${enumStr}\n${stInterfaces}\n`);
+    fs.writeFileSync(path.join(__dirname, '../../generated/base-visitor.ts'), `${visitor}`);
+    console.log("Generated syntax-tree-interfaces.ts");
 }
 
-function parseAttributeType(attributeName: string, attributeType: AttributeType, str: string, indentation: number): string {
+function parseAttributeType(attributeName: string, attributeType: AttributeType, enums: Elements, str: string, indentation: number): string {
     const indentationStr = getIndentation(indentation);
     const array = attributeType.isCollection ? "[]" : "";
 
     if (typeof attributeType.type === 'object') {
         str += `${indentationStr}${attributeName}: {\n`;
         for (const [name, type] of Object.entries(attributeType.type)) {
-            str = parseAttributeType(name, type, str, indentation + 4);
+            str = parseAttributeType(name, type, enums, str, indentation + 4);
         }
         str += `${indentationStr}}${array};\n`;
     } else if (typeof attributeType.type === 'string') {
-        str += `${indentationStr}${attributeName}: ${getDataType(attributeType.type)}${array};\n`;
+        str += `${indentationStr}${getDataType(attributeName, attributeType, enums)}\n`;
     }
     return str;
+}
+
+function getDataType(attributeName: string, attributeType: AttributeType, enums: Elements) {
+    const type = attributeType.type as string;
+    const name = attributeType.name;
+    const array = attributeType.isCollection ? "[]" : "";
+    let typeStr = "";
+
+    if (name.includes("_enum_")) {
+        const enumName = name.split("_enum_")[1];
+        const capitalizedStr = enumName.charAt(0).toUpperCase() + enumName.slice(1);
+
+        if (enums[capitalizedStr]) {
+            attributeName = attributeName.replace(`Enum${capitalizedStr}`, "");
+            typeStr = capitalizedStr;
+        }
+    }
+
+    if (!typeStr) {
+        switch (type) {
+            case type.match("^[aA]ny.*")?.input:
+                typeStr = 'any';
+                break;
+
+            case 'Boolean':
+                typeStr = 'boolean';
+                break;
+
+            case 'Int':
+            case 'Integer':
+            case 'Long':
+                typeStr = 'number';
+                break;
+
+            case 'NCName':
+            case 'QName':
+            case 'nyType':
+            case 'string':
+                typeStr = 'string';
+                break;
+
+            default:
+                typeStr = type.charAt(0).toUpperCase() + type.slice(1);
+        }
+    }
+    return `${attributeName}: ${typeStr}${array};`;
 }
 
 function getIndentation(indentation: number): string {
@@ -158,25 +232,6 @@ function getIndentation(indentation: number): string {
         str += " ";
     }
     return str;
-}
-
-function getDataType(type: string) {
-    switch (type) {
-        case 'anyAttribute':
-        case 'anyElement':
-            return 'any';
-
-        case 'boolean':
-            return 'boolean';
-
-        case 'NCName':
-        case 'QName':
-        case 'string':
-            return 'string';
-
-        default:
-            return type.charAt(0).toUpperCase() + type.slice(1);
-    }
 }
 
 generateTSInterfaces();
