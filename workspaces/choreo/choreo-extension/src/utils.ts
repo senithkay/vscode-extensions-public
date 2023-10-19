@@ -169,4 +169,8 @@ export const getComponentDirPath = (component: Component, projectLocation: strin
             return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
         }
     }
-}
+};
+
+export const filePathChecker = (path: string, regex: RegExp) => {
+    return regex.test(path);
+};
