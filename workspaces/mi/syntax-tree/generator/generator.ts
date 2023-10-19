@@ -253,7 +253,7 @@ function getDataType(attributeName: string, attributeType: AttributeType, enums:
     if (!typeStr) {
         switch (type) {
             case type.match("^[aA]ny.*")?.input:
-                typeStr = Language.JAVA ? 'Object' : 'any';
+                typeStr = language === Language.JAVA ? 'Object' : 'any';
                 break;
 
             case 'Boolean':
@@ -263,14 +263,14 @@ function getDataType(attributeName: string, attributeType: AttributeType, enums:
             case 'Int':
             case 'Integer':
             case 'Long':
-                typeStr = Language.JAVA ? 'int' : 'number';
+                typeStr = language === Language.JAVA ? 'int' : 'number';
                 break;
 
             case 'NCName':
             case 'QName':
             case 'nyType':
             case 'string':
-                typeStr = Language.JAVA ? 'String' : 'string';
+                typeStr = language === Language.JAVA ? 'String' : 'string';
                 break;
 
             default:
