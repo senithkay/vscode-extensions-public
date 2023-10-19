@@ -11,6 +11,79 @@ import path = require("path");
 
 const fs = require('fs');
 
+const stInterfacesTS =
+    `export interface STNode {
+attributes: STNodeAttributes[]|any;
+children: STNode[];
+end: number;
+endTagOffOffset: number;
+endTagOpenOffset: number;
+hasTextNode: boolean;
+selfClosed: boolean;
+start: number;
+startTagOffOffset: number;
+startTagOpenOffset: number;
+tag: string;
+}
+
+export interface STNodeAttributes {
+closed: boolean;
+hasDelimiter: boolean;
+name: string;
+nameTagOffOffset: number;
+nameTagOpenOffset: number;
+originalValue: string
+quotelessValue: string
+valueTagOffOffset: number
+valueTagOpenOffset: number
+}\n`;
+
+const visitorTS =
+    `import * as Synapse from "./syntax-tree-interfaces";
+
+export interface Visitor {
+beginVisitSTNode?(node: Synapse.STNode): void;
+endVisitSTNode?(node: Synapse.STNode): void;`;
+
+const stInterfacesJAVA =
+    `import java.util.*;
+
+abstract class STNode {
+    List<STNodeAttributes> attributes;
+    List<STNode> children;
+    int end;
+    int endTagOffOffset;
+    int endTagOpenOffset;
+    boolean hasTextNode;
+    boolean selfClosed;
+    int start;
+    int startTagOffOffset;
+    int startTagOpenOffset;
+    String tag;
+}
+
+abstract class STNodeAttributes {
+    boolean closed;
+    boolean hasDelimiter;
+    String name;
+    int nameTagOffOffset;
+    int nameTagOpenOffset;
+    String originalValue;
+    String quotelessValue;
+    int valueTagOffOffset;
+    int valueTagOpenOffset;
+}`;
+
+const visitorJAVA =
+    `abstract class Visitor {
+    abstract void beginVisitSTNode(STNode node);
+    abstract void endVisitSTNode(STNode node);`
+
+enum Language {
+    JAVA = "java",
+    TS = "ts"
+}
+
 interface Elements {
     [key: string]: {
         [key: string]: AttributeType
@@ -84,47 +157,17 @@ function getElements(mapping: any): Elements {
     }
 }
 
-export function generateTSInterfaces() {
+export function generateInterfaces(language: Language) {
+    const accessModifier = language === Language.JAVA ? '' : 'export';
+
     var PO = require('../../generated/PO').PO;
 
     const tsInterfaces: Elements = getElements(PO);
     const enums: Elements = Object.fromEntries(Object.entries(tsInterfaces).filter(([key, value]) => value._enum !== undefined));
 
     let enumStr = "";
-
-    let stInterfaces =
-        `export interface STNode {
-    attributes: STNodeAttributes[]|any;
-    children: STNode[];
-    end: number;
-    endTagOffOffset: number;
-    endTagOpenOffset: number;
-    hasTextNode: boolean;
-    selfClosed: boolean;
-    start: number;
-    startTagOffOffset: number;
-    startTagOpenOffset: number;
-    tag: string;
-}
-
-export interface STNodeAttributes {
-    closed: boolean;
-    hasDelimiter: boolean;
-    name: string;
-    nameTagOffOffset: number;
-    nameTagOpenOffset: number;
-    originalValue: string
-    quotelessValue: string
-    valueTagOffOffset: number
-    valueTagOpenOffset: number
-}\n`;
-
-    let visitor =
-        `import * as Synapse from "./syntax-tree-interfaces";
-        
-export interface Visitor {
-    beginVisitSTNode?(node: Synapse.STNode): void;
-    endVisitSTNode?(node: Synapse.STNode): void;`;
+    let stInterfacesStr = language === Language.JAVA ? stInterfacesJAVA : stInterfacesTS;
+    let visitorStr = language === Language.JAVA ? visitorJAVA : visitorTS;
 
     // Output TypeScript interfaces
     for (const [interfaceName, attributes] of Object.entries(tsInterfaces)) {
@@ -133,7 +176,7 @@ export interface Visitor {
         const TSInterfaceName = capitalizedStr.replaceAll(".", "");
 
         if (attributes._enum) {
-            enumStr += `\nexport enum ${TSInterfaceName} {\n`;
+            enumStr += `\n${accessModifier} enum ${TSInterfaceName} {\n`;
             for (const enumValue of (attributes as any)._enum) {
                 enumStr += `${getIndentation(4)}${enumValue},\n`;
             }
@@ -142,45 +185,56 @@ export interface Visitor {
         }
 
         if (attributes.extends) {
-            stInterfaces += `\nexport interface ${TSInterfaceName} extends ${attributes.extends}, STNode {\n`;
+            stInterfacesStr += language == Language.JAVA ?
+                `\nabstract class ${TSInterfaceName} extends ${attributes.extends} {\n` :
+                `\n${accessModifier} interface ${TSInterfaceName} extends ${attributes.extends}, STNode {\n`;
             delete attributes.extends;
         } else {
-            stInterfaces += `\nexport interface ${TSInterfaceName} extends STNode {\n`;
+            stInterfacesStr += language == Language.JAVA ?
+                `\nabstract class ${TSInterfaceName} extends STNode {\n` :
+                `\n${accessModifier} interface ${TSInterfaceName} extends STNode {\n`;
         }
 
         for (const [attributeName, attributeType] of Object.entries(attributes)) {
-            if (!attributeName.startsWith("_")) stInterfaces += parseAttributeType(attributeName, attributeType, enums, "", 4);
+            if (!attributeName.startsWith("_")) stInterfacesStr += parseAttributeType(attributeName, attributeType, enums, "", 4, language);
         }
-        stInterfaces += `}\n`;
+        stInterfacesStr += `}\n`;
 
         // visitor
-        visitor += `\n\n${getIndentation(4)}beginVisit${TSInterfaceName}?(node: Synapse.${TSInterfaceName}): void;`;
-        visitor += `\n${getIndentation(4)}endVisit${TSInterfaceName}?(node: Synapse.${TSInterfaceName}): void;`;
+        visitorStr += language == Language.JAVA ?
+            `\n\n${getIndentation(4)}abstract void beginVisit${TSInterfaceName}(${TSInterfaceName} node);` :
+            `\n\n${getIndentation(4)}beginVisit${TSInterfaceName}?(node: Synapse.${TSInterfaceName}): void;`;
+        visitorStr += language == Language.JAVA ?
+            `\n${getIndentation(4)}abstract void endVisit${TSInterfaceName}(${TSInterfaceName} node);` :
+            `\n${getIndentation(4)}endVisit${TSInterfaceName}?(node: Synapse.${TSInterfaceName}): void;`;
     }
-    visitor += `\n}\n`;
+    visitorStr += `\n}\n`;
 
-    fs.writeFileSync(path.join(__dirname, '../../generated/syntax-tree-interfaces.ts'), `${enumStr}\n${stInterfaces}\n`);
-    fs.writeFileSync(path.join(__dirname, '../../generated/base-visitor.ts'), `${visitor}`);
+    fs.writeFileSync(path.join(__dirname, `../../generated/syntax-tree-interfaces.${language}`), `${stInterfacesStr}\n${enumStr}`);
+    fs.writeFileSync(path.join(__dirname, `../../generated/base-visitor.${language}`), `${visitorStr}`);
     console.log("Generated syntax-tree-interfaces.ts");
 }
 
-function parseAttributeType(attributeName: string, attributeType: AttributeType, enums: Elements, str: string, indentation: number): string {
+function parseAttributeType(attributeName: string, attributeType: AttributeType, enums: Elements, str: string, indentation: number, language: Language): string {
     const indentationStr = getIndentation(indentation);
     const array = attributeType.isCollection ? "[]" : "";
 
     if (typeof attributeType.type === 'object') {
-        str += `${indentationStr}${attributeName}: {\n`;
-        for (const [name, type] of Object.entries(attributeType.type)) {
-            str = parseAttributeType(name, type, enums, str, indentation + 4);
-        }
-        str += `${indentationStr}}${array};\n`;
+        // str += `${indentationStr}${attributeName}: {\n`;
+        // for (const [name, type] of Object.entries(attributeType.type)) {
+        //     str = parseAttributeType(name, type, enums, str, indentation + 4, language);
+        // }
+        // str += `${indentationStr}}${array};\n`;
+        str += language == Language.JAVA ?
+            `${indentationStr}Object attributeName;\n` :
+            `${indentationStr}attributeName: any;\n`;
     } else if (typeof attributeType.type === 'string') {
-        str += `${indentationStr}${getDataType(attributeName, attributeType, enums)}\n`;
+        str += `${indentationStr}${getDataType(attributeName, attributeType, enums, language)}\n`;
     }
     return str;
 }
 
-function getDataType(attributeName: string, attributeType: AttributeType, enums: Elements) {
+function getDataType(attributeName: string, attributeType: AttributeType, enums: Elements, language: Language) {
     const type = attributeType.type as string;
     const name = attributeType.name;
     const array = attributeType.isCollection ? "[]" : "";
@@ -199,7 +253,7 @@ function getDataType(attributeName: string, attributeType: AttributeType, enums:
     if (!typeStr) {
         switch (type) {
             case type.match("^[aA]ny.*")?.input:
-                typeStr = 'any';
+                typeStr = Language.JAVA ? 'Object' : 'any';
                 break;
 
             case 'Boolean':
@@ -209,21 +263,21 @@ function getDataType(attributeName: string, attributeType: AttributeType, enums:
             case 'Int':
             case 'Integer':
             case 'Long':
-                typeStr = 'number';
+                typeStr = Language.JAVA ? 'int' : 'number';
                 break;
 
             case 'NCName':
             case 'QName':
             case 'nyType':
             case 'string':
-                typeStr = 'string';
+                typeStr = Language.JAVA ? 'String' : 'string';
                 break;
 
             default:
                 typeStr = type.charAt(0).toUpperCase() + type.slice(1);
         }
     }
-    return `${attributeName}: ${typeStr}${array};`;
+    return language === Language.JAVA ? `${typeStr}[] ${attributeName};` : `${attributeName}: ${typeStr}${array};`;
 }
 
 function getIndentation(indentation: number): string {
@@ -234,4 +288,5 @@ function getIndentation(indentation: number): string {
     return str;
 }
 
-generateTSInterfaces();
+generateInterfaces(Language.JAVA);
+generateInterfaces(Language.TS);
