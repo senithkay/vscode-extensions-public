@@ -114,3 +114,5 @@ jobs:
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           commonLibs: true
+          choreo: true
+          ballerina: true
