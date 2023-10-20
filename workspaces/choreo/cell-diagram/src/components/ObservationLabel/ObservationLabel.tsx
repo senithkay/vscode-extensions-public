@@ -29,6 +29,7 @@ const Container = styled.div`
 const Section = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 4px;
 `;
 
 const Row = styled.div`
@@ -36,11 +37,6 @@ const Row = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-`;
-
-const Title = styled.div`
-    font-weight: bold;
-    margin-bottom: 4px;
 `;
 
 const DotRow = styled.div`
@@ -61,6 +57,10 @@ const Dot = styled.div`
     cursor: pointer;
 `;
 
+const Value = styled.div`
+    color: ${Colors.PRIMARY};
+`;
+
 const ActiveDot = styled(Dot)`
     background-color: ${Colors.NODE_BORDER};
 `;
@@ -75,31 +75,30 @@ export function ObservationLabel(props: ObservationLabelProps) {
         setActiveIndex(index);
     };
 
-    const [serviceId, observations] = observationsArray[activeIndex]; // Get the active observation
+    const [_serviceId, observations] = observationsArray[activeIndex]; // Get the active observation
 
     return (
         <Container>
             <Section>
-                <Title>{serviceId}</Title>
                 <Row>
                     <div>Error Percentage</div>
-                    <div>{((observations.errorCount * 100) / observations.requestCount).toFixed(2)}%</div>
+                    <Value>{((observations.errorCount * 100) / observations.requestCount).toFixed(2)}%</Value>
                 </Row>
                 <Row>
                     <div>Average Latency</div>
-                    <div>{convertToMs(observations.avgLatency)} ms</div>
+                    <Value>{convertToMs(observations.avgLatency)} ms</Value>
                 </Row>
                 <Row>
                     <div>99% Latency</div>
-                    <div>{convertToMs(observations.p99Latency)} ms</div>
+                    <Value>{convertToMs(observations.p99Latency)} ms</Value>
                 </Row>
                 <Row>
                     <div>90% Latency</div>
-                    <div>{convertToMs(observations.p90Latency)} ms</div>
+                    <Value>{convertToMs(observations.p90Latency)} ms</Value>
                 </Row>
                 <Row>
                     <div>50% Latency</div>
-                    <div>{convertToMs(observations.p50Latency)} ms</div>
+                    <Value>{convertToMs(observations.p50Latency)} ms</Value>
                 </Row>
             </Section>
             {observationsArray.length > 1 && (

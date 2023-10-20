@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { camelCase, startCase } from "lodash";
-import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
 import { ComponentModel } from "../ComponentModel";
 import { ComponentHead, ComponentKind, IconWrapper } from "../styles";
@@ -25,29 +25,21 @@ import {
     WebhookIcon,
 } from "../../../../resources/assets/icons";
 import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
+import { MenuItem, MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ComponentModel;
     isSelected: boolean;
     isFocused: boolean;
+
+    menuItems: MenuItem[];
+    showMenu: boolean;
+    setShowMenu: (showMenu: boolean) => void;
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected } = props;
-    const headPorts = useRef<PortModel[]>([]);
-    const [isHovered, setIsHovered] = useState<boolean>(false);
-
-    useEffect(() => {
-        headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
-        headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-        headPorts.current.push(node.getPortFromID(`bottom-${node.getID()}`));
-    }, [node]);
-
-    const handleOnHover = (task: string) => {
-        setIsHovered(task === "SELECT" ? true : false);
-        node.handleHover(headPorts.current, task);
-    };
+    const { engine, node, isSelected, isFocused, menuItems, showMenu, setShowMenu } = props;
 
     const getComponentTypeIcon = (type: ComponentType) => {
         switch (type) {
@@ -79,16 +71,15 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     return (
-        <ComponentHead
-            isSelected={isSelected || isHovered}
-            onMouseOver={() => handleOnHover("SELECT")}
-            onMouseLeave={() => handleOnHover("UNSELECT")}
-        >
+        <ComponentHead isSelected={isSelected || isFocused}>
             <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
             {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (
                 <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
+            )}
+            {isFocused && menuItems?.length > 0 && (
+                <MoreVertMenu component={node.component} menuItems={menuItems} showMenu={showMenu} setShowMenu={setShowMenu} />
             )}
         </ComponentHead>
     );

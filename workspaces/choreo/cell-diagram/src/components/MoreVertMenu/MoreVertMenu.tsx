@@ -11,18 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { MoreVertIcon } from "../../resources/assets/icons";
 import { Colors } from "../../resources";
-
-export interface MenuItem {
-    label: string;
-    callback: (id: string) => void;
-}
-
-interface MoreVertMenuProps {
-    id: string;
-    menuItems: MenuItem[];
-    showMenu: boolean;
-    setShowMenu: (showMenu: boolean) => void;
-}
+import { Component } from "../../types";
 
 const MenuButton: React.FC<any> = styled.div`
     position: absolute;
@@ -63,8 +52,20 @@ const MenuItem = styled.div`
     }
 `;
 
+export interface MenuItem {
+    label: string;
+    callback: (id: string, version?: string) => void;
+}
+
+interface MoreVertMenuProps {
+    component: Component;
+    menuItems: MenuItem[];
+    showMenu: boolean;
+    setShowMenu: (showMenu: boolean) => void;
+}
+
 export function MoreVertMenu(props: MoreVertMenuProps) {
-    const { id, menuItems, showMenu, setShowMenu } = props;
+    const { component, menuItems, showMenu, setShowMenu } = props;
 
     const handleMenuButtonClick = () => {
         setShowMenu(!showMenu);
@@ -81,7 +82,7 @@ export function MoreVertMenu(props: MoreVertMenuProps) {
                         <MenuItem
                             key={index}
                             onClick={() => {
-                                item.callback(id);
+                                item.callback(component.id, component.version);
                                 setShowMenu(false);
                             }}
                         >

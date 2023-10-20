@@ -125,6 +125,7 @@ export const PortLabel: React.FC<any> = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    font-family: "GilmerMedium";
     span {
         font-size: 14px;
         color: ${Colors.NODE_BORDER};
@@ -135,12 +136,12 @@ export const PortLabel: React.FC<any> = styled.div`
 
 export const TopPortLabel: React.FC<any> = styled(PortLabel)`
     top: -24px;
-    right: -168px;
+    right: -86px;
 `;
 
 export const LeftPortLabel: React.FC<any> = styled(PortLabel)`
-    top: -28px;
-    left: -168px;
+    top: -24px;
+    left: -86px;
     align-items: flex-end;
     span {
         text-align: right;
@@ -148,13 +149,13 @@ export const LeftPortLabel: React.FC<any> = styled(PortLabel)`
 `;
 
 export const RightPortLabel: React.FC<any> = styled(PortLabel)`
-    top: -64px;
-    right: -180px;
+    top: -32px;
+    right: -86px;
 `;
 
 export const BottomPortLabel: React.FC<any> = styled(PortLabel)`
     bottom: -36px;
-    left: -168px;
+    left: -128px;
     align-items: flex-end;
     span {
         text-align: right;

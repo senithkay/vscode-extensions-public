@@ -1,8 +1,17 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import React from "react";
 import { storiesOf } from "@storybook/react";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
-import { Container, componentMenu, handleComponentDoubleClick } from "./Basic.stories";
+import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 
 const simpleModel: Project = {
     id: "110ec58a-a0f2-4ac4-8393-c866d813b8d1",
@@ -606,7 +615,7 @@ const observationsModel: Project = {
         },
         {
             id: "Products",
-            label: "Product App",
+            label: "Products",
             version: "0.2.0",
             type: "service",
             services: {
@@ -630,6 +639,7 @@ const observationsModel: Project = {
             connections: [
                 {
                     id: "ABC:B:Users:get",
+                    label: "Org Users",
                     onPlatform: true,
                     observations: [
                         {

@@ -7,15 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext, useEffect, useState } from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ComponentModel } from "./ComponentModel";
 import { ComponentLinkModel } from "../ComponentLink/ComponentLinkModel";
 import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
-import { MoreVertMenu } from "../../MoreVertMenu/MoreVertMenu";
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -28,6 +27,7 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const [showMenu, setShowMenu] = useState<boolean>(false);
+    const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.component.label || node.component.id;
 
@@ -40,12 +40,21 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 setSelectedLink(undefined);
             },
         });
+        headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
+        headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
+        headPorts.current.push(node.getPortFromID(`bottom-${node.getID()}`));
+
         return () => {
             node.deregisterListener(listener);
         };
     }, [node]);
 
-    const handleOnWidgetClick = () => {
+    const handleOnHover = (task: string) => {
+        setIsHovered(task === "SELECT" ? true : false);
+        node.handleHover(headPorts.current, task);
+    };
+
+    const handleOnWidgetDoubleClick = () => {
         if (onComponentDoubleClick) {
             onComponentDoubleClick(node.component.id);
         }
@@ -53,11 +62,13 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     const handleMouseEnter = () => {
         setIsHovered(true);
+        handleOnHover("SELECT");
     };
 
     const handleMouseLeave = () => {
         setIsHovered(false);
         setShowMenu(false);
+        handleOnHover("UNSELECT");
     };
 
     const handleOnContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -72,22 +83,17 @@ export function ComponentWidget(props: ComponentWidgetProps) {
             isFocused={node.getID() === focusedNodeId}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            onDoubleClick={handleOnWidgetClick}
+            onDoubleClick={handleOnWidgetDoubleClick}
             onContextMenu={handleOnContextMenu}
         >
-            {isHovered && componentMenu?.length > 0 && (
-                <MoreVertMenu
-                    id={node.component.id}
-                    menuItems={componentMenu}
-                    showMenu={showMenu}
-                    setShowMenu={setShowMenu}
-                />
-            )}
             <ComponentHeadWidget
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-                isFocused={node.getID() === focusedNodeId}
+                isFocused={node.getID() === focusedNodeId || isHovered}
+                menuItems={componentMenu}
+                showMenu={showMenu}
+                setShowMenu={setShowMenu}
             />
             <ComponentName>{displayName}</ComponentName>
             <PortsContainer>
