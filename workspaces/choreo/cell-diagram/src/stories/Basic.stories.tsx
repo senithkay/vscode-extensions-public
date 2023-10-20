@@ -1,20 +1,17 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { action } from "@storybook/addon-actions";
-import styled from "@emotion/styled";
 import { CellDiagram } from "../Diagram";
 import { Project } from "../types";
-import { MenuItem } from "../components";
-
-export const Container = styled.div`
-    height: calc(100vh - 50px);
-    width: calc(100vw - 40px);
-`;
-
-export const componentMenu: MenuItem[] = [
-    { label: "Go to source", callback: (id) => action("Go to source menu item clicked")(id) },
-    { label: "Observe", callback: (id) => action("Observe menu item clicked")(id) },
-];
+import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 
 const noComponentModel: Project = {
     id: "A",
@@ -358,10 +355,6 @@ const observabilityModel: Project = {
         },
     ],
     modelVersion: "0.4.0",
-};
-
-export const handleComponentDoubleClick = (componentId: string) => {
-    action("component double clicked")(componentId);
 };
 
 storiesOf("Basic", module).add("Empty cell", () => (
