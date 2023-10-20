@@ -38,11 +38,6 @@ const Row = styled.div`
     align-items: center;
 `;
 
-const Title = styled.div`
-    font-weight: bold;
-    margin-bottom: 4px;
-`;
-
 const DotRow = styled.div`
     display: flex;
     flex-direction: row;

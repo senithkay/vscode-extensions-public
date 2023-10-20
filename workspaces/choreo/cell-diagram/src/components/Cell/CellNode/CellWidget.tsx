@@ -69,9 +69,7 @@ export function CellWidget(props: CellWidgetProps) {
             {generateRoundedOctagonSVG(cellHeight)}
 
             <TopPortCircle>
-                <TopPortLabel>
-                    Northbound <span>Traffic coming from internet</span>
-                </TopPortLabel>
+                <TopPortLabel tooltip="Traffic coming from internet">Northbound</TopPortLabel>
                 <TopIconWrapper>
                     <GatewayIcon />
                 </TopIconWrapper>
@@ -80,9 +78,7 @@ export function CellWidget(props: CellWidgetProps) {
             </TopPortCircle>
 
             <LeftPortCircle>
-                <LeftPortLabel>
-                    Westbound <span>Traffic coming from intranet</span>
-                </LeftPortLabel>
+                <LeftPortLabel tooltip="Traffic coming from intranet">Westbound</LeftPortLabel>
                 <IconWrapper>
                     <GatewayIcon />
                 </IconWrapper>
@@ -91,9 +87,7 @@ export function CellWidget(props: CellWidgetProps) {
             </LeftPortCircle>
 
             <RightPortsWrapper>
-                <RightPortLabel>
-                    Eastbound <span>Organization wide connections</span>
-                </RightPortLabel>
+                <RightPortLabel tooltip="Organization wide connections">Eastbound</RightPortLabel>
                 {node.connectionNodes?.map((connectionNode) => {
                     return (
                         <DotWrapper key={connectionNode.getID()}>
@@ -116,9 +110,7 @@ export function CellWidget(props: CellWidgetProps) {
                 })}
             </RightPortsWrapper>
             <BottomPortsWrapper>
-                <BottomPortLabel>
-                    Southbound <span>Third party connections</span>
-                </BottomPortLabel>
+                <BottomPortLabel tooltip="Third party connections">Southbound</BottomPortLabel>
                 {node.connectorNodes?.map((connectorNode) => {
                     return (
                         <DotWrapper key={connectorNode.getID()}>
