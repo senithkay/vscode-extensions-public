@@ -7,9 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { camelCase, startCase } from "lodash";
-import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
 import { ComponentModel } from "../ComponentModel";
 import { ComponentHead, ComponentKind, IconWrapper } from "../styles";
@@ -35,19 +35,6 @@ interface ServiceHeadProps {
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const headPorts = useRef<PortModel[]>([]);
-    const [isHovered, setIsHovered] = useState<boolean>(false);
-
-    useEffect(() => {
-        headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
-        headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-        headPorts.current.push(node.getPortFromID(`bottom-${node.getID()}`));
-    }, [node]);
-
-    const handleOnHover = (task: string) => {
-        setIsHovered(task === "SELECT" ? true : false);
-        node.handleHover(headPorts.current, task);
-    };
 
     const getComponentTypeIcon = (type: ComponentType) => {
         switch (type) {
@@ -79,11 +66,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     return (
-        <ComponentHead
-            isSelected={isSelected || isHovered}
-            onMouseOver={() => handleOnHover("SELECT")}
-            onMouseLeave={() => handleOnHover("UNSELECT")}
-        >
+        <ComponentHead isSelected={isSelected}>
             <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />

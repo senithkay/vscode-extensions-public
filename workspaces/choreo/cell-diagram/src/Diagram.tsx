@@ -51,6 +51,9 @@ export function CellDiagram(props: CellDiagramProps) {
         if (diagramEngine.getCanvas()) {
             document.addEventListener("keydown", handleEscapePress);
         }
+        return () => {
+            document.removeEventListener("keydown", handleEscapePress);
+        };
     }, [diagramModel, diagramEngine.getCanvas()]);
 
     function handleEscapePress(event: KeyboardEvent) {
@@ -87,11 +90,11 @@ export function CellDiagram(props: CellDiagramProps) {
             ...nodeNLinks.nodes.emptyNodes.values(),
             ...nodeNLinks.nodes.externalNodes.values(),
             // links
-            ...nodeNLinks.links.componentLinks.values(),
             ...nodeNLinks.links.connectionLinks.values(),
             ...nodeNLinks.links.connectorLinks.values(),
-            ...nodeNLinks.links.cellLinks.values(),
-            ...nodeNLinks.links.externalLinks.values()
+            ...nodeNLinks.links.externalLinks.values(),
+            ...nodeNLinks.links.componentLinks.values(),
+            ...nodeNLinks.links.cellLinks.values()
         );
 
         models.forEach((item) => {
