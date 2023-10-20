@@ -125,6 +125,7 @@ export const PortLabel: React.FC<any> = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    font-family: "GilmerMedium";
     span {
         font-size: 14px;
         color: ${Colors.NODE_BORDER};
@@ -154,7 +155,7 @@ export const RightPortLabel: React.FC<any> = styled(PortLabel)`
 
 export const BottomPortLabel: React.FC<any> = styled(PortLabel)`
     bottom: -36px;
-    left: -86px;
+    left: -128px;
     align-items: flex-end;
     span {
         text-align: right;

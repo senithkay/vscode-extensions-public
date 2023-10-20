@@ -28,7 +28,8 @@ export const ComponentNode: React.FC<any> = styled.div`
     align-items: center;
     gap: 10px;
     padding: 2px;
-    pointer-events: all;    
+    pointer-events: all;
+    cursor: pointer;
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
@@ -46,7 +47,6 @@ export const ComponentHead: React.FC<any> = styled.div`
     flex-wrap: wrap;
 
     position: relative;
-    cursor: pointer;
 `;
 
 export const ComponentKind: React.FC<any> = styled.div`
