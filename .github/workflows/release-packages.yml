@@ -26,6 +26,7 @@ on:
           - 'ballerina/project-design-diagrams'                                                                               
           - 'configurable-editor'
           - 'common-libs/ui-toolkit'
+          - 'common-libs/font-wso2-vscode'
       version:
         type: choice
         description: 'Enter the version type'
