@@ -15,7 +15,6 @@ import { ComponentHeadWidget } from "./ComponentHead/ComponentHead";
 import { ComponentName, ComponentNode, PortsContainer } from "./styles";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { ComponentPortWidget } from "../ComponentPort/ComponentPortWidget";
-import { MoreVertMenu } from "../../MoreVertMenu/MoreVertMenu";
 
 interface ComponentWidgetProps {
     node: ComponentModel;
@@ -24,7 +23,7 @@ interface ComponentWidgetProps {
 
 export function ComponentWidget(props: ComponentWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick, setSelectedNodeId } = useContext(DiagramContext);
+    const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const [showMenu, setShowMenu] = useState<boolean>(false);
@@ -87,14 +86,14 @@ export function ComponentWidget(props: ComponentWidgetProps) {
             onDoubleClick={handleOnWidgetDoubleClick}
             onContextMenu={handleOnContextMenu}
         >
-            {isHovered && componentMenu?.length > 0 && (
-                <MoreVertMenu id={node.component.id} menuItems={componentMenu} showMenu={showMenu} setShowMenu={setShowMenu} />
-            )}
             <ComponentHeadWidget
                 engine={engine}
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
-                isFocused={node.getID() === focusedNodeId}
+                isFocused={node.getID() === focusedNodeId || isHovered}
+                menuItems={componentMenu}
+                showMenu={showMenu}
+                setShowMenu={setShowMenu}
             />
             <ComponentName>{displayName}</ComponentName>
             <PortsContainer>

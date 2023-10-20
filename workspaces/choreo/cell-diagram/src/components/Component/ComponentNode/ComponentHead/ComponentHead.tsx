@@ -25,16 +25,21 @@ import {
     WebhookIcon,
 } from "../../../../resources/assets/icons";
 import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
+import { MenuItem, MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
     node: ComponentModel;
     isSelected: boolean;
     isFocused: boolean;
+
+    menuItems: MenuItem[];
+    showMenu: boolean;
+    setShowMenu: (showMenu: boolean) => void;
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected } = props;
+    const { engine, node, isSelected, isFocused, menuItems, showMenu, setShowMenu } = props;
 
     const getComponentTypeIcon = (type: ComponentType) => {
         switch (type) {
@@ -66,12 +71,15 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     return (
-        <ComponentHead isSelected={isSelected}>
+        <ComponentHead isSelected={isSelected || isFocused}>
             <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />
             {node.component.buildPack && node.component.buildPack.toLowerCase() !== "other" && (
                 <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
+            )}
+            {isFocused && menuItems?.length > 0 && (
+                <MoreVertMenu id={node.component.id} menuItems={menuItems} showMenu={showMenu} setShowMenu={setShowMenu} />
             )}
         </ComponentHead>
     );
