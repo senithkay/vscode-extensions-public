@@ -79,7 +79,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
                 <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
             )}
             {isFocused && menuItems?.length > 0 && (
-                <MoreVertMenu id={node.component.id} menuItems={menuItems} showMenu={showMenu} setShowMenu={setShowMenu} />
+                <MoreVertMenu component={node.component} menuItems={menuItems} showMenu={showMenu} setShowMenu={setShowMenu} />
             )}
         </ComponentHead>
     );
