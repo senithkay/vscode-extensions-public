@@ -9,7 +9,7 @@
 
 import { commands, Position, Range, Selection, TextEditorRevealType, Uri, window, workspace, WorkspaceEdit } from "vscode";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import { join, normalize } from "path";
 import toml from "toml";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
@@ -216,10 +216,11 @@ export async function updateSyntaxTree(
 }
 
 export async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
-    const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+    const normalizedFilePath = normalize(filePath);
+    const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
     if (doc) {
         const edit = new WorkspaceEdit();
-        edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
+        edit.replace(Uri.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
         await workspace.applyEdit(edit);
         langClient.updateStatusBar();
         return doc.save();
@@ -231,11 +232,11 @@ export async function updateSourceFile(langClient: ExtendedLangClient, filePath:
                 }
             ],
             textDocument: {
-                uri: Uri.file(filePath).toString(),
+                uri: Uri.file(normalizedFilePath).toString(),
                 version: 1
             }
         });
-        writeFileSync(filePath, fileContent);
+        writeFileSync(normalizedFilePath, fileContent);
         langClient.updateStatusBar();
     }
     return false;
