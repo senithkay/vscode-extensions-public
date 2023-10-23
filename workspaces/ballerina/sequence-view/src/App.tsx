@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import { SequenceView } from "../"
 
 function App() {
@@ -10,6 +7,7 @@ function App() {
   return (
     <>
       <SequenceView></SequenceView>
+      <h1>sample</h1>
     </>
   )
 }
