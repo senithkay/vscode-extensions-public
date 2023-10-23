@@ -195,8 +195,13 @@ export function generateInterfaces(language: Language) {
                 `\n${accessModifier} interface ${TSInterfaceName} extends STNode {\n`;
         }
 
+        const uniqueAttributes = new Set();
         for (const [attributeName, attributeType] of Object.entries(attributes)) {
-            if (!attributeName.startsWith("_")) stInterfacesStr += parseAttributeType(attributeName, attributeType, enums, "", 4, language);
+            const parsedAttribute = parseAttributeType(attributeName, attributeType, enums, "", 4, language);
+            if (!uniqueAttributes.has(parsedAttribute)) {
+                stInterfacesStr += parsedAttribute;
+                uniqueAttributes.add(parsedAttribute);
+            }
         }
         stInterfacesStr += `}\n`;
 

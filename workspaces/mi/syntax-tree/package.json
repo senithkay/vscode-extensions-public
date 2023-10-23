@@ -14,14 +14,14 @@
   "scripts": {
     "prebuild": "pnpm run lint",
     "build": "pnpm run clean && tsc --pretty",
-    "build:tools": "tsc ./generator/generator.ts --outDir ./lib/generator",
+    "build:tools": "tsc ./tools/*.ts --outDir ./lib/tools",
     "watch": "tsc --pretty --watch",
     "clean": "rimraf build/ && rimraf lib/",
     "clean:nm": "rimraf node_modules",
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
     "generateMappings": "java -jar ./node_modules/jsonix/lib/jsonix-schema-compiler-full.jar -d generated -p PO synapse-schemas/mediators/mediators.xsd",
-    "generateST": "node ./lib/generator/generator.js"
+    "generateST": "node ./lib/tools/stGenerator.js"
   },
   "husky": {
     "hooks": {
