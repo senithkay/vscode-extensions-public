@@ -38,7 +38,7 @@
    * LTS schedule: https://nodejs.org/en/about/releases/
    * LTS versions: https://nodejs.org/en/download/releases/
    */
-  "nodeSupportedVersionRange": ">=16.13.0 <17.0.0",
+  "nodeSupportedVersionRange": ">=18.0.0 <19.0.0",
   /**
    * If the version check above fails, Rush will display a message showing the current
    * node version and the supported version range. You can use this setting to provide
@@ -242,7 +242,10 @@
     /**
      * The list of shell commands to run after the Rush build command finishes
      */
-    "postRushBuild": ["cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot"]
+    "postRushBuild": [
+      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot"
+    ]
   },
   /**
    * Installation variants allow you to maintain a parallel set of configuration files that can be
@@ -547,6 +550,11 @@
     {
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "sequence-view",
+      "projectFolder": "workspaces/ballerina/sequence-view",
       "versionPolicyName": "ballerina-extension"
     }
   ]
