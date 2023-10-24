@@ -32,7 +32,47 @@ const ComponentModel: Project = {
                     deploymentMetadata: {
                         gateways: {
                             internet: {
+                                isExposed: true,
+                                observations:[
+                                    {
+                                        avgLatency: 150325186,
+                                        destinationNodeId: 1,
+                                        errorCount: 0,
+                                        p50Latency: 9642748,
+                                        p90Latency: 532982765,
+                                        p99Latency: 532982765,
+                                        requestCount: 7,
+                                        sourceNodeId: 0,
+                                    },
+                                ]
+                            },
+                            intranet: {
                                 isExposed: false,
+                            },
+                        },
+                    },
+                },
+                "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:e367584f-398d-4809-93e2-a666f3ee9e82:default": {
+                    id: "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:e367584f-398d-4809-93e2-a666f3ee9e82:default",
+                    label: "default",
+                    type: "HTTP",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                                observations:[
+                                    {
+                                        avgLatency: 150325186,
+                                        destinationNodeId: 1,
+                                        errorCount: 0,
+                                        p50Latency: 9642748,
+                                        p90Latency: 532982765,
+                                        p99Latency: 532982765,
+                                        requestCount: 7,
+                                        sourceNodeId: 0,
+                                    },
+                                ]
                             },
                             intranet: {
                                 isExposed: false,
@@ -53,6 +93,96 @@ const ComponentModel: Project = {
                 "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-9a47-b6f87ed69cc7:sales": {
                     id: "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-9a47-b6f87ed69cc7:sales",
                     label: "",
+                    type: "HTTP",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                                observations: [
+                                    {
+                                        componentVersion: "v1.0",
+                                        avgLatency: 150325186,
+                                        destinationNodeId: 1,
+                                        errorCount: 0,
+                                        p50Latency: 9642748,
+                                        p90Latency: 532982765,
+                                        p99Latency: 532982765,
+                                        requestCount: 7,
+                                        sourceNodeId: 0,
+                                    },
+                                    {
+                                        componentVersion: "v1.1",
+                                        avgLatency: 242825819,
+                                        destinationNodeId: 2,
+                                        errorCount: 0,
+                                        p50Latency: 4346338,
+                                        p90Latency: 481305300,
+                                        p99Latency: 481305300,
+                                        requestCount: 2,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+            },
+            connections: [],
+        },
+        {
+            id: "3d51292f-076d-4c53-b6f87ed69cc7",
+            label: "product service",
+            version: "v1.1",
+            type: "service",
+            buildPack: "ballerina",
+            services: {
+                "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-b6f87ed69cc7:sales": {
+                    id: "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-b6f87ed69cc7:sales",
+                    label: "product sales fffffff lfdjllgs fdjglfdjg",
+                    type: "HTTP",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: true,
+                                observations: [
+                                    {
+                                        componentVersion: "v1.0",
+                                        avgLatency: 150325186,
+                                        destinationNodeId: 1,
+                                        errorCount: 0,
+                                        p50Latency: 9642748,
+                                        p90Latency: 532982765,
+                                        p99Latency: 532982765,
+                                        requestCount: 7,
+                                        sourceNodeId: 0,
+                                    },
+                                    {
+                                        componentVersion: "v1.1",
+                                        avgLatency: 242825819,
+                                        destinationNodeId: 2,
+                                        errorCount: 0,
+                                        p50Latency: 4346338,
+                                        p90Latency: 481305300,
+                                        p99Latency: 481305300,
+                                        requestCount: 2,
+                                        sourceNodeId: 0,
+                                    },
+                                ],
+                            },
+                            intranet: {
+                                isExposed: false,
+                            },
+                        },
+                    },
+                },
+                "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-b6f87ed69cc7:post": {
+                    id: "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-b6f87ed69cc7:post",
+                    label: "product post",
                     type: "HTTP",
                     dependencyIds: [],
                     deploymentMetadata: {

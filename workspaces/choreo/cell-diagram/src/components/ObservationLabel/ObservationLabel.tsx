@@ -35,6 +35,13 @@ const Row = styled.div`
     align-items: center;
 `;
 
+const TitleRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`;
+
 const DotRow = styled.div`
     display: flex;
     flex-direction: row;
@@ -56,6 +63,10 @@ const Dot = styled.div`
 const Title = styled.div`
     font-family: "GilmerMedium";
     margin-bottom: 4px;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 
 const Value = styled.div`
@@ -85,7 +96,12 @@ export function ObservationLabel(props: ObservationLabelProps) {
     return (
         <Container>
             <Section>
-                {observationsArray.length > 1 && <Title>Version {observations.componentVersion}</Title>}
+                {observationsArray.length > 1 && (
+                    <TitleRow>
+                        {observations.label && <Title>{observations.label}</Title>}
+                        <Title>{observations.componentVersion}</Title>
+                    </TitleRow>
+                )}
                 <Row>
                     <div>Error Percentage</div>
                     <Value>{((observations.errorCount * 100) / observations.requestCount).toFixed(2)}%</Value>

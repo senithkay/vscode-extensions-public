@@ -471,7 +471,14 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     isExposed = isExposed || service.deploymentMetadata?.gateways.internet.isExposed;
                     // capture service exposed link observations
                     if (service.deploymentMetadata?.gateways.internet.observations?.length > 0) {
-                        observations.push(...service.deploymentMetadata?.gateways.internet.observations);
+                        observations.push(
+                            ...service.deploymentMetadata?.gateways.internet.observations.map((obs) => {
+                                if (service.label) {
+                                    obs.label = service.label;
+                                }
+                                return obs;
+                            })
+                        );
                     }
                 }
             }
