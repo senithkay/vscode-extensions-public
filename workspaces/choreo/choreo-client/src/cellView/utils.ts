@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ComponentDisplayType } from "@wso2-enterprise/choreo-core";
+import { ComponentDisplayType, Inbound, Outbound } from "@wso2-enterprise/choreo-core";
 import {
     BuildPack,
     CMDependency,
@@ -24,8 +24,6 @@ import {
 import { existsSync, readFileSync } from "fs";
 import {
     Component,
-    Connection,
-    Endpoint,
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
@@ -52,7 +50,7 @@ export function getDefaultServiceModel(): CMService {
     };
 }
 
-export function getServiceModels(endpoints: Endpoint[],
+export function getServiceModels(endpoints: Inbound[],
                                  orgName: string,
                                  projectId: string,
                                  componentName: string,
@@ -86,8 +84,8 @@ export function getServiceModels(endpoints: Endpoint[],
                 },
                 deploymentMetadata: {
                     gateways: {
-                        internet: {isExposed: endpoint?.networkVisibility === "Public"},
-                        intranet: {isExposed: endpoint?.networkVisibility === "Organization"},
+                        internet: {isExposed: endpoint?.visibility === "Public"},
+                        intranet: {isExposed: endpoint?.visibility === "Organization"},
                     },
                 },
             });
@@ -97,15 +95,15 @@ export function getServiceModels(endpoints: Endpoint[],
     return services;
 }
 
-export function getConnectionModels(orgName: string, connections: Connection[], projectNameToIdMap: Map<string, string>) {
+export function getConnectionModels(orgName: string, connections: Outbound, projectNameToIdMap: Map<string, string>) {
     const connectionModels: CMDependency[] = [];
 
-    if (connections && Array.isArray(connections)) {
-        for (const connection of connections) {
-            const isChoreoConnection = connection.id.startsWith(CHOREO_CONNECTION_ID_PREFIX);
-            let connectionId = connection.id;
+    if (connections && Array.isArray(connections.serviceReferences)) {
+        for (const ref of connections.serviceReferences) {
+            const isChoreoConnection = ref.name.startsWith(CHOREO_CONNECTION_ID_PREFIX);
+            let connectionId = ref.name;
             if (isChoreoConnection) {
-                const connectionIdParts = connection.id.split('/');
+                const connectionIdParts = ref.name.split('/');
                 const projectName = connectionIdParts[2];
                 const componentName = connectionIdParts[3];
                 const endpointName = connectionIdParts[5];
@@ -116,7 +114,7 @@ export function getConnectionModels(orgName: string, connections: Connection[], 
             connectionModels.push({
                 id: connectionId,
                 onPlatform: isChoreoConnection,
-                type: connection.kind
+                type: ref.connectionType
             });
         }
     }
