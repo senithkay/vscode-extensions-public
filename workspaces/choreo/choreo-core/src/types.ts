@@ -56,6 +56,24 @@ export interface Project {
     gitProvider?: string,
 }
 
+export interface Buildpack {
+    id: string;
+    buildpackImage: string;
+    language: string;
+    supportedVersions: string;
+    displayName: string;
+    isDefault: true;
+    versionEnvVariable: string;
+    iconUrl: string;
+    provider: string;
+    builder: {
+      builderId: string;
+      builderImage: string;
+      displayName: string;
+      imageHash: string;
+    };
+}
+
 export interface ComponentCount {
     orgId: number; 
     componentCount: number;

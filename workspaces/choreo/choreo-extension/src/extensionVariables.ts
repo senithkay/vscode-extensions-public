@@ -13,7 +13,7 @@
 import { ExtensionContext, StatusBarItem } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { TokenStorage } from "./auth/TokenStorage";
-import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, ChoreoSubscriptionClient, ChoreoUserManagementClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";
+import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, ChoreoSubscriptionClient, ChoreoUserManagementClient, ComponentManagementClient, ChoreoDevopsClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 import { AuthHandler } from "./auth/AuthHandler";
 
@@ -29,6 +29,7 @@ export class ExtensionVariables {
         githubAppClient: ChoreoGithubAppClient,
         subscriptionClient: ChoreoSubscriptionClient,
         componentManagementClient: ComponentManagementClient,
+        devopsClient: ChoreoDevopsClient
     };
 }
 

@@ -32,11 +32,12 @@ import {
     Endpoint,
     getEndpointsForVersion,
     EndpointData,
-    WorkspaceConfig
+    WorkspaceConfig,
+    Buildpack
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
+import { CreateByocComponentParams, CreateComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
@@ -818,6 +819,16 @@ export class ProjectRegistry {
             }
             await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createByocComponent(componentRequest));
         }
+    }
+
+    async getBuildpack(orgId: number, orgUuid: string, componentType: string): Promise<Buildpack[]> {
+        const params: GetBuildpackParams = {
+            orgId,
+            orgUuid,
+            componentType
+        }
+        const buildPacks =  ext.clients.devopsClient.getBuildPacks(params);
+        return buildPacks;
     }
 
     async pushLocalComponentToChoreo(projectId: string, componentName: string, org: Organization): Promise<void> {

@@ -11,7 +11,7 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";
+import { ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoDevopsClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
 import { CHOREO_ENV_CONFIG_DEV, CHOREO_ENV_CONFIG_STAGE, ChoreoEnvConfig, IChoreoEnvConfig, DEFAULT_CHOREO_ENV_CONFIG } from "./config";
@@ -68,11 +68,14 @@ export async function activateClients(): Promise<void> {
 
     const componentManagementClient = new ComponentManagementClient(readonlyTokenStore, choreoEnvConfig.getComponentManagementUrl());
 
+    const devopsClient = new ChoreoDevopsClient(readonlyTokenStore,choreoEnvConfig.getDevopsUrl());
+
     ext.clients = {
         githubAppClient,
         projectClient,
         subscriptionClient,
-        componentManagementClient
+        componentManagementClient,
+        devopsClient
     };
 }
 

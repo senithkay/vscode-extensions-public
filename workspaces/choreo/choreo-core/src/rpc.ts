@@ -28,7 +28,8 @@ import {
    Deployment,
    Endpoint,
    UserInfo,
-   EndpointData
+   EndpointData,
+   Buildpack
 } from './types';
 
 export interface SubpathAvailableRequest {
@@ -63,6 +64,11 @@ export interface GetComponentsRequestParams {
 export interface CheckProjectDeletedParams {
    orgId: number; 
    projectId: string;
+}
+
+export interface GetBuildPackParams {
+   orgId: number;
+   componentType: string;
 }
 
 export interface GetDeletedComponentsParams {
@@ -146,6 +152,7 @@ export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = 
 export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boolean> = { method: 'hasChoreoSubscription' };
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
+export const GetBuildpack: RequestType<GetBuildPackParams, Buildpack[]> = { method: 'getBuildpack' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
 export const FireRefreshWorkspaceMetadata: RequestType<void, void> = { method: 'fireRefreshWorkspaceMetadata' };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };

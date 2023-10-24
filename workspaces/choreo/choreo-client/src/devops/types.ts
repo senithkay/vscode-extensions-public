@@ -10,11 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./project";
-export * from "./auth";
-export * from "./http-client";
-export * from "./org";
-export * from "./subscription";
-export * from "./componentManagement";
-export * from "./userManagement";
-export * from "./devops"
+import { Buildpack } from "@wso2-enterprise/choreo-core";
+
+export interface GetBuildpackParams {
+    orgId: number;
+    orgUuid: string;
+    componentType: string;
+}
+
+export interface IChoreoDevopsClient  {
+    getBuildPacks(params: GetBuildpackParams): Promise<Buildpack[]>;
+}
