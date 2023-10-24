@@ -7,7 +7,6 @@ function App() {
   return (
     <>
       <SequenceView></SequenceView>
-      <h1>sample</h1>
     </>
   )
 }
