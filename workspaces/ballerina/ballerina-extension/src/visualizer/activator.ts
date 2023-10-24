@@ -1,10 +1,28 @@
 
-import { Location } from 'vscode';
-import { createMachine, assign } from 'xstate';
+import { BallerinaExtension, ENABLE_INLAY_HINTS, ENABLE_SEMANTIC_HIGHLIGHTING, ExtendedLangClient, LANGUAGE } from '..//core';
+import { getServerOptions } from '../server/server';
+import { ExtensionContext, Location, ViewColumn, WebviewPanel, window, workspace } from 'vscode';
+import { RevealOutputChannelOn, ServerOptions, State } from 'vscode-languageclient/node';
+import { createMachine, assign, interpret } from 'xstate';
+import { WebViewMethod, WebViewRPCHandler, getCommonWebViewOptions, getOutputChannel } from '../utils';
+import { activateBallerina } from '../extension';
+import { EditLayerRPC, getComponentModel } from '../project-design-diagrams/utils';
+import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { RPCLayer } from './webRPCRegister';
+import { render } from './renderer';
+// import { messenger } from './webRPCRegister';
 
+
+let webViewPanel: WebviewPanel | undefined;
+let langClient: any;
+let vsContext: ExtensionContext;
+let balExtContext: BallerinaExtension;
 
 type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported";
 type Model = any;
+
+// webview Name for packed js file
+export type WebViews = "ballerinaDiagram" | "architectureView" | "persistERDiagram";
 
 
 interface VisualizerContext {
@@ -45,19 +63,36 @@ type Event =
     };
 
 function activateLanguageServer(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
+        // wait for ls to be started
+        balExtContext = await activateBallerina(vsContext);
         resolve();
     });
 }
 
 function openWebView(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
+        webViewPanel = window.createWebviewPanel(
+            "visualizer",
+            "Visualizer",
+            { viewColumn: ViewColumn.One, preserveFocus: false },
+            getCommonWebViewOptions()
+        );
+
+        webViewPanel.onDidDispose(() => {
+            webViewPanel = undefined;
+            closeView();
+        });
+        webViewPanel.webview.html = render(webViewPanel.webview);
+        RPCLayer.create(webViewPanel, balExtContext);
+
         resolve();
     });
 }
 
-function findView(): Promise<void> {
+function findView(context: VisualizerContext): Promise<void> {
     return new Promise<void>((resolve, reject) => {
+        // Find the exact location or the view to render and show
         resolve();
     });
 }
@@ -69,7 +104,7 @@ function updateViewLocation(): Promise<void> {
 }
 
 
-const textMachine = createMachine({
+const visualizerMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4B0AkgHaoAuAxBAPYVgmoUBuDA1i2prgWLkq1BG04BjLNVRMA2gAYAuoqWJQABwawasiupAAPRACYAjGZIKArCYUAOAMxnr1gJz23HgDQgAnqYKjiQmACxeXgBskaEA7KGRsfYAvsm+fNh4hKSUNLTERAykGjjSAGZFALYkGQLZwjRiHAxSMvLKqgZaOm36SEaI0ZEkZiZ21mY2jtbTvgEIbrEkkU4mK7Em7hZOqenomYKkAKJEhUS0AEpHACoXAJqd-d26TAbGCKNziKO7ILVZQguYCwED8tAA8gAFI4AOQA+sgyEcAOqPTTaF59UDvcLBSLTUKhBSbab40JfD6xBQkNyOeKxMzOBRuEyxFm-f6HGqoMAAdwAghIZOwwLQAMIAGXBAGUjmiQM9em9EI5IiYaSYWY57GY3GTEhTHCZ7MtVXFzMyxmZYhz9nUhGg+YLhaKobCEUjUcouhilf13pNYhT7AphsSHEMZms3NZbfwAaRHQKhagRbQAGJkCVHOFigAS-JhAHEjgAReWKvTKj4KIP+QaxYabBSTRx6rxBWNpP52hPcp0pkUkdg83m5OiMZisZo8bnxrlJ52plgjvnjpqSaR6VQV31V-2IQnDaxORw2eyJOJOCkxtwkWLWFuM0N2SInuMHeqLwcr0fj-KnEUJAlOUVRzp+DqjkuQ6rmOIgbi0W7tCo3pPHurwHh8oTGiMJ6hKMTjhI+dbzES6qhCGapjJqjiqiYH72omUE-iQvJgAARkmEoMCCkD0EwLDiNwvC9guzEuqxHFcTxECQAhrTbh0qHoj0+7YogjahCQbbWEkzJmJEFjEsG+IkI+CgWYScTxNqDF9t+ElsZxo7cbxEAAWcwGlNQFRENUnJfuJy6Sc5fKubJEDyUhFA7spCroViAwIJp2kxnpbgGUZJjBgZVgWbWkRuHExKuHZYkDhJsHhWwUC0IiKJwlc-Klg8cWVhh6k1oZJDYQyQSjOs7gmeq+UtkSMQ6aEZWBRVwUYBoEDSGASb8VOQmzgFkGzUO82LdQy2jlFvSxWoaGqR1SVHmZp7npeSSOBSDKWPloy2NMLaatNW3JhJu1LStBRASBPlgZtTHbSwf37UmR2KShp0qZi1ZXSetG3fS171gg0TBOZCjYfiRVuC2qTdhQDCyfA-Rgz652Je8AC0qoUgzD49REiwuPpCRfTkIi00jmHYRS1pNuEeoTBsNiso4vMkCcZwC36nWjGsJAhuYrh0vYUbWCLkxWOMjIssy+GxDa3ZgyQQIgvMiPK0lqrDPi1hxNqoYxEVD1Y3Y6phFEeo2B4RpTZbokzT9y5K2pSVDVj1hvve5nm-EmqhDMcsOcFsHjtHF3vMa6ozKMDjGuNCTe-MRNmfltixNM9dmKHezzhH0EsE50luXn9OIO41LajMVIJ8yjfBjYScWQZaqhhlZiZ0FMEuTJNU99WGXWNpoR0tGDhRiRiAXkXL3l5NC8Q8Oo426Ca+Yarli6hrCREvE2-DezXiqhMhW0vPYet99duJAoYHT5LfTqhczLODsPYMuoYK4UjfMEZsQcLw2F0m4c+kcl58gVkUcBSUN5bx3oVPeRoD7Y0KpPCw6cm7my8KTZIQA */
     tsTypes: {} as import("./activator.typegen").Typegen0,
     schema: {
@@ -129,7 +164,8 @@ const textMachine = createMachine({
                     invoke: {
                         src: findView,
                         onDone: {
-                            target: "viewLoading"
+                            target: "viewLoading", // wait for loading to be finished
+                            // Need to add more actions here
                         },
                         onError: {
                             target: "viewError"
@@ -177,3 +213,36 @@ const textMachine = createMachine({
     },
     id: "Visualizer"
 });
+
+
+let service = interpret(visualizerMachine);
+
+
+export function startMachine(context: any) {
+    vsContext = context;
+    service.start();
+}
+
+export function getService() {
+    return service;
+}
+
+
+export function getLangClient() {
+    return <ExtendedLangClient>balExtContext.langClient;
+}
+
+export function getContext() {
+    return vsContext;
+}
+
+export function openView(viewLocation: Views) {
+    service.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
+
+}
+
+export function closeView() {
+    service.send({ type: "CLOSE" });
+}
+
+

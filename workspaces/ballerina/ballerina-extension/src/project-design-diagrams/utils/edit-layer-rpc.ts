@@ -35,11 +35,11 @@ const directoryPickOptions: OpenDialogOptions = {
 };
 
 export class EditLayerRPC {
-    private _messenger: Messenger = new Messenger();
+    private _messenger: Messenger;
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
 
-    constructor(webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
-        this._messenger.registerWebviewPanel(webview);
+    constructor(messengerX: Messenger, webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
+        this._messenger = messengerX;
         if (isChoreoProject) {
             this._projectManager = new ChoreoProjectManager();
         } else {
@@ -148,7 +148,7 @@ export class EditLayerRPC {
         });
     }
 
-    static create(webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
-        return new EditLayerRPC(webview, langClient, context, isChoreoProject);
+    static create(messengerX, webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
+        return new EditLayerRPC(messengerX, webview, langClient, context, isChoreoProject);
     }
 }

@@ -37,3 +37,5 @@ export function renderDesignDiagrams(
         target
     );
 }
+
+export { DesignDiagram } from "./DesignDiagram";

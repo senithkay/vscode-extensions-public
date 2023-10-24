@@ -50,6 +50,7 @@ import { getSentryConfig, SentryConfig } from './sentry';
 import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-languageclient';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from '../project';
+import { openView } from '../visualizer/activator';
 
 export let hasDiagram: boolean = false;
 
@@ -243,6 +244,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
+		openView("Overview");
 		showDiagramEditor(0, 0, path, !ignoreFileCheck, nodePosition);
 	});
 
