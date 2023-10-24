@@ -16,7 +16,7 @@ import { Component } from "../../types";
 const MenuButton: React.FC<any> = styled.div`
     position: absolute;
     top: -4px;
-    right: -4px;
+    right: -16px;
     cursor: pointer;
     z-index: 1;
     svg {
