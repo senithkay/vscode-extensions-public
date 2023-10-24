@@ -380,7 +380,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(new Map([[connection.id, connection.observations[0]]])); // TODO:Add support to multiple observation versions. currently show first observation version
+                            link.setObservations(connection.observations);
                         }
                     }
                 }
@@ -398,7 +398,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(new Map([[connection.id, connection.observations[0]]]));
+                            link.setObservations(connection.observations);
                         }
                     }
                 }
@@ -464,14 +464,14 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
         // internet/public exposed services links
         if (targetComponent) {
             let isExposed = false;
-            const observations: Map<string, Observations> = new Map();
+            const observations: Observations[] = [];
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
                     const service = component.services[serviceId];
                     isExposed = isExposed || service.deploymentMetadata?.gateways.internet.isExposed;
                     // capture service exposed link observations
                     if (service.deploymentMetadata?.gateways.internet.observations?.length > 0) {
-                        observations.set(serviceId, service.deploymentMetadata?.gateways.internet.observations[0]);
+                        observations.push(...service.deploymentMetadata?.gateways.internet.observations);
                     }
                 }
             }
@@ -485,7 +485,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                     link.setSourceNode(northBoundEmptyNode.getID());
                     link.setTargetNode(targetComponent.getID());
-                    if (observations.size > 0) {
+                    if (observations?.length > 0) {
                         link.setObservations(observations);
                     }
                 }
@@ -494,14 +494,14 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
         // intranet/org exposed services links
         if (targetComponent) {
             let isExposed = false;
-            const observations: Map<string, Observations> = new Map();
+            const observations: Observations[] = [];
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
                     const service = component.services[serviceId];
                     isExposed = isExposed || service.deploymentMetadata?.gateways.intranet.isExposed;
                     // capture service exposed link observations
                     if (service.deploymentMetadata?.gateways.intranet.observations?.length > 0) {
-                        observations.set(serviceId, service.deploymentMetadata?.gateways.intranet.observations[0]);
+                        observations.push(...service.deploymentMetadata?.gateways.intranet.observations);
                     }
                 }
             }
@@ -515,7 +515,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                     link.setSourceNode(northBoundEmptyNode.getID());
                     link.setTargetNode(targetComponent.getID());
-                    if (observations.size > 0) {
+                    if (observations.length > 0) {
                         link.setObservations(observations);
                     }
                 }
@@ -536,7 +536,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(southBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(new Map([[connection.id, connection.observations[0]]]));
+                            link.setObservations(connection.observations);
                         }
                     }
                 }
@@ -553,7 +553,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(eastBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(new Map([[connection.id, connection.observations[0]]]));
+                            link.setObservations(connection.observations);
                         }
                     }
                 }

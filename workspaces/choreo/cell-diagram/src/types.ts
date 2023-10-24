@@ -95,7 +95,7 @@ export interface DeploymentMetadata {
 }
 
 export interface Observations {
-    version?: string;
+    componentVersion?: string;
     sourceNodeId: number;
     destinationNodeId: number;
     avgLatency: number;
