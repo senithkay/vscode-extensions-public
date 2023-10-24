@@ -31,17 +31,19 @@ export class CellDiagramView {
     }
 
 
-    public static render(extensionUri: vscode.Uri, project: Project) {
+    public static render(extensionUri: vscode.Uri, project: Project, refresh: boolean = false) {
         if (CellDiagramView.currentPanel) {
             const panel = CellDiagramView.currentPanel._panel;
-            CellDiagramView.currentPanel._rpcHandler.dispose();
-            CellDiagramView.currentPanel = new CellDiagramView(panel, extensionUri, project);
-            panel.reveal(vscode.ViewColumn.One);
+            if (refresh) {
+                CellDiagramView.currentPanel = new CellDiagramView(panel, extensionUri, project);
+            } else {
+                panel.reveal();
+            }
         } else {
             const panel = vscode.window.createWebviewPanel(
                 'cell-diagram',
                 'Cell Diagram',
-                vscode.ViewColumn.One,
+                {viewColumn: vscode.ViewColumn.One, preserveFocus: false},
                 { enableScripts: true, retainContextWhenHidden: true }
             );
             CellDiagramView.currentPanel = new CellDiagramView(panel, extensionUri, project);
@@ -67,7 +69,7 @@ export class CellDiagramView {
                 </head>
                 <body>
                     <noscript>You need to enable JavaScript to run this app.</noscript>
-                    <div id="root" style="height: 100vh"></div>
+                    <div id="root" style="height: 100vh; width: 100vw"></div>
                 </body>
                 <script>
                     function render() {
