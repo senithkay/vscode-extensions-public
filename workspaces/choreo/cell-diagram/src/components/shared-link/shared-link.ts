@@ -20,7 +20,7 @@ import { Observations } from "../../types";
 
 export class SharedLinkModel extends DefaultLinkModel {
     diagramEngine: DiagramEngine;
-    observations: Map<string, Observations>;
+    observations: Observations[];
 
     constructor(id: string, type: string) {
         super({
@@ -209,7 +209,7 @@ export class SharedLinkModel extends DefaultLinkModel {
         };
     };
 
-    setObservations = (observations: Map<string, Observations>) => {
+    setObservations = (observations: Observations[]) => {
         this.observations = observations;
     };
 }

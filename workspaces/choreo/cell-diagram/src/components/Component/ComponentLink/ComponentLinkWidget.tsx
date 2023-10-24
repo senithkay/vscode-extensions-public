@@ -64,8 +64,8 @@ export function ComponentLinkWidget(props: WidgetProps) {
                 stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
                 strokeWidth={1}
             />
-            {isSelected && link.observations?.size > 0 && (
-                <foreignObject x={middlePosition.x} y={middlePosition.y} width="240" height="180">
+            {isSelected && link.observations?.length > 0 && (
+                <foreignObject x={middlePosition.x} y={middlePosition.y} width="240" height="200">
                     <ObservationLabel observations={link.observations} />
                 </foreignObject>
             )}

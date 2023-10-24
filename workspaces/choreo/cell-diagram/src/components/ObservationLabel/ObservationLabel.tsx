@@ -12,10 +12,6 @@ import styled from "@emotion/styled";
 import { Colors } from "../../resources";
 import { Observations } from "../../types";
 
-interface ObservationLabelProps {
-    observations: Map<string, Observations>;
-}
-
 const Container = styled.div`
     background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
     border: 1px solid ${Colors.PRIMARY_SELECTED};
@@ -33,6 +29,13 @@ const Section = styled.div`
 `;
 
 const Row = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const TitleRow = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -57,6 +60,15 @@ const Dot = styled.div`
     cursor: pointer;
 `;
 
+const Title = styled.div`
+    font-family: "GilmerMedium";
+    margin-bottom: 4px;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`;
+
 const Value = styled.div`
     color: ${Colors.PRIMARY};
 `;
@@ -65,9 +77,13 @@ const ActiveDot = styled(Dot)`
     background-color: ${Colors.NODE_BORDER};
 `;
 
+interface ObservationLabelProps {
+    observations: Observations[];
+}
+
 export function ObservationLabel(props: ObservationLabelProps) {
     const [activeIndex, setActiveIndex] = useState(0); // Add state to keep track of the active section
-    const observationsArray = Array.from(props.observations);
+    const observationsArray = props.observations;
 
     const convertToMs = (value: number) => (value / 1000 / 1000).toFixed(value / 1000 / 1000 > 100 ? 1 : 2);
 
@@ -75,11 +91,17 @@ export function ObservationLabel(props: ObservationLabelProps) {
         setActiveIndex(index);
     };
 
-    const [_serviceId, observations] = observationsArray[activeIndex]; // Get the active observation
+    const observations = observationsArray[activeIndex]; // Get the active observation
 
     return (
         <Container>
             <Section>
+                {observationsArray.length > 1 && (
+                    <TitleRow>
+                        {observations.label && <Title>{observations.label}</Title>}
+                        <Title>{observations.componentVersion}</Title>
+                    </TitleRow>
+                )}
                 <Row>
                     <div>Error Percentage</div>
                     <Value>{((observations.errorCount * 100) / observations.requestCount).toFixed(2)}%</Value>
