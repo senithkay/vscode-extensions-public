@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext, createContext, useMemo, FC, useEffect } from "react";
+import React, { useContext, createContext, useMemo, FC, useEffect, ReactNode } from "react";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -49,6 +49,10 @@ export interface IChoreoComponentsContext {
     collapseAllComponents: () => void;
 }
 
+interface ChoreoComponentsContextProviderPops {
+    children: ReactNode;
+}
+
 const defaultContext: IChoreoComponentsContext = {
     components: [],
     isLoadingComponents: false,
@@ -77,7 +81,7 @@ export const useChoreoComponentsContext = () => {
  * Context provider to manage choreo components along with derived values.
  * Depends on ChoreoWebViewContext to get the project details
  */
-export const ChoreoComponentsContextProvider: FC = ({ children }) => {
+export const ChoreoComponentsContextProvider: FC<ChoreoComponentsContextProviderPops> = ( props : ChoreoComponentsContextProviderPops ) => {
     const queryClient = useQueryClient();
     const { isChoreoProject, choreoProject } = useChoreoWebViewContext();
     const projectId = choreoProject?.id;
@@ -207,7 +211,7 @@ export const ChoreoComponentsContextProvider: FC = ({ children }) => {
                 toggleExpandedComponents,
             }}
         >
-            {children}
+            {props.children}
         </ChoreoComponentsContext.Provider>
     );
 };

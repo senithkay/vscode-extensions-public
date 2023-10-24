@@ -25,16 +25,17 @@ const CardContainer = styled.div<CardContainerProps>`
     // End Flex Props
     // Sizing Props
     width: 120px;
-    padding: 5px;
+    padding: 3px 6px 6px;
     // End Sizing Props
     // Border Props
-    border-radius: 3px;
+    border-radius: 6px;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--vscode-panel-border);
+    border-color: var(--vscode-dropdown-border);
+    color: var(--vscode-editor-foreground);
     cursor: pointer;
     &:hover, &.active {
-        border-color: var(--vscode-focusBorder);
+        background: var(--vscode-welcomePage-tileHoverBackground);
     };
 	&.not-allowed {
     	cursor: not-allowed;

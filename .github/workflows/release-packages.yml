@@ -27,11 +27,13 @@ on:
           - 'choreo/cell-diagram'                                                                               
           - 'configurable-editor'
           - 'common-libs/ui-toolkit'
+          - 'common-libs/font-wso2-vscode'
       version:
         type: choice
         description: 'Enter the version type'
         required: true
         options:
+          - 'N/A'
           - 'patch'
           - 'minor'
           - 'major'
@@ -88,13 +90,20 @@ jobs:
             echo "releaseMode=latest" >> $GITHUB_OUTPUT
           fi 
 
+      - name: Update version
+        uses: ./.github/actions/updateVersion
+        with:
+          path: '${{ inputs.package }}'
+          isPreRelease: ${{ inputs.isPreRelease }}
+          version: ${{ inputs.version }}
+
       - name: Publish low code diagram
         id: publish
         run: |
           cd workspaces/${{ inputs.package }}
-          version=$(pnpm version ${{ inputs.version }} --no-git-tag-version)
+          currentVersion=$(node -p "require('./package.json').version")
           pnpm publish --tag ${{ steps.version.outputs.releaseMode }} --no-git-checks
-          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "version=$currentVersion" >> $GITHUB_OUTPUT
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
@@ -106,3 +115,6 @@ jobs:
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          commonLibs: true
+          choreo: true
+          ballerina: true
