@@ -18,11 +18,15 @@ inputs:
   choreo:
     description: 'Is Choreo'
     type: boolean
-    required: true
+    default: false
   ballerina:
     description: 'Is Ballerina'    
     type: boolean
-    required: true
+    default: false
+  commonLibs:
+    description: 'Is Common Lib'    
+    type: boolean
+    default: false    
 runs:
   using: "composite"
   steps:
@@ -41,6 +45,11 @@ runs:
         if: ${{ inputs.choreo == 'true' }}
         shell: bash
         run: git add workspaces/choreo/*/*.json
+
+      - name: Add common lib git changes
+        if: ${{ inputs.commonLibs == 'true' }}
+        shell: bash
+        run: git add workspaces/common-libs/*/*.json
 
       - name: Commit version
         shell: bash
