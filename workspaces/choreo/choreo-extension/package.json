@@ -16,7 +16,7 @@
   ],
   "activationEvents": [
     "workspaceContains:.choreo-project",
-    "workspaceContains:**/build.yaml",
+    "workspaceContains:**/*.yaml",
     "onView:choreo-projects",
     "onView:choreo-account",
     "onStartupFinished"

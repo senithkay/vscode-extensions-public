@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, commands } from 'vscode';
+import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, commands, extensions } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import {
@@ -34,9 +34,10 @@ import { ProjectRegistry } from './registry/project-registry';
 
 import { getLogger } from './logger/logger';
 
+import * as fs from "fs";
 import * as path from "path";
 
-import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
+import { enrichDeploymentData, filePathChecker, getComponentDirPath, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
 import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
@@ -545,5 +546,76 @@ export class ChoreoExtensionApi {
     
     public async resetOpenChoreoActivity(): Promise<void> {
         await ext.context.globalState.update(OPEN_CHOREO_ACTIVITY, undefined);
+    }
+
+    public async getOpenedComponentName(): Promise<string | undefined> {
+        // Read workspace file
+        const workspaceFile = workspace.workspaceFile;
+        const workspaceData = await workspace.fs.readFile(workspaceFile!);
+        const workspaceContent = new TextDecoder().decode(workspaceData);
+        const workspaceConfig = JSON.parse(workspaceContent) as WorkspaceConfig;
+
+        const activeEditor = window.activeTextEditor;
+        if (activeEditor && activeEditor.document) {
+            const activeFilePath = activeEditor.document.uri.fsPath;
+            let relative: string;
+            let isSub: boolean;
+            for (const folder of workspaceConfig.folders) {
+                relative = path.relative(folder.path, activeFilePath);
+                isSub = !!relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+                if (isSub) {
+                    return folder.name;
+                }
+            }
+        }
+
+        return undefined;
+    }
+
+    public async registerYamlLangugeServer(): Promise<void> {
+        const yamlExtension = extensions.getExtension("redhat.vscode-yaml");
+        if (!yamlExtension) {
+            window.showErrorMessage(
+                'The "YAML Language Support by Red Hat" extension is required for the Choreo Component Configuration to work properly. Please install it and reload the window.'
+            );
+            return;
+        }
+        const yamlExtensionAPI = await yamlExtension.activate();
+        const SCHEMA = "choreo";
+    
+        // Read the schema file content
+        const schemaFilePath = path.join(ext.context.extensionPath, "schema", "config-schema.json");
+    
+        const schemaContent = fs.readFileSync(schemaFilePath, "utf8");
+        const schemaContentJSON = JSON.parse(schemaContent);
+
+        // // Get project details
+        // const orgId = ext.api.getOrgIdOfCurrentProject();
+        // const project = await ext.api.getChoreoProject();
+        // const openedComponent = await ext.api.getOpenedComponentName();        
+
+        const schemaJSON = JSON.stringify(schemaContentJSON);
+    
+        function onRequestSchemaURI(resource: string): string | undefined {
+            if (filePathChecker(resource, /\.choreo\/.+\.yaml$/)) {
+                return `${SCHEMA}://schema/component-config`;
+            }
+            return undefined;
+        }
+    
+        function onRequestSchemaContent(schemaUri: string): string | undefined {
+            const parsedUri = Uri.parse(schemaUri);
+            if (parsedUri.scheme !== SCHEMA) {
+                return undefined;
+            }
+            if (!parsedUri.path || !parsedUri.path.startsWith("/")) {
+                return undefined;
+            }
+    
+            return schemaJSON;
+        }
+    
+        // Register the schema provider
+        yamlExtensionAPI.registerContributor(SCHEMA, onRequestSchemaURI, onRequestSchemaContent);
     }
 }

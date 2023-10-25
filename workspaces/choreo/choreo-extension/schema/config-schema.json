@@ -1,5 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/schemas/config",
     "title": "Choreo Component Configuration",
     "description": "Template configurations for Choreo",
     "type": "object",
@@ -8,7 +9,27 @@
             "const": "core.choreo.dev/v1alpha1"
         },
         "kind": {
-            "enum": ["ComponentConfig", "TestConfig"]
+            "enum": ["ComponentConfig"]
+        }
+    },
+    "definitions": {
+        "metadata": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the component that this configuration belongs to.",
+                    "minLength": 1,
+                    "enum": ["greeting-service"]
+                },
+                "projectName": {
+                    "type": "string",
+                    "description": "Project name of the component that this component belongs to. Cannot be changed after creation.",
+                    "minLength": 1,
+                    "enum": ["proj"]
+                }
+            },
+            "required": ["name", "projectName"]
         }
     },
     "allOf": [
@@ -23,22 +44,7 @@
             "then": {
                 "properties": {
                     "metadata": {
-                        "type": "object",
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "description": "Name of the component that this configuration belongs to.",
-                                "minLength": 1,
-                                "default": "greeting-service"
-                            },
-                            "projectName": {
-                                "type": "string",
-                                "description": "Project name of the component that this component belongs to. Cannot be changed after creation.",
-                                "minLength": 1,
-                                "default": "proj"
-                            }
-                        },
-                        "required": ["name", "projectName"]
+                        "$ref": "#/definitions/metadata"
                     },
                     "spec": {
                         "type": "object",
@@ -282,29 +288,11 @@
                                     }
                                 }
                             }
-                        }
+                        },
+                        "oneOf": [{ "required": ["build"] }, { "required": ["image"] }]
                     }
                 },
-                "required": ["metadata"]
-            }
-        },
-        {
-            "if": {
-                "properties": {
-                    "kind": {
-                        "const": "TestConfig"
-                    }
-                }
-            },
-            "then": {
-                "properties": {
-                    "testProperty": {
-                        "type": "string",
-                        "description": "Test property",
-                        "minLength": 1
-                    }
-                },
-                "required": ["testProperty"]
+                "required": ["metadata", "spec"]
             }
         }
     ],

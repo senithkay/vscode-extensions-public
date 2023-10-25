@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -21,7 +21,25 @@ import {
     ProjectDeleteResponse,
     EndpointData
 } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams, PerformanceForecastDataRequest, GetSwaggerExamplesRequest } from "./types";
+import {
+    CreateComponentParams,
+    CreateProjectParams,
+    GetDiagramModelParams,
+    GetComponentsParams,
+    GetProjectsParams,
+    IChoreoProjectClient,
+    LinkRepoMutationParams,
+    DeleteComponentParams,
+    GitHubRepoValidationRequestParams,
+    GetComponentDeploymentStatusParams,
+    GitHubRepoValidationResponse,
+    CreateByocComponentParams,
+    GetProjectEnvParams,
+    GetComponentBuildStatusParams,
+    DeleteProjectParams,
+    PerformanceForecastDataRequest,
+    GetSwaggerExamplesRequest,
+} from "./types";
 import {
     getRepoMetadataQuery,
     getComponentBuildStatus,
@@ -41,9 +59,13 @@ import { AxiosResponse } from 'axios';
 const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
-
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI?: string, private _swaggerExamplesAPI?: string) {
-    }
+    constructor(
+        private _tokenStore: IReadOnlyTokenStorage,
+        private _baseURL: string,
+        private _perfAPI?: string,
+        private _swaggerExamplesAPI?: string,
+        private _declarativeAPI?: string
+    ) {}
 
     private async _getClient(orgId: number) {
         const token = await this._tokenStore.getToken(orgId);
@@ -110,7 +132,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const query = getComponentBuildStatus(params.componentId, params.versionId);
             const response = await client.request(query);
             return response?.deploymentStatusByVersion?.[0] || null;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             // If the component has never been built, this call would return a 404
             if (error.response?.status === 404) {
@@ -135,7 +157,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const deploymentData = await client.request(query);
 
             return deploymentData?.componentDeployment;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             // If the component has never been deployed, this call would return a 404
             if (error.response?.status === 404) {
@@ -220,12 +242,12 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             }
             return await getHttpClient()
                 .post(this._perfAPI, data, {
-                    headers: {
-                        'Content-Type': 'application/json',
+                headers: {
+                    'Content-Type': 'application/json',
                         'Content-Length': data.length,
-                        'Authorization': `Bearer ${token.accessToken}`
+                    'Authorization': `Bearer ${token.accessToken}`
                     }
-                });
+            });
         } catch (err) {
             throw new Error(API_CALL_ERROR, { cause: err });
         }
@@ -245,13 +267,13 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             }
             return await getHttpClient()
                 .post(this._swaggerExamplesAPI, data, {
-                    headers: {
-                        'Content-Type': 'application/json',
+                headers: {
+                    'Content-Type': 'application/json',
                         'Content-Length': data.length,
-                        'Authorization': `Bearer ${token.accessToken}`
-                    },
-                    timeout: 15000
-                });
+                    'Authorization': `Bearer ${token.accessToken}`
+                },
+                timeout: 15000
+            });
         } catch (err) {
             throw new Error(API_CALL_ERROR, { cause: err });
         }
@@ -260,7 +282,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
         const { orgId, organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId, credentialId } = params;
         const query = getRepoMetadataQuery(organization, repo, branch, credentialId, path, dockerfile, dockerContextPath, openApiPath, componentId);
-        
+
         try {
             const client = await this._getClient(orgId);
             const data = await client.request(query);
@@ -295,5 +317,33 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     linkRepo(_params: LinkRepoMutationParams): Promise<Repository> {
         throw new Error("Method not implemented."); // TODO: Kavith
+    }
+
+    async getComponentConfig(orgId: number, projectHandler: string, componentName: string): Promise<AxiosResponse> {
+        const token = await this._tokenStore.getToken(orgId);
+        if (!token) {
+            throw new Error("User is not logged in");
+        }
+
+        console.log(`Calling declarative API - ${new Date()}`);
+
+        try {
+            if (!this._declarativeAPI) {
+                throw new Error("Declarative API endpoint not provided");
+            }
+            const res = await getHttpClient().get(
+                `${this._declarativeAPI}/projectName/${projectHandler}/componentName/${componentName}/component-config`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token.accessToken}`,
+                    },
+                }
+            );
+            return res;
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
+            
+        }
     }
 }

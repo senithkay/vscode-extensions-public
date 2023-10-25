@@ -171,6 +171,7 @@ export const getComponentDirPath = (component: Component, projectLocation: strin
     }
 };
 
-export const filePathChecker = (path: string, regex: RegExp) => {
+export function filePathChecker(path: string, regex: RegExp): boolean {
     return regex.test(path);
 };
+

@@ -58,8 +58,13 @@ export async function activateClients(): Promise<void> {
         }
     };
 
-    const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI(),
-        choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
+    const projectClient = new ChoreoProjectClient(
+        readonlyTokenStore,
+        choreoEnvConfig.getProjectAPI(),
+        choreoAIConfig.getPerfAPI(),
+        choreoAIConfig.getSwaggerExamplesAPI(),
+        choreoEnvConfig.getDeclarativeUrl()
+    );
 
     const githubAppClient = new ChoreoGithubAppClient(
         readonlyTokenStore, choreoEnvConfig.getProjectAPI(), choreoEnvConfig.getGHAppConfig());
