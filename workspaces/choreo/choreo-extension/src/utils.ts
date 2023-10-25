@@ -12,14 +12,19 @@
  */
 
 import { CMResourceFunction, ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
+import { ApiVersion, Component, ComponentConfig, ComponentConfigSchema } from "@wso2-enterprise/choreo-core";
 import { existsSync, readFileSync } from "fs";
-import * as yaml from 'js-yaml';
+import * as yaml from "js-yaml";
 import { ProjectRegistry } from "./registry/project-registry";
 import { dirname, join } from "path";
 
-export async function enrichDeploymentData(orgId: string, componentId: string, pkgServices: Map<string, Service>,
-                                           apiVersions: ApiVersion[], componentLocation: string): Promise<boolean> {
+export async function enrichDeploymentData(
+    orgId: string,
+    componentId: string,
+    pkgServices: Map<string, Service>,
+    apiVersions: ApiVersion[],
+    componentLocation: string
+): Promise<boolean> {
     const services = [...pkgServices.values()];
     const componentServices = services.filter((service) =>
         service.sourceLocation?.filePath.includes(componentLocation)
@@ -32,7 +37,9 @@ export async function enrichDeploymentData(orgId: string, componentId: string, p
             const version = apiVersions.find((apiVersion) => apiVersion.latest);
             if (version) {
                 const epData = await ProjectRegistry.getInstance().getEndpointsForVersion(
-                    componentId, version.id, parseInt(orgId)
+                    componentId,
+                    version.id,
+                    parseInt(orgId)
                 );
                 // TODO: Handle multiple endpoints
                 if (epData?.componentEndpoints && epData.componentEndpoints.length === 1) {
@@ -51,12 +58,12 @@ export async function enrichDeploymentData(orgId: string, componentId: string, p
         service.deploymentMetadata = {
             gateways: {
                 internet: {
-                    isExposed: isInternetExposed
+                    isExposed: isInternetExposed,
                 },
                 intranet: {
-                    isExposed: isIntranetExposed
-                }
-            }
+                    isExposed: isIntranetExposed,
+                },
+            },
         };
     }
     return componentServices.length > 0;
@@ -77,12 +84,12 @@ export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, a
         service.deploymentMetadata = {
             gateways: {
                 internet: {
-                    isExposed: isInternetExposed
+                    isExposed: isInternetExposed,
                 },
                 intranet: {
-                    isExposed: isIntranetExposed
-                }
-            }
+                    isExposed: isIntranetExposed,
+                },
+            },
         };
     }
     return services.length > 0;
@@ -96,22 +103,22 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         type: component.displayType,
         annotation: {
             id: component.id,
-            label: component.displayName
+            label: component.displayName,
         },
         deploymentMetadata: {
             gateways: {
                 internet: {
-                    isExposed: false
+                    isExposed: false,
                 },
                 intranet: {
-                    isExposed: false
-                }
-            }
+                    isExposed: false,
+                },
+            },
         },
         dependencies: [],
         remoteFunctions: [],
         resourceFunctions: [],
-        isNoData: true
+        isNoData: true,
     };
     return {
         id: component.name,
@@ -122,14 +129,13 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         entities: new Map(),
         connections: [],
         hasCompilationErrors: false,
-        hasModelErrors: false
+        hasModelErrors: false,
     };
 }
 
-
 // sanitize the component display name to make it url friendly
 export function makeURLSafe(input: string): string {
-    return input.trim().replace(/\s+/g, '-').toLowerCase();
+    return input.trim().replace(/\s+/g, "-").toLowerCase();
 }
 
 export const getResourcesFromOpenApiFile = (openApiFilePath: string, serviceId: string) => {
@@ -161,9 +167,21 @@ export const getComponentDirPath = (component: Component, projectLocation: strin
             return join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
         } else if (byocWebAppBuildConfig) {
             if (byocWebAppBuildConfig?.dockerContext) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.dockerContext);
+                return join(
+                    dirname(projectLocation),
+                    "repos",
+                    organizationApp,
+                    nameApp,
+                    byocWebAppBuildConfig?.dockerContext
+                );
             } else if (byocWebAppBuildConfig?.outputDirectory) {
-                return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocWebAppBuildConfig?.outputDirectory);
+                return join(
+                    dirname(projectLocation),
+                    "repos",
+                    organizationApp,
+                    nameApp,
+                    byocWebAppBuildConfig?.outputDirectory
+                );
             }
         } else if (byocBuildConfig) {
             return join(dirname(projectLocation), "repos", organizationApp, nameApp, byocBuildConfig?.dockerContext);
@@ -173,5 +191,23 @@ export const getComponentDirPath = (component: Component, projectLocation: strin
 
 export function filePathChecker(path: string, regex: RegExp): boolean {
     return regex.test(path);
-};
+}
 
+export function enrichConfigSchema(
+    schema: ComponentConfigSchema,
+    project: string,
+    component: string,
+    componentConfigs: ComponentConfig[][]
+): ComponentConfigSchema {
+    schema.definitions!.name.const = component;
+    schema.definitions!.projectName.const = project;
+
+    const branches = new Set<string>();
+    componentConfigs[0].forEach((config) => {
+        !!config.spec.build && branches.add(config.spec.build.branch);
+    });
+
+    schema.definitions!.branch.enum = Array.from(branches);
+
+    return schema;
+}

@@ -13,23 +13,22 @@
         }
     },
     "definitions": {
-        "metadata": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "Name of the component that this configuration belongs to.",
-                    "minLength": 1,
-                    "enum": ["greeting-service"]
-                },
-                "projectName": {
-                    "type": "string",
-                    "description": "Project name of the component that this component belongs to. Cannot be changed after creation.",
-                    "minLength": 1,
-                    "enum": ["proj"]
-                }
-            },
-            "required": ["name", "projectName"]
+        "name": {
+            "type": "string",
+            "description": "Name of the component that this configuration belongs to.",
+            "minLength": 1,
+            "const": ""
+        },
+        "projectName": {
+            "type": "string",
+            "description": "Project name of the component that this component belongs to. Cannot be changed after creation.",
+            "minLength": 1,
+            "const": ""
+        },
+        "branch": {
+            "type": "string",
+            "description": "Name of the branch. This is used to identify the corresponding deployment track.",
+            "enum": [""]
         }
     },
     "allOf": [
@@ -44,7 +43,16 @@
             "then": {
                 "properties": {
                     "metadata": {
-                        "$ref": "#/definitions/metadata"
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "$ref": "#/definitions/name"
+                            },
+                            "projectName": {
+                                "$ref": "#/definitions/projectName"
+                            }
+                        },
+                        "required": ["name", "projectName"]
                     },
                     "spec": {
                         "type": "object",
@@ -53,16 +61,13 @@
                                 "type": "object",
                                 "properties": {
                                     "branch": {
-                                        "type": "string",
-                                        "description": "Name of the branch. This is used to identify the corresponding deployment track.",
-                                        "minLength": 1,
-                                        "default": "main"
+                                        "$ref": "#/definitions/branch"
                                     },
                                     "revision": {
                                         "type": "string",
                                         "description": "Git commit hash for the build. If not provided, the latest commit in the branch will be used.",
                                         "minLength": 1,
-                                        "default": "3e8b9a0"
+                                        "default": ""
                                     }
                                 },
                                 "required": ["branch"]
