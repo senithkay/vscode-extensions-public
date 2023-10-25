@@ -16,9 +16,10 @@ import { workspace } from "vscode";
 import { existsSync, readFileSync } from "fs";
 import {
     ComponentDisplayType,
-    Connection,
-    Endpoint,
+    ComponentMetadata,
+    Inbound,
     Organization,
+    Outbound,
     Project,
     ServiceTypes
 } from "@wso2-enterprise/choreo-core";
@@ -85,13 +86,15 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             
             if (existsSync(componentYamlPath)) {
                 const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8"));
-                const componentType = (componentYamlContent as any)?.type || ComponentType.SERVICE;
+                const componentMetadata: ComponentMetadata = (componentYamlContent as any)?.metadata;
+                const componentTypeAnnotation = componentMetadata.annotations?.componentType;
+                const componentType = componentTypeAnnotation ? componentTypeAnnotation as ComponentType : ComponentType.SERVICE;
                 const buildPack = getBuildPackFromFs(componentPath);
                 const defaultComponentModel = getDefaultComponentModel(orgName, componentName, componentType, buildPack);
 
                 if (componentType === ComponentType.SERVICE) {
-                    const endpoints: Endpoint[] = (componentYamlContent as any).endpoints;
-                    const connections: Connection[] = (componentYamlContent as any).connections;
+                    const endpoints: Inbound[] = (componentYamlContent as any).spec.inbound;
+                    const connections: Outbound = (componentYamlContent as any).spec.outbound;
 
                     const serviceModels = getServiceModels(endpoints, orgName, projectId, componentName,
                         folder.path, componentYamlPath);
@@ -121,7 +124,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
                         id: 'main',
                         label: componentName,
                         annotation: { id: componentName, label: "" },
-                        type: componentType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask",
+                        type: componentType === ComponentType.MANUAL_TASK ? "manualTrigger" : "scheduledTask",
                         dependencies: [],
                         interactions: [],
                         parameters: [],
@@ -181,8 +184,8 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                 if (existsSync(yamlPath)) {
                     const endpointsContent = yaml.load(readFileSync(yamlPath, "utf8"));
-                    const endpoints: Endpoint[] = (endpointsContent as any).endpoints;
-                    const connections: Connection[] = (endpointsContent as any).connections;
+                    const endpoints: Inbound[] = (endpointsContent as any).spec.inbound;
+                    const connections: Outbound = (endpointsContent as any).spec.outbound;
 
                     const serviceModels = getServiceModels(endpoints, orgName, projectId, component.name,
                         componentPath, yamlPath);
