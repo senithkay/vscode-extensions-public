@@ -530,6 +530,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/ballerina-extension-api",
+      "projectFolder": "workspaces/ballerina/ballerina-extension-api",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "swaggerview-lib",
       "projectFolder": "workspaces/ballerina/swagger",
       "versionPolicyName": "ballerina-extension"
