@@ -91,6 +91,18 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
         });
 
         setItems(implementationTypes);
+
+        const javaBuildPack = buildPacks.find((buildPack) => buildPack.displayName === 'Java');
+        if (javaBuildPack) {
+            const supportedVersions = javaBuildPack ? javaBuildPack.supportedVersions.split(',') : [];
+
+            onFormDataChange(prevFormData => ({
+                ...prevFormData,
+                javaConfig:{ ...prevFormData.javaConfig, supportedVersions: supportedVersions }
+            }));
+        }
+        
+
     }, [currentProjectOrg.id, formData.type]);
 
     const setComponentName = (name: string) => {
@@ -202,6 +214,7 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
                         ChoreoImplementationType.Vue,
                         ChoreoImplementationType.StaticFiles,
                         ChoreoImplementationType.Docker,
+                        ChoreoImplementationType.Java
                     ].includes(implementationType)
                 ) {
                     return false;

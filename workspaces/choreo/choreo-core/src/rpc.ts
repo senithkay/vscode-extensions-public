@@ -153,6 +153,7 @@ export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boo
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
 export const GetBuildpack: RequestType<GetBuildPackParams, Buildpack[]> = { method: 'getBuildpack' };
+export const GetJavaBuildVersions: RequestType<GetBuildPackParams, string[]> = { method: 'getJavaBuildVersions' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
 export const FireRefreshWorkspaceMetadata: RequestType<void, void> = { method: 'fireRefreshWorkspaceMetadata' };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };

@@ -49,5 +49,10 @@ export interface ComponentWizardState {
         id: string;
         services?: string[];
     };
+    javaConfig?: {
+        supportedVersions?: string[];
+        version?: string;
+    }
+    javaVersions?: string[];
     version: string;
 }
