@@ -827,7 +827,7 @@ export class ProjectRegistry {
             orgUuid,
             componentType
         }
-        const buildPacks =  ext.clients.devopsClient.getBuildPacks(params);
+        const buildPacks = await ext.clients.devopsClient.getBuildPacks(params);
         return buildPacks;
     }
 

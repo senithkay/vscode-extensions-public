@@ -34,9 +34,9 @@ export class ChoreoDevopsClient implements IChoreoDevopsClient {
     }
 
     async getBuildPacks(params: GetBuildpackParams): Promise<Buildpack[]> {
-        const orgUuid = Number(params.orgUuid);
+        const orgUuid = params.orgUuid;
         const componentType = params.componentType;
-        const client = await this._getClient(orgUuid);
+        const client = await this._getClient(params.orgId);
         try {
             const response = await client.get(`/api/v1/buildpacks?orgUuid=${orgUuid}&componentType=${componentType}`);
             return response.data as Buildpack[];

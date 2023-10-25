@@ -68,7 +68,7 @@ export async function activateClients(): Promise<void> {
 
     const componentManagementClient = new ComponentManagementClient(readonlyTokenStore, choreoEnvConfig.getComponentManagementUrl());
 
-    const devopsClient = new ChoreoDevopsClient(readonlyTokenStore,choreoEnvConfig.getDevopsUrl());
+    const devopsClient = new ChoreoDevopsClient(readonlyTokenStore, choreoEnvConfig.getDevopsUrl());
 
     ext.clients = {
         githubAppClient,

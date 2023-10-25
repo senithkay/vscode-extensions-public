@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
@@ -19,8 +19,8 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
-import { AngularIcon, BallerinaIcon, DockerIcon, ReactIcon, StaticFileIcon, VuejsIcon } from "../icons";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 const StepContainer = styled.div`
     display: flex;
@@ -38,6 +38,19 @@ const DropDownContainer = styled.div`
     flex-direction: column;
 `;
 
+interface ComponentType {
+    label: string;
+    value: string;
+}
+
+const COMPONENT_TYPES: ComponentType[] = [
+    { label: "service", value: "service" },
+    { label: "scheduledTask", value: "scheduleTask" },
+    { label: "manualTrigger", value: "manualTask" },
+    { label: "webhook", value: "webhook" },
+    { label: "webApplication", value: "webApp" }
+];
+
 function sanitizeFolderName(folderName: string): string {
     // Replace any characters that are not letters, numbers, spaces, or underscores with an empty string
     const sanitized = folderName.replace(/[^a-zA-Z0-9\s_]/g, '');
@@ -53,6 +66,32 @@ function sanitizeFolderName(folderName: string): string {
 
 export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange, stepValidationErrors } = props;
+    const [items, setItems] = useState([]);
+
+    const { currentProjectOrg } = useChoreoWebViewContext();
+
+    useMemo(async () => {
+        // get component type keyword for request
+        const componentType = COMPONENT_TYPES.find((component) => component.label === formData.type).value;
+
+        const buildPackParams = {
+            orgId: currentProjectOrg.id,
+            componentType: componentType
+        };
+
+        const buildPacks = await ChoreoWebViewAPI.getInstance().getBuildpack(buildPackParams);
+
+        const implementationTypes = buildPacks.map((buildPack) => {
+            return {
+                label: buildPack.displayName,
+                description: buildPack.displayName,
+                value: buildPack.displayName, 
+                icon: buildPack.iconUrl 
+            };
+        });
+
+        setItems(implementationTypes);
+    }, [currentProjectOrg.id, formData.type]);
 
     const setComponentName = (name: string) => {
         onFormDataChange(prevFormData =>
@@ -102,20 +141,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                             formKey='implementationType'
                             formData={formData}
                             onFormDataChange={onFormDataChange}
-                            items={[
-                                {
-                                    label: "Ballerina",
-                                    description: "Component impelmented using Ballerina Language",
-                                    value: ChoreoImplementationType.Ballerina,
-                                    icon: BallerinaIcon
-                                },
-                                {
-                                    label: "Docker",
-                                    description: "Component impelmented using other language and built using Docker",
-                                    value: ChoreoImplementationType.Docker,
-                                    icon: DockerIcon
-                                }
-                            ]}
+                            items={items}
                         />
                     </>}
                     {formData.type === ChoreoComponentType.WebApplication && <>
@@ -124,38 +150,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                             formKey='implementationType'
                             formData={formData}
                             onFormDataChange={onFormDataChange}
-                            items={[
-                                {
-                                    label: "React SPA",
-                                    description: "Create a React SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.React,
-                                    icon: ReactIcon
-                                },
-                                {
-                                    label: "Angular SPA",
-                                    description: "Create a Angular SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.Angular,
-                                    icon: AngularIcon
-                                },
-                                {
-                                    label: "Vue SPA",
-                                    description: "Create a Vue SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.Vue,
-                                    icon: VuejsIcon
-                                },
-                                {
-                                    label: "Static Website",
-                                    description: "Create a static website component in Choreo",
-                                    value: ChoreoImplementationType.StaticFiles,
-                                    icon: StaticFileIcon
-                                },
-                                {
-                                    label: "Dockerfile",
-                                    description: "Create a Docker based web application component in Choreo",
-                                    value: ChoreoImplementationType.Docker,
-                                    icon: DockerIcon
-                                },
-                            ]}
+                            items={items}
                         />
                     </>}
                     {formData?.type === ChoreoComponentType.Webhook && (

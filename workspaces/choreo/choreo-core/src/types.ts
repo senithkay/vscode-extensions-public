@@ -404,10 +404,10 @@ export interface WorkspaceComponentMetadata {
 export enum ChoreoImplementationType {
     Ballerina = "Ballerina",
     Docker = "Docker",
-    React = 'React',
-    Angular = 'Angular',
-    Vue = 'Vuejs',
-    StaticFiles = 'StaticFiles',
+    React = "React SPA",
+    Angular = "Angular SPA",
+    Vue = "Vue.js SPA",
+    StaticFiles = "Static Website",
 }
 
 export enum ChoreoServiceType {
