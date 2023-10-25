@@ -81,7 +81,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
             const componentPath = path.join(dirname(workspaceFileLocation), folder.path);
             const choreoDirPath = path.join(componentPath, '.choreo');
-            const componentYamlPath = path.join(choreoDirPath, 'component.yaml');
+            const componentYamlPath = path.join(choreoDirPath, 'component_config.yaml');
             const componentName = folder.path.split(path.sep).pop();
             
             if (existsSync(componentYamlPath)) {
