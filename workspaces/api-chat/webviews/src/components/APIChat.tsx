@@ -75,6 +75,12 @@ const StatusMessage = styled.div({
     marginLeft: "8px"
 });
 
+const LogoWrapper = styled.div({
+    margin: "0 20px 0 25px",
+    display: "inline-block",
+
+});
+
 const ROOT_CSS = css({
     height: "100%",
 });
@@ -141,7 +147,12 @@ const APIChat = (props: {
                                 </Error>;
                             }
                             if (log.type === "FINAL_RESULT") {
-                                return <p><APIChatLogo width="16" height="16" />&nbsp; {(log as FinalResult).message}</p>
+                                return <p>
+                                    <LogoWrapper>
+                                        <APIChatLogo width="16" height="16" />
+                                    </LogoWrapper>
+                                    {(log as FinalResult).message}
+                                </p>
                             }
                             return null;
                         })
