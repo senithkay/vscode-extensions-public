@@ -54,7 +54,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
                 onMouseOver={selectPath}
                 pointerEvents={"all"}
                 stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
-                strokeWidth={1}
+                strokeWidth={2}
             />
         </g>
     );

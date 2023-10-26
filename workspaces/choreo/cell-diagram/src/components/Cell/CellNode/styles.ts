@@ -44,7 +44,7 @@ export const CellNode: React.FC<any> = styled.div`
 
     #mainCell path {
         stroke: ${Colors.NODE_BORDER};
-        stroke-width: 2;
+        stroke-width: ${CELL_LINE_WIDTH};
         fill: none;
         pointer-events: none;
     }
