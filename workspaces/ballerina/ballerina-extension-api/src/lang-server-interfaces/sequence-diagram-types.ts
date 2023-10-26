@@ -11,6 +11,8 @@
  *  associated services.
  */
 
+import { LinePosition } from "./basic-lang-server-types";
+
 export interface DNode {
     kind: string;
     isHidden: boolean;
@@ -21,11 +23,6 @@ export interface Location {
     fileName: string;
     startLine: LinePosition;
     endLine: LinePosition;
-}
-
-export interface LinePosition {
-    line: number;
-    offset: number;
 }
 
 export interface DElement extends DNode {
@@ -45,7 +42,6 @@ export interface Participant extends DElement {
 }
 
 export type PariticipantKind = 'WORKER' | 'ENDPOINT';
-
 
 export interface SequenceModel extends DNode {
     participants: Participant[];

@@ -12,10 +12,7 @@
  */
 
 import { RequestType } from "vscode-messenger-common";
-
-export interface DocumentIdentifier {
-    uri: string;
-}
+import { BallerinaSTModifyResponse, DocumentIdentifier, LineRange } from "./basic-lang-server-types";
 
 export interface GetBallerinaPackagesParams {
     documentIdentifiers: DocumentIdentifier[];
@@ -57,12 +54,39 @@ export interface PackageSummary {
     modules: ModuleSummary[]
 }
 
+export interface BallerinaFunctionSTRequest {
+    lineRange: Range;
+    documentIdentifier: DocumentIdentifier;
+}
+
+export interface GetBallerinaProjectParams {
+    documentIdentifier: DocumentIdentifier;
+}
+
+export interface ExecutorPositionsResponse {
+    executorPositions?: ExecutorPosition[];
+}
+export interface ExecutorPosition {
+    kind: string;
+    range: LineRange;
+    name: string;
+}
+
 export interface ProjectOverviewAPI {
     getBallerinaProjectComponents: (
         params: GetBallerinaPackagesParams
     ) => Promise<BallerinaProjectComponents>;
+    getSTForFunction: (
+        params: BallerinaFunctionSTRequest
+    ) => Thenable<BallerinaSTModifyResponse>;
+    getExecutorPositions: (
+        params: GetBallerinaProjectParams
+    ) => Thenable<ExecutorPositionsResponse>;
 }
 
 const projectOverview = "projec-overview/"
 
 export const getBallerinaProjectComponents: RequestType<GetBallerinaPackagesParams, BallerinaProjectComponents> = { method: `${projectOverview}getBallerinaProjectComponents` };
+export const getSTForFunction: RequestType<BallerinaFunctionSTRequest, BallerinaSTModifyResponse> = { method: `${projectOverview}getSTForFunction` };
+export const getExecutorPositions: RequestType<GetBallerinaProjectParams, ExecutorPositionsResponse> = { method: `${projectOverview}getExecutorPositions` };
+
