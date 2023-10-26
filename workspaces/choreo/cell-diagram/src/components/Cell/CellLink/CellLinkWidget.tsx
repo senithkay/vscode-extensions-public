@@ -53,10 +53,10 @@ export function CellLinkWidget(props: WidgetProps) {
                 cursor={"pointer"}
                 fill={"none"}
                 stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-                strokeWidth={1}
+                strokeWidth={2}
             />
             {isSelected && link.observations?.length > 0 && (
-                <foreignObject x={middlePosition.x} y={middlePosition.y} width="240" height="200">
+                <foreignObject x={middlePosition.x} y={middlePosition.y} width="240" height="240">
                     <ObservationLabel observations={link.observations} />
                 </foreignObject>
             )}

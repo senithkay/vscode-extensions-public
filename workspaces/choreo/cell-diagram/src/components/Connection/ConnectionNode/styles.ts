@@ -8,7 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-import { CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { CIRCLE_WIDTH, COMPONENT_LINE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 import { Orientation } from "./ConnectionModel";
 
 const PRIMARY_HOVER: string = "#2c09ed";
@@ -37,7 +37,7 @@ export const ConnectionNode: React.FC<any> = styled.div`
 export const ConnectionHead: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
     border: ${(props: StyleProps) =>
-        `2px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
+        `${COMPONENT_LINE_WIDTH}px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
     border-radius: 50%;
     height: ${CIRCLE_WIDTH}px;
     width: ${CIRCLE_WIDTH}px;
