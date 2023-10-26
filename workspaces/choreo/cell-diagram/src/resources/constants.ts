@@ -29,9 +29,10 @@ export enum Colors {
 export const dagreEngine = new DagreEngine({
     graph: {
         rankdir: 'LR',
-        ranksep: 280,
+        ranksep: 200,
         edgesep: 100,
-        nodesep: 140,
+        nodesep: 150,
+
         ranker: 'tight-tree',
     },
     includeLinks: true,
@@ -53,10 +54,11 @@ export const EXTERNAL_NODE = "externalNode";
 
 // node dimensions
 export const MAIN_CELL_DEFAULT_HEIGHT = 500;
-export const CELL_LINE_WIDTH = 2;
+export const CELL_LINE_WIDTH = 3;
 export const CIRCLE_WIDTH = 60;
 export const DOT_WIDTH = 20;
 export const COMPONENT_CIRCLE_WIDTH = 80;
+export const COMPONENT_LINE_WIDTH = 3;
 
 export const LABEL_FONT_SIZE = 20;
 export const LABEL_MAX_WIDTH = 160;
