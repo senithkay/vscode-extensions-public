@@ -30,7 +30,7 @@ import * as yaml from 'js-yaml';
 import {
     CHOREO_CONFIG_DIR,
     CHOREO_PROJECT_ROOT,
-    COMPONENTS_FILE,
+    COMPONENTS_CONFIG_FILE,
     ENDPOINTS_FILE,
     getBuildPackFromChoreo,
     getBuildPackFromFs,
@@ -80,8 +80,8 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             }
 
             const componentPath = path.join(dirname(workspaceFileLocation), folder.path);
-            const choreoDirPath = path.join(componentPath, '.choreo');
-            const componentYamlPath = path.join(choreoDirPath, 'component.yaml');
+            const choreoDirPath = path.join(componentPath, CHOREO_CONFIG_DIR);
+            const componentYamlPath = path.join(choreoDirPath, COMPONENTS_CONFIG_FILE);
             const componentName = folder.path.split(path.sep).pop();
             
             if (existsSync(componentYamlPath)) {
@@ -179,7 +179,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             }
 
             if (componentType === ComponentType.SERVICE) {
-                const yamlPath = path.join(componentPath, CHOREO_CONFIG_DIR, COMPONENTS_FILE)
+                const yamlPath = path.join(componentPath, CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE)
                     || path.join(componentPath, CHOREO_CONFIG_DIR, ENDPOINTS_FILE);
 
                 if (existsSync(yamlPath)) {
