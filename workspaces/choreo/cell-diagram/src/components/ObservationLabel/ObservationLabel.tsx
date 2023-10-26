@@ -103,6 +103,10 @@ export function ObservationLabel(props: ObservationLabelProps) {
                     </TitleRow>
                 )}
                 <Row>
+                    <div>Request Count</div>
+                    <Value>{observations.requestCount}</Value>
+                </Row>
+                <Row>
                     <div>Error Percentage</div>
                     <Value>{((observations.errorCount * 100) / observations.requestCount).toFixed(2)}%</Value>
                 </Row>
