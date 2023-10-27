@@ -11,8 +11,8 @@
  *  associated services.
  */
 
-import { LinePosition } from "./basic-lang-server-types";
 import { RequestType } from "vscode-messenger-common";
+import { LinePosition } from "./basic-lang-server-types";
 
 export interface GraphqlDesignServiceRequest {
     filePath: string;

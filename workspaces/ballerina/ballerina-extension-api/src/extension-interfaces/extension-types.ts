@@ -11,19 +11,13 @@
  *  associated services.
  */
 
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import {WorkspaceFolder} from 'vscode';
 import { RequestType } from 'vscode-messenger-common';
 
 export interface DiagramFocus {
     fileUri: string;
     position?: NodePosition;
-}
-
-export interface NodePosition {
-    startLine?: number;
-    startColumn?: number;
-    endLine?: number;
-    endColumn?: number;
 }
 
 export interface ExtensionAPI {

@@ -13,6 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaConstruct, BallerinaConstructRequest, BallerinaModuleResponse } from "./trigger-wizard-types";
 
 export interface BallerinaConnectorsRequest extends BallerinaConstructRequest { }
@@ -40,13 +41,6 @@ export interface NonPrimitiveBal {
     moduleName: string;
     name: string;
     version?: string;
-}
-
-export interface NodePosition {
-    startLine?: number;
-    startColumn?: number;
-    endLine?: number;
-    endColumn?: number;
 }
 
 export interface DiagramDiagnostic {
