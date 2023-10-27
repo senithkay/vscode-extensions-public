@@ -24,6 +24,7 @@
     <xs:include schemaLocation="endpoint.xsd" />
     <xs:include schemaLocation="mediators/mediators.xsd" />
     <xs:include schemaLocation="misc/common.xsd" />
+    <xs:include schemaLocation="./sequence.xsd" />
 
     <xs:element name="template" type="Template">
         <xs:annotation>
@@ -59,18 +60,7 @@
             </xs:element>
             <xs:choice minOccurs="1">
                 <xs:element ref="endpoint" minOccurs="0" maxOccurs="1" />
-                <xs:element name="sequence" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                        </xs:sequence>
-                        <xs:attribute name="key" type="xs:string" use="optional" />
-                        <xs:attribute name="name" type="xs:string" use="optional" />
-                        <xs:attribute name="onError" type="xs:string" use="optional" />
-                        <xs:attribute name="description" type="xs:string" use="optional" />
-                        <xs:attributeGroup ref="monitoringAspect" />
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="sequence" type="NamedSequence" minOccurs="0" maxOccurs="1" />
             </xs:choice>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required" />
@@ -78,4 +68,3 @@
     </xs:complexType>
 
 </xs:schema>
-

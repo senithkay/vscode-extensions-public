@@ -24,6 +24,7 @@
         xmlns="http://ws.apache.org/ns/synapse">
 
     <xs:include schemaLocation="../mediators.xsd" />
+    <xs:include schemaLocation="../../misc/common.xsd" />
 
     <xs:element name="entitlementService">
         <xs:annotation>
@@ -34,16 +35,8 @@
         </xs:annotation>
         <xs:complexType>
             <xs:all>
-                <xs:element name="onReject" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="onAccept" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="onReject" type="sequence" minOccurs="0" maxOccurs="1" />
+                <xs:element name="onAccept" type="sequence" minOccurs="0" maxOccurs="1" />
                 <xs:element name="advice" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>

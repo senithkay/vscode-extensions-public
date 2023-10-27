@@ -30,6 +30,7 @@
 
 
     <xs:include schemaLocation="../mediators.xsd" />
+    <xs:include schemaLocation="../../misc/common.xsd" />
 
     <xs:element name="throttle">
         <xs:annotation>
@@ -48,16 +49,8 @@
                         <xs:attribute name="key" type="xs:string" use="optional" />
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="onAccept" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="onReject" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="onAccept" type="sequence" minOccurs="0" maxOccurs="1" />
+                <xs:element name="onReject" type="sequence" minOccurs="0" maxOccurs="1" />
             </xs:all>
             <xs:attribute name="id" type="xs:string" use="required" />
             <xs:attribute name="onAccept" type="xs:string" use="optional">

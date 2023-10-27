@@ -26,8 +26,9 @@
         targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../endpoint.xsd"/>
-    <xs:include schemaLocation="../mediators/mediators.xsd"/>
+    <xs:include schemaLocation="../endpoint.xsd" />
+    <xs:include schemaLocation="../mediators/mediators.xsd" />
+    <xs:include schemaLocation="../misc/common.xsd" />
 
     <xs:element name="target" type="Target">
         <xs:annotation>
@@ -44,13 +45,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="sequence" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:group ref="mediatorList" minOccurs="1" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+            <xs:element name="sequence" type="sequence" minOccurs="0" maxOccurs="1" />
             <xs:element name="endpoint" type="NamedEndpoint" minOccurs="0" maxOccurs="1"/>
         </xs:all>
         <xs:attribute name="sequence" type="xs:string" use="optional" >
@@ -78,27 +73,9 @@
             </xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="inSequence" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="outSequence" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="faultSequence" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+            <xs:element name="inSequence" type="sequence" minOccurs="0" maxOccurs="1" />
+            <xs:element name="outSequence" type="sequence" minOccurs="0" maxOccurs="1" />
+            <xs:element name="faultSequence" type="sequence" minOccurs="0" maxOccurs="1" />
             <xs:element name="endpoint" type="NamedEndpoint" minOccurs="0" maxOccurs="1" />
         </xs:all>
         <xs:attribute name="inSequence" type="xs:string" use="optional">

@@ -24,7 +24,7 @@
         targetNamespace="http://ws.apache.org/ns/synapse" 
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <!-- <xs:include schemaLocation="mediators/mediators.xsd" /> -->
+    <xs:include schemaLocation="mediators/mediators.xsd" />
     <xs:include schemaLocation="misc/common.xsd" />
 
     <xs:element name="sequence" type="NamedSequence">
@@ -41,9 +41,9 @@
                 Sequence contains a set of mediators
             </xs:documentation>
         </xs:annotation>
-        <!-- <xs:sequence>
+        <xs:sequence>
             <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence> -->
+        </xs:sequence>
         <xs:attributeGroup ref="monitoringAspect" />
         <xs:attribute name="name" type="xs:string" use="required" />
         <xs:attribute name="onError" type="xs:string" use="optional" />
@@ -51,4 +51,3 @@
     </xs:complexType>
 
 </xs:schema>
-

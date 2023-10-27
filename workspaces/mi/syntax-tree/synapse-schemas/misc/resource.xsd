@@ -23,7 +23,8 @@
         targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../mediators/mediators.xsd"/>
+    <xs:include schemaLocation="../mediators/mediators.xsd" />
+    <xs:include schemaLocation="./common.xsd" />
 
 
     <xs:complexType name="APIResource">
@@ -33,27 +34,9 @@
             </xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="inSequence" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="outSequence" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="faultSequence" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+            <xs:element name="inSequence" type="sequence" minOccurs="0" maxOccurs="1" />
+            <xs:element name="outSequence" type="sequence" minOccurs="0" maxOccurs="1" />
+            <xs:element name="faultSequence" type="sequence" minOccurs="0" maxOccurs="1" />
         </xs:all>
         <xs:attribute name="methods" use="required">
             <xs:simpleType>
@@ -114,4 +97,3 @@
     </xs:attributeGroup>
 
 </xs:schema>
-
