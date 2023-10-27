@@ -26,6 +26,8 @@
         xmlns:wsdl11="http://schemas.xmlsoap.org/wsdl/" 
         xmlns:wsdl20="http://www.w3.org/ns/wsdl">
 
+    <xs:include schemaLocation="../mediators/mediators.xsd"/>
+
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl11.xsd"/>
     <xs:import namespace="http://www.w3.org/ns/wsdl" schemaLocation="wsdl20.xsd"/>
 
@@ -155,5 +157,10 @@
         </xs:restriction>
     </xs:simpleType>
 
-</xs:schema>
+    <xs:complexType name="sequence">
+        <xs:sequence>
+            <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
 
+</xs:schema>
