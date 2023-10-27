@@ -16,11 +16,12 @@ import { VSCodeDropdown, VSCodeOption, VSCodeTextArea } from "@vscode/webview-ui
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { BuildPackVersions, ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { BallerinaIcon, DockerIcon } from "../icons";
 
 const StepContainer = styled.div`
     display: flex;
@@ -85,25 +86,25 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             return {
                 label: buildPack.displayName,
                 description: buildPack.displayName,
-                value: buildPack.displayName, 
-                icon: buildPack.iconUrl 
+                value: buildPack.language,
+                icon: buildPack.iconUrl
             };
         });
 
+        const supportedVersionsList: BuildPackVersions[] = buildPacks.map((buildPack) => {
+            return {
+                displayName: buildPack.language,
+                supportedVersions: buildPack.supportedVersions.split(',')
+            };
+        });
+
+        onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            buildPack: { ...prevFormData.buildPack, supportedVersions: supportedVersionsList }
+        }));
+
         setItems(implementationTypes);
-
-        const javaBuildPack = buildPacks.find((buildPack) => buildPack.displayName === 'Java');
-        if (javaBuildPack) {
-            const supportedVersions = javaBuildPack ? javaBuildPack.supportedVersions.split(',') : [];
-
-            onFormDataChange(prevFormData => ({
-                ...prevFormData,
-                javaConfig:{ ...prevFormData.javaConfig, supportedVersions: supportedVersions }
-            }));
-        }
-        
-
-    }, [currentProjectOrg.id, formData.type]);
+    }, [formData.type]);
 
     const setComponentName = (name: string) => {
         onFormDataChange(prevFormData =>
@@ -147,24 +148,36 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                     Description
                 </VSCodeTextArea>
                 <div>
-                    {[ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) && <>
+                    {formData.mode === "fromScratch" ? (<>
                         <p>How do you want to implement it?</p>
                         <ConfigCardList
                             formKey='implementationType'
                             formData={formData}
                             onFormDataChange={onFormDataChange}
-                            items={items}
+                            items={[
+                                {
+                                    label: "Ballerina",
+                                    description: "Component impelmented using Ballerina Language",
+                                    value: ChoreoImplementationType.Ballerina,
+                                    icon: BallerinaIcon
+                                },
+                                {
+                                    label: "Docker",
+                                    description: "Component impelmented using other language and built using Docker",
+                                    value: ChoreoImplementationType.Docker,
+                                    icon: DockerIcon
+                                }
+                            ]}
                         />
-                    </>}
-                    {formData.type === ChoreoComponentType.WebApplication && <>
-                        <p>Web Application Type</p>
+                    </>) : (<>
+                        <p>Implementation Type</p>
                         <ConfigCardList
                             formKey='implementationType'
                             formData={formData}
                             onFormDataChange={onFormDataChange}
                             items={items}
                         />
-                    </>}
+                    </>)}
                     {formData?.type === ChoreoComponentType.Webhook && (
                         <DropDownContainer>
                             <label htmlFor="access-mode">Access Mode</label>
@@ -201,35 +214,6 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
             rule: async (value: any) => {
                 return value !== undefined && value !== '';
             }
-        },
-        {
-            field: 'implementationType',
-            message: 'Type is required',
-            rule: async (implementationType, formData) => {
-                if (
-                    formData.type === ChoreoComponentType.WebApplication &&
-                    ![
-                        ChoreoImplementationType.React,
-                        ChoreoImplementationType.Angular,
-                        ChoreoImplementationType.Vue,
-                        ChoreoImplementationType.StaticFiles,
-                        ChoreoImplementationType.Docker,
-                        ChoreoImplementationType.Java
-                    ].includes(implementationType)
-                ) {
-                    return false;
-                }
-                if (
-                    [ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) &&
-                    ![
-                        ChoreoImplementationType.Ballerina,
-                        ChoreoImplementationType.Docker,
-                    ].includes(implementationType)
-                ) {
-                    return false;
-                }
-                return true;
-            },
         },
     ]
 };

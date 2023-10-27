@@ -932,7 +932,7 @@ export class ProjectRegistry {
         // instead of calling getRepoMetadata api and checking remote directory is valid
         // this will check those values from local directory
 
-        const { projectId, orgName, repoName, subPath, dockerContextPath, dockerFilePath } = params;
+        const { projectId, orgName, repoName, subPath, dockerContextPath, dockerFilePath, buildPackId } = params;
     
         const projectLocation = this.getProjectLocation(projectId);
         if(!projectLocation){
@@ -987,6 +987,23 @@ export class ProjectRegistry {
             isDockerContextPathValid = !relativePath.startsWith('..') && !isAbsolute(relativePath);
         }
 
+        let isBuildpackPathValid = false;
+        if (buildPackId) {
+            const projectContent = readdirSync(join(repoPath, subPath));
+            const languageFiles = this.getFilesForLanguageType(buildPackId);
+            isBuildpackPathValid = this.checkValidBuildpackPath(
+                projectContent,
+                languageFiles
+            );
+        }
+
+        let hasPomXmlInPath = false;
+        if(subPath && isSubPathValid) {
+            hasPomXmlInPath = existsSync(join(repoPath, subPath, 'pom.xml'));
+        }
+
+        const hasPomXmlInInRoot = existsSync(join(repoPath, 'pom.xml'));
+
         return {
             isBareRepo,
             isRepoPathAvailable,
@@ -996,8 +1013,70 @@ export class ProjectRegistry {
             hasBallerinaTomlInRoot,
             hasEndpointsYaml,
             dockerFilePathValid,
-            isDockerContextPathValid
+            isDockerContextPathValid,
+            isBuildpackPathValid,
+            hasPomXmlInPath,
+            hasPomXmlInInRoot
         };
+    }
+
+    private getFilesForLanguageType(buildpackType: string) {
+        enum BuildpackLanguageType {
+            JAVA = "java",
+            SPRING_BOOT = "spring-boot",
+            NODEJS = "nodejs",
+            PYTHON = "python",
+            GO = "go",
+            RUBY = "ruby",
+            PHP = "php",
+            REACTJS = "reactjs",
+            FLASK = "flask",
+        }
+
+        const javaBuildpackTypes = [
+            "pom.xml",
+            "build.gradle",
+            "build.gradle.kts",
+            "*.java",
+        ];
+        const pythonBuildpackTypes = ["requirements.txt", "*.py"];
+        const goBuildpackTypes = ["go.mod", "*.go"];
+        const rubyBuildpackTypes = ["Gemfile", "*.ruby"];
+        const phpBuildpackTypes = ["composer.json", "*.php"];
+        const nodejsBuildpackTypes = ["package.json"];
+        switch (buildpackType) {
+            case BuildpackLanguageType.JAVA:
+                return javaBuildpackTypes;
+            case BuildpackLanguageType.NODEJS:
+                return nodejsBuildpackTypes;
+            case BuildpackLanguageType.PYTHON:
+                return pythonBuildpackTypes;
+            case BuildpackLanguageType.GO:
+                return goBuildpackTypes;
+            case BuildpackLanguageType.RUBY:
+                return rubyBuildpackTypes;
+            case BuildpackLanguageType.PHP:
+                return phpBuildpackTypes;
+            default:
+                return [];
+        }
+    }
+
+    private checkValidBuildpackPath(contentList: string[], languageFiles: string[]): boolean {
+        for (const file of languageFiles) {
+            if (file[0] === "*") {
+                const extention = "." + file.split(".").pop();
+                const filteredContent = contentList.filter((item) =>
+                    item.toLowerCase().endsWith(extention)
+                );
+                if (filteredContent.length === 0) {
+                    return false;
+                }
+            } else if (!contentList.includes(file)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private _removeLocation(projectId: string) {

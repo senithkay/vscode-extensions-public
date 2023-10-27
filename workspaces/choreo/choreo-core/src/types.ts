@@ -402,12 +402,19 @@ export interface WorkspaceComponentMetadata {
 }
 
 export enum ChoreoImplementationType {
-    Ballerina = "Ballerina",
-    Docker = "Docker",
-    React = "React SPA",
-    Angular = "Angular SPA",
-    Vue = "Vue.js SPA",
-    StaticFiles = "Static Website",
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    Java = "java",
+    Python = "python",
+    NodeJS = "nodejs",
+    Go = "go",
+    PHP = "php",
+    Ruby = "ruby",
+    MicroIntegrator = "microintegrator",
 }
 
 export enum ChoreoServiceType {
@@ -490,6 +497,7 @@ export interface getLocalComponentDirMetaDataRequest {
     dockerFilePath?: string;
     dockerContextPath?: string;
     openApiFilePath?: string;
+    buildPackId?: string;
 }
 
 export interface getLocalComponentDirMetaDataRes {
@@ -502,6 +510,9 @@ export interface getLocalComponentDirMetaDataRes {
     hasEndpointsYaml: boolean;
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
+    isBuildpackPathValid: boolean;
+    hasPomXmlInPath: boolean,
+    hasPomXmlInInRoot: boolean
 }
 
 export interface Endpoint {
@@ -554,4 +565,8 @@ export enum ServiceTypes {
     WEBHOOK = "Webhook",
     WEBAPP = "WebApp",
     OTHER = "other"
+}
+export interface BuildPackVersions { 
+    displayName: string;
+    supportedVersions: string[];
 }
