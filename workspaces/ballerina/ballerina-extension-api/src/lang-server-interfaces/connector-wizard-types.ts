@@ -14,6 +14,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { RequestType } from "vscode-messenger-common";
 import { BallerinaConstruct, BallerinaConstructRequest, BallerinaModuleResponse } from "./trigger-wizard-types";
 
 export interface BallerinaConnectorsRequest extends BallerinaConstructRequest { }
@@ -51,7 +52,6 @@ export interface DiagramDiagnostic {
     },
     range: NodePosition
 }
-
 
 export interface FormField {
     typeName: string;
@@ -100,8 +100,6 @@ export interface FormField {
     position?: NodePosition;
     selected?: boolean;
 }
-
-import { RequestType } from "vscode-messenger-common";
 
 export interface PathParam {
     name: string;

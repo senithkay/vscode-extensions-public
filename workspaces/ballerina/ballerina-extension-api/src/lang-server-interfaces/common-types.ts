@@ -10,14 +10,17 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./lang-server-interfaces/sequence-diagram-types";
-export * from "./lang-server-interfaces/base-lang-server-types";
-export * from "./lang-server-interfaces/project-overview-types";
-export * from "./lang-server-interfaces/connector-wizard-types";
-export * from "./lang-server-interfaces/converter-types";
-export * from "./lang-server-interfaces/graphql-diagram-types";
-export * from "./lang-server-interfaces/http-service-desginer-types";
-export * from "./lang-server-interfaces/trigger-wizard-types";
-export * from "./lang-server-interfaces/extended-lang-server-types";
 
-export * from "./extension-interfaces/extension-types";
+export interface LinePosition {
+    line: number;
+    offset: number;
+}
+
+export interface DocumentIdentifier {
+    uri: string;
+}
+
+export interface LineRange {
+    startLine: LinePosition;
+    endLine: LinePosition;
+}

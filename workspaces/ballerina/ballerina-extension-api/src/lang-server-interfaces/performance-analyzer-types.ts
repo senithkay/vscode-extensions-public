@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { DocumentIdentifier } from "./basic-lang-server-types";
+import { DocumentIdentifier } from "./common-types";
 import { RequestType } from "vscode-messenger-common";
 
 export interface PerformanceAnalyzerEndpointsRequest {

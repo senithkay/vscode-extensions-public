@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { LinePosition } from "./basic-lang-server-types";
+import { LinePosition } from "./common-types";
 
 export interface DNode {
     kind: string;

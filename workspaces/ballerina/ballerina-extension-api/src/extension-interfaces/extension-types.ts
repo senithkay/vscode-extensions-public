@@ -25,7 +25,7 @@ export interface ExtensionAPI {
     getEnv: (name: string) => Promise<any>;
     getFileContent: (url: string) => Promise<string>;
 
-    // could maintain these as props as well without get detail through a call
+    // could maintain these as props as well
     getWorkspaceName: () => Promise<string>;
     getLastUpdatedAt: () => Promise<string>;
     IsExperimentalEnabled: () => Promise<boolean>;

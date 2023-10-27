@@ -12,7 +12,8 @@
  */
 
 import { RequestType } from "vscode-messenger-common";
-import { BallerinaSTModifyResponse, DocumentIdentifier, LineRange } from "./basic-lang-server-types";
+import { DocumentIdentifier, LineRange } from "./common-types";
+import { BallerinaSTModifyResponse } from "./extended-lang-server-types";
 
 export interface GetBallerinaPackagesParams {
     documentIdentifiers: DocumentIdentifier[];
