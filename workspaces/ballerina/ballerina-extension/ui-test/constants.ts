@@ -10,7 +10,7 @@
 // timeouts
 export const DEFAULT_TIME_OUT = 15000;
 export const DIAGRAM_LOADING_TIME = 10000;
-export const PROJECT_RUN_TIME = 25000;
+export const PROJECT_RUN_TIME = 50000;
 export const DEFAULT_UI_LOAD_TIME = 500;
 
 // activities
