@@ -23,7 +23,7 @@ import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } f
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
 import { Colors, ConsoleView, DagreLayout, EditLayerAPI, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
-import { EditForm, WebviewEditLayerAPI } from './editing';
+import { EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 import { isVersionBelow, transformToV4Models } from "./utils/utils";
@@ -45,40 +45,30 @@ const Container: React.FC<any> = styled.div`
 
 interface DiagramProps {
     isEditable: boolean;
+    isChoreoProject: boolean;
+    isCellView?: boolean;
+    selectedNodeId?: string;
+    getComponentModel(): Promise<GetComponentModelResponse>;
+    showChoreoProjectOverview?: () => Promise<void>;
+    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void>;
+    editLayerAPI?: EditLayerAPI;
     consoleView?: ConsoleView;
     addComponent?: () => void;
 }
 
 export function DesignDiagram(props: DiagramProps) {
     const {
+        isChoreoProject,
         isEditable,
+        selectedNodeId,
+        getComponentModel,
+        showChoreoProjectOverview = undefined,
+        editLayerAPI = undefined,
         consoleView = undefined,
+        deleteComponent = undefined,
         addComponent = undefined,
+        isCellView = false,
     } = props;
-
-    const editLayerAPI = WebviewEditLayerAPI.getInstance();
-
-    const getComponentModel = async () => {
-        const res = await editLayerAPI.getComponentModel();
-        return res;
-    }
-    const showChoreoProjectOverview = async () => {
-        return await editLayerAPI.showChoreoProjectOverview();
-    }
-    const deleteComponent = (location: Location, deletePkg: boolean) => editLayerAPI.deleteComponent({ location: location, deletePkg: deletePkg })
-
-    let isChoreoProject = false;
-    editLayerAPI.isChoreoProject().then(value => {
-        isChoreoProject = value;
-    });
-    let selectedNodeId = "";
-    editLayerAPI.selectedNodeId().then(value => {
-        selectedNodeId = value;
-    });
-    let isCellView = false;
-    editLayerAPI.isCellView().then(value => {
-        isCellView = value;
-    });
 
     const currentViewDefaultValue = (consoleView === ConsoleView.COMPONENTS ||
         consoleView === ConsoleView.PROJECT_HOME || isCellView) ? Views.CELL_VIEW : Views.L1_SERVICES;

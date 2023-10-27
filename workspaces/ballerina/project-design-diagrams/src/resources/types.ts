@@ -85,23 +85,9 @@ export interface EditLayerAPI {
     fetchTrigger: (triggerId: string) => Promise<BallerinaTriggerResponse>;
     checkIsMultiRootWs: () => Promise<boolean>;
     promptWorkspaceConversion: () => void;
-    showView: (view: string) => void;
-    getComponentModel: () => Promise<any>;
-    showChoreoProjectOverview: () => Promise<any>;
-    deleteComponent: (props: DeleteComponentProps) => Promise<void>;
-    isChoreoProject: () => Promise<boolean>;
-    selectedNodeId: () => Promise<string>;
-    isCellView: () => Promise<boolean>;
 }
 
 export enum ConsoleView {
     PROJECT_HOME = 'PROJECT_HOME',
     COMPONENTS = 'COMPONENTS',
-}
-
-
-
-interface DeleteComponentProps {
-    location: Location;
-    deletePkg: boolean;
 }

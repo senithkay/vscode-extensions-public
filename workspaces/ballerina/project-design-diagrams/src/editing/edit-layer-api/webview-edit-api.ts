@@ -20,12 +20,6 @@ import {
 import { EditLayerAPI } from '../../resources';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
-interface DeleteComponentProps {
-    location: Location;
-    deletePkg: boolean;
-}
-const PRE_FIX = "project-design/";
-
 export class WebviewEditLayerAPI implements EditLayerAPI {
     private readonly _messenger: Messenger;
     private static _instance: WebviewEditLayerAPI;
@@ -37,113 +31,85 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
 
     public static getInstance(): WebviewEditLayerAPI {
         if (!this._instance) {
-            let vscode: WebviewApi<unknown> = (window as any).vscode;
+            let vscode: WebviewApi<unknown> = (window as any).vscode || acquireVsCodeApi();
             this._instance = new WebviewEditLayerAPI(vscode);
         }
         return this._instance;
     }
 
-    public showView(view: string) {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'onViewChange' }, HOST_EXTENSION, view);
-    }
-
-    public async getComponentModel(): Promise<any> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'getComponentModel' }, HOST_EXTENSION);
-    }
-
-    public async showChoreoProjectOverview(): Promise<any> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'showChoreoProjectOverview' }, HOST_EXTENSION);
-    }
-
-    public async deleteComponent(props: DeleteComponentProps): Promise<void> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'deleteComponent' }, HOST_EXTENSION, props);
-    }
-
-    public async isChoreoProject(): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'isChoreoProject' }, HOST_EXTENSION);
-    }
-
-    public async selectedNodeId(): Promise<string> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'selectedNodeId' }, HOST_EXTENSION);
-    }
-
-    public async isCellView(): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'isCellView' }, HOST_EXTENSION);
-    }
-
     public async createComponent(addComponentDetails: BallerinaComponentCreationParams): Promise<string> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'createComponent' }, HOST_EXTENSION, addComponentDetails);
+        return this._messenger.sendRequest({ method: 'createComponent' }, HOST_EXTENSION, addComponentDetails);
     }
 
     public async getProjectDetails(): Promise<any> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'getProjectDetails' }, HOST_EXTENSION, '');
+        return this._messenger.sendRequest({ method: 'getProjectDetails' }, HOST_EXTENSION, '');
     }
 
     public async getProjectRoot(): Promise<string | undefined> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'getProjectRoot' }, HOST_EXTENSION, '');
+        return this._messenger.sendRequest({ method: 'getProjectRoot' }, HOST_EXTENSION, '');
     }
 
     public async getConnectors(params: BallerinaConnectorsRequest): Promise<BallerinaConnectorsResponse> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'getConnectors' }, HOST_EXTENSION, [params]);
+        return this._messenger.sendRequest({ method: 'getConnectors' }, HOST_EXTENSION, [params]);
     }
 
     public async pullConnector(connector: Connector, source: Service | EntryPoint): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'pullConnector' }, HOST_EXTENSION, { connector, source });
+        return this._messenger.sendRequest({ method: 'pullConnector' }, HOST_EXTENSION, { connector, source });
     }
 
     public async addConnector(connector: Connector, source: EntryPoint | Service): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'addConnector' }, HOST_EXTENSION, { connector, source });
+        return this._messenger.sendRequest({ method: 'addConnector' }, HOST_EXTENSION, { connector, source });
     }
 
     public async addLink(source: Service | EntryPoint, target: Service): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'addLink' }, HOST_EXTENSION, { source, target });
+        return this._messenger.sendRequest({ method: 'addLink' }, HOST_EXTENSION, { source, target });
     }
 
     public async deleteLink(linkLocation: Location, nodeLocation: Location): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'deleteLink' }, HOST_EXTENSION, { linkLocation, nodeLocation });
+        return this._messenger.sendRequest({ method: 'deleteLink' }, HOST_EXTENSION, { linkLocation, nodeLocation });
     }
 
     public async pickDirectory(): Promise<string | undefined> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'pickDirectory' }, HOST_EXTENSION, '');
+        return this._messenger.sendRequest({ method: 'pickDirectory' }, HOST_EXTENSION, '');
     }
 
     public async fetchTriggers(): Promise<BallerinaTriggersResponse> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'fetchTriggers' }, HOST_EXTENSION, '');
+        return this._messenger.sendRequest({ method: 'fetchTriggers' }, HOST_EXTENSION, '');
     }
 
     public async fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'fetchTrigger' }, HOST_EXTENSION, triggerId);
+        return this._messenger.sendRequest({ method: 'fetchTrigger' }, HOST_EXTENSION, triggerId);
     }
 
     public async executeCommand(cmd: string): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'executeCommand' }, HOST_EXTENSION, cmd);
+        return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
     }
 
     public async editDisplayLabel(annotation: Annotation): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'editDisplayLabel' }, HOST_EXTENSION, annotation);
+        return this._messenger.sendRequest({ method: 'editDisplayLabel' }, HOST_EXTENSION, annotation);
     }
 
     public showDiagnosticsWarning(): void {
-        this._messenger.sendNotification({ method: PRE_FIX + 'showDiagnosticsWarning' }, HOST_EXTENSION, '');
+        this._messenger.sendNotification({ method: 'showDiagnosticsWarning' }, HOST_EXTENSION, '');
     }
 
     public showErrorMessage(msg: string): void {
-        this._messenger.sendNotification({ method: PRE_FIX + 'showErrorMsg' }, HOST_EXTENSION, msg);
+        this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
     }
 
     public go2source(location: Location): void {
-        return this._messenger.sendNotification({ method: PRE_FIX + 'go2source' }, HOST_EXTENSION, location);
+        return this._messenger.sendNotification({ method: 'go2source' }, HOST_EXTENSION, location);
     }
 
     public goToDesign(filePath: string, position: NodePosition): void {
-        return this._messenger.sendNotification({ method: PRE_FIX + 'goToDesign' }, HOST_EXTENSION, { filePath, position })
+        return this._messenger.sendNotification({ method: 'goToDesign' }, HOST_EXTENSION, { filePath, position })
     }
 
     public checkIsMultiRootWs(): Promise<boolean> {
-        return this._messenger.sendRequest({ method: PRE_FIX + 'checkIsMultiRootWs' }, HOST_EXTENSION, '');
+        return this._messenger.sendRequest({ method: 'checkIsMultiRootWs' }, HOST_EXTENSION, '');
     }
 
     public promptWorkspaceConversion(): void {
-        return this._messenger.sendNotification({ method: PRE_FIX + 'promptWorkspaceConversion' }, HOST_EXTENSION, '');
+        return this._messenger.sendNotification({ method: 'promptWorkspaceConversion' }, HOST_EXTENSION, '');
     }
 }
