@@ -42,7 +42,7 @@ export interface DeleteComponentProps {
     deletePkg: boolean;
 }
 
-const PRE_FIX = "project-design/"
+const PRE_FIX = "project-design/";
 
 export const createComponent: RequestType<BallerinaComponentCreationParams | ChoreoComponentCreationParams, string | boolean> = { method: `${PRE_FIX}createComponent` };
 export const getProjectDetails: RequestType<void, unknown> = { method: `${PRE_FIX}getProjectDetails` };

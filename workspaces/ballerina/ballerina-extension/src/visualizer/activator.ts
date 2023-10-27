@@ -33,12 +33,12 @@ interface VisualizerContext {
 }
 
 interface OpenViewEvent {
-    type: "openView"
+    type: "openView";
     viewLocation?: Location | Views;
 }
 
 interface RenderWebViewEvent {
-    type: "renderWebView"
+    type: "renderWebView";
 }
 
 type Event =
