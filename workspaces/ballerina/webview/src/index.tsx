@@ -8,10 +8,10 @@
  */
 
 import React from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Webview } from "./Webview";
 
-
 export function renderWebview(target: HTMLElement) {
-    render(<Webview />, target);
+    const root = createRoot(target);
+    root.render(<Webview />);
 }

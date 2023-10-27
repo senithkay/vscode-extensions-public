@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "module": "es2020",
+      "module": "ESNext",
       "outDir": "./lib",
       "rootDir": "./src",
       "lib": [

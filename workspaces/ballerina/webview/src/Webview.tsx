@@ -7,24 +7,26 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
+import { Overview } from "@wso2-enterprise/overview";
+import { BallerinaClient } from "@wso2-enterprise/ballerina-client"
 import React, { useEffect } from "react";
-import { WebViewAPI } from "./WebViewAPI";
+
 
 export function Webview() {
-    const [state, setState] = React.useState("");
+    const [view, setView] = React.useState("Overview");
 
     useEffect(() => {
-        // update on state change
-        WebViewAPI.getInstance().onStateChanged((state: any) => {
-            setState(state.viewContext.view);
+        // update on view change
+        BallerinaClient.getInstance().onStateChanged((view: any) => {
+            setView(view.viewContext.view);
         });
-    }, [state]);
+    }, [view]);
     
     return (
         <>
-            {state === "Architecture" && <DesignDiagram isEditable={true} isChoreoProject={false} getComponentModel={null} /> }
-            {state === "Overview" &&  <h1>Hello Overview</h1> }
+            {view === "Overview" &&  <Overview /> }
+            {view === "Architecture" &&  <h2>Hello Arch</h2> }
+            {/* {view === "Architecture" && <DesignDiagram isEditable={true} isChoreoProject={false} getComponentModel={null} /> } */}
         </>
     );
 }
