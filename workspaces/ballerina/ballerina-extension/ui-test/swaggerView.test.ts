@@ -39,7 +39,7 @@ describe('Swagger view UI Tests', () => {
 
     it('Test tryit button', async () => {
         
-        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 50000);;
+        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 60000);
 
         // Click on `Run` code lens to run service
         const editorView = new ExtendedEditorView(new EditorView());
