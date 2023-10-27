@@ -14,7 +14,7 @@ import React, { useMemo } from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { AutoComplete, ErrorBanner } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, ErrorBanner, TextField } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
@@ -22,6 +22,7 @@ import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { useQuery } from "@tanstack/react-query";
+import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
     display: flex;
@@ -37,6 +38,10 @@ const DirectoryContainer = styled.div`
     gap: 5px;
 `;
 
+const MarginTopWrap = styled.div`
+    margin-top: 20px
+`;
+
 export interface BuildPackConfigProps {
     formData: Partial<ComponentWizardState>;
     onFormDataChange: (updater: (prevFormData: Partial<ComponentWizardState>) => Partial<ComponentWizardState>) => void;
@@ -46,7 +51,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
 
     const { formData, onFormDataChange } = props;
 
-    const { repository, buildPack } = formData;
+    const { repository, buildPack, type } = formData;
 
     const { choreoProject } = useChoreoWebViewContext();
 
@@ -89,6 +94,10 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
         }));
     };
 
+    const setPortValue = (port: string) => {
+        props.onFormDataChange(prevFormData => ({ ...prevFormData, port }));
+    };
+
     const updateSubFolderName = debounce(setFolderName, 500);
     
     return (
@@ -121,6 +130,18 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                     onChange={handleVersionChange}
                     id="version-selector"
                 /> 
+                {type === ChoreoComponentType.WebApplication && (
+                    <MarginTopWrap>
+                        <TextField
+                            value={props.formData?.port || ''}
+                            id='component-port-input'
+                            label="Port"
+                            placeholder="Port"
+                            onChange={(text: string) => setPortValue(text)}
+                            required
+                        />
+                    </MarginTopWrap>
+                )}
             </StepContainer>
             {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
         </div>
