@@ -138,6 +138,29 @@ importers:
       webpack-merge-and-include-globally: 2.3.4_webpack@5.88.2
       yarn: 1.22.19
 
+  ../../workspaces/ballerina/ballerina-extension-api:
+    specifiers:
+      '@types/vscode': ^1.73.0
+      '@typescript-eslint/eslint-plugin': ~5.48.2
+      '@typescript-eslint/parser': ~5.48.2
+      '@wso2-enterprise/ballerina-languageclient': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
+      eslint: ^8.32.0
+      typescript: ^4.9.4
+      vscode-languageserver-protocol: ^3.17.2
+      vscode-messenger-common: ^0.4.3
+    dependencies:
+      '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
+      '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      vscode-languageserver-protocol: 3.17.3
+      vscode-messenger-common: 0.4.5
+    devDependencies:
+      '@types/vscode': 1.81.0
+      '@typescript-eslint/eslint-plugin': 5.48.2_glnxe276xytynte7qoyvlk5nwq
+      '@typescript-eslint/parser': 5.48.2_cgvy6hrg3pjeapqw5wnuqcmdo4
+      eslint: 8.48.0
+      typescript: 4.9.5
+
   ../../workspaces/ballerina/ballerina-languageclient:
     specifiers:
       '@types/jest': ^29.2.5
