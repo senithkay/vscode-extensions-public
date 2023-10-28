@@ -27,11 +27,11 @@ const Command = styled.div({
     backgroundColor: "var(--vscode-chat-requestBackground)",
     borderBottom: "1px solid var(--vscode-chat-requestBorder)",
     borderTop: "1px solid var(--vscode-chat-requestBorder)",
-    padding: "0 20px"
+    padding: "20px",
 });
 
 const Error = styled.div({
-    padding: "0 20px",
+    padding: "10px 20px",
     color: "var(--vscode-inputValidation-errorBorder)",
 });
 
@@ -76,9 +76,15 @@ const StatusMessage = styled.div({
 });
 
 const LogoWrapper = styled.div({
-    margin: "0 20px 0 25px",
+    margin: "0px 0px 0px 20px",
     display: "inline-block",
+    verticalAlign: "-5px"
 
+});
+
+const Message = styled.div({
+    display: "inline-block",
+    marginLeft: "5px"
 });
 
 const ROOT_CSS = css({
@@ -134,8 +140,9 @@ const APIChat = (props: {
                         <Welcome state={props.state} queries={props.queries} handleScenarioTest={handleScenarioTest} />
                         {props.logs.map((log) => {
                             if (log.type === "COMMAND") {
-                                return <Command>
-                                    <p><Codicon name="account" />&nbsp; {log.command}</p>
+                                return <Command style={{ display: "flex", flexWrap: "nowrap" }}>
+                                    <Codicon name="account" />
+                                    <Message>{log.command}</Message>
                                 </Command>;
                             }
                             if (log.type === "RESULT") {
@@ -143,15 +150,22 @@ const APIChat = (props: {
                             }
                             if (log.type === "ERROR") {
                                 return <Error>
-                                    <p><Codicon name="error" />&nbsp; {log.message}</p>
+                                    <div style={{ display: "flex", flexWrap: "nowrap" }}>
+                                        <Codicon name="error" />
+                                        <Message>{log.message}</Message>
+                                    </div>
                                 </Error>;
                             }
                             if (log.type === "FINAL_RESULT") {
                                 return <p>
-                                    <LogoWrapper>
-                                        <APIChatLogo width="16" height="16" />
-                                    </LogoWrapper>
-                                    {(log as FinalResult).message}
+                                    <div style={{ display: "flex", flexWrap: "nowrap" }}>
+                                        <LogoWrapper>
+                                            <APIChatLogo width="16" height="16" />
+                                        </LogoWrapper>
+                                        <Message>
+                                            {(log as FinalResult).message}
+                                        </Message>
+                                    </div>
                                 </p>
                             }
                             return null;
@@ -219,12 +233,13 @@ const APIChat = (props: {
                     </VSCodeButton>
                 </FlexRow>
                 <FlexRow style={{ marginTop: "10px" }}>
-                    <VSCodeButton style={{ marginRight: "20px" }} appearance="icon"><Codicon name="link" /> &nbsp;Change Endpoint</VSCodeButton>
+                    {/* <VSCodeButton style={{ marginRight: "20px" }} appearance="icon"><Codicon name="link" /> &nbsp;Change Endpoint</VSCodeButton> */}
                     <VSCodeButton appearance="icon" onClick={props.showAuthForm}><Codicon name="lock" /> &nbsp; Authenticate</VSCodeButton>
                 </FlexRow>
             </CommandPanel>
-        </Layout>
+        </Layout >
     );
 }
+
 
 export default APIChat;
