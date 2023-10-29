@@ -540,8 +540,8 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/ballerina-extension-api",
-      "projectFolder": "workspaces/ballerina/ballerina-extension-api",
+      "packageName": "@wso2-enterprise/ballerina-core",
+      "projectFolder": "workspaces/ballerina/ballerina-core",
       "versionPolicyName": "ballerina-extension"
     },
     {
