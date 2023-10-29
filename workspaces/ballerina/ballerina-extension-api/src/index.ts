@@ -11,7 +11,6 @@
  *  associated services.
  */
 export * from "./lang-server-interfaces/sequence-diagram-types";
-export * from "./lang-server-interfaces/base-lang-server-types";
 export * from "./lang-server-interfaces/project-overview-types";
 export * from "./lang-server-interfaces/connector-wizard-types";
 export * from "./lang-server-interfaces/converter-types";
