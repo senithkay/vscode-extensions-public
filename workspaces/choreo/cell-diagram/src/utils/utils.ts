@@ -120,7 +120,6 @@ export function getComponentDiagramWidth(models: NodesAndLinks): number {
         ...models.links.componentLinks.values(),
         ...models.nodes.emptyNodes.values(),
         ...models.links.cellLinks.values(),
-        ...models.nodes.connectionNodes.values()
     );
     // auto distribute component nodes, component links, empty nodes and cell links
     dagreEngine.redistribute(tempModel);
