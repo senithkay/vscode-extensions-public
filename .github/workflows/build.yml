@@ -115,7 +115,7 @@ jobs:
     name: Run Ballerina extension tests
     needs: Build_Stage
     if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalExtTests == 'true' || github.base_ref == 'release-ballerina' }}
-    timeout-minutes: 30
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
