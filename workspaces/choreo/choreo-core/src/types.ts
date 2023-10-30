@@ -56,6 +56,24 @@ export interface Project {
     gitProvider?: string,
 }
 
+export interface Buildpack {
+    id: string;
+    buildpackImage: string;
+    language: string;
+    supportedVersions: string;
+    displayName: string;
+    isDefault: true;
+    versionEnvVariable: string;
+    iconUrl: string;
+    provider: string;
+    builder: {
+      builderId: string;
+      builderImage: string;
+      displayName: string;
+      imageHash: string;
+    };
+}
+
 export interface ComponentCount {
     orgId: number; 
     componentCount: number;
@@ -384,12 +402,19 @@ export interface WorkspaceComponentMetadata {
 }
 
 export enum ChoreoImplementationType {
-    Ballerina = "Ballerina",
-    Docker = "Docker",
-    React = 'React',
-    Angular = 'Angular',
-    Vue = 'Vuejs',
-    StaticFiles = 'StaticFiles',
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    Java = "java",
+    Python = "python",
+    NodeJS = "nodejs",
+    Go = "go",
+    PHP = "php",
+    Ruby = "ruby",
+    MicroIntegrator = "microintegrator",
 }
 
 export enum ChoreoServiceType {
@@ -472,6 +497,7 @@ export interface getLocalComponentDirMetaDataRequest {
     dockerFilePath?: string;
     dockerContextPath?: string;
     openApiFilePath?: string;
+    buildPackId?: string;
 }
 
 export interface getLocalComponentDirMetaDataRes {
@@ -484,6 +510,9 @@ export interface getLocalComponentDirMetaDataRes {
     hasEndpointsYaml: boolean;
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
+    isBuildpackPathValid: boolean;
+    hasPomXmlInPath: boolean,
+    hasPomXmlInInRoot: boolean
 }
 
 export interface Endpoint {
@@ -536,4 +565,8 @@ export enum ServiceTypes {
     WEBHOOK = "Webhook",
     WEBAPP = "WebApp",
     OTHER = "other"
+}
+export interface BuildPackVersions { 
+    displayName: string;
+    supportedVersions: string[];
 }

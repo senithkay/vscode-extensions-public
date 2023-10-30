@@ -100,6 +100,10 @@ import {
     GoToSource,
     IsBallerinaExtInstalled,
     RefreshWorkspaceNotification,
+    Buildpack,
+    GetBuildPackParams,
+    GetBuildpack,
+    GetJavaBuildVersions,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -251,6 +255,14 @@ export class ChoreoWebViewAPI {
 
     public async createNonBalLocalComponentFromExistingSource(params: ChoreoComponentCreationParams): Promise<void> {
         return this._messenger.sendRequest(CreateNonBalLocalComponentFromExistingSource, HOST_EXTENSION, params);
+    }
+
+    public async getBuildpack(params: GetBuildPackParams): Promise<Buildpack[]> {
+        return this._messenger.sendRequest(GetBuildpack, HOST_EXTENSION, params);
+    }
+
+    public async getJavaBuildVersions(params: GetBuildPackParams): Promise<string[]> {
+        return this._messenger.sendRequest(GetJavaBuildVersions, HOST_EXTENSION, params);
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {

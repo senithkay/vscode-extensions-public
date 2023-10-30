@@ -23,8 +23,10 @@ import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
-import { BYOCRepoConfig } from "./BYOCRepoConfig"
-import { WebAppRepoConfig } from "./WebAppRepoConfig"
+import { BYOCRepoConfig } from "./BYOCRepoConfig";
+import { WebAppRepoConfig } from "./WebAppRepoConfig";
+import { BuildPackConfig } from "./BuildPackConfig";
+import { MIConfig } from "./MIConfig";
 import { ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +37,15 @@ const StepContainer = styled.div`
     justify-content: flex-start;
     gap: 20px;
 `;
+
+const BUILD_PACK_TYPES = [
+    "java",
+    "nodejs",
+    "python",
+    "go",
+    "ruby",
+    "php"
+]
 
 export interface RepoStructureConfigProps {
     formData: Partial<ComponentWizardState>;
@@ -69,10 +80,13 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
         }));
     };
 
+    const isBuildPackType = BUILD_PACK_TYPES.includes(implementationType);
+    
+
     const folderNameError = useMemo(() => {
         if(localDirectorMetaData){
             if (repository?.subPath) {
-                if (mode === 'fromExisting') {
+                if (mode === 'fromExisting' && !isBuildPackType) {
                     if (!localDirectorMetaData?.isSubPathValid) {
                         return 'Sub path does not exist';
                     }
@@ -132,12 +146,18 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
             {mode === "fromExisting" && implementationType === ChoreoImplementationType.Docker && (
                 <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
             )}
-            {mode === "fromExisting" && type === ChoreoComponentType.WebApplication && (
+            {mode === "fromExisting" && type === ChoreoComponentType.WebApplication && !isBuildPackType && (
                 <WebAppRepoConfig 
                     formData={props.formData} 
                     onFormDataChange={props.onFormDataChange} 
                     webAppConfigError={props.formErrors['webAppConfig'] || props.formErrors['port']}
                 />
+            )}
+            {mode === "fromExisting" && isBuildPackType && (
+                <BuildPackConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
+            )}
+            {mode === "fromExisting" && implementationType === ChoreoImplementationType.MicroIntegrator && (
+                <MIConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
             )}
         </div>
     );
