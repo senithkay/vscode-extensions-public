@@ -38,6 +38,7 @@ import { activateActivityBarWebViews } from "./views/webviews/ActivityBar/activa
 import { activateCmds } from "./cmds";
 import { TokenStorage } from "./auth/TokenStorage";
 import { activateClients } from "./auth/auth";
+import { regexFilePathChecker } from "./utils";
 
 export function activateBallerinaExtension() {
     const ext = extensions.getExtension("wso2.ballerina");
@@ -66,6 +67,7 @@ export async function activate(context: vscode.ExtensionContext) {
     ext.isPluginStartup = false;
     openChoreoActivity();
     getLogger().debug("Choreo Extension activated");
+    registerYamlLangugeServer();
     return ext.api;
 }
 
@@ -134,6 +136,39 @@ function showMsgAndRestart(msg: string): void {
     window.showInformationMessage(msg, action).then((selection) => {
         if (action === selection) {
             commands.executeCommand("workbench.action.reloadWindow");
+        }
+    });
+}
+
+function registerYamlLangugeServer(): void {
+    window.onDidChangeActiveTextEditor(async (editor) => {
+        if (
+            editor?.document.languageId === "yaml" &&
+            regexFilePathChecker(editor?.document.uri.fsPath, /\.choreo\/build\.yaml$/)
+        ) {
+            const isLoggedIn = await ext.api.waitForLogin();
+            if (isLoggedIn) {
+                const project = await ext.api.getChoreoProject();
+                const openedComponent = await ext.api.getOpenedComponentName();
+
+                if (!!project && !!openedComponent) {
+                    window.withProgress({
+                        title: 'Setting up YAML Language Server for New Configuration',
+                        location: ProgressLocation.Notification,
+                        cancellable: false
+                    }, async () => {
+                        await ext.api.setupYamlLangugeServer(project, openedComponent);
+                    });
+                }
+            } else {
+                window.withProgress({
+                    title: 'Setting up YAML Language Server for Default Configuration',
+                    location: ProgressLocation.Notification,
+                    cancellable: false
+                }, async () => {
+                    await ext.api.setupYamlLangugeServer();
+                });
+            }
         }
     });
 }

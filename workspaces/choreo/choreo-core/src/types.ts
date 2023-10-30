@@ -624,7 +624,7 @@ export interface ComponentConfigSchema {
         {
             [key: string]: ComponentConfigSchema;
         }
-    ]
+    ];
     default?: string;
     const?: string;
     enum?: string[];

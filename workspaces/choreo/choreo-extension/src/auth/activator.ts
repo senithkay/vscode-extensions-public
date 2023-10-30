@@ -43,7 +43,6 @@ export async function activateAuth(context: vscode.ExtensionContext) {
                         ext.authHandler.signout();
                     });
                     await ext.api.waitForLogin();
-                    await ext.api.registerYamlLangugeServer();
                 });
             } else {
                 getLogger().error("Unable to open external link for authentication.");
@@ -132,7 +131,6 @@ export async function activateAuth(context: vscode.ExtensionContext) {
                 const selectedOrgItem = orgs.find(org => org.name === selected.label);
                 if(selectedOrgItem){
                     await ext.api.setSelectedOrg(selectedOrgItem);
-                    await ext.api.registerYamlLangugeServer();
                 }
             }
         } catch (error: any) {
@@ -151,7 +149,6 @@ async function initFromExistingChoreoSession() {
     try {
         await ext.authHandler.signin(true);
         sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT);
-        await ext.api.registerYamlLangugeServer();
     } catch (error: any) {
         sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
         getLogger().error("Error while initializing from existing Choreo session. " + error?.message);

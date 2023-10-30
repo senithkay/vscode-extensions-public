@@ -189,7 +189,7 @@ export const getComponentDirPath = (component: Component, projectLocation: strin
     }
 };
 
-export function filePathChecker(path: string, regex: RegExp): boolean {
+export function regexFilePathChecker(path: string, regex: RegExp): boolean {
     return regex.test(path);
 }
 
@@ -197,14 +197,14 @@ export function enrichConfigSchema(
     schema: ComponentConfigSchema,
     project: string,
     component: string,
-    componentConfigs: ComponentConfig[][]
+    componentConfigs: ComponentConfig[]
 ): ComponentConfigSchema {
     schema.definitions!.name.const = component;
     schema.definitions!.projectName.const = project;
 
     const branches = new Set<string>();
-    componentConfigs[0].forEach((config) => {
-        !!config.spec.build && branches.add(config.spec.build.branch);
+    componentConfigs.forEach((config) => {
+        branches.add(config.spec.build!.branch);
     });
 
     schema.definitions!.branch.enum = Array.from(branches);
