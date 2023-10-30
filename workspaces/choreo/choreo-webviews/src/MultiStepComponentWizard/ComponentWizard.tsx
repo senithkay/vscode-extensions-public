@@ -20,7 +20,7 @@ import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { ServiceTypeStep } from "./ServiceTypeStep";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { BUILD_PACK_TYPES, BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
@@ -37,9 +37,22 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
         const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
         const bitbucketCredentialId = credentialID ? credentialID : '';
+        const isBuildPackType = BUILD_PACK_TYPES.includes(implementationType);
 
         let selectedDisplayType: ComponentDisplayType;
-        if(type === ChoreoComponentType.WebApplication){
+        if (isBuildPackType) {
+            if (type === ChoreoComponentType.Service) {
+                selectedDisplayType = ComponentDisplayType.BuildpackService;
+            } else if (type === ChoreoComponentType.ScheduledTask) {
+                selectedDisplayType = ComponentDisplayType.BuildpackCronJob;
+            } else if (type === ChoreoComponentType.Webhook) {
+                selectedDisplayType = ComponentDisplayType.BuildpackWebhook;
+            } else if (type === ChoreoComponentType.ManualTrigger) {
+                selectedDisplayType = ComponentDisplayType.BuildpackJob;
+            } else if (type === ChoreoComponentType.WebApplication) {
+                selectedDisplayType = ComponentDisplayType.BuildpackWebApp;
+            }
+        } else if(type === ChoreoComponentType.WebApplication){
             if (implementationType === ChoreoImplementationType.Docker) {
                 selectedDisplayType = ComponentDisplayType.ByocWebApp;
             } else {

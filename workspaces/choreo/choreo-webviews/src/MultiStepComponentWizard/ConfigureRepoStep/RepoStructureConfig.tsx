@@ -27,7 +27,7 @@ import { BYOCRepoConfig } from "./BYOCRepoConfig";
 import { WebAppRepoConfig } from "./WebAppRepoConfig";
 import { BuildPackConfig } from "./BuildPackConfig";
 import { MIConfig } from "./MIConfig";
-import { ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
+import { BUILD_PACK_TYPES, ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { useQuery } from "@tanstack/react-query";
 
@@ -37,15 +37,6 @@ const StepContainer = styled.div`
     justify-content: flex-start;
     gap: 20px;
 `;
-
-const BUILD_PACK_TYPES = [
-    "java",
-    "nodejs",
-    "python",
-    "go",
-    "ruby",
-    "php"
-]
 
 export interface RepoStructureConfigProps {
     formData: Partial<ComponentWizardState>;
@@ -81,12 +72,11 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
     };
 
     const isBuildPackType = BUILD_PACK_TYPES.includes(implementationType);
-    
 
     const folderNameError = useMemo(() => {
         if(localDirectorMetaData){
             if (repository?.subPath) {
-                if (mode === 'fromExisting' && !isBuildPackType) {
+                if (mode === 'fromExisting' && !isBuildPackType && implementationType !== ChoreoImplementationType.MicroIntegrator) {
                     if (!localDirectorMetaData?.isSubPathValid) {
                         return 'Sub path does not exist';
                     }
