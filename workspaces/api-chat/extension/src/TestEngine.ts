@@ -217,7 +217,7 @@ const assignAuthData = assign<TestMachineContext, SetAuthData>({
 
 const getTools = (context: TestMachineContext, event: any) => {
     return new Promise((resolve, reject) => {
-        API.ready.then((client: any) => {
+        API.ready().then((client: any) => {
             client.post('/prepare', { openapi: context.openapi }, {
                 headers: {
                     "x-request-id": context.xRequestId
@@ -238,6 +238,8 @@ const getTools = (context: TestMachineContext, event: any) => {
                     }
                     reject(error.message);
                 });
+        }).catch((error) => {
+            reject(error.message);
         });
     });
 };
@@ -254,7 +256,7 @@ const executeCommand = (context: TestMachineContext, event: any) => {
                     headers: context.lastResult?.headers,
                 }
             };
-        API.ready.then((client: any) => {
+        API.ready().then((client: any) => {
             client.post('/execute', payload, {
                 headers: {
                     "x-request-id": context.xRequestId
@@ -275,6 +277,8 @@ const executeCommand = (context: TestMachineContext, event: any) => {
                     // else return error message
                     reject(error.message);
                 });
+        }).catch((error) => {
+            reject(error.message);
         });
     });
 };
