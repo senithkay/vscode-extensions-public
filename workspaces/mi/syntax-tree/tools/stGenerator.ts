@@ -13,37 +13,37 @@ const fs = require('fs');
 
 const stInterfacesTS =
     `export interface STNode {
-attributes: STNodeAttributes[]|any;
-children: STNode[];
-end: number;
-endTagOffOffset: number;
-endTagOpenOffset: number;
-hasTextNode: boolean;
-selfClosed: boolean;
-start: number;
-startTagOffOffset: number;
-startTagOpenOffset: number;
-tag: string;
+    attributes: STNodeAttributes[] | any;
+    children: STNode[];
+    end: number;
+    endTagOffOffset: number;
+    endTagOpenOffset: number;
+    hasTextNode: boolean;
+    selfClosed: boolean;
+    start: number;
+    startTagOffOffset: number;
+    startTagOpenOffset: number;
+    tag: string;
 }
 
 export interface STNodeAttributes {
-closed: boolean;
-hasDelimiter: boolean;
-name: string;
-nameTagOffOffset: number;
-nameTagOpenOffset: number;
-originalValue: string
-quotelessValue: string
-valueTagOffOffset: number
-valueTagOpenOffset: number
+    closed: boolean;
+    hasDelimiter: boolean;
+    name: string;
+    nameTagOffOffset: number;
+    nameTagOpenOffset: number;
+    originalValue: string
+    quotelessValue: string
+    valueTagOffOffset: number
+    valueTagOpenOffset: number
 }\n`;
 
 const visitorTS =
     `import * as Synapse from "./syntax-tree-interfaces";
 
-export interface Visitor {
-beginVisitSTNode?(node: Synapse.STNode): void;
-endVisitSTNode?(node: Synapse.STNode): void;`;
+    export interface Visitor {
+    beginVisitSTNode?(node: Synapse.STNode): void;
+    endVisitSTNode?(node: Synapse.STNode): void;`;
 
 const stInterfacesJAVA =
     `import java.util.*;
@@ -95,7 +95,7 @@ interface Attributes {
 }
 
 interface AttributeType {
-    type: string | Attributes | undefined,
+    type: string | Attributes | undefined | string[],
     name: string,
     isCollection: boolean
 }
@@ -142,6 +142,11 @@ function getElements(mapping: any): Elements {
 
                     } else if (type === 'anyAttribute' || type === 'anyElement') {
                         attributeType.type = type;
+                    } else if (type === 'elementRefs') {
+                        const elementTypeInfos = attributeInfo.elementTypeInfos;
+                        attributeType.type = elementTypeInfos.filter((typeInfo: any) => typeInfo.typeInfo != null).map((typeInfo: any) =>
+                            typeInfo.typeInfo.replaceAll(".", "")
+                        );
                     } else if (typeInfo) {
                         attributeType.type = typeInfo.replaceAll(".", "");
                     }
@@ -222,17 +227,22 @@ export function generateInterfaces(language: Language) {
 
 function parseAttributeType(attributeName: string, attributeType: AttributeType, enums: Elements, str: string, indentation: number, language: Language): string {
     const indentationStr = getIndentation(indentation);
-    const array = attributeType.isCollection ? "[]" : "";
 
-    if (typeof attributeType.type === 'object') {
+    if (Array.isArray(attributeType.type)) {
+        const types = attributeType.type as string[];
+        str += language == Language.JAVA ?
+            `${indentationStr}List<Object> ${attributeName};\n` :
+            `${indentationStr}${attributeName}: ${types.length > 0 ? (types).join(" | ") : "any[]"};\n`;
+
+    } else if (typeof attributeType.type === 'object') {
         // str += `${indentationStr}${attributeName}: {\n`;
         // for (const [name, type] of Object.entries(attributeType.type)) {
         //     str = parseAttributeType(name, type, enums, str, indentation + 4, language);
         // }
         // str += `${indentationStr}}${array};\n`;
         str += language == Language.JAVA ?
-            `${indentationStr}Object attributeName;\n` :
-            `${indentationStr}attributeName: any;\n`;
+            `${indentationStr}Object ${attributeName};\n` :
+            `${indentationStr}${attributeName}: any;\n`;
     } else if (typeof attributeType.type === 'string') {
         str += `${indentationStr}${getDataType(attributeName, attributeType, enums, language)}\n`;
     }
@@ -282,7 +292,7 @@ function getDataType(attributeName: string, attributeType: AttributeType, enums:
                 typeStr = type.charAt(0).toUpperCase() + type.slice(1);
         }
     }
-    return language === Language.JAVA ? `${typeStr}[] ${attributeName};` : `${attributeName}: ${typeStr}${array};`;
+    return language === Language.JAVA ? `${typeStr}${array} ${attributeName};` : `${attributeName}: ${typeStr}${array};`;
 }
 
 function getIndentation(indentation: number): string {
