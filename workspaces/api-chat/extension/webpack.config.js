@@ -53,4 +53,14 @@ const config = {
         })
     ]
 };
-module.exports = config;
+
+module.exports = () => {
+    // Check if the environment variable is defined
+    console.log('API_KEY: ', process.env.API_CHAT_API_KEY);
+    if (process.env.API_CHAT_API_KEY === undefined) {
+        console.error('Error: API_KEY is not defined. Stopping the build.');
+        process.exit(1); // Exit the build process with an error code
+    }
+
+    return config;
+};

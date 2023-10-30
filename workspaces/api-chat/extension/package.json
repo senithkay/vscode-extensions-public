@@ -2,7 +2,7 @@
   "name": "api-chat",
   "displayName": "WSO2 API Chat",
   "description": "Test APIs with OpenAPI descriptions",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "publisher": "WSO2",
   "icon": "resources/images/apichat.png",
   "engines": {
