@@ -4,6 +4,10 @@
   "description": "Test APIs with OpenAPI descriptions",
   "version": "0.9.4",
   "publisher": "WSO2",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/wso2/api-chat-vscode"
+  },
   "icon": "resources/images/apichat.png",
   "engines": {
     "vscode": "^1.80.0"
