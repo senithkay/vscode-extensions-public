@@ -11,7 +11,7 @@
 			"request": "launch",
 			"env": {
 				"WEB_VIEW_DEV_MODE": "true",
-				"WEB_VIEW_DEV_HOST": "http://localhost:9000/main.js",
+				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
 				"REQUEST_TRACE_ENABLED": "true"
 			},
 			"args": [
@@ -38,7 +38,7 @@
             "envFile": "${workspaceFolder}/.env",
             "env": {
                 "WEB_VIEW_DEV_MODE": "true",
-				"WEB_VIEW_DEV_HOST": "http://localhost:9000/main.js",
+				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
             },
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
