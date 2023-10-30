@@ -361,6 +361,13 @@ export enum ComponentDisplayType {
     Service = 'ballerinaService',
     ByocService = 'byocService',
     MiApiService = 'miApiService',
+    BuildpackService = 'buildpackService',
+    BuildpackWebhook = 'buildpackWebhook',
+    BuildpackJob = 'buildpackJob',
+    BuildpackTestRunner = 'buildpackTestRunner',
+    BuildpackCronJob = 'buildpackCronjob',
+    BuildpackWebApp = 'buildpackWebApp',
+    BuildpackRestApi = 'buildpackRestApi',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -383,6 +390,7 @@ export interface WorkspaceComponentMetadata {
     description: string;
     projectId: string;
     accessibility?: ComponentAccessibility;
+    implementationType?: ChoreoImplementationType;
     repository: {
         orgApp: string;
         nameApp: string;
@@ -399,6 +407,7 @@ export interface WorkspaceComponentMetadata {
     },
     byocWebAppsConfig?: ComponentWizardWebAppConfig;
     port?: number;
+    selectedVersion?: string;
 }
 
 export enum ChoreoImplementationType {
@@ -431,6 +440,15 @@ export enum ChoreoComponentType {
     WebApplication = 'webApplication'
 }
 
+export const BUILD_PACK_TYPES = [
+    "java",
+    "nodejs",
+    "python",
+    "go",
+    "ruby",
+    "php"
+]
+
 export interface ChoreoComponentCreationParams {
     name: string;
     projectId: string;
@@ -452,6 +470,9 @@ export interface ChoreoComponentCreationParams {
     networkVisibility?: ComponentNetworkVisibility;
     /** Relevant for non-ballerina rest and gql APIs */
     endpointContext?: string;
+    /** Relevant for build pack types */
+    implementationType?: ChoreoImplementationType;
+    selectedVersion?: string;
 }
 
 export interface TriggerDetails {

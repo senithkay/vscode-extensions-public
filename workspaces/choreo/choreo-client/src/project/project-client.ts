@@ -21,7 +21,7 @@ import {
     ProjectDeleteResponse,
     EndpointData
 } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams, PerformanceForecastDataRequest, GetSwaggerExamplesRequest } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams, PerformanceForecastDataRequest, GetSwaggerExamplesRequest, CreateBuildpackComponentParams } from "./types";
 import {
     getRepoMetadataQuery,
     getComponentBuildStatus,
@@ -33,7 +33,7 @@ import {
     getEndpointsForVersion,
     getProjectsByOrgIdQuery,
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation, getCreateWebAppBYOCComponentMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation, getCreateWebAppBYOCComponentMutation, getCreateBuildpackComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -197,6 +197,17 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     async createWebAppByocComponent(params: CreateByocComponentParams): Promise<Component> {
         const mutation = getCreateWebAppBYOCComponentMutation(params);
+        try {
+            const client = await this._getClient(params.orgId);
+            const data = await client.request(mutation);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async createBuildPackComponent(params: CreateBuildpackComponentParams): Promise<Component> {
+        const mutation = getCreateBuildpackComponentMutation(params);
         try {
             const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);

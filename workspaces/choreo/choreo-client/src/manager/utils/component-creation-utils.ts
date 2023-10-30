@@ -126,7 +126,7 @@ export function addDisplayAnnotation(pkgPath: string, type: ComponentDisplayType
 
 export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentCreationParams): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        const { org, repositoryInfo, name, displayType, description, projectId, accessibility, webAppConfig, port } = args;
+        const { org, repositoryInfo, name, displayType, description, projectId, accessibility, webAppConfig, port, implementationType, selectedVersion } = args;
 
         readFile(workspaceFilePath, 'utf-8', function (err, contents) {
             if (err) {
@@ -153,7 +153,10 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                 }
             };
             let componentPath = join('repos', repositoryInfo.org, repositoryInfo.repo);
-            if (args.displayType.toString().startsWith("byoc")) {
+            if (args.displayType.toString().startsWith("buildpack")) {
+                metadata.implementationType = implementationType;
+                metadata.selectedVersion = selectedVersion;
+            } else if (args.displayType.toString().startsWith("byoc")) {
                 const repoInfo = args.repositoryInfo as BYOCRepositoryDetails;
                 let srcGitRepoUrl = `https://github.com/${repoInfo.org}/${repoInfo.repo}`;
                 if (repositoryInfo.gitProvider === "bitbucket") {
