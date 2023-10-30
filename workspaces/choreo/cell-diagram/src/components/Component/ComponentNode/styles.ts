@@ -8,7 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-import { COMPONENT_CIRCLE_WIDTH, COMPONENT_LINE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
+import { COMPONENT_CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 
 const PRIMARY_HOVER: string = "#2c09ed";
 
@@ -18,6 +18,7 @@ interface StyleProps {
     isClickable?: boolean;
     isCollapsed?: boolean;
     isFocused?: boolean;
+    borderWidth?: number;
 }
 
 export const ComponentNode: React.FC<any> = styled.div`
@@ -34,7 +35,8 @@ export const ComponentNode: React.FC<any> = styled.div`
 
 export const ComponentHead: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
-    border: ${(props: StyleProps) => `${COMPONENT_LINE_WIDTH}px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
+    border: ${(props: StyleProps) =>
+        `${props.borderWidth}px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
     border-radius: 50%;
     height: ${COMPONENT_CIRCLE_WIDTH}px;
     width: ${COMPONENT_CIRCLE_WIDTH}px;

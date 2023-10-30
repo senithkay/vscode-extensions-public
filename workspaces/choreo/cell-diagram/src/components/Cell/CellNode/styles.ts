@@ -8,18 +8,18 @@
  */
 
 import styled from "@emotion/styled";
-import { CELL_LINE_WIDTH, CIRCLE_WIDTH, Colors, DOT_WIDTH } from "../../../resources";
+import { CIRCLE_WIDTH, Colors, DOT_WIDTH, CELL_LINE_MIN_WIDTH } from "../../../resources";
 
 interface StyleProps {
-    isAnonymous: boolean;
     isSelected?: boolean;
     isClickable?: boolean;
     isCollapsed?: boolean;
     isFocused?: boolean;
     height?: number;
+    borderWidth: number;
 }
 
-export const CellNode: React.FC<any> = styled.div`
+export const CellNode: React.FC<StyleProps> = styled.div`
     width: ${(props: StyleProps) => props.height}px;
     height: ${(props: StyleProps) => props.height}px;
 
@@ -44,7 +44,7 @@ export const CellNode: React.FC<any> = styled.div`
 
     #mainCell path {
         stroke: ${Colors.NODE_BORDER};
-        stroke-width: ${CELL_LINE_WIDTH};
+        stroke-width: ${(props: StyleProps) => props.borderWidth};
         fill: none;
         pointer-events: none;
     }
@@ -54,7 +54,7 @@ export const Circle: React.FC<any> = styled.div`
     width: ${CIRCLE_WIDTH}px;
     height: ${CIRCLE_WIDTH}px;
     border-radius: 50%;
-    border: ${CELL_LINE_WIDTH}px solid ${Colors.NODE_BORDER};
+    border: ${CELL_LINE_MIN_WIDTH}px solid ${Colors.NODE_BORDER};
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -66,7 +66,7 @@ export const Dot: React.FC<any> = styled.div`
     width: ${DOT_WIDTH}px;
     height: ${DOT_WIDTH}px;
     border-radius: 50%;
-    border: ${CELL_LINE_WIDTH}px solid ${Colors.NODE_BORDER};
+    border: ${CELL_LINE_MIN_WIDTH}px solid ${Colors.NODE_BORDER};
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -88,13 +88,13 @@ export const LeftPortCircle: React.FC<any> = styled(Circle)`
 
 export const RightPortCircle: React.FC<any> = styled(Dot)`
     position: absolute;
-    top: 50% - ${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
-    right: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
+    top: 50% - ${DOT_WIDTH / 2 + CELL_LINE_MIN_WIDTH}px;
+    right: -${DOT_WIDTH / 2 + CELL_LINE_MIN_WIDTH}px;
 `;
 
 export const BottomPortsWrapper: React.FC<any> = styled.div`
     position: absolute;
-    bottom: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
+    bottom: -${DOT_WIDTH / 2 + CELL_LINE_MIN_WIDTH}px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -103,7 +103,7 @@ export const BottomPortsWrapper: React.FC<any> = styled.div`
 
 export const RightPortsWrapper: React.FC<any> = styled.div`
     position: absolute;
-    right: -${DOT_WIDTH / 2 + CELL_LINE_WIDTH}px;
+    right: -${DOT_WIDTH / 2 + CELL_LINE_MIN_WIDTH}px;
     display: flex;
     flex-direction: column;
     align-items: center;

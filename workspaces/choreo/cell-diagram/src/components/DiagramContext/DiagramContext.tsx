@@ -16,6 +16,7 @@ interface IDiagramContext {
     focusedNodeId?: string;
     observationVersion?: string;
     componentMenu?: MenuItem[];
+    zoomLevel: number;
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
     setSelectedNodeId: (id: string) => void;
     setFocusedNodeId?: (id: string) => void;
@@ -38,6 +39,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
         focusedNodeId,
         observationVersion,
         componentMenu,
+        zoomLevel,
         setSelectedNodeId,
         setHasDiagnostics,
         setFocusedNodeId,
@@ -51,6 +53,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
         focusedNodeId,
         observationVersion,
         componentMenu,
+        zoomLevel,
         setSelectedNodeId,
         setHasDiagnostics,
         setFocusedNodeId,

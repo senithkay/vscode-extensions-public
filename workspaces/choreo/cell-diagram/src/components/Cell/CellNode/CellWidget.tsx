@@ -7,28 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { CellBounds, CellModel } from "./CellModel";
-import {
-    CellNode,
-    TopPortCircle,
-    LeftPortCircle,
-    BottomPortsWrapper,
-    DotWrapper,
-    Dot,
-    IconWrapper,
-    TopIconWrapper,
-    RightPortsWrapper,
-    TopPortLabel,
-    LeftPortLabel,
-    RightPortLabel,
-    BottomPortLabel,
-} from "./styles";
+import { CellNode, TopPortCircle, LeftPortCircle, BottomPortsWrapper, DotWrapper, Dot, IconWrapper, TopIconWrapper, RightPortsWrapper } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
 import { getCellPortId, getRoundedOctagonSVG } from "./cell-util";
-import { MAIN_CELL } from "../../../resources";
+import { CELL_LINE_MIN_WIDTH, MAIN_CELL } from "../../../resources";
 import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
 
 interface CellWidgetProps {
     node: CellModel;
@@ -37,6 +24,8 @@ interface CellWidgetProps {
 
 export function CellWidget(props: CellWidgetProps) {
     const { node, engine } = props;
+
+    const { zoomLevel } = useContext(DiagramContext);
     const [cellHeight, setCellHeight] = useState<number>(node.width);
 
     useEffect(() => {
@@ -64,12 +53,13 @@ export function CellWidget(props: CellWidgetProps) {
         engine.repaintCanvas();
     };
 
+    const strokeWidth = node.getDynamicLineWidth(zoomLevel, CELL_LINE_MIN_WIDTH);
+
     return (
-        <CellNode height={cellHeight}>
+        <CellNode height={cellHeight} borderWidth={strokeWidth}>
             {generateRoundedOctagonSVG(cellHeight)}
 
             <TopPortCircle>
-                <TopPortLabel tooltip="Traffic coming from internet">Northbound</TopPortLabel>
                 <TopIconWrapper>
                     <GatewayIcon />
                 </TopIconWrapper>
@@ -78,7 +68,6 @@ export function CellWidget(props: CellWidgetProps) {
             </TopPortCircle>
 
             <LeftPortCircle>
-                <LeftPortLabel tooltip="Traffic coming from intranet">Westbound</LeftPortLabel>
                 <IconWrapper>
                     <GatewayIcon />
                 </IconWrapper>
@@ -87,7 +76,6 @@ export function CellWidget(props: CellWidgetProps) {
             </LeftPortCircle>
 
             <RightPortsWrapper>
-                <RightPortLabel tooltip="Organization wide connections">Eastbound</RightPortLabel>
                 {node.connectionNodes?.map((connectionNode) => {
                     return (
                         <DotWrapper key={connectionNode.getID()}>
@@ -110,7 +98,6 @@ export function CellWidget(props: CellWidgetProps) {
                 })}
             </RightPortsWrapper>
             <BottomPortsWrapper>
-                <BottomPortLabel tooltip="Third party connections">Southbound</BottomPortLabel>
                 {node.connectorNodes?.map((connectorNode) => {
                     return (
                         <DotWrapper key={connectorNode.getID()}>
