@@ -7,7 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import styled from "@emotion/styled";
-import { VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow } from "@vscode/webview-ui-toolkit/react";
+
+export const HorizontalGrid = styled(VSCodeDataGrid)`
+    flex-direction: row;
+`;
+
+export const LeftAllignGridRow = styled(VSCodeDataGridRow)`
+    width: auto;
+`;
 
 export const TruncatedGridTitleCell = styled(VSCodeDataGridCell)`
     padding-left: 0px;
@@ -19,6 +27,7 @@ export const TruncatedGridTitleCell = styled(VSCodeDataGridCell)`
 `;
 
 export const TruncatedGridCell = styled(VSCodeDataGridCell)`
+    padding-left: 0px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
