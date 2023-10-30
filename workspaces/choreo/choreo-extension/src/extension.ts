@@ -67,7 +67,7 @@ export async function activate(context: vscode.ExtensionContext) {
     ext.isPluginStartup = false;
     openChoreoActivity();
     getLogger().debug("Choreo Extension activated");
-    registerYamlLangugeServer();
+    await registerYamlLangugeServer();
     return ext.api;
 }
 
@@ -140,35 +140,44 @@ function showMsgAndRestart(msg: string): void {
     });
 }
 
-function registerYamlLangugeServer(): void {
-    window.onDidChangeActiveTextEditor(async (editor) => {
-        if (
-            editor?.document.languageId === "yaml" &&
-            regexFilePathChecker(editor?.document.uri.fsPath, /\.choreo\/build\.yaml$/)
-        ) {
-            const isLoggedIn = await ext.api.waitForLogin();
-            if (isLoggedIn) {
-                const project = await ext.api.getChoreoProject();
-                const openedComponent = await ext.api.getOpenedComponentName();
+async function yamlLanguageServerRegisterUtil(editor: vscode.TextEditor): Promise<void> {
+    if (
+        editor?.document.languageId === "yaml" &&
+        regexFilePathChecker(editor?.document.uri.fsPath, /\.choreo\/build\.yaml$/)
+    ) {
+        const isLoggedIn = await ext.api.waitForLogin();
+        if (isLoggedIn) {
+            const project = await ext.api.getChoreoProject();
+            const openedComponent = await ext.api.getOpenedComponentName();
 
-                if (!!project && !!openedComponent) {
-                    window.withProgress({
-                        title: 'Setting up YAML Language Server for New Configuration',
-                        location: ProgressLocation.Notification,
-                        cancellable: false
-                    }, async () => {
-                        await ext.api.setupYamlLangugeServer(project, openedComponent);
-                    });
-                }
-            } else {
+            if (!!project && !!openedComponent) {
                 window.withProgress({
-                    title: 'Setting up YAML Language Server for Default Configuration',
+                    title: 'Setting up YAML Language Server for New Configuration',
                     location: ProgressLocation.Notification,
                     cancellable: false
                 }, async () => {
-                    await ext.api.setupYamlLangugeServer();
+                    await ext.api.setupYamlLangugeServer(project, openedComponent);
                 });
             }
+        } else {
+            window.withProgress({
+                title: 'Setting up YAML Language Server for Default Configuration',
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                await ext.api.setupYamlLangugeServer();
+            });
+        }
+    }
+}
+
+async function registerYamlLangugeServer(): Promise<void> {
+    if (!!window.activeTextEditor) {
+        await yamlLanguageServerRegisterUtil(window.activeTextEditor);
+    }
+    window.onDidChangeActiveTextEditor(async (editor) => {
+        if (!!editor) {
+            await yamlLanguageServerRegisterUtil(editor);
         }
     });
 }
