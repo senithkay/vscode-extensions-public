@@ -12,6 +12,8 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { actions, createMachine, interpret, State, assign, EventObject } from 'xstate';
 import API from './API';
 import { getLogger } from './logger/logger';
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 
@@ -36,6 +38,10 @@ interface Request {
 interface Response {
     code: number,
     payload: any
+    headers: {
+        contentType?: string
+        contentLength: number
+    }
 }
 
 export interface TestResult {
@@ -46,6 +52,11 @@ export interface TestResult {
 
 export interface TestError {
     type: "ERROR";
+    message: string;
+}
+
+export interface FinalResult {
+    type: "FINAL_RESULT";
     message: string;
 }
 
@@ -72,6 +83,7 @@ export interface AuthNone {
 }
 
 export interface TestMachineContext {
+    xRequestId?: string;
     openapi?: object;
     baseURL?: string;
     apiClient?: AxiosInstance;
@@ -86,9 +98,10 @@ export interface TestMachineContext {
     executionError?: string;
     //}
     lastResult?: Response;
-    logs: (TestCommand | TestResult | TestError)[];
+    logs: (TestCommand | TestResult | TestError | FinalResult)[];
     authData: AuthBasic | AuthBearer | AuthKey | AuthNone;
     errorMessage?: string;
+    finalResult?: string;
 }
 
 interface SetOpenAPIEvent {
@@ -185,6 +198,7 @@ function replacePathParameters(request: Request): string {
 }
 
 const assignOpenAPI = assign<TestMachineContext, SetOpenAPIEvent>({
+    xRequestId: uuidv4(),
     openapi: (context, event) => event.openapi
 });
 
@@ -204,7 +218,11 @@ const assignAuthData = assign<TestMachineContext, SetAuthData>({
 const getTools = (context: TestMachineContext, event: any) => {
     return new Promise((resolve, reject) => {
         API.ready.then((client: any) => {
-            client.post('/prepare', { openapi: context.openapi })
+            client.post('/prepare', { openapi: context.openapi }, {
+                headers: {
+                    "x-request-id": context.xRequestId
+                }
+            })
                 .then((response: { status: number; data: unknown; }) => {
                     if (response.status === 201) {
                         resolve(response.data);
@@ -213,6 +231,11 @@ const getTools = (context: TestMachineContext, event: any) => {
                     }
                 })
                 .catch((error: any) => {
+                    // if error has a response payload then return message from payload
+                    if (error.response && error.response.data && error.response.data.message) {
+                        reject(error.response.data.message);
+                        return;
+                    }
                     reject(error.message);
                 });
         });
@@ -225,10 +248,18 @@ const executeCommand = (context: TestMachineContext, event: any) => {
         const payload = (context.taskStatus === undefined) ?
             { apiSpec: context.apiSpec, command: context.command } :
             {
-                testCaseId: context.testCaseId, response: context.lastResult
+                response: {
+                    code: context.lastResult?.code,
+                    body: context.lastResult?.payload,
+                    headers: context.lastResult?.headers,
+                }
             };
         API.ready.then((client: any) => {
-            client.post('/execute', payload)
+            client.post('/execute', payload, {
+                headers: {
+                    "x-request-id": context.xRequestId
+                }
+            })
                 .then((response: { status: number; data: any; }) => {
                     if (response.status === 201) {
                         resolve(response.data);
@@ -262,6 +293,11 @@ const initExecution = (context: TestMachineContext, event: any) => {
 const executeRequest = (context: TestMachineContext, event: any) => {
     getLogger().debug("Executing request");
     return new Promise((resolve, reject) => {
+        // if the status is completed skip
+        if (context.taskStatus == "COMPLETED") {
+            // nothing to do return empty object
+            resolve({});
+        }
         const apiClient = context.apiClient;
         const request = context.nextRequest;
         if (apiClient === undefined) {
@@ -275,13 +311,21 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                     .then((response: AxiosResponse) => {
                         const mappedResponse: Response = {
                             code: response.status,
-                            payload: response.data
+                            payload: response.data,
+                            headers: {
+                                contentLength: Number(response.headers?.getContentLength) || 0,
+                                contentType: response.headers['Content-Type']?.toString()
+                            }
                         };
                         resolve(mappedResponse);
                     }).catch((error: AxiosError) => {
                         const mappedResponse: Response = {
                             code: error.response?.status || 0,
-                            payload: error.response?.data
+                            payload: error.response?.data,
+                            headers: {
+                                contentLength: Number(error.response?.headers?.getContentLength) || 0,
+                                contentType: error.response?.headers['Content-Type']?.toString()
+                            }
                         };
                         resolve(mappedResponse);
                     });
@@ -297,6 +341,14 @@ const processRequest = (context: TestMachineContext, event: any) => {
         if (context.executionError) {
             const log: TestError = { message: context.executionError, type: "ERROR" };
             context.logs.push(log);
+        }
+        else if (context.finalResult) {
+            let log: FinalResult = {
+                type: 'FINAL_RESULT',
+                message: context.finalResult
+            }
+            context.logs.push(log);
+            context.finalResult = undefined;
         }
         //todo combine to create log
         else if (context.nextRequest && context.lastResult) {
@@ -468,6 +520,7 @@ const testMachine = createMachine({
                                 nextRequest: (context, event) => event.data.resource,
                                 taskStatus: (context, event) => event.data.taskStatus,
                                 testCaseId: (context, event) => event.data.testCaseId,
+                                finalResult: (context, event) => event.data.result,
                                 executionError: undefined
                             })
                         },

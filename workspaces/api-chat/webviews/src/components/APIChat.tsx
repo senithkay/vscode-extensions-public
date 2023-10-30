@@ -12,7 +12,7 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { ConsoleAPI, TestCommand, TestResult, Queries, TestError } from "../ConsoleAPI";
+import { ConsoleAPI, TestCommand, TestResult, Queries, TestError, FinalResult } from "../ConsoleAPI";
 import { VSCodeButton, VSCodeTextField, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { } from '@vscode/webview-ui-toolkit';
 import styled from "@emotion/styled";
@@ -21,17 +21,17 @@ import { Codicon } from '../Codicon/Codicon';
 import ScrollToBottom from "react-scroll-to-bottom";
 import { css } from "@emotion/css";
 import TestResultView from "./TestResultView";
-
+import APIChatLogo from "./APIChatLogo";
 
 const Command = styled.div({
     backgroundColor: "var(--vscode-chat-requestBackground)",
     borderBottom: "1px solid var(--vscode-chat-requestBorder)",
     borderTop: "1px solid var(--vscode-chat-requestBorder)",
-    padding: "0 20px"
+    padding: "20px",
 });
 
 const Error = styled.div({
-    padding: "0 20px",
+    padding: "10px 20px",
     color: "var(--vscode-inputValidation-errorBorder)",
 });
 
@@ -75,13 +75,25 @@ const StatusMessage = styled.div({
     marginLeft: "8px"
 });
 
+const LogoWrapper = styled.div({
+    margin: "0px 0px 0px 20px",
+    display: "inline-block",
+    verticalAlign: "-5px"
+
+});
+
+const Message = styled.div({
+    display: "inline-block",
+    marginLeft: "5px"
+});
+
 const ROOT_CSS = css({
     height: "100%",
 });
 
 const APIChat = (props: {
     state: string,
-    logs: (TestCommand | TestResult | TestError)[],
+    logs: (TestCommand | TestResult | TestError | FinalResult)[],
     queries: Queries[]
     showAuthForm: () => void;
     stopExecution: () => void;
@@ -128,8 +140,9 @@ const APIChat = (props: {
                         <Welcome state={props.state} queries={props.queries} handleScenarioTest={handleScenarioTest} />
                         {props.logs.map((log) => {
                             if (log.type === "COMMAND") {
-                                return <Command>
-                                    <p><Codicon name="beaker" />&nbsp; {log.command}</p>
+                                return <Command style={{ display: "flex", flexWrap: "nowrap" }}>
+                                    <Codicon name="account" />
+                                    <Message>{log.command}</Message>
                                 </Command>;
                             }
                             if (log.type === "RESULT") {
@@ -137,8 +150,23 @@ const APIChat = (props: {
                             }
                             if (log.type === "ERROR") {
                                 return <Error>
-                                    <p><Codicon name="error" />&nbsp; {log.message}</p>
+                                    <div style={{ display: "flex", flexWrap: "nowrap" }}>
+                                        <Codicon name="error" />
+                                        <Message>{log.message}</Message>
+                                    </div>
                                 </Error>;
+                            }
+                            if (log.type === "FINAL_RESULT") {
+                                return <p>
+                                    <div style={{ display: "flex", flexWrap: "nowrap" }}>
+                                        <LogoWrapper>
+                                            <APIChatLogo width="16" height="16" />
+                                        </LogoWrapper>
+                                        <Message>
+                                            {(log as FinalResult).message}
+                                        </Message>
+                                    </div>
+                                </p>
                             }
                             return null;
                         })
@@ -205,12 +233,13 @@ const APIChat = (props: {
                     </VSCodeButton>
                 </FlexRow>
                 <FlexRow style={{ marginTop: "10px" }}>
-                    <VSCodeButton style={{ marginRight: "20px" }} appearance="icon"><Codicon name="link" /> &nbsp;Change Endpoint</VSCodeButton>
+                    {/* <VSCodeButton style={{ marginRight: "20px" }} appearance="icon"><Codicon name="link" /> &nbsp;Change Endpoint</VSCodeButton> */}
                     <VSCodeButton appearance="icon" onClick={props.showAuthForm}><Codicon name="lock" /> &nbsp; Authenticate</VSCodeButton>
                 </FlexRow>
             </CommandPanel>
-        </Layout>
+        </Layout >
     );
 }
+
 
 export default APIChat;

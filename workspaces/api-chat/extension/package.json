@@ -83,6 +83,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "20.2.5",
+    "@types/uuid": "^8.3.0",
     "@types/vscode": "^1.80.0",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
@@ -97,10 +98,15 @@
     "@wso2-enterprise/api-chat-vscode-webviews": "workspace:*"
   },
   "dependencies": {
+    "@vscode-logging/logger": "~1.2.3",
+    "@vscode-logging/types": "~0.1.4",
+    "@vscode-logging/wrapper": "~1.0.2",
     "@vscode/codicons": "^0.0.33",
+    "@vscode/extension-telemetry": "~0.7.7",
     "axios": "^1.5.0",
     "dotenv": "~16.3.1",
     "ts-loader": "~9.4.4",
+    "uuid": "^8.3.0",
     "vscode-messenger": "^0.4.5",
     "vscode-messenger-common": "^0.4.5",
     "webpack": "~5.88.2",

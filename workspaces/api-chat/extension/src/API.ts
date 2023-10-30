@@ -14,14 +14,17 @@ dotenv.config();
 
 // Set config defaults when creating the instance
 const instance = axios.create({
-    baseURL: 'https://f2c7f522-ef47-48ce-a429-3fc2f15d2011-prod.e1-us-east-azure.choreoapis.dev/dlsm/testgptservice/endpoint-9090-803/v1'
+    baseURL: 'https://dev-tools.wso2.com/yfko/api-chat/endpoint-9090-803/v1.0/',
+    headers: {
+        "User-Agent": "API Chat/VSCode"
+    }
 });
 
 const path = require('path')
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const auth = axios.create({
-    baseURL: 'https://sts.choreo.dev/oauth2'
+    baseURL: 'https://api.asgardeo.io/t/wso2devtools/oauth2/token'
 })
 
 const apiKey = process.env.API_CHAT_API_KEY;
@@ -36,7 +39,7 @@ const resolveOauthClientCredential = async () => {
             throw new Error('API CHAT APIKEY is not defined.');
         }
 
-        const response = await auth.post('/token', "grant_type=client_credentials", {
+        const response = await auth.post('/', "grant_type=client_credentials", {
             headers: {
                 Authorization: `Basic ${Buffer.from(apiKey).toString('base64')}`
             }
@@ -67,7 +70,7 @@ const API = {
 const refreshAccessToken = async () => {
     try {
         getLogger().debug("Refreshing access token");
-        const response = await auth.post('/token', "grant_type=refresh_token", {
+        const response = await auth.post('/', "grant_type=refresh_token", {
             headers: {
                 Authorization: `Bearer ${refreshToken}`
             }
