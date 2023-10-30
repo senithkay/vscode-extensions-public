@@ -130,7 +130,12 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                 }
             }
         } else {
-            if (type === ChoreoComponentType.WebApplication) {
+            if (isBuildPackType) {
+                componentParams.implementationType = implementationType;
+                componentParams.selectedVersion = formData.buildPack.selectedVersion;
+                componentParams.port = Number(port);
+                await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
+            } else if (type === ChoreoComponentType.WebApplication) {
                 componentParams.webAppConfig = formData.webAppConfig;
                 if(implementationType === ChoreoImplementationType.Docker){
                     const repoDetails: BYOCRepositoryDetails = {

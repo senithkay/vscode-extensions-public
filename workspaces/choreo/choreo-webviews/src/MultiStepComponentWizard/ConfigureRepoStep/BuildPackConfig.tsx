@@ -55,6 +55,8 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
 
     const { choreoProject } = useChoreoWebViewContext();
 
+
+
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
         ["getLocalComponentDirMetaData", choreoProject, repository],
         () =>
@@ -67,7 +69,18 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
             }),
     );
 
-    const supportedVersions: string[] = buildPack.supportedVersions.find((item) => item.displayName === formData.implementationType)?.supportedVersions;
+    const supportedVersions = useMemo(() => {
+        const supportedVersions: string[] = buildPack.supportedVersions.find((item) => item.displayName === formData.implementationType)?.supportedVersions;
+
+        onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            buildPack: { ...prevFormData.buildPack, selectedVersion: supportedVersions[0] }
+        }));
+        
+        return supportedVersions;
+
+    }, [formData.implementationType]);
+
     
     const setFolderName = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -90,7 +103,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
     const handleVersionChange = (value: any) => {
         onFormDataChange(prevFormData => ({
             ...prevFormData,
-            javaConfig:{ ...prevFormData.buildPack, version: value }
+            buildPack:{ ...prevFormData.buildPack, selectedVersion: value }
         }));
     };
 

@@ -390,7 +390,7 @@ export interface WorkspaceComponentMetadata {
     description: string;
     projectId: string;
     accessibility?: ComponentAccessibility;
-    implementationType: ChoreoImplementationType;
+    implementationType?: ChoreoImplementationType;
     repository: {
         orgApp: string;
         nameApp: string;
@@ -407,9 +407,7 @@ export interface WorkspaceComponentMetadata {
     },
     byocWebAppsConfig?: ComponentWizardWebAppConfig;
     port?: number;
-    buildPackConfig: {
-        selectedVersion: string;
-    }
+    selectedVersion?: string;
 }
 
 export enum ChoreoImplementationType {
@@ -472,6 +470,9 @@ export interface ChoreoComponentCreationParams {
     networkVisibility?: ComponentNetworkVisibility;
     /** Relevant for non-ballerina rest and gql APIs */
     endpointContext?: string;
+    /** Relevant for build pack types */
+    implementationType?: ChoreoImplementationType;
+    selectedVersion?: string;
 }
 
 export interface TriggerDetails {

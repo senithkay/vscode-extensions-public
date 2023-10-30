@@ -228,7 +228,6 @@ export class ProjectRegistry {
                 if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
                     this.addEndpointsYaml(args);
                 }
-
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 window.showInformationMessage('Component created successfully');
             });
@@ -845,8 +844,8 @@ export class ProjectRegistry {
             componentType: componentMetadata.displayType.toString(),
             buildpackConfig: {
                 buildContext: appSubPath,
-                buildpackId: componentMetadata.implementationType?.toString(),
-                languageVersion: componentMetadata.buildPackConfig?.selectedVersion,
+                buildpackId: componentMetadata.implementationType?.toString() ?? "",
+                languageVersion: componentMetadata.selectedVersion ?? "",
                 srcGitRepoUrl: srcGitRepoUrl,
                 srcGitRepoBranch: branchApp
             }
