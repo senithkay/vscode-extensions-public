@@ -13,8 +13,6 @@ const fs = require('fs');
 
 const stInterfacesTS =
     `export interface STNode {
-    attributes: STNodeAttributes[] | any;
-    children: STNode[];
     end: number;
     endTagOffOffset: number;
     endTagOpenOffset: number;
@@ -24,18 +22,6 @@ const stInterfacesTS =
     startTagOffOffset: number;
     startTagOpenOffset: number;
     tag: string;
-}
-
-export interface STNodeAttributes {
-    closed: boolean;
-    hasDelimiter: boolean;
-    name: string;
-    nameTagOffOffset: number;
-    nameTagOpenOffset: number;
-    originalValue: string
-    quotelessValue: string
-    valueTagOffOffset: number
-    valueTagOpenOffset: number
 }\n`;
 
 const visitorTS =
@@ -49,8 +35,6 @@ const stInterfacesJAVA =
     `import java.util.*;
 
 abstract class STNode {
-    List<STNodeAttributes> attributes;
-    List<STNode> children;
     int end;
     int endTagOffOffset;
     int endTagOpenOffset;
@@ -60,19 +44,7 @@ abstract class STNode {
     int startTagOffOffset;
     int startTagOpenOffset;
     String tag;
-}
-
-abstract class STNodeAttributes {
-    boolean closed;
-    boolean hasDelimiter;
-    String name;
-    int nameTagOffOffset;
-    int nameTagOpenOffset;
-    String originalValue;
-    String quotelessValue;
-    int valueTagOffOffset;
-    int valueTagOpenOffset;
-}`;
+}\n`;
 
 const visitorJAVA =
     `abstract class Visitor {
