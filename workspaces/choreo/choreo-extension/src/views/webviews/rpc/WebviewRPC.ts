@@ -86,7 +86,6 @@ import {
     RefreshWorkspaceNotification,
     GetBuildPackParams,
     GetBuildpack,
-    GetJavaBuildVersions,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -168,18 +167,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const org = ext.api.getOrgById(orgId);
         if (org) {
             return ProjectRegistry.getInstance().getBuildpack(org.id, org.uuid, componentType);
-        }
-        return false;
-    });
-
-    messenger.onRequest(GetJavaBuildVersions, async (params: GetBuildPackParams) => {
-        const { orgId, componentType } = params;
-        const org = ext.api.getOrgById(orgId);
-        if (org) {
-            const buildPacks = await ProjectRegistry.getInstance().getBuildpack(org.id, org.uuid, componentType);
-            const javaBuildPack = buildPacks.find((buildPack) => buildPack.displayName === 'Java');
-            const supportedVersions = javaBuildPack ? javaBuildPack.supportedVersions.split(',') : [];
-            return supportedVersions;
         }
         return false;
     });

@@ -162,15 +162,17 @@ export function getCreateBuildpackComponentMutation(params: CreateBuildpackCompo
         srcGitRepoUrl,
     } = buildpackConfig;
     return gql`mutation
-        { createByocComponent(component: {  
+        { createBuildpackComponent(component: {  
             name: "${displayName}",
             displayName: "${name.trim()}",
             description: "${description}",
             orgId: ${orgId},
             orgHandler: "${orgHandle}",
             projectId: "${projectId}",
+            labels: "",
             componentType: "${componentType}",
-            port: ${port},
+            port: ${port ?? 80},
+            oasFilePath: "",
             accessibility: "${accessibility}",
             buildpackConfig: {
               buildContext:"${buildContext}",

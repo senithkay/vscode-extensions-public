@@ -33,7 +33,8 @@ import {
     getEndpointsForVersion,
     EndpointData,
     WorkspaceConfig,
-    Buildpack
+    Buildpack,
+    GoogleProviderBuildPackNames
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
@@ -844,10 +845,10 @@ export class ProjectRegistry {
             componentType: componentMetadata.displayType.toString(),
             buildpackConfig: {
                 buildContext: appSubPath,
-                buildpackId: componentMetadata.implementationType?.toString() ?? "",
-                languageVersion: componentMetadata.selectedVersion ?? "",
-                srcGitRepoUrl: srcGitRepoUrl,
-                srcGitRepoBranch: branchApp
+                buildpackId: componentMetadata.buildpackConfig?.buildpackId!,
+                languageVersion: componentMetadata.buildpackConfig?.languageVersion!,
+                srcGitRepoUrl: componentMetadata.buildpackConfig?.srcGitRepoUrl!,
+                srcGitRepoBranch: componentMetadata.buildpackConfig?.srcGitRepoBranch!
             }
         };
         await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createBuildPackComponent(componentRequest));
@@ -1025,9 +1026,15 @@ export class ProjectRegistry {
         let isBuildpackPathValid = false;
         if (buildPackId) {
             const projectContent = readdirSync(join(repoPath, subPath));
+            const dirFileNames = projectContent.filter(fileName => {
+                const fsStat = statSync(join(repoPath, subPath, fileName));
+                if(fsStat.isFile()){
+                    return true;
+                }
+            });
             const languageFiles = this.getFilesForLanguageType(buildPackId);
             isBuildpackPathValid = this.checkValidBuildpackPath(
-                projectContent,
+                dirFileNames,
                 languageFiles
             );
         }
@@ -1056,18 +1063,6 @@ export class ProjectRegistry {
     }
 
     private getFilesForLanguageType(buildpackType: string) {
-        enum BuildpackLanguageType {
-            JAVA = "java",
-            SPRING_BOOT = "spring-boot",
-            NODEJS = "nodejs",
-            PYTHON = "python",
-            GO = "go",
-            RUBY = "ruby",
-            PHP = "php",
-            REACTJS = "reactjs",
-            FLASK = "flask",
-        }
-
         const javaBuildpackTypes = [
             "pom.xml",
             "build.gradle",
@@ -1076,42 +1071,48 @@ export class ProjectRegistry {
         ];
         const pythonBuildpackTypes = ["requirements.txt", "*.py"];
         const goBuildpackTypes = ["go.mod", "*.go"];
-        const rubyBuildpackTypes = ["Gemfile", "*.ruby"];
+        const rubyBuildpackTypes = ["Gemfile", "*.rb"];
         const phpBuildpackTypes = ["composer.json", "*.php"];
-        const nodejsBuildpackTypes = ["package.json"];
+        const nodejsBuildpackTypes = ["package.json", "*.js"];
         switch (buildpackType) {
-            case BuildpackLanguageType.JAVA:
+            case GoogleProviderBuildPackNames.JAVA:
                 return javaBuildpackTypes;
-            case BuildpackLanguageType.NODEJS:
+            case GoogleProviderBuildPackNames.NODEJS:
                 return nodejsBuildpackTypes;
-            case BuildpackLanguageType.PYTHON:
+            case GoogleProviderBuildPackNames.PYTHON:
                 return pythonBuildpackTypes;
-            case BuildpackLanguageType.GO:
+            case GoogleProviderBuildPackNames.GO:
                 return goBuildpackTypes;
-            case BuildpackLanguageType.RUBY:
+            case GoogleProviderBuildPackNames.RUBY:
                 return rubyBuildpackTypes;
-            case BuildpackLanguageType.PHP:
+            case GoogleProviderBuildPackNames.PHP:
                 return phpBuildpackTypes;
             default:
                 return [];
         }
     }
 
-    private checkValidBuildpackPath(contentList: string[], languageFiles: string[]): boolean {
-        for (const file of languageFiles) {
-            if (file[0] === "*") {
-                const extention = "." + file.split(".").pop();
-                const filteredContent = contentList.filter((item) =>
-                    item.toLowerCase().endsWith(extention)
-                );
-                if (filteredContent.length === 0) {
-                    return false;
+    private checkValidBuildpackPath(existingFileNames: string[], languageFiles: string[]): boolean {
+        for (const item of existingFileNames) {
+            if (Array.isArray(languageFiles)) {
+                for (const file of languageFiles) {
+                    if (
+                        (file === item || this.isFileExists(item, file))
+                    ) {
+                        return true;
+                    }
                 }
-            } else if (!contentList.includes(file)) {
-                return false;
             }
         }
-        return true;
+        return false;
+    }
+
+    private isFileExists(contentFile: string, languageFile: string): boolean {
+        if (languageFile.toLowerCase().startsWith("*")) {
+            const extention = "." + languageFile.split(".").pop();
+            return contentFile.toLowerCase().endsWith(extention);
+        }
+        return false;
     }
 
     private _removeLocation(projectId: string) {

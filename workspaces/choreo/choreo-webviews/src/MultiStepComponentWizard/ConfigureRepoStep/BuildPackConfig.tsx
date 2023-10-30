@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
@@ -51,11 +51,9 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
 
     const { formData, onFormDataChange } = props;
 
-    const { repository, buildPack, type } = formData;
+    const { repository, type } = formData;
 
     const { choreoProject } = useChoreoWebViewContext();
-
-
 
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
         ["getLocalComponentDirMetaData", choreoProject, repository],
@@ -69,18 +67,8 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
             }),
     );
 
-    const supportedVersions = useMemo(() => {
-        const supportedVersions: string[] = buildPack.supportedVersions.find((item) => item.displayName === formData.implementationType)?.supportedVersions;
-
-        onFormDataChange(prevFormData => ({
-            ...prevFormData,
-            buildPack: { ...prevFormData.buildPack, selectedVersion: supportedVersions[0] }
-        }));
-        
-        return supportedVersions;
-
-    }, [formData.implementationType]);
-
+    const selectedBuildPack = formData.buildPackList?.find(item => item.language === formData.implementationType);
+    const supportedVersions: string[] = selectedBuildPack?.supportedVersions?.split(',');
     
     const setFolderName = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -100,10 +88,10 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
         }
     }, [repository, localDirectorMetaData]);
 
-    const handleVersionChange = (value: any) => {
+    const handleVersionChange = (version: string) => {
         onFormDataChange(prevFormData => ({
             ...prevFormData,
-            buildPack:{ ...prevFormData.buildPack, selectedVersion: value }
+            selectedBuildPackVersion: version
         }));
     };
 
@@ -112,6 +100,15 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
     };
 
     const updateSubFolderName = debounce(setFolderName, 500);
+
+    useEffect(()=>{
+        if(supportedVersions?.length > 0 && !supportedVersions.includes(formData.selectedBuildPackVersion)) {
+            onFormDataChange(prevFormData => ({
+                ...prevFormData,
+                selectedBuildPackVersion: supportedVersions[0]
+            }));
+        }
+    },[formData.selectedBuildPackVersion, supportedVersions])
     
     return (
         <div>
@@ -131,7 +128,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                             canSelectFiles={false}
                             canSelectFolders={true}
                             canSelectMany={false}
-                            title={`Select the directory where your ${formData.mode === "fromExisting" ? "existing code is" : "component will be created"}`}
+                            title="Select the directory where your existing code is"
                             filters={{}}
                         />
                     </VSCodeTextField>
@@ -139,7 +136,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                 </DirectoryContainer>
                 <AutoComplete
                     items={supportedVersions ?? []}
-                    selectedItem={supportedVersions[0]}
+                    selectedItem={formData.selectedBuildPackVersion}
                     onChange={handleVersionChange}
                     id="version-selector"
                 /> 

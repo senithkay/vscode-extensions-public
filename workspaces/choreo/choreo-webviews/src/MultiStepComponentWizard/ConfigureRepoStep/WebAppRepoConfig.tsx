@@ -16,7 +16,7 @@ import styled from "@emotion/styled";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ComponentWizardState } from "../types";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
-import { ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
+import { ChoreoBuildPackNames, ChoreoImplementationType, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
 import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
 
@@ -75,7 +75,7 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
     return (
         <div>
             <StepContainer>
-                {implementationType && [ChoreoImplementationType.React, ChoreoImplementationType.Angular, ChoreoImplementationType.Vue].includes(implementationType) && (
+                {implementationType && WebAppSPATypes.includes(implementationType as ChoreoBuildPackNames) && (
                     <>
                         <VSCodeTextField
                             placeholder=""

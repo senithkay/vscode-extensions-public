@@ -126,7 +126,7 @@ export function addDisplayAnnotation(pkgPath: string, type: ComponentDisplayType
 
 export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentCreationParams): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        const { org, repositoryInfo, name, displayType, description, projectId, accessibility, webAppConfig, port, implementationType, selectedVersion } = args;
+        const { org, repositoryInfo, name, displayType, description, projectId, accessibility, webAppConfig, port } = args;
 
         readFile(workspaceFilePath, 'utf-8', function (err, contents) {
             if (err) {
@@ -153,17 +153,22 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                 }
             };
             let componentPath = join('repos', repositoryInfo.org, repositoryInfo.repo);
-            if (args.displayType.toString().startsWith("buildpack")) {
-                metadata.implementationType = implementationType;
-                metadata.selectedVersion = selectedVersion;
-            } else if (args.displayType.toString().startsWith("byoc")) {
+            if (args.displayType.toString().startsWith("byoc") || args.displayType.toString().startsWith("buildpack")) {
                 const repoInfo = args.repositoryInfo as BYOCRepositoryDetails;
                 let srcGitRepoUrl = `https://github.com/${repoInfo.org}/${repoInfo.repo}`;
                 if (repositoryInfo.gitProvider === "bitbucket") {
                     srcGitRepoUrl = `https://bitbucket.org/${repoInfo.org}/${repoInfo.repo}`;
                 }
 
-                if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess) {
+                if (args.displayType.toString().startsWith("buildpack") && args.buildPackId && args.languageVersion) {
+                    metadata.buildpackConfig = {
+                        srcGitRepoBranch: repoInfo.branch,
+                        srcGitRepoUrl: srcGitRepoUrl,
+                        buildContext: repoInfo.subPath,
+                        buildpackId: args.buildPackId,
+                        languageVersion: args.languageVersion
+                    }
+                } else if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess) {
                     metadata.byocWebAppsConfig = {
                         ...webAppConfig,
                         srcGitRepoBranch: repoInfo.branch,
@@ -182,7 +187,9 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                     metadata.port = port;
                 }
 
-                if (repoInfo.dockerContext) {
+                if (args.displayType.toString().startsWith("buildpack") && repositoryInfo.subPath) {
+                    componentPath = join(componentPath, repositoryInfo.subPath);
+                } else if (repoInfo.dockerContext) {
                     componentPath = join(componentPath, repoInfo.dockerContext);
                 } else if (webAppConfig?.dockerContext) {
                     componentPath = join(componentPath, webAppConfig.dockerContext);

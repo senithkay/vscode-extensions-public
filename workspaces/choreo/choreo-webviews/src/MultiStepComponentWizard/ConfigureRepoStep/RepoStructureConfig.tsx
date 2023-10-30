@@ -11,15 +11,8 @@
  *  associated services.
  */
 import React, { useMemo } from "react";
-import styled from "@emotion/styled";
 
-import debounce from "lodash.debounce"
-
-import { cx } from "@emotion/css";
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { useContext } from "react";
-import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
-import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
@@ -27,9 +20,15 @@ import { BYOCRepoConfig } from "./BYOCRepoConfig";
 import { WebAppRepoConfig } from "./WebAppRepoConfig";
 import { BuildPackConfig } from "./BuildPackConfig";
 import { MIConfig } from "./MIConfig";
-import { BUILD_PACK_TYPES, ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
-import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
+import { ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
 import { useQuery } from "@tanstack/react-query";
+import { cx } from "@emotion/css";
+import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
+import debounce from "lodash.debounce";
+import { RequiredFormInput } from "../../Commons/RequiredInput";
+import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
+import styled from "@emotion/styled";
 
 const StepContainer = styled.div`
     display: flex;
@@ -46,7 +45,7 @@ export interface RepoStructureConfigProps {
 
 export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
 
-    const { mode, repository, type, implementationType } = props.formData;
+    const { repository, type, implementationType } = props.formData;
     const { choreoProject } = useContext(ChoreoWebViewContext);
 
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
@@ -71,33 +70,24 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
         }));
     };
 
-    const isBuildPackType = BUILD_PACK_TYPES.includes(implementationType);
+    const isBuildPackType = ![ChoreoImplementationType.Ballerina, ChoreoImplementationType.MicroIntegrator, ChoreoImplementationType.Docker].includes(implementationType as ChoreoImplementationType);
+    
 
     const folderNameError = useMemo(() => {
         if(localDirectorMetaData){
+            // todo: revisit this!!!
             if (repository?.subPath) {
-                if (mode === 'fromExisting' && !isBuildPackType && implementationType !== ChoreoImplementationType.MicroIntegrator) {
-                    if (!localDirectorMetaData?.isSubPathValid) {
-                        return 'Sub path does not exist';
-                    }
-                    if (localDirectorMetaData?.isSubPathEmpty) {
-                        return "Please provide a path that is not empty"
-                    }
-                    if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInPath) {
-                        return "Please provide a path that contains a Ballerina project."
-                    }
+                if (!localDirectorMetaData?.isSubPathValid) {
+                    return 'Sub path does not exist';
                 }
-                if (mode === 'fromScratch') {
-                    if (!localDirectorMetaData?.isSubPathEmpty) {
-                        return "Please provide a path that is empty"
-                    }
+                if (localDirectorMetaData?.isSubPathEmpty) {
+                    return "Please provide a path that is not empty"
                 }
-            } else {
-                if (mode === 'fromExisting') {
-                    if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInRoot) {
-                        return "Repository root does not contain a valid Ballerina project"
-                    }
+                if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInPath) {
+                    return "Please provide a path that contains a Ballerina project."
                 }
+            } else if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInRoot) {
+                return "Repository root does not contain a valid Ballerina project"
             }
         }
     }, [repository, localDirectorMetaData]);
@@ -106,7 +96,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
 
     return (
         <div>
-            {(mode === "fromScratch" || implementationType === ChoreoImplementationType.Ballerina) && (
+            {(implementationType === ChoreoImplementationType.Ballerina) && (
                 <StepContainer>
                     <VSCodeTextField
                         placeholder=""
@@ -124,29 +114,28 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                             canSelectFiles={false}
                             canSelectFolders={true}
                             canSelectMany={false}
-                            title={`Select the directory where your ${mode === "fromExisting" ? "existing code is" : "component will be created"}`}
+                            title={`Select the directory where your existing code is`}
                             filters={{}}
                         />
                     </VSCodeTextField>
-                    {/** TODO: Show a message if folder is already being used */}
                 </StepContainer>
             )}
             {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
-            {mode === "fromExisting" && implementationType === ChoreoImplementationType.Docker && (
+            {implementationType === ChoreoImplementationType.Docker && (
                 <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
             )}
-            {mode === "fromExisting" && type === ChoreoComponentType.WebApplication && !isBuildPackType && (
+            {type === ChoreoComponentType.WebApplication && !isBuildPackType && (
                 <WebAppRepoConfig 
                     formData={props.formData} 
                     onFormDataChange={props.onFormDataChange} 
                     webAppConfigError={props.formErrors['webAppConfig'] || props.formErrors['port']}
                 />
             )}
-            {mode === "fromExisting" && isBuildPackType && (
+            {isBuildPackType && (
                 <BuildPackConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
             )}
-            {mode === "fromExisting" && implementationType === ChoreoImplementationType.MicroIntegrator && (
+            {implementationType === ChoreoImplementationType.MicroIntegrator && (
                 <MIConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
             )}
         </div>

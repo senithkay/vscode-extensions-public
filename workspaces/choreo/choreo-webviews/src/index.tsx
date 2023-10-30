@@ -15,7 +15,6 @@ import React from "react";
 import { render } from "react-dom";
 import styled from "@emotion/styled";
 import ChoreoWebview from "./ChoreoWebview";
-import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -31,11 +30,10 @@ export function renderChoreoWebViews(
 	orgName?: string,
 	componentLimit?: number,
 	choreoUrl?: string,
-	componentCreateMode?: ComponentCreateMode
 ) {
 	render(
 		<React.StrictMode>
-			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl, componentCreateMode }} />
+			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl }} />
 		</React.StrictMode>,
 		target
 	);

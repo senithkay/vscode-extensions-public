@@ -10,18 +10,17 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useMemo, useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { BuildPackVersions, ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { TextField, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
-import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { BallerinaIcon, DockerIcon } from "../icons";
+// import { BallerinaIcon, DockerIcon } from "../icons";
 
 const StepContainer = styled.div`
     display: flex;
@@ -39,72 +38,14 @@ const DropDownContainer = styled.div`
     flex-direction: column;
 `;
 
-interface ComponentType {
-    label: string;
-    value: string;
-}
+const BuildPackOptionWrap = styled.div`
+    position: relative;
+`;
 
-const COMPONENT_TYPES: ComponentType[] = [
-    { label: "service", value: "service" },
-    { label: "scheduledTask", value: "scheduleTask" },
-    { label: "manualTrigger", value: "manualTask" },
-    { label: "webhook", value: "webhook" },
-    { label: "webApplication", value: "webApp" }
-];
 
-function sanitizeFolderName(folderName: string): string {
-    // Replace any characters that are not letters, numbers, spaces, or underscores with an empty string
-    const sanitized = folderName.replace(/[^a-zA-Z0-9\s_]/g, '');
-
-    // Remove any leading or trailing spaces
-    const trimmed = sanitized.trim();
-
-    // Replace any consecutive spaces with a dash
-    const final = trimmed.replace(/\s+/g, '-');
-
-    return final;
-}
 
 export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange, stepValidationErrors } = props;
-    const [items, setItems] = useState([]);
-
-    const { currentProjectOrg } = useChoreoWebViewContext();
-
-    useMemo(async () => {
-        // get component type keyword for request
-        const componentType = COMPONENT_TYPES.find((component) => component.label === formData.type).value;
-
-        const buildPackParams = {
-            orgId: currentProjectOrg.id,
-            componentType: componentType
-        };
-
-        const buildPacks = await ChoreoWebViewAPI.getInstance().getBuildpack(buildPackParams);
-
-        const implementationTypes = buildPacks.map((buildPack) => {
-            return {
-                label: buildPack.displayName,
-                description: buildPack.displayName,
-                value: buildPack.language,
-                icon: buildPack.iconUrl
-            };
-        });
-
-        const supportedVersionsList: BuildPackVersions[] = buildPacks.map((buildPack) => {
-            return {
-                displayName: buildPack.language,
-                supportedVersions: buildPack.supportedVersions.split(',')
-            };
-        });
-
-        onFormDataChange(prevFormData => ({
-            ...prevFormData,
-            buildPack: { ...prevFormData.buildPack, supportedVersions: supportedVersionsList }
-        }));
-
-        setItems(implementationTypes);
-    }, [formData.type]);
 
     const setComponentName = (name: string) => {
         onFormDataChange(prevFormData =>
@@ -112,7 +53,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             ...prevFormData, name,
             repository: {
                 ...prevFormData.repository,
-                subPath: prevFormData.mode === "fromScratch" ? sanitizeFolderName(name) : prevFormData?.repository?.subPath
+                subPath: prevFormData?.repository?.subPath
             }
         }));
     };
@@ -148,36 +89,16 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                     Description
                 </VSCodeTextArea>
                 <div>
-                    {formData.mode === "fromScratch" ? (<>
-                        <p>How do you want to implement it?</p>
+                    <p>Implementation Type</p>
+                    <BuildPackOptionWrap>
+                        {formData.buildPacksLoading && <ProgressIndicator />}
                         <ConfigCardList
                             formKey='implementationType'
                             formData={formData}
                             onFormDataChange={onFormDataChange}
-                            items={[
-                                {
-                                    label: "Ballerina",
-                                    description: "Component impelmented using Ballerina Language",
-                                    value: ChoreoImplementationType.Ballerina,
-                                    icon: BallerinaIcon
-                                },
-                                {
-                                    label: "Docker",
-                                    description: "Component impelmented using other language and built using Docker",
-                                    value: ChoreoImplementationType.Docker,
-                                    icon: DockerIcon
-                                }
-                            ]}
+                            items={formData?.buildPackList?.map(item=>({ label:item.displayName, icon: item.iconUrl, value:item.language }))}
                         />
-                    </>) : (<>
-                        <p>Implementation Type</p>
-                        <ConfigCardList
-                            formKey='implementationType'
-                            formData={formData}
-                            onFormDataChange={onFormDataChange}
-                            items={items}
-                        />
-                    </>)}
+                    </BuildPackOptionWrap>
                     {formData?.type === ChoreoComponentType.Webhook && (
                         <DropDownContainer>
                             <label htmlFor="access-mode">Access Mode</label>

@@ -199,8 +199,9 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
                         </TriggerSelectorContainer>
                     )}
                     {triggersError && <ErrorBanner errorMsg={triggersError as any} />}
-                </DropDownContainer>            
-                {formData.mode === "fromScratch" && (
+                </DropDownContainer>
+                {/** TODO: Check webhook flow again */}        
+                {true && (
                     <ServiceContainer>
                         <div>
                             <label htmlFor="service-dropdown">Select one or more Trigger Services</label>
@@ -242,8 +243,8 @@ export const TriggerConfigStep: Step<Partial<ComponentWizardState>> = {
         {
             field: "trigger",
             message: "Please select a trigger type and at least one service",
-            rule: async (value: TriggerDetails | undefined, formData: Partial<ComponentWizardState>) => {
-                return formData.mode === "fromExisting" || (value?.id !== undefined && value?.services?.length > 0);
+            rule: async (value: TriggerDetails | undefined, _formData: Partial<ComponentWizardState>) => {
+                return (value?.id !== undefined && value?.services?.length > 0);
             },
         },
     ],

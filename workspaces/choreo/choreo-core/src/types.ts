@@ -67,11 +67,16 @@ export interface Buildpack {
     iconUrl: string;
     provider: string;
     builder: {
-      builderId: string;
-      builderImage: string;
-      displayName: string;
-      imageHash: string;
+        id: string;
+        builderImage: string;
+        displayName: string;
+        imageHash: string;
     };
+    componentTypes: {
+        id: string;
+        displayName: string;
+        type: string
+    }[];
 }
 
 export interface ComponentCount {
@@ -343,31 +348,30 @@ export interface WorkspaceConfig {
     }
 }
 export enum ComponentDisplayType {
-    RestApi = 'restAPI',
-    ManualTrigger = 'manualTrigger',
-    ScheduledTask = 'scheduledTask',
     Webhook = 'webhook',
-    Websocket = 'webSocket',
-    Proxy = 'proxy',
-    ByocCronjob = 'byocCronjob',
-    ByocJob = 'byocJob',
-    GraphQL = 'graphql',
-    ByocWebApp = 'byocWebApp',
-    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
-    ByocRestApi = 'byocRestApi',
-    ByocWebhook = 'byocWebhook',
-    MiRestApi = 'miRestApi',
-    MiEventHandler = 'miEventHandler',
+    Proxy = 'proxy', 
+    GraphQL = 'graphql',    // remove this?
+
+    // service
     Service = 'ballerinaService',
     ByocService = 'byocService',
-    MiApiService = 'miApiService',
     BuildpackService = 'buildpackService',
-    BuildpackWebhook = 'buildpackWebhook',
+
+    // manual trigger
     BuildpackJob = 'buildpackJob',
-    BuildpackTestRunner = 'buildpackTestRunner',
-    BuildpackCronJob = 'buildpackCronjob',
-    BuildpackWebApp = 'buildpackWebApp',
-    BuildpackRestApi = 'buildpackRestApi',
+    ByocJob = 'byocJob',
+    ManualTrigger = 'manualTrigger',
+
+    // cron job
+    BuildpackCronJob = 'buildpackCronJob',
+    ByocCronjob = 'byocCronjob',
+    ScheduledTask = 'scheduledTask',
+    MiCronjob = 'miCronjob',
+
+    // webapp
+    ByocWebApp = 'byocWebApp',
+    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
+    BuildpackWebApp = 'buildpackWebapp',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -390,7 +394,6 @@ export interface WorkspaceComponentMetadata {
     description: string;
     projectId: string;
     accessibility?: ComponentAccessibility;
-    implementationType?: ChoreoImplementationType;
     repository: {
         orgApp: string;
         nameApp: string;
@@ -405,9 +408,15 @@ export interface WorkspaceComponentMetadata {
         srcGitRepoUrl: string;
         srcGitRepoBranch: string;
     },
+    buildpackConfig?: {
+        buildContext: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+        languageVersion: string;
+        buildpackId: string;
+    },
     byocWebAppsConfig?: ComponentWizardWebAppConfig;
     port?: number;
-    selectedVersion?: string;
 }
 
 export enum ChoreoImplementationType {
@@ -426,18 +435,41 @@ export enum ChoreoImplementationType {
     MicroIntegrator = "microintegrator",
 }
 
+export enum ChoreoBuildPackNames {
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    MicroIntegrator = "microintegrator",
+}
+
+export enum GoogleProviderBuildPackNames {
+    JAVA = "java",
+    NODEJS = "nodejs",
+    PYTHON = "python",
+    GO = "go",
+    RUBY = "ruby",
+    PHP = "php",
+}
+
+export const WebAppSPATypes = [ChoreoBuildPackNames.React, ChoreoBuildPackNames.Vue, ChoreoBuildPackNames.Angular]
+
 export enum ChoreoServiceType {
     RestApi = "REST",
     GraphQL = "GraphQL",
     GRPC = "GRPC"
 }
 
+export const ChoreoServiceTypeList = [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL, ChoreoServiceType.GRPC]
+
 export enum ChoreoComponentType {
     Service = 'service',
     ScheduledTask = 'scheduledTask',
     ManualTrigger = 'manualTrigger',
     Webhook = 'webhook',
-    WebApplication = 'webApplication'
+    WebApplication = 'webApp'
 }
 
 export const BUILD_PACK_TYPES = [
@@ -471,8 +503,9 @@ export interface ChoreoComponentCreationParams {
     /** Relevant for non-ballerina rest and gql APIs */
     endpointContext?: string;
     /** Relevant for build pack types */
-    implementationType?: ChoreoImplementationType;
-    selectedVersion?: string;
+    implementationType?: string;
+    languageVersion?: string;
+    buildPackId?: string;
 }
 
 export interface TriggerDetails {
@@ -532,8 +565,8 @@ export interface getLocalComponentDirMetaDataRes {
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
     isBuildpackPathValid: boolean;
-    hasPomXmlInPath: boolean,
-    hasPomXmlInInRoot: boolean
+    hasPomXmlInPath: boolean;
+    hasPomXmlInInRoot: boolean;
 }
 
 export interface Endpoint {
@@ -559,7 +592,6 @@ export enum Status {
     ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }
 
-export type ComponentCreateMode = "fromScratch" | "fromExisting";
 
 export enum GitProvider {
     GITHUB = 'github',
@@ -586,8 +618,4 @@ export enum ServiceTypes {
     WEBHOOK = "Webhook",
     WEBAPP = "WebApp",
     OTHER = "other"
-}
-export interface BuildPackVersions { 
-    displayName: string;
-    supportedVersions: string[];
 }

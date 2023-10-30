@@ -17,7 +17,6 @@ import { ComponentWizard } from "./MultiStepComponentWizard/ComponentWizard";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
 import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
-import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ProjectView } from "./ActivityBar/ProjectView";
 import { AccountView } from "./ActivityBar/AccountView";
 import { ChoreoComponentsContextProvider } from "./context/choreo-components-ctx";
@@ -36,11 +35,10 @@ interface ChoreoWebviewProps {
     projectId?: string;
     orgName?: string;
     choreoUrl?: string;
-    componentCreateMode?: ComponentCreateMode;
 }
 
 function ChoreoWebview(props: ChoreoWebviewProps) {
-    const { type, orgName, projectId, choreoUrl, componentCreateMode } = props;
+    const { type, orgName, projectId, choreoUrl } = props;
     return (
         <ChoreoWebviewQueryClientProvider>
             <ErrorBoundary>
@@ -58,7 +56,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                             case "ComponentCreateForm":
                                 return (
                                     <ChoreoWebViewContextProvider choreoUrl={choreoUrl}>
-                                        <ComponentWizard componentCreateMode={componentCreateMode} />
+                                        <ComponentWizard />
                                     </ChoreoWebViewContextProvider>
                                 );
                             case "ActivityBarAccountView":

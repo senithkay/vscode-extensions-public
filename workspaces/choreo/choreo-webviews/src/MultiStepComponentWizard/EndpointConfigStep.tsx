@@ -17,7 +17,7 @@ import { ComponentWizardState } from "./types";
 import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ErrorBanner, ErrorIcon, Typography } from "@wso2-enterprise/ui-toolkit";
-import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoServiceType, ChoreoServiceTypeList, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
@@ -71,6 +71,10 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
         onFormDataChange(prevFormData => ({ ...prevFormData, networkVisibility }));
     };
 
+    const setServiceType = (serviceType: ChoreoServiceType) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, serviceType }));
+    };
+
     const projectDesc = {
         'Project': 'Allows components within the same project to access the endpoint.',
         'Organization': 'Allows any component within the same organization to access the endpoint.',
@@ -82,6 +86,12 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
             <StepContainer>
                 <SectionWrapper>
                     <Typography variant="h3">Configure Endpoints</Typography>
+                    <DropDownContainer>
+                        <label htmlFor="serviceType">Service Type</label>
+                        <VSCodeDropdown value={formData.serviceType} id="serviceType" onChange={(e: any) => setServiceType(e.target.value)}>
+                            {ChoreoServiceTypeList?.map(item=><VSCodeOption value={item}>{item}</VSCodeOption>)}
+                        </VSCodeDropdown>
+                    </DropDownContainer>
                     <VSCodeTextField
                         autofocus
                         placeholder="Port"
@@ -106,7 +116,6 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
                         </DropDownContainer>
                     )}
 
-                    {[ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(formData?.serviceType) && (
                         <>
                             <VSCodeTextField
                                 autofocus
@@ -120,9 +129,8 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
                             </VSCodeTextField>
                             {stepValidationErrors["endpointContext"] && <ErrorBanner errorMsg={stepValidationErrors["endpointContext"]} />}
                         </>
-                    )}
 
-                    {formData.mode === 'fromExisting' && formData?.serviceType === ChoreoServiceType.RestApi && <VSCodeTextField
+                    <VSCodeTextField
                         placeholder=""
                         onInput={(e: any) => setOpenApiFilePath(e.target.value)}
                         value={repository?.openApiFilePath}
@@ -139,7 +147,7 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
                             title="Select OpenAPI file path"
                             filters={{ 'YAML Files': ['yaml'] }}
                         />
-                    </VSCodeTextField>}
+                    </VSCodeTextField>
                 </SectionWrapper>
             </StepContainer>
         </div>

@@ -105,7 +105,7 @@ export const MIConfig = (props: MIConfigProps) => {
                             canSelectFiles={false}
                             canSelectFolders={true}
                             canSelectMany={false}
-                            title={`Select the directory where your ${formData.mode === "fromExisting" ? "existing code is" : "component will be created"}`}
+                            title="Select the directory where your existing code is"
                             filters={{}}
                         />
                     </VSCodeTextField>
