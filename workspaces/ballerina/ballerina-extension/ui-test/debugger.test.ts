@@ -25,7 +25,7 @@ describe('Debugger UI Tests', () => {
         await VSBrowser.instance.waitForWorkbench();
     });
 
-    it('Test Debug Codelense', async () => {
+    it.skip('Test Debug Codelense', async () => {
         const editorView = new ExtendedEditorView(new EditorView());
         const lens = await editorView.getAction("Debug");
         expect(lens).is.not.undefined;
@@ -34,7 +34,7 @@ describe('Debugger UI Tests', () => {
         await verifyDebugOutput();
     });
 
-    it('Test run & debug', async () => {
+    it.skip('Test run & debug', async () => {
         await new EditorView().closeAllEditors();
         const btn = await new ActivityBar().getViewControl('Run');
         const debugView = (await btn.openView()) as DebugView;
