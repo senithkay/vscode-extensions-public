@@ -21,7 +21,9 @@
     "lint": "tslint --project .",
     "lint:fix": "tslint --fix --project .",
     "generateMappings": "java -jar ./node_modules/jsonix/lib/jsonix-schema-compiler-full.jar -d generated -p PO synapse-schemas/synapse_config.xsd",
-    "generateST": "node ./lib/tools/stGenerator.js"
+    "generateST": "node ./lib/tools/stGenerator.js",
+    "generateForms": "node ./lib/tools/formGenerator.js",
+    "generateFormsFromJSON": "node ./lib/tools/formGeneratorFromJSON.js"
   },
   "husky": {
     "hooks": {

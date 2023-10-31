@@ -6,10 +6,11 @@
     "noImplicitAny": true,
     "removeComments": false,
     "module": "CommonJS",
-    "target": "esnext",
+    "target": "ES2021",
+    "lib": ["ES2021"],
     "jsx": "react",
     "outDir": "lib",
   },
-  "include": ["src", "generator"],
+  "include": ["src", "tools"],
   "exclude": ["node_modules", "**/*-spec.ts"]
 }
