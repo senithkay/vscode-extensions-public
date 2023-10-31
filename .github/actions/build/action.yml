@@ -99,6 +99,7 @@ runs:
         node common/scripts/install-run-rush.js build --verbose
       env:
         isPreRelease: ${{ inputs.isPreRelease == 'true' }}
+        API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}
 
     - name: Compress build
       shell: bash
