@@ -109,7 +109,7 @@ import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 import { ChoreoProjectManagerRPCWebview } from "@wso2-enterprise/choreo-client/lib/manager/rpc/manager-client-rpc-webview";
-
+import { ChoreoCellViewRPCWebview } from "@wso2-enterprise/choreo-client/lib/cellView/rpc/cell-view-client-rpc-webview";
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
 export class ChoreoWebViewAPI {
@@ -119,6 +119,7 @@ export class ChoreoWebViewAPI {
     private _projectClientRpc: ChoreoProjectClientRPCWebView;
     private _githubAppClient: ChoreoGithubAppClientRPCWebView;
     private _choreoProjectManager: ChoreoProjectManagerRPCWebview;
+    private _choreoCellView: ChoreoCellViewRPCWebview;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
@@ -126,6 +127,7 @@ export class ChoreoWebViewAPI {
         this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
         this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
         this._choreoProjectManager = new ChoreoProjectManagerRPCWebview(this._messenger);
+        this._choreoCellView = new ChoreoCellViewRPCWebview(this._messenger);
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -326,6 +328,10 @@ export class ChoreoWebViewAPI {
 
     public getChoreoProjectManager(): ChoreoProjectManagerRPCWebview {
         return this._choreoProjectManager;
+    }
+
+    public getChoreoCellView(): ChoreoCellViewRPCWebview {
+        return this._choreoCellView;
     }
 
     public closeWebView() {
