@@ -33,7 +33,7 @@ export function ChoreoArchitectureView(props: ArchitectureViewProps) {
     const { currentProjectOrg } = useChoreoWebViewContext();
 
     const getComponentModel = async (): Promise<GetComponentModelResponse> => {
-        if (projectId && orgName) {
+        if (projectId && orgName && currentProjectOrg) {
             const response: GetComponentModelResponse = await 
                 ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, currentProjectOrg?.id);
             return response;

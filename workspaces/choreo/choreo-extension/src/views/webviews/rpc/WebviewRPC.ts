@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -12,18 +12,29 @@
  */
 import { commands, WebviewPanel, window, Uri, ProgressLocation, WebviewView } from "vscode";
 import { Messenger } from "vscode-messenger";
-import { BROADCAST } from 'vscode-messenger-common';
+import { BROADCAST } from "vscode-messenger-common";
 import {
-    GetCurrentOrgRequest, GetAllProjectsRequest,
-    GetLoginStatusRequest, ExecuteCommandRequest,
-    LoginStatusChangedNotification, SelectedOrgChangedNotification,
+    GetCurrentOrgRequest,
+    GetAllProjectsRequest,
+    GetLoginStatusRequest,
+    ExecuteCommandRequest,
+    LoginStatusChangedNotification,
+    SelectedOrgChangedNotification,
     CloseWebViewNotification,
     SelectedProjectChangedNotification,
-    Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ShowErrorMessage, isChoreoProject, getChoreoProject,
+    Project,
+    GetComponents,
+    GetProjectLocation,
+    OpenExternal,
+    OpenChoreoProject,
+    CloneChoreoProject,
+    ShowErrorMessage,
+    isChoreoProject,
+    getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
-    Component, UpdateProjectOverview,
+    Component,
+    UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
     getDiagramComponentModel,
@@ -86,17 +97,16 @@ import {
     RefreshWorkspaceNotification,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
+import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
-import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
+import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager/";
 
 import { ext } from "../../../extensionVariables";
 import { ProjectRegistry } from "../../../registry/project-registry";
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import { cloneProject, askProjectDirPath } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
-import { executeWithTaskRetryPrompt } from "../../../retry";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
@@ -160,8 +170,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return ProjectRegistry.getInstance().createNonBalLocalComponentFromExistingSource(params);
     });
 
-    messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string, components: PushedComponent[] }) => {
-        const answer = await vscode.window.showInformationMessage("Some components are deleted in Choreo. Do you want to remove them from workspace?", "Yes", "No");
+    messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string; components: PushedComponent[] }) => {
+        const answer = await vscode.window.showInformationMessage(
+            "Some components are deleted in Choreo. Do you want to remove them from workspace?",
+            "Yes",
+            "No"
+        );
         if (answer === "Yes") {
             ProjectRegistry.getInstance().removeDeletedComponents(params.components, params.projectId);
         }
@@ -184,13 +198,15 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return ProjectRegistry.getInstance().getComponentBuildStatus(org.id, org.handle, component);
     });
 
-    messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
+    messenger.onRequest(DeleteComponent, async (params: { projectId: string; component: Component }) => {
         const { orgHandler, displayName } = params.component;
         const org = ext.api.getOrgByHandle(orgHandler);
         if (org) {
-            const answer = await vscode.window.showWarningMessage(`Are you sure you want to delete the component ${displayName}? `,
+            const answer = await vscode.window.showWarningMessage(
+                `Are you sure you want to delete the component ${displayName}? `,
                 { modal: true },
-                "Delete Component");
+                "Delete Component"
+            );
             if (answer === "Delete Component") {
                 await ProjectRegistry.getInstance().deleteComponent(params.component, org.id, org.handle, params.projectId);
                 return params.component;
@@ -199,13 +215,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
     });
 
-    messenger.onRequest(getEndpointsForVersion, async (params: { componentId: string, versionId: string, orgId: number }) : Promise<EndpointData | null> => {
-        return await ProjectRegistry.getInstance().getEndpointsForVersion(
-            params.componentId, params.versionId, params.orgId
-        );
+    messenger.onRequest(getEndpointsForVersion, async (params: { componentId: string; versionId: string; orgId: number }): Promise<EndpointData | null> => {
+        return await ProjectRegistry.getInstance().getEndpointsForVersion(params.componentId, params.versionId, params.orgId);
     });
 
-    messenger.onRequest(PullComponent, async (params: { projectId: string, componentId: string }) => {
+    messenger.onRequest(PullComponent, async (params: { projectId: string; componentId: string }) => {
         const project = await ext.api.getChoreoProject();
         if (!project) {
             throw new Error("Project not found");
@@ -218,7 +232,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(GetComponentCount, async (params: GetComponentCountParams) => {
-        const { orgId, } = params;
+        const { orgId } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
             return ProjectRegistry.getInstance().getComponentCount(orgId);
@@ -253,7 +267,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const { orgId, projectId } = params;
         const org = ext.api.getOrgById(orgId);
         if (org) {
-            ProjectRegistry.getInstance().getProject(projectId, orgId, org.handle)
+            ProjectRegistry.getInstance()
+                .getProject(projectId, orgId, org.handle)
                 .then((project: Project | undefined) => {
                     if (project) {
                         cloneProject(project);
@@ -266,14 +281,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return await askProjectDirPath();
     });
 
-    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project, dirPath: string, askOpeningOptions?: boolean }) => {
+    messenger.onRequest(CloneChoreoProjectWithDir, (params: { project: Project; dirPath: string; askOpeningOptions?: boolean }) => {
         cloneProject(params.project, params.dirPath, params.askOpeningOptions);
     });
 
     messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {
         const projectLocation: string | undefined = ProjectRegistry.getInstance().getProjectLocation(params.projectID);
         if (projectLocation) {
-            const repoPath = join(dirname(projectLocation), 'repos', params.orgName, params.repoName);
+            const repoPath = join(dirname(projectLocation), "repos", params.orgName, params.repoName);
             const git = await initGit(ext.context);
             if (git) {
                 return git.isEmptyRepository(repoPath);
@@ -345,7 +360,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         if (!org) {
             throw new Error("Org not found");
         }
-        await ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgId, org.handle)
+        await ProjectRegistry.getInstance()
+            .getDiagramModel(params.projId, params.orgId, org.handle)
             .then(async (component) => {
                 component.forEach((value, _key) => {
                     // Draw the cell diagram for the last version of the component
@@ -360,13 +376,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                         diagnostics.push({ name: `${value.displayName} Component` });
                     }
                 });
-            }).catch((error: any) => {
+            })
+            .catch((error: any) => {
                 getLogger().error(`Error while getting diagram model for project ${params.projId}. ${error?.message} ${error?.cause ? error.cause : ""}`);
             });
 
         return {
             componentModels: componentModels,
-            diagnostics: diagnostics
+            diagnostics: diagnostics,
         };
     });
 
@@ -391,17 +408,20 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return [];
     });
 
-    messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string, componentName: string }): Promise<void> => {
-        return window.withProgress({
-            title: `Pushing the ${params.componentName} component from your local machine to Choreo.`,
-            location: ProgressLocation.Notification,
-            cancellable: false
-        }, async (_progress, cancellationToken) => {
-            const org = await ext.api.getSelectedOrg();
-            if (org){
-                await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
+    messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string; componentName: string }): Promise<void> => {
+        return window.withProgress(
+            {
+                title: `Pushing the ${params.componentName} component from your local machine to Choreo.`,
+                location: ProgressLocation.Notification,
+                cancellable: false,
+            },
+            async (_progress, cancellationToken) => {
+                const org = await ext.api.getSelectedOrg();
+                if (org) {
+                    await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName, org);
+                }
             }
-        });
+        );
     });
 
     messenger.onRequest(GoToSource, async (filePath): Promise<void> => {
@@ -427,8 +447,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     ext.api.onRefreshWorkspaceMetadata(() => {
-            messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
-        });
+        messenger.sendNotification(RefreshWorkspaceNotification, BROADCAST, null);
+    });
+
     messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
         if (args.length >= 1) {
             const cmdArgs = args.length > 1 ? args.slice(1) : [];
@@ -440,7 +461,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         window.showErrorMessage(error);
     });
     messenger.onNotification(CloseWebViewNotification, () => {
-        if ('dispose' in view) {
+        if ("dispose" in view) {
             view.dispose();
         }
     });
@@ -504,10 +525,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     // Register RPC handlers for the Choreo Project Manager
     registerChoreoProjectManagerRPCHandlers(messenger, manager);
+
+    // Register RPC handlers for the Choreo Cell View
+    registerChoreoCellViewRPCHandlers(messenger, ext.clients.cellViewClient);
 }
 
 export class WebViewPanelRpc {
-
     private _messenger = new Messenger();
     private _panel: WebviewPanel | undefined;
 
@@ -522,16 +545,31 @@ export class WebViewPanelRpc {
 
     public registerPanel(view: WebviewPanel) {
         if (!this._panel) {
-            this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents', 'refreshWorkspace'] });
+            this._messenger.registerWebviewPanel(view, {
+                broadcastMethods: [
+                    "loginStatusChanged",
+                    "selectedOrgChanged",
+                    "selectedProjectChanged",
+                    "ghapp/onGHAppAuthCallback",
+                    "refreshComponents",
+                    "refreshWorkspace",
+                ],
+            });
             this._panel = view;
         } else {
             throw new Error("Panel already registered");
         }
     }
+
+    public dispose() {
+        if (this._panel) {
+            this._panel.dispose();
+            this._panel = undefined;
+        }
+    }
 }
 
 export class WebViewViewRPC {
-
     private _messenger = new Messenger();
     private _view: WebviewView | undefined;
 
@@ -546,7 +584,16 @@ export class WebViewViewRPC {
 
     public registerView(view: WebviewView) {
         if (!this._view) {
-            this._messenger.registerWebviewView(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback', 'refreshComponents', 'refreshWorkspace'] });
+            this._messenger.registerWebviewView(view, {
+                broadcastMethods: [
+                    "loginStatusChanged",
+                    "selectedOrgChanged",
+                    "selectedProjectChanged",
+                    "ghapp/onGHAppAuthCallback",
+                    "refreshComponents",
+                    "refreshWorkspace",
+                ],
+            });
             this._view = view;
         } else {
             throw new Error("View already registered");
