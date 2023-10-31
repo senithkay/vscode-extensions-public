@@ -32,8 +32,6 @@ export class ComponentWizardView {
         await CommonUtils.switchToIFrame("Create New Component");
         await CommonUtils.waitUntilById("card-select-service");
         await CommonUtils.waitAndClickById("wizard-next-btn");
-        await CommonUtils.waitUntilById("card-select-REST");
-        await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitAndTypeById("component-name-input", componentName);
         await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitUntilById("directory-select-input");
