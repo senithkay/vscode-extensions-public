@@ -9,7 +9,6 @@
 
 import * as vscode from 'vscode';
 import { createDiagramWebview } from './diagram/webview';
-import { MILanguageClient } from './lang-client/activator';
 import axios from 'axios';
 import { generatePrompt } from './ai/prompt';
 import { unescape } from 'querystring';

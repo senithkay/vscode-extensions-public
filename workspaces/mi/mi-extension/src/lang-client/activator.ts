@@ -19,12 +19,10 @@ import {
 } from 'vscode';
 import * as path from 'path';
 import {
-    DidChangeConfigurationNotification,
-    LanguageClientOptions,
-    RequestType,
-    TextDocumentPositionParams
+    LanguageClientOptions
 } from 'vscode-languageclient';
 import { ServerOptions } from "vscode-languageclient/node";
+import {  DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';
@@ -62,7 +60,7 @@ export class MILanguageClient {
         if (JAVA_HOME) {
             let executable: string = path.join(JAVA_HOME, 'bin', 'java');
             let schemaPath = path.join(__dirname, "..", "synapse-schemas", "synapse_config.xsd");
-            let LSExtensionPath = path.join(__dirname, '..', 'lib', '*');
+            let LSExtensionPath = path.join(__dirname, '..', 'ls', '*');
 
             let schemaPathArg = '-DSCHEMA_PATH=' + schemaPath;
             const args: string[] = [schemaPathArg, '-cp', LSExtensionPath];

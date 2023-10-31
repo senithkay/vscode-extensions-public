@@ -11,3 +11,11 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+test-resources
+ui-test
+language-server
+playwright-report
+*.log
+mappings
+config
+.config.js
