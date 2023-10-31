@@ -110,7 +110,7 @@ jobs:
           choreo: ${{ inputs.choreo }}
           api-chat: ${{ inputs.api-chat }}
           version: ${{ inputs.version }}
-        secrets: inherit  
+          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
