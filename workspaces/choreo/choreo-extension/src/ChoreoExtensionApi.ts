@@ -43,6 +43,7 @@ import { enrichConfigSchema, enrichDeploymentData, regexFilePathChecker, getComp
 import { AxiosResponse } from 'axios';
 import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
+import { Cache } from './cache';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -64,6 +65,8 @@ export class ChoreoExtensionApi {
 
     private _choreoInstallationOrgId: number | undefined;
 
+    private _componentConfigCache: Cache<string, ComponentConfig[], [number, string, string]>;
+
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
     public onStatusChanged = this._onStatusChanged.event;
 
@@ -81,6 +84,10 @@ export class ChoreoExtensionApi {
     public onRefreshWorkspaceMetadata = this._onRefreshWorkspaceMetadata.event;
 
     constructor() {
+        this._componentConfigCache = new Cache<string, ComponentConfig[], [number, string, string]>({
+            getDataFunc: (orgId: number, projectHandler: string, componentName: string) => 
+            ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
+        });
         this._status = STATUS_INITIALIZING;
     }
 
@@ -590,7 +597,8 @@ export class ChoreoExtensionApi {
         let schemaContentJSON = JSON.parse(schemaContent) as ComponentConfigSchema;
 
         if (!!project && !!component) {
-            const componentConfigs = await ext.clients.projectClient.getComponentConfig(parseInt(project.orgId), project.handler, component);
+            const componentConfigKey = `${project.orgId}-${project.handler}-${component}`;
+            const componentConfigs = await this._componentConfigCache.get(componentConfigKey, parseInt(project.orgId), project.handler, component);
             if (componentConfigs) {
                 schemaContentJSON = enrichConfigSchema(schemaContentJSON, component, project.handler, componentConfigs);
             }
@@ -599,7 +607,7 @@ export class ChoreoExtensionApi {
         const schemaJSON = JSON.stringify(schemaContentJSON);
 
         function onRequestSchemaURI(resource: string): string | undefined {
-            if (regexFilePathChecker(resource, /\.choreo\/build\.yaml$/)) {
+            if (regexFilePathChecker(resource, /\.choreo\/component\.yaml$/)) {
                 return `${SCHEMA}://schema/component-config`;
             }
             return undefined;

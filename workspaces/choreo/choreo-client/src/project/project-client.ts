@@ -60,8 +60,6 @@ import { AxiosResponse } from 'axios';
 const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
-    private _componentConfigs: Map<string, ComponentConfig[]> = new Map<string, ComponentConfig[]>([]);
-
     constructor(
         private _tokenStore: IReadOnlyTokenStorage,
         private _baseURL: string,
@@ -323,37 +321,29 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getComponentConfig(orgId: number, projectHandler: string, componentName: string): Promise<ComponentConfig[] | undefined> {
-        const configIdentifier = `${orgId}-${projectHandler}-${componentName}`;
-        if (this._componentConfigs.has(configIdentifier)) {
-            console.log("Returning cached component config");
-            return this._componentConfigs.get(configIdentifier);
-        } else {
-            const token = await this._tokenStore.getToken(orgId);
-            if (!token) {
-                throw new Error("User is not logged in");
-            }
-
-            console.log(`Calling declarative API - ${new Date()}`);
-
-            try {
-                if (!this._declarativeAPI) {
-                    throw new Error("Declarative API endpoint not provided");
-                }
-                const res = await getHttpClient().get(
-                    `${this._declarativeAPI}/projectName/${projectHandler}/componentName/${componentName}/component-config`,
-                    {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token.accessToken}`,
-                        },
-                    }
-                );
-                this._componentConfigs.set(configIdentifier, res.data as ComponentConfig[]);
-                console.log("Returning fetched component config");
-                return res.data as ComponentConfig[];
-            } catch (err) {
-                throw new Error(API_CALL_ERROR, { cause: err });        
-            }
+        const token = await this._tokenStore.getToken(orgId);
+        if (!token) {
+            throw new Error("User is not logged in");
         }
+
+        console.log(`Calling declarative API - ${new Date()}`);
+
+        try {
+            if (!this._declarativeAPI) {
+                throw new Error("Declarative API endpoint not provided");
+            }
+            const res = await getHttpClient().get(
+                `${this._declarativeAPI}/projectName/${projectHandler}/componentName/${componentName}/component-config`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token.accessToken}`,
+                    },
+                }
+            );
+            return res.data as ComponentConfig[];
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });        
+        }    
     }
 }

@@ -143,7 +143,7 @@ function showMsgAndRestart(msg: string): void {
 async function yamlLanguageServerRegisterUtil(editor: vscode.TextEditor): Promise<void> {
     if (
         editor?.document.languageId === "yaml" &&
-        regexFilePathChecker(editor?.document.uri.fsPath, /\.choreo\/build\.yaml$/)
+        regexFilePathChecker(editor?.document.uri.fsPath, /\.choreo\/component\.yaml$/)
     ) {
         const isLoggedIn = await ext.api.waitForLogin();
         if (isLoggedIn) {
@@ -159,15 +159,16 @@ async function yamlLanguageServerRegisterUtil(editor: vscode.TextEditor): Promis
                     await ext.api.setupYamlLangugeServer(project, openedComponent);
                 });
             }
-        } else {
-            window.withProgress({
-                title: 'Setting up YAML Language Server for Default Configuration',
-                location: ProgressLocation.Notification,
-                cancellable: false
-            }, async () => {
-                await ext.api.setupYamlLangugeServer();
-            });
         }
+        // } else {
+        //     window.withProgress({
+        //         title: 'Setting up YAML Language Server for Default Configuration',
+        //         location: ProgressLocation.Notification,
+        //         cancellable: false
+        //     }, async () => {
+        //         await ext.api.setupYamlLangugeServer();
+        //     });
+        // }
     }
 }
 
