@@ -25,5 +25,6 @@ export * from './components/Divider/Divider';
 export * from './components/SeachBox/SearchBox';
 
 export * from './components/Commons/ErrorBanner';
+export * from './components/Commons/RequiredInput';
 
 export * from './styles';
