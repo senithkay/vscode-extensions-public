@@ -17,7 +17,7 @@ import { BYOCRepoConfig } from "./BYOCRepoConfig";
 import { WebAppRepoConfig } from "./WebAppRepoConfig";
 import { BuildPackConfig } from "./BuildPackConfig";
 import { MIConfig } from "./MIConfig";
-import { ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoImplementationType, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
 import { BalSubPathConfig } from './BalSubPathConfig';
 
 export interface RepoStructureConfigProps {
@@ -33,30 +33,50 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
     const isBuildPackType = ![
         ChoreoImplementationType.Ballerina, 
         ChoreoImplementationType.MicroIntegrator, 
-        ChoreoImplementationType.Docker
+        ChoreoImplementationType.Docker,
+        ChoreoImplementationType.StaticFiles, 
+        ...WebAppSPATypes
     ].includes(implementationType as ChoreoImplementationType);
 
-    return (
-        <div>
-            {(implementationType === ChoreoImplementationType.Ballerina) && (
-                <BalSubPathConfig {...props}/>
-            )}
-            {implementationType === ChoreoImplementationType.Docker && (
-                <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
-            )}
-            {type === ChoreoComponentType.WebApplication && !isBuildPackType && (
-                <WebAppRepoConfig 
-                    formData={props.formData} 
-                    onFormDataChange={props.onFormDataChange} 
-                    webAppConfigError={props.formErrors['webAppConfig'] || props.formErrors['port']}
-                />
-            )}
-            {isBuildPackType && (
-                <BuildPackConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
-            )}
-            {implementationType === ChoreoImplementationType.MicroIntegrator && (
-                <MIConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
-            )}
-        </div>
-    );
+    if (type === ChoreoComponentType.WebApplication && !isBuildPackType) {
+        return (
+            <WebAppRepoConfig 
+                formData={props.formData} 
+                onFormDataChange={props.onFormDataChange} 
+                webAppConfigError={props.formErrors['webAppConfig'] || props.formErrors['port']}
+            />
+        )
+    } else if (implementationType === ChoreoImplementationType.Ballerina) {
+        return <BalSubPathConfig {...props}/>
+    } else if (implementationType === ChoreoImplementationType.Docker) {
+        return <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
+    } else if (implementationType === ChoreoImplementationType.MicroIntegrator) {
+        return <MIConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
+    } else {
+        return <BuildPackConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
+    }
+
+    // return (
+    //     <div>
+    //         {(implementationType === ChoreoImplementationType.Ballerina) && (
+    //             <BalSubPathConfig {...props}/>
+    //         )}
+    //         {implementationType === ChoreoImplementationType.Docker && (
+    //             <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
+    //         )}
+    //         {type === ChoreoComponentType.WebApplication && !isBuildPackType && (
+    //             <WebAppRepoConfig 
+    //                 formData={props.formData} 
+    //                 onFormDataChange={props.onFormDataChange} 
+    //                 webAppConfigError={props.formErrors['webAppConfig'] || props.formErrors['port']}
+    //             />
+    //         )}
+    //         {isBuildPackType && (
+    //             <BuildPackConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
+    //         )}
+    //         {implementationType === ChoreoImplementationType.MicroIntegrator && (
+    //             <MIConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
+    //         )}
+    //     </div>
+    // );
 };

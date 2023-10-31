@@ -381,7 +381,7 @@ export enum ComponentDisplayType {
     // webapp
     ByocWebApp = 'byocWebApp',
     ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
-    BuildpackWebApp = 'buildpackWebapp',
+    BuildpackWebApp = 'buildpackWebApp',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -481,15 +481,6 @@ export enum ChoreoComponentType {
     Webhook = 'webhook',
     WebApplication = 'webApp'
 }
-
-export const BUILD_PACK_TYPES = [
-    "java",
-    "nodejs",
-    "python",
-    "go",
-    "ruby",
-    "php"
-]
 
 export interface ChoreoComponentCreationParams {
     name: string;

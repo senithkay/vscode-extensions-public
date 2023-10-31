@@ -19,7 +19,7 @@ import { TriggerConfigStep } from "./WebhookTriggerSelectorStep/WebhookTriggerSe
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
-import { BUILD_PACK_TYPES, BYOCRepositoryDetails, ChoreoBuildPackNames, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoBuildPackNames, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
@@ -36,7 +36,13 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
         const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
         const bitbucketCredentialId = credentialID ? credentialID : '';
-        const isBuildPackType = BUILD_PACK_TYPES.includes(implementationType);
+        
+        const isBuildPackType = ![
+            ChoreoImplementationType.Ballerina, 
+            ChoreoImplementationType.MicroIntegrator, 
+            ChoreoImplementationType.Docker,
+            ...WebAppSPATypes
+        ].includes(implementationType as ChoreoImplementationType);
 
         let selectedDisplayType: ComponentDisplayType;
         if (type === ChoreoComponentType.Service) {
@@ -118,6 +124,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             componentParams.networkVisibility = networkVisibility;
             componentParams.endpointContext = endpointContext;
             componentParams.serviceType = serviceType;
+            componentParams.port = formData.port ? Number(formData.port) : 3000;
             await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
         } else if (type === ChoreoComponentType.WebApplication) {
             componentParams.webAppConfig = formData.webAppConfig;
@@ -250,7 +257,7 @@ export const ComponentWizard: React.FC = () => {
                 orgId: selectedOrg.id,
             })
         },
-        { enabled: !!state.formData.type }
+        { enabled: !!state.formData.type,onSuccess:(data)=>console.log('buildpacas',data) }
     );
 
     // todo: refactor following hook

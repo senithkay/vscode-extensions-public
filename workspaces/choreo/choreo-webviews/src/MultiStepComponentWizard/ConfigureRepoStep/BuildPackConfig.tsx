@@ -68,7 +68,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
     );
 
     const selectedBuildPack = formData.buildPackList?.find(item => item.language === formData.implementationType);
-    const supportedVersions: string[] = selectedBuildPack?.supportedVersions?.split(',');
+    const supportedVersions: string[] = selectedBuildPack?.supportedVersions?.split(',')?.filter(item => !!item);
     
     const setFolderName = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -144,12 +144,14 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                     </VSCodeTextField>
                     {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
                 </DirectoryContainer>
-                <AutoComplete
-                    items={supportedVersions ?? []}
-                    selectedItem={formData.selectedBuildPackVersion}
-                    onChange={handleVersionChange}
-                    id="version-selector"
-                /> 
+                {supportedVersions?.length > 0 && (
+                    <AutoComplete
+                        items={supportedVersions ?? []}
+                        selectedItem={formData.selectedBuildPackVersion}
+                        onChange={handleVersionChange}
+                        id="version-selector"
+                    /> 
+                )}
                 {type === ChoreoComponentType.WebApplication && (
                     <MarginTopWrap>
                         <TextField

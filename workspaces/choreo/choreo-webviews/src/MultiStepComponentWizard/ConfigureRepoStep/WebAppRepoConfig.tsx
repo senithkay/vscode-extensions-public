@@ -143,18 +143,16 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                     </VSCodeTextField>
                 )}
 
-                {implementationType === ChoreoImplementationType.Docker && (
-                    <MarginTopWrap>
-                        <TextField
-                            value={props.formData?.port || ''}
-                            id='component-port-input'
-                            label="Port"
-                            placeholder="Port"
-                            onChange={(text: string) => setPortValue(text)}
-                            required
-                        />
-                    </MarginTopWrap>
-                )}                
+                {![ChoreoImplementationType.StaticFiles, ...WebAppSPATypes].includes(implementationType as any) && (
+                    <TextField
+                        value={props.formData?.port || ''}
+                        id='component-port-input'
+                        label="Port"
+                        placeholder="Port"
+                        onChange={(text: string) => setPortValue(text)}
+                        required
+                    />
+                )}
             </StepContainer>
             {props.webAppConfigError && <MarginTopWrap>
                     <ErrorBanner errorMsg={props.webAppConfigError} />

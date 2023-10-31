@@ -855,6 +855,7 @@ export class ProjectRegistry {
             accessibility: componentMetadata.accessibility ?? "",
             bitbucketCredentialId: bitbucketCredentialId,
             componentType: componentMetadata.displayType.toString(),
+            port: componentMetadata.port,
             buildpackConfig: {
                 buildContext: appSubPath,
                 buildpackId: componentMetadata.buildpackConfig?.buildpackId!,
