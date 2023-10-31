@@ -135,9 +135,7 @@ export class ProjectRegistry {
                 cancellable: false
             }, async () => {
                 this.addDockerFile(args);
-                if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
-                    this.addComponentYaml(args);
-                }
+                this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 window.showInformationMessage('Component created successfully');
             });
@@ -200,29 +198,31 @@ export class ProjectRegistry {
                 spec: {}
             };
 
-            const inbound: Inbound = {
-                name: args.name,
-                port: args.port ?? 3000,
-                type: args.serviceType ?? "REST",
-            };
-
-            if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
-                inbound.context = args.endpointContext ?? '.';
-            }
-
-            if (args.serviceType === ChoreoServiceType.RestApi) {
-                inbound.schemaFilePath = schemaFilePath;
-
-                const openApiPath = join(basePath, schemaFilePath);
-                if (!existsSync(openApiPath)) {
-                    cpSync(
-                        join(ext.context.extensionPath, "/templates/openapi-template.yaml"),
-                        join(basePath, schemaFilePath)
-                    );
+            if (args.displayType?.endsWith('Service')){
+                const inbound: Inbound = {
+                    name: args.name,
+                    port: args.port ?? 3000,
+                    type: args.serviceType ?? "REST",
+                };
+    
+                if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
+                    inbound.context = args.endpointContext ?? '.';
                 }
-            }
+    
+                if (args.serviceType === ChoreoServiceType.RestApi) {
+                    inbound.schemaFilePath = schemaFilePath;
+    
+                    const openApiPath = join(basePath, schemaFilePath);
+                    if (!existsSync(openApiPath)) {
+                        cpSync(
+                            join(ext.context.extensionPath, "/templates/openapi-template.yaml"),
+                            join(basePath, schemaFilePath)
+                        );
+                    }
+                }
 
-            componentYamlContent.spec.inbound = [inbound];
+                componentYamlContent.spec.inbound = [inbound];
+            }
 
             const choreoDirPath = dirname(componentYamlPath);
             if (!existsSync(choreoDirPath)) {
@@ -240,9 +240,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
-                if ([ComponentDisplayType.ByocService, ComponentDisplayType.BuildpackService].includes(args.displayType) && args.serviceType) {
-                    this.addComponentYaml(args);
-                }
+                this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 window.showInformationMessage('Component created successfully');
             });
