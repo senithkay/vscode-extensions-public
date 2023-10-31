@@ -30,7 +30,7 @@ import { EndpointConfigStep } from './EndpointConfigStep';
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
-        const { name, type, implementationType, repository, description, accessibility, trigger, port, networkVisibility, endpointContext } = formData;
+        const { name, type, implementationType, repository, description, accessibility, trigger, port, networkVisibility, endpointContext, serviceType} = formData;
         const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo } = repository;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
@@ -115,9 +115,11 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             const buildPack = formData.buildPackList.find(item => item.language === formData.implementationType);
             componentParams.buildPackId = buildPack.id;
             componentParams.port = Number(port);
+            componentParams.networkVisibility = networkVisibility;
+            componentParams.endpointContext = endpointContext;
+            componentParams.serviceType = serviceType;
             await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
-        }
-        if (type === ChoreoComponentType.WebApplication) {
+        } else if (type === ChoreoComponentType.WebApplication) {
             componentParams.webAppConfig = formData.webAppConfig;
             if (implementationType === ChoreoImplementationType.Docker) {
                 const repoDetails: BYOCRepositoryDetails = {
@@ -142,7 +144,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             componentParams.port = Number(port);
             componentParams.networkVisibility = networkVisibility;
             componentParams.endpointContext = endpointContext;
-
+            componentParams.serviceType = serviceType;
             await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
         } else {
             await projectManager.createLocalBalComponentFromExistingSource(componentParams);

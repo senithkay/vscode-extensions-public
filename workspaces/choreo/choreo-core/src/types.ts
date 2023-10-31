@@ -571,7 +571,7 @@ export interface getLocalComponentDirMetaDataRes {
     isSubPathEmpty: boolean;
     hasBallerinaTomlInPath: boolean;
     hasBallerinaTomlInRoot: boolean;
-    hasEndpointsYaml: boolean;
+    hasComponentYaml: boolean;
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
     isBuildpackPathValid: boolean;
@@ -657,3 +657,28 @@ export enum ServiceTypes {
 interface Mapping {
     [key: string]: string;
 }
+
+export interface ComponentYamlContent {
+    apiVersion: "core.choreo.dev/v1alpha1";
+    kind: "ComponentConfig";
+    metadata: ComponentMetadata;
+    spec: {
+      build?: { branch: string; revision?: string };
+      image?: { registry: string; repository: string; tag: string };
+      inbound?: Inbound[];
+      outbound?: Outbound;
+      configurations?: {
+        keys?: {
+          name: string;
+          envName?: string;
+          volume?: { mountPath: string };
+        }[];
+        groups?: {
+          name: string;
+          env?: { from: string; to: string }[];
+          volume?: { mountPath: string; files: { from: string; to: string }[] }[];
+        }[];
+      };
+    };
+  }
+  
