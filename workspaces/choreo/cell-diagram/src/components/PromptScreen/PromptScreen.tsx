@@ -1,0 +1,42 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React from 'react';
+import Fab from '@mui/material/Fab';
+import SearchIcon from '@mui/icons-material/Search';
+import { useStyles } from './style';
+
+export interface PromptScreenProps {
+    userMessage: string;
+    showProblemPanel?: (() => void) | undefined;
+}
+
+export function PromptScreen(props: PromptScreenProps) {
+    const { showProblemPanel, userMessage } = props;
+    const styles = useStyles();
+
+    return (
+        <div className={styles.container}>
+            <h3 className={styles.messageBox}>{userMessage}</h3>
+            {showProblemPanel &&
+                <Fab
+                    aria-label='add'
+                    className={styles.button}
+                    id={'add-component-btn'}
+                    onClick={showProblemPanel}
+                    size='small'
+                    variant='extended'
+                >
+                    <SearchIcon sx={{ marginRight: '5px' }} />
+                    View Diagnostics
+                </Fab>
+            }
+        </div>
+    );
+}

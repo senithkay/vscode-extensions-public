@@ -525,6 +525,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/cell-diagram",
+      "projectFolder": "workspaces/choreo/cell-diagram",
+      "versionPolicyName": "choreo-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/ballerina-statement-editor",
       "projectFolder": "workspaces/ballerina/statement-editor",
       "versionPolicyName": "ballerina-extension"

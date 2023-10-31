@@ -58,7 +58,7 @@ const ComponentActionWrap = styled.div`
 `;
 
 export const ComponentsCard = () => {
-    const { choreoProject } = useChoreoWebViewContext();
+    const { currentProjectOrg, choreoProject } = useChoreoWebViewContext();
     const {
         components,
         componentLoadError,
@@ -77,8 +77,10 @@ export const ComponentsCard = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create");
     };
 
-    const handleRefreshComponentsClick = () => {
+    const handleRefreshComponentsClick = async () => {
         refreshComponents();
+        const project = await ChoreoWebViewAPI.getInstance().getChoreoCellView().getProjectModelFromFs(currentProjectOrg, choreoProject?.id);
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view.refresh", project);
     };
 
     const componentsView = (

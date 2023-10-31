@@ -486,13 +486,37 @@ export interface getLocalComponentDirMetaDataRes {
     isDockerContextPathValid: boolean;
 }
 
-export interface Endpoint {
+export interface InboundConfig {
     name: string;
     port: number;
     type?: string;
-    networkVisibility?: string;
     context?: string;
     schemaFilePath?: string;
+}
+
+export interface Endpoint extends InboundConfig {
+    networkVisibility?: string;
+}
+
+export interface Inbound extends InboundConfig {
+    visibility?: string;
+}
+
+export interface Outbound {
+    serviceReferences: ServiceReference[];
+}
+
+export interface ServiceReference {
+    name: string;
+    dependentConfig: string;
+    connectionType: string;
+    env: Mapping[];
+}
+
+export interface ComponentMetadata {
+    name: string;
+    projectName: string;
+    annotations: Record<string, string>;
 }
 
 export enum DeploymentStatus {
@@ -536,4 +560,8 @@ export enum ServiceTypes {
     WEBHOOK = "Webhook",
     WEBAPP = "WebApp",
     OTHER = "other"
+}
+
+interface Mapping {
+    [key: string]: string;
 }
