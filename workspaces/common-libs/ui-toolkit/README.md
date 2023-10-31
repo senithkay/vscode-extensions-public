@@ -12,9 +12,6 @@
 ```
 ui-toolkit/
   src/
-   assets/
-    images/
-    icons/
    components/ 
     Component1
      Component1.tsx
@@ -22,6 +19,9 @@ ui-toolkit/
     Component2
      Component2.tsx
      Component2.stories.tsx
+  styles/
+    Sample.tsx
+  index.ts
 ```
 
 ### How to add styles
