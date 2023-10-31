@@ -81,8 +81,18 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
     }
     
     const folderNameError = useMemo(() => {
-        if(localDirectorMetaData){
-            if (!localDirectorMetaData.isBuildpackPathValid) {
+        if (localDirectorMetaData) {
+            if (repository?.subPath) {
+                if (!localDirectorMetaData?.isSubPathValid) {
+                    return 'Sub path does not exist';
+                }
+                if (localDirectorMetaData?.isSubPathEmpty) {
+                    return "Please provide a path that is not empty"
+                }
+                if (!localDirectorMetaData.isBuildpackPathValid) {
+                    return `Provide a valid path to the ${formData.implementationType} Project.`;
+                }
+            } else if (!localDirectorMetaData.isBuildpackPathValid) {
                 return `Provide a valid path to the ${formData.implementationType} Project.`;
             }
         }

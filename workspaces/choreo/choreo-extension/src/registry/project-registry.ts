@@ -1024,7 +1024,7 @@ export class ProjectRegistry {
         }
 
         let isBuildpackPathValid = false;
-        if (buildPackId) {
+        if (buildPackId && isSubPathValid) {
             const projectContent = readdirSync(join(repoPath, subPath));
             const dirFileNames = projectContent.filter(fileName => {
                 const fsStat = statSync(join(repoPath, subPath, fileName));
