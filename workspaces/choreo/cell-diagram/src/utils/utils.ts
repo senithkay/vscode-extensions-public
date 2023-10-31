@@ -58,7 +58,7 @@ import { getExternalNodeName } from "../components/External/ExternalNode/externa
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
         registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: false,
+        registerDefaultZoomCanvasAction: true,
     });
     engine.getLinkFactories().registerFactory(new ComponentLinkFactory());
     engine.getPortFactories().registerFactory(new ComponentPortFactory());
@@ -120,7 +120,6 @@ export function getComponentDiagramWidth(models: NodesAndLinks): number {
         ...models.links.componentLinks.values(),
         ...models.nodes.emptyNodes.values(),
         ...models.links.cellLinks.values(),
-        ...models.nodes.connectionNodes.values()
     );
     // auto distribute component nodes, component links, empty nodes and cell links
     dagreEngine.redistribute(tempModel);

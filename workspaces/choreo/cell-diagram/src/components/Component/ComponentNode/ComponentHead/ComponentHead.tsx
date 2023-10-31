@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useContext } from "react";
 import { camelCase, startCase } from "lodash";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
@@ -26,6 +26,8 @@ import {
 } from "../../../../resources/assets/icons";
 import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
 import { MenuItem, MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
+import { DiagramContext } from "../../../DiagramContext/DiagramContext";
+import { COMPONENT_LINE_MIN_WIDTH } from "../../../../resources";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -40,6 +42,8 @@ interface ServiceHeadProps {
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected, isFocused, menuItems, showMenu, setShowMenu } = props;
+
+    const { zoomLevel } = useContext(DiagramContext);
 
     const getComponentTypeIcon = (type: ComponentType) => {
         switch (type) {
@@ -71,7 +75,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     return (
-        <ComponentHead isSelected={isSelected || isFocused}>
+        <ComponentHead isSelected={isSelected || isFocused} borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}>
             <IconWrapper>{getComponentTypeIcon(node.component.type)}</IconWrapper>
             <ComponentPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
             <ComponentPortWidget port={node.getPort(`right-${node.getID()}`)} engine={engine} />

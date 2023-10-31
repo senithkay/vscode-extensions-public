@@ -7,13 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ConnectionModel } from "../ConnectionModel";
 import { ConnectionHead, IconWrapper } from "../styles";
 import { ConnectionIcon, DatabaseIcon } from "../../../../resources/assets/icons";
 import { ConnectionPortWidget } from "../../ConnectionPort/ConnectionPortWidget";
 import { ConnectionType } from "../../../../types";
+import { DiagramContext } from "../../../DiagramContext/DiagramContext";
+import { COMPONENT_LINE_MIN_WIDTH } from "../../../../resources";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -23,6 +25,8 @@ interface ServiceHeadProps {
 
 export function ConnectionHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
+
+    const { zoomLevel } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -49,12 +53,11 @@ export function ConnectionHeadWidget(props: ServiceHeadProps) {
     return (
         <ConnectionHead
             isSelected={isSelected || isHovered}
+            borderWidth={node.getDynamicLineWidth(zoomLevel, COMPONENT_LINE_MIN_WIDTH)}
             onMouseOver={() => handleOnHover("SELECT")}
             onMouseLeave={() => handleOnHover("UNSELECT")}
         >
-            <IconWrapper>
-                {getConnectionIcon()}
-            </IconWrapper>
+            <IconWrapper>{getConnectionIcon()}</IconWrapper>
             <ConnectionPortWidget port={node.getPort(`top-${node.getID()}`)} engine={engine} />
             <ConnectionPortWidget port={node.getPort(`left-${node.getID()}`)} engine={engine} />
         </ConnectionHead>

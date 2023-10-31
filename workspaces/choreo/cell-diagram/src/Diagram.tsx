@@ -38,6 +38,7 @@ export function CellDiagram(props: CellDiagramProps) {
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
     const [userMessage, setUserMessage] = useState<string>("");
     const [observationVersion, setObservationVersion] = useState<string | undefined>(undefined);
+    const [zoomLevel, setZoomLevel] = useState(1);
 
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
 
@@ -46,6 +47,17 @@ export function CellDiagram(props: CellDiagramProps) {
     useEffect(() => {
         drawDiagram();
     }, [props]);
+
+    useEffect(() => {
+        const listener = diagramEngine.getModel()?.registerListener({
+            zoomUpdated: (event: any) => {
+                setZoomLevel(event.zoom);
+            },
+        });
+        return () => {
+            diagramEngine.getModel()?.deregisterListener(listener);
+        };
+    }, [diagramEngine]);
 
     useEffect(() => {
         if (diagramEngine.getCanvas()) {
@@ -165,6 +177,7 @@ export function CellDiagram(props: CellDiagramProps) {
         focusedNodeId,
         observationVersion,
         componentMenu,
+        zoomLevel,
         setSelectedNodeId,
         setHasDiagnostics,
         setFocusedNodeId,
