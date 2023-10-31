@@ -17,7 +17,6 @@ export function renderDiagramEditor(options: { target: HTMLElement, editorProps:
     return render(DiagramElement, options.target);
 }
 
-
 export function renderOverviewDiagram(options: {
     target: HTMLElement,
     editorProps: EditorProps
