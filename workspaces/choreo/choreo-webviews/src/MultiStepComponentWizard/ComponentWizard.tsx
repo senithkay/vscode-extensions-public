@@ -30,7 +30,7 @@ import { EndpointConfigStep } from './EndpointConfigStep';
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
-        const { name, type, implementationType, repository, description, accessibility, trigger, port, networkVisibility, endpointContext, serviceType} = formData;
+        const { name, type, implementationType, repository, description, accessibility, trigger, networkVisibility, endpointContext, serviceType} = formData;
         const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo } = repository;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
@@ -106,25 +106,22 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             displayType: selectedDisplayType,
             description: description ?? '',
             repositoryInfo: { org, repo, branch, subPath, gitProvider, bitbucketCredentialId },
-            accessibility
+            accessibility,
+            port: formData.port ? Number(formData.port) : 3000,
+            networkVisibility,
+            endpointContext,
+            serviceType
         };
 
         if (formData?.type === ChoreoComponentType.Webhook) {
             componentParams.trigger = trigger;
         }
 
-        const projectManager = ChoreoWebViewAPI.getInstance().getChoreoProjectManager();
-
         if (isBuildPackType) {
             componentParams.implementationType = implementationType;
             componentParams.languageVersion = formData.selectedBuildPackVersion;
             const buildPack = formData.buildPackList.find(item => item.language === formData.implementationType);
             componentParams.buildPackId = buildPack.id;
-            componentParams.port = Number(port);
-            componentParams.networkVisibility = networkVisibility;
-            componentParams.endpointContext = endpointContext;
-            componentParams.serviceType = serviceType;
-            componentParams.port = formData.port ? Number(formData.port) : 3000;
             await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
         } else if (type === ChoreoComponentType.WebApplication) {
             componentParams.webAppConfig = formData.webAppConfig;
@@ -148,13 +145,9 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                 openApiFilePath,
             }
             componentParams.repositoryInfo = repoDetails;
-            componentParams.port = Number(port);
-            componentParams.networkVisibility = networkVisibility;
-            componentParams.endpointContext = endpointContext;
-            componentParams.serviceType = serviceType;
             await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
         } else {
-            await projectManager.createLocalBalComponentFromExistingSource(componentParams);
+            await ChoreoWebViewAPI.getInstance().createBalLocalComponentFromExistingSource(componentParams);
         }
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: CREATE_COMPONENT_SUCCESS_EVENT,
@@ -246,18 +239,17 @@ export const ComponentWizard: React.FC = () => {
         })
     }, [choreoProject])
 
-    const { formData: { type, implementationType, repository } } = state;
+    const { formData: { type, repository } } = state;
 
     const { data: buildPackList, isLoading: buildPacksLoading } = useQuery(
-        ["getBuildPacks", selectedOrg, state.formData.type],
+        ["getBuildPacks", selectedOrg, state.formData?.type],
         async () => {
-            setState(data => ({ ...data, formData: { ...data.formData, buildPacksLoading: true } }));
             return ChoreoWebViewAPI.getInstance().getBuildpack({
-                componentType: state.formData.type, // fix
+                componentType: state.formData.type,
                 orgId: selectedOrg.id,
             })
         },
-        { enabled: !!state.formData.type,onSuccess:(data)=>console.log('buildpacas',data) }
+        { enabled: !!state.formData?.type && !!selectedOrg?.id }
     );
 
     // todo: refactor following hook
@@ -302,9 +294,7 @@ export const ComponentWizard: React.FC = () => {
 
     let steps = [ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep];
     if (type === ChoreoComponentType.Service) {
-        if (implementationType !== ChoreoImplementationType.Ballerina) {
-            steps = [...steps, EndpointConfigStep]
-        }
+        steps = [...steps, EndpointConfigStep]
     } else if (type === ChoreoComponentType.Webhook) {
         steps = [ComponentTypeStep, TriggerConfigStep, ComponentDetailsStep, ConfigureRepoStep];
     }

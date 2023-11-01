@@ -232,6 +232,23 @@ export class ProjectRegistry {
         }
     };
 
+    async createBalLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<void> {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        if (workspace.workspaceFile && projectLocation) {
+            await window.withProgress({
+                title: `Initializing ${args.name} component`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                this.addComponentYaml(args);
+                await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
+                window.showInformationMessage('Component created successfully');
+            });
+        } else {
+            throw new Error("Error: Could not detect a project workspace.");
+        }
+    }
+
     async createNonBalLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<void> {
         const projectLocation = this.getProjectLocation(args.projectId);
         if (workspace.workspaceFile && projectLocation) {

@@ -17,7 +17,7 @@ import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentWizardState } from "./types";
 import { ConfigCardList } from "./ConfigCardList";
-import { ManualTriggerIcon, ScheduledTriggerIcon, ServiceIcon, WebAppIcon } from "../icons";
+import { ManualTriggerIcon, ScheduledTriggerIcon, ServiceIcon, WebAppIcon, WebhookIcon } from "../icons";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
@@ -51,13 +51,12 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
             value: ChoreoComponentType.ManualTrigger,
             icon: ManualTriggerIcon
         },
-        // TODO: Add back webhook types after testing
-        // {
-        //     label: "Webhook",
-        //     description: "Create programs that trigger via events. E.g., Business automation tasks.",
-        //     value: ChoreoComponentType.Webhook,
-        //     icon: WebhookIcon
-        // },
+        {
+            label: "Webhook",
+            description: "Create programs that trigger via events. E.g., Business automation tasks.",
+            value: ChoreoComponentType.Webhook,
+            icon: WebhookIcon
+        },
         {
             label: "Web Application",
             value: ChoreoComponentType.WebApplication,
