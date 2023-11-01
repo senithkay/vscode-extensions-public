@@ -8,14 +8,13 @@
  */
 
 import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar } from "vscode-extension-tester";
-import { wait, waitForBallerina, waitUntilTextContains } from "./util";
+import { waitUntilTextContains } from "./util";
 import { join } from "path";
 import { expect } from "chai";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 import { fail } from "assert";
-import { PROJECT_RUN_TIME } from "./constants";
 
-const expectedOut = "Listening for transport dt_socket at address: 501";
+const expectedOut = "Running executable";
 
 describe('Debugger UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
@@ -25,7 +24,7 @@ describe('Debugger UI Tests', () => {
         await VSBrowser.instance.waitForWorkbench();
     });
 
-    it.skip('Test Debug Codelense', async () => {
+    it('Test Debug Codelense', async () => {
         const editorView = new ExtendedEditorView(new EditorView());
         const lens = await editorView.getAction("Debug");
         expect(lens).is.not.undefined;
@@ -34,7 +33,7 @@ describe('Debugger UI Tests', () => {
         await verifyDebugOutput();
     });
 
-    it.skip('Test run & debug', async () => {
+    it('Test run & debug', async () => {
         await new EditorView().closeAllEditors();
         const btn = await new ActivityBar().getViewControl('Run');
         const debugView = (await btn.openView()) as DebugView;
@@ -46,15 +45,14 @@ describe('Debugger UI Tests', () => {
 });
 
 async function verifyDebugOutput() {
-    await wait(PROJECT_RUN_TIME);
-    const terminal = await new BottomBarPanel().openTerminalView();
+    const terminal = await new BottomBarPanel().openDebugConsoleView();
 
     await waitUntilTextContains(terminal, expectedOut, 30000).catch((e) => {
         fail(e);
     }).finally(async () => {
+        console.log(await terminal.getText());
         const bar = await DebugToolbar.create();
         await bar.stop();
-        await terminal.executeCommand('clear');
     });
 }
 
