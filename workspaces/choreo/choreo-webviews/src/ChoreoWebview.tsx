@@ -15,7 +15,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { ComponentWizard } from "./MultiStepComponentWizard/ComponentWizard";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
-import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
+import { ChoreoCellView } from "./ChoreoCellView/CellView";
 import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
 import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ProjectView } from "./ActivityBar/ProjectView";
@@ -47,8 +47,10 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                 <Main>
                     {(() => {
                         switch (type) {
-                            case "ChoreoArchitectureView":
-                                return <ChoreoArchitectureView projectId={projectId} orgName={orgName} />;
+                            case "ChoreoCellView":
+                                return (
+                                    <ChoreoCellView projectId={projectId} orgName={orgName} />
+                                );
                             case "ProjectCreateForm":
                                 return (
                                     <ChoreoWebViewContextProvider choreoUrl={choreoUrl} ctxOrgId={orgName}>

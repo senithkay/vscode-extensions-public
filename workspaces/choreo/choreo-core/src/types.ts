@@ -486,13 +486,30 @@ export interface getLocalComponentDirMetaDataRes {
     isDockerContextPathValid: boolean;
 }
 
-export interface Endpoint {
+export interface InboundConfig {
     name: string;
     port: number;
     type?: string;
-    networkVisibility?: string;
     context?: string;
     schemaFilePath?: string;
+}
+
+export interface Endpoint extends InboundConfig {
+    networkVisibility?: string;
+}
+
+export interface Inbound extends InboundConfig {
+    visibility?: string;
+}
+
+export interface Outbound {
+    serviceReferences: ServiceReference[];
+}
+
+export interface ComponentMetadata {
+    name: string;
+    projectName: string;
+    annotations: Record<string, string>;
 }
 
 export enum DeploymentStatus {
@@ -546,6 +563,7 @@ export interface ServiceReferenceEnv {
 export interface ServiceReference {
     name: string;
     dependentConfig: string;
+    connectionType: string;
     env?: ServiceReferenceEnv[];
 }
 
@@ -597,10 +615,8 @@ export interface ComponentConfig {
     spec: {
         build?: Build;
         image?: Image;
-        inbound?: Endpoint[];
-        outbound?: {
-            serviceReferences?: ServiceReference[];
-        };
+        inbound?: Inbound[];
+        outbound?: Outbound;
         configurations?: {
             keys?: ConfigurationKey[];
             groups?: ConfigurationGroup[];

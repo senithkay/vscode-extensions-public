@@ -14,23 +14,27 @@ import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, comm
 import { ext } from "./extensionVariables";
 
 import {
+    ChoreoComponentType,
+    ChoreoLoginStatus,
+    ChoreoWorkspaceMetaData,
+    Component,
+    ComponentDisplayType,
+    Endpoint,
     IProjectManager,
     Organization,
     Project,
-    ChoreoLoginStatus,
-    WorkspaceConfig,
-    Component,
-    ChoreoComponentType,
-    UserInfo,
-    ChoreoWorkspaceMetaData,
-    Endpoint,
     ServiceTypes,
-    ComponentDisplayType,
     EndpointData,
     ComponentConfig,
     ComponentConfigSchema,
+    UserInfo,
+    WorkspaceConfig,
 } from "@wso2-enterprise/choreo-core";
-import { CMEntryPoint, CMResourceFunction, CMService, ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    CMResourceFunction,
+    CMService,
+    ComponentModel
+} from "@wso2-enterprise/ballerina-languageclient";
 import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
 
@@ -55,7 +59,6 @@ export interface IChoreoExtensionAPI {
     deleteComponent(projectId: string, componentPath: string): Promise<void>;
     getConsoleUrl(): Promise<string>;
 }
-
 
 export class ChoreoExtensionApi {
     private _userInfo: UserInfo | undefined;
@@ -149,7 +152,7 @@ export class ChoreoExtensionApi {
         if(selectedGlobalOrg && userInfo?.organizations?.some(item => item.id === selectedGlobalOrg.id)){
             return selectedGlobalOrg;
         }
-        
+
         if(userInfo?.organizations[0]){
             await ext.context.globalState.update(SELECTED_GLOBAL_ORG_KEY, userInfo?.organizations[0]);
             return userInfo?.organizations[0];
@@ -210,7 +213,7 @@ export class ChoreoExtensionApi {
     public refreshOrganization(org: Organization) {
         this._onOrganizationChanged.fire(org);
     }
-    
+
     public refreshWorkspaceMetadata() {
         this._onRefreshWorkspaceMetadata.fire(null);
     }
@@ -520,7 +523,6 @@ export class ChoreoExtensionApi {
                 });
             }
         }
-
         return nonBalMap;
     };
 
@@ -552,7 +554,7 @@ export class ChoreoExtensionApi {
     public async shouldOpenChoreoActivity(): Promise<boolean | undefined> {
         return ext.context.globalState.get<boolean>(OPEN_CHOREO_ACTIVITY);
     }
-    
+
     public async resetOpenChoreoActivity(): Promise<void> {
         await ext.context.globalState.update(OPEN_CHOREO_ACTIVITY, undefined);
     }

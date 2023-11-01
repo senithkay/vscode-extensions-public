@@ -39,6 +39,7 @@ import { activateCmds } from "./cmds";
 import { TokenStorage } from "./auth/TokenStorage";
 import { activateClients } from "./auth/auth";
 import { regexFilePathChecker } from "./utils";
+import { activateCellDiagram } from './cell-diagram/activate';
 
 export function activateBallerinaExtension() {
     const ext = extensions.getExtension("wso2.ballerina");
@@ -62,6 +63,7 @@ export async function activate(context: vscode.ExtensionContext) {
     activateActivityBarWebViews(context);
     activateURIHandlers();
     activateStatusBarItem();
+	activateCellDiagram(context);
     setupGithubAuthStatusCheck();
     registerPreInitHandlers();
     ext.isPluginStartup = false;

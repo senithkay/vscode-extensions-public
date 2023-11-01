@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -18,46 +18,46 @@ import { FREE_COMPONENT_LIMIT } from "../../auth/config";
 import { choreoEnvConfig } from "../../auth/auth";
 
 export class ChoreoArchitectureView {
-	public static currentPanel: ChoreoArchitectureView | undefined;
-	private static _rpcHandler: WebViewPanelRpc;
-	private readonly _panel: vscode.WebviewPanel;
-	private _disposables: vscode.Disposable[] = [];
+    public static currentPanel: ChoreoArchitectureView | undefined;
+    private static _rpcHandler: WebViewPanelRpc;
+    private readonly _panel: vscode.WebviewPanel;
+    private _disposables: vscode.Disposable[] = [];
 
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, orgName: string, projectId: string) {
-		this._panel = panel;
-		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, orgName: string, projectId: string) {
+        this._panel = panel;
+        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
-		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, orgName, projectId);
-		if (!ChoreoArchitectureView._rpcHandler || ChoreoArchitectureView._rpcHandler.panel !== panel) {
-			ChoreoArchitectureView._rpcHandler = new WebViewPanelRpc(this._panel);
-		}
-	}
+        this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, orgName, projectId);
+        if (!ChoreoArchitectureView._rpcHandler || ChoreoArchitectureView._rpcHandler.panel !== panel) {
+            ChoreoArchitectureView._rpcHandler = new WebViewPanelRpc(this._panel);
+        }
+    }
 
-	public static render(extensionUri: vscode.Uri, orgName: string, projectId: string) {
-		if (ChoreoArchitectureView.currentPanel) {
-			const panel = ChoreoArchitectureView.currentPanel._panel;
-			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
-			panel.reveal(vscode.ViewColumn.One);
-		} else {
-			const panel = vscode.window.createWebviewPanel(
-				"choreo-archi-view",
-				"Choreo Architecture View",
-				vscode.ViewColumn.One,
-				{ enableScripts: true, retainContextWhenHidden: true }
-			);
-			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
-		}
-	}
+    public static render(extensionUri: vscode.Uri, orgName: string, projectId: string) {
+        if (ChoreoArchitectureView.currentPanel) {
+            const panel = ChoreoArchitectureView.currentPanel._panel;
+            ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
+            panel.reveal(vscode.ViewColumn.One);
+        } else {
+            const panel = vscode.window.createWebviewPanel(
+                "choreo-archi-view",
+                "Choreo Architecture View",
+                vscode.ViewColumn.One,
+                { enableScripts: true, retainContextWhenHidden: true }
+            );
+            ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
+        }
+    }
 
-	private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, orgName: string, projectId: string) {
-		// The JS file from the React build output
-		const scriptUri = getUri(webview, extensionUri, [
-			"resources",
-			"jslibs",
-			"main.js"
-		]);
+    private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, orgName: string, projectId: string) {
+        // The JS file from the React build output
+        const scriptUri = getUri(webview, extensionUri, [
+            "resources",
+            "jslibs",
+            "main.js"
+        ]);
 
-		return /*html*/ `
+        return /*html*/ `
             <!DOCTYPE html>
             <html lang="en">
                 <head>
@@ -86,18 +86,18 @@ export class ChoreoArchitectureView {
                 </script>
             </html>
           `;
-	}
+    }
 
-	public dispose() {
-		ChoreoArchitectureView.currentPanel = undefined;
+    public dispose() {
+        ChoreoArchitectureView.currentPanel = undefined;
 
-		this._panel.dispose();
+        this._panel.dispose();
 
-		while (this._disposables.length) {
-			const disposable = this._disposables.pop();
-			if (disposable) {
-				disposable.dispose();
-			}
-		}
-	}
+        while (this._disposables.length) {
+            const disposable = this._disposables.pop();
+            if (disposable) {
+                disposable.dispose();
+            }
+        }
+    }
 }

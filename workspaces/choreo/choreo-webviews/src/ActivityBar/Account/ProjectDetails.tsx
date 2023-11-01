@@ -14,11 +14,11 @@ import styled from "@emotion/styled";
 import React from "react";
 import { ViewTitle } from "../Components/ViewTitle";
 import { ViewHeader } from "../Components/ViewHeader";
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
+import { HorizontalGrid, LeftAllignGridRow, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
 
 const Container = styled.div`
     display: flex;
@@ -59,28 +59,28 @@ export const ProjectDetails = () => {
             <ViewHeader>
                 <ViewTitle>Current Project</ViewTitle>
             </ViewHeader>
-            <VSCodeDataGrid aria-label="project">
-                <VSCodeDataGridRow>
+            <HorizontalGrid aria-label="project">
+                <LeftAllignGridRow>
                     <TruncatedGridTitleCell gridColumn="1">Project</TruncatedGridTitleCell>
                     <TruncatedGridCell gridColumn="2">{choreoProject?.name}</TruncatedGridCell>
-                </VSCodeDataGridRow>
+                </LeftAllignGridRow>
                 {choreoProject?.repository && (
-                    <VSCodeDataGridRow>
+                    <LeftAllignGridRow>
                         <TruncatedGridTitleCell gridColumn="1">Repository</TruncatedGridTitleCell>
                         <TruncatedGridCell gridColumn="2">{choreoProject?.repository}</TruncatedGridCell>
-                    </VSCodeDataGridRow>
+                    </LeftAllignGridRow>
                 )}
                 {choreoProject?.branch && (
-                    <VSCodeDataGridRow>
+                    <LeftAllignGridRow>
                         <TruncatedGridTitleCell gridColumn="1">Branch</TruncatedGridTitleCell>
                         <TruncatedGridCell gridColumn="2">{choreoProject?.branch}</TruncatedGridCell>
-                    </VSCodeDataGridRow>
+                    </LeftAllignGridRow>
                 )}
-                <VSCodeDataGridRow>
+                <LeftAllignGridRow>
                     <TruncatedGridTitleCell gridColumn="1">Version</TruncatedGridTitleCell>
                     <TruncatedGridCell gridColumn="2">{choreoProject?.version}</TruncatedGridCell>
-                </VSCodeDataGridRow>
-            </VSCodeDataGrid>
+                </LeftAllignGridRow>
+            </HorizontalGrid>
             <ProjectButtonWrap>
                 <VSCodeButton appearance="icon" onClick={changeProject} title="Open a different choreo project">
                     <Codicon name="link-external" />
