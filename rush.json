@@ -495,8 +495,8 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/webview",
-      "projectFolder": "workspaces/ballerina/webview",
+      "packageName": "@wso2-enterprise/visualizer",
+      "projectFolder": "workspaces/ballerina/visualizer",
       "versionPolicyName": "ballerina-extension"
     },
     {
@@ -537,6 +537,11 @@
     {
       "packageName": "@wso2-enterprise/ballerina-statement-editor",
       "projectFolder": "workspaces/ballerina/statement-editor",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/ballerina-rpc-client",
+      "projectFolder": "workspaces/ballerina/ballerina-rpc-client",
       "versionPolicyName": "ballerina-extension"
     },
     {

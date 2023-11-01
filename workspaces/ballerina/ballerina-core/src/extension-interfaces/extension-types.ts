@@ -22,7 +22,7 @@ export interface DiagramFocus {
 
 export interface ExtensionAPI {
     getBallerinaVersion: () => Promise<string | undefined>;
-    getEnv: (name: string) => Promise<any>;
+    getEnv: (name: string) => Promise<string>;
     getFileContent: (url: string) => Promise<string>;
 
     // could maintain these as props as well
@@ -36,7 +36,7 @@ export interface ExtensionAPI {
 const extensionAPI = "extension-api/"
 
 export const getBallerinaVersion: RequestType<void, string | undefined> = { method: `${extensionAPI}getBallerinaVersion` };
-export const getEnv: RequestType<string, any> = { method: `${extensionAPI}getEnv` };
+export const getEnv: RequestType<string, string> = { method: `${extensionAPI}getEnv` };
 export const getFileContent: RequestType<string, string> = { method: `${extensionAPI}getFileContent` };
 
 export const getWorkspaceName: RequestType<void, string> = { method: `${extensionAPI}getWorkspaceName` };

@@ -13,7 +13,7 @@
         "build:lcd": "rush build -o @wso2-enterprise/ballerina-low-code-diagram",
         "build:lced": "rush build -o @wso2-enterprise/ballerina-low-code-editor-distribution",
         "build:lce": "rush build -o @wso2-enterprise/ballerina-low-code-editor",
-        "build:webview": "rush build -o @wso2-enterprise/webview",
+        "build:visualizer": "rush build -o @wso2-enterprise/visualizer",
         "build:overview": "rush build -o @wso2-enterprise/overview",
         "build:lcec": "rush build -o @wso2-enterprise/ballerina-low-code-edtior-commons",
         "build:lcTests": "rush build -o @wso2-enterprise/ballerina-low-code-integration-tests",

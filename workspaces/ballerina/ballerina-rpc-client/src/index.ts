@@ -8,5 +8,7 @@
  */
 
 
-export { BallerinaClient } from "./BallerinaClient";
+export { BallerinaRpcClient } from "./BallerinaRpcClient";
+
+export * from "./context/ballerina-web-context";
 

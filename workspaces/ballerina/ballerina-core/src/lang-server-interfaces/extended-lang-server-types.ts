@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -16,6 +17,7 @@ import { Diagnostic, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { Type } from "./data-mapper";
 import { LinePosition } from "./common-types";
+import { BallerinaProjectComponents, GetBallerinaPackagesParams } from "./project-overview-types";
 
 export interface BallerinaSTModifyResponse {
     source: string;
@@ -205,6 +207,9 @@ export interface TypesFromFnDefinitionRequest {
 }
 
 export interface BallerinaLangClientInterface {
+    getBallerinaProjectComponents: (
+        params: GetBallerinaPackagesParams
+    ) => Promise<BallerinaProjectComponents>;
     getDefinitionPosition: (
         params: TextDocumentPositionParams
     ) => Thenable<BallerinaSTModifyResponse>;

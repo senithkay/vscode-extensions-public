@@ -9,9 +9,14 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { Webview } from "./Webview";
+import { Webview } from "./Visualizer";
+import { VisualizerContextProvider } from "./Context"
 
 export function renderWebview(target: HTMLElement) {
     const root = createRoot(target);
-    root.render(<Webview />);
+    root.render(
+        <VisualizerContextProvider>
+            <Webview />
+        </VisualizerContextProvider>
+    );
 }

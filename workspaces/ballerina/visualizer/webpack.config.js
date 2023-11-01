@@ -6,8 +6,8 @@ module.exports = {
   devtool: "source-map",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "Webview.js",
-    library: "ballerinaWebview",
+    filename: "Visualizer.js",
+    library: "visualizerWebview",
   },
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],

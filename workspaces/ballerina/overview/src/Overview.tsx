@@ -10,19 +10,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React, { useEffect, useState } from 'react';
-import { BallerinaClient } from "@wso2-enterprise/ballerina-client"
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
+
 import { ComponentListView } from './ComponentListView';
 
 export function Overview() {
   const [currentComponents, setCurrentComponents] = useState<any>();
   const [loading, setLoading] = useState(true);
-// const currentComponents: any[] = [];
-// const loading = false;
+  const { ballerinaRpcClient } = useVisualizerContext();
+
 
   const fetchData = async () => {
     try {
-      const res = await BallerinaClient.getInstance().getComponents();
+      const res = await ballerinaRpcClient.getOverviewClient().getBallerinaProjectComponents(undefined);
       setCurrentComponents(res);
     } catch (error) {
       console.error('Error fetching data:', error);

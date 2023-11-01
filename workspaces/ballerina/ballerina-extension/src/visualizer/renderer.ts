@@ -24,14 +24,14 @@ export function render(webView: Webview) {
     const scripts = `
         function loadedScript() {
             function renderDiagrams() {
-                ballerinaWebview.renderWebview(document.getElementById("webview-container"));
+                visualizerWebview.renderWebview(document.getElementById("webview-container"));
             }
             renderDiagrams();
         }
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("Webview", webView),
+        ...getComposerWebViewOptions("Visualizer", webView),
         body, scripts, styles, bodyCss
     };
 

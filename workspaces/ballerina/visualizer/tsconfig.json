@@ -22,8 +22,8 @@
       "jsx": "react",
       "target": "ES6",
       "strictNullChecks": false,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
+      "noUnusedLocals": false,
+      "noUnusedParameters": false,
       "preserveSymlinks": true,
       "typeRoots": [
         "node_modules/@types"
