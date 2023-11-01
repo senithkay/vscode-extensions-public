@@ -52,6 +52,7 @@ import {
     CIRCLE_WIDTH,
     COMPONENT_NODE,
     CONNECTION_NODE,
+    DIAGRAM_END,
     DOT_WIDTH,
     MAIN_CELL,
     MAIN_CELL_DEFAULT_HEIGHT,
@@ -138,8 +139,8 @@ export function getComponentDiagramWidth(models: NodesAndLinks): number {
 }
 
 export function getComponentDiagramBoundaries(model: DiagramModel) {
-    let minX = 0,
-        minY = 0,
+    let minX = DIAGRAM_END,
+        minY = DIAGRAM_END,
         maxX = 0,
         maxY = 0;
     model.getNodes().forEach((node) => {
@@ -347,7 +348,6 @@ function generateExternalNodes(): Map<string, ExternalModel> {
 }
 
 function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[]): Map<string, EmptyModel> {
-    const DIAGRAM_END = 1000;
     const nodes: Map<string, EmptyModel> = new Map<string, EmptyModel>();
 
     const northBoundEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH);
