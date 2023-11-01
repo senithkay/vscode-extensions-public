@@ -8,11 +8,12 @@
  */
 
 import React, { useContext } from "react";
-import { FullScreenIcon, FitScreenIcon, AddIcon, RemoveIcon, WarningIcon, RefreshIcon } from "../../resources/assets/icons";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { CanvasControlButton } from "./ControlButtons/ControlButton";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Colors } from "../../resources";
 
 interface ControlProps {
     engine: DiagramEngine;
@@ -54,22 +55,22 @@ export function DiagramControls(props: ControlProps) {
         <ControlPanel>
             {hasDiagnostics && (
                 <CanvasControlButton onClick={showProblemPanel} tooltipTitle={"Diagnostics were detected in the model."}>
-                    <WarningIcon />
+                    <Icon sx={{ color: Colors.CONTROL_BUTTON_STROKE_COLOR, marginTop: 4 }} name="warning"/>
                 </CanvasControlButton>
             )}
 
             {refreshDiagram && (
                 <CanvasControlButton onClick={refreshDiagram} tooltipTitle={"Refresh"}>
-                    <RefreshIcon />
+                    <Icon sx={{ color: Colors.CONTROL_BUTTON_STROKE_COLOR, marginTop: 4 }} name="refresh"/>
                 </CanvasControlButton>
             )}
 
             <CanvasControlButton onClick={zoomToFit} tooltipTitle={"Zoom to fit nodes"}>
-                <FullScreenIcon />
+                <Icon sx={{ color: Colors.CONTROL_BUTTON_STROKE_COLOR, marginTop: 4 }} name="full-screen"/>
             </CanvasControlButton>
 
             <CanvasControlButton onClick={zoomToActualSize} tooltipTitle={"Zoom to actual size"}>
-                <FitScreenIcon />
+                <Icon sx={{ color: Colors.CONTROL_BUTTON_STROKE_COLOR, marginTop: 4 }} name="fit-screen"/>
             </CanvasControlButton>
 
             <div>
@@ -79,7 +80,7 @@ export function DiagramControls(props: ControlProps) {
                     }}
                     tooltipTitle={"Zoom in"}
                 >
-                    <AddIcon />
+                    <Icon sx={{ color: Colors.CONTROL_BUTTON_STROKE_COLOR, marginTop: 4 }} name="add"/>
                 </CanvasControlButton>
 
                 <CanvasControlButton
@@ -88,7 +89,7 @@ export function DiagramControls(props: ControlProps) {
                     }}
                     tooltipTitle={"Zoom out"}
                 >
-                    <RemoveIcon />
+                    <Icon sx={{ color: Colors.CONTROL_BUTTON_STROKE_COLOR, marginTop: 4 }} name="remove"/>
                 </CanvasControlButton>
             </div>
         </ControlPanel>
