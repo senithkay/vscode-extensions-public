@@ -11,7 +11,7 @@
 
 import { Messenger } from "vscode-messenger-webview";
 import { vscode } from "./vscode";
-import { OverviewRpcClient } from "./overview/rpc-layer/rpc-client";
+import { OverviewRpcClient } from "./rpc-clients/overview/rpc-client";
 
 export class BallerinaRpcClient {
 

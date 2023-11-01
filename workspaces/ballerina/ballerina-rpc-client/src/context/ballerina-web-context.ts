@@ -15,7 +15,6 @@ export interface VisualizerContext {
     view: string,
     ballerinaRpcClient?: BallerinaRpcClient
     setView?: (view: string) => void
-    setBallerinaRpcClient?: (client: BallerinaRpcClient) => void
 }
 
 /**

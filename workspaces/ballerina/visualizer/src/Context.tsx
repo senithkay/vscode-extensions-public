@@ -22,7 +22,7 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
   const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
     view: "Overview",
     setView: setView,
-    ballerinaRpcClient: new BallerinaRpcClient()
+    ballerinaRpcClient: new BallerinaRpcClient() // Create the root RPC layer client object
   });
 
   return (
