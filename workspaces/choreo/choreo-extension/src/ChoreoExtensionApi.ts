@@ -65,7 +65,7 @@ export class ChoreoExtensionApi {
 
     private _choreoInstallationOrgId: number | undefined;
 
-    private _componentConfigCache: Cache<string, ComponentConfig[], [number, string, string]>;
+    private _componentConfigCache: Cache<ComponentConfig[], [number, string, string]>;
 
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
     public onStatusChanged = this._onStatusChanged.event;
@@ -84,7 +84,7 @@ export class ChoreoExtensionApi {
     public onRefreshWorkspaceMetadata = this._onRefreshWorkspaceMetadata.event;
 
     constructor() {
-        this._componentConfigCache = new Cache<string, ComponentConfig[], [number, string, string]>({
+        this._componentConfigCache = new Cache<ComponentConfig[], [number, string, string]>({
             getDataFunc: (orgId: number, projectHandler: string, componentName: string) => 
             ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
         });
