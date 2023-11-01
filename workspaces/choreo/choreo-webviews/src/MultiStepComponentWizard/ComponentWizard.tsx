@@ -252,7 +252,6 @@ export const ComponentWizard: React.FC = () => {
         { enabled: !!state.formData?.type && !!selectedOrg?.id }
     );
 
-    // todo: refactor following hook
     useQuery(
         ["readEndpointsYaml", repository?.dockerContext, type],
         async () => {

@@ -71,7 +71,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
         <StepContainer>
             <SectionWrapper>
                 <Typography variant="h3">Component Type</Typography>
-                <ConfigCardList 
+                <ConfigCardList
                     formKey='type'
                     formData={formData}
                     onFormDataChange={onFormDataChange}

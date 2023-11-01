@@ -200,33 +200,30 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
                     )}
                     {triggersError && <ErrorBanner errorMsg={triggersError as any} />}
                 </DropDownContainer>
-                {/** TODO: Check webhook flow again */}        
-                {true && (
-                    <ServiceContainer>
-                        <div>
-                            <label htmlFor="service-dropdown">Select one or more Trigger Services</label>
-                            <VSCodeLink onClick={() => refetchTrigger()} style={{ marginLeft: 20 }}>
-                                Refresh
-                            </VSCodeLink>
-                        </div>
-                        {fetchingTrigger && <VSCodeProgressRing />}
-                        {trigger && (trigger as BallerinaTriggerInfo).serviceTypes?.length > 0 && (
-                            <ServiceListContainer>
-                                {trigger.serviceTypes.map((service: TriggerServiceType) => (
-                                    <VSCodeCheckbox
-                                        key={service.name}
-                                        name={service.name}
-                                        checked={triggerServices?.includes(service.name)}
-                                        onChange={handleServiceChange}
-                                    >
-                                        {service.displayAnnotation?.label || service.name}
-                                    </VSCodeCheckbox>
-                                ))}
-                            </ServiceListContainer>
-                        )}
-                        {triggerError && <ErrorBanner errorMsg={triggerError as any} />}
-                    </ServiceContainer>
-                )}
+                <ServiceContainer>
+                    <div>
+                        <label htmlFor="service-dropdown">Select one or more Trigger Services</label>
+                        <VSCodeLink onClick={() => refetchTrigger()} style={{ marginLeft: 20 }}>
+                            Refresh
+                        </VSCodeLink>
+                    </div>
+                    {fetchingTrigger && <VSCodeProgressRing />}
+                    {trigger && (trigger as BallerinaTriggerInfo).serviceTypes?.length > 0 && (
+                        <ServiceListContainer>
+                            {trigger.serviceTypes.map((service: TriggerServiceType) => (
+                                <VSCodeCheckbox
+                                    key={service.name}
+                                    name={service.name}
+                                    checked={triggerServices?.includes(service.name)}
+                                    onChange={handleServiceChange}
+                                >
+                                    {service.displayAnnotation?.label || service.name}
+                                </VSCodeCheckbox>
+                            ))}
+                        </ServiceListContainer>
+                    )}
+                    {triggerError && <ErrorBanner errorMsg={triggerError as any} />}
+                </ServiceContainer>
                 {stepValidationErrors["trigger"] && <ErrorBanner errorMsg={stepValidationErrors["trigger"]} />}
             </SectionWrapper>
         </StepContainer>

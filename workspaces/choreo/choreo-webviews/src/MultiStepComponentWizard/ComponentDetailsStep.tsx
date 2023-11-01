@@ -20,7 +20,6 @@ import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/ch
 import { ConfigCardList } from "./ConfigCardList";
 import { TextField, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
-// import { BallerinaIcon, DockerIcon } from "../icons";
 
 const StepContainer = styled.div`
     display: flex;
@@ -41,7 +40,6 @@ const DropDownContainer = styled.div`
 const BuildPackOptionWrap = styled.div`
     position: relative;
 `;
-
 
 
 export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardState>>) => {

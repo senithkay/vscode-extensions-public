@@ -360,24 +360,20 @@ export enum ComponentDisplayType {
     BuildpackRestApi = 'buildpackRestApi',
     Webhook = 'webhook',
     Proxy = 'proxy', 
-    GraphQL = 'graphql',    // remove this?
-
+    GraphQL = 'graphql',
     // service
     Service = 'ballerinaService',
     ByocService = 'byocService',
     BuildpackService = 'buildpackService',
-
     // manual trigger
     BuildpackJob = 'buildpackJob',
     ByocJob = 'byocJob',
     ManualTrigger = 'manualTrigger',
-
     // cron job
     BuildpackCronJob = 'buildpackCronJob',
     ByocCronjob = 'byocCronjob',
     ScheduledTask = 'scheduledTask',
     MiCronjob = 'miCronjob',
-
     // webapp
     ByocWebApp = 'byocWebApp',
     ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
@@ -505,7 +501,9 @@ export interface ChoreoComponentCreationParams {
     endpointContext?: string;
     /** Relevant for build pack types */
     implementationType?: string;
+    /** Version of the build pack language */
     languageVersion?: string;
+    /** ID of the selected buildpack */
     buildPackId?: string;
 }
 

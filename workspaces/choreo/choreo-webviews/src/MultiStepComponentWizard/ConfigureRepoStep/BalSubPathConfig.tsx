@@ -69,7 +69,6 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
 
     const folderNameError = useMemo(() => {
         if (localDirectorMetaData) {
-            // todo: revisit this!!!
             if (repository?.subPath) {
                 if (!localDirectorMetaData?.isSubPathValid) {
                     return 'Sub path does not exist';
