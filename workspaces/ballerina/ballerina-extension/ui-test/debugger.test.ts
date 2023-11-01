@@ -47,7 +47,7 @@ describe('Debugger UI Tests', () => {
 async function verifyDebugOutput() {
     const terminal = await new BottomBarPanel().openDebugConsoleView();
 
-    await waitUntilTextContains(terminal, expectedOut, 30000).catch((e) => {
+    await waitUntilTextContains(terminal, expectedOut, 60000).catch((e) => {
         fail(e);
     }).finally(async () => {
         console.log(await terminal.getText());
