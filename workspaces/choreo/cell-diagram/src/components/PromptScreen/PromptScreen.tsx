@@ -8,8 +8,8 @@
  */
 
 import React from 'react';
-import Fab from '@mui/material/Fab';
-import SearchIcon from '@mui/icons-material/Search';
+// import Fab from '@mui/material/Fab';
+// import SearchIcon from '@mui/icons-material/Search';
 import { useStyles } from './style';
 
 export interface PromptScreenProps {
@@ -18,13 +18,14 @@ export interface PromptScreenProps {
 }
 
 export function PromptScreen(props: PromptScreenProps) {
-    const { showProblemPanel, userMessage } = props;
+    const { userMessage } = props;
     const styles = useStyles();
 
     return (
         <div className={styles.container}>
             <h3 className={styles.messageBox}>{userMessage}</h3>
-            {showProblemPanel &&
+            {/* FIXME: If the problem panel is needed we need to implement Fab in UI toolkit */}
+            {/* {showProblemPanel &&
                 <Fab
                     aria-label='add'
                     className={styles.button}
@@ -36,7 +37,7 @@ export function PromptScreen(props: PromptScreenProps) {
                     <SearchIcon sx={{ marginRight: '5px' }} />
                     View Diagnostics
                 </Fab>
-            }
+            } */}
         </div>
     );
 }
