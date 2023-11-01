@@ -14,6 +14,7 @@ export * from './components/TextField/TextField';
 export * from './components/Commons/Colors';
 export * from './components/ContextMenu/ContextMenu';
 export * from './components/Dialog/Dialog';
+export * from './components/Codicon/Codicon';
 export * from './components/Icon/Icon';
 export * from './components/ComponentCard/ComponentCard';
 export * from './components/Typography/Typography';

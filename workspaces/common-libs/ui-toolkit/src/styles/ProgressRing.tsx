@@ -6,6 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export * from './DataGrid'; 
-export * from './SidePanel';
-export * from './ProgressRing';
+import styled from "@emotion/styled";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+
+export const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 3px);
+    width: calc(var(--design-unit) * 3px);
+    margin-top: auto;
+    padding: 4px;
+`;

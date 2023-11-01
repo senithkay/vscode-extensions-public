@@ -9,14 +9,13 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItem } from "./components";
-import { Colors, MAIN_CELL, NO_CELL_NODE } from "./resources";
+import { MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
+import { NavigationWrapperCanvasWidget, SmallProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
 
@@ -207,7 +206,7 @@ export function CellDiagram(props: CellDiagramProps) {
                     ) : userMessage ? (
                         <PromptScreen userMessage={userMessage} />
                     ) : (
-                        <CircularProgress sx={{ color: Colors.PRIMARY }} />
+                        <SmallProgressRing />
                     )}
                 </DiagramContainer>
             </CellDiagramContext>
