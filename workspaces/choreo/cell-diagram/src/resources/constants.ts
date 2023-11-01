@@ -51,6 +51,7 @@ export const CONNECTION_NODE = "connectionNode";
 export const MAIN_CELL = "mainCell";
 export const EMPTY_NODE = "emptyNode";
 export const EXTERNAL_NODE = "externalNode";
+export const BORDER_NODE = "borderNode";
 
 // node dimensions
 export const MAIN_CELL_DEFAULT_HEIGHT = 500;
@@ -66,3 +67,5 @@ export const LINE_MAX_WIDTH = 10;
 
 export const LABEL_FONT_SIZE = 20;
 export const LABEL_MAX_WIDTH = 160;
+
+export const BORDER_GAP = 40;

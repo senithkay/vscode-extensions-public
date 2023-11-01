@@ -46,7 +46,17 @@ import {
 } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getNodePortId, getCellPortMetadata } from "../components/Cell/CellNode/cell-util";
-import { CIRCLE_WIDTH, COMPONENT_NODE, CONNECTION_NODE, DOT_WIDTH, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
+import {
+    BORDER_GAP,
+    BORDER_NODE,
+    CIRCLE_WIDTH,
+    COMPONENT_NODE,
+    CONNECTION_NODE,
+    DOT_WIDTH,
+    MAIN_CELL,
+    MAIN_CELL_DEFAULT_HEIGHT,
+    dagreEngine,
+} from "../resources";
 import { Orientation } from "../components/Connection/ConnectionNode/ConnectionModel";
 import { getComponentNameById, getComponentName } from "../components/Component/ComponentNode/component-util";
 import { getConnectionNameById } from "../components/Connection/ConnectionNode/connection-util";
@@ -246,6 +256,15 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
             }
         }
     }
+    // arrange border nodes
+    // change north bound border empty node position
+    const cellPositionNorth = cellNode.getPosition().clone();
+    cellPositionNorth.y = cellPositionNorth.y - (externalLinkOffset + CIRCLE_WIDTH / 2) - BORDER_GAP;
+    model.getNode(getEmptyNodeName(CellBounds.NorthBound, BORDER_NODE))?.setPosition(cellPositionNorth.clone());
+    // change south bound border empty node position
+    const cellPositionSouth = cellNode.getPosition().clone();
+    cellPositionSouth.y = cellPositionSouth.y + (cellNode.width - CIRCLE_WIDTH) + BORDER_GAP;
+    model.getNode(getEmptyNodeName(CellBounds.SouthBound, BORDER_NODE))?.setPosition(cellPositionSouth.clone());
 }
 
 export function isRenderInsideCell(node: BaseModel<BaseModelGenerics>): boolean {
@@ -351,6 +370,13 @@ function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[
             nodes.set(connectionEmptyNode.getID(), connectionEmptyNode);
         }
     });
+
+    // add border empty nodes
+    const northBoundBorderEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH, BORDER_NODE);
+    nodes.set(northBoundBorderEmptyNode.getID(), northBoundBorderEmptyNode);
+
+    const southBoundBorderEmptyNode = new EmptyModel(CellBounds.SouthBound, CIRCLE_WIDTH, BORDER_NODE);
+    nodes.set(southBoundBorderEmptyNode.getID(), southBoundBorderEmptyNode);
 
     return nodes;
 }
