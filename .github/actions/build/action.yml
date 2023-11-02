@@ -28,6 +28,9 @@ inputs:
   balVersion:
     default: 2201.7.1
     type: string 
+  API_CHAT_API_KEY:
+    type: string
+    required: true  
 
 runs:
   using: "composite"
@@ -99,6 +102,7 @@ runs:
         node common/scripts/install-run-rush.js build --verbose
       env:
         isPreRelease: ${{ inputs.isPreRelease == 'true' }}
+        API_CHAT_API_KEY: ${{ inputs.API_CHAT_API_KEY }}
 
     - name: Compress build
       shell: bash

@@ -1,8 +1,8 @@
 {
   "name": "api-chat",
-  "displayName": "WSO2 API Chat",
+  "displayName": "API Chat",
   "description": "Test APIs with OpenAPI descriptions",
-  "version": "0.9.4",
+  "version": "0.9.6",
   "publisher": "WSO2",
   "repository": {
     "type": "github",
@@ -116,10 +116,6 @@
     "webpack": "~5.88.2",
     "xstate": "^4.38.2",
     "yaml": "^2.3.2",
-    "@vscode-logging/types": "~0.1.4",
-    "@vscode-logging/wrapper": "~1.0.2",
-    "@vscode/extension-telemetry": "~0.7.7",
-    "@vscode-logging/logger": "~1.2.3",
     "dotenv-webpack": "~8.0.1"
   }
 }
