@@ -10,11 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, PushedComponent, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { CloneRepoRequeset, CreateLocalBalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTrigger, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsComponentNameAvailableRequest, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalBalComponentFromExistingSourceRequest, CreateLocalComponentRequest, GetBallerinaVersion, GetRepoPathRequest, IsComponentNameAvailableRequest, IsRepoClonedRequest } from "./types";
 
 export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     constructor (private _messenger: Messenger) {
