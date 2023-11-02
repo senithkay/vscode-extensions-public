@@ -15,7 +15,7 @@ import { randomUUID } from "crypto";
 import { join } from "path";
 import {
     AccessToken, ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetComponentDeploymentStatusParams,
-    GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams, GetComponentBuildStatusParams, CreateBuildpackComponentParams
+    GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams, GetComponentBuildStatusParams, CreateBuildpackComponentParams, CreateMiComponentParams
 } from "@wso2-enterprise/choreo-client";
 import { BuildStatus, Component, ComponentCount, Deployment, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 import { ProjectRegistry } from "../../../registry/project-registry";
@@ -106,6 +106,10 @@ export class MockProjectClient implements IChoreoProjectClient {
     }
 
     createBuildPackComponent(params: CreateBuildpackComponentParams): Promise<Component> {
+        throw new Error("Method not implemented.");
+    }
+
+    createMiComponent(params: CreateMiComponentParams): Promise<Component> {
         throw new Error("Method not implemented.");
     }
     
