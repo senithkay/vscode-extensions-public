@@ -287,6 +287,28 @@ export class CommonUtils {
         return false;
     }
 
+    /** Copy entire directory from one location to another */
+    static copyDirectory(source: string, destination: string) {
+        if (!fs.existsSync(destination)) {
+            fs.mkdirSync(destination);
+        }
+    
+        const files = fs.readdirSync(source);
+    
+        files.forEach(file => {
+            const srcPath = join(source, file);
+            const destPath = join(destination, file);
+            const isDirectory = fs.lstatSync(srcPath).isDirectory();
+    
+            if (isDirectory) {
+                this.copyDirectory(srcPath, destPath);
+            } else {
+                fs.copyFileSync(srcPath, destPath);
+            }
+        });
+    }
+    
+
     /**
      * Delete all folders in the local and remote repo.
      * This is needed to clear unused files in the repo
