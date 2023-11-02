@@ -23,7 +23,6 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     before(async () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
-        webview = new WebView();
         await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
     });
@@ -105,6 +104,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     });
 
     it('Verify filtering of operations', async () => {
+        webview = new WebView();
         await GraphqlDesignerView.clickOperationFilterOption(webview, "Mutations");
 
         await GraphqlDesignerView.verifyFieldsInNode("graphql-root-node-/graphql2", ["remote-identifier-createReview"]);
