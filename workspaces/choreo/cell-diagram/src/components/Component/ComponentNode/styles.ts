@@ -30,7 +30,10 @@ export const ComponentNode: React.FC<any> = styled.div`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
-    cursor: pointer;
+    cursor: grab;
+    &:active {
+        cursor: grabbing;
+    }
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
