@@ -50,10 +50,11 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
     private projects: Project[] = [];
     private projectNameToIdMap: Map<string, string> = new Map();
+    private componentHandlerToNameMap: Map<string, string> = new Map();
 
     async getProjectModelFromFs(organization: Organization, projectId: string) {
 
-        const { id: orgId, name: orgName, handle: orgHandle } = organization;
+        const { id: orgId, name: orgName, handle: orgHandle, uuid: orgUuid } = organization;
         const workspaceFile = workspace.workspaceFile;
         if (!workspaceFile) {
             throw new Error("Workspace file not found");
@@ -105,8 +106,9 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                     defaultComponentModel.services = servicesRecord as any;
 
-                    const projectNameToIdMap = await this.getProjectNameToIdMap(orgId, orgHandle);
-                    defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
+                    const projectNameToIdMap = await this.getProjectHandlerToIdMap(orgId, orgHandle);
+                    const compHandlerToNameMap = await this.getComponentHandlerToNameMap(orgId, projectId, orgHandle, orgUuid);
+                    defaultComponentModel.connections = getConnectionModels(connections, projectNameToIdMap, compHandlerToNameMap);
                 } else if (componentType === ComponentType.WEB_APP) {
                     const service: CMService = {
                         ...getDefaultServiceModel(),
@@ -196,8 +198,9 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                     defaultComponentModel.services = servicesRecord as any;
 
-                    const projectNameToIdMap = await this.getProjectNameToIdMap(orgId, orgHandle);
-                    defaultComponentModel.connections = getConnectionModels(orgName, connections, projectNameToIdMap);
+                    const projectNameToIdMap = await this.getProjectHandlerToIdMap(orgId, orgHandle);
+                    const compHandlerToNameMap = await this.getComponentHandlerToNameMap(orgId, projectId, orgHandle, orgUuid);
+                    defaultComponentModel.connections = getConnectionModels(connections, projectNameToIdMap, compHandlerToNameMap);
                 }
             } else if (componentType === ComponentType.WEB_APP) {
                 const service: CMService = {
@@ -236,13 +239,25 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
         return this.projects;
     }
 
-    async getProjectNameToIdMap(orgId: number, orgHandle: string) {
+    async getProjectHandlerToIdMap(orgId: number, orgHandle: string) {
         if (this.projectNameToIdMap.size === 0) {
             const projects = await this.getProjects(orgId, orgHandle);
             projects.forEach(project => {
-                this.projectNameToIdMap.set(project.name, project.id);
+                this.projectNameToIdMap.set(project.handler, project.id);
             });
         }
         return this.projectNameToIdMap;
+    }
+
+    async getComponentHandlerToNameMap(orgId: number, projectId: string, orgHandle: string, orgUuid: string) {
+        if (this.componentHandlerToNameMap.size === 0) {
+            const components = await this._projectClient.getComponents(
+                {projId: projectId, orgId, orgHandle, orgUuid}
+            );
+            components.forEach(component => {
+                this.componentHandlerToNameMap.set(component.handler, component.name);
+            });
+        }
+        return this.componentHandlerToNameMap;
     }
 }

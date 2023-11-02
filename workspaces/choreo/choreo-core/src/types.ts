@@ -592,7 +592,7 @@ export interface Outbound {
 
 export interface ServiceReference {
     name: string;
-    dependentConfig: string;
+    connectionConfig: string;
     connectionType: string;
     env: Mapping[];
 }
