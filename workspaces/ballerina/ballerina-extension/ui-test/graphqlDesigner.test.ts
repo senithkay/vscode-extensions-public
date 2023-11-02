@@ -9,7 +9,7 @@
 
 import { before, describe } from "mocha";
 import { join } from "path";
-import { By, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
+import { By, EditorView, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
 import { GraphqlDesignerView } from "./utils/GraphqlDesignerView";
 
 describe('VSCode Graphql Designer Webview UI Tests', () => {
@@ -23,6 +23,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
         webview = new WebView();
+        await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
     });
 
@@ -124,7 +125,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     });
 
     it('Verify subGraph filtering', async () => {
-        await GraphqlDesignerView.selectNodeToFilter(webview, "Human", "/graphql2", true);
+        await GraphqlDesignerView.selectNodeToFilter(webview, "Human", "/graphql2", true); 
         await GraphqlDesignerView.clickOperationFilterOption(webview, "All Operations");
 
         await GraphqlDesignerView.verifyNodeHeader("union-head-SearchResult");
