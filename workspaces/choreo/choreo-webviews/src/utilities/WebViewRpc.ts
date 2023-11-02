@@ -35,7 +35,6 @@ import {
     isChoreoProject,
     getChoreoProject,
     PushLocalComponentsToChoreo,
-    OpenArchitectureView,
     OpenCellView,
     UpdateProjectOverview,
     isSubpathAvailable,
@@ -281,10 +280,6 @@ export class ChoreoWebViewAPI {
 
     public async goToSource(filePath: string): Promise<void> {
         return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
-    }
-
-    public async openArchitectureView(): Promise<void> {
-        return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
     public async openCellView(): Promise<void> {

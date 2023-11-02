@@ -14,7 +14,6 @@ import React, { useEffect, useState } from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
-import { TriggerConfigStep } from "./WebhookTriggerSelectorStep/WebhookTriggerSelector";
 
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
@@ -30,7 +29,7 @@ import { EndpointConfigStep } from './EndpointConfigStep';
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
-        const { name, type, implementationType, repository, description, accessibility, trigger, networkVisibility, endpointContext, serviceType} = formData;
+        const { name, type, implementationType, repository, description, accessibility, networkVisibility, endpointContext, serviceType} = formData;
         const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo } = repository;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
@@ -112,10 +111,6 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             endpointContext,
             serviceType
         };
-
-        if (formData?.type === ChoreoComponentType.Webhook) {
-            componentParams.trigger = trigger;
-        }
 
         if (isBuildPackType) {
             componentParams.implementationType = implementationType;
@@ -294,8 +289,6 @@ export const ComponentWizard: React.FC = () => {
     let steps = [ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep];
     if (type === ChoreoComponentType.Service) {
         steps = [...steps, EndpointConfigStep]
-    } else if (type === ChoreoComponentType.Webhook) {
-        steps = [ComponentTypeStep, TriggerConfigStep, ComponentDetailsStep, ConfigureRepoStep];
     }
 
     return (
