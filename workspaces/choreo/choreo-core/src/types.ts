@@ -56,6 +56,29 @@ export interface Project {
     gitProvider?: string,
 }
 
+export interface Buildpack {
+    id: string;
+    buildpackImage: string;
+    language: string;
+    supportedVersions: string;
+    displayName: string;
+    isDefault: true;
+    versionEnvVariable: string;
+    iconUrl: string;
+    provider: string;
+    builder: {
+        id: string;
+        builderImage: string;
+        displayName: string;
+        imageHash: string;
+    };
+    componentTypes: {
+        id: string;
+        displayName: string;
+        type: string
+    }[];
+}
+
 export interface ComponentCount {
     orgId: number; 
     componentCount: number;
@@ -326,23 +349,37 @@ export interface WorkspaceConfig {
 }
 export enum ComponentDisplayType {
     RestApi = 'restAPI',
-    ManualTrigger = 'manualTrigger',
-    ScheduledTask = 'scheduledTask',
-    Webhook = 'webhook',
     Websocket = 'webSocket',
-    Proxy = 'proxy',
-    ByocCronjob = 'byocCronjob',
-    ByocJob = 'byocJob',
-    GraphQL = 'graphql',
-    ByocWebApp = 'byocWebApp',
-    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
     ByocRestApi = 'byocRestApi',
     ByocWebhook = 'byocWebhook',
     MiRestApi = 'miRestApi',
     MiEventHandler = 'miEventHandler',
+    MiApiService = 'miApiService',
+    BuildpackWebhook = 'buildpackWebhook',
+    BuildpackTestRunner = 'buildpackTestRunner',
+    BuildpackRestApi = 'buildpackRestApi',
+    Webhook = 'webhook',
+    Proxy = 'proxy', 
+    GraphQL = 'graphql',
+    // service
     Service = 'ballerinaService',
     ByocService = 'byocService',
-    MiApiService = 'miApiService',
+    BuildpackService = 'buildpackService',
+    // manual trigger
+    BuildpackJob = 'buildpackJob',
+    ByocJob = 'byocJob',
+    ManualTrigger = 'manualTrigger',
+    MiJob = 'miJob',
+
+    // cron job
+    BuildpackCronJob = 'buildpackCronJob',
+    ByocCronjob = 'byocCronjob',
+    ScheduledTask = 'scheduledTask',
+    MiCronjob = 'miCronjob',
+    // webapp
+    ByocWebApp = 'byocWebApp',
+    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
+    BuildpackWebApp = 'buildpackWebApp',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -379,18 +416,53 @@ export interface WorkspaceComponentMetadata {
         srcGitRepoUrl: string;
         srcGitRepoBranch: string;
     },
+    buildpackConfig?: {
+        buildContext: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+        languageVersion: string;
+        buildpackId: string;
+    },
     byocWebAppsConfig?: ComponentWizardWebAppConfig;
     port?: number;
 }
 
 export enum ChoreoImplementationType {
-    Ballerina = "Ballerina",
-    Docker = "Docker",
-    React = 'React',
-    Angular = 'Angular',
-    Vue = 'Vuejs',
-    StaticFiles = 'StaticFiles',
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    Java = "java",
+    Python = "python",
+    NodeJS = "nodejs",
+    Go = "go",
+    PHP = "php",
+    Ruby = "ruby",
+    MicroIntegrator = "microintegrator",
 }
+
+export enum ChoreoBuildPackNames {
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    MicroIntegrator = "microintegrator",
+}
+
+export enum GoogleProviderBuildPackNames {
+    JAVA = "java",
+    NODEJS = "nodejs",
+    PYTHON = "python",
+    GO = "go",
+    RUBY = "ruby",
+    PHP = "php",
+}
+
+export const WebAppSPATypes = [ChoreoBuildPackNames.React, ChoreoBuildPackNames.Vue, ChoreoBuildPackNames.Angular]
 
 export enum ChoreoServiceType {
     RestApi = "REST",
@@ -398,12 +470,14 @@ export enum ChoreoServiceType {
     GRPC = "GRPC"
 }
 
+export const ChoreoServiceTypeList = [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL, ChoreoServiceType.GRPC]
+
 export enum ChoreoComponentType {
     Service = 'service',
     ScheduledTask = 'scheduledTask',
     ManualTrigger = 'manualTrigger',
     Webhook = 'webhook',
-    WebApplication = 'webApplication'
+    WebApplication = 'webApp'
 }
 
 export interface ChoreoComponentCreationParams {
@@ -427,6 +501,12 @@ export interface ChoreoComponentCreationParams {
     networkVisibility?: ComponentNetworkVisibility;
     /** Relevant for non-ballerina rest and gql APIs */
     endpointContext?: string;
+    /** Relevant for build pack types */
+    implementationType?: string;
+    /** Version of the build pack language */
+    languageVersion?: string;
+    /** ID of the selected buildpack */
+    buildPackId?: string;
 }
 
 export interface TriggerDetails {
@@ -472,6 +552,7 @@ export interface getLocalComponentDirMetaDataRequest {
     dockerFilePath?: string;
     dockerContextPath?: string;
     openApiFilePath?: string;
+    buildPackId?: string;
 }
 
 export interface getLocalComponentDirMetaDataRes {
@@ -481,9 +562,12 @@ export interface getLocalComponentDirMetaDataRes {
     isSubPathEmpty: boolean;
     hasBallerinaTomlInPath: boolean;
     hasBallerinaTomlInRoot: boolean;
-    hasEndpointsYaml: boolean;
+    hasComponentYaml: boolean;
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
+    isBuildpackPathValid: boolean;
+    hasPomXmlInPath: boolean;
+    hasPomXmlInInRoot: boolean;
 }
 
 export interface InboundConfig {
@@ -508,7 +592,7 @@ export interface Outbound {
 
 export interface ServiceReference {
     name: string;
-    dependentConfig: string;
+    connectionConfig: string;
     connectionType: string;
     env: Mapping[];
 }
@@ -533,7 +617,6 @@ export enum Status {
     ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }
 
-export type ComponentCreateMode = "fromScratch" | "fromExisting";
 
 export enum GitProvider {
     GITHUB = 'github',
@@ -565,3 +648,28 @@ export enum ServiceTypes {
 interface Mapping {
     [key: string]: string;
 }
+
+export interface ComponentYamlContent {
+    apiVersion: "core.choreo.dev/v1alpha1";
+    kind: "ComponentConfig";
+    metadata: ComponentMetadata;
+    spec: {
+      build?: { branch: string; revision?: string };
+      image?: { registry: string; repository: string; tag: string };
+      inbound?: Inbound[];
+      outbound?: Outbound;
+      configurations?: {
+        keys?: {
+          name: string;
+          envName?: string;
+          volume?: { mountPath: string };
+        }[];
+        groups?: {
+          name: string;
+          env?: { from: string; to: string }[];
+          volume?: { mountPath: string; files: { from: string; to: string }[] }[];
+        }[];
+      };
+    };
+  }
+  

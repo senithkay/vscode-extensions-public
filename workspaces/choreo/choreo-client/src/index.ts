@@ -17,4 +17,5 @@ export * from "./org";
 export * from "./subscription";
 export * from "./componentManagement";
 export * from "./userManagement";
+export * from "./devops"
 export * from "./cellView";

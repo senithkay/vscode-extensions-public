@@ -10,31 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { Buildpack } from "@wso2-enterprise/choreo-core";
 
-import React from "react";
-import { render } from "react-dom";
-import styled from "@emotion/styled";
-import ChoreoWebview from "./ChoreoWebview";
+export interface GetBuildpackParams {
+    orgId: number;
+    orgUuid: string;
+    componentType: string;
+}
 
-export const Main: React.FC<any> = styled.main`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  height: 100vh;
-`;
-
-export function renderChoreoWebViews(
-	target: HTMLDivElement,
-	type: string,
-	projectId?: string,
-	orgName?: string,
-	componentLimit?: number,
-	choreoUrl?: string,
-) {
-	render(
-		<React.StrictMode>
-			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl }} />
-		</React.StrictMode>,
-		target
-	);
+export interface IChoreoDevopsClient  {
+    getBuildPacks(params: GetBuildpackParams): Promise<Buildpack[]>;
 }
