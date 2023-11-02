@@ -80,7 +80,7 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
 export function getCreateBYOCComponentMutation(params: CreateByocComponentParams) {
     const { name, displayName, componentType, description, orgId, orgHandle, projectId,
         accessibility, byocConfig, port } = params;
-    if(!byocConfig){
+    if (!byocConfig) {
         throw new Error('byocConfig not found')
     }
     const { dockerfilePath, dockerContext, srcGitRepoUrl, srcGitRepoBranch } = byocConfig;
@@ -112,17 +112,17 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
 export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponentParams) {
     const { name, displayName, componentType, description, orgId, orgHandle, projectId,
         accessibility, byocWebAppsConfig } = params;
-    if(!byocWebAppsConfig){
+    if (!byocWebAppsConfig) {
         throw new Error('byocWebAppsConfig not found');
     }
-    const { 
-        dockerContext, 
-        srcGitRepoUrl, 
-        srcGitRepoBranch, 
-        webAppBuildCommand, 
-        webAppOutputDirectory, 
-        webAppPackageManagerVersion, 
-        webAppType 
+    const {
+        dockerContext,
+        srcGitRepoUrl,
+        srcGitRepoBranch,
+        webAppBuildCommand,
+        webAppOutputDirectory,
+        webAppPackageManagerVersion,
+        webAppType
     } = byocWebAppsConfig;
     return gql`mutation
         { createByocComponent(component: {  
@@ -208,6 +208,8 @@ export function getCreateMiComponentMutation(params: CreateMiComponentParams) {
             oasFilePath: "",
             version: "1.0.0",
             secretRef: "${bitbucketCredentialId}"
+            })
+            {  id, organizationId, projectId, handle }
         }
     `;
 }
