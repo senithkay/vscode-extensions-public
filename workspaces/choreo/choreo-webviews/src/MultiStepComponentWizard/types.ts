@@ -43,10 +43,6 @@ export interface ComponentWizardState {
         webAppPackageManagerVersion?: string;
         webAppOutputDirectory?: string;
     },
-    trigger?: {
-        id: string;
-        services?: string[];
-    };
     version: string;
     buildPacksLoading?: boolean;
     buildPackList: Buildpack[];
