@@ -209,7 +209,7 @@
           {
             "id": "visualizeProjects",
             "title": "Visualize Choreo projects",
-            "description": "Visualize different aspects of your Choreo projects for a range of valuable information, all from a single click. \n **Architecture View** \n A high-level view of your project components, their compositions, and their dependencies with one another and external endpoints. \n[Open Architecture View](command:ballerina.view.architectureView)\n **Cell View** \n An enriched version of the architecture view, the cell view provides insights into the accessibility of your project components. \n[Open Cell View](command:ballerina.view.cellView)",
+            "description": "Visualize different aspects of your Choreo projects for a range of valuable information, all from a single click.\n  **Cell View** \n An enriched version of the architecture view, the cell view provides insights into the accessibility of your project components. \n[Open Cell View](command:ballerina.view.cellView)",
             "media": {
               "markdown": "resources/walkthrough/visualize.md"
             }

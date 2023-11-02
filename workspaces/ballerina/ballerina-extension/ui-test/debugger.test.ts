@@ -8,7 +8,7 @@
  */
 
 import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar } from "vscode-extension-tester";
-import { waitUntilTextContains } from "./util";
+import { wait, waitUntilTextContains } from "./util";
 import { join } from "path";
 import { expect } from "chai";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
@@ -45,6 +45,7 @@ describe('Debugger UI Tests', () => {
 });
 
 async function verifyDebugOutput() {
+    const bar = await DebugToolbar.create();
     const terminal = await new BottomBarPanel().openDebugConsoleView();
 
     await waitUntilTextContains(terminal, expectedOut, 60000).catch((e) => {
@@ -53,6 +54,7 @@ async function verifyDebugOutput() {
         console.log(await terminal.getText());
         const bar = await DebugToolbar.create();
         await bar.stop();
+        await wait(2000); // wait for debug session to end
     });
 }
 

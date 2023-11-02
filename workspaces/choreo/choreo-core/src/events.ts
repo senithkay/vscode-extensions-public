@@ -44,7 +44,6 @@ export const OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT = 'vscode-open-w
 export const OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT = 'vscode-open-workspace-project-overview-page-failure';
 
 // Project view
-export const OPEN_ARCHITECTURE_DIAGRAM_EVENT = 'vscode-open-architecture-diagram';
 export const OPEN_CELL_DIAGRAM_EVENT = 'vscode-open-cell-diagram';
 export const OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT = 'vscode-open-console-project-overview-page';
 export const OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT = 'vscode-open-console-component-overview-page';

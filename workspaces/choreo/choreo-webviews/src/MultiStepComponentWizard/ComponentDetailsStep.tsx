@@ -32,6 +32,7 @@ const StepContainer = styled.div`
 `;
 
 const DropDownContainer = styled.div`
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
 `;
