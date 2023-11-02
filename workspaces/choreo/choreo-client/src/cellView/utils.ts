@@ -36,7 +36,7 @@ export const ENDPOINTS_FILE = "endpoint.yaml";
 export const CHOREO_PROJECT_ROOT = "choreo-project-root";
 
 const MODEL_VERSION = "0.4.0";
-const CHOREO_CONNECTION_ID_PREFIX = "choreo://";
+const CHOREO_CONNECTION_ID_PREFIX = "choreo:///";
 
 export function getDefaultServiceModel(): CMService {
     return {
@@ -95,7 +95,7 @@ export function getServiceModels(endpoints: Inbound[],
     return services;
 }
 
-export function getConnectionModels(orgName: string, connections: Outbound, projectNameToIdMap: Map<string, string>) {
+export function getConnectionModels(connections: Outbound, projectNameToIdMap: Map<string, string>, compHandlerToNameMap: Map<string, string>) {
     const connectionModels: CMDependency[] = [];
 
     if (connections && Array.isArray(connections.serviceReferences)) {
@@ -103,13 +103,15 @@ export function getConnectionModels(orgName: string, connections: Outbound, proj
             const isChoreoConnection = ref.name.startsWith(CHOREO_CONNECTION_ID_PREFIX);
             let connectionId = ref.name;
             if (isChoreoConnection) {
-                const connectionIdParts = ref.name.split('/');
-                const projectName = connectionIdParts[2];
-                const componentName = connectionIdParts[3];
-                const endpointName = connectionIdParts[5];
-                const projectId = projectNameToIdMap.has(projectName) ? projectNameToIdMap.get(projectName) : projectName;
-                
-                connectionId = `${orgName}:${projectId}:${componentName}:${endpointName}`;
+                const connectionIdParts = ref.name.split(CHOREO_CONNECTION_ID_PREFIX)[1].split("/");
+                const orgName = connectionIdParts[0];
+                const projectHandle = connectionIdParts[1];
+                const componentHandle = connectionIdParts[2];
+                const endpointHash = connectionIdParts[3];
+                const projectId = projectNameToIdMap.has(projectHandle) ? projectNameToIdMap.get(projectHandle) : projectHandle;
+                const componentName = compHandlerToNameMap.has(componentHandle) ? compHandlerToNameMap.get(componentHandle) : componentHandle;
+
+                connectionId = `${orgName}:${projectId}:${componentName}:${endpointHash}`;
             }
             connectionModels.push({
                 id: connectionId,
