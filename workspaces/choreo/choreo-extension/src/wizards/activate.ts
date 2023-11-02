@@ -20,7 +20,7 @@ import {
 } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
-import { CREATE_PROJECT_EVENT, ComponentCreateMode } from "@wso2-enterprise/choreo-core";
+import { CREATE_PROJECT_EVENT } from "@wso2-enterprise/choreo-core";
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
 import { ProjectRegistry } from "../registry/project-registry";
 import { sendTelemetryEvent } from "../telemetry/utils";
@@ -40,7 +40,7 @@ export function activateWizards() {
         const organizationId = orgId ? orgId : (await ext.api.getSelectedOrg())?.id;
         if(organizationId){
             if (!projectWizard || !projectWizard.getWebview()) {
-                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, undefined, `${organizationId}`);
+                projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation, `${organizationId}`);
             }
             projectWizard.getWebview()?.reveal();
         }
@@ -69,44 +69,19 @@ export function activateWizards() {
         }
     });
 
-    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async (mode?: ComponentCreateMode) => {
+    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async () => {
         const isLoggedIn = await ext.api.waitForLogin();
         // show a message if user is not logged in
         if (!isLoggedIn) {
             window.showInformationMessage('You are not logged in. Please log in to continue.');
             return;
         }
-        if (mode) {
-            if (componentWizard) {
-                componentWizard.dispose();
-            }
-            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, mode);
-            componentWizard.getWebview()?.reveal();
-            return;
-        }
 
-        // if no mode passed, show quick pick
-        const options: QuickPickOptions = {
-            canPickMany: false,
-            title: "Create Component",
-        };
-        const items: QuickPickItem[] = [{
-            label: "$(add) From scratch",
-            picked: true,
-            detail: "Create a new Choreo component",
-        }, {
-            label: "$(add) From existing",
-            detail: "Bring in an existing component"
-        }];
-        const selected = await window.showQuickPick(items, options);
-
-        if (selected) {
-            if (componentWizard) {
-                componentWizard.dispose();
-            }
-            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, selected.label === "$(add) From scratch" ? 'fromScratch' : 'fromExisting');
-            componentWizard.getWebview()?.reveal();
+        if (componentWizard) {
+            componentWizard.dispose();
         }
+        componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
+        componentWizard.getWebview()?.reveal();
     });
 
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd);

@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { gql } from 'graphql-request';
-import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams } from './types';
+import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams, CreateBuildpackComponentParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
     const { name, description, orgId, orgHandle, version = "1.0.0", region, repository, credentialId, branch } = params;
@@ -145,6 +145,43 @@ export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponent
                     webAppPackageManagerVersion: "${webAppPackageManagerVersion}"
                     webAppOutputDirectory: "${webAppOutputDirectory}"
                 }
+            })
+            {  id, organizationId, projectId, handle }
+        }
+    `;
+}
+
+export function getCreateBuildpackComponentMutation(params: CreateBuildpackComponentParams) {
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId, port,
+        accessibility, bitbucketCredentialId, buildpackConfig } = params;
+    const {
+        buildContext,
+        buildpackId,
+        languageVersion,
+        srcGitRepoBranch,
+        srcGitRepoUrl,
+    } = buildpackConfig;
+    return gql`mutation
+        { createBuildpackComponent(component: {  
+            name: "${displayName}",
+            displayName: "${name.trim()}",
+            description: "${description}",
+            orgId: ${orgId},
+            orgHandler: "${orgHandle}",
+            projectId: "${projectId}",
+            labels: "",
+            componentType: "${componentType}",
+            port: ${port ?? 80},
+            oasFilePath: "",
+            accessibility: "${accessibility}",
+            buildpackConfig: {
+              buildContext:"${buildContext}",
+              srcGitRepoUrl:"${srcGitRepoUrl}",
+              srcGitRepoBranch: "${srcGitRepoBranch}",
+              languageVersion: "${languageVersion}",
+              buildpackId:"${buildpackId}"
+              }
+            secretRef: "${bitbucketCredentialId}",
             })
             {  id, organizationId, projectId, handle }
         }

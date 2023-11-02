@@ -22,8 +22,8 @@ export function PythonIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(189.38 0 0 189.81 25243.061 38519.17)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#387eb8" />
-                    <stop offset="1" stop-color="#366994" />
+                    <stop offset="0" stopColor="#387eb8" />
+                    <stop offset="1" stopColor="#366994" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypePython1"
@@ -34,8 +34,8 @@ export function PythonIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(189.38 0 0 189.81 25309.061 38583.42)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#ffe052" />
-                    <stop offset="1" stop-color="#ffc331" />
+                    <stop offset="0" stopColor="#ffe052" />
+                    <stop offset="1" stopColor="#ffc331" />
                 </linearGradient>
             </defs>
             <path

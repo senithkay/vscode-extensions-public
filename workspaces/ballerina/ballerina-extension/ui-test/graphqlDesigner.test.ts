@@ -126,9 +126,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     });
 
     it('Verify subGraph filtering', async () => {
-        await wait(1000); // Wait for the subgraph to update
         await GraphqlDesignerView.selectNodeToFilter(webview, "Human", "/graphql2", true); 
-        await wait(1000); // Wait for the subgraph to update
         await GraphqlDesignerView.clickOperationFilterOption(webview, "All Operations");
 
         await GraphqlDesignerView.verifyNodeHeader("union-head-SearchResult");

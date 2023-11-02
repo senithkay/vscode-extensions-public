@@ -10,16 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentAccessibility, ComponentCreateMode, ComponentNetworkVisibility, GitProvider } from "@wso2-enterprise/choreo-core";
-
+import { Buildpack, ChoreoComponentType, ChoreoServiceType, ComponentAccessibility, ComponentNetworkVisibility, GitProvider } from "@wso2-enterprise/choreo-core";
 
 export interface ComponentWizardState {
-    mode: ComponentCreateMode; // instead of boolean, use this type everywhere
     name: string;
     description: string;
     type: ChoreoComponentType;
     serviceType: ChoreoServiceType;
-    implementationType: ChoreoImplementationType;
+    implementationType: string;
     accessibility: ComponentAccessibility;
     networkVisibility: ComponentNetworkVisibility;
     port?: string;
@@ -50,4 +48,7 @@ export interface ComponentWizardState {
         services?: string[];
     };
     version: string;
+    buildPacksLoading?: boolean;
+    buildPackList: Buildpack[];
+    selectedBuildPackVersion?: string;
 }

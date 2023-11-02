@@ -18,6 +18,7 @@ const MenuButton: React.FC<any> = styled.div`
     top: -4px;
     right: -16px;
     cursor: pointer;
+    cursor: context-menu;
     z-index: 1;
     svg {
         fill: ${Colors.NODE_BORDER};

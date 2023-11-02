@@ -95,6 +95,9 @@ import {
     GoToSource,
     IsBallerinaExtInstalled,
     RefreshWorkspaceNotification,
+    GetBuildPackParams,
+    GetBuildpack,
+    CreateBalLocalComponentFromExistingSource,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -170,7 +173,20 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return ProjectRegistry.getInstance().createNonBalLocalComponentFromExistingSource(params);
     });
 
-    messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string; components: PushedComponent[] }) => {
+    messenger.onRequest(CreateBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
+        return ProjectRegistry.getInstance().createBalLocalComponentFromExistingSource(params);
+    });
+
+    messenger.onRequest(GetBuildpack, async (params: GetBuildPackParams) => {
+        const { orgId, componentType } = params;
+        const org = ext.api.getOrgById(orgId);
+        if (org) {
+            return ProjectRegistry.getInstance().getBuildpack(org.id, org.uuid, componentType);
+        }
+        return false;
+    });
+
+    messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string, components: PushedComponent[] }) => {
         const answer = await vscode.window.showInformationMessage(
             "Some components are deleted in Choreo. Do you want to remove them from workspace?",
             "Yes",
