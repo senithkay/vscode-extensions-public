@@ -360,13 +360,11 @@ export enum ComponentDisplayType {
     BuildpackRestApi = 'buildpackRestApi',
     Webhook = 'webhook',
     Proxy = 'proxy', 
-    GraphQL = 'graphql',    // remove this?
-
+    GraphQL = 'graphql',
     // service
     Service = 'ballerinaService',
     ByocService = 'byocService',
     BuildpackService = 'buildpackService',
-
     // manual trigger
     BuildpackJob = 'buildpackJob',
     ByocJob = 'byocJob',
@@ -378,11 +376,10 @@ export enum ComponentDisplayType {
     ByocCronjob = 'byocCronjob',
     ScheduledTask = 'scheduledTask',
     MiCronjob = 'miCronjob',
-
     // webapp
     ByocWebApp = 'byocWebApp',
     ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
-    BuildpackWebApp = 'buildpackWebapp',
+    BuildpackWebApp = 'buildpackWebApp',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -483,15 +480,6 @@ export enum ChoreoComponentType {
     WebApplication = 'webApp'
 }
 
-export const BUILD_PACK_TYPES = [
-    "java",
-    "nodejs",
-    "python",
-    "go",
-    "ruby",
-    "php"
-]
-
 export interface ChoreoComponentCreationParams {
     name: string;
     projectId: string;
@@ -515,7 +503,9 @@ export interface ChoreoComponentCreationParams {
     endpointContext?: string;
     /** Relevant for build pack types */
     implementationType?: string;
+    /** Version of the build pack language */
     languageVersion?: string;
+    /** ID of the selected buildpack */
     buildPackId?: string;
 }
 
@@ -572,7 +562,7 @@ export interface getLocalComponentDirMetaDataRes {
     isSubPathEmpty: boolean;
     hasBallerinaTomlInPath: boolean;
     hasBallerinaTomlInRoot: boolean;
-    hasEndpointsYaml: boolean;
+    hasComponentYaml: boolean;
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
     isBuildpackPathValid: boolean;
@@ -658,3 +648,28 @@ export enum ServiceTypes {
 interface Mapping {
     [key: string]: string;
 }
+
+export interface ComponentYamlContent {
+    apiVersion: "core.choreo.dev/v1alpha1";
+    kind: "ComponentConfig";
+    metadata: ComponentMetadata;
+    spec: {
+      build?: { branch: string; revision?: string };
+      image?: { registry: string; repository: string; tag: string };
+      inbound?: Inbound[];
+      outbound?: Outbound;
+      configurations?: {
+        keys?: {
+          name: string;
+          envName?: string;
+          volume?: { mountPath: string };
+        }[];
+        groups?: {
+          name: string;
+          env?: { from: string; to: string }[];
+          volume?: { mountPath: string; files: { from: string; to: string }[] }[];
+        }[];
+      };
+    };
+  }
+  

@@ -34,11 +34,13 @@ import {
     EndpointData,
     WorkspaceConfig,
     Buildpack,
-    GoogleProviderBuildPackNames
+    GoogleProviderBuildPackNames,
+    ComponentYamlContent,
+    Inbound
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
+import { COMPONENTS_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
@@ -133,9 +135,7 @@ export class ProjectRegistry {
                 cancellable: false
             }, async () => {
                 this.addDockerFile(args);
-                if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
-                    this.addEndpointsYaml(args);
-                }
+                this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 window.showInformationMessage('Component created successfully');
             });
@@ -164,59 +164,90 @@ export class ProjectRegistry {
         
     };
 
-    addEndpointsYaml = async (args: ChoreoComponentCreationParams) => {
+    addComponentYaml = async (args: ChoreoComponentCreationParams) => {
         const projectLocation = this.getProjectLocation(args.projectId);
         const { org, repo, dockerContext, openApiFilePath } = args.repositoryInfo as BYOCRepositoryDetails;
         if (projectLocation) {
             const projectDir = dirname(projectLocation);
             let basePath = join(projectDir, "repos", org, repo);
-            if (dockerContext) {
-                basePath = join(basePath, dockerContext);
+
+            const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
+
+            const subPath = dockerContext || args.repositoryInfo?.subPath
+
+            if (subPath) {
+                basePath = join(basePath, subPath);
             }
-            const schemaFilePath = openApiFilePath && dockerContext
-                    ? relative(dockerContext, openApiFilePath)
+            const schemaFilePath = openApiFilePath && subPath
+                    ? relative(subPath, openApiFilePath)
                     : openApiFilePath || "openapi.yaml";
-            const endpointsYamlPath = join(basePath, ".choreo", "endpoints.yaml");
+            const componentYamlPath = join(basePath, ".choreo", COMPONENTS_CONFIG_FILE);
 
-            if (existsSync(endpointsYamlPath)) {
-                rmSync(endpointsYamlPath);
+            if (existsSync(componentYamlPath)) {
+                rmSync(componentYamlPath);
             }
+            
+            const componentYamlContent: ComponentYamlContent = {
+                apiVersion:'core.choreo.dev/v1alpha1',
+                kind:'ComponentConfig',
+                metadata: {
+                    name: args.name,
+                    projectName: project?.name!,
+                    annotations: { componentType: args.displayType },
+                },
+                spec: {}
+            };
 
-            let endpointsYamlContent = readFileSync(
-                join(ext.context.extensionPath, "/templates/endpoints-template.yaml")
-            ).toString();
-            endpointsYamlContent = endpointsYamlContent.replace("ENDPOINT_NAME", args.name);
-            endpointsYamlContent = endpointsYamlContent.replace("PORT", args.port ? args.port.toString() : "3000");
-            endpointsYamlContent = endpointsYamlContent.replace("TYPE", args.serviceType ? args.serviceType?.toString() : "REST");
-            endpointsYamlContent = endpointsYamlContent.replace("NETWORK_VISIBILITY", args.networkVisibility ?? "Project");
-
-            if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
-                endpointsYamlContent = endpointsYamlContent.replace("ENDPOINT_CONTEXT", args.endpointContext ?? ".");
-            } else {
-                endpointsYamlContent = endpointsYamlContent.replace("context: ENDPOINT_CONTEXT", "# context: ENDPOINT_CONTEXT");
-            }
-
-            if (args.serviceType === ChoreoServiceType.RestApi) {
-                endpointsYamlContent = endpointsYamlContent.replace("SCHEMA_PATH", schemaFilePath);
-
-                const openApiPath = join(basePath, schemaFilePath);
-                if (!existsSync(openApiPath)) {
-                    cpSync(
-                        join(ext.context.extensionPath, "/templates/openapi-template.yaml"),
-                        join(basePath, schemaFilePath)
-                    );
+            if (args.displayType?.endsWith('Service')){
+                const inbound: Inbound = {
+                    name: args.name,
+                    port: args.port ?? 3000,
+                    type: args.serviceType ?? "REST",
+                };
+    
+                if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
+                    inbound.context = args.endpointContext ?? '.';
                 }
-            } else {
-                endpointsYamlContent = endpointsYamlContent.replace("schemaFilePath: SCHEMA_PATH", "# schemaFilePath: endpoints.yaml");
+    
+                if (args.serviceType === ChoreoServiceType.RestApi) {
+                    inbound.schemaFilePath = schemaFilePath;
+    
+                    const openApiPath = join(basePath, schemaFilePath);
+                    if (!existsSync(openApiPath)) {
+                        cpSync(
+                            join(ext.context.extensionPath, "/templates/openapi-template.yaml"),
+                            join(basePath, schemaFilePath)
+                        );
+                    }
+                }
+
+                componentYamlContent.spec.inbound = [inbound];
             }
 
-            const choreoDirPath = dirname(endpointsYamlPath);
+            const choreoDirPath = dirname(componentYamlPath);
             if (!existsSync(choreoDirPath)) {
                 mkdirSync(choreoDirPath);
             }
-            writeFileSync(endpointsYamlPath, endpointsYamlContent);
+            writeFileSync(componentYamlPath, yaml.dump(componentYamlContent));
         }
     };
+
+    async createBalLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<void> {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        if (workspace.workspaceFile && projectLocation) {
+            await window.withProgress({
+                title: `Initializing ${args.name} component`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                this.addComponentYaml(args);
+                await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
+                window.showInformationMessage('Component created successfully');
+            });
+        } else {
+            throw new Error("Error: Could not detect a project workspace.");
+        }
+    }
 
     async createNonBalLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<void> {
         const projectLocation = this.getProjectLocation(args.projectId);
@@ -226,9 +257,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
-                if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
-                    this.addEndpointsYaml(args);
-                }
+                this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 window.showInformationMessage('Component created successfully');
             });
@@ -845,6 +874,7 @@ export class ProjectRegistry {
             accessibility: componentMetadata.accessibility ?? "",
             bitbucketCredentialId: bitbucketCredentialId,
             componentType: componentMetadata.displayType.toString(),
+            port: componentMetadata.port,
             buildpackConfig: {
                 buildContext: appSubPath,
                 buildpackId: componentMetadata.buildpackConfig?.buildpackId!,
@@ -1033,12 +1063,12 @@ export class ProjectRegistry {
 
         let hasBallerinaTomlInRoot = existsSync(join(repoPath, 'Ballerina.toml'));
 
-        let hasEndpointsYaml = false;
-        let endpointsYamlPath = join(repoPath, '.choreo', 'endpoints.yaml');
-        if(dockerContextPath){
-            endpointsYamlPath = join(repoPath, dockerContextPath, '.choreo', 'endpoints.yaml');
+        let hasComponentYaml = false;
+        let componentYamlPath = join(repoPath, '.choreo', COMPONENTS_CONFIG_FILE);
+        if(dockerContextPath || subPath){
+            componentYamlPath = join(repoPath, dockerContextPath || subPath, '.choreo', COMPONENTS_CONFIG_FILE);
         }
-        hasEndpointsYaml = existsSync(endpointsYamlPath);
+        hasComponentYaml = existsSync(componentYamlPath);
 
         let dockerFilePathValid = false;
         if (dockerFilePath) {
@@ -1054,7 +1084,7 @@ export class ProjectRegistry {
         }
 
         let isBuildpackPathValid = false;
-        if (buildPackId) {
+        if (buildPackId && isSubPathValid) {
             const projectContent = readdirSync(join(repoPath, subPath));
             const dirFileNames = projectContent.filter(fileName => {
                 const fsStat = statSync(join(repoPath, subPath, fileName));
@@ -1083,7 +1113,7 @@ export class ProjectRegistry {
             isSubPathEmpty,
             hasBallerinaTomlInPath,
             hasBallerinaTomlInRoot,
-            hasEndpointsYaml,
+            hasComponentYaml,
             dockerFilePathValid,
             isDockerContextPathValid,
             isBuildpackPathValid,

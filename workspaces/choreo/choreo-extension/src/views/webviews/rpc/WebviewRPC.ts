@@ -97,6 +97,7 @@ import {
     RefreshWorkspaceNotification,
     GetBuildPackParams,
     GetBuildpack,
+    CreateBalLocalComponentFromExistingSource,
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers, registerChoreoCellViewRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -170,6 +171,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(CreateNonBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
         return ProjectRegistry.getInstance().createNonBalLocalComponentFromExistingSource(params);
+    });
+
+    messenger.onRequest(CreateBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
+        return ProjectRegistry.getInstance().createBalLocalComponentFromExistingSource(params);
     });
 
     messenger.onRequest(GetBuildpack, async (params: GetBuildPackParams) => {
