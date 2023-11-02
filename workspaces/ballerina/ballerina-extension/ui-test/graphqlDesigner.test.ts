@@ -11,6 +11,7 @@ import { before, describe } from "mocha";
 import { join } from "path";
 import { By, EditorView, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
 import { GraphqlDesignerView } from "./utils/GraphqlDesignerView";
+import { wait } from "./util";
 
 describe('VSCode Graphql Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'starwars');
@@ -125,7 +126,9 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
     });
 
     it('Verify subGraph filtering', async () => {
+        await wait(1000); // Wait for the subgraph to update
         await GraphqlDesignerView.selectNodeToFilter(webview, "Human", "/graphql2", true); 
+        await wait(1000); // Wait for the subgraph to update
         await GraphqlDesignerView.clickOperationFilterOption(webview, "All Operations");
 
         await GraphqlDesignerView.verifyNodeHeader("union-head-SearchResult");
