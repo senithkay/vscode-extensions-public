@@ -31,7 +31,7 @@ import { dirname, join } from "path";
 import * as yaml from 'js-yaml';
 
 export const CHOREO_CONFIG_DIR = ".choreo";
-export const COMPONENTS_CONFIG_FILE = "config.yaml";
+export const COMPONENTS_CONFIG_FILE = "component_config.yaml";
 export const ENDPOINTS_FILE = "endpoint.yaml";
 export const CHOREO_PROJECT_ROOT = "choreo-project-root";
 
