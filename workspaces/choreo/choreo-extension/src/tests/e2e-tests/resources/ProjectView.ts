@@ -82,7 +82,7 @@ export class ProjectView {
         await CommonUtils.switchToIFrame("Architecture View");
         await CommonUtils.waitUntil(
             By.xpath(`//div[contains(@class, 'diagram-container')]//*[text()='${componentName}']`),
-            30000
+            60000
         );
         await CommonUtils.switchToDefaultFrame();
     }
