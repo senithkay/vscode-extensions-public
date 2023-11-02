@@ -53,12 +53,6 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     getPushedComponents(_workspaceFilePath: string): PushedComponent[] {
         throw new Error("Method not implemented.");
     }
-    fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
-        return this._messenger.sendRequest(FetchBallerinaTriggers, HOST_EXTENSION, "");
-    }
-    fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse | undefined> {
-        return this._messenger.sendRequest(FetchBallerinaTrigger, HOST_EXTENSION, triggerId);
-    }
     getBalVersion(): Promise<string> {
         return this._messenger.sendRequest(GetBallerinaVersion, HOST_EXTENSION, "");
     }

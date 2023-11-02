@@ -17,8 +17,6 @@ import { CloneRepoRequeset, CreateLocalBalComponentFromExistingSourceRequest, Cr
 export function registerChoreoProjectManagerRPCHandlers(messenger: Messenger, manager: IProjectManager) {
     messenger.onRequest(CreateLocalComponentRequest, (params) => manager.createLocalComponent(params).catch(serializeError));
     messenger.onRequest(CreateLocalBalComponentFromExistingSourceRequest, (params) => manager.createLocalBalComponentFromExistingSource(params).catch(serializeError));
-    messenger.onRequest(FetchBallerinaTriggers, () => manager.fetchTriggers().catch(serializeError))
-    messenger.onRequest(FetchBallerinaTrigger, (params) => manager.fetchTrigger(params).catch(serializeError))
     messenger.onRequest(GetProjectRoot, () => manager.getProjectRoot().catch(serializeError));
     messenger.onRequest(GetProjectDetails, () => manager.getProjectDetails().catch(serializeError));
     messenger.onRequest(IsRepoClonedRequest, (params) => manager.isRepoCloned(params).catch(serializeError));
