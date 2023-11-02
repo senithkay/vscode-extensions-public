@@ -41,8 +41,8 @@ export class ChoreoCellView {
 			panel.reveal(vscode.ViewColumn.One);
 		} else {
 			const panel = vscode.window.createWebviewPanel(
-				"choreo-archi-view",
-				"Choreo Architecture View",
+				"choreo-cell-view",
+				"Choreo Cell View",
 				vscode.ViewColumn.One,
 				{ enableScripts: true, retainContextWhenHidden: true }
 			);
@@ -65,7 +65,7 @@ export class ChoreoCellView {
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
                     <meta name="theme-color" content="#000000">
-                    <title>Choreo Architecture View</title>
+                    <title>Choreo Cell View</title>
                     <script src="${scriptUri}"></script>
                 </head>
                 <body>

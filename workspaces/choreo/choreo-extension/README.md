@@ -63,9 +63,9 @@ Follow the steps below to design and develop your application by adding componen
 
 1. In the Choreo activity panel, select the project from the **PROJECTS** list. 
 
-2. In the **Project Overview** page, click **Architecture View** to view the Architecture Diagram.
+2. In the **Project Overview** page, click **Cell View** to view the Cell Diagram.
 
-3. In the **Choreo Architecture View**, click **+ COMPONENT**.
+3. In the Choreo activity panel, click **+ COMPONENT**.
 
 4. Specify appropriate values for the required fields to create the new component.
 
@@ -74,8 +74,6 @@ Follow the steps below to design and develop your application by adding componen
 6. In the Choreo Console, click **COMPONENT +** and repeat the steps above to create another component.
 
 7. Right-click on the added components to load the **Context** menu of them, and click the **Use Internal/External APIs** links to mark the interactions between them.
-
-![Architecture Diagram](docs/choreo-extension/images/component-creation.gif)
 
 ## Push your changes to Choreo
 
