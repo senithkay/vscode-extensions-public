@@ -38,7 +38,7 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
+import { CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
@@ -708,6 +708,8 @@ export class ProjectRegistry {
                                 await this._createByoComponent(componentMetadata);
                             } else if (componentMetadata.displayType.toString().startsWith("buildpack")) {
                                 await this._createBuildPackComponent(componentMetadata);
+                            } else if (componentMetadata.displayType.toString().startsWith("mi")) {
+                                await this._createMiComponent(componentMetadata);
                             } else {
                                 await this._createComponent(componentMetadata);
                             }
@@ -854,6 +856,32 @@ export class ProjectRegistry {
         await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createBuildPackComponent(componentRequest));
     }
 
+    private async _createMiComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
+        const { appSubPath, branchApp, nameApp, orgApp, gitProvider, bitbucketCredentialId } = componentMetadata.repository;
+        // set srcgitRepoUrl depending on the git provider
+        let srcGitRepoUrl = `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`;
+        switch (gitProvider) {
+            case GitProvider.BITBUCKET:
+                srcGitRepoUrl = `https://bitbucket.org/${orgApp}/${nameApp}/src/${branchApp}/${appSubPath}`;
+                break;
+        }
+
+        const componentRequest: CreateMiComponentParams = {
+            name: makeURLSafe(componentMetadata.displayName),
+            displayName: componentMetadata.displayName,
+            description: componentMetadata.description,
+            orgId: componentMetadata.org.id,
+            orgHandle: componentMetadata.org.handle,
+            projectId: componentMetadata.projectId,
+            accessibility: componentMetadata.accessibility ?? "",
+            bitbucketCredentialId: bitbucketCredentialId,
+            componentType: componentMetadata.displayType.toString(),
+            srcGitRepoBranch: branchApp,
+            srcGitRepoUrl: srcGitRepoUrl,
+            repositorySubPath: appSubPath
+        };
+        await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createMiComponent(componentRequest));
+    }
 
     async getBuildpack(orgId: number, orgUuid: string, componentType: string): Promise<Buildpack[]> {
         const params: GetBuildpackParams = {
@@ -877,6 +905,8 @@ export class ProjectRegistry {
                         await this._createByoComponent(componentMetadata);
                     } else if (componentMetadata.displayType.toString().startsWith("buildpack")) {
                         await this._createBuildPackComponent(componentMetadata);
+                    } else if (componentMetadata.displayType.toString().startsWith("mi")) {
+                        await this._createMiComponent(componentMetadata);
                     } else {
                         await this._createComponent(componentMetadata);
                     }

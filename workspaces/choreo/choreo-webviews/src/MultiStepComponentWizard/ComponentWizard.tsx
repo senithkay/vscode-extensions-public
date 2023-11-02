@@ -48,7 +48,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                     selectedDisplayType = ComponentDisplayType.ByocService;
                     break;
                 case ChoreoImplementationType.MicroIntegrator:
-                    // todo: handle MI service
+                    selectedDisplayType = ComponentDisplayType.MiApiService;
                     break;
                 default:
                     selectedDisplayType = ComponentDisplayType.BuildpackService;
@@ -62,7 +62,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                     selectedDisplayType = ComponentDisplayType.ByocCronjob;
                     break;
                 case ChoreoImplementationType.MicroIntegrator:
-                    // todo: handle MI service
+                    selectedDisplayType = ComponentDisplayType.MiCronjob
                     break;
                 default:
                     selectedDisplayType = ComponentDisplayType.BuildpackCronJob;
@@ -76,7 +76,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                     selectedDisplayType = ComponentDisplayType.ByocJob;
                     break;
                 case ChoreoImplementationType.MicroIntegrator:
-                    // todo: handle MI service
+                    selectedDisplayType = ComponentDisplayType.MiJob;
                     break;
                 default:
                     selectedDisplayType = ComponentDisplayType.BuildpackJob;
@@ -293,7 +293,7 @@ export const ComponentWizard: React.FC = () => {
 
     let steps = [ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep];
     if (type === ChoreoComponentType.Service) {
-        if (implementationType !== ChoreoImplementationType.Ballerina) {
+        if (implementationType !== ChoreoImplementationType.Ballerina && implementationType !== ChoreoImplementationType.MicroIntegrator) {
             steps = [...steps, EndpointConfigStep]
         }
     } else if (type === ChoreoComponentType.Webhook) {

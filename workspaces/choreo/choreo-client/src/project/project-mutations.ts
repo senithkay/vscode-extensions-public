@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { gql } from 'graphql-request';
-import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams, CreateBuildpackComponentParams } from './types';
+import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams, CreateBuildpackComponentParams, CreateMiComponentParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
     const { name, description, orgId, orgHandle, version = "1.0.0", region, repository, credentialId, branch } = params;
@@ -184,6 +184,30 @@ export function getCreateBuildpackComponentMutation(params: CreateBuildpackCompo
             secretRef: "${bitbucketCredentialId}",
             })
             {  id, organizationId, projectId, handle }
+        }
+    `;
+}
+
+export function getCreateMiComponentMutation(params: CreateMiComponentParams) {
+    const { name, displayName, componentType, description, orgId, orgHandle, projectId,
+        accessibility, bitbucketCredentialId, repositorySubPath, srcGitRepoBranch, srcGitRepoUrl } = params;
+    return gql`mutation
+        { createIntegrationComponent(component: {  
+            name: "${name}",
+            displayName: "${displayName}",
+            description:  "${description}",
+            orgId:  ${orgId},
+            orgHandler: "${orgHandle}",
+            projectId: "${projectId}",
+            labels: "",
+            componentType: "${componentType}",
+            accessibility: "${accessibility}",
+            srcGitRepoUrl: "${srcGitRepoUrl}",
+            srcGitRepoBranch: "${srcGitRepoBranch}",
+            repositorySubPath: "${repositorySubPath}",,
+            oasFilePath: "",
+            version: "1.0.0",
+            secretRef: "${bitbucketCredentialId}"
         }
     `;
 }

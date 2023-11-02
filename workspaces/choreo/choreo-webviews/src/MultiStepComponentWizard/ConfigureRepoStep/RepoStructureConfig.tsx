@@ -121,7 +121,6 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                 </StepContainer>
             )}
             {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
-            {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
             {implementationType === ChoreoImplementationType.Docker && (
                 <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
             )}
@@ -138,6 +137,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
             {implementationType === ChoreoImplementationType.MicroIntegrator && (
                 <MIConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
             )}
+            {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
         </div>
     );
 };
