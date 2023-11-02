@@ -369,6 +369,8 @@ export enum ComponentDisplayType {
     BuildpackJob = 'buildpackJob',
     ByocJob = 'byocJob',
     ManualTrigger = 'manualTrigger',
+    MiJob = 'miJob',
+
     // cron job
     BuildpackCronJob = 'buildpackCronJob',
     ByocCronjob = 'byocCronjob',
