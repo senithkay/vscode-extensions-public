@@ -18,17 +18,13 @@ import {
 	ExecutorPositionsResponse,
 	GetBallerinaPackagesParams,
 	GetBallerinaProjectParams,
-	IsExperimentalEnabled,
-	ProjectOverviewAPI,
-	WorkspaceFolder,
+	OverviewAPI,
 	getBallerinaProjectComponents,
 	getExecutorPositions,
-	getProjectPaths,
-	getSTForFunction,
-	navigate 
+	getSTForFunction
 } from "@wso2-enterprise/ballerina-core";
 
-export class OverviewRpcClient implements ProjectOverviewAPI {
+export class OverviewRpcClient implements OverviewAPI {
 
     private _messenger: Messenger;
     constructor(messenger: Messenger) {
@@ -46,17 +42,6 @@ export class OverviewRpcClient implements ProjectOverviewAPI {
     getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse> {
         return this._messenger.sendRequest(getExecutorPositions, HOST_EXTENSION, params)
     }
-    
-    navigate(): Promise<void> {
-        return this._messenger.sendRequest(navigate, HOST_EXTENSION)
-    }
-    
-    IsExperimentalEnabled(): Promise<boolean> {
-        return this._messenger.sendRequest(IsExperimentalEnabled, HOST_EXTENSION)
-    }
-    
-    getProjectPaths(): Promise<WorkspaceFolder[]> {
-        return this._messenger.sendRequest(getProjectPaths, HOST_EXTENSION)
-    }
+
     
 }

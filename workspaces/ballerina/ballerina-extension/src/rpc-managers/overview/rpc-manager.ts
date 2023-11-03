@@ -1,13 +1,10 @@
 import { workspace } from "vscode";
-import { ProjectOverviewAPI, BallerinaLangClientInterface, BallerinaProjectComponents, ExecutorPositionsResponse, GetBallerinaProjectParams, BallerinaFunctionSTRequest, BallerinaSTModifyResponse, GetBallerinaPackagesParams } from "@wso2-enterprise/ballerina-core";
+import { OverviewAPI, BallerinaProjectComponents, ExecutorPositionsResponse, GetBallerinaProjectParams, BallerinaFunctionSTRequest, BallerinaSTModifyResponse, GetBallerinaPackagesParams } from "@wso2-enterprise/ballerina-core";
+import { getLangClient } from "../../visualizer/activator";
 
-export class OverviewRPCManger implements ProjectOverviewAPI {
+export class OverviewRPCManger implements OverviewAPI {
 
-    private _langClient: BallerinaLangClientInterface;
-
-    constructor(langClient: BallerinaLangClientInterface) {
-        this._langClient = langClient;
-    }
+    private _langClient = getLangClient();
 
     getBallerinaProjectComponents(args: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
         // Check if there is at least one workspace folder
