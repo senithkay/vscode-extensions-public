@@ -13,7 +13,6 @@
 import styled from "@emotion/styled";
 import React from "react";
 import { ComponentsCard } from "./ComponentsCard";
-import { ArchiViewButton } from "./projectActions/ArchitectureViewButton";
 import { CellViewButton } from "./projectActions/CellViewButton";
 import { useChoreoComponentsContext } from "../../context/choreo-components-ctx";
 import { OpenConsoleButton } from "./projectActions/OpenConsoleButton";
@@ -38,7 +37,6 @@ export const ProjectActionsCard: React.FC = () => {
                 <Body>
                     {components?.length > 0 && (
                         <>
-                            <ArchiViewButton />
                             <CellViewButton />
                         </>
                     )}
