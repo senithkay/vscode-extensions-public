@@ -11,9 +11,7 @@
  *  associated services.
  */
 
-import { RequestType } from "vscode-messenger-common";
 import { DocumentIdentifier, LineRange } from "./common-types";
-import { BallerinaSTModifyResponse } from "./extended-lang-server-types";
 
 export interface GetBallerinaPackagesParams {
     documentIdentifiers: DocumentIdentifier[];
@@ -72,22 +70,4 @@ export interface ExecutorPosition {
     range: LineRange;
     name: string;
 }
-
-export interface ProjectOverviewAPI {
-    getBallerinaProjectComponents: (
-        params: GetBallerinaPackagesParams
-    ) => Promise<BallerinaProjectComponents>;
-    getSTForFunction: (
-        params: BallerinaFunctionSTRequest
-    ) => Thenable<BallerinaSTModifyResponse>;
-    getExecutorPositions: (
-        params: GetBallerinaProjectParams
-    ) => Thenable<ExecutorPositionsResponse>;
-}
-
-const projectOverview = "projec-overview/"
-
-export const getBallerinaProjectComponents: RequestType<GetBallerinaPackagesParams, BallerinaProjectComponents> = { method: `${projectOverview}getBallerinaProjectComponents` };
-export const getSTForFunction: RequestType<BallerinaFunctionSTRequest, BallerinaSTModifyResponse> = { method: `${projectOverview}getSTForFunction` };
-export const getExecutorPositions: RequestType<GetBallerinaProjectParams, ExecutorPositionsResponse> = { method: `${projectOverview}getExecutorPositions` };
 

@@ -9,10 +9,10 @@
 
 import { Messenger } from "vscode-messenger";
 import { OverviewRPCManger } from "./rpc-manager";
-import { BallerinaLangClientInterface, getBallerinaProjectComponents, getExecutorPositions, getSTForFunction } from "@wso2-enterprise/ballerina-core";
+import { getBallerinaProjectComponents, getExecutorPositions, getSTForFunction } from "@wso2-enterprise/ballerina-core";
 
-export function registerOverviewRPCHandlers(messenger: Messenger, langClient: BallerinaLangClientInterface) {
-    const rpcManger = new OverviewRPCManger(langClient);
+export function registerOverviewRPCHandlers(messenger: Messenger) {
+    const rpcManger = new OverviewRPCManger();
     messenger.onRequest(getBallerinaProjectComponents, (args) => rpcManger.getBallerinaProjectComponents(args));
     messenger.onRequest(getExecutorPositions, (args) => rpcManger.getExecutorPositions(args));
     messenger.onRequest(getSTForFunction, (args) => rpcManger.getSTForFunction(args));

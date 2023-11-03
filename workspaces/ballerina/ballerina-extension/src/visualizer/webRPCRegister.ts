@@ -38,7 +38,7 @@ export class RPCLayer {
         this._vsContext = _ballerinaContext.context;
         this._ballerinaContext = _ballerinaContext;
         
-        registerOverviewRPCHandlers(this._messenger, this._langClient as BallerinaLangClientInterface);
+        registerOverviewRPCHandlers(this._messenger);
 
         // Inform console of changing state
         getService().onTransition((state) => {
