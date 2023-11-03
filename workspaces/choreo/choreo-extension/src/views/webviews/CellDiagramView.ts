@@ -69,7 +69,7 @@ export class CellDiagramView {
                 </head>
                 <body>
                     <noscript>You need to enable JavaScript to run this app.</noscript>
-                    <div id="root" style="height: 100vh; width: 100vw"></div>
+                    <div id="root" style="height: 100vh; width: cal(100vw - 20px)"></div>
                 </body>
                 <script>
                     function render() {
