@@ -1,0 +1,39 @@
+{
+  "name": "@wso2-enterprise/ballerina-core",
+  "version": "1.0.0",
+  "description": "Contains types related to the Ballerina extension",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "watch": "tsc --pretty --watch & vite build --watch",
+    "build": "pnpm run lint && tsc --pretty",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npm publish"
+  },
+  "dependencies": {
+    "@wso2-enterprise/ballerina-languageclient": "workspace:*",
+    "@wso2-enterprise/syntax-tree": "workspace:*",
+    "vscode-languageserver-protocol": "^3.17.5",
+    "vscode-messenger-common": "^0.4.5"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.83.1",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "@vitejs/plugin-react": "^4.1.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.52.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0"
+  },
+  "author": "WSO2",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}
