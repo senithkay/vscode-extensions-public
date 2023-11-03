@@ -12,7 +12,8 @@ import cn from "classnames";
 import styled from "@emotion/styled";
 
 interface CardContainerProps {
-	sx?: any;
+    sx?: any;
+    isSelected?: boolean;
 }
 
 const CardContainer = styled.div<CardContainerProps>`
@@ -31,7 +32,7 @@ const CardContainer = styled.div<CardContainerProps>`
     border-radius: 6px;
     border-style: solid;
     border-width: 1px;
-    border-color: var(--vscode-dropdown-border);
+    border-color:  ${(props: CardContainerProps) => props.isSelected ? "var(--vscode-focusBorder)" : "var(--vscode-dropdown-border)"};
     color: var(--vscode-editor-foreground);
     cursor: pointer;
     &:hover, &.active {
@@ -61,7 +62,7 @@ export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCard
     };
 
     return (
-        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} onClick={handleComponentClick} title={tooltip}>
+        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} onClick={handleComponentClick} title={tooltip}>
             {children}
         </CardContainer>
     );
