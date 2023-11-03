@@ -672,6 +672,13 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
                 return formData?.repository?.branch !== undefined;
             }
         },
+        {
+            field: 'repository',
+            message: 'Provide a valid path to the Project.',
+            rule: async (_value: any, formData) => {
+                return formData?.repository?.isDirectoryValid;
+            }
+        },
 
         // web app config related validations
         {

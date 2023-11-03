@@ -196,7 +196,8 @@ export const ComponentWizard: React.FC = () => {
                 repo: '',
                 org: '',
                 branch: '',
-                isMonoRepo: false
+                isMonoRepo: false,
+                isDirectoryValid: true
             },
             port: '3000',
             endpointContext: '.',
