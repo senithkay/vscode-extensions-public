@@ -159,17 +159,3 @@ export interface BallerinaTriggersResponse extends BallerinaModuleResponse {
     central: Trigger[];
     error?: string;
 }
-
-export interface TriggerWizardAPI {
-    getTriggers: (
-        params: BallerinaTriggersRequest
-    ) => Thenable<BallerinaTriggersResponse>;
-    getTrigger: (
-        params: BallerinaTriggerRequest
-    ) => Thenable<BallerinaTriggerResponse>;
-}
-
-const triggerWizard = "triggerWizard/"
-
-export const getTriggers: RequestType<BallerinaTriggersRequest, BallerinaTriggersResponse> = { method: `${triggerWizard}getTriggers` };
-export const getTrigger: RequestType<BallerinaTriggerResponse, BallerinaTriggerResponse> = { method: `${triggerWizard}getTrigger` };

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -12,15 +11,13 @@
  *  associated services.
  */
 
-import { LinePosition } from "./common-types";
+import { BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse } from "../../lang-server-interfaces/connector-wizard-types";
 
-export interface GraphqlDesignServiceRequest {
-    filePath: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
-}
-export interface GraphqlDesignServiceResponse {
-    graphqlDesignModel: any;
-    isIncompleteModel: boolean;
-    errorMsg: string;
+export interface ConnectorWizardAPI {
+    getConnector: (
+        params: BallerinaConnectorRequest
+    ) => Thenable<BallerinaConnectorResponse>;
+    getConnectors: (
+        params: BallerinaConnectorsRequest
+    ) => Thenable<BallerinaConnectorsResponse>;
 }

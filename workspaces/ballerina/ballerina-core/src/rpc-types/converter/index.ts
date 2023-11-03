@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -12,15 +11,13 @@
  *  associated services.
  */
 
-import { LinePosition } from "./common-types";
+import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "../../lang-server-interfaces/converter-types";
 
-export interface GraphqlDesignServiceRequest {
-    filePath: string;
-    startLine: LinePosition;
-    endLine: LinePosition;
-}
-export interface GraphqlDesignServiceResponse {
-    graphqlDesignModel: any;
-    isIncompleteModel: boolean;
-    errorMsg: string;
+export interface ConverterAPI {
+    convert: (
+        params: JsonToRecordRequest
+    ) => Thenable<JsonToRecordResponse>;
+    convertXml: (
+        params: XMLToRecordRequest
+    ) => Thenable<XMLToRecordResponse>;
 }
