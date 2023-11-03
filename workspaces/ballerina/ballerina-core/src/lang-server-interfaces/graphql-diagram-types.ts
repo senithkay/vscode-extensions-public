@@ -12,7 +12,6 @@
  *  associated services.
  */
 
-import { RequestType } from "vscode-messenger-common";
 import { LinePosition } from "./common-types";
 
 export interface GraphqlDesignServiceRequest {
@@ -25,11 +24,3 @@ export interface GraphqlDesignServiceResponse {
     isIncompleteModel: boolean;
     errorMsg: string;
 }
-
-export interface GraphqlDiagramAPI {
-    getGraphqlModel: (
-        params: GraphqlDesignServiceRequest
-    ) => Thenable<GraphqlDesignServiceResponse>;
-}
-
-export const getGraphqlModel: RequestType<GraphqlDesignServiceRequest, GraphqlDesignServiceResponse> = { method: `graphqlDesginer/getGraphqlModel` };

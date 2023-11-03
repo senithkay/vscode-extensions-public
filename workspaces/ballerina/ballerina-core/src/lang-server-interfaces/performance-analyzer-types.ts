@@ -13,7 +13,6 @@
  */
 
 import { DocumentIdentifier } from "./common-types";
-import { RequestType } from "vscode-messenger-common";
 
 export interface PerformanceAnalyzerEndpointsRequest {
     documentIdentifier: DocumentIdentifier;
@@ -28,13 +27,3 @@ export interface PerformanceAnalyzerResponse {
     message: string;
     name: string;
 }
-
-export interface PerformanceAnalyzerAPI {
-    getPerfEndpoints: (
-        params: PerformanceAnalyzerEndpointsRequest
-    ) => Thenable<PerformanceAnalyzerResponse[]>;
-}
-
-const performanceAnalyzer = "performanceAnalyzer/"
-
-export const getPerfEndpoints: RequestType<PerformanceAnalyzerEndpointsRequest, PerformanceAnalyzerResponse[]> = { method: `${performanceAnalyzer}getPerfEndpoints` };

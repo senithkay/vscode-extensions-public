@@ -15,7 +15,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { RequestType } from "vscode-messenger-common";
 import { BallerinaConstruct, BallerinaConstructRequest, BallerinaModuleResponse } from "./trigger-wizard-types";
 
 export interface BallerinaConnectorsRequest extends BallerinaConstructRequest { }
@@ -127,18 +126,4 @@ export interface BallerinaConnectorInfo extends Connector {
 export interface BallerinaConnectorResponse extends BallerinaConnectorInfo {
     error?: string;
 }
-
-export interface ConnectorWizardAPI {
-    getConnector: (
-        params: BallerinaConnectorRequest
-    ) => Thenable<BallerinaConnectorResponse>;
-    getConnectors: (
-        params: BallerinaConnectorsRequest
-    ) => Thenable<BallerinaConnectorsResponse>;
-}
-
-const connectorWizard = "connectorWizard/"
-
-export const getConnector: RequestType<BallerinaConnectorRequest, BallerinaConnectorResponse> = { method: `${connectorWizard}getConnector` };
-export const getConnectors: RequestType<BallerinaConnectorsRequest, BallerinaConnectorsResponse> = { method: `${connectorWizard}getConnectors` };
 

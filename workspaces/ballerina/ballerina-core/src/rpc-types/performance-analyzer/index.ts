@@ -11,10 +11,10 @@
  *  associated services.
  */
 
-import { BallerinaRecordRequest, BallerinaRecordResponse } from "../../lang-server-interfaces/http-service-desginer-types";
+import { PerformanceAnalyzerEndpointsRequest, PerformanceAnalyzerResponse } from "../../lang-server-interfaces/performance-analyzer-types";
 
-export interface ServiceDesignerAPI {
-    getRecord: (
-        params: BallerinaRecordRequest
-    ) => Thenable<BallerinaRecordResponse>;
+export interface PerformanceAnalyzerAPI {
+    getPerfEndpoints: (
+        params: PerformanceAnalyzerEndpointsRequest
+    ) => Thenable<PerformanceAnalyzerResponse[]>;
 }

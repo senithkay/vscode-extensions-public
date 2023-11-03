@@ -12,7 +12,6 @@
  *  associated services.
  */
 
-import { RequestType } from "vscode-messenger-common";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface BallerinaRecordRequest {
@@ -30,13 +29,3 @@ export interface BallerinaRecordResponse {
     ast?: STNode;
     error?: any;
 }
-
-export interface ServiceDesignerAPI {
-    getRecord: (
-        params: BallerinaRecordRequest
-    ) => Thenable<BallerinaRecordResponse>;
-}
-
-const serviceDesigner = "serviceDesigner/"
-
-export const getRecord: RequestType<BallerinaRecordRequest, BallerinaRecordResponse> = { method: `${serviceDesigner}getRecord` };
