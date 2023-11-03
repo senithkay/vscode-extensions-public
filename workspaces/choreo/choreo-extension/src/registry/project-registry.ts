@@ -40,7 +40,7 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { COMPONENTS_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
+import { CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
@@ -181,7 +181,7 @@ export class ProjectRegistry {
             const schemaFilePath = openApiFilePath && subPath
                     ? relative(subPath, openApiFilePath)
                     : openApiFilePath || "openapi.yaml";
-            const componentYamlPath = join(basePath, ".choreo", COMPONENTS_CONFIG_FILE);
+            const componentYamlPath = join(basePath, CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE);
 
             if (existsSync(componentYamlPath)) {
                 rmSync(componentYamlPath);

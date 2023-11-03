@@ -32,7 +32,6 @@ import {
     isChoreoProject,
     getChoreoProject,
     PushLocalComponentsToChoreo,
-    OpenArchitectureView,
     Component,
     UpdateProjectOverview,
     isSubpathAvailable,
@@ -359,10 +358,6 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(getChoreoProject, () => {
         return ext.api.getChoreoProject();
-    });
-
-    messenger.onRequest(OpenArchitectureView, () => {
-        commands.executeCommand("ballerina.view.architectureView");
     });
 
     messenger.onRequest(OpenCellView, () => {

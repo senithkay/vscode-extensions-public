@@ -93,8 +93,6 @@ async function openChoreoActivity() {
 		if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
 			// activate the Choreo Project view in the sidebar
 			vscode.commands.executeCommand("choreo.activity.project.focus");
-			// open architecture view
-			commands.executeCommand("ballerina.view.architectureView");
 			// add the project id to the opened projects list
 			openedProjects.push(choreoProjectId);
 			await ext.context.globalState.update("openedProjects", openedProjects);
