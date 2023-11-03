@@ -21,13 +21,13 @@ export function RustIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(.866 -.5 -.3 -.52 177.106 -689.033)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#7d7d7d" />
-                    <stop offset=".267" stop-color="#7e7c7a" />
-                    <stop offset=".45" stop-color="#817871" />
-                    <stop offset=".608" stop-color="#867162" />
-                    <stop offset=".753" stop-color="#8d684c" />
-                    <stop offset=".886" stop-color="#965c30" />
-                    <stop offset="1" stop-color="#a04f12" />
+                    <stop offset="0" stopColor="#7d7d7d" />
+                    <stop offset=".267" stopColor="#7e7c7a" />
+                    <stop offset=".45" stopColor="#817871" />
+                    <stop offset=".608" stopColor="#867162" />
+                    <stop offset=".753" stopColor="#8d684c" />
+                    <stop offset=".886" stopColor="#965c30" />
+                    <stop offset="1" stopColor="#a04f12" />
                 </radialGradient>
             </defs>
             <path

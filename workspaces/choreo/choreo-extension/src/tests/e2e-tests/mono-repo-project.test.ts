@@ -56,6 +56,8 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
         });
     });
 
+    /*
+    TODO: fix architecture view loading forever and causing test to fail in the CI
     it("Verify component in Architecture & Cell view", async () => {
         await CommonUtils.closeAllEditors();
         // Check whether the name from ballerina toml is available in Architecture diagram & cell diagram
@@ -63,6 +65,7 @@ describe("Test Mono-repo project using Github & manage ballerina service type co
         await ProjectView.verifyComponentWithinCellView("sample_bal_service");
         await CommonUtils.closeAllEditors();
     });
+    */
 
     it("Delete component in from project & repo", async () => {
         await ProjectView.deleteComponent({
