@@ -8,11 +8,10 @@
  */
 import React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import styled from '@emotion/styled';
 
 import { OverlayLayerModel } from './OverlayLayerModel';
-import { Colors } from '../../resources';
+import { SmallProgressRing } from '@wso2-enterprise/ui-toolkit';
 
 export interface NodeLayerWidgetProps {
 	layer: OverlayLayerModel;
@@ -35,7 +34,7 @@ export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
     render() {
         return (
             <Container>
-                <CircularProgress sx={{ color: Colors.PRIMARY }} />
+                <SmallProgressRing />
             </Container>
         );
     }

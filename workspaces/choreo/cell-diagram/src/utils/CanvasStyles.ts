@@ -7,21 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { createStyles, makeStyles } from "@material-ui/core/styles";
 import styled from "@emotion/styled";
 
 import { CanvasBackground, MAIN_CELL } from "../resources";
-
-export const useStyles = makeStyles(() =>
-    createStyles({
-        canvas: {
-            backgroundImage: `url('${CanvasBackground}')`,
-            backgroundRepeat: "repeat",
-            height: "100%",
-            width: "100%",
-        },
-    })
-);
 
 export const Container = styled.div`
     height: 100%;

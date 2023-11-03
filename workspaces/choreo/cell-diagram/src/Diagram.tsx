@@ -12,9 +12,10 @@ import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItem } from "./components";
 import { MAIN_CELL, NO_CELL_NODE } from "./resources";
-import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
+import { Container, DiagramContainer } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
+import "./utils/CanvasStyles.css"
 import { NavigationWrapperCanvasWidget, SmallProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
@@ -40,8 +41,6 @@ export function CellDiagram(props: CellDiagramProps) {
     const [zoomLevel, setZoomLevel] = useState(1);
 
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
-
-    const styles = useStyles();
 
     useEffect(() => {
         drawDiagram();
@@ -198,7 +197,7 @@ export function CellDiagram(props: CellDiagramProps) {
                         <>
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramEngine}
-                                className={styles.canvas}
+                                className={"diagram-container"}
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             <DiagramControls engine={diagramEngine} showProblemPanel={() => {}} />
