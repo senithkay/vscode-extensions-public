@@ -54,7 +54,6 @@ async function verifyDebugOutput() {
     await waitUntilTextContains(terminal, expectedOut, 60000).catch((e) => {
         fail(e);
     }).finally(async () => {
-        console.log(await terminal.getText());
         const bar = await DebugToolbar.create();
         await bar.stop();
         await wait(2000); // wait for debug session to end

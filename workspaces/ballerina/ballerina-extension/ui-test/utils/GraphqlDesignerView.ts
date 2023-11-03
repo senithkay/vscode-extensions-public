@@ -14,7 +14,6 @@ import {
     clickWebElement,
     getElementByXPathUsingTestID, getElementByXPathUsingTitle, getInputElementByXPathUsingValue,
     switchToIFrame,
-    wait,
     waitForElementToAppear,
     waitUntil, waitUntilVisible
 } from "../util";
@@ -69,7 +68,6 @@ export class GraphqlDesignerView {
 
     static async clickOperationFilterOption(webview: WebView, operationFilterOption: string) {
         await clickWebElement(webview, getElementByXPathUsingTestID("operation-filter"));
-        await wait(1000); // Wait for the dropdown to appear
         await clickListItem(webview, "operation-type", operationFilterOption);
     }
 
@@ -81,7 +79,6 @@ export class GraphqlDesignerView {
 
     static async selectNodeToFilter(webview: WebView, currentSelection: string, valueToSelect: string, clearInput: boolean = false) {
         const nodeFilter = await webview.findWebElement(getInputElementByXPathUsingValue(currentSelection));
-        await wait(1000); // Wait for the dropdown to appear
         await nodeFilter.click();
         if (clearInput) {
             await clickWebElement(webview, getElementByXPathUsingTitle("Clear"));
