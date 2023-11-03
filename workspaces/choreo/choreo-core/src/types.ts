@@ -349,37 +349,40 @@ export interface WorkspaceConfig {
 }
 export enum ComponentDisplayType {
     RestApi = 'restAPI',
+    ManualTrigger = 'manualTrigger',
+    ScheduledTask = 'scheduledTask',
+    Webhook = 'webhook',
     Websocket = 'webSocket',
+    Proxy = 'proxy',
+    ByocCronjob = 'byocCronjob',
+    ByocJob = 'byocJob',
+    GraphQL = 'graphql',
+    ThirdPartyAPI = 'thirdPartyAPI',
+    ByocWebApp = 'byocWebApp',
+    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
     ByocRestApi = 'byocRestApi',
     ByocWebhook = 'byocWebhook',
     MiRestApi = 'miRestApi',
     MiEventHandler = 'miEventHandler',
-    MiApiService = 'miApiService',
-    BuildpackWebhook = 'buildpackWebhook',
-    BuildpackTestRunner = 'buildpackTestRunner',
-    BuildpackRestApi = 'buildpackRestApi',
-    Webhook = 'webhook',
-    Proxy = 'proxy', 
-    GraphQL = 'graphql',
-    // service
     Service = 'ballerinaService',
     ByocService = 'byocService',
-    BuildpackService = 'buildpackService',
-    // manual trigger
-    BuildpackJob = 'buildpackJob',
-    ByocJob = 'byocJob',
-    ManualTrigger = 'manualTrigger',
-    MiJob = 'miJob',
-
-    // cron job
-    BuildpackCronJob = 'buildpackCronJob',
-    ByocCronjob = 'byocCronjob',
-    ScheduledTask = 'scheduledTask',
+    MiApiService = 'miApiService',
     MiCronjob = 'miCronjob',
-    // webapp
-    ByocWebApp = 'byocWebApp',
-    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
+    MiJob = 'miJob',
+    ByoiService = 'byoiService',
+    ByoiJob = 'byoiJob',
+    ByoiCronjob = 'byoiCronjob',
+    ByoiWebApp = 'byoiWebApp',
+    ByocTestRunner = 'byocTestRunner',
+    BuildpackService = 'buildpackService',
+    BuildpackWebhook = 'buildpackWebhook',
+    BuildpackJob = 'buildpackJob',
+    BuildpackTestRunner = 'buildpackTestRunner',
+    BuildpackCronJob = 'buildpackCronjob',
     BuildpackWebApp = 'buildpackWebApp',
+    BuildRestApi = 'buildpackRestApi',
+    PostmanTestRunner = 'byocTestRunnerDockerfileLess',
+    BallerinaEventHandler = 'ballerinaEventHandler',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -673,3 +676,59 @@ export interface ComponentYamlContent {
     };
   }
   
+
+  export enum CellComponentType {
+    SERVICE = 'service',
+    WEB_APP = 'web-app',
+    SCHEDULED_TASK = 'scheduled-task',
+    MANUAL_TASK = 'manual-task',
+    API_PROXY = 'api-proxy',
+    WEB_HOOK = 'web-hook',
+    EVENT_HANDLER = 'event-handler',
+    TEST = 'test',
+  }
+  
+
+export function getGeneralizedCellComponentType(
+    type: ComponentDisplayType
+  ): CellComponentType {
+    switch (type) {
+        case ComponentDisplayType.RestApi:
+        case ComponentDisplayType.Service:
+        case ComponentDisplayType.ByocService:
+        case ComponentDisplayType.GraphQL:
+        case ComponentDisplayType.MiApiService:
+        case ComponentDisplayType.MiRestApi:
+        case ComponentDisplayType.BuildpackService:
+        case ComponentDisplayType.BuildRestApi:
+        case ComponentDisplayType.Websocket:
+            return CellComponentType.SERVICE;
+        case ComponentDisplayType.ManualTrigger:
+        case ComponentDisplayType.ByocJob:
+        case ComponentDisplayType.BuildpackJob:
+        case ComponentDisplayType.MiJob:
+            return CellComponentType.MANUAL_TASK;
+        case ComponentDisplayType.ScheduledTask:
+        case ComponentDisplayType.ByocCronjob:
+        case ComponentDisplayType.BuildpackCronJob:
+        case ComponentDisplayType.MiCronjob:
+            return CellComponentType.SCHEDULED_TASK;
+        case ComponentDisplayType.Webhook:
+        case ComponentDisplayType.ByocWebhook:
+        case ComponentDisplayType.BuildpackWebhook:
+            return CellComponentType.WEB_HOOK;
+        case ComponentDisplayType.Proxy:
+            return CellComponentType.API_PROXY;
+        case ComponentDisplayType.ByocWebApp:
+        case ComponentDisplayType.ByocWebAppDockerLess:
+        case ComponentDisplayType.BuildpackWebApp:
+            return CellComponentType.WEB_APP;
+        case ComponentDisplayType.MiEventHandler:
+        case ComponentDisplayType.BallerinaEventHandler:
+            return CellComponentType.EVENT_HANDLER;
+        case ComponentDisplayType.BuildpackTestRunner:
+            return CellComponentType.TEST;
+        default:
+            return CellComponentType.SERVICE;
+    }
+}

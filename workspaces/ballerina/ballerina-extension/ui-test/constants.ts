@@ -18,6 +18,7 @@ export const EXPLORER_ACTIVITY = 'Explorer';
 
 // palette commands
 export const DND_PALETTE_COMMAND = 'notifications.toggleDoNotDisturbMode';
+export const FOCUS_DEBUG_CONSOLE_COMMAND = "workbench.panel.repl.view.focus";
 
 // wait times
 export const VSCODE_ZOOM_TIME = 2000;
