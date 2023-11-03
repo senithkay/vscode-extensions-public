@@ -36,7 +36,8 @@ import {
     Buildpack,
     GoogleProviderBuildPackNames,
     ComponentYamlContent,
-    Inbound
+    Inbound,
+    getGeneralizedCellComponentType
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
@@ -135,9 +136,9 @@ export class ProjectRegistry {
                 cancellable: false
             }, async () => {
                 this.addDockerFile(args);
-                this.addComponentYaml(args);
+                const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
-                window.showInformationMessage('Component created successfully');
+                this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
             });
         } else {
             throw new Error("Error: Could not detect a project workspace.");
@@ -164,7 +165,7 @@ export class ProjectRegistry {
         
     };
 
-    addComponentYaml = async (args: ChoreoComponentCreationParams) => {
+    addComponentYaml = async (args: ChoreoComponentCreationParams): Promise<{configPath: string; openApiPath?: string} | undefined> => {
         const projectLocation = this.getProjectLocation(args.projectId);
         const { org, repo, dockerContext, openApiFilePath } = args.repositoryInfo as BYOCRepositoryDetails;
         if (projectLocation) {
@@ -173,7 +174,7 @@ export class ProjectRegistry {
 
             const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
 
-            const subPath = dockerContext || args.repositoryInfo?.subPath;
+            const subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
 
             if (subPath) {
                 basePath = join(basePath, subPath);
@@ -193,11 +194,12 @@ export class ProjectRegistry {
                 metadata: {
                     name: args.name,
                     projectName: project?.name!,
-                    annotations: { componentType: args.displayType },
+                    annotations: { componentType: getGeneralizedCellComponentType(args.displayType) },
                 },
                 spec: {}
             };
 
+            let openApiPath;
             if (args.displayType?.endsWith('Service')){
                 const inbound: Inbound = {
                     name: args.name,
@@ -212,7 +214,7 @@ export class ProjectRegistry {
                 if (args.serviceType === ChoreoServiceType.RestApi) {
                     inbound.schemaFilePath = schemaFilePath;
     
-                    const openApiPath = join(basePath, schemaFilePath);
+                    openApiPath = join(basePath, schemaFilePath);
                     if (!existsSync(openApiPath)) {
                         cpSync(
                             join(ext.context.extensionPath, "/templates/openapi-template.yaml"),
@@ -229,6 +231,7 @@ export class ProjectRegistry {
                 mkdirSync(choreoDirPath);
             }
             writeFileSync(componentYamlPath, yaml.dump(componentYamlContent));
+            return { configPath: componentYamlPath, openApiPath };
         }
     };
 
@@ -240,9 +243,9 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
-                this.addComponentYaml(args);
+                const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
-                window.showInformationMessage('Component created successfully');
+                this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
             });
         } else {
             throw new Error("Error: Could not detect a project workspace.");
@@ -257,9 +260,9 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
-                this.addComponentYaml(args);
+                const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
-                window.showInformationMessage('Component created successfully');
+                this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
             });
         } else {
             throw new Error("Error: Could not detect a project workspace.");
@@ -1211,5 +1214,33 @@ export class ProjectRegistry {
             folders: content.folders?.filter((item) => item.name !== componentName),
         };
         writeFileSync(workspaceFilePath, JSON.stringify(updatedContent, null, 4));
+    }
+
+    private async goTosource(filePath: string) {
+        if (existsSync(filePath)) {
+            const sourceFile = await vscode.workspace.openTextDocument(filePath);
+            await window.showTextDocument(sourceFile);
+            await vscode.commands.executeCommand("workbench.explorer.fileView.focus");
+        }
+    }
+
+    private showComponentCreateSuccessMessage(configPath: string | undefined, openApiPath: string | undefined) {
+        if (openApiPath && configPath) {
+            window.showInformationMessage('Component configured successfully','view config', 'edit API schema').then(item=>{
+                if (item === 'view config'){
+                    this.goTosource(configPath!);
+                }else if (item === 'edit API schema') {
+                    this.goTosource(openApiPath!);
+                }
+            });
+        } else if(configPath){
+            window.showInformationMessage('Component configured successfully','view configurations').then(item=>{
+                if (item === 'view configurations'){
+                    this.goTosource(configPath!);
+                }
+            });
+        } else {
+            window.showInformationMessage('Component configured successfully');
+        }
     }
 }
