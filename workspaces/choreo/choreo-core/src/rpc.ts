@@ -140,7 +140,6 @@ export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreo
 export const getConsoleUrl: RequestType<void, string> = { method: 'getConsoleUrl' };
 export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChoreoParams, string[]> = { method: 'pushLocalComponentsToChoreo' };
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
-export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const OpenCellView: RequestType<string, void> = { method: 'openCellView' };
 export const getEndpointsForVersion: RequestType<{componentId: string, versionId: string, orgId: number}, EndpointData | null> = { method: 'getEndpointsForVersion' };
 export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };

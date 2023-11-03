@@ -12,7 +12,7 @@
  */
 
 import { Workbench, InputBox, By } from "vscode-extension-tester";
-import { ARCHITECTURE_VIEW_COMMAND, CELL_VIEW_COMMAND, DELETE_PROJECT, OPEN_CHOREO_PROJECT } from "./constants";
+import { CELL_VIEW_COMMAND, DELETE_PROJECT, OPEN_CHOREO_PROJECT } from "./constants";
 import { join } from "path";
 import { CommonUtils } from "./CommonUtils";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
@@ -71,20 +71,6 @@ export class ProjectView {
         await CommonUtils.switchToDefaultFrame();
         await CommonUtils.closeAllEditors();
         console.log("Deleted the currently opened project");
-    }
-
-    /** Verify whether the component name is visible within the architecture view */
-    static async verifyComponentWithinArchitectureView(componentName: string) {
-        console.log("Verifying component is visible in the architecture view");
-        await new Workbench().executeCommand(ARCHITECTURE_VIEW_COMMAND);
-        await CommonUtils.waitUntil(By.xpath('//a[contains(@class, "label-name") and text() = "Architecture View"]'));
-        await CommonUtils.waitForIFrameCount(3);
-        await CommonUtils.switchToIFrame("Architecture View");
-        await CommonUtils.waitUntil(
-            By.xpath(`//div[contains(@class, 'diagram-container')]//*[text()='${componentName}']`),
-            60000
-        );
-        await CommonUtils.switchToDefaultFrame();
     }
 
     /** Verify whether the component name is visible within the cell view */
