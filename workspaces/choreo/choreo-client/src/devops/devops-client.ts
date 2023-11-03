@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Buildpack, ChoreoComponentType, ComponentDisplayType } from "@wso2-enterprise/choreo-core";
+import { Buildpack, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 import axios from "axios";
 import { IReadOnlyTokenStorage } from "../auth";
 import { GetBuildpackParams, IChoreoDevopsClient } from "./types";
