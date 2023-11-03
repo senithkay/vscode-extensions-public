@@ -122,6 +122,11 @@ export class CommonUtils {
         await element.sendKeys(Key.ENTER);
     }
 
+    /** Wait until validation complete */
+    static async waitUntilValidation() {
+        await this.wait(2000);
+    }
+
     /** Wait for new instance of VSCode to initialize */
     static async initializeVSCode() {
         console.log("Initializing new instance of VSCode");
