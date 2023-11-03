@@ -474,8 +474,8 @@ export const ChoreoServiceTypeList = [ChoreoServiceType.RestApi, ChoreoServiceTy
 
 export enum ChoreoComponentType {
     Service = 'service',
-    ScheduledTask = 'scheduledTask',
-    ManualTrigger = 'manualTrigger',
+    ScheduledTask = 'scheduleTask',
+    ManualTrigger = 'manualTask',
     Webhook = 'webhook',
     WebApplication = 'webApp'
 }
