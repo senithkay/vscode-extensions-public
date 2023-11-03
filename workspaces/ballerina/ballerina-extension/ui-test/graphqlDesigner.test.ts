@@ -11,7 +11,8 @@ import { before, describe } from "mocha";
 import { join } from "path";
 import { By, EditorView, VSBrowser, WebDriver, WebView } from "vscode-extension-tester";
 import { GraphqlDesignerView } from "./utils/GraphqlDesignerView";
-import { wait } from "./util";
+import { clickOnActivity, wait } from "./util";
+import { EXPLORER_ACTIVITY } from "./constants";
 
 describe('VSCode Graphql Designer Webview UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'starwars');
@@ -25,6 +26,7 @@ describe('VSCode Graphql Designer Webview UI Tests', () => {
         driver = browser.driver;
         await new EditorView().closeAllEditors();
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        await clickOnActivity(EXPLORER_ACTIVITY);
     });
 
     it('Verify nodes and fields in Graphql Visualizer', async () => {
