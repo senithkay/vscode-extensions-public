@@ -1,6 +1,5 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -409,16 +408,17 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         }
     };
 
-    const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
+    const showAuthLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
     const showAuthorizeButton = ghStatus.status === "not-authorized" || ghStatus.status === "error";
     const showRepoProgressBar = isRefetchingRepos || isFetchingRepos;
     const showCredLoader = isFetchingCredentials || isRefetching;
-    let loaderMessage = "Loading repositories...";
+    let authLoaderMessage = "";
     if (ghStatus.status === "auth-inprogress") {
-        loaderMessage = "Authorizing with Github...";
+        authLoaderMessage = "Authorizing with Github...";
     } else if (ghStatus.status === "install-inprogress") {
-        loaderMessage = "Installing Github App...";
+        authLoaderMessage = "Installing Github App...";
     }
+    const repoLoaderMessage = "Loading repositories...";
 
     return (
         <StepContainer>
@@ -445,8 +445,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     {gitProvider === GitProvider.GITHUB && (
                         <GhRepoSelectorActions>
                             {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
-                            {showLoader && loaderMessage}
-                            {showLoader && <VSCodeProgressRing />}
+                            {showAuthLoader && authLoaderMessage}
                         </GhRepoSelectorActions>
                     )}
                     {gitProvider === GitProvider.BITBUCKET && (
@@ -495,7 +494,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                                     </CredListContainer>
                                 </>)
                             }
-                            {showCredLoader && <ProgressIndicator />}
+                            {(showCredLoader || showAuthLoader) && <ProgressIndicator />}
                         </>
                     )}
                 </SectionWrapper>
@@ -549,8 +548,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                         <RepoStepNumber> 2 </RepoStepNumber>
                         <RepoStepContent>
                             <Typography variant="h3">  Select repository  </Typography>
-                            {showLoader && loaderMessage}
-                            {showLoader && <VSCodeProgressRing />}
+                            {showRepoProgressBar && repoLoaderMessage}
                             {(gitProvider === GitProvider.GITHUB || selectedCredentialId) ? (
                                 <RepoSelectorContainer>
                                     <span>Select the desired repository.</span>

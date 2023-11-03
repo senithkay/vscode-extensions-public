@@ -173,7 +173,7 @@ export class ProjectRegistry {
 
             const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
 
-            const subPath = dockerContext || args.repositoryInfo?.subPath
+            const subPath = dockerContext || args.repositoryInfo?.subPath;
 
             if (subPath) {
                 basePath = join(basePath, subPath);
@@ -918,7 +918,7 @@ export class ProjectRegistry {
             orgId,
             orgUuid,
             componentType
-        }
+        };
         const buildPacks = await ext.clients.devopsClient.getBuildPacks(params);
         return buildPacks;
     }
