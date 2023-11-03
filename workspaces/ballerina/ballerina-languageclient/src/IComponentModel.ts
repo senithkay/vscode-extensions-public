@@ -178,8 +178,8 @@ export enum ComponentType {
 
 export declare enum ComponentDisplayType {
     RestApi = "restAPI",
-    ManualTrigger = "manualTask",
-    ScheduledTask = "scheduleTask",
+    ManualTrigger = "manualTrigger",
+    ScheduledTask = "scheduledTask",
     Webhook = "webhook",
     Websocket = "webSocket",
     Proxy = "proxy",

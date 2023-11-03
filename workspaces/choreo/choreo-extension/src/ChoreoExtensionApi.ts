@@ -509,7 +509,7 @@ export class ChoreoExtensionApi {
                                 interactions: [],
                                 parameters: [],
                                 returns: [],
-                                type: component.displayType === ComponentDisplayType.ByocJob ? "manualTask" : "scheduleTask"
+                                type: component.displayType === ComponentDisplayType.ByocJob ? "manualTrigger" : "scheduledTask"
                             },
                         };
                     } else {
