@@ -10,31 +10,5 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
-import React from "react";
-import { render } from "react-dom";
-import styled from "@emotion/styled";
-import ChoreoWebview from "./ChoreoWebview";
-
-export const Main: React.FC<any> = styled.main`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  height: 100vh;
-`;
-
-export function renderChoreoWebViews(
-	target: HTMLDivElement,
-	type: string,
-	projectId?: string,
-	orgName?: string,
-	componentLimit?: number,
-	choreoUrl?: string,
-) {
-	render(
-		<React.StrictMode>
-			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl }} />
-		</React.StrictMode>,
-		target
-	);
-}
+export * from "./devops-client";
+export * from "./types";

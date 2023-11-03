@@ -22,10 +22,10 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(202.935 0 0 -202.78 47910.461 -62541.16)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#fb7655" />
-                    <stop offset=".41" stop-color="#e42b1e" />
-                    <stop offset=".99" stop-color="#900" />
-                    <stop offset="1" stop-color="#900" />
+                    <stop offset="0" stopColor="#fb7655" />
+                    <stop offset=".41" stopColor="#e42b1e" />
+                    <stop offset=".99" stopColor="#900" />
+                    <stop offset="1" stopColor="#900" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby1"
@@ -36,9 +36,9 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(60.308 0 0 -111.778 14236.351 -34525.395)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#871101" />
-                    <stop offset=".99" stop-color="#911209" />
-                    <stop offset="1" stop-color="#911209" />
+                    <stop offset="0" stopColor="#871101" />
+                    <stop offset=".99" stopColor="#911209" />
+                    <stop offset="1" stopColor="#911209" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby2"
@@ -58,11 +58,11 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(65.222 0 0 -97.1 15237.802 -29991.814)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#fff" />
-                    <stop offset=".23" stop-color="#e57252" />
-                    <stop offset=".46" stop-color="#de3b20" />
-                    <stop offset=".99" stop-color="#a60003" />
-                    <stop offset="1" stop-color="#a60003" />
+                    <stop offset="0" stopColor="#fff" />
+                    <stop offset=".23" stopColor="#e57252" />
+                    <stop offset=".46" stopColor="#de3b20" />
+                    <stop offset=".99" stopColor="#a60003" />
+                    <stop offset="1" stopColor="#a60003" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby4"
@@ -73,11 +73,11 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(105.32 0 0 -106.825 24798.925 -33053.152)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#fff" />
-                    <stop offset=".23" stop-color="#e4714e" />
-                    <stop offset=".56" stop-color="#be1a0d" />
-                    <stop offset=".99" stop-color="#a80d00" />
-                    <stop offset="1" stop-color="#a80d00" />
+                    <stop offset="0" stopColor="#fff" />
+                    <stop offset=".23" stopColor="#e4714e" />
+                    <stop offset=".56" stopColor="#be1a0d" />
+                    <stop offset=".99" stopColor="#a80d00" />
+                    <stop offset="1" stopColor="#a80d00" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby5"
@@ -88,11 +88,11 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(94.321 0 0 -66.418 22271.499 -20707.004)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#fff" />
-                    <stop offset=".18" stop-color="#e46342" />
-                    <stop offset=".4" stop-color="#c82410" />
-                    <stop offset=".99" stop-color="#a80d00" />
-                    <stop offset="1" stop-color="#a80d00" />
+                    <stop offset="0" stopColor="#fff" />
+                    <stop offset=".18" stopColor="#e46342" />
+                    <stop offset=".4" stopColor="#c82410" />
+                    <stop offset=".99" stopColor="#a80d00" />
+                    <stop offset="1" stopColor="#a80d00" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby6"
@@ -103,10 +103,10 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(70.767 0 0 -24.301 16678.116 -7798.647)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#fff" />
-                    <stop offset=".54" stop-color="#c81f11" />
-                    <stop offset=".99" stop-color="#bf0905" />
-                    <stop offset="1" stop-color="#bf0905" />
+                    <stop offset="0" stopColor="#fff" />
+                    <stop offset=".54" stopColor="#c81f11" />
+                    <stop offset=".99" stopColor="#bf0905" />
+                    <stop offset="1" stopColor="#bf0905" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby7"
@@ -117,10 +117,10 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(18.177 0 0 -72.645 4071.017 -22510.233)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#fff" />
-                    <stop offset=".31" stop-color="#de4024" />
-                    <stop offset=".99" stop-color="#bf190b" />
-                    <stop offset="1" stop-color="#bf190b" />
+                    <stop offset="0" stopColor="#fff" />
+                    <stop offset=".31" stopColor="#de4024" />
+                    <stop offset=".99" stopColor="#bf190b" />
+                    <stop offset="1" stopColor="#bf190b" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby8"
@@ -131,15 +131,15 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(158.162 0 0 -157.937 37256.313 -48819.382)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#bd0012" />
-                    <stop offset=".07" stop-color="#fff" />
-                    <stop offset=".17" stop-color="#fff" />
-                    <stop offset=".27" stop-color="#c82f1c" />
-                    <stop offset=".33" stop-color="#820c01" />
-                    <stop offset=".46" stop-color="#a31601" />
-                    <stop offset=".72" stop-color="#b31301" />
-                    <stop offset=".99" stop-color="#e82609" />
-                    <stop offset="1" stop-color="#e82609" />
+                    <stop offset="0" stopColor="#bd0012" />
+                    <stop offset=".07" stopColor="#fff" />
+                    <stop offset=".17" stopColor="#fff" />
+                    <stop offset=".27" stopColor="#c82f1c" />
+                    <stop offset=".33" stopColor="#820c01" />
+                    <stop offset=".46" stopColor="#a31601" />
+                    <stop offset=".72" stopColor="#b31301" />
+                    <stop offset=".99" stopColor="#e82609" />
+                    <stop offset="1" stopColor="#e82609" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRuby9"
@@ -150,10 +150,10 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(127.074 0 0 -97.409 29932.229 -30086.947)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#8c0c01" />
-                    <stop offset=".54" stop-color="#990c00" />
-                    <stop offset=".99" stop-color="#a80d0e" />
-                    <stop offset="1" stop-color="#a80d0e" />
+                    <stop offset="0" stopColor="#8c0c01" />
+                    <stop offset=".54" stopColor="#990c00" />
+                    <stop offset=".99" stopColor="#a80d0e" />
+                    <stop offset="1" stopColor="#a80d0e" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRubya"
@@ -164,9 +164,9 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(94.011 0 0 -105.603 22198.743 -32676.856)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#7e110b" />
-                    <stop offset=".99" stop-color="#9e0c00" />
-                    <stop offset="1" stop-color="#9e0c00" />
+                    <stop offset="0" stopColor="#7e110b" />
+                    <stop offset=".99" stopColor="#9e0c00" />
+                    <stop offset="1" stopColor="#9e0c00" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRubyb"
@@ -177,9 +177,9 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(79.702 0 0 -81.791 18827.397 -25447.905)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#79130d" />
-                    <stop offset=".99" stop-color="#9e120b" />
-                    <stop offset="1" stop-color="#9e120b" />
+                    <stop offset="0" stopColor="#79130d" />
+                    <stop offset=".99" stopColor="#9e120b" />
+                    <stop offset="1" stopColor="#9e120b" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRubyc"
@@ -190,10 +190,10 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(40.137 0 0 -81.143 9286.998 -25078.589)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#8b2114" />
-                    <stop offset=".43" stop-color="#9e100a" />
-                    <stop offset=".99" stop-color="#b3100c" />
-                    <stop offset="1" stop-color="#b3100c" />
+                    <stop offset="0" stopColor="#8b2114" />
+                    <stop offset=".43" stopColor="#9e100a" />
+                    <stop offset=".99" stopColor="#b3100c" />
+                    <stop offset="1" stopColor="#b3100c" />
                 </linearGradient>
                 <linearGradient
                     id="vscodeIconsFileTypeRubyd"
@@ -204,10 +204,10 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(78.099 0 0 -32.624 18447.361 -10353.553)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#b31000" />
-                    <stop offset=".44" stop-color="#910f08" />
-                    <stop offset=".99" stop-color="#791c12" />
-                    <stop offset="1" stop-color="#791c12" />
+                    <stop offset="0" stopColor="#b31000" />
+                    <stop offset=".44" stopColor="#910f08" />
+                    <stop offset=".99" stopColor="#791c12" />
+                    <stop offset="1" stopColor="#791c12" />
                 </linearGradient>
                 <radialGradient
                     id="vscodeIconsFileTypeRubye"
@@ -217,9 +217,9 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(93.113 0 0 -48.655 21986.073 -15193.61)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#a80d00" />
-                    <stop offset=".99" stop-color="#7e0e08" />
-                    <stop offset="1" stop-color="#7e0e08" />
+                    <stop offset="0" stopColor="#a80d00" />
+                    <stop offset=".99" stopColor="#7e0e08" />
+                    <stop offset="1" stopColor="#7e0e08" />
                 </radialGradient>
                 <radialGradient
                     id="vscodeIconsFileTypeRubyf"
@@ -229,9 +229,9 @@ export function RubyIcon(props: { styles?: CSSProperties }) {
                     gradientTransform="matrix(97.434 0 0 -75.848 22937.057 -23467.84)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0" stop-color="#a30c00" />
-                    <stop offset=".99" stop-color="#800e08" />
-                    <stop offset="1" stop-color="#800e08" />
+                    <stop offset="0" stopColor="#a30c00" />
+                    <stop offset=".99" stopColor="#800e08" />
+                    <stop offset="1" stopColor="#800e08" />
                 </radialGradient>
             </defs>
             <path fill="url(#vscodeIconsFileTypeRuby0)" d="M23.693 20.469L7.707 29.961l20.7-1.4L30 7.685Z" />

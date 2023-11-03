@@ -63,9 +63,9 @@ Follow the steps below to design and develop your application by adding componen
 
 2. Specify appropriate values for the required fields to create the new component.
 
-3. Once the component is created, **Architecture Diagram** view and **Cell View** is enabled.
+3. Once the component is created, **Cell View** is enabled.
 
-4. Click **+** icon in components section or **+ Component** in Architecture diagram to create components
+4. Click **+** icon in components section or **+ Component** in Cell view to create components.
 
 5. Right-click on the added components to load the **Context** menu of them, and click the **Use Internal/External APIs** links to mark the interactions between them.
 
