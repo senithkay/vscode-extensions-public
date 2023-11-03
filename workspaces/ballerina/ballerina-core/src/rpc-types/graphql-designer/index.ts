@@ -11,10 +11,10 @@
  *  associated services.
  */
 
-import { BallerinaRecordRequest, BallerinaRecordResponse } from "../../lang-server-interfaces/http-service-desginer-types";
+import { GraphqlDesignServiceRequest, GraphqlDesignServiceResponse } from "../../lang-server-interfaces/graphql-diagram-types";
 
-export interface ServiceDesignerAPI {
-    getRecord: (
-        params: BallerinaRecordRequest
-    ) => Thenable<BallerinaRecordResponse>;
+export interface GraphqlDiagramAPI {
+    getGraphqlModel: (
+        params: GraphqlDesignServiceRequest
+    ) => Thenable<GraphqlDesignServiceResponse>;
 }

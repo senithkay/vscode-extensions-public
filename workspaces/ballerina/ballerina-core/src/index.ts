@@ -22,3 +22,10 @@ export * from "./lang-server-interfaces/extended-lang-server-types";
 export * from "./extension-interfaces/extension-types";
 
 export * from "./rpc-types/overview";
+export * from "./rpc-types/connector-wizard";
+export * from "./rpc-types/converter";
+export * from "./rpc-types/graphql-designer";
+export * from "./rpc-types/service-designer";
+export * from "./rpc-types/performance-analyzer";
+export * from "./rpc-types/trigger-wizard";
+export * from "./rpc-types/visualizer";

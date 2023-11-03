@@ -12,12 +12,9 @@
  *  associated services.
  */
 
-import { RequestType } from "vscode-messenger-common";
 import { Diagnostic, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { Type } from "./data-mapper";
 import { LinePosition } from "./common-types";
-import { BallerinaProjectComponents, GetBallerinaPackagesParams } from "./project-overview-types";
 
 export interface BallerinaSTModifyResponse {
     source: string;
@@ -205,72 +202,3 @@ export interface TypesFromFnDefinitionRequest {
     fnPosition: LinePosition;
     returnTypeDescPosition: LinePosition;
 }
-
-export interface BallerinaLangClientInterface {
-    getBallerinaProjectComponents: (
-        params: GetBallerinaPackagesParams
-    ) => Promise<BallerinaProjectComponents>;
-    getDefinitionPosition: (
-        params: TextDocumentPositionParams
-    ) => Thenable<BallerinaSTModifyResponse>;
-    getDiagnostics: (
-        params: BallerinaProjectParams
-    ) => Thenable<PublishDiagnosticsParams[]>;
-    getSyntaxTree: (
-        params: GetSyntaxTreeParams
-    ) => Thenable<GetSyntaxTreeResponse>;
-    stModify: (
-        params: BallerinaSTModifyRequest
-    ) => Thenable<BallerinaSTModifyResponse>;
-    getCompletion: (
-        params: CompletionParams
-    ) => Thenable<CompletionResponse[]>;
-    getType: (
-        param: ExpressionTypeRequest
-    ) => Thenable<ExpressionTypeResponse>;
-    getSTForSingleStatement: (
-        param: PartialSTRequest
-    ) => Thenable<PartialSTResponse>;
-    getSTForExpression: (
-        param: PartialSTRequest
-    ) => Thenable<PartialSTResponse>;
-    getSTForModuleMembers: (
-        param: PartialSTRequest
-    ) => Thenable<PartialSTResponse>;
-    getSTForModulePart: (
-        param: PartialSTRequest
-    ) => Thenable<PartialSTResponse>;
-    getSTForResource: (
-        param: PartialSTRequest
-    ) => Thenable<PartialSTResponse>;
-    getSymbolDocumentation: (
-        params: SymbolInfoRequest
-    ) => Thenable<SymbolInfoResponse>;
-    getTypeFromExpression: (
-        params: TypeFromExpressionRequest
-    ) => Thenable<TypesFromExpressionResponse>;
-    getTypeFromSymbol: (
-        params: TypeFromSymbolRequest
-    ) => Thenable<TypesFromSymbolResponse>;
-    getTypesFromFnDefinition: (
-        params: TypesFromFnDefinitionRequest
-    ) => Thenable<TypesFromSymbolResponse>;
-}
-
-const BallerinaLangClient = "BallerinaLangClient/"
-
-export const getDefinitionPosition: RequestType<TextDocumentPositionParams, BallerinaSTModifyResponse> = { method: `${BallerinaLangClient}getDefinitionPosition` };
-export const getDiagnostics: RequestType<BallerinaProjectParams, PublishDiagnosticsParams[]> = { method: `${BallerinaLangClient}getDiagnostics` };
-export const getSyntaxTree: RequestType<GetSyntaxTreeParams, GetSyntaxTreeResponse> = { method: `${BallerinaLangClient}getSyntaxTree` };
-export const stModify: RequestType<BallerinaSTModifyRequest, BallerinaSTModifyResponse> = { method: `${BallerinaLangClient}stModify` };
-export const getCompletion: RequestType<CompletionParams, CompletionResponse[]> = { method: `${BallerinaLangClient}getCompletion` };
-export const getType: RequestType<ExpressionTypeRequest, ExpressionTypeResponse> = { method: `${BallerinaLangClient}getType` };
-export const getSTForSingleStatement: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${BallerinaLangClient}getSTForSingleStatement` };
-export const getSTForExpression: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${BallerinaLangClient}getSTForExpression` };
-export const getSTForModuleMembers: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${BallerinaLangClient}getSTForModuleMembers` };
-export const getSTForModulePart: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${BallerinaLangClient}getSTForModulePart` };
-export const getSTForResource: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${BallerinaLangClient}getSTForResource` };
-export const getSymbolDocumentation: RequestType<SymbolInfoRequest, SymbolInfoResponse> = { method: `${BallerinaLangClient}getSymbolDocumentation` };
-export const getTypeFromExpression: RequestType<TypeFromExpressionRequest, TypesFromExpressionResponse> = { method: `${BallerinaLangClient}getTypeFromExpression` };
-export const getTypeFromSymbol: RequestType<TypeFromSymbolRequest, TypesFromSymbolResponse> = { method: `${BallerinaLangClient}getTypeFromSymbol` };
-export const getTypesFromFnDefinition: RequestType<TypesFromFnDefinitionRequest, TypesFromSymbolResponse> = { method: `${BallerinaLangClient}getTypesFromFnDefinition` };

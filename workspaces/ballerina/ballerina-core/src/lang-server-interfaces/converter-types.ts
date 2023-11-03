@@ -11,8 +11,6 @@
  *  associated services.
  */
 
-import { RequestType } from "vscode-messenger-common";
-
 export interface JsonToRecordRequest {
     jsonString: string;
     recordName: string;
@@ -54,17 +52,3 @@ export interface XMLToRecordConverterDiagnostic {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
 }
-
-export interface ConverterAPI {
-    convert: (
-        params: JsonToRecordRequest
-    ) => Thenable<JsonToRecordResponse>;
-    convertXml: (
-        params: XMLToRecordRequest
-    ) => Thenable<XMLToRecordResponse>;
-}
-
-const converterAPI = "converter/"
-
-export const convert: RequestType<JsonToRecordRequest, JsonToRecordResponse> = { method: `${converterAPI}convert` };
-export const convertXml: RequestType<XMLToRecordRequest, XMLToRecordResponse> = { method: `${converterAPI}convertXml` };

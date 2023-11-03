@@ -11,10 +11,13 @@
  *  associated services.
  */
 
-import { BallerinaRecordRequest, BallerinaRecordResponse } from "../../lang-server-interfaces/http-service-desginer-types";
+import { JsonToRecordRequest, JsonToRecordResponse, XMLToRecordRequest, XMLToRecordResponse } from "../../lang-server-interfaces/converter-types";
 
-export interface ServiceDesignerAPI {
-    getRecord: (
-        params: BallerinaRecordRequest
-    ) => Thenable<BallerinaRecordResponse>;
+export interface ConverterAPI {
+    convert: (
+        params: JsonToRecordRequest
+    ) => Thenable<JsonToRecordResponse>;
+    convertXml: (
+        params: XMLToRecordRequest
+    ) => Thenable<XMLToRecordResponse>;
 }

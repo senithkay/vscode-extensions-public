@@ -11,10 +11,13 @@
  *  associated services.
  */
 
-import { BallerinaRecordRequest, BallerinaRecordResponse } from "../../lang-server-interfaces/http-service-desginer-types";
+import { BallerinaConnectorRequest, BallerinaConnectorResponse, BallerinaConnectorsRequest, BallerinaConnectorsResponse } from "../../lang-server-interfaces/connector-wizard-types";
 
-export interface ServiceDesignerAPI {
-    getRecord: (
-        params: BallerinaRecordRequest
-    ) => Thenable<BallerinaRecordResponse>;
+export interface ConnectorWizardAPI {
+    getConnector: (
+        params: BallerinaConnectorRequest
+    ) => Thenable<BallerinaConnectorResponse>;
+    getConnectors: (
+        params: BallerinaConnectorsRequest
+    ) => Thenable<BallerinaConnectorsResponse>;
 }
