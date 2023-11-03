@@ -77,7 +77,7 @@ interface CMFunctionNode extends CMNode {
 
 export interface CMEntryPoint extends CMFunctionNode {
     annotation: CMAnnotation;
-    type?: 'scheduledTask' | 'manualTrigger';
+    type?: 'scheduleTask' | 'manualTask';
     dependencies: string[];
 }
 
