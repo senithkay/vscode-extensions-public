@@ -7,20 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar } from "vscode-extension-tester";
+import { VSBrowser, BottomBarPanel, EditorView, ActivityBar, DebugView, DebugToolbar, Workbench } from "vscode-extension-tester";
 import { wait, waitUntilTextContains } from "./util";
 import { join } from "path";
 import { expect } from "chai";
 import { ExtendedEditorView } from "./utils/ExtendedEditorView";
 import { fail } from "assert";
+import { FOCUS_DEBUG_CONSOLE_COMMAND } from "./constants";
 
 const expectedOut = "Running executable";
+let workbench: Workbench;
 
 describe('Debugger UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
 
     beforeEach(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/hello_service.bal`);
+        workbench = new Workbench();
         await VSBrowser.instance.waitForWorkbench();
     });
 
@@ -45,7 +48,7 @@ describe('Debugger UI Tests', () => {
 });
 
 async function verifyDebugOutput() {
-    const bar = await DebugToolbar.create();
+    await workbench.executeCommand(FOCUS_DEBUG_CONSOLE_COMMAND);
     const terminal = await new BottomBarPanel().openDebugConsoleView();
 
     await waitUntilTextContains(terminal, expectedOut, 60000).catch((e) => {
