@@ -2,14 +2,6 @@
 
 The Choreo VS Code extension enhances your local development experience with [Choreo projects](https://wso2.com/choreo/) by providing a wide range of project and component management capabilities. Learn more about [Choreo](https://wso2.com/choreo/docs/).
 
-## Set up the prerequisites
-
-Follow the steps below to configure your local environment for a seamless development experience with the Choreo extension. 
-
-1. Install [Ballerina](https://ballerina.io/learn/get-started/#install-ballerina).
-2. Install [Visual Studio Code](https://code.visualstudio.com/download).
-3. Install the [Ballerina VS Code Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) version 4.5.3 or later.
-
 ## Get started
 
 You need an active Choreo account to utilize the capabilities of the Choreo extension in the VS Code editor. If you already have a Choreo account, follow the steps below to set up the extension.
