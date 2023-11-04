@@ -3,7 +3,7 @@ info:
   title: $TITLE$
   version: 1.0.0
 paths:
-  /example:
+  /*:
     get:
       summary: Retrieve an example resource
       responses:
