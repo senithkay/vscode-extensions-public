@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
@@ -55,6 +55,8 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
 
     const { choreoProject } = useChoreoWebViewContext();
 
+    const [folderNameError, setFolderNameError] = useState("");
+
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
         ["getLocalComponentDirMetaData", choreoProject, repository],
         () =>
@@ -69,7 +71,37 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
 
     const selectedBuildPack = formData.buildPackList?.find(item => item.language === formData.implementationType);
     const supportedVersions: string[] = selectedBuildPack?.supportedVersions?.split(',')?.filter(item => !!item);
-    
+
+    useEffect(() => {
+        const updateFolderError = () => {
+            let folderError = '';
+            if (localDirectorMetaData) {
+                if (repository?.subPath) {
+                    if (!localDirectorMetaData?.isSubPathValid) {
+                        folderError = 'Sub path does not exist';
+                    }
+                    if (localDirectorMetaData?.isSubPathEmpty) {
+                        folderError = "Please provide a path that is not empty"
+                    }
+                    if (!localDirectorMetaData.isBuildpackPathValid) {
+                        folderError = `Provide a valid path to the ${formData.implementationType} Project.`;
+                    }
+                } else if (!localDirectorMetaData.isBuildpackPathValid) {
+                    folderError = `Provide a valid path to the ${formData.implementationType} Project.`;
+                }
+            }
+
+            setFolderNameError(folderError);
+        };
+
+        updateFolderError();
+    }, [repository?.subPath, localDirectorMetaData]);
+
+    useEffect(() => {
+        const isDirectoryValid = !folderNameError;
+        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
+    }, [folderNameError]);
+
     const setFolderName = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
             ...prevFormData,
@@ -79,24 +111,6 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
             }
         }));
     }
-    
-    const folderNameError = useMemo(() => {
-        if (localDirectorMetaData) {
-            if (repository?.subPath) {
-                if (!localDirectorMetaData?.isSubPathValid) {
-                    return 'Sub path does not exist';
-                }
-                if (localDirectorMetaData?.isSubPathEmpty) {
-                    return "Please provide a path that is not empty"
-                }
-                if (!localDirectorMetaData.isBuildpackPathValid) {
-                    return `Provide a valid path to the ${formData.implementationType} Project.`;
-                }
-            } else if (!localDirectorMetaData.isBuildpackPathValid) {
-                return `Provide a valid path to the ${formData.implementationType} Project.`;
-            }
-        }
-    }, [repository, localDirectorMetaData]);
 
     const handleVersionChange = (version: string) => {
         onFormDataChange(prevFormData => ({

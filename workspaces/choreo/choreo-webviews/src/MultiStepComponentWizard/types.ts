@@ -35,6 +35,7 @@ export interface ComponentWizardState {
         gitProvider?: GitProvider;
         credentialID?: string;
         isMonoRepo?: boolean;
+        isDirectoryValid?: boolean;
     };
     webAppConfig?: {
         dockerContext?: string;
