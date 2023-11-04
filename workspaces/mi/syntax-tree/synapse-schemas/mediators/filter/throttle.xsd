@@ -24,9 +24,12 @@
         jaxb:version="2.0"
         elementFormDefault="qualified" 
         targetNamespace="http://ws.apache.org/ns/synapse" 
-        xmlns="http://ws.apache.org/ns/synapse">
+        xmlns="http://ws.apache.org/ns/synapse"
+        xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+        xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
 
-    <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/09/policy" />
+    <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/09/policy" schemaLocation="https://schemas.xmlsoap.org/ws/2004/09/policy/ws-policy.xsd"/>
+    <xs:import namespace="http://www.wso2.org/products/wso2commons/throttle" schemaLocation="../../misc/throttle_policy.xsd"/>
 
 
     <xs:include schemaLocation="../mediators.xsd" />
@@ -42,9 +45,9 @@
         <xs:complexType>
             <xs:all>
                 <xs:element name="policy" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
+                    <xs:complexType mixed="true">
                         <xs:sequence>
-                            <xs:any minOccurs="0" maxOccurs="1" processContents="skip" />
+                            <xs:element ref="wsp:Policy" minOccurs="0" maxOccurs="1" />
                         </xs:sequence>
                         <xs:attribute name="key" type="xs:string" use="optional" />
                     </xs:complexType>

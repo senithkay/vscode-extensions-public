@@ -50,6 +50,7 @@
                     <xs:complexType>
                         <xs:all>
                             <xs:element name="methods" minOccurs="1" maxOccurs="1" type="xs:string" />
+                            <xs:element name="headersToIncludeInHash" minOccurs="1" maxOccurs="1" type="xs:string" />
                             <xs:element name="headersToExcludeInHash" minOccurs="1" maxOccurs="1" type="xs:string" />
                             <xs:element name="responseCodes" minOccurs="1" maxOccurs="1" type="xs:string" />
                             <xs:element name="enableCacheControl" minOccurs="1" maxOccurs="1" type="xs:boolean" />
