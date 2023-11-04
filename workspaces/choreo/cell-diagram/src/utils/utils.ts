@@ -134,7 +134,7 @@ export function getComponentDiagramWidth(models: NodesAndLinks): number {
         ...models.nodes.componentNodes.values(),
         ...models.links.componentLinks.values(),
         ...models.nodes.emptyNodes.values(),
-        ...models.links.cellLinks.values(),
+        ...models.links.cellLinks.values()
     );
     // auto distribute component nodes, component links, empty nodes and cell links
     dagreEngine.redistribute(tempModel);
@@ -194,35 +194,44 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
 // reveal diagram with animation
 export function animateDiagram() {
     const tl = gsap.timeline();
-            // animate cell and external links
-            tl.from(`div[data-nodeid="${MAIN_CELL}"]`, {
-                scale: 0,
+    // animate cell and external links
+    tl.from(`div[data-nodeid="${MAIN_CELL}"]`, {
+        scale: 0,
+        opacity: 0,
+        duration: 0.5,
+    }).from(`g[data-linkid^="${EXTERNAL_LINK}|"]`, {
+        scale: 0,
+        opacity: 0,
+        duration: 0.5,
+    });
+    // animate component nodes and links
+    tl.from(
+        `div[data-nodeid^="${COMPONENT_NODE}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+            stagger: 0.05,
+        },
+        "showNodeTime"
+    )
+        .from(
+            `div[data-nodeid^="${CONNECTION_NODE}|"]`,
+            {
                 opacity: 0,
                 duration: 0.5,
-            }).from(`g[data-linkid^="${EXTERNAL_LINK}|"]`,{
-                scale: 0,
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0.05,
-            });
-            // animate component nodes and links
-            tl.from(`div[data-nodeid^="${CONNECTION_NODE}|"]`, {
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0.05,
-            }).from(`div[data-nodeid^="${COMPONENT_NODE}|"]`, {
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0.05,
-            }).from(`g[data-linkid^="${COMPONENT_LINK}|"]`,{
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0.05,
-            }).from(`g[data-linkid^="${CELL_LINK}|"]`,{
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0.05,
-            });
+                stagger: 0, 
+            },
+            "showNodeTime"
+        )
+        .from(`g[data-linkid^="${COMPONENT_LINK}|"]`, {
+            opacity: 0,
+            duration: 0.2,
+        })
+        .from(`g[data-linkid^="${CELL_LINK}|"]`, {
+            opacity: 0,
+            duration: 0.5,
+            stagger: 0.05,
+        });
 }
 
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
@@ -437,7 +446,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                     const targetPort: ComponentPortModel | null = associatedComponent.getPort(`left-${associatedComponent.getID()}`);
 
                     if (sourcePort && targetPort) {
-                        const linkId = getComponentLinkName(sourcePort.getID(),targetPort.getID())
+                        const linkId = getComponentLinkName(sourcePort.getID(), targetPort.getID());
                         const link: ComponentLinkModel = new ComponentLinkModel(linkId);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as ComponentLinkModel);
                         link.setSourceNode(callingComponent.getID());
@@ -455,7 +464,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                     const targetPort: ConnectionPortModel | null = associatedComponent.getPort(`top-${associatedComponent.getID()}`);
 
                     if (sourcePort && targetPort) {
-                        const linkId = getComponentLinkName(sourcePort.getID(), targetPort.getID());;
+                        const linkId = getComponentLinkName(sourcePort.getID(), targetPort.getID());
                         const link: ComponentLinkModel = new ComponentLinkModel(linkId);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as ComponentLinkModel);
                         link.setSourceNode(callingComponent.getID());
