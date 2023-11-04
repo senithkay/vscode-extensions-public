@@ -10,7 +10,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
+import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell, animateDiagram } from "./utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItem } from "./components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
@@ -24,12 +24,14 @@ export interface CellDiagramProps {
     project: Project;
     // custom component menu
     componentMenu?: MenuItem[];
+    showControls?: boolean;
+    animation?: boolean;
     // custom event handler
     onComponentDoubleClick?: (componentId: string) => void;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { project, componentMenu, onComponentDoubleClick } = props;
+    const { project, componentMenu, showControls = true, animation = true, onComponentDoubleClick } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -39,6 +41,7 @@ export function CellDiagram(props: CellDiagramProps) {
     const [userMessage, setUserMessage] = useState<string>("");
     const [observationVersion, setObservationVersion] = useState<string | undefined>(undefined);
     const [zoomLevel, setZoomLevel] = useState(1);
+    const [isDiagramLoaded, setIsDiagramLoaded] = useState(false);
 
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
 
@@ -47,6 +50,13 @@ export function CellDiagram(props: CellDiagramProps) {
     useEffect(() => {
         drawDiagram();
     }, [props]);
+
+    useEffect(() => {
+        if (animation && isDiagramLoaded) {
+            animateDiagram();
+            diagramEngine.repaintCanvas();
+        }
+    }, [isDiagramLoaded, diagramEngine]);
 
     useEffect(() => {
         const listener = diagramEngine.getModel()?.registerListener({
@@ -92,6 +102,8 @@ export function CellDiagram(props: CellDiagramProps) {
         );
         // create diagram model
         const model = new DiagramModel();
+        // add preloader overlay layer
+        model.addLayer(new OverlayLayerModel());
         // add node and links to diagram model
         const models = model.addAll(
             // nodes
@@ -120,8 +132,6 @@ export function CellDiagram(props: CellDiagramProps) {
         });
         // initially render end of diagram
         model.setOffset(DIAGRAM_END, DIAGRAM_END);
-        // add preloader overlay layer
-        model.addLayer(new OverlayLayerModel());
         // draw diagram with all nodes and links
         diagramEngine.setModel(model);
         setDiagramModel(model);
@@ -144,6 +154,8 @@ export function CellDiagram(props: CellDiagramProps) {
             // update diagram
             diagramEngine.setModel(model);
             diagramEngine.repaintCanvas();
+            // After all diagram setup is complete
+            setIsDiagramLoaded(true);
         }, 1000);
     };
 
@@ -204,7 +216,7 @@ export function CellDiagram(props: CellDiagramProps) {
                                 className={styles.canvas}
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
-                            <DiagramControls engine={diagramEngine} showProblemPanel={() => {}} />
+                            {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
                         </>
                     ) : userMessage ? (
                         <PromptScreen userMessage={userMessage} />
