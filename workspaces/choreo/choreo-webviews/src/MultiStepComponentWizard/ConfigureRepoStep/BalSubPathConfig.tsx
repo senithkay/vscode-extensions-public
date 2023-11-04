@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useContext } from "react";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
@@ -43,6 +43,7 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
 
     const { repository, implementationType } = props.formData;
     const { choreoProject } = useContext(ChoreoWebViewContext);
+    const [folderNameError, setFolderNameError] = useState("");
 
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
         ["getLocalComponentDirMetaData", choreoProject, repository],
@@ -66,25 +67,36 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
         }));
     };
 
-
-    const folderNameError = useMemo(() => {
-        if (localDirectorMetaData) {
-            if (repository?.subPath) {
-                if (!localDirectorMetaData?.isSubPathValid) {
-                    return 'Sub path does not exist';
+    useEffect(() => {
+        const updateFolderError = () => {
+            let folderError = "";
+            if (localDirectorMetaData) {
+                if (repository?.subPath) {
+                    if (!localDirectorMetaData?.isSubPathValid) {
+                        folderError = 'Sub path does not exist';
+                    }
+                    if (localDirectorMetaData?.isSubPathEmpty) {
+                        folderError = "Please provide a path that is not empty"
+                    }
+                    if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInPath) {
+                        folderError = "Please provide a path that contains a Ballerina project."
+                    }
+                } else if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInRoot) {
+                    folderError = "Repository root does not contain a valid Ballerina project"
                 }
-                if (localDirectorMetaData?.isSubPathEmpty) {
-                    return "Please provide a path that is not empty"
-                }
-                if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInPath) {
-                    return "Please provide a path that contains a Ballerina project."
-                }
-            } else if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInRoot) {
-                return "Repository root does not contain a valid Ballerina project"
             }
-        }
-    }, [repository, localDirectorMetaData]);
 
+            setFolderNameError(folderError);
+        };
+
+        updateFolderError();
+    }, [repository?.subPath, localDirectorMetaData]);
+
+    useEffect(() => {
+        const isDirectoryValid = !folderNameError;
+        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
+    }, [folderNameError]);
+    
     const updateSubFolderName = debounce(setFolderName, 500);
 
     return (

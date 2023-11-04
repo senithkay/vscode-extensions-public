@@ -12,7 +12,7 @@ import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell } from "./utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItem } from "./components";
-import { Colors, MAIN_CELL, NO_CELL_NODE } from "./resources";
+import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
@@ -118,7 +118,8 @@ export function CellDiagram(props: CellDiagramProps) {
                 });
             }
         });
-
+        // initially render end of diagram
+        model.setOffset(DIAGRAM_END, DIAGRAM_END);
         // add preloader overlay layer
         model.addLayer(new OverlayLayerModel());
         // draw diagram with all nodes and links
@@ -129,6 +130,7 @@ export function CellDiagram(props: CellDiagramProps) {
             // manual distribute - update empty node, external node and connector node position based on cell node position
             manualDistribute(model);
             if (diagramEngine.getBoundingNodesRect) {
+                // zoom to fit nodes and center diagram
                 diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
             }
             // remove preloader overlay layer
@@ -142,7 +144,7 @@ export function CellDiagram(props: CellDiagramProps) {
             // update diagram
             diagramEngine.setModel(model);
             diagramEngine.repaintCanvas();
-        }, 32);
+        }, 1000);
     };
 
     // refresh diagram

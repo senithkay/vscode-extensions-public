@@ -30,7 +30,7 @@ export interface TextAreaProps {
 
 export function TextArea(props: TextAreaProps) {
     const { label, value, id, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
-        rows, disabled = false, resize, readonly = false, errorMsg
+        rows, disabled, resize, readonly, errorMsg
     } = props;
     const handleChange = (e: any) => {
         onChange && onChange(e.target.value);

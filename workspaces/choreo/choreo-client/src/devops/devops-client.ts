@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Buildpack } from "@wso2-enterprise/choreo-core";
+import { Buildpack, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 import axios from "axios";
 import { IReadOnlyTokenStorage } from "../auth";
 import { GetBuildpackParams, IChoreoDevopsClient } from "./types";
@@ -35,8 +35,19 @@ export class ChoreoDevopsClient implements IChoreoDevopsClient {
 
     async getBuildPacks(params: GetBuildpackParams): Promise<Buildpack[]> {
         const orgUuid = params.orgUuid;
-        const componentType = params.componentType;
+        const component = params.componentType;
         const client = await this._getClient(params.orgId);
+
+        let componentType = component;
+        switch (component) {
+            case ChoreoComponentType.ScheduledTask:
+                componentType = 'scheduleTask';
+                break;
+            case ChoreoComponentType.ManualTrigger:
+                componentType = 'manualTask';
+                break;
+        }
+
         try {
             const response = await client.get(`/api/v1/buildpacks?orgUuid=${orgUuid}&componentType=${componentType}`);
             return response.data as Buildpack[];
