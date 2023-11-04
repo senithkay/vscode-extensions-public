@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NAME_JOIN_CHAR } from "../../../resources/constants";
-import { CellBounds } from "./CellModel";
+import { CELL_LINK, EMPTY_NODE, NAME_JOIN_CHAR } from "../../resources/constants";
+import { CellBounds } from "./CellNode/CellModel";
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 
 export function getRoundedOctagonSVG(sideLength: number, radius: number, padding: number = 0): { width: number; height: number; path: string } {
@@ -142,3 +142,22 @@ export function getCellPortMetadata(cellPortId: string): { name: string; bound: 
 export function getNodePortId(name: string, align?: PortModelAlignment): string {
     return `${align ? `${align}-` : ""}${name}`;
 }
+
+// Cell link utils
+
+export function getCellLinkName(source: string, target: string): string {
+    return `${CELL_LINK}${NAME_JOIN_CHAR}${source}::${target}`;
+}
+
+// Empty node utils
+
+export function getEmptyNodeName(bound: CellBounds, ...args: string[]): string {
+    let rest = "";
+    args?.forEach((arg) => {
+        if (arg) {
+            rest += `${NAME_JOIN_CHAR}${arg}`;
+        }
+    });
+    return `${EMPTY_NODE}${NAME_JOIN_CHAR}${bound}${rest !== "" ? `${rest}` : ""}`;
+}
+

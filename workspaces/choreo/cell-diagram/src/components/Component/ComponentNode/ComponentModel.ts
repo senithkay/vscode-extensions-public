@@ -12,7 +12,7 @@ import { SharedNodeModel } from "../../shared-node/shared-node";
 import { ComponentPortModel } from "../ComponentPort/ComponentPortModel";
 import { Component } from "../../../types";
 import { COMPONENT_NODE } from "../../../resources";
-import { getComponentName } from "./component-util";
+import { getComponentName } from "../component-node-util";
 
 export class ComponentModel extends SharedNodeModel {
     readonly component: Component;
