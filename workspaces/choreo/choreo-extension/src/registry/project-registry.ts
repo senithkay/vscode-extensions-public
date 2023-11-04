@@ -219,8 +219,6 @@ export class ProjectRegistry {
                         let openApiTemplate = readFileSync(join(ext.context.extensionPath, "/templates/openapi-template.yaml"), 'utf8');
                         openApiTemplate = openApiTemplate.replace('$TITLE$', args.name);
                         writeFileSync(join(basePath, schemaFilePath), openApiTemplate);
-                        const openApiFile = vscode.Uri.file(join(basePath, schemaFilePath));
-                        await vscode.workspace.openTextDocument(openApiFile);
                     }
                 }
 
