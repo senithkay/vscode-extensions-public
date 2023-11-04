@@ -32,11 +32,16 @@ import {
     Endpoint,
     getEndpointsForVersion,
     EndpointData,
-    WorkspaceConfig
+    WorkspaceConfig,
+    Buildpack,
+    GoogleProviderBuildPackNames,
+    ComponentYamlContent,
+    Inbound,
+    getGeneralizedCellComponentType
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
+import { CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
@@ -131,11 +136,9 @@ export class ProjectRegistry {
                 cancellable: false
             }, async () => {
                 this.addDockerFile(args);
-                if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
-                    this.addEndpointsYaml(args);
-                }
+                const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
-                window.showInformationMessage('Component created successfully');
+                this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
             });
         } else {
             throw new Error("Error: Could not detect a project workspace.");
@@ -162,59 +165,91 @@ export class ProjectRegistry {
         
     };
 
-    addEndpointsYaml = async (args: ChoreoComponentCreationParams) => {
+    addComponentYaml = async (args: ChoreoComponentCreationParams): Promise<{configPath: string; openApiPath?: string} | undefined> => {
         const projectLocation = this.getProjectLocation(args.projectId);
         const { org, repo, dockerContext, openApiFilePath } = args.repositoryInfo as BYOCRepositoryDetails;
         if (projectLocation) {
             const projectDir = dirname(projectLocation);
             let basePath = join(projectDir, "repos", org, repo);
-            if (dockerContext) {
-                basePath = join(basePath, dockerContext);
+
+            const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
+
+            const subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+
+            if (subPath) {
+                basePath = join(basePath, subPath);
             }
-            const schemaFilePath = openApiFilePath && dockerContext
-                    ? relative(dockerContext, openApiFilePath)
+            const schemaFilePath = openApiFilePath && subPath
+                    ? relative(subPath, openApiFilePath)
                     : openApiFilePath || "openapi.yaml";
-            const endpointsYamlPath = join(basePath, ".choreo", "endpoints.yaml");
+            const componentYamlPath = join(basePath, CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE);
 
-            if (existsSync(endpointsYamlPath)) {
-                rmSync(endpointsYamlPath);
+            if (existsSync(componentYamlPath)) {
+                rmSync(componentYamlPath);
             }
+            
+            const componentYamlContent: ComponentYamlContent = {
+                apiVersion:'core.choreo.dev/v1alpha1',
+                kind:'ComponentConfig',
+                metadata: {
+                    name: args.name,
+                    projectName: project?.name!,
+                    annotations: { componentType: getGeneralizedCellComponentType(args.displayType) },
+                },
+                spec: {}
+            };
 
-            let endpointsYamlContent = readFileSync(
-                join(ext.context.extensionPath, "/templates/endpoints-template.yaml")
-            ).toString();
-            endpointsYamlContent = endpointsYamlContent.replace("ENDPOINT_NAME", args.name);
-            endpointsYamlContent = endpointsYamlContent.replace("PORT", args.port ? args.port.toString() : "3000");
-            endpointsYamlContent = endpointsYamlContent.replace("TYPE", args.serviceType ? args.serviceType?.toString() : "REST");
-            endpointsYamlContent = endpointsYamlContent.replace("NETWORK_VISIBILITY", args.networkVisibility ?? "Project");
-
-            if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
-                endpointsYamlContent = endpointsYamlContent.replace("ENDPOINT_CONTEXT", args.endpointContext ?? ".");
-            } else {
-                endpointsYamlContent = endpointsYamlContent.replace("context: ENDPOINT_CONTEXT", "# context: ENDPOINT_CONTEXT");
-            }
-
-            if (args.serviceType === ChoreoServiceType.RestApi) {
-                endpointsYamlContent = endpointsYamlContent.replace("SCHEMA_PATH", schemaFilePath);
-
-                const openApiPath = join(basePath, schemaFilePath);
-                if (!existsSync(openApiPath)) {
-                    cpSync(
-                        join(ext.context.extensionPath, "/templates/openapi-template.yaml"),
-                        join(basePath, schemaFilePath)
-                    );
+            let openApiPath;
+            if (args.displayType?.endsWith('Service')){
+                const inbound: Inbound = {
+                    name: args.name,
+                    port: args.port ?? 3000,
+                    type: args.serviceType ?? "REST",
+                };
+    
+                if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
+                    inbound.context = args.endpointContext ?? '.';
                 }
-            } else {
-                endpointsYamlContent = endpointsYamlContent.replace("schemaFilePath: SCHEMA_PATH", "# schemaFilePath: endpoints.yaml");
+    
+                if (args.serviceType === ChoreoServiceType.RestApi) {
+                    inbound.schemaFilePath = schemaFilePath;
+    
+                    openApiPath = join(basePath, schemaFilePath);
+                    if (!existsSync(openApiPath)) {
+                        let openApiTemplate = readFileSync(join(ext.context.extensionPath, "/templates/openapi-template.yaml"), 'utf8');
+                        openApiTemplate = openApiTemplate.replace('$TITLE$', args.name);
+                        writeFileSync(join(basePath, schemaFilePath), openApiTemplate);
+                    }
+                }
+
+                componentYamlContent.spec.inbound = [inbound];
             }
 
-            const choreoDirPath = dirname(endpointsYamlPath);
+            const choreoDirPath = dirname(componentYamlPath);
             if (!existsSync(choreoDirPath)) {
                 mkdirSync(choreoDirPath);
             }
-            writeFileSync(endpointsYamlPath, endpointsYamlContent);
+            writeFileSync(componentYamlPath, yaml.dump(componentYamlContent));
+            return { configPath: componentYamlPath, openApiPath };
         }
     };
+
+    async createBalLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<void> {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        if (workspace.workspaceFile && projectLocation) {
+            await window.withProgress({
+                title: `Initializing ${args.name} component`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                const addComponentYamlResp = await this.addComponentYaml(args);
+                await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
+                this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
+            });
+        } else {
+            throw new Error("Error: Could not detect a project workspace.");
+        }
+    }
 
     async createNonBalLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<void> {
         const projectLocation = this.getProjectLocation(args.projectId);
@@ -224,12 +259,9 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
-                if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
-                    this.addEndpointsYaml(args);
-                }
-
+                const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
-                window.showInformationMessage('Component created successfully');
+                this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
             });
         } else {
             throw new Error("Error: Could not detect a project workspace.");
@@ -705,6 +737,10 @@ export class ProjectRegistry {
                         try {
                             if (componentMetadata.displayType.toString().startsWith("byoc")) {
                                 await this._createByoComponent(componentMetadata);
+                            } else if (componentMetadata.displayType.toString().startsWith("buildpack")) {
+                                await this._createBuildPackComponent(componentMetadata);
+                            } else if (componentMetadata.displayType.toString().startsWith("mi")) {
+                                await this._createMiComponent(componentMetadata);
                             } else {
                                 await this._createComponent(componentMetadata);
                             }
@@ -820,6 +856,75 @@ export class ProjectRegistry {
         }
     }
 
+    private async _createBuildPackComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
+        const { appSubPath, branchApp, nameApp, orgApp, gitProvider, bitbucketCredentialId } = componentMetadata.repository;
+        // set srcgitRepoUrl depending on the git provider
+        let srcGitRepoUrl = `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`;
+        switch (gitProvider) {
+            case GitProvider.BITBUCKET:
+                srcGitRepoUrl = `https://bitbucket.org/${orgApp}/${nameApp}/src/${branchApp}/${appSubPath}`;
+                break;
+        }
+
+        const componentRequest: CreateBuildpackComponentParams = {
+            name: makeURLSafe(componentMetadata.displayName),
+            displayName: componentMetadata.displayName,
+            description: componentMetadata.description,
+            orgId: componentMetadata.org.id,
+            orgHandle: componentMetadata.org.handle,
+            projectId: componentMetadata.projectId,
+            accessibility: componentMetadata.accessibility ?? "",
+            bitbucketCredentialId: bitbucketCredentialId,
+            componentType: componentMetadata.displayType.toString(),
+            port: componentMetadata.port,
+            buildpackConfig: {
+                buildContext: appSubPath,
+                buildpackId: componentMetadata.buildpackConfig?.buildpackId!,
+                languageVersion: componentMetadata.buildpackConfig?.languageVersion!,
+                srcGitRepoUrl: componentMetadata.buildpackConfig?.srcGitRepoUrl!,
+                srcGitRepoBranch: componentMetadata.buildpackConfig?.srcGitRepoBranch!
+            }
+        };
+        await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createBuildPackComponent(componentRequest));
+    }
+
+    private async _createMiComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
+        const { appSubPath, branchApp, nameApp, orgApp, gitProvider, bitbucketCredentialId } = componentMetadata.repository;
+        // set srcgitRepoUrl depending on the git provider
+        let srcGitRepoUrl = `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`;
+        switch (gitProvider) {
+            case GitProvider.BITBUCKET:
+                srcGitRepoUrl = `https://bitbucket.org/${orgApp}/${nameApp}/src/${branchApp}/${appSubPath}`;
+                break;
+        }
+
+        const componentRequest: CreateMiComponentParams = {
+            name: makeURLSafe(componentMetadata.displayName),
+            displayName: componentMetadata.displayName,
+            description: componentMetadata.description,
+            orgId: componentMetadata.org.id,
+            orgHandle: componentMetadata.org.handle,
+            projectId: componentMetadata.projectId,
+            accessibility: componentMetadata.accessibility ?? "",
+            bitbucketCredentialId: bitbucketCredentialId,
+            componentType: componentMetadata.displayType.toString(),
+            srcGitRepoBranch: branchApp,
+            srcGitRepoUrl: srcGitRepoUrl,
+            repositorySubPath: appSubPath
+        };
+        await executeWithTaskRetryPrompt(() => ext.clients.projectClient.createMiComponent(componentRequest));
+    }
+
+    async getBuildpack(orgId: number, orgUuid: string, componentType: string): Promise<Buildpack[]> {
+        const params: GetBuildpackParams = {
+            orgId,
+            orgUuid,
+            componentType
+        }
+        const buildPacks = await ext.clients.devopsClient.getBuildPacks(params);
+        return buildPacks;
+    }
+
     async pushLocalComponentToChoreo(projectId: string, componentName: string, org: Organization): Promise<void> {
         const choreoPM = new ChoreoProjectManager();
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
@@ -830,6 +935,10 @@ export class ProjectRegistry {
                 try {
                     if (componentMetadata.displayType.toString().startsWith("byoc")) {
                         await this._createByoComponent(componentMetadata);
+                    } else if (componentMetadata.displayType.toString().startsWith("buildpack")) {
+                        await this._createBuildPackComponent(componentMetadata);
+                    } else if (componentMetadata.displayType.toString().startsWith("mi")) {
+                        await this._createMiComponent(componentMetadata);
                     } else {
                         await this._createComponent(componentMetadata);
                     }
@@ -921,7 +1030,7 @@ export class ProjectRegistry {
         // instead of calling getRepoMetadata api and checking remote directory is valid
         // this will check those values from local directory
 
-        const { projectId, orgName, repoName, subPath, dockerContextPath, dockerFilePath } = params;
+        const { projectId, orgName, repoName, subPath, dockerContextPath, dockerFilePath, buildPackId } = params;
     
         const projectLocation = this.getProjectLocation(projectId);
         if(!projectLocation){
@@ -956,12 +1065,12 @@ export class ProjectRegistry {
 
         let hasBallerinaTomlInRoot = existsSync(join(repoPath, 'Ballerina.toml'));
 
-        let hasEndpointsYaml = false;
-        let endpointsYamlPath = join(repoPath, '.choreo', 'endpoints.yaml');
-        if(dockerContextPath){
-            endpointsYamlPath = join(repoPath, dockerContextPath, '.choreo', 'endpoints.yaml');
+        let hasComponentYaml = false;
+        let componentYamlPath = join(repoPath, '.choreo', COMPONENTS_CONFIG_FILE);
+        if(dockerContextPath || subPath){
+            componentYamlPath = join(repoPath, dockerContextPath || subPath, '.choreo', COMPONENTS_CONFIG_FILE);
         }
-        hasEndpointsYaml = existsSync(endpointsYamlPath);
+        hasComponentYaml = existsSync(componentYamlPath);
 
         let dockerFilePathValid = false;
         if (dockerFilePath) {
@@ -976,6 +1085,29 @@ export class ProjectRegistry {
             isDockerContextPathValid = !relativePath.startsWith('..') && !isAbsolute(relativePath);
         }
 
+        let isBuildpackPathValid = false;
+        if (buildPackId && isSubPathValid) {
+            const projectContent = readdirSync(join(repoPath, subPath));
+            const dirFileNames = projectContent.filter(fileName => {
+                const fsStat = statSync(join(repoPath, subPath, fileName));
+                if(fsStat.isFile()){
+                    return true;
+                }
+            });
+            const languageFiles = this.getFilesForLanguageType(buildPackId);
+            isBuildpackPathValid = this.checkValidBuildpackPath(
+                dirFileNames,
+                languageFiles
+            );
+        }
+
+        let hasPomXmlInPath = false;
+        if(subPath && isSubPathValid) {
+            hasPomXmlInPath = existsSync(join(repoPath, subPath, 'pom.xml'));
+        }
+
+        const hasPomXmlInInRoot = existsSync(join(repoPath, 'pom.xml'));
+
         return {
             isBareRepo,
             isRepoPathAvailable,
@@ -983,10 +1115,66 @@ export class ProjectRegistry {
             isSubPathEmpty,
             hasBallerinaTomlInPath,
             hasBallerinaTomlInRoot,
-            hasEndpointsYaml,
+            hasComponentYaml,
             dockerFilePathValid,
-            isDockerContextPathValid
+            isDockerContextPathValid,
+            isBuildpackPathValid,
+            hasPomXmlInPath,
+            hasPomXmlInInRoot
         };
+    }
+
+    private getFilesForLanguageType(buildpackType: string) {
+        const javaBuildpackTypes = [
+            "pom.xml",
+            "build.gradle",
+            "build.gradle.kts",
+            "*.java",
+        ];
+        const pythonBuildpackTypes = ["requirements.txt", "*.py"];
+        const goBuildpackTypes = ["go.mod", "*.go"];
+        const rubyBuildpackTypes = ["Gemfile", "*.rb"];
+        const phpBuildpackTypes = ["composer.json", "*.php"];
+        const nodejsBuildpackTypes = ["package.json", "*.js"];
+        switch (buildpackType) {
+            case GoogleProviderBuildPackNames.JAVA:
+                return javaBuildpackTypes;
+            case GoogleProviderBuildPackNames.NODEJS:
+                return nodejsBuildpackTypes;
+            case GoogleProviderBuildPackNames.PYTHON:
+                return pythonBuildpackTypes;
+            case GoogleProviderBuildPackNames.GO:
+                return goBuildpackTypes;
+            case GoogleProviderBuildPackNames.RUBY:
+                return rubyBuildpackTypes;
+            case GoogleProviderBuildPackNames.PHP:
+                return phpBuildpackTypes;
+            default:
+                return [];
+        }
+    }
+
+    private checkValidBuildpackPath(existingFileNames: string[], languageFiles: string[]): boolean {
+        for (const item of existingFileNames) {
+            if (Array.isArray(languageFiles)) {
+                for (const file of languageFiles) {
+                    if (
+                        (file === item || this.isFileExists(item, file))
+                    ) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private isFileExists(contentFile: string, languageFile: string): boolean {
+        if (languageFile.toLowerCase().startsWith("*")) {
+            const extention = "." + languageFile.split(".").pop();
+            return contentFile.toLowerCase().endsWith(extention);
+        }
+        return false;
     }
 
     private _removeLocation(projectId: string) {
@@ -1025,5 +1213,33 @@ export class ProjectRegistry {
             folders: content.folders?.filter((item) => item.name !== componentName),
         };
         writeFileSync(workspaceFilePath, JSON.stringify(updatedContent, null, 4));
+    }
+
+    private async goTosource(filePath: string) {
+        if (existsSync(filePath)) {
+            const sourceFile = await vscode.workspace.openTextDocument(filePath);
+            await window.showTextDocument(sourceFile);
+            await vscode.commands.executeCommand("workbench.explorer.fileView.focus");
+        }
+    }
+
+    private showComponentCreateSuccessMessage(configPath: string | undefined, openApiPath: string | undefined) {
+        if (openApiPath && configPath) {
+            window.showInformationMessage('Component configured successfully','view config', 'edit API schema').then(item=>{
+                if (item === 'view config'){
+                    this.goTosource(configPath!);
+                }else if (item === 'edit API schema') {
+                    this.goTosource(openApiPath!);
+                }
+            });
+        } else if(configPath){
+            window.showInformationMessage('Component configured successfully','view configurations').then(item=>{
+                if (item === 'view configurations'){
+                    this.goTosource(configPath!);
+                }
+            });
+        } else {
+            window.showInformationMessage('Component configured successfully');
+        }
     }
 }

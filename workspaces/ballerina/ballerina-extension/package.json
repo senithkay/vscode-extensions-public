@@ -244,8 +244,7 @@
                         "request": "launch",
                         "programArgs": [],
                         "commandOptions": [],
-                        "env": {},
-                        "terminal": "integrated"
+                        "env": {}
                     },
                     {
                         "name": "Ballerina Test",
@@ -254,8 +253,7 @@
                         "debugTests": true,
                         "programArgs": [],
                         "commandOptions": [],
-                        "env": {},
-                        "terminal": "integrated"
+                        "env": {}
                     },
                     {
                         "name": "Ballerina Remote",

@@ -35,7 +35,6 @@ import {
     isChoreoProject,
     getChoreoProject,
     PushLocalComponentsToChoreo,
-    OpenArchitectureView,
     OpenCellView,
     UpdateProjectOverview,
     isSubpathAvailable,
@@ -100,6 +99,10 @@ import {
     GoToSource,
     IsBallerinaExtInstalled,
     RefreshWorkspaceNotification,
+    Buildpack,
+    GetBuildPackParams,
+    GetBuildpack,
+    CreateBalLocalComponentFromExistingSource,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -255,6 +258,14 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(CreateNonBalLocalComponentFromExistingSource, HOST_EXTENSION, params);
     }
 
+    public async createBalLocalComponentFromExistingSource(params: ChoreoComponentCreationParams): Promise<void> {
+        return this._messenger.sendRequest(CreateBalLocalComponentFromExistingSource, HOST_EXTENSION, params);
+    }
+
+    public async getBuildpack(params: GetBuildPackParams): Promise<Buildpack[]> {
+        return this._messenger.sendRequest(GetBuildpack, HOST_EXTENSION, params);
+    }
+
     public async getChoreoProject(): Promise<Project | undefined> {
         return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
     }
@@ -269,10 +280,6 @@ export class ChoreoWebViewAPI {
 
     public async goToSource(filePath: string): Promise<void> {
         return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
-    }
-
-    public async openArchitectureView(): Promise<void> {
-        return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
     public async openCellView(): Promise<void> {

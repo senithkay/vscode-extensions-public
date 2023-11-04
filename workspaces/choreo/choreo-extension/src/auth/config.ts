@@ -47,6 +47,7 @@ export interface IChoreoEnvConfig {
         componentManageAPI: string;
         userMgtAPI: string;
         declarativeAPI: string;
+        devopsAPI: string;
     },
     apimEnvScopes: string;
     choreoConsoleBaseUrl: string;
@@ -81,6 +82,7 @@ export const DEFAULT_CHOREO_ENV_CONFIG: IChoreoEnvConfig = {
         componentManageAPI: "https://apis.choreo.dev/component-mgt/1.0.0/orgs",
         userMgtAPI: "https://apis.choreo.dev/user-mgt/1.0.0",
         declarativeAPI: "https://apis.choreo.dev/declarative-api/v1.0",
+        devopsAPI: "https://apis.choreo.dev/devops/1.0.0"
     },
     
     choreoConsoleBaseUrl: "https://console.choreo.dev",
@@ -115,6 +117,7 @@ export const CHOREO_ENV_CONFIG_STAGE: IChoreoEnvConfig = {
         componentManageAPI: "https://apis.st.choreo.dev/component-mgt/1.0.0/orgs",
         userMgtAPI: "https://apis.st.choreo.dev/user-mgt/1.0.0",
         declarativeAPI: "https://apis.st.choreo.dev/declarative-api/v1.0",
+        devopsAPI: "https://apis.st.choreo.dev/user-mgt/devops/1.0.0"
     },
 
     choreoConsoleBaseUrl: "https://console.st.choreo.dev",
@@ -150,6 +153,7 @@ export const CHOREO_ENV_CONFIG_DEV: IChoreoEnvConfig = {
         componentManageAPI: "https://apis.preview-dv.choreo.dev/component-mgt/1.0.0/orgs",
         userMgtAPI: "https://apis.preview-dv.choreo.dev/user-mgt/1.0.0",
         declarativeAPI: "https://apis.preview-dv.choreo.dev/declarative-api/v1.0",
+        devopsAPI: "https://apis.preview-dv.choreo.dev/devops/1.0.0"
     },
 
     choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
@@ -243,5 +247,9 @@ export class ChoreoEnvConfig {
 
     public getApimEnvScopes(): string {
         return this._config.apimEnvScopes;
+    }
+
+    public getDevopsUrl(): string {
+        return this._config.apis.devopsAPI;
     }
 }

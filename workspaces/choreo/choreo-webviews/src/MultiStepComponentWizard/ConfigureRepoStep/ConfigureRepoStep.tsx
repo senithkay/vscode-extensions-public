@@ -424,7 +424,6 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         <StepContainer>
             {!isMonoRepo && (<>
                 <SectionWrapper>
-                    <Typography variant="h3">Component Type</Typography>
                     <Typography variant="h4">Git Provider Details</Typography>
                     <SubContainer>
                         <CardContainer>
@@ -687,7 +686,7 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
                         ChoreoImplementationType.React,
                         ChoreoImplementationType.Angular,
                         ChoreoImplementationType.Vue,
-                    ].includes(formData.implementationType)
+                    ].includes(formData.implementationType as ChoreoImplementationType)
                 ) {
                     const nodeRegex = new RegExp(/^(?=.*\d)\d+(\.\d+)*(?:-[a-zA-Z0-9]+)?$/)
                     return nodeRegex.test(value?.webAppPackageManagerVersion)
@@ -705,7 +704,7 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
                         ChoreoImplementationType.React,
                         ChoreoImplementationType.Angular,
                         ChoreoImplementationType.Vue,
-                    ].includes(formData.implementationType)
+                    ].includes(formData.implementationType as ChoreoImplementationType)
                 ) {
                     return value?.webAppBuildCommand?.length > 0
                 }
@@ -723,7 +722,7 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
                         ChoreoImplementationType.React,
                         ChoreoImplementationType.Angular,
                         ChoreoImplementationType.Vue,
-                    ].includes(formData.implementationType)
+                    ].includes(formData.implementationType as ChoreoImplementationType)
                 ) {
                     return value?.webAppOutputDirectory?.length > 0
                 }

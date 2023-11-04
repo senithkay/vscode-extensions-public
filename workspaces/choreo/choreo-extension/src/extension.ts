@@ -92,21 +92,19 @@ async function openChoreoActivity() {
         await ext.api.resetOpenChoreoActivity();
     }
 
-    const isChoreoProject = ext.api.isChoreoProject();
-    if (isChoreoProject) {
-        // check if the project is being opened for the first time
-        const openedProjects: string[] = ext.context.globalState.get("openedProjects") || [];
-        const choreoProjectId = ext.api.getChoreoProjectId();
-        if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
-            // activate the Choreo Project view in the sidebar
-            vscode.commands.executeCommand("choreo.activity.project.focus");
-            // open architecture view
-            commands.executeCommand("ballerina.view.architectureView");
-            // add the project id to the opened projects list
-            openedProjects.push(choreoProjectId);
-            await ext.context.globalState.update("openedProjects", openedProjects);
-        }
-    }
+	const isChoreoProject = ext.api.isChoreoProject();
+	if (isChoreoProject) {
+		// check if the project is being opened for the first time
+		const openedProjects: string[] = ext.context.globalState.get("openedProjects") || [];
+		const choreoProjectId = ext.api.getChoreoProjectId();
+		if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
+			// activate the Choreo Project view in the sidebar
+			vscode.commands.executeCommand("choreo.activity.project.focus");
+			// add the project id to the opened projects list
+			openedProjects.push(choreoProjectId);
+			await ext.context.globalState.update("openedProjects", openedProjects);
+		}
+	}
 }
 
 export function getGitExtensionAPI() {

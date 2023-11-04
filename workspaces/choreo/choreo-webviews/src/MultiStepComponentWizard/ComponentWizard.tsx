@@ -14,13 +14,11 @@ import React, { useEffect, useState } from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
-import { TriggerConfigStep } from "./WebhookTriggerSelectorStep/WebhookTriggerSelector";
 
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
-import { ServiceTypeStep } from "./ServiceTypeStep";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoBuildPackNames, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentDisplayType, ComponentNetworkVisibility, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
@@ -31,51 +29,73 @@ import { EndpointConfigStep } from './EndpointConfigStep';
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
-        const { mode, name, type, serviceType, implementationType, repository, description, accessibility, trigger, port, networkVisibility, endpointContext } = formData;
+        const { name, type, implementationType, repository, description, accessibility, networkVisibility, endpointContext, serviceType} = formData;
         const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo } = repository;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
         const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
         const bitbucketCredentialId = credentialID ? credentialID : '';
+        
+        const isBuildPackType = ![
+            ChoreoImplementationType.Ballerina, 
+            ChoreoImplementationType.MicroIntegrator, 
+            ChoreoImplementationType.Docker,
+            ...WebAppSPATypes
+        ].includes(implementationType as ChoreoImplementationType);
 
         let selectedDisplayType: ComponentDisplayType;
-        if(type === ChoreoComponentType.WebApplication){
-            if (implementationType === ChoreoImplementationType.Docker) {
-                selectedDisplayType = ComponentDisplayType.ByocWebApp;
-            } else {
-                selectedDisplayType = ComponentDisplayType.ByocWebAppDockerLess;
-            }
-        } else if (implementationType === ChoreoImplementationType.Ballerina) {
-            switch (type) {
-                case ChoreoComponentType.Service:
-                    if(serviceType === ChoreoServiceType.GraphQL){
-                        selectedDisplayType = ComponentDisplayType.GraphQL;
-                    }else{
-                        selectedDisplayType = ComponentDisplayType.Service;
-                    }
+        if (type === ChoreoComponentType.Service) {
+            switch (implementationType) {
+                case ChoreoImplementationType.Ballerina:
+                    selectedDisplayType = ComponentDisplayType.Service;
                     break;
-                case ChoreoComponentType.ManualTrigger:
-                    selectedDisplayType = ComponentDisplayType.ManualTrigger;
-                    break;
-                case ChoreoComponentType.ScheduledTask:
-                    selectedDisplayType = ComponentDisplayType.ScheduledTask;
-                    break;
-                case ChoreoComponentType.Webhook:
-                    selectedDisplayType = ComponentDisplayType.Webhook;
-                    break;
-            }
-        } else if(implementationType === ChoreoImplementationType.Docker){
-            switch (type) {
-                case ChoreoComponentType.Service:
+                case ChoreoImplementationType.Docker:
                     selectedDisplayType = ComponentDisplayType.ByocService;
                     break;
-                case ChoreoComponentType.ManualTrigger:
-                    selectedDisplayType = ComponentDisplayType.ByocJob;
+                case ChoreoImplementationType.MicroIntegrator:
+                    selectedDisplayType = ComponentDisplayType.MiApiService;
                     break;
-                case ChoreoComponentType.ScheduledTask:
+                default:
+                    selectedDisplayType = ComponentDisplayType.BuildpackService;
+            }
+        } else if (type === ChoreoComponentType.ScheduledTask) {
+            switch (implementationType) {
+                case ChoreoImplementationType.Ballerina:
+                    selectedDisplayType = ComponentDisplayType.ScheduledTask;
+                    break;
+                case ChoreoImplementationType.Docker:
                     selectedDisplayType = ComponentDisplayType.ByocCronjob;
                     break;
+                case ChoreoImplementationType.MicroIntegrator:
+                    selectedDisplayType = ComponentDisplayType.MiCronjob
+                    break;
+                default:
+                    selectedDisplayType = ComponentDisplayType.BuildpackCronJob;
             }
+        } else if (type === ChoreoComponentType.ManualTrigger) {
+            switch (implementationType) {
+                case ChoreoImplementationType.Ballerina:
+                    selectedDisplayType = ComponentDisplayType.ManualTrigger;
+                    break;
+                case ChoreoImplementationType.Docker:
+                    selectedDisplayType = ComponentDisplayType.ByocJob;
+                    break;
+                case ChoreoImplementationType.MicroIntegrator:
+                    selectedDisplayType = ComponentDisplayType.MiJob;
+                    break;
+                default:
+                    selectedDisplayType = ComponentDisplayType.BuildpackJob;
+            }
+        } else if (type === ChoreoComponentType.WebApplication) {
+            if (implementationType === ChoreoImplementationType.Docker) {
+                selectedDisplayType = ComponentDisplayType.ByocWebApp;
+            } else if (WebAppSPATypes.includes(implementationType as ChoreoBuildPackNames) || ChoreoBuildPackNames.StaticFiles.toString() == implementationType) {
+                selectedDisplayType = ComponentDisplayType.ByocWebAppDockerLess;
+            } else {
+                selectedDisplayType = ComponentDisplayType.BuildpackWebApp;
+            }
+        } else if (type === ChoreoComponentType.Webhook) {
+            selectedDisplayType = ComponentDisplayType.Webhook;
         }
 
         const componentParams: ChoreoComponentCreationParams = {
@@ -85,73 +105,49 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             displayType: selectedDisplayType,
             description: description ?? '',
             repositoryInfo: { org, repo, branch, subPath, gitProvider, bitbucketCredentialId },
-            accessibility
+            accessibility,
+            port: formData.port ? Number(formData.port) : 3000,
+            networkVisibility,
+            endpointContext,
+            serviceType
         };
 
-        if(formData?.type === ChoreoComponentType.Service ){
-            componentParams.serviceType = serviceType;
-        }
-
-        if(formData?.type === ChoreoComponentType.Webhook ){
-            componentParams.trigger = trigger;
-        }
-
-        const projectManager = ChoreoWebViewAPI.getInstance().getChoreoProjectManager();
-        if (mode === 'fromScratch') {
+        if (isBuildPackType) {
+            componentParams.implementationType = implementationType;
+            componentParams.languageVersion = formData.selectedBuildPackVersion;
+            const buildPack = formData.buildPackList.find(item => item.language === formData.implementationType);
+            componentParams.buildPackId = buildPack.id;
+            await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
+        } else if (type === ChoreoComponentType.WebApplication) {
+            componentParams.webAppConfig = formData.webAppConfig;
             if (implementationType === ChoreoImplementationType.Docker) {
-                const repoDetails: BYOCRepositoryDetails = {
-                    ...componentParams.repositoryInfo,
-                    dockerFile: subPath ? `${subPath}/Dockerfile` : 'Dockerfile',
-                    dockerContext: subPath,
-                }
-                componentParams.repositoryInfo = repoDetails;
-                componentParams.port = Number(port);
-                componentParams.networkVisibility = networkVisibility;
-                componentParams.endpointContext = endpointContext;
-
-                await ChoreoWebViewAPI.getInstance().createNonBalComponent(componentParams);
-            } else if (implementationType === ChoreoImplementationType.Ballerina) {
-                const response: any = await projectManager.createLocalComponent(componentParams);
-                if (response.message){
-                    throw new Error(`Failed to create component (${response.message})`);
-                }
-            }
-        } else {
-            if (type === ChoreoComponentType.WebApplication) {
-                componentParams.webAppConfig = formData.webAppConfig;
-                if(implementationType === ChoreoImplementationType.Docker){
-                    const repoDetails: BYOCRepositoryDetails = {
-                        ...componentParams.repositoryInfo,
-                        dockerFile,
-                        dockerContext,
-                    }
-                    componentParams.repositoryInfo = repoDetails;
-                    componentParams.port = formData.port ? Number(formData.port) : 3000;
-                }else{
-                    componentParams.webAppConfig.webAppType = implementationType;
-                }
-                await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
-            } else if (implementationType === ChoreoImplementationType.Docker) {
                 const repoDetails: BYOCRepositoryDetails = {
                     ...componentParams.repositoryInfo,
                     dockerFile,
                     dockerContext,
-                    openApiFilePath,
                 }
                 componentParams.repositoryInfo = repoDetails;
-                componentParams.port = Number(port);
-                componentParams.networkVisibility = networkVisibility;
-                componentParams.endpointContext = endpointContext;
-
-                await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
+                componentParams.port = formData.port ? Number(formData.port) : 3000;
             } else {
-                await projectManager.createLocalBalComponentFromExistingSource(componentParams);
+                componentParams.webAppConfig.webAppType = implementationType;
             }
-            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-                eventName: CREATE_COMPONENT_SUCCESS_EVENT,
-                properties: { type: formData?.type?.toString(), mode: formData?.mode }
-            });
+            await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
+        } else if (implementationType === ChoreoImplementationType.Docker) {
+            const repoDetails: BYOCRepositoryDetails = {
+                ...componentParams.repositoryInfo,
+                dockerFile,
+                dockerContext,
+                openApiFilePath,
+            }
+            componentParams.repositoryInfo = repoDetails;
+            await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
+        } else {
+            await ChoreoWebViewAPI.getInstance().createBalLocalComponentFromExistingSource(componentParams);
         }
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: CREATE_COMPONENT_SUCCESS_EVENT,
+            properties: { type: formData?.type?.toString() }
+        });
 
         if (!isMonoRepo) {
             const repoDetails: GitRepo = { provider: gitProvider, orgName: org, repoName: repo };
@@ -164,20 +160,19 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
     } catch (err: any) {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: CREATE_COMPONENT_FAILURE_EVENT,
-            properties: { type: formData?.type?.toString(), mode: formData?.mode, cause: err.message }
+            properties: { type: formData?.type?.toString(), cause: err.message }
         });
         throw new Error(err)
     }
 };
 
 
-export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMode }> = (props) => {
-    const { loginStatus, choreoProject } = useChoreoWebViewContext();
+export const ComponentWizard: React.FC = () => {
+    const { loginStatus, choreoProject, selectedOrg } = useChoreoWebViewContext();
 
     const initialState: WizardState<Partial<ComponentWizardState>> = {
         currentStep: 0,
         formData: {
-            mode: props.componentCreateMode,
             name: '',
             accessibility: "external",
             networkVisibility: "Project",
@@ -239,10 +234,21 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         })
     }, [choreoProject])
 
-    const { formData: { type, mode, implementationType, repository } } = state;
+    const { formData: { type, repository } } = state;
+
+    const { data: buildPackList, isLoading: buildPacksLoading } = useQuery(
+        ["getBuildPacks", selectedOrg, state.formData?.type],
+        async () => {
+            return ChoreoWebViewAPI.getInstance().getBuildpack({
+                componentType: state.formData.type,
+                orgId: selectedOrg.id,
+            })
+        },
+        { enabled: !!state.formData?.type && !!selectedOrg?.id }
+    );
 
     useQuery(
-        ["readEndpointsYaml", repository?.dockerContext, type, mode],
+        ["readEndpointsYaml", repository?.dockerContext, type],
         async () => {
             const endpointData =
                 await ChoreoWebViewAPI.getInstance().readEndpointsYaml({
@@ -256,7 +262,6 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
         {
             enabled:
                 type === ChoreoComponentType.Service &&
-                mode === "fromExisting" &&
                 !!repository?.dockerContext,
             refetchOnWindowFocus: false,
             onSuccess: (data) => {
@@ -283,32 +288,26 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
 
     let steps = [ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep];
     if (type === ChoreoComponentType.Service) {
-        steps = [ComponentTypeStep, ServiceTypeStep, ComponentDetailsStep, ConfigureRepoStep];
-
-        if (implementationType === ChoreoImplementationType.Docker) {
-            steps = [...steps, EndpointConfigStep]
-        }
-    } else if (type === ChoreoComponentType.Webhook) {
-        steps = [ComponentTypeStep, TriggerConfigStep, ComponentDetailsStep, ConfigureRepoStep];
+        steps = [...steps, EndpointConfigStep]
     }
 
     return (
         <>
             {loginStatus === "LoggedIn" ?
                 <Wizard
-                    title={mode === 'fromScratch' ? "Create a new component" : "Bring in an existing component"}
+                    title="Create a new component"
                     steps={steps}
-                    state={state}
+                    state={{
+                        ...state,
+                        formData: { ...state.formData, buildPackList, buildPacksLoading }
+                    }}
                     setState={setState}
                     validationRules={[]}
                     onSave={handleComponentCreation}
                     onCancel={(formData) => {
                         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
                             eventName: CREATE_COMPONENT_CANCEL_EVENT,
-                            properties: {
-                                type: formData?.type?.toString(),
-                                mode: formData?.mode,
-                            }
+                            properties: { type: formData?.type }
                         });
                     }}
                     saveButtonText="Create"

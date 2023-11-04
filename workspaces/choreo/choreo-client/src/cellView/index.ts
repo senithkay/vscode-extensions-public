@@ -13,3 +13,4 @@
 export * from "./cell-view-client";
 export * from "./types";
 export * from "./rpc";
+export * from "./utils";

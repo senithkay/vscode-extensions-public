@@ -39,7 +39,7 @@ import {
     GetComponentBuildStatusParams,
     DeleteProjectParams,
     PerformanceForecastDataRequest,
-    GetSwaggerExamplesRequest,
+    GetSwaggerExamplesRequest, CreateBuildpackComponentParams, CreateMiComponentParams,
 } from "./types";
 import {
     getRepoMetadataQuery,
@@ -52,7 +52,7 @@ import {
     getEndpointsForVersion,
     getProjectsByOrgIdQuery,
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation, getCreateWebAppBYOCComponentMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation, getCreateWebAppBYOCComponentMutation, getCreateBuildpackComponentMutation, getCreateMiComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -220,6 +220,30 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     async createWebAppByocComponent(params: CreateByocComponentParams): Promise<Component> {
         const mutation = getCreateWebAppBYOCComponentMutation(params);
+        try {
+            const client = await this._getClient(params.orgId);
+            const data = await client.request(mutation);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async createBuildPackComponent(params: CreateBuildpackComponentParams): Promise<Component> {
+        const mutation = getCreateBuildpackComponentMutation(params);
+        try {
+            const client = await this._getClient(params.orgId);
+            const data = await client.request(mutation);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    
+
+    async createMiComponent(params: CreateMiComponentParams): Promise<Component> {
+        const mutation = getCreateMiComponentMutation(params);
         try {
             const client = await this._getClient(params.orgId);
             const data = await client.request(mutation);

@@ -346,8 +346,14 @@ export class ChoreoExtensionApi {
         return ProjectRegistry.getInstance().getPerformanceForecast(orgId!, orgHandle!, data);
     }
 
-    public async getSwaggerExamples(orgId: number, orgHandle: string, spec: any): Promise<AxiosResponse> {
-        return ProjectRegistry.getInstance().getSwaggerExamples(orgId, orgHandle, spec);
+    public async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
+        const orgId = ext.api.getOrgIdOfCurrentProject();
+
+        if (!orgId) {
+            throw Error("Current project is not a Choreo project");
+        }
+        const orgHandle = ext.api.getOrgById(orgId)?.handle;
+        return ProjectRegistry.getInstance().getSwaggerExamples(orgId, orgHandle!, spec);
     }
 
     public async enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined> {
