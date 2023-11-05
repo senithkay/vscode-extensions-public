@@ -14,8 +14,8 @@ import { getOpposingPort } from "./utils";
 import { EMPTY_NODE } from "../../resources";
 import { EmptyModel } from "../Cell/EmptyNode/EmptyModel";
 import { CellBounds } from "../Cell/CellNode/CellModel";
-import { getCellPortMetadata } from "../Cell/CellNode/cell-util";
-import { getEmptyNodeName } from "../Cell/EmptyNode/empty-node-util";
+import { getCellPortMetadata } from "../Cell/cell-util";
+import { getEmptyNodeName } from "../Cell/cell-util";
 import { Observations } from "../../types";
 
 export class SharedLinkModel extends DefaultLinkModel {

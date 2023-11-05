@@ -7,16 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext } from "react";
-import { FullScreenIcon, FitScreenIcon, AddIcon, RemoveIcon, WarningIcon, RefreshIcon } from "../../resources/assets/icons";
+import React, { useEffect, useRef } from "react";
+import { FullScreenIcon, FitScreenIcon, AddIcon, RemoveIcon, RefreshIcon } from "../../resources/assets/icons";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
-import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { CanvasControlButton } from "./ControlButtons/ControlButton";
+import gsap from "gsap";
 
 interface ControlProps {
     engine: DiagramEngine;
-    showProblemPanel: () => void;
+    animation?: boolean;
     refreshDiagram?: () => void;
 }
 
@@ -32,8 +32,23 @@ export const ControlPanel: React.FC<any> = styled.div`
 `;
 
 export function DiagramControls(props: ControlProps) {
-    const { engine, refreshDiagram, showProblemPanel } = props;
-    const { hasDiagnostics } = useContext(DiagramContext);
+    const { engine, animation = true, refreshDiagram } = props;
+    const controlPanelRef = useRef(null);
+
+    useEffect(() => {
+        if (animation) {
+            gsap.fromTo(
+                controlPanelRef.current,
+                { scale: 0 },
+                {
+                    scale: 1,
+                    duration: 1,
+                    ease: "power3.out",
+                    delay: 4,
+                }
+            );
+        }
+    }, []);
 
     const onZoom = (zoomIn: boolean) => {
         const delta: number = zoomIn ? +5 : -5;
@@ -51,13 +66,7 @@ export function DiagramControls(props: ControlProps) {
     };
 
     return (
-        <ControlPanel>
-            {hasDiagnostics && (
-                <CanvasControlButton onClick={showProblemPanel} tooltipTitle={"Diagnostics were detected in the model."}>
-                    <WarningIcon />
-                </CanvasControlButton>
-            )}
-
+        <ControlPanel ref={controlPanelRef}>
             {refreshDiagram && (
                 <CanvasControlButton onClick={refreshDiagram} tooltipTitle={"Refresh"}>
                     <RefreshIcon />
