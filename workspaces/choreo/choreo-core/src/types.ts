@@ -56,6 +56,29 @@ export interface Project {
     gitProvider?: string,
 }
 
+export interface Buildpack {
+    id: string;
+    buildpackImage: string;
+    language: string;
+    supportedVersions: string;
+    displayName: string;
+    isDefault: true;
+    versionEnvVariable: string;
+    iconUrl: string;
+    provider: string;
+    builder: {
+        id: string;
+        builderImage: string;
+        displayName: string;
+        imageHash: string;
+    };
+    componentTypes: {
+        id: string;
+        displayName: string;
+        type: string
+    }[];
+}
+
 export interface ComponentCount {
     orgId: number; 
     componentCount: number;
@@ -334,6 +357,7 @@ export enum ComponentDisplayType {
     ByocCronjob = 'byocCronjob',
     ByocJob = 'byocJob',
     GraphQL = 'graphql',
+    ThirdPartyAPI = 'thirdPartyAPI',
     ByocWebApp = 'byocWebApp',
     ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
     ByocRestApi = 'byocRestApi',
@@ -343,6 +367,22 @@ export enum ComponentDisplayType {
     Service = 'ballerinaService',
     ByocService = 'byocService',
     MiApiService = 'miApiService',
+    MiCronjob = 'miCronjob',
+    MiJob = 'miJob',
+    ByoiService = 'byoiService',
+    ByoiJob = 'byoiJob',
+    ByoiCronjob = 'byoiCronjob',
+    ByoiWebApp = 'byoiWebApp',
+    ByocTestRunner = 'byocTestRunner',
+    BuildpackService = 'buildpackService',
+    BuildpackWebhook = 'buildpackWebhook',
+    BuildpackJob = 'buildpackJob',
+    BuildpackTestRunner = 'buildpackTestRunner',
+    BuildpackCronJob = 'buildpackCronjob',
+    BuildpackWebApp = 'buildpackWebApp',
+    BuildRestApi = 'buildpackRestApi',
+    PostmanTestRunner = 'byocTestRunnerDockerfileLess',
+    BallerinaEventHandler = 'ballerinaEventHandler',
 }
 
 export interface ComponentWizardWebAppConfig {
@@ -379,18 +419,53 @@ export interface WorkspaceComponentMetadata {
         srcGitRepoUrl: string;
         srcGitRepoBranch: string;
     },
+    buildpackConfig?: {
+        buildContext: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+        languageVersion: string;
+        buildpackId: string;
+    },
     byocWebAppsConfig?: ComponentWizardWebAppConfig;
     port?: number;
 }
 
 export enum ChoreoImplementationType {
-    Ballerina = "Ballerina",
-    Docker = "Docker",
-    React = 'React',
-    Angular = 'Angular',
-    Vue = 'Vuejs',
-    StaticFiles = 'StaticFiles',
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    Java = "java",
+    Python = "python",
+    NodeJS = "nodejs",
+    Go = "go",
+    PHP = "php",
+    Ruby = "ruby",
+    MicroIntegrator = "microintegrator",
 }
+
+export enum ChoreoBuildPackNames {
+    Ballerina = "ballerina",
+    Docker = "docker",
+    React = "react",
+    Angular = "angular",
+    Vue = "vuejs",
+    StaticFiles = "staticweb",
+    MicroIntegrator = "microintegrator",
+}
+
+export enum GoogleProviderBuildPackNames {
+    JAVA = "java",
+    NODEJS = "nodejs",
+    PYTHON = "python",
+    GO = "go",
+    RUBY = "ruby",
+    PHP = "php",
+}
+
+export const WebAppSPATypes = [ChoreoBuildPackNames.React, ChoreoBuildPackNames.Vue, ChoreoBuildPackNames.Angular]
 
 export enum ChoreoServiceType {
     RestApi = "REST",
@@ -398,12 +473,14 @@ export enum ChoreoServiceType {
     GRPC = "GRPC"
 }
 
+export const ChoreoServiceTypeList = [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL, ChoreoServiceType.GRPC]
+
 export enum ChoreoComponentType {
     Service = 'service',
     ScheduledTask = 'scheduledTask',
     ManualTrigger = 'manualTrigger',
     Webhook = 'webhook',
-    WebApplication = 'webApplication'
+    WebApplication = 'webApp'
 }
 
 export interface ChoreoComponentCreationParams {
@@ -427,6 +504,12 @@ export interface ChoreoComponentCreationParams {
     networkVisibility?: ComponentNetworkVisibility;
     /** Relevant for non-ballerina rest and gql APIs */
     endpointContext?: string;
+    /** Relevant for build pack types */
+    implementationType?: string;
+    /** Version of the build pack language */
+    languageVersion?: string;
+    /** ID of the selected buildpack */
+    buildPackId?: string;
 }
 
 export interface TriggerDetails {
@@ -472,6 +555,7 @@ export interface getLocalComponentDirMetaDataRequest {
     dockerFilePath?: string;
     dockerContextPath?: string;
     openApiFilePath?: string;
+    buildPackId?: string;
 }
 
 export interface getLocalComponentDirMetaDataRes {
@@ -481,18 +565,38 @@ export interface getLocalComponentDirMetaDataRes {
     isSubPathEmpty: boolean;
     hasBallerinaTomlInPath: boolean;
     hasBallerinaTomlInRoot: boolean;
-    hasEndpointsYaml: boolean;
+    hasComponentYaml: boolean;
     dockerFilePathValid: boolean;
     isDockerContextPathValid: boolean;
+    isBuildpackPathValid: boolean;
+    hasPomXmlInPath: boolean;
+    hasPomXmlInInRoot: boolean;
 }
 
-export interface Endpoint {
+export interface InboundConfig {
     name: string;
     port: number;
     type?: string;
-    networkVisibility?: string;
     context?: string;
     schemaFilePath?: string;
+}
+
+export interface Endpoint extends InboundConfig {
+    networkVisibility?: string;
+}
+
+export interface Inbound extends InboundConfig {
+    visibility?: string;
+}
+
+export interface Outbound {
+    serviceReferences: ServiceReference[];
+}
+
+export interface ComponentMetadata {
+    name: string;
+    projectName: string;
+    annotations: Record<string, string>;
 }
 
 export enum DeploymentStatus {
@@ -509,7 +613,6 @@ export enum Status {
     ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }
 
-export type ComponentCreateMode = "fromScratch" | "fromExisting";
 
 export enum GitProvider {
     GITHUB = 'github',
@@ -536,4 +639,182 @@ export enum ServiceTypes {
     WEBHOOK = "Webhook",
     WEBAPP = "WebApp",
     OTHER = "other"
+}
+
+export interface ServiceReferenceEnv {
+    from: string;
+    to: string;
+}
+
+export interface ServiceReference {
+    name: string;
+    connectionConfig: string;
+    connectionType: string;
+    env?: ServiceReferenceEnv[];
+}
+
+export interface ConfigurationKey {
+    name: string;
+    envName: string;
+    volume?: {
+        mountPath: string;
+    };
+}
+
+export interface ConfigurationGroupEnv {
+    from: string;
+    to: string;
+}
+
+export interface ConfigurationGroupFile {
+    from: string;
+    to: string;
+}
+
+export interface ConfigurationGroup {
+    name: string;
+    env?: ConfigurationGroupEnv[];
+    volume?: {
+        mountPath: string;
+        files: ConfigurationGroupFile[];
+    };
+}
+
+export interface Build {
+    branch: string;
+    revision?: string;
+}
+
+export interface Image {
+    registry: string;
+    repository: string;
+    tag: string;
+}
+
+export interface ComponentConfig {
+    apiVersion: string;
+    kind: string;
+    metadata: {
+        name: string;
+        projectName: string;
+    };
+    spec: {
+        build?: Build;
+        image?: Image;
+        inbound?: Inbound[];
+        outbound?: Outbound;
+        configurations?: {
+            keys?: ConfigurationKey[];
+            groups?: ConfigurationGroup[];
+        };
+    };
+}
+
+export interface ComponentConfigSchema {
+    $schema?: string;
+    $id?: string;
+    title?: string;
+    description?: string;
+    type: string;
+    properties?: {
+        [key: string]: ComponentConfigSchema;
+    };
+    definitions?: {
+        [key: string]: ComponentConfigSchema;
+    };
+    allOf?: [
+        {
+            [key: string]: ComponentConfigSchema;
+        }
+    ];
+    default?: string;
+    const?: string;
+    enum?: string[];
+    pattern?: string;
+    format?: string;
+    minLength?: number;
+    items?: ComponentConfigSchema;
+    required?: string[];
+    $ref?: string;
+}
+
+export interface ComponentYamlContent {
+    apiVersion: "core.choreo.dev/v1alpha1";
+    kind: "ComponentConfig";
+    metadata: ComponentMetadata;
+    spec: {
+      build?: { branch: string; revision?: string };
+      image?: { registry: string; repository: string; tag: string };
+      inbound?: Inbound[];
+      outbound?: Outbound;
+      configurations?: {
+        keys?: {
+          name: string;
+          envName?: string;
+          volume?: { mountPath: string };
+        }[];
+        groups?: {
+          name: string;
+          env?: { from: string; to: string }[];
+          volume?: { mountPath: string; files: { from: string; to: string }[] }[];
+        }[];
+      };
+    };
+  }
+  
+
+  export enum CellComponentType {
+    SERVICE = 'service',
+    WEB_APP = 'web-app',
+    SCHEDULED_TASK = 'scheduled-task',
+    MANUAL_TASK = 'manual-task',
+    API_PROXY = 'api-proxy',
+    WEB_HOOK = 'web-hook',
+    EVENT_HANDLER = 'event-handler',
+    TEST = 'test',
+  }
+  
+
+export function getGeneralizedCellComponentType(
+    type: ComponentDisplayType
+  ): CellComponentType {
+    switch (type) {
+        case ComponentDisplayType.RestApi:
+        case ComponentDisplayType.Service:
+        case ComponentDisplayType.ByocService:
+        case ComponentDisplayType.GraphQL:
+        case ComponentDisplayType.MiApiService:
+        case ComponentDisplayType.MiRestApi:
+        case ComponentDisplayType.BuildpackService:
+        case ComponentDisplayType.BuildRestApi:
+        case ComponentDisplayType.Websocket:
+            return CellComponentType.SERVICE;
+        case ComponentDisplayType.ManualTrigger:
+        case ComponentDisplayType.ByocJob:
+        case ComponentDisplayType.BuildpackJob:
+        case ComponentDisplayType.MiJob:
+            return CellComponentType.MANUAL_TASK;
+        case ComponentDisplayType.ScheduledTask:
+        case ComponentDisplayType.ByocCronjob:
+        case ComponentDisplayType.BuildpackCronJob:
+        case ComponentDisplayType.MiCronjob:
+            return CellComponentType.SCHEDULED_TASK;
+        case ComponentDisplayType.Webhook:
+        case ComponentDisplayType.ByocWebhook:
+        case ComponentDisplayType.BuildpackWebhook:
+            return CellComponentType.WEB_HOOK;
+        case ComponentDisplayType.Proxy:
+            return CellComponentType.API_PROXY;
+        case ComponentDisplayType.ByocWebApp:
+        case ComponentDisplayType.ByocWebAppDockerLess:
+        case ComponentDisplayType.BuildpackWebApp:
+            return CellComponentType.WEB_APP;
+        case ComponentDisplayType.MiEventHandler:
+        case ComponentDisplayType.BallerinaEventHandler:
+            return CellComponentType.EVENT_HANDLER;
+        case ComponentDisplayType.BuildpackTestRunner:
+            return CellComponentType.TEST;
+        default:
+            return CellComponentType.SERVICE;
+    }
 }

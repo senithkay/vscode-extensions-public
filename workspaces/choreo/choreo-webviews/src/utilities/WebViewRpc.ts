@@ -35,7 +35,6 @@ import {
     isChoreoProject,
     getChoreoProject,
     PushLocalComponentsToChoreo,
-    OpenArchitectureView,
     OpenCellView,
     UpdateProjectOverview,
     isSubpathAvailable,
@@ -100,13 +99,17 @@ import {
     GoToSource,
     IsBallerinaExtInstalled,
     RefreshWorkspaceNotification,
+    Buildpack,
+    GetBuildPackParams,
+    GetBuildpack,
+    CreateBalLocalComponentFromExistingSource,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 import { ChoreoProjectManagerRPCWebview } from "@wso2-enterprise/choreo-client/lib/manager/rpc/manager-client-rpc-webview";
-
+import { ChoreoCellViewRPCWebview } from "@wso2-enterprise/choreo-client/lib/cellView/rpc/cell-view-client-rpc-webview";
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
 export class ChoreoWebViewAPI {
@@ -116,6 +119,7 @@ export class ChoreoWebViewAPI {
     private _projectClientRpc: ChoreoProjectClientRPCWebView;
     private _githubAppClient: ChoreoGithubAppClientRPCWebView;
     private _choreoProjectManager: ChoreoProjectManagerRPCWebview;
+    private _choreoCellView: ChoreoCellViewRPCWebview;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
@@ -123,6 +127,7 @@ export class ChoreoWebViewAPI {
         this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
         this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
         this._choreoProjectManager = new ChoreoProjectManagerRPCWebview(this._messenger);
+        this._choreoCellView = new ChoreoCellViewRPCWebview(this._messenger);
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -253,6 +258,14 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(CreateNonBalLocalComponentFromExistingSource, HOST_EXTENSION, params);
     }
 
+    public async createBalLocalComponentFromExistingSource(params: ChoreoComponentCreationParams): Promise<void> {
+        return this._messenger.sendRequest(CreateBalLocalComponentFromExistingSource, HOST_EXTENSION, params);
+    }
+
+    public async getBuildpack(params: GetBuildPackParams): Promise<Buildpack[]> {
+        return this._messenger.sendRequest(GetBuildpack, HOST_EXTENSION, params);
+    }
+
     public async getChoreoProject(): Promise<Project | undefined> {
         return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
     }
@@ -267,10 +280,6 @@ export class ChoreoWebViewAPI {
 
     public async goToSource(filePath: string): Promise<void> {
         return this._messenger.sendRequest(GoToSource, HOST_EXTENSION, filePath);
-    }
-
-    public async openArchitectureView(): Promise<void> {
-        return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
     public async openCellView(): Promise<void> {
@@ -319,6 +328,10 @@ export class ChoreoWebViewAPI {
 
     public getChoreoProjectManager(): ChoreoProjectManagerRPCWebview {
         return this._choreoProjectManager;
+    }
+
+    public getChoreoCellView(): ChoreoCellViewRPCWebview {
+        return this._choreoCellView;
     }
 
     public closeWebView() {
