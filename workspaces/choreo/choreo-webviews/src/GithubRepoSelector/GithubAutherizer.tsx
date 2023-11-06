@@ -40,7 +40,7 @@ export function GithubAutherizer() {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
     };
 
-    const showAuthorizeButton = ghStatus.status === "not-authorized";
+    const showAuthorizeButton = ghStatus.status === "not-authorized" || ghStatus.status === "error";
     const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress";
     let loaderMessage = "Authenticating...";
     if (ghStatus.status === "auth-inprogress") {
