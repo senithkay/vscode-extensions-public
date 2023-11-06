@@ -12,7 +12,7 @@ import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams"
 import { EmptyModel } from "./EmptyModel";
 import { EmptyNode } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
-import { getNodePortId } from "../CellNode/cell-util";
+import { getNodePortId } from "../cell-util";
 
 interface EmptyWidgetProps {
     node: EmptyModel;

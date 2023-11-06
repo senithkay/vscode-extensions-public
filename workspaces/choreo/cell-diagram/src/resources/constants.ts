@@ -53,6 +53,12 @@ export const EMPTY_NODE = "emptyNode";
 export const EXTERNAL_NODE = "externalNode";
 export const BORDER_NODE = "borderNode";
 
+// link types
+export const COMPONENT_LINK = "componentLink";
+export const CONNECTION_LINK = "connectionLink";
+export const CELL_LINK = "cellLink";
+export const EXTERNAL_LINK = "externalLink";
+
 // node dimensions
 export const MAIN_CELL_DEFAULT_HEIGHT = 500;
 export const CELL_LINE_MIN_WIDTH = 3;

@@ -920,7 +920,7 @@ export class ProjectRegistry {
             orgId,
             orgUuid,
             componentType
-        }
+        };
         const buildPacks = await ext.clients.devopsClient.getBuildPacks(params);
         return buildPacks;
     }

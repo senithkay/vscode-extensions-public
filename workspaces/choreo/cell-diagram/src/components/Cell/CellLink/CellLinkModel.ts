@@ -11,7 +11,7 @@ import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { Point } from "@projectstorm/geometry";
 import { SharedLinkModel } from "../../shared-link/shared-link";
 import { CellBounds } from "../CellNode/CellModel";
-import { getEmptyNodeName } from "../EmptyNode/empty-node-util";
+import { getEmptyNodeName } from "../cell-util";
 
 interface LinkOrigins {
     nodeId: string;
