@@ -40,14 +40,12 @@ import { ProjectRegistry } from './registry/project-registry';
 
 import { getLogger } from './logger/logger';
 
-import * as fs from "fs";
 import * as path from "path";
 
-import { enrichConfigSchema, enrichDeploymentData, regexFilePathChecker, getComponentDirPath, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
+import { enrichDeploymentData, getComponentDirPath, getResourcesFromOpenApiFile, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
 import { OPEN_CHOREO_ACTIVITY, SELECTED_GLOBAL_ORG_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 import * as yaml from 'js-yaml';
-import { Cache } from './cache';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -68,8 +66,6 @@ export class ChoreoExtensionApi {
 
     private _choreoInstallationOrgId: number | undefined;
 
-    private _componentConfigCache: Cache<ComponentConfig[], [number, string, string]>;
-
     private _onStatusChanged = new EventEmitter<ChoreoLoginStatus>();
     public onStatusChanged = this._onStatusChanged.event;
 
@@ -87,10 +83,6 @@ export class ChoreoExtensionApi {
     public onRefreshWorkspaceMetadata = this._onRefreshWorkspaceMetadata.event;
 
     constructor() {
-        this._componentConfigCache = new Cache<ComponentConfig[], [number, string, string]>({
-            getDataFunc: (orgId: number, projectHandler: string, componentName: string) => 
-            ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
-        });
         this._status = STATUS_INITIALIZING;
     }
 
@@ -585,55 +577,5 @@ export class ChoreoExtensionApi {
         }
 
         return undefined;
-    }
-
-    public async setupYamlLangugeServer(project?: Project, component?: string): Promise<void> {
-        const yamlExtension = extensions.getExtension("redhat.vscode-yaml");
-        if (!yamlExtension) {
-            window.showErrorMessage(
-                'The "YAML Language Support by Red Hat" extension is required for the Choreo Component Configuration to work properly. Please install it and reload the window.'
-            );
-            return;
-        }
-        const yamlExtensionAPI = await yamlExtension.activate();
-        const SCHEMA = "choreo";
-    
-        // Read the schema file content
-        const schemaFilePath = path.join(ext.context.extensionPath, "schema", "config-schema.json");
-    
-        const schemaContent = fs.readFileSync(schemaFilePath, "utf8");
-        let schemaContentJSON = JSON.parse(schemaContent) as ComponentConfigSchema;
-
-        if (!!project && !!component) {
-            const componentConfigKey = `${project.orgId}-${project.handler}-${component}`;
-            const componentConfigs = await this._componentConfigCache.get(componentConfigKey, parseInt(project.orgId), project.handler, component);
-            if (componentConfigs) {
-                schemaContentJSON = enrichConfigSchema(schemaContentJSON, component, project.handler, componentConfigs);
-            }
-        }
-
-        const schemaJSON = JSON.stringify(schemaContentJSON);
-
-        function onRequestSchemaURI(resource: string): string | undefined {
-            if (regexFilePathChecker(resource, /\.choreo\/component\.yaml$/)) {
-                return `${SCHEMA}://schema/component-config`;
-            }
-            return undefined;
-        }
-    
-        function onRequestSchemaContent(schemaUri: string): string | undefined {
-            const parsedUri = Uri.parse(schemaUri);
-            if (parsedUri.scheme !== SCHEMA) {
-                return undefined;
-            }
-            if (!parsedUri.path || !parsedUri.path.startsWith("/")) {
-                return undefined;
-            }
-    
-            return schemaJSON;
-        }
-    
-        // Register the schema provider
-        yamlExtensionAPI.registerContributor(SCHEMA, onRequestSchemaURI, onRequestSchemaContent, "apiVersion:core.choreo.dev/v1alpha1");
     }
 }

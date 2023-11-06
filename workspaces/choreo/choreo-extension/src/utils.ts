@@ -193,12 +193,7 @@ export function regexFilePathChecker(path: string, regex: RegExp): boolean {
     return regex.test(path);
 }
 
-export function enrichConfigSchema(
-    schema: ComponentConfigSchema,
-    project: string,
-    component: string,
-    componentConfigs: ComponentConfig[]
-): ComponentConfigSchema {
+export function enrichComponentSchema(schema: ComponentConfigSchema, component: string, project: string, componentConfigs: ComponentConfig[]): ComponentConfigSchema {
     schema.definitions!.name.const = component;
     schema.definitions!.projectName.const = project;
 

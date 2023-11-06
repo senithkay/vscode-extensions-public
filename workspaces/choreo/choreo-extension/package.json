@@ -29,8 +29,12 @@
     "languages": [
       {
         "id": "yaml",
-        "aliases": ["Component Configuration"],
-        "extensions": [".yaml"],
+        "aliases": [
+          "Component Configuration"
+        ],
+        "extensions": [
+          ".yaml"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
