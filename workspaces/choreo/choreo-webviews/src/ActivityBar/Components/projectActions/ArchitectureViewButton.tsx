@@ -13,7 +13,7 @@
 import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
-import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit/lib/components/Button";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { ArchitectureViewIcon } from "../../../icons";
 

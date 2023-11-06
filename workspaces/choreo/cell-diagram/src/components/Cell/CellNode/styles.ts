@@ -19,7 +19,7 @@ interface StyleProps {
     borderWidth: number;
 }
 
-export const CellNode: React.FC<StyleProps> = styled.div`
+export const CellNode = styled.div<StyleProps>`
     width: ${(props: StyleProps) => props.height}px;
     height: ${(props: StyleProps) => props.height}px;
 

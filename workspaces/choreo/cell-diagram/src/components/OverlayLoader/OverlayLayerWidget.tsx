@@ -11,7 +11,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import styled from '@emotion/styled';
 
 import { OverlayLayerModel } from './OverlayLayerModel';
-import { SmallProgressRing } from '@wso2-enterprise/ui-toolkit';
+import { SmallProgressRing } from '@wso2-enterprise/ui-toolkit/lib/styles';
 
 export interface NodeLayerWidgetProps {
 	layer: OverlayLayerModel;

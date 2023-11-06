@@ -20,7 +20,7 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import {
     ContextMenu, MenuItem,
-} from "@wso2-enterprise/ui-toolkit";
+} from "@wso2-enterprise/ui-toolkit/lib/components/ContextMenu";
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";

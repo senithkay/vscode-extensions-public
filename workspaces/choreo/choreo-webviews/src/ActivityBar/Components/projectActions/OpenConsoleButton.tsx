@@ -14,7 +14,8 @@ import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
-import { Button, IconLabel, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit/lib/components/Button";
+import { Icon } from "@wso2-enterprise/ui-toolkit/lib/components/Icon";
 
 export const OpenConsoleButton = () => {
     const { choreoProject, choreoUrl, currentProjectOrg } = useChoreoWebViewContext();

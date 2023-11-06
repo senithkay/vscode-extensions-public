@@ -15,7 +15,7 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { Overlay } from "../Commons/Overlay";
-import { Codicon } from "../Codicon/Codicon";
+import { Codicon } from "../Codicon";
 import { SmallProgressRing } from "../../styles/ProgressRing";
 
 

@@ -18,7 +18,7 @@ import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField";
 import { AngularIcon, BallerinaIcon, DockerIcon, ReactIcon, StaticFileIcon, VuejsIcon } from "../icons";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 

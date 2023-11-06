@@ -12,7 +12,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { SeachBox, SeachBoxProps } from "./SearchBox";
+import { SeachBox, SeachBoxProps } from ".";
 
 const Template: ComponentStory<typeof SeachBox> = (args: SeachBoxProps) => <SeachBox {...args} />;
 

@@ -8,7 +8,7 @@
  */
 
 import React, { ReactNode } from 'react';
-import { Button } from '@wso2-enterprise/ui-toolkit';
+import { Button } from '@wso2-enterprise/ui-toolkit/lib/components/Button';
 import { Colors } from '../../../resources';
 
 interface ControlButtonProps {

@@ -17,7 +17,7 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Codicon } from "../Codicon/Codicon";
-import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit/lib/components/AutoComplete";
 import { RepoBranchSelector } from "../RepoBranchSelector/RepoBranchSelector";
 
 const GhRepoSelectorContainer = styled.div`

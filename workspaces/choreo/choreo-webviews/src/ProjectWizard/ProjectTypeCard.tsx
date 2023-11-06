@@ -12,7 +12,8 @@
  */
 import React from "react";
 
-import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ComponentCard } from "@wso2-enterprise/ui-toolkit/lib/components/ComponentCard";
+import { Typography } from "@wso2-enterprise/ui-toolkit/lib/components/Typography";
 
 export interface ProjectTypeCardProps {
     isCurrentMonoRepo: boolean;

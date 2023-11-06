@@ -6,16 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { storiesOf } from "@storybook/react";
-
-import { ContextMenu } from ".";
-
-const ComponentStory = () => {
-
-    return (
-        <ContextMenu menuItems={[{id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}}]}/>
-    );
-};
-
-storiesOf("Context Menu").add("Menu", () => <ComponentStory />);
+export * from "./Colors";
+export * from "./ErrorBanner";
+export * from "./Overlay";
+export * from "./RequiredInput";

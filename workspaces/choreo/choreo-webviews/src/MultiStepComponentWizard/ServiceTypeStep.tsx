@@ -17,7 +17,7 @@ import { ChoreoServiceType } from "@wso2-enterprise/choreo-core";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ConfigCardList } from './ConfigCardList';
 import { ComponentWizardState } from "./types";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
+import { Typography } from "@wso2-enterprise/ui-toolkit/lib/components/Typography";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`

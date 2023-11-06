@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { CanvasControlButton } from "./ControlButtons/ControlButton";
-import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2-enterprise/ui-toolkit/lib/components/Icon";
 import { Colors } from "../../resources";
 
 interface ControlProps {

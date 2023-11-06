@@ -15,7 +15,7 @@ import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_CELL_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { CellViewIcon } from "../../../icons";
-import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit";
+import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit/lib/components/Button";
 
 export const CellViewButton = () => {
     const { currentProjectOrg, choreoProject } = useChoreoWebViewContext();

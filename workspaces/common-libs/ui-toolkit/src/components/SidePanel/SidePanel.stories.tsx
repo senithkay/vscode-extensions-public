@@ -8,11 +8,11 @@
  */
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
-import { SidePanel } from "./SidePanel";
+import { SidePanel } from ".";
 import { SidePanelBody, SidePanelTitleContainer } from "../../styles/SidePanel";
-import { Button } from "../Button/Button";
-import { Codicon } from "../Codicon/Codicon";
-import { ActionButtons } from "../ActionButtons/ActionButtons";
+import { Button } from "../Button";
+import { Codicon } from "../Codicon";
+import { ActionButtons } from "../ActionButtons";
 import { colors } from "../Commons/Colors";
 
 export default { component: SidePanel, title: "SidePanel" };

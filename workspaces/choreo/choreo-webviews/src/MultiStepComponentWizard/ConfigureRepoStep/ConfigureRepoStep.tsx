@@ -25,7 +25,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ProviderTypeCard } from "../../ProjectWizard/ProviderTypeCard";
 import { ChoreoComponentType, ChoreoImplementationType, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../../Codicon/Codicon";
-import { ProgressIndicator, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit/lib/components/ProgressIndicator";
+import { Typography } from "@wso2-enterprise/ui-toolkit/lib/components/Typography";
 import { SectionWrapper } from "../../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`

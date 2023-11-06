@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Icon, IconProps } from "./Icon";
+import { Icon, IconProps } from ".";
 
 const Template: ComponentStory<typeof Icon> = (args: IconProps) => <Icon {...args} />;
 

@@ -16,7 +16,8 @@ import { Container, DiagramContainer } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
 import "./utils/CanvasStyles.css"
-import { NavigationWrapperCanvasWidget, SmallProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit/lib/components/DiagramNavigationWrapper";
+import { SmallProgressRing } from "@wso2-enterprise/ui-toolkit/lib/styles";
 import { Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
 
