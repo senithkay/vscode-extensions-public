@@ -16,12 +16,28 @@
   ],
   "activationEvents": [
     "workspaceContains:.choreo-project",
+    "workspaceContains:**/component.yaml",
     "onView:choreo-projects",
     "onView:choreo-account",
     "onStartupFinished"
   ],
+  "extensionDependencies": [
+    "redhat.vscode-yaml"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "yaml",
+        "aliases": [
+          "Component Configuration"
+        ],
+        "extensions": [
+          ".yaml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
     "commands": [
       {
         "command": "wso2.choreo.sign.in",
@@ -201,7 +217,7 @@
           {
             "id": "createComponent",
             "title": "Create a component",
-            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n **Create from existing** \nCreate new components from existing. implementations by simply providing the source directory or the docker file. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)\n **Create from scratch** \nCreate new components from default templates available for Choreo users. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromScratch%27%20%7D%22)",
+            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n[Create New Component](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)",
             "media": {
               "markdown": "resources/walkthrough/createComponent.md"
             }
@@ -219,7 +235,7 @@
             "title": "Publish your project",
             "description": "To leverage the capabilities of Choreo, sync your local changes with Choreo.",
             "media": {
-              "markdown": "resources/walkthrough/PushToChoreo.md"
+              "markdown": "resources/walkthrough/pushToChoreo.md"
             }
           }
         ]
