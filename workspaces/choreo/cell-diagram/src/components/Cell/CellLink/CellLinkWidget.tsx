@@ -57,9 +57,9 @@ export function CellLinkWidget(props: WidgetProps) {
 
     return (
         <>
-            <g onMouseEnter={handleMouseOver} onMouseOut={handleMouseLeave} pointerEvents={"all"} className={CELL_LINK}>
+            <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={CELL_LINK}>
                 <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT} />
-                <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={30} />
+                <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
                 <path
                     id={link.getID()}
                     d={link.getCurvePath()}
