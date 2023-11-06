@@ -50,6 +50,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
             orientation={node.orientation}
+            class={"connection-node"}
         >
             <ConnectionHeadWidget
                 engine={engine}

@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentLinkModel } from "./ComponentLinkModel";
-import { Colors } from "../../../resources";
+import { COMPONENT_LINK, Colors } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 
 interface WidgetProps {
@@ -54,7 +54,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
     const middlePosition = link.getTooltipPosition();
 
     return (
-        <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"}>
+        <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={COMPONENT_LINK}>
             <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
             <path
                 id={link.getID()}

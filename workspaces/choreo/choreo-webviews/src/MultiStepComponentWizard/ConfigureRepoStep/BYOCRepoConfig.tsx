@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 
 import { cx } from "@emotion/css";
@@ -41,6 +41,8 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
     const { repository } = props.formData;
 
     const { choreoProject } = useChoreoWebViewContext();
+
+    const [folderNameError, setFolderNameError] = useState("");
 
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
         ["getLocalComponentDirMetaData", choreoProject, repository],
@@ -75,16 +77,28 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
         }));
     }
 
-    const dockerFileError = useMemo(() => {
-        if(localDirectorMetaData){
-            if (!localDirectorMetaData.dockerFilePathValid) {
-                return "There isn't such a Dockerfile in the repository";
+    useEffect(() => {
+        const updateFolderError = () => {
+            let folderError = '';
+            if(localDirectorMetaData){
+                if (!localDirectorMetaData.dockerFilePathValid) {
+                    folderError =  "There isn't such a Dockerfile in the repository";
+                }
+                if (localDirectorMetaData.dockerFilePathValid && !localDirectorMetaData.isDockerContextPathValid) {
+                    folderError = "Provide a valid path for docker context.";
+                }
             }
-            if (localDirectorMetaData.dockerFilePathValid && !localDirectorMetaData.isDockerContextPathValid) {
-                return "Provide a valid path for docker context.";
-            }
-        }
-    }, [repository, localDirectorMetaData]);
+
+            setFolderNameError(folderError);
+        };
+
+        updateFolderError();
+    }, [repository?.subPath, localDirectorMetaData]);
+
+    useEffect(() => {
+        const isDirectoryValid = !folderNameError;
+        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
+    }, [folderNameError]);
 
 
     const debouncedSetDockerFile = debounce(setDockerFile, 500);
@@ -99,7 +113,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                     value={repository?.dockerFile}
                 >
                     Docker File Path <RequiredFormInput />
-                    {dockerFileError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                    {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     <RepoFileOpenDialogInput
                         label="Browse"
                         repo={`${repository?.org}/${repository?.repo}`}
@@ -118,7 +132,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                     value={repository?.dockerContext}
                 >
                     Docker Context Path
-                    {dockerFileError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                    {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     <RepoFileOpenDialogInput
                         label="Browse"
                         repo={`${repository?.org}/${repository?.repo}`}
@@ -134,7 +148,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                 </VSCodeTextField>
             </StepContainer>
             {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
-            {dockerFileError && <ErrorBanner errorMsg={dockerFileError} />}
+            {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
         </div>
     );
 };

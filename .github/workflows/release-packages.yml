@@ -49,6 +49,8 @@ jobs:
     with:
       isPreRelease: ${{ inputs.isPreRelease }}
       enableCache: false
+      ballerina: false
+      choreo: false
       version: ${{ inputs.version }}
 
   Release:

@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
@@ -50,6 +50,8 @@ export const MIConfig = (props: MIConfigProps) => {
 
     const { choreoProject } = useChoreoWebViewContext();
 
+    const [folderNameError, setFolderNameError] = useState("");
+
     const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
         ["getLocalComponentDirMetaData", choreoProject, repository],
         () =>
@@ -70,20 +72,32 @@ export const MIConfig = (props: MIConfigProps) => {
             }
         }));
     }
-    
-    const folderNameError = useMemo(() => {
-        if(localDirectorMetaData){
-            if (repository?.subPath) {
-                if (!localDirectorMetaData.hasPomXmlInPath) {
-                    return `Provide a valid path to the Micro Integrator Project.`;
-                }
-            } else {
-                if (!localDirectorMetaData?.hasPomXmlInInRoot) {
-                    return "Repository root does not contain a valid Micro Integrator project"
+
+    useEffect(() => {
+        const updateFolderError = () => {
+            let folderError = '';
+            if (localDirectorMetaData) {
+                if (repository?.subPath) {
+                    if (!localDirectorMetaData.hasPomXmlInPath) {
+                        folderError = `Provide a valid path to the Micro Integrator Project.`;
+                    }
+                } else {
+                    if (!localDirectorMetaData?.hasPomXmlInInRoot) {
+                        folderError = "Repository root does not contain a valid Micro Integrator project"
+                    }
                 }
             }
-        }
-    }, [repository, localDirectorMetaData]);
+
+            setFolderNameError(folderError);
+        };
+
+        updateFolderError();
+    }, [repository?.subPath, localDirectorMetaData]);
+
+    useEffect(() => {
+        const isDirectoryValid = !folderNameError;
+        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
+    }, [folderNameError]);
 
     const updateSubFolderName = debounce(setFolderName, 500);
     
