@@ -19,6 +19,7 @@ const Container = styled.div`
     border-radius: 5px;
     display: flex;
     flex-direction: column;
+    width: 200px;
     gap: 8px;
 `;
 
@@ -33,6 +34,7 @@ const Row = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    font-family: "GilmerRegular";
 `;
 
 const TitleRow = styled.div`
