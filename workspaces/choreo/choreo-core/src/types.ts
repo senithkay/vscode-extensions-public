@@ -648,7 +648,7 @@ export interface ServiceReferenceEnv {
 
 export interface ServiceReference {
     name: string;
-    dependentConfig: string;
+    connectionConfig: string;
     connectionType: string;
     env?: ServiceReferenceEnv[];
 }
