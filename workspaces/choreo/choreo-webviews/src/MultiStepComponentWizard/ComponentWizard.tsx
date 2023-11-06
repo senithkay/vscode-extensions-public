@@ -104,7 +104,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             org: selectedOrg,
             displayType: selectedDisplayType,
             description: description ?? '',
-            repositoryInfo: { org, repo, branch, subPath, gitProvider, bitbucketCredentialId },
+            repositoryInfo: { org, repo, branch, subPath, gitProvider, bitbucketCredentialId, openApiFilePath },
             accessibility,
             port: formData.port ? Number(formData.port) : 3000,
             networkVisibility,
@@ -137,7 +137,6 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                 ...componentParams.repositoryInfo,
                 dockerFile,
                 dockerContext,
-                openApiFilePath,
             }
             componentParams.repositoryInfo = repoDetails;
             await ChoreoWebViewAPI.getInstance().createNonBalLocalComponentFromExistingSource(componentParams);
