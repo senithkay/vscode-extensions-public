@@ -13,6 +13,7 @@ import { ComponentLinkModel } from "./ComponentLinkModel";
 import { COMPONENT_LINK, Colors } from "../../../resources";
 import { Popover } from "@mui/material";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
+import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -25,7 +26,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
 
-    const open = link.observations?.length > 0 && Boolean(anchorEl);
+    const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
 
     useEffect(() => {
         const listener = link.registerListener({
@@ -94,7 +95,8 @@ export function ComponentLinkWidget(props: WidgetProps) {
                     pointerEvents: "none",
                 }}
             >
-                <ObservationLabel observations={link.observations} />
+                {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
+                {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
             </Popover>
         </>
     );

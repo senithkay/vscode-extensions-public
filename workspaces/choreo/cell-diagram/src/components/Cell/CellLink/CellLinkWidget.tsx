@@ -4,6 +4,7 @@ import { CellLinkModel } from "./CellLinkModel";
 import { CELL_LINK, Colors } from "../../../resources";
 import { Popover } from "@mui/material";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
+import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -16,7 +17,7 @@ export function CellLinkWidget(props: WidgetProps) {
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
 
-    const open = link.observations?.length > 0 && Boolean(anchorEl);
+    const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
 
     useEffect(() => {
         const listener = link.registerListener({
@@ -86,7 +87,8 @@ export function CellLinkWidget(props: WidgetProps) {
                     boxShadow: "0px 1px 3px rgba(0,0,0,0.1), 0px 1px 2px rgba(0,0,0,0.06)",
                 }}
             >
-                <ObservationLabel observations={link.observations} />
+                {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
+                {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
             </Popover>
         </>
     );

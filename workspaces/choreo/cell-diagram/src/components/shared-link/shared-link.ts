@@ -21,6 +21,7 @@ import { Observations } from "../../types";
 export class SharedLinkModel extends DefaultLinkModel {
     diagramEngine: DiagramEngine;
     observations: Observations[];
+    tooltip: string;
 
     constructor(id: string, type: string) {
         super({
@@ -211,5 +212,9 @@ export class SharedLinkModel extends DefaultLinkModel {
 
     setObservations = (observations: Observations[]) => {
         this.observations = observations;
+    };
+
+    setTooltip = (tooltip: string) => {
+        this.tooltip = tooltip;
     };
 }
