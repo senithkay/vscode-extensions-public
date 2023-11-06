@@ -1,15 +1,32 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ * 
+ */
+
 const tsMorph = require("ts-morph");
 const fs = require("fs");
 const path = require("path");
 
 
 // Path to the TypeScript file
-let tsFilePath = "";
+// TO DEBUG ASSIGN A TYPE LOCATION AND RUN DEBUG
+let rpcTypeTsFile = "";
 
-const argument = process.env.npm_config_path || tsFilePath;
+const CORE_RPC_TYPE_DIR = '../ballerina-core/src/rpc-types';
+const EXT_RPC_MANAGER_DIR = '../ballerina-extension/src/rpc-managers';
+const RPC_CLIENT_DIR = '../ballerina-rpc-client/src/rpc-clients';
+
+const CORE_MODULE_NAME = '@wso2-enterprise/ballerina-core';
+
+const argument = process.env.npm_config_path || rpcTypeTsFile;
 if (argument) {
-    const tsFileDirPath = path.resolve(__dirname, `../ballerina-core/src/rpc-types/${argument}`);
-    tsFilePath = tsFileDirPath;
+    const tsFileDirPath = path.resolve(__dirname, `${CORE_RPC_TYPE_DIR}/${argument}`);
+    rpcTypeTsFile = tsFileDirPath;
 } else {
     console.log("No path provided for ballerina-core rpc-type. You can pass the path like below.");
     console.log("npm run generate --path=overview/index.ts");
@@ -33,28 +50,41 @@ const headerComment = `/**
 const project = new tsMorph.Project();
 
 // Get the directory name from the path to the TypeScript file
-const dirName = path.basename(path.dirname(tsFilePath));
+const dirName = path.basename(path.dirname(rpcTypeTsFile));
 
-let sourceFile;
+// Create the directory if it doesn't exist
+const rpcTypeDir = path.resolve(__dirname, `${CORE_RPC_TYPE_DIR}/${dirName}`);
+if (!fs.existsSync(rpcTypeDir)) {
+    fs.mkdirSync(rpcTypeDir);
+}
+
+// Create the directory if it doesn't exist
+const rpcMangerDir = path.resolve(__dirname, `${EXT_RPC_MANAGER_DIR}/${dirName}`);
+if (!fs.existsSync(rpcMangerDir)) {
+    fs.mkdirSync(rpcMangerDir);
+}
+
+// Create the directory if it doesn't exist
+const rpcClientDir = path.resolve(__dirname, `${RPC_CLIENT_DIR}/${dirName}`);
+if (!fs.existsSync(rpcClientDir)) {
+    fs.mkdirSync(rpcClientDir);
+}
+
+let rpcTypesourceFile;
 try {
     // Create a ts-morph Project
-    sourceFile = project.addSourceFileAtPath(tsFilePath);
+    rpcTypesourceFile = project.addSourceFileAtPath(rpcTypeTsFile);
 } catch (error) {
     console.log("Error: File not found. Please check the file path");
     return;
 }
 
 // Get the first/only interface
-const myInterface = sourceFile.getInterfaces()[0];
+const rpcTypeInterface = rpcTypesourceFile.getInterfaces()[0];
 
-// Get the properties of the interface
-const properties = myInterface.getProperties();
+// Get the typeProperties of the interface
+const typeProperties = rpcTypeInterface.getProperties();
 
-// Define all the types that needs to be imported
-const definedTypes = [myInterface.getName()];
-const returnTypes = [];
-
-const methodNames = [];
 
 const typescriptTypes = [
     "string",
@@ -84,238 +114,487 @@ const typescriptTypes = [
     "Keyof"
 ];
 
+
+// Define all the types that needs to be imported
+const definedTypes = [rpcTypeInterface.getName()];
+const typeMethods = [];
+
+typeProperties.forEach(property => {
+    const methodName = property.getName();
+
+    // Remove all new lines and spaces
+    let cleanedTypeNode = property.getTypeNode().getText().replace(/\s+/g, '');
+
+    // Extract the parameter name and type
+    const paramRegex = /\((\w+):(\w+)\)/;
+    const paramMatch = cleanedTypeNode.match(paramRegex);
+    const paramName = paramMatch ? paramMatch[1] : "";
+    const paramType = paramMatch ? paramMatch[2] : "";
+
+    if (!typescriptTypes.includes(paramType) && !definedTypes.includes(paramType)) {
+        definedTypes.push(paramType);
+    }
+
+    // Extract the return promise type
+    const returnPromiseRegex = /Promise<(\w+)>/;
+    const returnPromiseMatch = cleanedTypeNode.match(returnPromiseRegex);
+    const returnPromiseType = returnPromiseMatch ? returnPromiseMatch[1] : "";
+
+    if (!typescriptTypes.includes(returnPromiseType) && !definedTypes.includes(returnPromiseType)) {
+        definedTypes.push(returnPromiseType);
+    }
+
+    // Extract the return event type
+    const returnEventRegex = /Event<(\w+)>/;
+    const returnEventMatch = cleanedTypeNode.match(returnEventRegex);
+    const returnEventType = returnEventMatch ? returnEventMatch[1] : "";
+
+    if (!typescriptTypes.includes(returnEventType) && !definedTypes.includes(returnEventType)) {
+        definedTypes.push(returnEventType);
+    }
+
+    // Collect method data
+    typeMethods.push({
+        name: methodName,
+        isGetter: !cleanedTypeNode.includes("=>"),
+        params: {
+            name: paramName,
+            type: paramType
+        },
+        return: {
+            eventType: returnEventType,
+            promiseType: returnPromiseType
+        }
+    });
+
+});
+
 const words = dirName.split('-');
 const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
 const componentName = capitalizedWords.join('');
 
-// Generate the body implementation
-let typeImport = `${headerComment}
-import { RequestType } from "vscode-messenger-common";
-`;
-let typeBody = ``;
 
-let preFix = `_${dirName}`;
-let preFixConst = `
-const ${preFix} = "${dirName}";`
+// -------- RPC Types ts file related -------------------------------------->
+console.log(`Generating rpc-type.ts...`);
+const typeTsFile = path.resolve(rpcTypeDir, 'rpc-type.ts');
 
-
-let eventImport = '';
-let eventEmitter = '';
-let eventVariable = '';
-let classBody = '';
-
-let handlerImport = 'import { Messenger } from "vscode-messenger";\n';
-let handlerBody = '';
-
-let clientImport = 'import { HOST_EXTENSION } from "vscode-messenger-common";';
-let clientBody = '';
-
-properties.forEach(property => {
-    const propertyText = property.getText();
-    let signature = property.getTypeNode().getText().replace(/\s/g, '').replace("=>", " => ");
-
-    const name = property.getName();
-    console.log(`Creating... ${name} method`);
-    let haveArgs = false;
-    let isNotification = false;
-    // Extract the type name using regular expressions
-    const matchedTypes = signature.match(/(?<=:\s*)([A-Za-z][A-Za-z0-9]*)/);
-    const typeName = matchedTypes && matchedTypes.length > 0 && matchedTypes[0];
-
-    // Extract the response type using regular expressions
-    const matchedRetuns = signature.match(/(?<=Promise<)(.*?)(?=>)/);
-    let returnType = matchedRetuns && matchedRetuns.length > 0 && matchedRetuns[0];
-
-    const isVariable = !propertyText.includes("(");
-    const isEvent = propertyText.includes("Event");
-
-    if (isEvent) {
-        // Use regular expressions to extract the event type
-        const regex = /(\w+):\s*Event<([^>]+)>;/;
-        const match = propertyText.match(regex);
-
-        if (match) {
-            returnType = match[2];
-        }
-    }
-
-
-    if (typeName) {
-        const trimmedType = typeName.replace(/\[|\]/g, "").trim();
-        if (!typescriptTypes.includes(trimmedType) && !definedTypes.includes(trimmedType)) {
-            definedTypes.push(trimmedType);
-            returnTypes.push(trimmedType);
-            haveArgs = true;
-        }
-    }
-
-    if (returnType) {
-        const trimmedReturn = returnType.replace(/\[|\]/g, "").trim();
-        if (!typescriptTypes.includes(returnType) && !definedTypes.includes(trimmedReturn)) {
-            definedTypes.push(trimmedReturn);
-        }
-        if (returnType === "void") {
-            isNotification = true;
-        }
-    }
-
-    let getName = ``;
-    if (isVariable) {
-        getName = `get ${name}(): `;
-    }
-
-    const prefixMethod = "`${" + preFix + "}/" + name + "`";
-
-    // isEvent means for notifications
-    if (isEvent) {
-        // Manager file related content
-        eventImport = `import { EventEmitter } from 'vscode';`;
-        eventEmitter += `
-    private _${name} = new EventEmitter<${returnType}>();`;
-        eventVariable += `
-    public readonly ${name} = this._${name}.event;`;
-
-        // Handler file related content
-        handlerBody += `\trpcManger.${name}((args: ${typeName}) => messenger.sendNotification(${name}, BROADCAST ,args));\n`;
-        handlerImport += `import { BROADCAST } from "vscode-messenger-common";`
-
-        // Client file related content
-        clientImport = 'import { HOST_EXTENSION, NotificationHandler } from "vscode-messenger-common";';
-        clientBody += `
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ${name}(callback: NotificationHandler<${returnType}>): any {
-        this._messenger.onNotification(${name}, callback);
-        return {};
-    }
-    `;
-
-        // Type file related content
-        typeImport = `${headerComment}
-import { RequestType, NotificationType } from "vscode-messenger-common";
-    `;
-        typeBody += `
-export const ${name}: NotificationType<${returnType}> = { method: ${prefixMethod} };`;
-
-    } else {
-        // Manager file related content
-        classBody += `
-    ${isVariable ? getName : name}${signature.replace(" =>", ":")} {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error("Not implemented");
-    }
-    `;
-
-        // Handler file related content
-        const handlerType = isNotification ? "onNotification" : "onRequest";
-        handlerBody += `\tmessenger.${handlerType}(${name}, (${haveArgs ? 'args: ' + typeName : ''}) => rpcManger.${name}${isVariable ? '' : `(${haveArgs ? 'args' : ''})`});\n`;
-
-
-        // Client file related content
-        const clientType = isNotification ? "sendNotification" : "sendRequest";
-
-        const messageType = isNotification ? "NotificationType" : "RequestType";
-
-        clientBody += `
-    ${isVariable ? getName : name}${signature.replace(" =>", ":")} {
-        return this._messenger.${clientType}(${name}, HOST_EXTENSION${haveArgs ? ', params' : ''})
-    }
-    `;
-
-        // Type file related content
-        typeBody += `
-export const ${name}: ${messageType}<${typeName ? typeName : 'void'}, ${returnType}> = { method: ${prefixMethod} };`;
-    }
-
-    methodNames.push(name);
-});
-
-
-// Class name //OverviewRPCManger
-const className = `${componentName}RpcManger`;
-const handlerName = `register${componentName}RpcHandlers`;
-const clientName = `${componentName}RpcClient`;
-
-// Generate the class implementation
-let rpcMangerCode = `${headerComment}
-${eventImport}
-import { \n${definedTypes.sort().map((type, index, array) => index === array.length - 1 ? '\t' + type : '\t' + type + ',\n').join('')} \n} from "@wso2-enterprise/ballerina-core";
-
-export class ${className} implements ${myInterface.getName()} {
-${eventEmitter}
-${eventVariable}
-${classBody}
+// Create rpc-type.ts if it not exists
+if (!fs.existsSync(typeTsFile)) {
+    fs.writeFileSync(typeTsFile, '');
 }
-`;
 
-// Generate the handler implementation
-let handlerCode = `${headerComment}
-${handlerImport}
-import { ${className} } from "./rpc-manager";
-import { \n${methodNames.concat(returnTypes).sort().map((type, index, array) => index === array.length - 1 ? '\t' + type : '\t' + type + ',\n').join('')} \n} from "@wso2-enterprise/ballerina-core";
+// Create a new TypeScript project
+const typeProject = new tsMorph.Project();
 
-export function ${handlerName}(messenger: Messenger) {
-    const rpcManger = new ${className}();
-${handlerBody}
-}
-`;
+const typeSourceFile = typeProject.addSourceFileAtPath(typeTsFile);
 
-// Generate the client implementation
-let clientCode = `${headerComment}
-${clientImport}
-import { Messenger } from "vscode-messenger-webview";
-import { \n${methodNames.concat(definedTypes).sort().map((type, index, array) => index === array.length - 1 ? '\t' + type : '\t' + type + ',\n').join('')} \n} from "@wso2-enterprise/ballerina-core";
+typeSourceFile.removeText();
 
-export class ${clientName} implements ${myInterface.getName()} {
+const preFix = `_preFix`;
+const preFixConst = `const ${preFix} = "${dirName}";`
+typeSourceFile.insertStatements(typeSourceFile.getStatements().length, preFixConst);
 
-    private _messenger: Messenger;
-    constructor(messenger: Messenger) {
-        this._messenger = messenger;
-    }
-${clientBody}
-}
-`;
+const prefixMethod = "${" + preFix + "}";
 
-console.log(`Done!`);
-
-
-sourceFile.getImportDeclarations()[0].getText();
-
-let importDeclarations = '';
-sourceFile.getImportDeclarations().forEach(statement => {
-    importDeclarations += `${statement.getText()}\n`;
+typeMethods.forEach(value => {
+    handleTypeMethodConstants(prefixMethod, value, typeSourceFile);
 })
 
-// Generate the rpc-type implementation
-const rpcTypeCode = `${typeImport}
-${importDeclarations}
-// EXPORT THIS FILE FROM ROOT INDEX
-${preFixConst}
-${typeBody}
-`;
+// Get all the import statements from type index file
+let importDeclarations = '';
+rpcTypesourceFile.getImportDeclarations().forEach(statement => {
+    if (!statement.getText().includes("Event")) { // Ignore the Event import as it will not be used in rpc-types
+        importDeclarations += `${statement.getText()}\n`;
+    }
+})
+typeSourceFile.insertText(0, headerComment + importDeclarations);
 
-// Create the directory if it doesn't exist
-const rpcTypeDir = path.resolve(__dirname, `../ballerina-core/src/rpc-types/${dirName}`);
-if (!fs.existsSync(rpcTypeDir)) {
-    fs.mkdirSync(rpcTypeDir);
+typeSourceFile.saveSync();
+
+console.log(`rpc-type.ts Done!`);
+// -------- RPC Type ts file End --------------------------------------------->
+
+
+
+
+
+// -------- RPC Manager ts file related -------------------------------------->
+console.log(`Generating rpc-manager.ts...`);
+const managerTsFile = path.resolve(rpcMangerDir, 'rpc-manager.ts');
+
+// Create rpc-manager.ts if it not exists
+if (!fs.existsSync(managerTsFile)) {
+    fs.writeFileSync(managerTsFile, '');
 }
-// rpc-types should go to ballerina-extension/src/rpc-managers
-fs.writeFileSync(path.resolve(rpcTypeDir, 'rpc-type.ts'), rpcTypeCode);
 
+// Create a new TypeScript project
+const managerProject = new tsMorph.Project();
 
-// Create the directory if it doesn't exist
-const rpcMangerDir = path.resolve(__dirname, `../ballerina-extension/src/rpc-managers/${dirName}`);
-if (!fs.existsSync(rpcMangerDir)) {
-    fs.mkdirSync(rpcMangerDir);
-    // rpc-manager & rpc-handler should go to ballerina-extension/src/rpc-managers
-    fs.writeFileSync(path.resolve(rpcMangerDir, 'rpc-manager.ts'), rpcMangerCode);
+// Add the TypeScript file to the project
+const managerSourceFile = managerProject.addSourceFileAtPath(managerTsFile);
+
+// Get the class declaration from the source file
+const classes = managerSourceFile.getClasses();
+
+// Class name
+const managerClassName = `${componentName}RpcManager`;
+
+let classDeclaration;
+
+if (classes.length > 0) {
+    console.log(`rpc-manager.ts file found!`);
+    classDeclaration = classes[0];
+} else {
+    console.log(`rpc-manager.ts not found. Creating...`);
+    // Create the class
+    classDeclaration = managerSourceFile.addClass({
+        name: managerClassName,
+        isExported: true,
+    });
+    // Implement the interface
+    classDeclaration.addImplements(rpcTypeInterface.getName());
+    // Get the index of the class declaration
+    handleImportStatment(managerSourceFile, CORE_MODULE_NAME, rpcTypeInterface.getName());
 }
-fs.writeFileSync(path.resolve(rpcMangerDir, 'rpc-handler.ts'), handlerCode);
 
+// Find methods that are not present in the class
+const missingMethods = typeMethods.filter(value => !classDeclaration.getMethod(value.name) && !classDeclaration.getProperty(value.name));
 
-// Create the directory if it doesn't exist
-const rpcClientDir = path.resolve(__dirname, `../ballerina-rpc-client/src/rpc-clients/${dirName}`);
-if (!fs.existsSync(rpcClientDir)) {
-    fs.mkdirSync(rpcClientDir);
+missingMethods.forEach(value => {
+    if (value.return.eventType) {
+        console.log(`Found missing event property. Adding ${value.name}...`);
+        handleManagerEventProperty(classDeclaration, value, managerSourceFile);
+    } else {
+        console.log(`Found missing class method. Adding ${value.name}...`);
+        handleManagerClassMethod(classDeclaration, value, managerSourceFile);
+    }
+})
+
+if (!managerSourceFile.getFullText().includes("Copyright")) {
+    // Insert the comment at the top of the file
+    console.log(`Adding Copyright comment`);
+    managerSourceFile.insertText(0, headerComment);
 }
-// rpc-client should go to ballerina-rpc-client/src/rpc-clients
-fs.writeFileSync(path.resolve(rpcClientDir, 'rpc-client.ts'), clientCode);
+
+// Format imports into new lines
+formatImports(managerSourceFile, CORE_MODULE_NAME);
+
+// Save the modified source file
+managerSourceFile.saveSync();
+
+console.log(`rpc-manager.ts Done!`);
+// -------- RPC Manager ts file End ------------------------------------------>
+
+
+
+
+
+// -------- RPC Handler ts file related -------------------------------------->
+console.log(`Generating rpc-handler.ts...`);
+const handlerTsFile = path.resolve(rpcMangerDir, 'rpc-handler.ts');
+
+// Create rpc-type.ts if it not exists
+if (!fs.existsSync(handlerTsFile)) {
+    fs.writeFileSync(handlerTsFile, '');
+}
+
+// Create a new TypeScript project
+const handlerProject = new tsMorph.Project();
+
+const handlerSourceFile = handlerProject.addSourceFileAtPath(handlerTsFile);
+
+handlerSourceFile.removeText();
+
+const handlerName = `register${componentName}RpcHandlers`;
+// Add a function to the source file
+const handlerFunction = handlerSourceFile.addFunction({
+    name: handlerName,
+    isExported: true,
+    parameters: [{
+        name: "messenger",
+        type: "Messenger"
+    }]
+});
+handleImportStatment(handlerSourceFile, 'vscode-messenger', 'Messenger');
+
+// Add statements to the function
+const managerObject = `const rpcManger = new ${managerClassName}();`
+handlerFunction.addStatements(managerObject);
+typeMethods.forEach(value => {
+    handleMessengerTypes(handlerFunction, value, handlerSourceFile);
+})
+
+handleImportStatment(handlerSourceFile, './rpc-manager', managerClassName);
+
+// Format imports into new lines
+formatImports(handlerSourceFile, CORE_MODULE_NAME);
+
+handlerSourceFile.insertText(0, headerComment);
+
+// Save the modified source file
+handlerSourceFile.saveSync();
+
+console.log(`rpc-handler.ts Done!`);
+// -------- RPC Handler ts file End -------------------------------------->
+
+
+
+
+// -------- RPC Client ts file related -------------------------------------->
+console.log(`Generating rpc-client.ts...`);
+const clientTsFile = path.resolve(rpcClientDir, 'rpc-client.ts');
+
+// Create rpc-client.ts if it not exists
+if (!fs.existsSync(clientTsFile)) {
+    fs.writeFileSync(clientTsFile, '');
+}
+
+// Create a new TypeScript project
+const clientProject = new tsMorph.Project();
+
+// Add the TypeScript file to the project
+const clientSourceFile = clientProject.addSourceFileAtPath(clientTsFile);
+
+clientSourceFile.removeText();
+
+// Class name
+const clientClassName = `${componentName}RpcClient`;
+
+const clientClassDeclaration = clientSourceFile.addClass({
+    name: clientClassName,
+    isExported: true,
+});
+// Implement the interface
+clientClassDeclaration.addImplements(rpcTypeInterface.getName());
+
+clientClassDeclaration.addProperty({
+    name: '_messenger',
+    type: 'Messenger',
+    scope: tsMorph.Scope.Private
+});
+
+clientClassDeclaration.addConstructor({
+    parameters: [{
+        name: "messenger",
+        type: "Messenger"
+    }],
+    statements: "this._messenger = messenger;"
+});
+
+handleImportStatment(clientSourceFile, 'vscode-messenger-webview', 'Messenger');
+handleImportStatment(clientSourceFile, CORE_MODULE_NAME, rpcTypeInterface.getName());
+
+typeMethods.forEach(value => {
+    if (value.return.eventType) {
+        handleClientEventMethod(clientClassDeclaration, value, clientSourceFile);
+    } else {
+        handleClientClassMethod(clientClassDeclaration, value, clientSourceFile);
+    }
+})
+
+// Format imports into new lines
+formatImports(clientSourceFile, CORE_MODULE_NAME);
+
+clientSourceFile.insertText(0, headerComment);
+
+// Save the modified source file
+clientSourceFile.saveSync();
+
+console.log(`rpc-client.ts Done!`);
+
+// -------- RPC Client ts file End -------------------------------------->
+
+console.log(`All Done! Please register the relevant classes & export the rpc-types.ts`);
+
+
+
+
+
+// -------- Util Functions -------------------------------------->
+
+function handleImportStatment(rpcTypesourceFile, importSpecifier, namedImport) {
+    // Check if the import statement already exists
+    const existingImport = rpcTypesourceFile.getImportDeclaration(importSpecifier);
+
+    // If the import statement exists, check if the named import already exists
+    if (existingImport) {
+        const namedImports = existingImport.getNamedImports();
+        const hasNamedImport = namedImports.some(name => name.getName() === namedImport);
+        // If the named import does not exist, add it
+        if (!hasNamedImport) {
+            existingImport.addNamedImport(namedImport);
+        }
+    } else {
+        rpcTypesourceFile.insertImportDeclarations(0, [{
+            moduleSpecifier: importSpecifier,
+            namedImports: [namedImport],
+        }]);
+    }
+}
+
+function handleManagerEventProperty(classDeclaration, value, sourceFile) {
+
+    handleImportStatment(sourceFile, 'vscode', 'EventEmitter');
+    // Add the private variable
+    classDeclaration.insertProperty(0, {
+        name: `_${value.name}`,
+        type: `EventEmitter<${value.return.eventType}>`,
+        scope: tsMorph.Scope.Private,
+        initializer: `new EventEmitter<${value.return.eventType}>()`,
+    });
+
+    handleImportStatment(sourceFile, 'vscode', 'Event');
+    // Add the public readonly property
+    classDeclaration.insertProperty(1, {
+        name: `${value.name}`,
+        type: `Event<${value.return.eventType}>`,
+        scope: tsMorph.Scope.Public,
+        isReadonly: true,
+        isPublic: true,
+        initializer: `this._${value.name}.event`,
+    });
+}
+
+function handleManagerClassMethod(classDeclaration, value, sourceFile) {
+
+    if (value.return.promiseType !== "void")
+        handleImportStatment(sourceFile, CORE_MODULE_NAME, value.return.promiseType);
+
+    if (value.isGetter) {
+        // Add the getter method
+        classDeclaration.addMethod({
+            name: value.name,
+            returnType: `Promise<${value.return.promiseType}>`,
+            scope: tsMorph.Scope.Public,
+            isAsync: true,
+            statements: writer => {
+                writer.writeLine("// ADD YOUR IMPLEMENTATION HERE");
+                writer.writeLine("throw new Error('Not implemented');");
+            },
+        });
+    } else {
+
+        handleImportStatment(sourceFile, CORE_MODULE_NAME, value.params.type);
+
+        // Add the getBallerinaProjectComponents method
+        classDeclaration.addMethod({
+            name: value.name,
+            returnType: `Promise<${value.return.promiseType}>`,
+            parameters: [{
+                name: value.params.name,
+                type: value.params.type
+            }],
+            isAsync: true,
+            statements: writer => {
+                writer.writeLine("// ADD YOUR IMPLEMENTATION HERE");
+                writer.writeLine("throw new Error('Not implemented');");
+            },
+        });
+    }
+}
+
+function handleTypeMethodConstants(prefix, value, sourceFile) {
+    // Define the constant
+    const messageType = value.return.promiseType === 'void' || value.return.eventType ? 'NotificationType' : 'RequestType';
+    const paramType = value.return.promiseType === 'void' || value.return.eventType ? `${value.return.eventType || value.return.promiseType}` : `${value.params.type || 'void'}, ${value.return.promiseType}`;
+    const methodValue = "`" + prefix + "/" + value.name + "`";
+    const constant = `export const ${value.name}: ${messageType}<${paramType}> = { method: ${methodValue} };`;
+    // Insert the constant at a specific index, for example at the end of the file
+    sourceFile.insertStatements(sourceFile.getStatements().length, constant);
+
+    handleImportStatment(sourceFile, 'vscode-messenger-common', messageType);
+}
+
+function handleMessengerTypes(handlerFunction, value, sourceFile) {
+    if (value.return.eventType) {
+        // Define the event definition
+        const eventDef = `rpcManger.${value.name}((params) => messenger.sendNotification(${value.name}, BROADCAST, params));`;
+        // Insert the eventDef at a specific index
+        handlerFunction.insertStatements(handlerFunction.getStatements().length, eventDef);
+        handleImportStatment(sourceFile, CORE_MODULE_NAME, value.name);
+        handleImportStatment(sourceFile, 'vscode-messenger-common', 'BROADCAST');
+    } else {
+        // Define the message definitions
+        const messageType = value.return.promiseType === 'void' ? 'onNotification' : 'onRequest';
+        const paramType = value.params.type ? `(args: ${value.params.type})` : `()`;
+        const paramTypeArgs = value.params.type ? `(args)` : `()`;
+
+        const messageDef = `messenger.${messageType}(${value.name}, ${paramType} => rpcManger.${value.name}${paramTypeArgs});`;
+        // Insert the messageDef at a specific index
+        handlerFunction.insertStatements(handlerFunction.getStatements().length, messageDef);
+
+        handleImportStatment(sourceFile, CORE_MODULE_NAME, value.name);
+        handleImportStatment(sourceFile, CORE_MODULE_NAME, value.params.type);
+    }
+
+}
+
+function formatImports(sourceFile, importDeclare) {
+    // Format the named imports onto new lines
+    const namedImports = sourceFile.getImportDeclaration(importDeclare).getNamedImports();
+    if (namedImports.length > 0) {
+        const start = namedImports[0].getStart();
+        const end = namedImports[namedImports.length - 1].getEnd();
+        const newImportText = namedImports.map(i => i.getText()).join(",\n    ");
+        sourceFile.replaceText([start, end], newImportText);
+    }
+    // Organize imports
+    sourceFile.organizeImports();
+}
+
+function handleClientEventMethod(classDeclaration, value, sourceFile) {
+    handleImportStatment(sourceFile, 'vscode-messenger-common', 'NotificationHandler');
+    // Add the private variable
+    classDeclaration.addMethod({
+        name: value.name,
+        parameters: [{
+            name: 'callback',
+            type: `NotificationHandler<${value.return.eventType}>`
+        }],
+        statements: writer => {
+            writer.writeLine(`this._messenger.onNotification(${value.name}, callback);`);
+            writer.writeLine("return {};");
+        },
+    });
+    handleImportStatment(sourceFile, CORE_MODULE_NAME, value.return.eventType);
+    handleImportStatment(sourceFile, CORE_MODULE_NAME, value.name);
+
+}
+
+function handleClientClassMethod(classDeclaration, value, sourceFile) {
+
+    if (value.return.promiseType !== "void")
+        handleImportStatment(sourceFile, CORE_MODULE_NAME, value.return.promiseType);
+
+    if (value.params.type)
+        handleImportStatment(sourceFile, CORE_MODULE_NAME, value.params.type);
+
+    let statement = '';
+    let returnType = '';
+    if (value.return.promiseType === 'void') {
+        statement = `return this._messenger.sendNotification(${value.name}, HOST_EXTENSION);`;
+        returnType = 'void';
+    } else {
+        statement = `return this._messenger.sendRequest(${value.name}, HOST_EXTENSION, params);`;
+        if (!value.params.type) {
+            statement = `return this._messenger.sendRequest(${value.name}, HOST_EXTENSION);`;
+        }
+        returnType = `Promise<${value.return.promiseType}>`;
+    }
+
+    // Add the getBallerinaProjectComponents method
+    classDeclaration.addMethod({
+        name: value.name,
+        returnType: returnType,
+        parameters: [{
+            name: value.params.name,
+            type: value.params.type
+        }],
+        statements: writer => {
+            writer.writeLine(statement);
+        },
+    });
+    handleImportStatment(sourceFile, CORE_MODULE_NAME, value.name);
+    handleImportStatment(sourceFile, 'vscode-messenger-common', 'HOST_EXTENSION');
+
+}
