@@ -205,6 +205,7 @@ export class ProjectRegistry {
                     name: args.name,
                     port: args.port ?? 3000,
                     type: args.serviceType ?? "REST",
+                    visibility: args.networkVisibility ?? 'Project'
                 };
     
                 if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
