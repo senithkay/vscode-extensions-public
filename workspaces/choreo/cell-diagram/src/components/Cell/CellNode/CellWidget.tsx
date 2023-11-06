@@ -12,7 +12,7 @@ import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams"
 import { CellBounds, CellModel } from "./CellModel";
 import { CellNode, TopPortCircle, LeftPortCircle, BottomPortsWrapper, DotWrapper, Dot, IconWrapper, TopIconWrapper, RightPortsWrapper } from "./styles";
 import { CellPortWidget } from "../CellPort/CellPortWidget";
-import { getCellPortId, getRoundedOctagonSVG } from "./cell-util";
+import { getCellPortId, getRoundedOctagonSVG } from "../cell-util";
 import { CELL_LINE_MIN_WIDTH, MAIN_CELL } from "../../../resources";
 import { GatewayIcon } from "../../../resources/assets/icons/GatewayIcon";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
