@@ -132,7 +132,7 @@ export function ObservationLabel(props: ObservationLabelProps) {
             {observationsArray.length > 1 && (
                 <DotRow>
                     {observationsArray.map((_, index) =>
-                        index === activeIndex ? <ActiveDot key={index} onClick={() => handleDotClick(index)} /> : <Dot onClick={() => handleDotClick(index)} />
+                        index === activeIndex ? <ActiveDot key={index} onClick={() => handleDotClick(index)} /> : <Dot key={index} onClick={() => handleDotClick(index)} />
                     )}
                 </DotRow>
             )}

@@ -199,17 +199,6 @@ export class SharedLinkModel extends DefaultLinkModel {
         return points;
     };
 
-    getTooltipPosition = () => {
-        const sourcePortPosition = this.getSourcePort().getPosition();
-        const targetPortPosition = this.getTargetPort().getPosition();
-        const offset = 120;
-        // Get midpoint of the link line
-        return {
-            x: (sourcePortPosition.x + targetPortPosition.x) / 2 - offset,
-            y: (sourcePortPosition.y + targetPortPosition.y) / 2 - offset,
-        };
-    };
-
     setObservations = (observations: Observations[]) => {
         this.observations = observations;
     };
