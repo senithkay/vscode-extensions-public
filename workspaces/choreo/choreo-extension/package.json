@@ -16,12 +16,28 @@
   ],
   "activationEvents": [
     "workspaceContains:.choreo-project",
+    "workspaceContains:**/component.yaml",
     "onView:choreo-projects",
     "onView:choreo-account",
     "onStartupFinished"
   ],
+  "extensionDependencies": [
+    "redhat.vscode-yaml"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "yaml",
+        "aliases": [
+          "Component Configuration"
+        ],
+        "extensions": [
+          ".yaml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
     "commands": [
       {
         "command": "wso2.choreo.sign.in",
