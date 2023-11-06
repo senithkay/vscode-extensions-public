@@ -34,6 +34,7 @@ export class ComponentWizardView {
         await CommonUtils.waitUntilById("card-select-ballerina");
         await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitAndTypeById("directory-select-input", componentName);
+        await CommonUtils.waitUntilValidation();
         await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitAndClickById("wizard-save-btn");
         await CommonUtils.switchToDefaultFrame();

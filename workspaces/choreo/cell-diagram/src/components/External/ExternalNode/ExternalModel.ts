@@ -11,7 +11,7 @@ import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { SharedNodeModel } from "../../shared-node/shared-node";
 import { CellPortModel } from "../../Cell/CellPort/CellPortModel";
 import { EXTERNAL_NODE } from "../../../resources";
-import { getExternalNodeName } from "./external-node-util";
+import { getExternalNodeName } from "../external-node-util";
 
 export class ExternalModel extends SharedNodeModel {
     constructor(id: string) {

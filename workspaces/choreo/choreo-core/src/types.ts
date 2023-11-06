@@ -593,13 +593,6 @@ export interface Outbound {
     serviceReferences: ServiceReference[];
 }
 
-export interface ServiceReference {
-    name: string;
-    connectionConfig: string;
-    connectionType: string;
-    env: Mapping[];
-}
-
 export interface ComponentMetadata {
     name: string;
     projectName: string;
@@ -648,8 +641,101 @@ export enum ServiceTypes {
     OTHER = "other"
 }
 
-interface Mapping {
-    [key: string]: string;
+export interface ServiceReferenceEnv {
+    from: string;
+    to: string;
+}
+
+export interface ServiceReference {
+    name: string;
+    connectionConfig: string;
+    connectionType: string;
+    env?: ServiceReferenceEnv[];
+}
+
+export interface ConfigurationKey {
+    name: string;
+    envName: string;
+    volume?: {
+        mountPath: string;
+    };
+}
+
+export interface ConfigurationGroupEnv {
+    from: string;
+    to: string;
+}
+
+export interface ConfigurationGroupFile {
+    from: string;
+    to: string;
+}
+
+export interface ConfigurationGroup {
+    name: string;
+    env?: ConfigurationGroupEnv[];
+    volume?: {
+        mountPath: string;
+        files: ConfigurationGroupFile[];
+    };
+}
+
+export interface Build {
+    branch: string;
+    revision?: string;
+}
+
+export interface Image {
+    registry: string;
+    repository: string;
+    tag: string;
+}
+
+export interface ComponentConfig {
+    apiVersion: string;
+    kind: string;
+    metadata: {
+        name: string;
+        projectName: string;
+    };
+    spec: {
+        build?: Build;
+        image?: Image;
+        inbound?: Inbound[];
+        outbound?: Outbound;
+        configurations?: {
+            keys?: ConfigurationKey[];
+            groups?: ConfigurationGroup[];
+        };
+    };
+}
+
+export interface ComponentConfigSchema {
+    $schema?: string;
+    $id?: string;
+    title?: string;
+    description?: string;
+    type: string;
+    properties?: {
+        [key: string]: ComponentConfigSchema;
+    };
+    definitions?: {
+        [key: string]: ComponentConfigSchema;
+    };
+    allOf?: [
+        {
+            [key: string]: ComponentConfigSchema;
+        }
+    ];
+    default?: string;
+    const?: string;
+    enum?: string[];
+    pattern?: string;
+    format?: string;
+    minLength?: number;
+    items?: ComponentConfigSchema;
+    required?: string[];
+    $ref?: string;
 }
 
 export interface ComponentYamlContent {

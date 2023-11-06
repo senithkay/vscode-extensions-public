@@ -10,7 +10,7 @@
 import React, { useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ExternalLinkModel } from "./ExternalLinkModel";
-import { Colors } from "../../../resources";
+import { Colors, EXTERNAL_LINK } from "../../../resources";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -43,7 +43,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
     };
 
     return (
-        <g>
+        <g className={EXTERNAL_LINK}>
             <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER} />
             <path
                 id={link.getID()}

@@ -42,3 +42,7 @@ export const choreoAccountTreeId = 'choreo-account';
 export const USER_INFO_KEY = 'userInfo';
 export const SELECTED_GLOBAL_ORG_KEY = "selected-global-org";
 export const OPEN_CHOREO_ACTIVITY = "open-choreo-activity";
+
+// component.yaml
+export const COMPONENT_YAML_SCHEMA = "choreo";
+export const COMPONENT_YAML_SCHEMA_DIR = "schema/component-schema.json";
