@@ -66,7 +66,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
 
     return (
         <>
-            <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={COMPONENT_LINK}>
+            <g onMouseEnter={handleMouseOver} onMouseOut={handleMouseLeave} pointerEvents={"all"} className={COMPONENT_LINK}>
                 <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
                 <path id={link.getID()} d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={20} />
                 <path
