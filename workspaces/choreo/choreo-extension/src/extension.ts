@@ -184,7 +184,7 @@ async function registerYamlLangugeServer(): Promise<void> {
         const schemaContentJSON = JSON.parse(schemaContent) as ComponentConfigSchema;
 
         function onRequestSchemaURI(resource: string): string | undefined {
-            if (regexFilePathChecker(resource, /\.choreo\/component\.yaml$/)) {
+            if (regexFilePathChecker(resource, /\.choreo\/component.*\.yaml$/)) {
                 return `${SCHEMA}://schema/component-yaml`;
             }
             return undefined;
