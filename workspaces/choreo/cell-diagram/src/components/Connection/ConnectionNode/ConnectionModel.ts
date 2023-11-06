@@ -12,7 +12,7 @@ import { SharedNodeModel } from "../../shared-node/shared-node";
 import { ConnectionPortModel } from "../ConnectionPort/ConnectionPortModel";
 import { Connection } from "../../../types";
 import { CONNECTION_NODE } from "../../../resources";
-import { getConnectionName } from "./connection-util";
+import { getConnectionName } from "../connection-node-util";
 
 export enum Orientation {
     VERTICAL = "vertical",
