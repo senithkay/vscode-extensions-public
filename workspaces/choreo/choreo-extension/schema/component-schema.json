@@ -153,11 +153,17 @@
                                                     "minLength": 1,
                                                     "default": "service"
                                                 },
-                                                "dependentConfig": {
+                                                "connectionConfig": {
                                                     "type": "string",
-                                                    "description": "Name of the dependent configuration instance.",
+                                                    "description": "Name of the connection configuration instance.",
                                                     "minLength": 1,
                                                     "default": "config"
+                                                },
+                                                "connectionType": {
+                                                    "type": "string",
+                                                    "description": "Metadata field to store connection type.",
+                                                    "minLength": 1,
+                                                    "default": "service"
                                                 },
                                                 "env": {
                                                     "type": "array",
@@ -181,7 +187,7 @@
                                                     }
                                                 }
                                             },
-                                            "required": ["name", "dependentConfig"]
+                                            "required": ["name", "connectionConfig", "connectionType"]
                                         }
                                     }
                                 }
