@@ -194,44 +194,52 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
 // reveal diagram with animation
 export function animateDiagram() {
     const tl = gsap.timeline();
-    // animate cell and external links
     tl.from(`div[data-nodeid="${MAIN_CELL}"]`, {
         scale: 0,
         opacity: 0,
         duration: 0.5,
-    }).from(`g[data-linkid^="${EXTERNAL_LINK}|"]`, {
-        scale: 0,
-        opacity: 0,
-        duration: 0.5,
     });
-    // animate component nodes and links
+    tl.from(
+        `g[data-linkid^="${EXTERNAL_LINK}|"]`,
+        {
+            scale: 0,
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
     tl.from(
         `div[data-nodeid^="${COMPONENT_NODE}|"]`,
         {
             opacity: 0,
             duration: 0.5,
-            stagger: 0.05,
         },
         "showNodeTime"
-    )
-        .from(
-            `div[data-nodeid^="${CONNECTION_NODE}|"]`,
-            {
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0, 
-            },
-            "showNodeTime"
-        )
-        .from(`g[data-linkid^="${COMPONENT_LINK}|"]`, {
-            opacity: 0,
-            duration: 0.2,
-        })
-        .from(`g[data-linkid^="${CELL_LINK}|"]`, {
+    );
+    tl.from(
+        `div[data-nodeid^="${CONNECTION_NODE}|"]`,
+        {
             opacity: 0,
             duration: 0.5,
-            stagger: 0.05,
-        });
+        },
+        "showNodeTime"
+    );
+    tl.from(
+        `g[data-linkid^="${COMPONENT_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    tl.from(
+        `g[data-linkid^="${CELL_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
 }
 
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
