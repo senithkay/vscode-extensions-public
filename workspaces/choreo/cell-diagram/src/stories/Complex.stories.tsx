@@ -86,9 +86,11 @@ const simpleModel: Project = {
                         gateways: {
                             internet: {
                                 isExposed: true,
+                                tooltip: "No data from internet gateway"
                             },
                             intranet: {
                                 isExposed: true,
+                                tooltip: "No data from intranet gateway"
                             },
                         },
                     },
@@ -98,11 +100,13 @@ const simpleModel: Project = {
                 {
                     id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:payments",
                     type: "http",
+                    tooltip: "No data form payment service"
                 },
                 {
                     id: "mysql://mysql",
                     type: "datastore",
                     onPlatform: true,
+                    tooltip: "No data from database connection"
                 },
                 {
                     id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:products",

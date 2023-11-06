@@ -194,44 +194,52 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
 // reveal diagram with animation
 export function animateDiagram() {
     const tl = gsap.timeline();
-    // animate cell and external links
     tl.from(`div[data-nodeid="${MAIN_CELL}"]`, {
         scale: 0,
         opacity: 0,
         duration: 0.5,
-    }).from(`g[data-linkid^="${EXTERNAL_LINK}|"]`, {
-        scale: 0,
-        opacity: 0,
-        duration: 0.5,
     });
-    // animate component nodes and links
+    tl.from(
+        `g[data-linkid^="${EXTERNAL_LINK}|"]`,
+        {
+            scale: 0,
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
     tl.from(
         `div[data-nodeid^="${COMPONENT_NODE}|"]`,
         {
             opacity: 0,
             duration: 0.5,
-            stagger: 0.05,
         },
         "showNodeTime"
-    )
-        .from(
-            `div[data-nodeid^="${CONNECTION_NODE}|"]`,
-            {
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0, 
-            },
-            "showNodeTime"
-        )
-        .from(`g[data-linkid^="${COMPONENT_LINK}|"]`, {
-            opacity: 0,
-            duration: 0.2,
-        })
-        .from(`g[data-linkid^="${CELL_LINK}|"]`, {
+    );
+    tl.from(
+        `div[data-nodeid^="${CONNECTION_NODE}|"]`,
+        {
             opacity: 0,
             duration: 0.5,
-            stagger: 0.05,
-        });
+        },
+        "showNodeTime"
+    );
+    tl.from(
+        `g[data-linkid^="${COMPONENT_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    tl.from(
+        `g[data-linkid^="${CELL_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
 }
 
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
@@ -454,6 +462,9 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
                         }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
+                        }
                     }
                 }
             }
@@ -471,6 +482,9 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -536,6 +550,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
         // internet/public exposed services links
         if (targetComponent) {
             let isExposed = false;
+            let tooltip = "";
             const observations: Observations[] = [];
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
@@ -552,6 +567,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                             })
                         );
                     }
+                    tooltip = service.deploymentMetadata?.gateways.internet.tooltip;
                 }
             }
             const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.NorthBound));
@@ -567,12 +583,16 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     if (observations?.length > 0) {
                         link.setObservations(observations);
                     }
+                    if (tooltip) {
+                        link.setTooltip(tooltip);
+                    }
                 }
             }
         }
         // intranet/org exposed services links
         if (targetComponent) {
             let isExposed = false;
+            let tooltip = "";
             const observations: Observations[] = [];
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
@@ -582,6 +602,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     if (service.deploymentMetadata?.gateways.intranet.observations?.length > 0) {
                         observations.push(...service.deploymentMetadata?.gateways.intranet.observations);
                     }
+                    tooltip = service.deploymentMetadata?.gateways.intranet.tooltip;
                 }
             }
             const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.WestBound));
@@ -596,6 +617,9 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     link.setTargetNode(targetComponent.getID());
                     if (observations.length > 0) {
                         link.setObservations(observations);
+                    }
+                    if (tooltip) {
+                        link.setTooltip(tooltip);
                     }
                 }
             }
@@ -617,6 +641,9 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
                         }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
+                        }
                     }
                 }
             } else if (isExternalConnection(project.id, connection, true)) {
@@ -633,6 +660,9 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setTargetNode(eastBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }

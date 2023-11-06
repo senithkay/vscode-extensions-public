@@ -12,6 +12,7 @@ import styled from "@emotion/styled";
 import { MoreVertIcon } from "../../resources/assets/icons";
 import { Colors } from "../../resources";
 import { Component } from "../../types";
+import { Menu, MenuItem } from "@mui/material";
 
 const MenuButton: React.FC<any> = styled.div`
     position: absolute;
@@ -25,31 +26,6 @@ const MenuButton: React.FC<any> = styled.div`
         width: 24px;
         transition: transform 0.3s ease-in-out;
         transform: ${(props) => (props.rotate ? "rotate(180deg)" : "rotate(0)")};
-    }
-`;
-
-const Menu = styled.div`
-    position: absolute;
-    top: 4px;
-    right: 0;
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
-    padding: 8px 0;
-
-    color: rgba(0, 0, 0, 0.87);
-    -webkit-transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    border-radius: 4px;
-    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-    z-index: 1;
-    min-width: 120px;
-    max-width: 100%;
-`;
-
-const MenuItem = styled.div`
-    padding: 8px;
-    cursor: pointer;
-    &:hover {
-        background-color: ${Colors.NODE_BACKGROUND_SECONDARY};
     }
 `;
 
@@ -68,8 +44,17 @@ interface MoreVertMenuProps {
 export function MoreVertMenu(props: MoreVertMenuProps) {
     const { component, menuItems, showMenu, setShowMenu } = props;
 
-    const handleMenuButtonClick = () => {
-        setShowMenu(!showMenu);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const open = showMenu && Boolean(anchorEl);
+
+    const handleMenuButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+        setShowMenu(true);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+        setShowMenu(false);
     };
 
     return (
@@ -77,21 +62,27 @@ export function MoreVertMenu(props: MoreVertMenuProps) {
             <MenuButton onClick={handleMenuButtonClick} rotate={showMenu}>
                 <MoreVertIcon />
             </MenuButton>
-            {showMenu && (
-                <Menu>
-                    {menuItems.map((item, index) => (
-                        <MenuItem
-                            key={index}
-                            onClick={() => {
-                                item.callback(component.id, component.version);
-                                setShowMenu(false);
-                            }}
-                        >
-                            {item.label}
-                        </MenuItem>
-                    ))}
-                </Menu>
-            )}
+            <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                    "aria-labelledby": "basic-button",
+                }}
+            >
+                {menuItems.map((item, index) => (
+                    <MenuItem
+                        key={index}
+                        onClick={() => {
+                            item.callback(component.id, component.version);
+                            setShowMenu(false);
+                        }}
+                    >
+                        {item.label}
+                    </MenuItem>
+                ))}
+            </Menu>
         </>
     );
 }

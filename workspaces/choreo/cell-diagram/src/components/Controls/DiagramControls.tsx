@@ -44,7 +44,7 @@ export function DiagramControls(props: ControlProps) {
                     scale: 1,
                     duration: 1,
                     ease: "power3.out",
-                    delay: 4,
+                    delay: 1,
                 }
             );
         }
