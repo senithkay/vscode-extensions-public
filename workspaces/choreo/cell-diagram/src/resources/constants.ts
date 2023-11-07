@@ -24,6 +24,9 @@ export enum Colors {
     NODE_BACKGROUND_PRIMARY = '#F7F8FB',
     NODE_BACKGROUND_SECONDARY = '#d3d3d3',
     NODE_BORDER = '#393939',
+
+    GREY = '#808080',
+    LIGHT_GREY = '#d3d3d3',
 }
 
 export const dagreEngine = new DagreEngine({

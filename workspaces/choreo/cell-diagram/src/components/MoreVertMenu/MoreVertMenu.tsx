@@ -17,15 +17,38 @@ import { Menu, MenuItem } from "@mui/material";
 const MenuButton: React.FC<any> = styled.div`
     position: absolute;
     top: -4px;
-    right: -16px;
+    right: -12px;
     cursor: pointer;
-    cursor: context-menu;
     z-index: 1;
     svg {
         fill: ${Colors.NODE_BORDER};
         width: 24px;
         transition: transform 0.3s ease-in-out;
         transform: ${(props) => (props.rotate ? "rotate(180deg)" : "rotate(0)")};
+    }
+`;
+
+const BubbleAnimation = styled.div`
+    position: absolute;
+    top: 40%;
+    right: 50%;
+    transform: translate(50%, -50%);
+    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
+    border: 3px solid ${Colors.LIGHT_GREY};
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: fade-in-out 0.2s ease-out forwards;
+
+    @keyframes fade-in-out {
+        0% {
+            opacity: 0;
+            transform: translate(50%, -50%) scale(0.5);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(50%, -50%) scale(1);
+        }
     }
 `;
 
@@ -37,29 +60,27 @@ export interface MenuItem {
 interface MoreVertMenuProps {
     component: Component;
     menuItems: MenuItem[];
-    showMenu: boolean;
-    setShowMenu: (showMenu: boolean) => void;
 }
 
 export function MoreVertMenu(props: MoreVertMenuProps) {
-    const { component, menuItems, showMenu, setShowMenu } = props;
+    const { component, menuItems } = props;
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = showMenu && Boolean(anchorEl);
+
+    const open = Boolean(anchorEl);
 
     const handleMenuButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
-        setShowMenu(true);
     };
 
     const handleClose = () => {
         setAnchorEl(null);
-        setShowMenu(false);
     };
 
     return (
         <>
-            <MenuButton onClick={handleMenuButtonClick} rotate={showMenu}>
+            <MenuButton onClick={handleMenuButtonClick}>
+                <BubbleAnimation />
                 <MoreVertIcon />
             </MenuButton>
             <Menu
@@ -70,13 +91,20 @@ export function MoreVertMenu(props: MoreVertMenuProps) {
                 MenuListProps={{
                     "aria-labelledby": "basic-button",
                 }}
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "left",
+                }}
+                transformOrigin={{
+                    vertical: "top",
+                    horizontal: "left",
+                }}
             >
                 {menuItems.map((item, index) => (
                     <MenuItem
                         key={index}
                         onClick={() => {
                             item.callback(component.id, component.version);
-                            setShowMenu(false);
                         }}
                     >
                         {item.label}
