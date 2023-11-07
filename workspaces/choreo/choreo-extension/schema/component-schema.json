@@ -50,6 +50,15 @@
                             },
                             "projectName": {
                                 "$ref": "#/definitions/projectName"
+                            },
+                            "annotations": {
+                                "type": "object",
+                                "description": "Build instructions for the component.",
+                                "properties": {
+                                    "componentType": {
+                                        "enum": ["service", "web-app", "scheduled-task", "manual-task", "web-hook"]
+                                    }
+                                }    
                             }
                         },
                         "required": ["name", "projectName"]
@@ -159,12 +168,6 @@
                                                     "minLength": 1,
                                                     "default": "config"
                                                 },
-                                                "connectionType": {
-                                                    "type": "string",
-                                                    "description": "Metadata field to store connection type.",
-                                                    "minLength": 1,
-                                                    "default": "service"
-                                                },
                                                 "env": {
                                                     "type": "array",
                                                     "items": {
@@ -187,7 +190,7 @@
                                                     }
                                                 }
                                             },
-                                            "required": ["name", "connectionConfig", "connectionType"]
+                                            "required": ["name", "connectionConfig"]
                                         }
                                     }
                                 }
