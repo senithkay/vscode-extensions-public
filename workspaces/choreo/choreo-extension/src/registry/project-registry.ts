@@ -37,7 +37,8 @@ import {
     GoogleProviderBuildPackNames,
     ComponentYamlContent,
     Inbound,
-    getGeneralizedCellComponentType
+    getGeneralizedCellComponentType,
+    ChoreoBuildPackNames
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
@@ -174,7 +175,11 @@ export class ProjectRegistry {
 
             const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
 
-            const subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+            let subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+
+            if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess && args.webAppConfig?.webAppType === ChoreoBuildPackNames.StaticFiles) {
+                subPath = args.webAppConfig?.webAppOutputDirectory;
+            }
 
             if (subPath) {
                 basePath = join(basePath, subPath);
