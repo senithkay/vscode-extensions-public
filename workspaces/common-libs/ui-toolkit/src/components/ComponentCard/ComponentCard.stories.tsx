@@ -40,7 +40,6 @@ EditorCard.args = {
         "&:hover, &.active": {
             border: "1px solid var(--vscode-focusBorder)",
             backgroundColor: "var(--vscode-pickerGroup-border)",
-            color: "var(--vscode-editor-foreground)",
             ".icon svg g": {
                 fill: "var(--vscode-editor-foreground)"
             }

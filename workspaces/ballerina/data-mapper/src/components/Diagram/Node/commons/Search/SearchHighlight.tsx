@@ -35,7 +35,7 @@ function SearchHighlight({ children, searchText }: SearchHighlightRootProps) {
             {parts.map((part, index) => (
                 <React.Fragment key={index}>
                     {part.toLowerCase() === searchText.toLowerCase() ? (
-                        <span className={classes.highlighted}>{part}</span>
+                        <span className={classes.highlighted} data-testid={`search-highlight`}>{part}</span>
                     ) : (
                         part
                     )}

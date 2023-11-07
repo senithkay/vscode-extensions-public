@@ -28,7 +28,8 @@ import {
    Deployment,
    Endpoint,
    UserInfo,
-   EndpointData
+   EndpointData,
+   Buildpack
 } from './types';
 
 export interface SubpathAvailableRequest {
@@ -63,6 +64,11 @@ export interface GetComponentsRequestParams {
 export interface CheckProjectDeletedParams {
    orgId: number; 
    projectId: string;
+}
+
+export interface GetBuildPackParams {
+   orgId: number;
+   componentType: string;
 }
 
 export interface GetDeletedComponentsParams {
@@ -134,7 +140,6 @@ export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreo
 export const getConsoleUrl: RequestType<void, string> = { method: 'getConsoleUrl' };
 export const PushLocalComponentsToChoreo: RequestType<PushLocalComponentsToChoreoParams, string[]> = { method: 'pushLocalComponentsToChoreo' };
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
-export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const OpenCellView: RequestType<string, void> = { method: 'openCellView' };
 export const getEndpointsForVersion: RequestType<{componentId: string, versionId: string, orgId: number}, EndpointData | null> = { method: 'getEndpointsForVersion' };
 export const getDiagramComponentModel: RequestType<{ projId: string, orgId: number }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
@@ -146,6 +151,8 @@ export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = 
 export const HasChoreoSubscription: RequestType<HasChoreoSubscriptionParams, boolean> = { method: 'hasChoreoSubscription' };
 export const CreateNonBalLocalComponent: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponent' };
 export const CreateNonBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'createNonBalLocalComponentFromExistingSource' };
+export const CreateBalLocalComponentFromExistingSource: RequestType<ChoreoComponentCreationParams, void> = { method: 'CreateBalLocalComponentFromExistingSource' };
+export const GetBuildpack: RequestType<GetBuildPackParams, Buildpack[]> = { method: 'getBuildpack' };
 export const FireRefreshComponentList: RequestType<void, void> = { method: 'fireRefreshComponentList' };
 export const FireRefreshWorkspaceMetadata: RequestType<void, void> = { method: 'fireRefreshWorkspaceMetadata' };
 export const SetWebviewCache: RequestType<SetWebviewCacheRequestParam, void> = { method: 'setWebviewCache' };

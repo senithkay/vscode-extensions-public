@@ -64,6 +64,37 @@ export interface CreateByocComponentParams extends ChoreoOrgIdParams {
     byocWebAppsConfig?: ComponentWizardWebAppConfig
 }
 
+export interface CreateBuildpackComponentParams extends ChoreoOrgIdParams {
+    name: string;
+    displayName: string;
+    description: string;
+    projectId: string;
+    accessibility: string;
+    componentType: string;
+    port?: number;
+    bitbucketCredentialId?: string; 
+    buildpackConfig: {
+        buildContext: string;
+        buildpackId: string;
+        languageVersion: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+    };
+}
+
+export interface CreateMiComponentParams extends ChoreoOrgIdParams {
+    name: string;
+    displayName: string;
+    componentType: string;
+    description: string;
+    projectId: string;
+    accessibility: string;
+    repositorySubPath: string;
+    srcGitRepoBranch: string;
+    srcGitRepoUrl: string;
+    bitbucketCredentialId: string;
+}
+
 export interface GetProjectEnvParams extends ChoreoOrgIdParams {
     orgUuid: string;
     projId: string;
@@ -168,6 +199,8 @@ export interface IChoreoProjectClient {
     createProject(params: CreateProjectParams): Promise<Project>;
     createComponent(params: ComponentMutationParams): Promise<Component>;
     createByocComponent(params: CreateByocComponentParams): Promise<Component>;
+    createBuildPackComponent(params: CreateBuildpackComponentParams): Promise<Component>;
+    createMiComponent(params: CreateMiComponentParams): Promise<Component>;
     deleteComponent(params: DeleteComponentParams): Promise<void>;
     linkRepo(params: LinkRepoMutationParams): Promise<Repository>;
 }
