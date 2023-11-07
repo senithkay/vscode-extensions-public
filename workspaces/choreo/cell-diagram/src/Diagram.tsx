@@ -48,11 +48,13 @@ export function CellDiagram(props: CellDiagramProps) {
     const styles = useStyles();
 
     useEffect(() => {
-        drawDiagram();
+        if (diagramEngine) {
+            drawDiagram();
+        }
     }, [props]);
 
     useEffect(() => {
-        if (animation && isDiagramLoaded) {
+        if (diagramEngine && animation && isDiagramLoaded) {
             animateDiagram();
             diagramEngine.repaintCanvas();
         }
@@ -139,7 +141,7 @@ export function CellDiagram(props: CellDiagramProps) {
         setTimeout(() => {
             // manual distribute - update empty node, external node and connector node position based on cell node position
             manualDistribute(model);
-            if (diagramEngine.getBoundingNodesRect) {
+            if (diagramEngine.getCanvas().getBoundingClientRect) {
                 // zoom to fit nodes and center diagram
                 diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
             }
