@@ -266,10 +266,10 @@ function getValueNodeAndNextNodeForParentType(node: STNode,
             && val.fieldName.value === getBalRecFieldName(originalType.name)
         ) as SpecificField;
 
-        if (specificField) {
-            return [specificField, specificField?.valueExpr];
-        } else if (parentType.type.typeName === PrimitiveBalType.Array) {
+        if (parentType.type.typeName === PrimitiveBalType.Array) {
             return [node, node];
+        } else if (specificField) {
+            return [specificField, specificField?.valueExpr];
         }
     } else if (innerExpr && STKindChecker.isListConstructor(innerExpr)) {
         const mappingConstructors = innerExpr.expressions.filter((val) =>
