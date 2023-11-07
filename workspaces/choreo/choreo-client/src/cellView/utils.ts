@@ -31,8 +31,7 @@ import { dirname, join } from "path";
 import * as yaml from 'js-yaml';
 
 export const CHOREO_CONFIG_DIR = ".choreo";
-export const COMPONENTS_CONFIG_FILE = "component-config.yaml";
-export const ENDPOINTS_FILE = "endpoint.yaml";
+export const COMPONENT_CONFIG_FILE = "component-config.yaml";
 export const CHOREO_PROJECT_ROOT = "choreo-project-root";
 
 const MODEL_VERSION = "0.4.0";
@@ -127,7 +126,7 @@ export function getConnectionModels(connections: Outbound, projectNameToIdMap: M
 export function getDefaultComponentModel(orgName: string,
                                         componentName: string,
                                         componentType: ComponentType,
-                                        buildPack: BuildPack,
+                                        buildPack: string,
                                         componentVersion?: string): ComponentModel {
     const services: CMService[] = [];
 
@@ -210,7 +209,9 @@ export function getComponentDirPath(component: Component, projectLocation: strin
     return undefined;
 }
 
-export function getGeneralizedComponentType(type: ComponentDisplayType): ComponentType {
+export function getGeneralizedComponentType(
+    type: ComponentDisplayType
+): ComponentType {
     switch (type) {
         case ComponentDisplayType.RestApi:
         case ComponentDisplayType.Service:
@@ -218,24 +219,35 @@ export function getGeneralizedComponentType(type: ComponentDisplayType): Compone
         case ComponentDisplayType.GraphQL:
         case ComponentDisplayType.MiApiService:
         case ComponentDisplayType.MiRestApi:
+        case ComponentDisplayType.BuildpackService:
+        case ComponentDisplayType.BuildpackRestApi:
+        case ComponentDisplayType.Websocket:
             return ComponentType.SERVICE;
         case ComponentDisplayType.ManualTrigger:
         case ComponentDisplayType.ByocJob:
+        case ComponentDisplayType.BuildpackJob:
+        case ComponentDisplayType.MiJob:
             return ComponentType.MANUAL_TASK;
         case ComponentDisplayType.ScheduledTask:
         case ComponentDisplayType.ByocCronjob:
+        case ComponentDisplayType.BuildpackCronJob:
+        case ComponentDisplayType.MiCronjob:
             return ComponentType.SCHEDULED_TASK;
         case ComponentDisplayType.Webhook:
         case ComponentDisplayType.ByocWebhook:
+        case ComponentDisplayType.BuildpackWebhook:
             return ComponentType.WEB_HOOK;
         case ComponentDisplayType.Proxy:
             return ComponentType.API_PROXY;
         case ComponentDisplayType.ByocWebApp:
         case ComponentDisplayType.ByocWebAppDockerLess:
+        case ComponentDisplayType.BuildpackWebApp:
             return ComponentType.WEB_APP;
-        case ComponentDisplayType.Websocket:
         case ComponentDisplayType.MiEventHandler:
+        case ComponentDisplayType.BallerinaEventHandler:
             return ComponentType.EVENT_HANDLER;
+        case ComponentDisplayType.BuildpackTestRunner:
+            return ComponentType.TEST;
         default:
             return ComponentType.SERVICE;
     }
@@ -248,15 +260,32 @@ export function getBuildPackFromFs(componentPath: string): BuildPack {
     return BuildPack.Other;
 }
 
-export function getBuildPackFromChoreo(componentDisplayType: ComponentDisplayType): BuildPack {
-    if (componentDisplayType === ComponentDisplayType.GraphQL
-         || componentDisplayType === ComponentDisplayType.ManualTrigger
-         || componentDisplayType === ComponentDisplayType.Proxy
-         || componentDisplayType === ComponentDisplayType.ScheduledTask
-         || componentDisplayType === ComponentDisplayType.Service
-         || componentDisplayType === ComponentDisplayType.Webhook
-         || componentDisplayType === ComponentDisplayType.Websocket) {
-        return BuildPack.Ballerina;        
+export function getImplementedLangOrFramework(component: Component) {
+    const { displayType, repository } = component;
+    if (
+        displayType === ComponentDisplayType.GraphQL ||
+        displayType === ComponentDisplayType.ManualTrigger ||
+        displayType === ComponentDisplayType.ScheduledTask ||
+        displayType === ComponentDisplayType.Service ||
+        displayType === ComponentDisplayType.Webhook ||
+        displayType === ComponentDisplayType.Websocket
+    ) {
+        return BuildPack.Ballerina;
+    }
+    if (displayType.startsWith('buildpack')) {
+        const latestVersion = getLatestComponentVersion(component)?.id;
+        if (latestVersion && repository?.buildpackConfig) {
+            const buildpackOfLatestVersion = repository.buildpackConfig.find(
+                (config) => config.versionId === latestVersion
+            );
+            if (buildpackOfLatestVersion) {
+                return buildpackOfLatestVersion.buildpack.language;
+            }
+        }
     }
     return BuildPack.Other;
+}
+
+export function getLatestComponentVersion(component: Component) {
+    return component?.apiVersions?.find((apiVersion) => apiVersion.latest);
 }
