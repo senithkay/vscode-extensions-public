@@ -25,8 +25,6 @@ import {
     Project,
     ServiceTypes,
     EndpointData,
-    ComponentConfig,
-    ComponentConfigSchema,
     UserInfo,
     WorkspaceConfig,
 } from "@wso2-enterprise/choreo-core";
