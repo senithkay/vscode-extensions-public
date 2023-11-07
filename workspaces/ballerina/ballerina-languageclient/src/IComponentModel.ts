@@ -26,7 +26,7 @@ export interface ComponentModel {
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
     type?: ComponentType;
-    buildPack?: BuildPack;
+    buildPack?: string;
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
