@@ -8,7 +8,6 @@
  */
 
 import React, { useContext } from "react";
-import { camelCase, startCase } from "lodash";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentPortWidget } from "../../ComponentPort/ComponentPortWidget";
 import { ComponentModel } from "../ComponentModel";
@@ -69,8 +68,8 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
     };
 
     const getComponentBuildIcon = (kind: string) => {
-        const icon = startCase(camelCase(kind)).replace(/ /g, "") + "Icon";
-        const IconComponent = icons[icon] || icons.CodeIcon;
+        const icon = kind + "Icon";
+        const IconComponent = icons[icon] || icons.codeIcon;
         return <IconComponent />;
     };
 
