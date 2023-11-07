@@ -138,7 +138,7 @@ export const MIConfig = (props: MIConfigProps) => {
                 {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
                 {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.hasPomXmlInPath) && (
                     <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
-                        Initialize {repository?.subPath} as a new directory
+                        Initialize an empty component at {repository?.subPath}
                     </VSCodeCheckbox>
                 )}
                 {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}

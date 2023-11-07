@@ -130,7 +130,7 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
                 {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
                 {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.hasBallerinaTomlInPath) && (
                     <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
-                        Initialize {repository?.subPath} as a new directory
+                        Initialize an empty component at {repository?.subPath}
                     </VSCodeCheckbox>
                 )}
                 {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}

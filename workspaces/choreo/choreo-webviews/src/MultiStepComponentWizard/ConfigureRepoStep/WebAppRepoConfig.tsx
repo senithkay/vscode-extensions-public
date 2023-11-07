@@ -72,6 +72,8 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
         props.onFormDataChange(prevFormData => ({ ...prevFormData, port }));
     };
 
+    // TODO: add directory creation checkbox & validations for webapp context & Files Directory
+
     return (
         <div>
             <StepContainer>

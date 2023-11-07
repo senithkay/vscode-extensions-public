@@ -165,7 +165,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                     {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
                     {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.isBuildpackPathValid) && (
                         <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
-                            Initialize {repository?.subPath} as a new directory
+                            Initialize an empty component at {repository?.subPath}
                         </VSCodeCheckbox>
                     )}
                 </DirectoryContainer>
