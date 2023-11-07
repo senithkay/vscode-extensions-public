@@ -36,6 +36,7 @@ export interface ComponentWizardState {
         credentialID?: string;
         isMonoRepo?: boolean;
         isDirectoryValid?: boolean;
+        createNewDir?: boolean;
     };
     webAppConfig?: {
         dockerContext?: string;

@@ -16,10 +16,9 @@ import { useContext } from "react";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
-import { ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
 import { useQuery } from "@tanstack/react-query";
 import { cx } from "@emotion/css";
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
 import debounce from "lodash.debounce";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
@@ -41,7 +40,7 @@ export interface RepoStructureConfigProps {
 
 export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
 
-    const { repository, implementationType } = props.formData;
+    const { repository } = props.formData;
     const { choreoProject } = useContext(ChoreoWebViewContext);
     const [folderNameError, setFolderNameError] = useState("");
 
@@ -67,21 +66,27 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
         }));
     };
 
+    const onCreateNewDirChange = () => {
+        props.onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            repository: { ...prevFormData.repository, createNewDir: !!!prevFormData.repository.createNewDir}
+        }));
+    };
+
+    // TODO: Need to remove the useEffect & find a better solution
     useEffect(() => {
         const updateFolderError = () => {
             let folderError = "";
             if (localDirectorMetaData) {
                 if (repository?.subPath) {
-                    if (!localDirectorMetaData?.isSubPathValid) {
-                        folderError = 'Sub path does not exist';
+                    if(!repository.createNewDir) {
+                        if (!localDirectorMetaData?.isSubPathValid ) {
+                            folderError = 'Sub path does not exist';
+                        } else if (!localDirectorMetaData?.isSubPathEmpty && !localDirectorMetaData?.hasBallerinaTomlInPath) {
+                            folderError = "Please provide a path that contains a Ballerina project."
+                        }
                     }
-                    if (localDirectorMetaData?.isSubPathEmpty) {
-                        folderError = "Please provide a path that is not empty"
-                    }
-                    if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInPath) {
-                        folderError = "Please provide a path that contains a Ballerina project."
-                    }
-                } else if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInRoot) {
+                } else if (!localDirectorMetaData?.hasBallerinaTomlInRoot) {
                     folderError = "Repository root does not contain a valid Ballerina project"
                 }
             }
@@ -122,9 +127,14 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
                         filters={{}}
                     />
                 </VSCodeTextField>
+                {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
+                {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.hasBallerinaTomlInPath) && (
+                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
+                        Initialize {repository?.subPath} as a new directory
+                    </VSCodeCheckbox>
+                )}
+                {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             </StepContainer>
-            {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
-            {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
         </div>
     );
 };

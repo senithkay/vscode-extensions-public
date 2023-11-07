@@ -30,7 +30,7 @@ import { EndpointConfigStep } from './EndpointConfigStep';
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
         const { name, type, implementationType, repository, description, accessibility, networkVisibility, endpointContext, serviceType} = formData;
-        const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo } = repository;
+        const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo, createNewDir } = repository;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
         const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
@@ -110,7 +110,8 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             port: formData.port ? Number(formData.port) : 3000,
             networkVisibility,
             endpointContext,
-            serviceType
+            serviceType,
+            initializeNewDirectory: createNewDir
         };
 
         if (isBuildPackType) {
@@ -192,7 +193,8 @@ export const ComponentWizard: React.FC = () => {
                 org: '',
                 branch: '',
                 isMonoRepo: false,
-                isDirectoryValid: true
+                isDirectoryValid: true,
+                createNewDir: false
             },
             port: '3000',
             endpointContext: '.',

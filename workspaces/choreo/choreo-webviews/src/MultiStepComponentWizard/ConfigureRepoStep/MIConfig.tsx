@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
@@ -73,18 +73,28 @@ export const MIConfig = (props: MIConfigProps) => {
         }));
     }
 
+    const onCreateNewDirChange = () => {
+        props.onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            repository: { ...prevFormData.repository, createNewDir: !!!prevFormData.repository.createNewDir}
+        }));
+    };
+
+    // TODO: Need to remove the useEffect & find a better solution
     useEffect(() => {
         const updateFolderError = () => {
-            let folderError = '';
+            let folderError = "";
             if (localDirectorMetaData) {
                 if (repository?.subPath) {
-                    if (!localDirectorMetaData.hasPomXmlInPath) {
-                        folderError = `Provide a valid path to the Micro Integrator Project.`;
+                    if(!repository.createNewDir) {
+                        if (!localDirectorMetaData?.isSubPathValid ) {
+                            folderError = 'Sub path does not exist';
+                        } else if (!localDirectorMetaData?.isSubPathEmpty && !localDirectorMetaData?.hasPomXmlInPath) {
+                            folderError = `Provide a valid path to the Micro Integrator Project.`;
+                        }
                     }
-                } else {
-                    if (!localDirectorMetaData?.hasPomXmlInInRoot) {
-                        folderError = "Repository root does not contain a valid Micro Integrator project"
-                    }
+                } else if (!localDirectorMetaData?.hasPomXmlInInRoot) {
+                    folderError = "Repository root does not contain a valid Micro Integrator project"
                 }
             }
 
@@ -125,8 +135,14 @@ export const MIConfig = (props: MIConfigProps) => {
                     </VSCodeTextField>
                     {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
                 </DirectoryContainer>
+                {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
+                {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.hasPomXmlInPath) && (
+                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
+                        Initialize {repository?.subPath} as a new directory
+                    </VSCodeCheckbox>
+                )}
+                {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             </StepContainer>
-            {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
         </div>
     );
 };
