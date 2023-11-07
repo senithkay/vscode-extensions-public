@@ -20,8 +20,8 @@ export interface OverviewAPI {
     ) => Promise<BallerinaProjectComponents>;
     getSTForFunction: (
         params: BallerinaFunctionSTRequest
-    ) => Thenable<BallerinaSTModifyResponse>;
+    ) => Promise<BallerinaSTModifyResponse>;
     getExecutorPositions: (
         params: GetBallerinaProjectParams
-    ) => Thenable<ExecutorPositionsResponse>;
+    ) => Promise<ExecutorPositionsResponse>;
 }

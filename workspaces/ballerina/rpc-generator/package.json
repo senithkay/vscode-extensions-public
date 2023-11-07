@@ -1,0 +1,19 @@
+{
+  "name": "rpc-generator",
+  "version": "1.0.0",
+  "description": "Generate rpc-manager,rpc-handler and rpc-client ts files in relevant libraries",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.8.10"
+  },
+  "dependencies": {
+    "@ts-morph/common": "^0.21.0",
+    "ts-morph": "^20.0.0"
+  }
+}
