@@ -40,6 +40,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             ChoreoImplementationType.Ballerina, 
             ChoreoImplementationType.MicroIntegrator, 
             ChoreoImplementationType.Docker,
+            ChoreoImplementationType.StaticFiles,
             ...WebAppSPATypes
         ].includes(implementationType as ChoreoImplementationType);
 
