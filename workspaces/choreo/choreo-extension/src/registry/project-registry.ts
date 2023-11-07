@@ -197,7 +197,7 @@ export class ProjectRegistry {
                 apiVersion:'core.choreo.dev/v1alpha1',
                 kind:'ComponentConfig',
                 metadata: {
-                    name: args.name,
+                    name: makeURLSafe(args.name),
                     projectName: project?.name!,
                     annotations: { componentType: getGeneralizedCellComponentType(args.displayType) },
                 },
