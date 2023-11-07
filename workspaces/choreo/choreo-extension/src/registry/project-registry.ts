@@ -175,7 +175,7 @@ export class ProjectRegistry {
 
             const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
 
-            let subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext || args.webAppConfig?.webAppOutputDirectory;
+            let subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
 
             if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess && args.webAppConfig?.webAppType === ChoreoBuildPackNames.StaticFiles) {
                 subPath = args.webAppConfig?.webAppOutputDirectory;
