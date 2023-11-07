@@ -293,7 +293,18 @@ export interface Repository {
         oasFilePath: string;
         repositoryId: string;
     };
+    buildpackConfig?: BuildpackBuildConfig[];
     byocWebAppBuildConfig?: WebAppBuildConfig;
+}
+
+export interface BuildpackBuildConfig {
+    versionId: string;
+    buildContext: string;
+    languageVersion: string;
+    buildpack: {
+        id: string;
+        language: string;
+    };
 }
 
 export interface Metadata {
@@ -380,7 +391,7 @@ export enum ComponentDisplayType {
     BuildpackTestRunner = 'buildpackTestRunner',
     BuildpackCronJob = 'buildpackCronjob',
     BuildpackWebApp = 'buildpackWebApp',
-    BuildRestApi = 'buildpackRestApi',
+    BuildpackRestApi = 'buildpackRestApi',
     PostmanTestRunner = 'byocTestRunnerDockerfileLess',
     BallerinaEventHandler = 'ballerinaEventHandler',
 }
@@ -786,7 +797,7 @@ export function getGeneralizedCellComponentType(
         case ComponentDisplayType.MiApiService:
         case ComponentDisplayType.MiRestApi:
         case ComponentDisplayType.BuildpackService:
-        case ComponentDisplayType.BuildRestApi:
+        case ComponentDisplayType.BuildpackRestApi:
         case ComponentDisplayType.Websocket:
             return CellComponentType.SERVICE;
         case ComponentDisplayType.ManualTrigger:
