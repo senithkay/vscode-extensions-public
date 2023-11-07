@@ -33,14 +33,11 @@ interface ServiceHeadProps {
     node: ComponentModel;
     isSelected: boolean;
     isFocused: boolean;
-
     menuItems: MenuItem[];
-    showMenu: boolean;
-    setShowMenu: (showMenu: boolean) => void;
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected, isFocused, menuItems, showMenu, setShowMenu } = props;
+    const { engine, node, isSelected, isFocused, menuItems } = props;
 
     const { zoomLevel } = useContext(DiagramContext);
 
@@ -82,7 +79,7 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
                 <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
             )}
             {isFocused && menuItems?.length > 0 && (
-                <MoreVertMenu component={node.component} menuItems={menuItems} showMenu={showMenu} setShowMenu={setShowMenu} />
+                <MoreVertMenu component={node.component} menuItems={menuItems} />
             )}
         </ComponentHead>
     );
