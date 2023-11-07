@@ -194,12 +194,18 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
 // reveal diagram with animation
 export function animateDiagram() {
     const tl = gsap.timeline();
-    tl.from(`div[data-nodeid="${MAIN_CELL}"]`, {
+    const safeAnimate = (selector, animation, label?) => {
+        const elements = gsap.utils.toArray(selector);
+        if (elements.length > 0) {
+            tl.from(elements, animation, label);
+        }
+    };
+    safeAnimate(`div[data-nodeid="${MAIN_CELL}"]`, {
         scale: 0,
         opacity: 0,
         duration: 0.5,
     });
-    tl.from(
+    safeAnimate(
         `g[data-linkid^="${EXTERNAL_LINK}|"]`,
         {
             scale: 0,
@@ -208,7 +214,7 @@ export function animateDiagram() {
         },
         "showNodeTime"
     );
-    tl.from(
+    safeAnimate(
         `div[data-nodeid^="${COMPONENT_NODE}|"]`,
         {
             opacity: 0,
@@ -216,7 +222,7 @@ export function animateDiagram() {
         },
         "showNodeTime"
     );
-    tl.from(
+    safeAnimate(
         `div[data-nodeid^="${CONNECTION_NODE}|"]`,
         {
             opacity: 0,
@@ -224,7 +230,7 @@ export function animateDiagram() {
         },
         "showNodeTime"
     );
-    tl.from(
+    safeAnimate(
         `g[data-linkid^="${COMPONENT_LINK}|"]`,
         {
             opacity: 0,
@@ -232,7 +238,7 @@ export function animateDiagram() {
         },
         "showNodeTime"
     );
-    tl.from(
+    safeAnimate(
         `g[data-linkid^="${CELL_LINK}|"]`,
         {
             opacity: 0,
