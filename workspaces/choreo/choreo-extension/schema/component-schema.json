@@ -56,6 +56,7 @@
                                 "description": "List of arbitrary key, value pairs.",
                                 "properties": {
                                     "componentType": {
+                                        "type": "string",
                                         "enum": ["service", "web-app", "scheduled-task", "manual-task", "web-hook"]
                                     }
                                 }    
