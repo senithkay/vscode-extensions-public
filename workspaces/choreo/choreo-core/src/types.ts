@@ -501,6 +501,7 @@ export interface ChoreoComponentCreationParams {
     description: string;
     displayType: ComponentDisplayType;
     repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
+    initializeNewDirectory?: boolean;
     /** Relevant for webhook types */
     accessibility?: ComponentAccessibility;
     /** Relevant for webhook types */

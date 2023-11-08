@@ -135,6 +135,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 this.addDockerFile(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
@@ -247,6 +248,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
@@ -264,6 +266,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
@@ -1245,6 +1248,33 @@ export class ProjectRegistry {
             });
         } else {
             window.showInformationMessage('Component configured successfully');
+        }
+    }
+
+    private initializeDirectory(args: ChoreoComponentCreationParams) {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        const { org, repo } = args.repositoryInfo as BYOCRepositoryDetails;
+            
+
+        if (args.initializeNewDirectory && projectLocation) {
+            const projectDir = dirname(projectLocation);
+            let basePath = join(projectDir, "repos", org, repo);
+            let folderPath = (args.repositoryInfo as BYOCRepositoryDetails)?.dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+
+            if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess && args.webAppConfig?.webAppType === ChoreoBuildPackNames.StaticFiles) {
+                folderPath = args.webAppConfig?.webAppOutputDirectory;
+            }
+    
+            if (folderPath) {
+                const subDirFullPath = join(basePath, folderPath);
+                if (existsSync(subDirFullPath)) {
+                    // If the folder already exists, delete it
+                    rmdirSync(subDirFullPath, { recursive: true });
+                }
+                
+                // Create the folder
+                mkdirSync(subDirFullPath);
+            }
         }
     }
 }
