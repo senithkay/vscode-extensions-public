@@ -70,7 +70,10 @@ interface AttributeType {
     type: string | Attributes | undefined | string[],
     name: string,
     isCollection: boolean
+    optional: boolean
 }
+
+const reservedKeywords = ["import", "export", "class", "interface", "abstract", "void", "boolean", "int", "string", "any", "Object", "List", "Optional"];
 
 function getElements(mapping: any): Elements {
     const interfaces: Elements = {};
@@ -81,7 +84,7 @@ function getElements(mapping: any): Elements {
         const attributes: Attributes = {};
 
         // Find the corresponding typeInfo for this element
-        getAttributes(typeInfo, attributes);
+        getAttributes(typeInfo, attributes, interfaces);
         // Add the element type and its attributes to the result object
 
         if (typeInfo.baseTypeInfo) {
@@ -93,7 +96,7 @@ function getElements(mapping: any): Elements {
 
     return interfaces;
 
-    function getAttributes(typeInfo: any, attributes: { [key: string]: AttributeType }) {
+    function getAttributes(typeInfo: any, attributes: { [key: string]: AttributeType }, interfaces: Elements) {
         if (typeInfo) {
             // Check if the typeInfo has propertyInfos (attributes)
             if (typeInfo.propertyInfos) {
@@ -101,7 +104,7 @@ function getElements(mapping: any): Elements {
                     const attributeName = attributeInfo.name;
                     const type = attributeInfo.type;
                     const typeInfo = attributeInfo.typeInfo;
-                    const attributeType: AttributeType = { type: undefined, name: attributeName, isCollection: attributeInfo.collection ?? false };
+                    const attributeType: AttributeType = { type: undefined, name: attributeName, isCollection: attributeInfo.collection ?? false, optional: false };
 
                     if (type === 'attribute') {
                         attributeType.type = typeInfo
@@ -119,8 +122,34 @@ function getElements(mapping: any): Elements {
                         attributeType.type = elementTypeInfos.filter((typeInfo: any) => typeInfo.typeInfo != null).map((typeInfo: any) =>
                             typeInfo.typeInfo.replaceAll(".", "")
                         );
+                    } else if (type === 'elements') {
+                        attributeType.type = attributeName;
+
+                        if (attributeInfo.elementTypeInfos) {
+                            const elementAttributes: { [key: string]: AttributeType } = {};
+                            for (const elementType of attributeInfo.elementTypeInfos) {
+                                const elementName = elementType.elementName;
+                                const elementAttributeType: AttributeType = {
+                                    type: elementType.typeInfo.replaceAll(".", ""),
+                                    name: reservedKeywords.includes(elementName) ? `_${elementName}` : elementName,
+                                    isCollection: elementType.collection ?? false,
+                                    optional: true
+                                };
+
+                                if (elementType.elementName?.localPart) {
+                                    const elementName = elementType.elementName.localPart;
+                                    elementAttributeType.name = reservedKeywords.includes(elementName) ? `_${elementName}` : elementName;
+                                }
+                                elementAttributes[elementAttributeType.name] = elementAttributeType;
+                            }
+                            interfaces[attributeName] = elementAttributes;
+                            attributeType.isCollection = false;
+                        }
+
                     } else if (typeInfo) {
                         attributeType.type = typeInfo.replaceAll(".", "");
+                    } else {
+                        attributeType.type = 'string';
                     }
 
                     if (attributeType.type) attributes[attributeName] = attributeType;
@@ -201,7 +230,7 @@ function parseAttributeType(attributeName: string, attributeType: AttributeType,
     const indentationStr = getIndentation(indentation);
 
     if (Array.isArray(attributeType.type)) {
-        const types = attributeType.type as string[];
+        const types = Array.from(new Set(attributeType.type)).map(type => type === 'AnyType' ? 'any' : type);
         str += language == Language.JAVA ?
             `${indentationStr}List<Object> ${attributeName};\n` :
             `${indentationStr}${attributeName}: ${types.length > 0 ? (types).join(" | ") : "any[]"};\n`;
@@ -225,8 +254,10 @@ function getDataType(attributeName: string, attributeType: AttributeType, enums:
     const type = attributeType.type as string;
     const name = attributeType.name;
     const array = attributeType.isCollection ? "[]" : "";
+    const isOptional = attributeType.optional;
     let typeStr = "";
 
+    // console.log(name);
     if (name.includes("_enum_")) {
         const enumName = name.split("_enum_")[1];
         const capitalizedStr = enumName.charAt(0).toUpperCase() + enumName.slice(1);
@@ -264,7 +295,9 @@ function getDataType(attributeName: string, attributeType: AttributeType, enums:
                 typeStr = type.charAt(0).toUpperCase() + type.slice(1);
         }
     }
-    return language === Language.JAVA ? `${typeStr}${array} ${attributeName};` : `${attributeName}: ${typeStr}${array};`;
+    return language === Language.JAVA ?
+        `${isOptional ? `Optional<${typeStr}>` : typeStr}${array} ${attributeName};` :
+        `${attributeName}${isOptional ? "?" : ""}: ${typeStr}${array};`;
 }
 
 function getIndentation(indentation: number): string {
