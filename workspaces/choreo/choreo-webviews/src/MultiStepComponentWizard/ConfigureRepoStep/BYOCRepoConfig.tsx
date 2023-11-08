@@ -77,6 +77,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
         }));
     }
 
+    // TODO: Need to remove the useEffect & find a better solution
     useEffect(() => {
         const updateFolderError = () => {
             let folderError = '';

@@ -30,7 +30,6 @@ import {
     GitRepo,
     GitProvider,
     Endpoint,
-    getEndpointsForVersion,
     EndpointData,
     WorkspaceConfig,
     Buildpack,
@@ -42,7 +41,7 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
+import { CHOREO_CONFIG_DIR, COMPONENT_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
@@ -136,6 +135,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 this.addDockerFile(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
@@ -187,7 +187,7 @@ export class ProjectRegistry {
             const schemaFilePath = openApiFilePath && subPath
                     ? relative(subPath, openApiFilePath)
                     : openApiFilePath || "openapi.yaml";
-            const componentYamlPath = join(basePath, CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE);
+            const componentYamlPath = join(basePath, CHOREO_CONFIG_DIR, COMPONENT_CONFIG_FILE);
 
             if (existsSync(componentYamlPath)) {
                 rmSync(componentYamlPath);
@@ -197,7 +197,7 @@ export class ProjectRegistry {
                 apiVersion:'core.choreo.dev/v1alpha1',
                 kind:'ComponentConfig',
                 metadata: {
-                    name: args.name,
+                    name: makeURLSafe(args.name),
                     projectName: project?.name!,
                     annotations: { componentType: getGeneralizedCellComponentType(args.displayType) },
                 },
@@ -248,6 +248,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
@@ -265,6 +266,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
@@ -1072,9 +1074,9 @@ export class ProjectRegistry {
         let hasBallerinaTomlInRoot = existsSync(join(repoPath, 'Ballerina.toml'));
 
         let hasComponentYaml = false;
-        let componentYamlPath = join(repoPath, '.choreo', COMPONENTS_CONFIG_FILE);
+        let componentYamlPath = join(repoPath, '.choreo', COMPONENT_CONFIG_FILE);
         if(dockerContextPath || subPath){
-            componentYamlPath = join(repoPath, dockerContextPath || subPath, '.choreo', COMPONENTS_CONFIG_FILE);
+            componentYamlPath = join(repoPath, dockerContextPath || subPath, '.choreo', COMPONENT_CONFIG_FILE);
         }
         hasComponentYaml = existsSync(componentYamlPath);
 
@@ -1246,6 +1248,33 @@ export class ProjectRegistry {
             });
         } else {
             window.showInformationMessage('Component configured successfully');
+        }
+    }
+
+    private initializeDirectory(args: ChoreoComponentCreationParams) {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        const { org, repo } = args.repositoryInfo as BYOCRepositoryDetails;
+            
+
+        if (args.initializeNewDirectory && projectLocation) {
+            const projectDir = dirname(projectLocation);
+            let basePath = join(projectDir, "repos", org, repo);
+            let folderPath = (args.repositoryInfo as BYOCRepositoryDetails)?.dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+
+            if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess && args.webAppConfig?.webAppType === ChoreoBuildPackNames.StaticFiles) {
+                folderPath = args.webAppConfig?.webAppOutputDirectory;
+            }
+    
+            if (folderPath) {
+                const subDirFullPath = join(basePath, folderPath);
+                if (existsSync(subDirFullPath)) {
+                    // If the folder already exists, delete it
+                    rmdirSync(subDirFullPath, { recursive: true });
+                }
+                
+                // Create the folder
+                mkdirSync(subDirFullPath);
+            }
         }
     }
 }
