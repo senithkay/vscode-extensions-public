@@ -20,8 +20,7 @@ import { CMLocation, GetComponentModelResponse } from '@wso2-enterprise/ballerin
 import { ExtensionContext, WebviewPanel, workspace } from 'vscode';
 import { registerProjectDesignRPCHandlers } from '../project-design-diagrams/rpc-layer/rpc-handler';
 import { BallerinaExtension, ExtendedLangClient } from '../core';
-import { registerOverviewRPCHandlers } from '../rpc-managers/overview/rpc-handler';
-import { BallerinaLangClientInterface } from '@wso2-enterprise/ballerina-core';
+import { registerOverviewRpcHandlers } from '../rpc-managers/overview/rpc-handler';
 
 
 const stateChanged: NotificationType<any> = { method: 'stateChanged' };
@@ -38,7 +37,7 @@ export class RPCLayer {
         this._vsContext = _ballerinaContext.context;
         this._ballerinaContext = _ballerinaContext;
         
-        registerOverviewRPCHandlers(this._messenger);
+        registerOverviewRpcHandlers(this._messenger);
 
         // Inform console of changing state
         getService().onTransition((state) => {

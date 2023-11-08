@@ -26,4 +26,4 @@ export function Webview() {
             {view === "Architecture" &&  <h2>Hello Arch</h2> }
         </>
     );
-}
+};
