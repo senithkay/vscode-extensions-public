@@ -7,6 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { COMPONENT_LINK } from '../../../resources';
 import { SharedLinkModel } from '../../shared-link/shared-link';
 
 interface LinkOrigins {
@@ -19,7 +20,7 @@ export class ComponentLinkModel extends SharedLinkModel {
     targetNode: LinkOrigins;
 
     constructor(id: string) {
-        super(id, 'componentLink');
+        super(id, COMPONENT_LINK);
     }
 
     setSourceNode(nodeId: string, attributeId = '') {

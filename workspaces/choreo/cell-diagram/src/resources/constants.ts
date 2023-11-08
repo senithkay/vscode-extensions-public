@@ -27,6 +27,8 @@ export enum Colors {
 
     CONTROL_BUTTON_BG = '#FFF',
     CONTROL_BUTTON_STROKE_COLOR = '#636262',
+    GREY = '#808080',
+    LIGHT_GREY = '#d3d3d3',
 }
 
 export const dagreEngine = new DagreEngine({
@@ -54,6 +56,13 @@ export const CONNECTION_NODE = "connectionNode";
 export const MAIN_CELL = "mainCell";
 export const EMPTY_NODE = "emptyNode";
 export const EXTERNAL_NODE = "externalNode";
+export const BORDER_NODE = "borderNode";
+
+// link types
+export const COMPONENT_LINK = "componentLink";
+export const CONNECTION_LINK = "connectionLink";
+export const CELL_LINK = "cellLink";
+export const EXTERNAL_LINK = "externalLink";
 
 // node dimensions
 export const MAIN_CELL_DEFAULT_HEIGHT = 500;
@@ -69,3 +78,6 @@ export const LINE_MAX_WIDTH = 10;
 
 export const LABEL_FONT_SIZE = 20;
 export const LABEL_MAX_WIDTH = 160;
+
+export const BORDER_GAP = 40;
+export const DIAGRAM_END = 10000;

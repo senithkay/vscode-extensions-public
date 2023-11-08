@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -16,12 +16,28 @@
   ],
   "activationEvents": [
     "workspaceContains:.choreo-project",
+    "workspaceContains:**/component.yaml",
     "onView:choreo-projects",
     "onView:choreo-account",
     "onStartupFinished"
   ],
+  "extensionDependencies": [
+    "redhat.vscode-yaml"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "yaml",
+        "aliases": [
+          "Component Configuration"
+        ],
+        "extensions": [
+          ".yaml"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
     "commands": [
       {
         "command": "wso2.choreo.sign.in",
@@ -201,7 +217,7 @@
           {
             "id": "createComponent",
             "title": "Create a component",
-            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n **Create from existing** \nCreate new components from existing. implementations by simply providing the source directory or the docker file. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)\n **Create from scratch** \nCreate new components from default templates available for Choreo users. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromScratch%27%20%7D%22)",
+            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n[Create New Component](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)",
             "media": {
               "markdown": "resources/walkthrough/createComponent.md"
             }
@@ -209,7 +225,7 @@
           {
             "id": "visualizeProjects",
             "title": "Visualize Choreo projects",
-            "description": "Visualize different aspects of your Choreo projects for a range of valuable information, all from a single click. \n **Architecture View** \n A high-level view of your project components, their compositions, and their dependencies with one another and external endpoints. \n[Open Architecture View](command:ballerina.view.architectureView)\n **Cell View** \n An enriched version of the architecture view, the cell view provides insights into the accessibility of your project components. \n[Open Cell View](command:ballerina.view.cellView)",
+            "description": "Visualize different aspects of your Choreo projects for a range of valuable information, all from a single click.\n  **Cell View** \n An enriched version of the architecture view, the cell view provides insights into the accessibility of your project components. \n[Open Cell View](command:ballerina.view.cellView)",
             "media": {
               "markdown": "resources/walkthrough/visualize.md"
             }
@@ -219,7 +235,7 @@
             "title": "Publish your project",
             "description": "To leverage the capabilities of Choreo, sync your local changes with Choreo.",
             "media": {
-              "markdown": "resources/walkthrough/PushToChoreo.md"
+              "markdown": "resources/walkthrough/pushToChoreo.md"
             }
           }
         ]
@@ -239,7 +255,7 @@
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "compile": "webpack --mode production",
     "watch-choreo": "npx webpack --watch",
-    "build": "pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm copy-cellview-lib && pnpm run package && pnpm run postbuild",
+    "build": "pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm copy-cellview-lib && pnpm run postbuild",
     "rebuild": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm copy-cellview-lib && pnpm run postbuild",
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../choreo-webviews/build/* ./resources/jslibs",
     "copy-cellview-lib": "mkdir -p ./resources/jslibs && copyfiles -u 3 \"../cell-diagram/lib/**/*\" ./resources/jslibs",

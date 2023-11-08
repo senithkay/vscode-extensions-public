@@ -9,6 +9,7 @@
 
 import createEngine, { DiagramEngine, DiagramModel, NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseModel, BaseModelGenerics } from "@projectstorm/react-canvas-core";
+import gsap from "gsap";
 import {
     ComponentLinkModel,
     ComponentModel,
@@ -45,13 +46,27 @@ import {
     Observations,
 } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
-import { getNodePortId, getCellPortMetadata } from "../components/Cell/CellNode/cell-util";
-import { CIRCLE_WIDTH, COMPONENT_NODE, CONNECTION_NODE, DOT_WIDTH, MAIN_CELL, MAIN_CELL_DEFAULT_HEIGHT, dagreEngine } from "../resources";
+import { getNodePortId, getCellPortMetadata, getCellLinkName } from "../components/Cell/cell-util";
+import {
+    BORDER_GAP,
+    BORDER_NODE,
+    CELL_LINK,
+    CIRCLE_WIDTH,
+    COMPONENT_LINK,
+    COMPONENT_NODE,
+    CONNECTION_NODE,
+    DIAGRAM_END,
+    DOT_WIDTH,
+    EXTERNAL_LINK,
+    MAIN_CELL,
+    MAIN_CELL_DEFAULT_HEIGHT,
+    dagreEngine,
+} from "../resources";
 import { Orientation } from "../components/Connection/ConnectionNode/ConnectionModel";
-import { getComponentNameById, getComponentName } from "../components/Component/ComponentNode/component-util";
-import { getConnectionNameById } from "../components/Connection/ConnectionNode/connection-util";
-import { getEmptyNodeName } from "../components/Cell/EmptyNode/empty-node-util";
-import { getExternalNodeName } from "../components/External/ExternalNode/external-node-util";
+import { getComponentNameById, getComponentName, getComponentLinkName } from "../components/Component/component-node-util";
+import { getConnectionNameById } from "../components/Connection/connection-node-util";
+import { getEmptyNodeName } from "../components/Cell/cell-util";
+import { getExternalLinkName, getExternalNodeName } from "../components/External/external-node-util";
 
 // Diagram engine utils
 
@@ -119,7 +134,7 @@ export function getComponentDiagramWidth(models: NodesAndLinks): number {
         ...models.nodes.componentNodes.values(),
         ...models.links.componentLinks.values(),
         ...models.nodes.emptyNodes.values(),
-        ...models.links.cellLinks.values(),
+        ...models.links.cellLinks.values()
     );
     // auto distribute component nodes, component links, empty nodes and cell links
     dagreEngine.redistribute(tempModel);
@@ -128,8 +143,8 @@ export function getComponentDiagramWidth(models: NodesAndLinks): number {
 }
 
 export function getComponentDiagramBoundaries(model: DiagramModel) {
-    let minX = 0,
-        minY = 0,
+    let minX = DIAGRAM_END,
+        minY = DIAGRAM_END,
         maxX = 0,
         maxY = 0;
     model.getNodes().forEach((node) => {
@@ -174,6 +189,63 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
     updateBoundNodePositions(cellNode, model);
 
     return model;
+}
+
+// reveal diagram with animation
+export function animateDiagram() {
+    const tl = gsap.timeline();
+    const safeAnimate = (selector, animation, label?) => {
+        const elements = gsap.utils.toArray(selector);
+        if (elements.length > 0) {
+            tl.from(elements, animation, label);
+        }
+    };
+    safeAnimate(`div[data-nodeid="${MAIN_CELL}"]`, {
+        scale: 0,
+        opacity: 0,
+        duration: 0.5,
+    });
+    safeAnimate(
+        `g[data-linkid^="${EXTERNAL_LINK}|"]`,
+        {
+            scale: 0,
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    safeAnimate(
+        `div[data-nodeid^="${COMPONENT_NODE}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    safeAnimate(
+        `div[data-nodeid^="${CONNECTION_NODE}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    safeAnimate(
+        `g[data-linkid^="${COMPONENT_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    safeAnimate(
+        `g[data-linkid^="${CELL_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
 }
 
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
@@ -246,6 +318,15 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
             }
         }
     }
+    // arrange border nodes
+    // change north bound border empty node position
+    const cellPositionNorth = cellNode.getPosition().clone();
+    cellPositionNorth.y = cellPositionNorth.y - (externalLinkOffset + CIRCLE_WIDTH / 2) - BORDER_GAP;
+    model.getNode(getEmptyNodeName(CellBounds.NorthBound, BORDER_NODE))?.setPosition(cellPositionNorth.clone());
+    // change south bound border empty node position
+    const cellPositionSouth = cellNode.getPosition().clone();
+    cellPositionSouth.y = cellPositionSouth.y + (cellNode.width - CIRCLE_WIDTH) + BORDER_GAP;
+    model.getNode(getEmptyNodeName(CellBounds.SouthBound, BORDER_NODE))?.setPosition(cellPositionSouth.clone());
 }
 
 export function isRenderInsideCell(node: BaseModel<BaseModelGenerics>): boolean {
@@ -328,7 +409,6 @@ function generateExternalNodes(): Map<string, ExternalModel> {
 }
 
 function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[]): Map<string, EmptyModel> {
-    const DIAGRAM_END = 1000;
     const nodes: Map<string, EmptyModel> = new Map<string, EmptyModel>();
 
     const northBoundEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH);
@@ -352,6 +432,13 @@ function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[
         }
     });
 
+    // add border empty nodes
+    const northBoundBorderEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH, BORDER_NODE);
+    nodes.set(northBoundBorderEmptyNode.getID(), northBoundBorderEmptyNode);
+
+    const southBoundBorderEmptyNode = new EmptyModel(CellBounds.SouthBound, CIRCLE_WIDTH, BORDER_NODE);
+    nodes.set(southBoundBorderEmptyNode.getID(), southBoundBorderEmptyNode);
+
     return nodes;
 }
 
@@ -373,13 +460,16 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                     const targetPort: ComponentPortModel | null = associatedComponent.getPort(`left-${associatedComponent.getID()}`);
 
                     if (sourcePort && targetPort) {
-                        const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                        const linkId = getComponentLinkName(sourcePort.getID(), targetPort.getID());
                         const link: ComponentLinkModel = new ComponentLinkModel(linkId);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as ComponentLinkModel);
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -391,13 +481,16 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                     const targetPort: ConnectionPortModel | null = associatedComponent.getPort(`top-${associatedComponent.getID()}`);
 
                     if (sourcePort && targetPort) {
-                        const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                        const linkId = getComponentLinkName(sourcePort.getID(), targetPort.getID());
                         const link: ComponentLinkModel = new ComponentLinkModel(linkId);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as ComponentLinkModel);
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -420,7 +513,7 @@ function generateConnectorLinks(emptyNodes: Map<string, EmptyModel>, connectorNo
         const targetPort: ConnectionPortModel | null = connectionNode.getPort(`top-${connectionNode.getID()}`);
 
         if (sourcePort && targetPort) {
-            const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+            const linkId = getExternalLinkName(sourcePort.getID(), targetPort.getID());
             const link: ExternalLinkModel = new ExternalLinkModel(linkId);
             links.set(linkId, createLinks(sourcePort, targetPort, link) as ExternalLinkModel);
             link.setSourceNode(southBoundEmptyNode.getID());
@@ -443,7 +536,7 @@ function generateConnectionLinks(emptyNodes: Map<string, EmptyModel>, connection
         const targetPort: ConnectionPortModel | null = connectionNode.getPort(`left-${connectionNode.getID()}`);
 
         if (sourcePort && targetPort) {
-            const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+            const linkId = getExternalLinkName(sourcePort.getID(), targetPort.getID());
             const link: ExternalLinkModel = new ExternalLinkModel(linkId);
             links.set(linkId, createLinks(sourcePort, targetPort, link) as ExternalLinkModel);
             link.setSourceNode(eastboundEmptyNode.getID());
@@ -463,6 +556,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
         // internet/public exposed services links
         if (targetComponent) {
             let isExposed = false;
+            let tooltip = "";
             const observations: Observations[] = [];
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
@@ -479,6 +573,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                             })
                         );
                     }
+                    tooltip = service.deploymentMetadata?.gateways.internet.tooltip;
                 }
             }
             const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.NorthBound));
@@ -486,7 +581,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                 const sourcePort: CellPortModel | null = northBoundEmptyNode.getPort(getNodePortId(northBoundEmptyNode.getID(), PortModelAlignment.BOTTOM));
                 const targetPort: ComponentPortModel | null = targetComponent.getPort(`top-${targetComponent.getID()}`);
                 if (sourcePort && targetPort) {
-                    const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                    const linkId = getCellLinkName(sourcePort.getID(), targetPort.getID());
                     const link: CellLinkModel = new CellLinkModel(linkId);
                     links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                     link.setSourceNode(northBoundEmptyNode.getID());
@@ -494,12 +589,16 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     if (observations?.length > 0) {
                         link.setObservations(observations);
                     }
+                    if (tooltip) {
+                        link.setTooltip(tooltip);
+                    }
                 }
             }
         }
         // intranet/org exposed services links
         if (targetComponent) {
             let isExposed = false;
+            let tooltip = "";
             const observations: Observations[] = [];
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
@@ -509,6 +608,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     if (service.deploymentMetadata?.gateways.intranet.observations?.length > 0) {
                         observations.push(...service.deploymentMetadata?.gateways.intranet.observations);
                     }
+                    tooltip = service.deploymentMetadata?.gateways.intranet.tooltip;
                 }
             }
             const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.WestBound));
@@ -516,13 +616,16 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                 const sourcePort: CellPortModel | null = northBoundEmptyNode.getPort(getNodePortId(northBoundEmptyNode.getID(), PortModelAlignment.RIGHT));
                 const targetPort: ComponentPortModel | null = targetComponent.getPort(`left-${targetComponent.getID()}`);
                 if (sourcePort && targetPort) {
-                    const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                    const linkId = getCellLinkName(sourcePort.getID(), targetPort.getID());
                     const link: CellLinkModel = new CellLinkModel(linkId);
                     links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                     link.setSourceNode(northBoundEmptyNode.getID());
                     link.setTargetNode(targetComponent.getID());
                     if (observations.length > 0) {
                         link.setObservations(observations);
+                    }
+                    if (tooltip) {
+                        link.setTooltip(tooltip);
                     }
                 }
             }
@@ -536,13 +639,16 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     const targetPort: CellPortModel | null = southBoundEmptyNode.getPort(getNodePortId(southBoundEmptyNode.getID(), PortModelAlignment.TOP));
 
                     if (sourcePort && targetPort) {
-                        const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                        const linkId = getCellLinkName(sourcePort.getID(), targetPort.getID());
                         const link: CellLinkModel = new CellLinkModel(linkId);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(southBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -553,13 +659,16 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     const targetPort: CellPortModel | null = eastBoundEmptyNode.getPort(getNodePortId(eastBoundEmptyNode.getID(), PortModelAlignment.LEFT));
 
                     if (sourcePort && targetPort) {
-                        const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+                        const linkId = getCellLinkName(sourcePort.getID(), targetPort.getID());
                         const link: CellLinkModel = new CellLinkModel(linkId);
                         links.set(linkId, createLinks(sourcePort, targetPort, link) as CellLinkModel);
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(eastBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
                             link.setObservations(connection.observations);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -622,7 +731,7 @@ function createExternalLink(
     const targetPort = targetNode?.getPort(`${getOppositeAlignment(alignment)}-${targetNode.getID()}`);
 
     if (sourcePort && targetNode && targetPort) {
-        const linkId = `${sourcePort.getID()}::${targetPort.getID()}`;
+        const linkId = getExternalLinkName(sourcePort.getID(), targetPort.getID());
         const link: ExternalLinkModel = new ExternalLinkModel(linkId);
 
         if (switchArrow) {

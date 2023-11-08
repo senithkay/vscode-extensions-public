@@ -40,11 +40,6 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
         };
     }, [node]);
 
-    const handleOnHeaderWidgetClick = () => {
-        // setSelectedNodeId(node.getID());
-        // setFocusedNodeId(undefined);
-    };
-
     return (
         <ConnectionNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
@@ -56,9 +51,7 @@ export function ConnectionWidget(props: ConnectionWidgetProps) {
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             />
-            <ConnectionName onClick={handleOnHeaderWidgetClick} orientation={node.orientation}>
-                {displayName}
-            </ConnectionName>
+            <ConnectionName orientation={node.orientation}>{displayName}</ConnectionName>
         </ConnectionNode>
     );
 }

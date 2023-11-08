@@ -67,9 +67,9 @@ export class CellDiagramView {
                     <title>Choreo Cell Diagram View</title>
                     <script src="${scriptUri}"></script>
                 </head>
-                <body>
+                <body style="padding: 0;">
                     <noscript>You need to enable JavaScript to run this app.</noscript>
-                    <div id="root" style="height: 100vh; width: 100vw"></div>
+                    <div id="root" style="height: 100vh; width: 100vw;"></div>
                 </body>
                 <script>
                     function render() {

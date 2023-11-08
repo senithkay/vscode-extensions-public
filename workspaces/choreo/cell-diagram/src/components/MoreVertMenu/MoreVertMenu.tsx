@@ -12,11 +12,12 @@ import styled from "@emotion/styled";
 import { MoreVertIcon } from "../../resources/assets/icons";
 import { Colors } from "../../resources";
 import { Component } from "../../types";
+import { Menu, MenuItem } from "@mui/material";
 
 const MenuButton: React.FC<any> = styled.div`
     position: absolute;
     top: -4px;
-    right: -16px;
+    right: -12px;
     cursor: pointer;
     z-index: 1;
     svg {
@@ -27,28 +28,27 @@ const MenuButton: React.FC<any> = styled.div`
     }
 `;
 
-const Menu = styled.div`
+const BubbleAnimation = styled.div`
     position: absolute;
-    top: 4px;
-    right: 0;
+    top: 40%;
+    right: 50%;
+    transform: translate(50%, -50%);
     background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
-    padding: 8px 0;
+    border: 3px solid ${Colors.LIGHT_GREY};
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: fade-in-out 0.2s ease-out forwards;
 
-    color: rgba(0, 0, 0, 0.87);
-    -webkit-transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-    border-radius: 4px;
-    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-    z-index: 1;
-    min-width: 120px;
-    max-width: 100%;
-`;
-
-const MenuItem = styled.div`
-    padding: 8px;
-    cursor: pointer;
-    &:hover {
-        background-color: ${Colors.NODE_BACKGROUND_SECONDARY};
+    @keyframes fade-in-out {
+        0% {
+            opacity: 0;
+            transform: translate(50%, -50%) scale(0.5);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(50%, -50%) scale(1);
+        }
     }
 `;
 
@@ -60,37 +60,57 @@ export interface MenuItem {
 interface MoreVertMenuProps {
     component: Component;
     menuItems: MenuItem[];
-    showMenu: boolean;
-    setShowMenu: (showMenu: boolean) => void;
 }
 
 export function MoreVertMenu(props: MoreVertMenuProps) {
-    const { component, menuItems, showMenu, setShowMenu } = props;
+    const { component, menuItems } = props;
 
-    const handleMenuButtonClick = () => {
-        setShowMenu(!showMenu);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+    const open = Boolean(anchorEl);
+
+    const handleMenuButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
     };
 
     return (
         <>
-            <MenuButton onClick={handleMenuButtonClick} rotate={showMenu}>
+            <MenuButton onClick={handleMenuButtonClick}>
+                <BubbleAnimation />
                 <MoreVertIcon />
             </MenuButton>
-            {showMenu && (
-                <Menu>
-                    {menuItems.map((item, index) => (
-                        <MenuItem
-                            key={index}
-                            onClick={() => {
-                                item.callback(component.id, component.version);
-                                setShowMenu(false);
-                            }}
-                        >
-                            {item.label}
-                        </MenuItem>
-                    ))}
-                </Menu>
-            )}
+            <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                    "aria-labelledby": "basic-button",
+                }}
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "left",
+                }}
+                transformOrigin={{
+                    vertical: "top",
+                    horizontal: "left",
+                }}
+            >
+                {menuItems.map((item, index) => (
+                    <MenuItem
+                        key={index}
+                        onClick={() => {
+                            item.callback(component.id, component.version);
+                        }}
+                    >
+                        {item.label}
+                    </MenuItem>
+                ))}
+            </Menu>
         </>
     );
 }

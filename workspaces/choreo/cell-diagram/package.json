@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/cell-diagram",
-    "version": "1.0.0",
+    "version": "1.1.4",
     "description": "Generate the cell diagram for Choreo projects.",
     "files": [
         "lib"
@@ -39,7 +39,8 @@
         "react-dom": "^18.2.0",
         "resize-observer-polyfill": "^1.5.1",
         "typescript": "^4.9.4",
-        "@wso2-enterprise/ui-toolkit": "workspace:*"
+        "@wso2-enterprise/ui-toolkit": "workspace:*",
+        "gsap": "~3.12.2"
     },
     "devDependencies": {
         "@babel/core": "^7.20.12",

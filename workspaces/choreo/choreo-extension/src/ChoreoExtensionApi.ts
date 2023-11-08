@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, commands } from 'vscode';
+import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri, window, commands, extensions } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import {
@@ -24,6 +24,9 @@ import {
     Organization,
     Project,
     ServiceTypes,
+    EndpointData,
+    ComponentConfig,
+    ComponentConfigSchema,
     UserInfo,
     WorkspaceConfig,
 } from "@wso2-enterprise/choreo-core";
@@ -335,8 +338,14 @@ export class ChoreoExtensionApi {
         return ProjectRegistry.getInstance().getPerformanceForecast(orgId!, orgHandle!, data);
     }
 
-    public async getSwaggerExamples(orgId: number, orgHandle: string, spec: any): Promise<AxiosResponse> {
-        return ProjectRegistry.getInstance().getSwaggerExamples(orgId, orgHandle, spec);
+    public async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
+        const orgId = ext.api.getOrgIdOfCurrentProject();
+
+        if (!orgId) {
+            throw Error("Current project is not a Choreo project");
+        }
+        const orgHandle = ext.api.getOrgById(orgId)?.handle;
+        return ProjectRegistry.getInstance().getSwaggerExamples(orgId, orgHandle!, spec);
     }
 
     public async enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined> {
@@ -546,5 +555,27 @@ export class ChoreoExtensionApi {
 
     public async resetOpenChoreoActivity(): Promise<void> {
         await ext.context.globalState.update(OPEN_CHOREO_ACTIVITY, undefined);
+    }
+
+    public async getOpenedComponentName(): Promise<string | undefined> {
+        // Read workspace file
+        const workspaceFile = workspace.workspaceFile;
+        const workspaceData = await workspace.fs.readFile(workspaceFile!);
+        const workspaceContent = new TextDecoder().decode(workspaceData);
+        const workspaceConfig = JSON.parse(workspaceContent) as WorkspaceConfig;
+
+        const activeEditor = window.activeTextEditor;
+        if (activeEditor && activeEditor.document) {
+            const activeFilePath = activeEditor.document.uri.fsPath;
+            for (const folder of workspaceConfig.folders) {
+                if (folder.name === "choreo-project-root") {
+                    continue;
+                } else if (activeFilePath.includes(folder.path.trim())) {
+                    return folder.name;
+                };
+            }
+        }
+
+        return undefined;
     }
 }

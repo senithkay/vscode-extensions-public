@@ -32,7 +32,10 @@ export const ConnectionNode: React.FC<any> = styled.div`
     gap: 10px;
     padding: 2px;
     pointer-events: all;
-    cursor: pointer;
+    cursor: grab;
+    &:active {
+        cursor: grabbing;
+    }
 `;
 
 export const ConnectionHead: React.FC<any> = styled.div`
@@ -49,7 +52,6 @@ export const ConnectionHead: React.FC<any> = styled.div`
 `;
 
 export const ConnectionName: React.FC<any> = styled.span`
-    cursor: pointer;
     font-size: ${LABEL_FONT_SIZE}px;
     white-space: nowrap;
     overflow: hidden;

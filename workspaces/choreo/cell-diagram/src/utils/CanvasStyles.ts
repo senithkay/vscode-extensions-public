@@ -29,7 +29,6 @@ export const DiagramContainer = styled.div`
     align-items: center;
     flex-direction: column;
     justify-content: center;
-    padding: 28px 20px;
     svg:not(:root) {
         overflow: visible;
     }

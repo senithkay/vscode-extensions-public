@@ -16,7 +16,8 @@ import {
     IReadOnlyTokenStorage,
     ChoreoSubscriptionClient,
     ComponentManagementClient,
-    ChoreoCellViewClient
+    ChoreoCellViewClient,
+    ChoreoDevopsClient
 } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
@@ -64,8 +65,13 @@ export async function activateClients(): Promise<void> {
         }
     };
 
-    const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoEnvConfig.getProjectAPI(),
-        choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
+    const projectClient = new ChoreoProjectClient(
+        readonlyTokenStore,
+        choreoEnvConfig.getProjectAPI(),
+        choreoAIConfig.getPerfAPI(),
+        choreoAIConfig.getSwaggerExamplesAPI(),
+        choreoEnvConfig.getDeclarativeUrl()
+    );
 
     const githubAppClient = new ChoreoGithubAppClient(
         readonlyTokenStore, choreoEnvConfig.getProjectAPI(), choreoEnvConfig.getGHAppConfig());
@@ -74,6 +80,7 @@ export async function activateClients(): Promise<void> {
 
     const componentManagementClient = new ComponentManagementClient(readonlyTokenStore, choreoEnvConfig.getComponentManagementUrl());
 
+    const devopsClient = new ChoreoDevopsClient(readonlyTokenStore, choreoEnvConfig.getDevopsUrl());
     const cellViewClient = new ChoreoCellViewClient(projectClient);
 
     ext.clients = {
@@ -81,6 +88,7 @@ export async function activateClients(): Promise<void> {
         projectClient,
         subscriptionClient,
         componentManagementClient,
+        devopsClient,
         cellViewClient
     };
 }

@@ -31,12 +31,11 @@ import { dirname, join } from "path";
 import * as yaml from 'js-yaml';
 
 export const CHOREO_CONFIG_DIR = ".choreo";
-export const COMPONENTS_CONFIG_FILE = "config.yaml";
-export const ENDPOINTS_FILE = "endpoint.yaml";
+export const COMPONENT_CONFIG_FILE = "component-config.yaml";
 export const CHOREO_PROJECT_ROOT = "choreo-project-root";
 
 const MODEL_VERSION = "0.4.0";
-const CHOREO_CONNECTION_ID_PREFIX = "choreo://";
+const CHOREO_CONNECTION_ID_PREFIX = "choreo:///";
 
 export function getDefaultServiceModel(): CMService {
     return {
@@ -95,7 +94,7 @@ export function getServiceModels(endpoints: Inbound[],
     return services;
 }
 
-export function getConnectionModels(orgName: string, connections: Outbound, projectNameToIdMap: Map<string, string>) {
+export function getConnectionModels(connections: Outbound, projectNameToIdMap: Map<string, string>, compHandlerToNameMap: Map<string, string>) {
     const connectionModels: CMDependency[] = [];
 
     if (connections && Array.isArray(connections.serviceReferences)) {
@@ -103,13 +102,15 @@ export function getConnectionModels(orgName: string, connections: Outbound, proj
             const isChoreoConnection = ref.name.startsWith(CHOREO_CONNECTION_ID_PREFIX);
             let connectionId = ref.name;
             if (isChoreoConnection) {
-                const connectionIdParts = ref.name.split('/');
-                const projectName = connectionIdParts[2];
-                const componentName = connectionIdParts[3];
-                const endpointName = connectionIdParts[5];
-                const projectId = projectNameToIdMap.has(projectName) ? projectNameToIdMap.get(projectName) : projectName;
-                
-                connectionId = `${orgName}:${projectId}:${componentName}:${endpointName}`;
+                const connectionIdParts = ref.name.split(CHOREO_CONNECTION_ID_PREFIX)[1].split("/");
+                const orgName = connectionIdParts[0];
+                const projectHandle = connectionIdParts[1];
+                const componentHandle = connectionIdParts[2];
+                const endpointHash = connectionIdParts[3];
+                const projectId = projectNameToIdMap.has(projectHandle) ? projectNameToIdMap.get(projectHandle) : projectHandle;
+                const componentName = compHandlerToNameMap.has(componentHandle) ? compHandlerToNameMap.get(componentHandle) : componentHandle;
+
+                connectionId = `${orgName}:${projectId}:${componentName}:${endpointHash}`;
             }
             connectionModels.push({
                 id: connectionId,
@@ -125,7 +126,7 @@ export function getConnectionModels(orgName: string, connections: Outbound, proj
 export function getDefaultComponentModel(orgName: string,
                                         componentName: string,
                                         componentType: ComponentType,
-                                        buildPack: BuildPack,
+                                        buildPack: string,
                                         componentVersion?: string): ComponentModel {
     const services: CMService[] = [];
 
@@ -208,7 +209,9 @@ export function getComponentDirPath(component: Component, projectLocation: strin
     return undefined;
 }
 
-export function getGeneralizedComponentType(type: ComponentDisplayType): ComponentType {
+export function getGeneralizedComponentType(
+    type: ComponentDisplayType
+): ComponentType {
     switch (type) {
         case ComponentDisplayType.RestApi:
         case ComponentDisplayType.Service:
@@ -216,24 +219,35 @@ export function getGeneralizedComponentType(type: ComponentDisplayType): Compone
         case ComponentDisplayType.GraphQL:
         case ComponentDisplayType.MiApiService:
         case ComponentDisplayType.MiRestApi:
+        case ComponentDisplayType.BuildpackService:
+        case ComponentDisplayType.BuildpackRestApi:
+        case ComponentDisplayType.Websocket:
             return ComponentType.SERVICE;
         case ComponentDisplayType.ManualTrigger:
         case ComponentDisplayType.ByocJob:
+        case ComponentDisplayType.BuildpackJob:
+        case ComponentDisplayType.MiJob:
             return ComponentType.MANUAL_TASK;
         case ComponentDisplayType.ScheduledTask:
         case ComponentDisplayType.ByocCronjob:
+        case ComponentDisplayType.BuildpackCronJob:
+        case ComponentDisplayType.MiCronjob:
             return ComponentType.SCHEDULED_TASK;
         case ComponentDisplayType.Webhook:
         case ComponentDisplayType.ByocWebhook:
+        case ComponentDisplayType.BuildpackWebhook:
             return ComponentType.WEB_HOOK;
         case ComponentDisplayType.Proxy:
             return ComponentType.API_PROXY;
         case ComponentDisplayType.ByocWebApp:
         case ComponentDisplayType.ByocWebAppDockerLess:
+        case ComponentDisplayType.BuildpackWebApp:
             return ComponentType.WEB_APP;
-        case ComponentDisplayType.Websocket:
         case ComponentDisplayType.MiEventHandler:
+        case ComponentDisplayType.BallerinaEventHandler:
             return ComponentType.EVENT_HANDLER;
+        case ComponentDisplayType.BuildpackTestRunner:
+            return ComponentType.TEST;
         default:
             return ComponentType.SERVICE;
     }
@@ -246,15 +260,32 @@ export function getBuildPackFromFs(componentPath: string): BuildPack {
     return BuildPack.Other;
 }
 
-export function getBuildPackFromChoreo(componentDisplayType: ComponentDisplayType): BuildPack {
-    if (componentDisplayType === ComponentDisplayType.GraphQL
-         || componentDisplayType === ComponentDisplayType.ManualTrigger
-         || componentDisplayType === ComponentDisplayType.Proxy
-         || componentDisplayType === ComponentDisplayType.ScheduledTask
-         || componentDisplayType === ComponentDisplayType.Service
-         || componentDisplayType === ComponentDisplayType.Webhook
-         || componentDisplayType === ComponentDisplayType.Websocket) {
-        return BuildPack.Ballerina;        
+export function getImplementedLangOrFramework(component: Component) {
+    const { displayType, repository } = component;
+    if (
+        displayType === ComponentDisplayType.GraphQL ||
+        displayType === ComponentDisplayType.ManualTrigger ||
+        displayType === ComponentDisplayType.ScheduledTask ||
+        displayType === ComponentDisplayType.Service ||
+        displayType === ComponentDisplayType.Webhook ||
+        displayType === ComponentDisplayType.Websocket
+    ) {
+        return BuildPack.Ballerina;
+    }
+    if (displayType.startsWith('buildpack')) {
+        const latestVersion = getLatestComponentVersion(component)?.id;
+        if (latestVersion && repository?.buildpackConfig) {
+            const buildpackOfLatestVersion = repository.buildpackConfig.find(
+                (config) => config.versionId === latestVersion
+            );
+            if (buildpackOfLatestVersion) {
+                return buildpackOfLatestVersion.buildpack.language;
+            }
+        }
     }
     return BuildPack.Other;
+}
+
+export function getLatestComponentVersion(component: Component) {
+    return component?.apiVersions?.find((apiVersion) => apiVersion.latest);
 }

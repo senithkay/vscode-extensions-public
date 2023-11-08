@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
-import { Colors } from "../../../resources";
+import { CELL_LINK, Colors } from "../../../resources";
+import { Popover } from "@mui/material";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
+import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -13,6 +15,9 @@ export function CellLinkWidget(props: WidgetProps) {
     const { link } = props;
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
+    const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
+
+    const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
 
     useEffect(() => {
         const listener = link.registerListener({
@@ -34,32 +39,57 @@ export function CellLinkWidget(props: WidgetProps) {
         link.resetLinkedNodes();
     };
 
-    const handleMouseOver = () => {
+    const handleMouseOver = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
+        event.stopPropagation();
         selectPath();
+        setAnchorEl(event.currentTarget);
     };
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
+        event.stopPropagation();
         unselectPath();
+        handlePopoverClose();
     };
 
-    const middlePosition = link.getTooltipPosition();
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+    };
 
     return (
-        <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"}>
-            <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT} />
-            <path
+        <>
+            <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={CELL_LINK}>
+                <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT} />
+                <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
+                <path
+                    id={link.getID()}
+                    d={link.getCurvePath()}
+                    cursor={"pointer"}
+                    fill={"none"}
+                    stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
+                    strokeWidth={2}
+                />
+            </g>
+            <Popover
                 id={link.getID()}
-                d={link.getCurvePath()}
-                cursor={"pointer"}
-                fill={"none"}
-                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-                strokeWidth={2}
-            />
-            {isSelected && link.observations?.length > 0 && (
-                <foreignObject x={middlePosition.x} y={middlePosition.y} width="240" height="240">
-                    <ObservationLabel observations={link.observations} />
-                </foreignObject>
-            )}
-        </g>
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handlePopoverClose}
+                anchorOrigin={{
+                    vertical: "center",
+                    horizontal: "center",
+                }}
+                transformOrigin={{
+                    vertical: "center",
+                    horizontal: "center",
+                }}
+                sx={{
+                    pointerEvents: "none",
+                    boxShadow: "0px 1px 3px rgba(0,0,0,0.1), 0px 1px 2px rgba(0,0,0,0.06)",
+                }}
+            >
+                {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
+                {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
+            </Popover>
+        </>
     );
 }

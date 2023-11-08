@@ -14,13 +14,14 @@ import { getOpposingPort } from "./utils";
 import { EMPTY_NODE } from "../../resources";
 import { EmptyModel } from "../Cell/EmptyNode/EmptyModel";
 import { CellBounds } from "../Cell/CellNode/CellModel";
-import { getCellPortMetadata } from "../Cell/CellNode/cell-util";
-import { getEmptyNodeName } from "../Cell/EmptyNode/empty-node-util";
+import { getCellPortMetadata } from "../Cell/cell-util";
+import { getEmptyNodeName } from "../Cell/cell-util";
 import { Observations } from "../../types";
 
 export class SharedLinkModel extends DefaultLinkModel {
     diagramEngine: DiagramEngine;
     observations: Observations[];
+    tooltip: string;
 
     constructor(id: string, type: string) {
         super({
@@ -198,18 +199,11 @@ export class SharedLinkModel extends DefaultLinkModel {
         return points;
     };
 
-    getTooltipPosition = () => {
-        const sourcePortPosition = this.getSourcePort().getPosition();
-        const targetPortPosition = this.getTargetPort().getPosition();
-        const offset = 120;
-        // Get midpoint of the link line
-        return {
-            x: (sourcePortPosition.x + targetPortPosition.x) / 2 - offset,
-            y: (sourcePortPosition.y + targetPortPosition.y) / 2 - offset,
-        };
-    };
-
     setObservations = (observations: Observations[]) => {
         this.observations = observations;
+    };
+
+    setTooltip = (tooltip: string) => {
+        this.tooltip = tooltip;
     };
 }

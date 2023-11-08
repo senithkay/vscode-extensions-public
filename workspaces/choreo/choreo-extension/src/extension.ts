@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -11,65 +11,78 @@
  *  associated services.
  */
 
-import * as vscode from 'vscode';
-import { window, extensions, ProgressLocation, workspace, ConfigurationChangeEvent, commands } from 'vscode';
+import * as vscode from "vscode";
+import { window, extensions, ProgressLocation, workspace, ConfigurationChangeEvent, commands, Uri } from "vscode";
+import * as path from "path";
+import * as fs from "fs";
 
-import { activateAuth } from './auth';
-import { ChoreoExtensionApi } from './ChoreoExtensionApi';
+import { activateAuth } from "./auth";
+import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 
-import { ext } from './extensionVariables';
-import { GitExtension } from './git';
-import { activateStatusBarItem } from './status-bar';
-import { activateURIHandlers } from './uri-handlers';
+import { ext } from "./extensionVariables";
+import { GitExtension } from "./git";
+import { activateStatusBarItem } from "./status-bar";
+import { activateURIHandlers } from "./uri-handlers";
 
-import { activateWizards } from './wizards/activate';
+import { activateWizards } from "./wizards/activate";
 
 import { getLogger, initLogger } from "./logger/logger";
-import { choreoSignInCmdId } from './constants';
-import { activateTelemetry } from './telemetry/telemetry';
-import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
-import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
-import { activateActivityBarWebViews } from './views/webviews/ActivityBar/activate';
-import { activateCmds } from './cmds';
-import { TokenStorage } from './auth/TokenStorage';
-import { activateClients } from './auth/auth';
+import { choreoSignInCmdId, COMPONENT_YAML_SCHEMA, COMPONENT_YAML_SCHEMA_DIR } from "./constants";
+import { activateTelemetry } from "./telemetry/telemetry";
+import { sendProjectTelemetryEvent, sendTelemetryEvent } from "./telemetry/utils";
+import {
+    ComponentConfig,
+    ComponentConfigSchema,
+    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT,
+    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT,
+    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT,
+    OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT,
+    Project,
+} from "@wso2-enterprise/choreo-core";
+import { activateActivityBarWebViews } from "./views/webviews/ActivityBar/activate";
+import { activateCmds } from "./cmds";
+import { TokenStorage } from "./auth/TokenStorage";
+import { activateClients } from "./auth/auth";
+import { enrichComponentSchema, regexFilePathChecker } from "./utils";
 import { activateCellDiagram } from './cell-diagram/activate';
+import { Cache } from "./cache";
 
 export function activateBallerinaExtension() {
-	const ext = extensions.getExtension("wso2.ballerina");
-	if (ext && !ext.isActive) {
-		ext.activate();
-	}
+    const ext = extensions.getExtension("wso2.ballerina");
+    if (ext && !ext.isActive) {
+        ext.activate();
+    }
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-	activateTelemetry(context);
-	await initLogger(context);
-	getLogger().debug("Activating Choreo Extension");
-	ext.isPluginStartup = true;
-	ext.context = context;
-	ext.api = new ChoreoExtensionApi();
-	setupEvents();
-	activateWizards();
-	activateAuth(context);
-	activateClients();
-	activateCmds(context);
-	activateActivityBarWebViews(context);
-	activateURIHandlers();
-	activateStatusBarItem();
+    activateTelemetry(context);
+    await initLogger(context);
+    getLogger().debug("Activating Choreo Extension");
+    ext.isPluginStartup = true;
+    ext.context = context;
+    ext.api = new ChoreoExtensionApi();
+    setupEvents();
+    activateWizards();
+    activateAuth(context);
+    activateClients();
+    activateCmds(context);
+    activateActivityBarWebViews(context);
+    activateURIHandlers();
+    activateStatusBarItem();
 	activateCellDiagram(context);
-	setupGithubAuthStatusCheck();
-	registerPreInitHandlers();
-	ext.isPluginStartup = false;
-	openChoreoActivity();
-	getLogger().debug("Choreo Extension activated");
-	return ext.api;
+    setupGithubAuthStatusCheck();
+    registerPreInitHandlers();
+    ext.isPluginStartup = false;
+    openChoreoActivity();
+    getLogger().debug("Choreo Extension activated");
+    await registerYamlLangugeServer();
+    return ext.api;
 }
 
 function setupGithubAuthStatusCheck() {
-	ext.api.onStatusChanged(() => {
-		ext.clients.githubAppClient.checkAuthStatus();
-	});
+    ext.api.onStatusChanged(() => {
+        ext.clients.githubAppClient.checkAuthStatus();
+    });
 }
 
 // This function is called when the extension is activated.
@@ -79,11 +92,11 @@ function setupGithubAuthStatusCheck() {
 // if the project is being opened for the first time, it will activate the Choreo Project view in the sidebar.
 // Also open choreo activity if OPEN_CHOREO_ACTIVITY value is set
 async function openChoreoActivity() {
-	const shouldOpenChoreoActivity = await ext.api.shouldOpenChoreoActivity();
-	if (shouldOpenChoreoActivity) {
-		vscode.commands.executeCommand("choreo.activity.project.focus");
-		await ext.api.resetOpenChoreoActivity();
-	}
+    const shouldOpenChoreoActivity = await ext.api.shouldOpenChoreoActivity();
+    if (shouldOpenChoreoActivity) {
+        vscode.commands.executeCommand("choreo.activity.project.focus");
+        await ext.api.resetOpenChoreoActivity();
+    }
 
 	const isChoreoProject = ext.api.isChoreoProject();
 	if (isChoreoProject) {
@@ -93,8 +106,6 @@ async function openChoreoActivity() {
 		if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
 			// activate the Choreo Project view in the sidebar
 			vscode.commands.executeCommand("choreo.activity.project.focus");
-			// open architecture view
-			commands.executeCommand("ballerina.view.architectureView");
 			// add the project id to the opened projects list
 			openedProjects.push(choreoProjectId);
 			await ext.context.globalState.update("openedProjects", openedProjects);
@@ -103,36 +114,122 @@ async function openChoreoActivity() {
 }
 
 export function getGitExtensionAPI() {
-	getLogger().debug("Getting Git Extension API");
-	const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')!.exports;
-	return gitExtension.getAPI(1);
+    getLogger().debug("Getting Git Extension API");
+    const gitExtension = vscode.extensions.getExtension<GitExtension>("vscode.git")!.exports;
+    return gitExtension.getAPI(1);
 }
 
 function setupEvents() {
-	const subscription: vscode.Disposable = ext.api.onStatusChanged(async (newStatus) => {
-		vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
-	});
-	ext.context.subscriptions.push(subscription);
+    const subscription: vscode.Disposable = ext.api.onStatusChanged(async (newStatus) => {
+        vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
+    });
+    ext.context.subscriptions.push(subscription);
 }
 
 function registerPreInitHandlers(): any {
-	const CONFIG_CHANGED: string = "Choreo extension configuration changed. Please restart vscode for changes to take effect.";
-	// We need to restart VSCode if we change plugin configurations.
-	workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-		if (params.affectsConfiguration("Advanced.ChoreoEnvironment")) {
-			showMsgAndRestart(CONFIG_CHANGED);
-		}
-	});
+    const CONFIG_CHANGED: string =
+        "Choreo extension configuration changed. Please restart vscode for changes to take effect.";
+    // We need to restart VSCode if we change plugin configurations.
+    workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
+        if (params.affectsConfiguration("Advanced.ChoreoEnvironment")) {
+            showMsgAndRestart(CONFIG_CHANGED);
+        }
+    });
 }
 
 function showMsgAndRestart(msg: string): void {
-	const action = 'Restart Now';
-	window.showInformationMessage(msg, action).then((selection) => {
-		if (action === selection) {
-			commands.executeCommand('workbench.action.reloadWindow');
-		}
-	});
+    const action = "Restart Now";
+    window.showInformationMessage(msg, action).then((selection) => {
+        if (action === selection) {
+            commands.executeCommand("workbench.action.reloadWindow");
+        }
+    });
 }
 
+async function getComponentYamlMetadata(): Promise<{ project: Project; component: string } | undefined> {
+    const isLoggedIn = await ext.api.waitForLogin();
+    if (!isLoggedIn) {
+        return undefined;
+    }
+    const openedComponent = await ext.api.getOpenedComponentName();
+    const project = await ext.api.getChoreoProject();
+    if (!openedComponent || !project) {
+        return undefined;
+    }
+    return { project, component: openedComponent };
+}
 
-export function deactivate() { }
+async function registerYamlLangugeServer(): Promise<void> {
+    try {
+        const yamlExtension = extensions.getExtension("redhat.vscode-yaml");
+        if (!yamlExtension) {
+            window.showErrorMessage(
+                'Please install "YAML Language Support by Red Hat" extension to proceed'
+            );
+            return;
+        }
+        const yamlExtensionAPI = await yamlExtension.activate();
+        const SCHEMA = COMPONENT_YAML_SCHEMA;
+
+        // cache
+        const componentYamlCache = new Cache<ComponentConfig[], [number, string, string]>({
+            getDataFunc: (orgId: number, projectHandler: string, componentName: string) => 
+            ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
+        });
+
+        // Read the schema file content
+        const schemaFilePath = path.join(ext.context.extensionPath, COMPONENT_YAML_SCHEMA_DIR);
+        
+        const schemaContent = fs.readFileSync(schemaFilePath, "utf8");
+        const schemaContentJSON = JSON.parse(schemaContent) as ComponentConfigSchema;
+
+        function onRequestSchemaURI(resource: string): string | undefined {
+            if (regexFilePathChecker(resource, /\.choreo\/component.*\.yaml$/)) {
+                return `${SCHEMA}://schema/component-yaml`;
+            }
+            return undefined;
+        }
+
+        function onRequestSchemaContent(schemaUri: string): Promise<string> | undefined {
+            const parsedUri = Uri.parse(schemaUri);
+            if (parsedUri.scheme !== SCHEMA) {
+                return undefined;
+            }
+            if (!parsedUri.path || !parsedUri.path.startsWith("/")) {
+                return undefined;
+            }
+
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const componentMetadata = await getComponentYamlMetadata();
+                    if (!componentMetadata) {
+                        resolve(JSON.stringify(schemaContentJSON));
+                    } else {
+                        const componentConfigKey = `${componentMetadata.project.orgId}-${componentMetadata.project.handler}-${componentMetadata.component}`;
+                        const componentConfigs = await componentYamlCache.get(componentConfigKey, parseInt(componentMetadata.project.orgId), componentMetadata.project.handler, componentMetadata.component);
+                        if (!componentConfigs) {
+                            return reject(window.showErrorMessage("Could not get component configs"));
+                        }
+                        const enrichedSchema = enrichComponentSchema(
+                            schemaContentJSON,
+                            componentMetadata.component,
+                            componentMetadata.project.name,
+                            componentConfigs
+                        );
+                        resolve(JSON.stringify(enrichedSchema));
+                    } 
+                } catch {
+                    reject(window.showErrorMessage("Could not register schema"));
+                }
+            });
+        }
+
+        // Register the schema provider
+        yamlExtensionAPI.registerContributor(SCHEMA, onRequestSchemaURI, onRequestSchemaContent);
+    } catch {
+        window.showErrorMessage("Could not register YAML Language Server");
+        return;
+    }
+}
+
+export function deactivate() {}

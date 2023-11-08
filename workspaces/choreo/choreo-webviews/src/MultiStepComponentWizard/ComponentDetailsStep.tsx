@@ -16,10 +16,10 @@ import { VSCodeDropdown, VSCodeOption, VSCodeTextArea } from "@vscode/webview-ui
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { ChoreoComponentType, ChoreoImplementationType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit/lib/components/ProgressIndicator";
 import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField";
-import { AngularIcon, BallerinaIcon, DockerIcon, ReactIcon, StaticFileIcon, VuejsIcon } from "../icons";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`
@@ -30,26 +30,18 @@ const StepContainer = styled.div`
     gap: 20px;
     width: 100%;
     min-width: 400px;
-    min-height: calc(100vh - 160px);
 `;
 
 const DropDownContainer = styled.div`
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
 `;
 
-function sanitizeFolderName(folderName: string): string {
-    // Replace any characters that are not letters, numbers, spaces, or underscores with an empty string
-    const sanitized = folderName.replace(/[^a-zA-Z0-9\s_]/g, '');
+const BuildPackOptionWrap = styled.div`
+    position: relative;
+`;
 
-    // Remove any leading or trailing spaces
-    const trimmed = sanitized.trim();
-
-    // Replace any consecutive spaces with a dash
-    const final = trimmed.replace(/\s+/g, '-');
-
-    return final;
-}
 
 export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange, stepValidationErrors } = props;
@@ -60,7 +52,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             ...prevFormData, name,
             repository: {
                 ...prevFormData.repository,
-                subPath: prevFormData.mode === "fromScratch" ? sanitizeFolderName(name) : prevFormData?.repository?.subPath
+                subPath: prevFormData?.repository?.subPath
             }
         }));
     };
@@ -96,68 +88,16 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                     Description
                 </VSCodeTextArea>
                 <div>
-                    {[ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) && <>
-                        <p>How do you want to implement it?</p>
+                    <p>Implementation Type</p>
+                    <BuildPackOptionWrap>
+                        {formData.buildPacksLoading && <ProgressIndicator />}
                         <ConfigCardList
                             formKey='implementationType'
                             formData={formData}
                             onFormDataChange={onFormDataChange}
-                            items={[
-                                {
-                                    label: "Ballerina",
-                                    description: "Component impelmented using Ballerina Language",
-                                    value: ChoreoImplementationType.Ballerina,
-                                    icon: BallerinaIcon
-                                },
-                                {
-                                    label: "Docker",
-                                    description: "Component impelmented using other language and built using Docker",
-                                    value: ChoreoImplementationType.Docker,
-                                    icon: DockerIcon
-                                }
-                            ]}
+                            items={formData?.buildPackList?.map(item=>({ label:item.displayName, icon: item.iconUrl, value:item.language }))}
                         />
-                    </>}
-                    {formData.type === ChoreoComponentType.WebApplication && <>
-                        <p>Web Application Type</p>
-                        <ConfigCardList
-                            formKey='implementationType'
-                            formData={formData}
-                            onFormDataChange={onFormDataChange}
-                            items={[
-                                {
-                                    label: "React SPA",
-                                    description: "Create a React SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.React,
-                                    icon: ReactIcon
-                                },
-                                {
-                                    label: "Angular SPA",
-                                    description: "Create a Angular SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.Angular,
-                                    icon: AngularIcon
-                                },
-                                {
-                                    label: "Vue SPA",
-                                    description: "Create a Vue SPA web application component in Choreo",
-                                    value: ChoreoImplementationType.Vue,
-                                    icon: VuejsIcon
-                                },
-                                {
-                                    label: "Static Website",
-                                    description: "Create a static website component in Choreo",
-                                    value: ChoreoImplementationType.StaticFiles,
-                                    icon: StaticFileIcon
-                                },
-                                {
-                                    label: "Dockerfile",
-                                    description: "Create a Docker based web application component in Choreo",
-                                    value: ChoreoImplementationType.Docker,
-                                    icon: DockerIcon
-                                },
-                            ]}
-                        />
-                    </>}
+                    </BuildPackOptionWrap>
                     {formData?.type === ChoreoComponentType.Webhook && (
                         <DropDownContainer>
                             <label htmlFor="access-mode">Access Mode</label>
@@ -194,34 +134,6 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
             rule: async (value: any) => {
                 return value !== undefined && value !== '';
             }
-        },
-        {
-            field: 'implementationType',
-            message: 'Type is required',
-            rule: async (implementationType, formData) => {
-                if (
-                    formData.type === ChoreoComponentType.WebApplication &&
-                    ![
-                        ChoreoImplementationType.React,
-                        ChoreoImplementationType.Angular,
-                        ChoreoImplementationType.Vue,
-                        ChoreoImplementationType.StaticFiles,
-                        ChoreoImplementationType.Docker,
-                    ].includes(implementationType)
-                ) {
-                    return false;
-                }
-                if (
-                    [ChoreoComponentType.Service, ChoreoComponentType.ScheduledTask, ChoreoComponentType.ManualTrigger].includes(formData.type) &&
-                    ![
-                        ChoreoImplementationType.Ballerina,
-                        ChoreoImplementationType.Docker,
-                    ].includes(implementationType)
-                ) {
-                    return false;
-                }
-                return true;
-            },
         },
     ]
 };

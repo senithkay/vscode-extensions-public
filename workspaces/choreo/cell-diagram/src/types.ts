@@ -55,6 +55,7 @@ export interface Connection {
     label?: string;
     type?: ConnectionType;
     onPlatform?: boolean;
+    tooltip?: string;
     observations?: Observations[];
 }
 
@@ -85,10 +86,12 @@ export interface DeploymentMetadata {
     gateways: {
         internet: {
             isExposed: boolean;
+            tooltip?: string;
             observations?: Observations[];
         };
         intranet: {
             isExposed: boolean;
+            tooltip?: string;
             observations?: Observations[];
         };
     };

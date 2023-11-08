@@ -86,9 +86,11 @@ const simpleModel: Project = {
                         gateways: {
                             internet: {
                                 isExposed: true,
+                                tooltip: "No data from internet gateway"
                             },
                             intranet: {
                                 isExposed: true,
+                                tooltip: "No data from intranet gateway"
                             },
                         },
                     },
@@ -98,11 +100,13 @@ const simpleModel: Project = {
                 {
                     id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Payments:payments",
                     type: "http",
+                    tooltip: "No data form payment service"
                 },
                 {
                     id: "mysql://mysql",
                     type: "datastore",
                     onPlatform: true,
+                    tooltip: "No data from database connection"
                 },
                 {
                     id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Products:products",
@@ -371,7 +375,7 @@ const complexModel: Project = {
                 {
                     id: "mysql://mysql",
                     type: "datastore",
-                    onPlatform: true,
+                    onPlatform: false,
                 },
                 {
                     id: "ABC:CreditCards:Offers:Offers",
@@ -430,6 +434,37 @@ const complexModel: Project = {
             services: {},
             connections: [],
         },
+        {
+            id: "Legacy API",
+            version: "0.1.0",
+            type: "api-proxy",
+            services: {
+                "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Legacy Owners:service1": {
+                    id: "ABC:110ec58a-a0f2-4ac4-8393-c866d813b8d1:Legacy Owners:service1",
+                    label: "service1",
+                    type: "http",
+                    dependencyIds: [],
+                    deploymentMetadata: {
+                        gateways: {
+                            internet: {
+                                isExposed: false,
+                            },
+                            intranet: {
+                                isExposed: true,
+                            },
+                        },
+                    },
+                },
+            
+            },
+            connections: [
+                {
+                    id: "ABC:BookStore:Products:Products",
+                    label: "BookStore Products",
+                    type: "http",
+                },
+            ],
+        },
     ],
     configurations: [
         {
@@ -441,7 +476,7 @@ const complexModel: Project = {
         {
             id: "mongoDb://mongoDb",
             type: "datastore",
-            onPlatform: true,
+            onPlatform: false,
         },
         {
             id: "twilio://twilio",
@@ -736,7 +771,7 @@ const observationsModel: Project = {
                 {
                     id: "mysql://mysql",
                     label: "MySQL DB",
-                    onPlatform: true,
+                    onPlatform: false,
                     type: "datastore",
                     observations: [
                         {
@@ -759,7 +794,7 @@ const observationsModel: Project = {
 
 storiesOf("Complex", module).add("Component links", () => (
     <Container>
-        <CellDiagram project={simpleModel} onComponentDoubleClick={handleComponentDoubleClick} />
+        <CellDiagram project={simpleModel} showControls={false} animation={false} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
 
@@ -771,6 +806,6 @@ storiesOf("Complex", module).add("With unused configurations", () => (
 
 storiesOf("Complex", module).add("With observability data", () => (
     <Container>
-        <CellDiagram project={observationsModel} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
+        <CellDiagram project={observationsModel} showControls={true} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
     </Container>
 ));
