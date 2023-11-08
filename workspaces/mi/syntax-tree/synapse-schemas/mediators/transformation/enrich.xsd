@@ -40,7 +40,7 @@
 
     <xs:complexType name="SourceEnrich" mixed="true">
         <xs:sequence>
-            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+            <xs:any minOccurs="0" maxOccurs="1" processContents="skip" />
         </xs:sequence>
         <xs:attribute name="clone" type="xs:boolean" use="optional" default="true" />
         <xs:attribute name="xpath" type="xs:string" use="optional" />

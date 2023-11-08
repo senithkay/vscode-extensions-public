@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
- Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,97 +15,94 @@
 * limitations under the License.
 -->
 
-<xs:schema 
-        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-        elementFormDefault="qualified"
-        targetNamespace="http://ws.apache.org/ns/synapse"
-        xmlns="http://ws.apache.org/ns/synapse">
+<xs:schema attributeFormDefault="qualified"
+    elementFormDefault="qualified" targetNamespace="http://wso2.org/carbon/rules"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:syn="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../mediators.xsd"/>
-    <xs:include schemaLocation="../../misc/common.xsd"/>
+    <xs:import namespace="http://ws.apache.org/ns/synapse" schemaLocation="../mediators.xsd" />
 
     <xs:element name="rule">
-        <xs:annotation>
-            <xs:documentation source="description">
-                Processes an XML message by applying a set of rules. The processed message can be used as the new SOAP
-                body, or it can be used to route the message or perform further processing.
-            </xs:documentation>
-        </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="ruleset" minOccurs="0" maxOccurs="1">
+                <xs:element name="source">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute name="xpath" type="xs:string" use="required" />
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="target">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute name="action" type="xs:string" use="required" />
+                                <xs:attribute name="resultXpath" type="xs:string" use="required" />
+                                <xs:attribute name="xpath" type="xs:string" use="required" />
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="ruleSet">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="source" minOccurs="1" maxOccurs="1">
+                            <xs:element name="properties" />
+                            <xs:element name="rule">
                                 <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:any minOccurs="0" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                    <xs:attribute name="key" type="xs:string" use="optional"/>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="creation" minOccurs="1" maxOccurs="1">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
-                                            <xs:complexType>
-                                                <xs:attribute name="name" type="xs:string" use="required"/>
-                                                <xs:attribute name="value" type="xs:string" use="required"/>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:sequence>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute name="resourceType" type="xs:string"
+                                                use="required" />
+                                            <xs:attribute name="sourceType" type="xs:string"
+                                                use="required" />
+                                        </xs:extension>
+                                    </xs:simpleContent>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="session" minOccurs="0" maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:attribute name="type" use="optional">
-                            <xs:simpleType>
-                                <xs:restriction base="xs:string">
-                                    <xs:enumeration value="stateless"/>
-                                    <xs:enumeration value="stateful"/>
-                                </xs:restriction>
-                            </xs:simpleType>
-                        </xs:attribute>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="facts" minOccurs="0" maxOccurs="1">
+                <xs:element name="input">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="fact" minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="fact" maxOccurs="unbounded">
                                 <xs:complexType>
-                                    <xs:attributeGroup ref="nameValueOrExpression"/>
-                                    <xs:attribute name="type" type="xs:string" use="required"/>
+                                    <xs:attribute name="elementName" type="xs:string" use="required" />
+                                    <xs:attribute name="namespace" type="xs:string" use="required" />
+                                    <xs:attribute name="type" type="xs:string" use="required" />
+                                    <xs:attribute name="xpath" type="xs:string" use="required" />
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
+                        <xs:attribute name="namespace" type="xs:string" use="required" />
+                        <xs:attribute name="wrapperElementName" type="xs:string" use="required" />
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="results" minOccurs="0" maxOccurs="1">
+                <xs:element name="output">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="result" minOccurs="0" maxOccurs="unbounded">
+                            <xs:element name="fact">
                                 <xs:complexType>
-                                    <xs:attributeGroup ref="nameValueOrExpression"/>
-                                    <xs:attribute name="type" type="xs:string" use="required"/>
+                                    <xs:attribute name="elementName" type="xs:string" use="required" />
+                                    <xs:attribute name="namespace" type="xs:string" use="required" />
+                                    <xs:attribute name="type" type="xs:string" use="required" />
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
+                        <xs:attribute name="namespace" type="xs:string" use="required" />
+                        <xs:attribute name="wrapperElementName" type="xs:string" use="required" />
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="childMediators" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:group ref="mediatorList" minOccurs="1" maxOccurs="unbounded"/>
+                            <xs:group ref="syn:mediatorList" minOccurs="1" maxOccurs="unbounded" />
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="description" type="xs:string" use="optional"/>
+            <xs:attribute name="description" type="xs:string" use="required" />
         </xs:complexType>
     </xs:element>
-
 </xs:schema>
-

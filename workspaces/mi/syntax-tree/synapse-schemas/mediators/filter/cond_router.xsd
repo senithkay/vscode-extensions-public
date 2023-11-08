@@ -24,8 +24,8 @@
         targetNamespace="http://ws.apache.org/ns/synapse" 
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../mediators.xsd" />
     <xs:include schemaLocation="../../misc/target.xsd" />
+    <xs:include schemaLocation="../../misc/evaluators.xsd" />
 
     <xs:element name="conditionalRouter">
         <xs:annotation>
@@ -35,7 +35,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="route" minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="conditionalRoute" minOccurs="1" maxOccurs="unbounded">
                     <xs:annotation>
                         <xs:documentation>
                             A single route in the conditional router, which should have a condition
@@ -46,9 +46,15 @@
                         <xs:sequence>
                             <xs:element name="condition" minOccurs="1" maxOccurs="1">
                                 <!-- TODO : point to the evaluators xsd -->
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="equal" minOccurs="1" maxOccurs="1" />
+                                    </xs:sequence>
+                                </xs:complexType>
                             </xs:element>
                             <xs:element ref="target" minOccurs="1" maxOccurs="1" />
                         </xs:sequence>
+                        <xs:attribute name="asynchronous" type="xs:boolean" default="false" />
                         <xs:attribute name="breakRoute" type="xs:boolean" default="false" />
                     </xs:complexType>
                 </xs:element>

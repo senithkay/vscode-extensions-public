@@ -18,11 +18,12 @@
   ~  under the License.
   -->
 
-<xs:schema 
-        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-        elementFormDefault="qualified" 
-        targetNamespace="http://ws.apache.org/ns/synapse" 
-        xmlns="http://ws.apache.org/ns/synapse">
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    targetNamespace="http://ws.apache.org/ns/synapse"
+    xmlns="http://ws.apache.org/ns/synapse"
+    xmlns:brs="http://wso2.org/carbon/rules">
 
     <xs:include schemaLocation="core/call.xsd" />
     <xs:include schemaLocation="core/call-template.xsd" />
@@ -70,7 +71,7 @@
     <xs:include schemaLocation="other/entitlement.xsd" />
     <xs:include schemaLocation="other/oauth.xsd" />
     <xs:include schemaLocation="other/builder.xsd" />
-    <xs:include schemaLocation="other/rule.xsd" />
+    <xs:import namespace="http://wso2.org/carbon/rules" schemaLocation="other/rule.xsd" />
     <xs:include schemaLocation="other/bam.xsd" />
     <xs:include schemaLocation="other/publishEvent.xsd" />
 
@@ -141,7 +142,7 @@
             <xs:element ref="entitlementService" />
             <xs:element ref="oauthService" />
             <xs:element ref="builder" />
-            <xs:element ref="rule" />
+            <xs:element ref="brs:rule" />
             <xs:element ref="bam" />
             <xs:element ref="publishEvent" />
         </xs:choice>

@@ -37,20 +37,8 @@
             <xs:all>
                 <xs:element name="onReject" type="sequence" minOccurs="0" maxOccurs="1" />
                 <xs:element name="onAccept" type="sequence" minOccurs="0" maxOccurs="1" />
-                <xs:element name="advice" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:any minOccurs="0" maxOccurs="1" processContents="skip" />
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="obligations" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:any minOccurs="0" maxOccurs="1" processContents="skip" />
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="advice" type="sequence" minOccurs="0" maxOccurs="1" />
+                <xs:element name="obligations" type="sequence" minOccurs="0" maxOccurs="1" />
             </xs:all>
 
             <xs:attribute name="remoteServiceUrl" type="xs:string" use="required" />
