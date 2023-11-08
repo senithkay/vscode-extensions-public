@@ -53,7 +53,7 @@
                             },
                             "annotations": {
                                 "type": "object",
-                                "description": "Build instructions for the component.",
+                                "description": "List of arbitrary key, value pairs.",
                                 "properties": {
                                     "componentType": {
                                         "enum": ["service", "web-app", "scheduled-task", "manual-task", "web-hook"]
