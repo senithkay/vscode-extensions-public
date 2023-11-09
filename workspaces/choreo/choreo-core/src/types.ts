@@ -570,7 +570,7 @@ export interface getLocalComponentDirMetaDataRequest {
     buildPackId?: string;
 }
 
-export interface getLocalComponentDirMetaDataRes {
+export interface LocalComponentDirMetaDataRes {
     isRepoPathAvailable: boolean;
     isBareRepo: boolean;
     isSubPathValid: boolean;
@@ -755,27 +755,27 @@ export interface ComponentYamlContent {
     kind: "ComponentConfig";
     metadata: ComponentMetadata;
     spec: {
-      build?: { branch: string; revision?: string };
-      image?: { registry: string; repository: string; tag: string };
-      inbound?: Inbound[];
-      outbound?: Outbound;
-      configurations?: {
-        keys?: {
-          name: string;
-          envName?: string;
-          volume?: { mountPath: string };
-        }[];
-        groups?: {
-          name: string;
-          env?: { from: string; to: string }[];
-          volume?: { mountPath: string; files: { from: string; to: string }[] }[];
-        }[];
-      };
+        build?: { branch: string; revision?: string };
+        image?: { registry: string; repository: string; tag: string };
+        inbound?: Inbound[];
+        outbound?: Outbound;
+        configurations?: {
+            keys?: {
+                name: string;
+                envName?: string;
+                volume?: { mountPath: string };
+            }[];
+            groups?: {
+                name: string;
+                env?: { from: string; to: string }[];
+                volume?: { mountPath: string; files: { from: string; to: string }[] }[];
+            }[];
+        };
     };
-  }
-  
+}
 
-  export enum CellComponentType {
+
+export enum CellComponentType {
     SERVICE = 'service',
     WEB_APP = 'web-app',
     SCHEDULED_TASK = 'scheduled-task',
@@ -784,12 +784,11 @@ export interface ComponentYamlContent {
     WEB_HOOK = 'web-hook',
     EVENT_HANDLER = 'event-handler',
     TEST = 'test',
-  }
-  
+}
 
 export function getGeneralizedCellComponentType(
     type: ComponentDisplayType
-  ): CellComponentType {
+): CellComponentType {
     switch (type) {
         case ComponentDisplayType.RestApi:
         case ComponentDisplayType.Service:

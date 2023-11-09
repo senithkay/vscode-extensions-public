@@ -66,7 +66,7 @@ import {
     ChoreoComponentCreationParams,
     GetLocalComponentDirMetaData,
     getLocalComponentDirMetaDataRequest,
-    getLocalComponentDirMetaDataRes,
+    LocalComponentDirMetaDataRes,
     CreateNonBalLocalComponentFromExistingSource,
     getConsoleUrl,
     GitRepo,
@@ -242,7 +242,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenBillingPortal, HOST_EXTENSION, orgId);
     }
 
-    public async getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): Promise<getLocalComponentDirMetaDataRes> {
+    public async getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): Promise<LocalComponentDirMetaDataRes> {
         return this._messenger.sendRequest(GetLocalComponentDirMetaData, HOST_EXTENSION, params);
     }
 
