@@ -10,7 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { BallerinaTriggersResponse, BallerinaTriggerResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoComponentCreationParams, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { RequestType } from "vscode-messenger-common";
 
@@ -22,7 +21,5 @@ export const IsRepoClonedRequest: RequestType<IsRepoClonedRequestParams, boolean
 export const IsComponentNameAvailableRequest: RequestType<string, boolean> = { method: 'manager/isComponentNameAvailable' };
 export const CloneRepoRequeset: RequestType<RepoCloneRequestParams, boolean> = { method: 'manager/cloneRepo' };
 export const GetRepoPathRequest: RequestType<string, string> = { method: 'manager/getRepoPath' };
-export const FetchBallerinaTriggers: RequestType<string, BallerinaTriggersResponse | undefined> = { method: 'manager/fetchBallerinaTriggers' };
-export const FetchBallerinaTrigger: RequestType<string, BallerinaTriggerResponse | undefined> = { method: 'manager/fetchBallerinaTrigger' };
 export const GetBallerinaVersion: RequestType<string, string> = { method: 'manager/getBallerinaVersion' };
 

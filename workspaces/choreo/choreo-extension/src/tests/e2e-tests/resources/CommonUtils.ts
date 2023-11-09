@@ -122,6 +122,11 @@ export class CommonUtils {
         await element.sendKeys(Key.ENTER);
     }
 
+    /** Wait until validation complete */
+    static async waitUntilValidation() {
+        await this.wait(2000);
+    }
+
     /** Wait for new instance of VSCode to initialize */
     static async initializeVSCode() {
         console.log("Initializing new instance of VSCode");
@@ -207,7 +212,6 @@ export class CommonUtils {
             | "Project"
             | "Create New Project"
             | "Create New Component"
-            | "Architecture View"
             | "Cell View"
     ) {
         console.log(`Switching to iframe: ${frameName}`);
@@ -286,6 +290,28 @@ export class CommonUtils {
         }
         return false;
     }
+
+    /** Copy entire directory from one location to another */
+    static copyDirectory(source: string, destination: string) {
+        if (!fs.existsSync(destination)) {
+            fs.mkdirSync(destination);
+        }
+    
+        const files = fs.readdirSync(source);
+    
+        files.forEach(file => {
+            const srcPath = join(source, file);
+            const destPath = join(destination, file);
+            const isDirectory = fs.lstatSync(srcPath).isDirectory();
+    
+            if (isDirectory) {
+                this.copyDirectory(srcPath, destPath);
+            } else {
+                fs.copyFileSync(srcPath, destPath);
+            }
+        });
+    }
+    
 
     /**
      * Delete all folders in the local and remote repo.

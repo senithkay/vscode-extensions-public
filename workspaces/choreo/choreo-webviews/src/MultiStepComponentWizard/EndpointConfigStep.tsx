@@ -17,8 +17,11 @@ import { ComponentWizardState } from "./types";
 import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ErrorBanner, ErrorIcon, Typography } from "@wso2-enterprise/ui-toolkit";
-import { ChoreoComponentType, ChoreoServiceType, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoServiceType, ChoreoServiceTypeList, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
+import { useQuery } from "@tanstack/react-query";
+import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const StepContainer = styled.div`
     display: flex;
@@ -27,7 +30,6 @@ const StepContainer = styled.div`
     align-content: center;
     gap: 20px;
     width: 100%;
-    min-height: calc(100vh - 160px);
 `;
 
 const DropDownContainer = styled.div`
@@ -40,6 +42,10 @@ const VisibilityLabel = styled.label`
     font-weight: lighter;
 `;
 
+const WarningBannerWrap = styled.label`
+    margin-bottom: 15px;
+`;
+
 export interface EndpointConfigProps {
     formData: Partial<ComponentWizardState>;
     onFormDataChange: (updater: (prevFormData: Partial<ComponentWizardState>) => Partial<ComponentWizardState>) => void;
@@ -47,7 +53,19 @@ export interface EndpointConfigProps {
 
 export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, stepValidationErrors, onFormDataChange } = props;
+    const { choreoProject } = useChoreoWebViewContext();
     const { repository } = formData;
+
+    const { data: localDirectorMetaData } = useQuery(
+        ["getLocalComponentDirMetaData", choreoProject, repository],
+        () =>
+            ChoreoWebViewAPI.getInstance().getLocalComponentDirMetaData({
+                orgName: repository?.org,
+                repoName: repository?.repo,
+                projectId: choreoProject.id,
+                subPath: repository?.subPath,
+            }),
+    );
 
     const setOpenApiFilePath = (openApiFilePath: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -71,6 +89,10 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
         onFormDataChange(prevFormData => ({ ...prevFormData, networkVisibility }));
     };
 
+    const setServiceType = (serviceType: ChoreoServiceType) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, serviceType }));
+    };
+
     const projectDesc = {
         'Project': 'Allows components within the same project to access the endpoint.',
         'Organization': 'Allows any component within the same organization to access the endpoint.',
@@ -82,6 +104,19 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
             <StepContainer>
                 <SectionWrapper>
                     <Typography variant="h3">Configure Endpoints</Typography>
+
+                    {localDirectorMetaData?.hasComponentYaml && (
+                        <WarningBannerWrap>
+                            <ErrorBanner errorMsg="The existing component config within the .choreo directory will be overwritten with new configurations"/>
+                        </WarningBannerWrap>
+                    )}
+                    
+                    <DropDownContainer>
+                        <label htmlFor="serviceType">Service Type</label>
+                        <VSCodeDropdown value={formData.serviceType} id="serviceType" onChange={(e: any) => setServiceType(e.target.value)}>
+                            {ChoreoServiceTypeList?.map(item=><VSCodeOption value={item}>{item}</VSCodeOption>)}
+                        </VSCodeDropdown>
+                    </DropDownContainer>
                     <VSCodeTextField
                         autofocus
                         placeholder="Port"
@@ -122,24 +157,26 @@ export const EndpointConfigStepC = (props: StepProps<Partial<ComponentWizardStat
                         </>
                     )}
 
-                    {formData.mode === 'fromExisting' && formData?.serviceType === ChoreoServiceType.RestApi && <VSCodeTextField
-                        placeholder=""
-                        onInput={(e: any) => setOpenApiFilePath(e.target.value)}
-                        value={repository?.openApiFilePath}
-                    >
-                        OpenAPI file Path
-                        <RepoFileOpenDialogInput
-                            label="Browse"
-                            repo={`${repository?.org}/${repository?.repo}`}
-                            path={repository?.openApiFilePath || ''}
-                            onOpen={setOpenApiFilePath}
-                            canSelectFiles={true}
-                            canSelectFolders={false}
-                            canSelectMany={false}
-                            title="Select OpenAPI file path"
-                            filters={{ 'YAML Files': ['yaml'] }}
-                        />
-                    </VSCodeTextField>}
+                    {formData?.serviceType === ChoreoServiceType.RestApi && (
+                        <VSCodeTextField
+                            placeholder=""
+                            onInput={(e: any) => setOpenApiFilePath(e.target.value)}
+                            value={repository?.openApiFilePath}
+                        >
+                            OpenAPI file Path
+                            <RepoFileOpenDialogInput
+                                label="Browse"
+                                repo={`${repository?.org}/${repository?.repo}`}
+                                path={repository?.openApiFilePath || ''}
+                                onOpen={setOpenApiFilePath}
+                                canSelectFiles={true}
+                                canSelectFolders={false}
+                                canSelectMany={false}
+                                title="Select OpenAPI file path"
+                                filters={{ 'YAML Files': ['yaml'] }}
+                            />
+                        </VSCodeTextField>
+                    )}
                 </SectionWrapper>
             </StepContainer>
         </div>
@@ -172,7 +209,7 @@ export const EndpointConfigStep: Step<Partial<ComponentWizardState>> = {
                 if ([ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(formData?.serviceType)) {
                     return value !== undefined && value !== '';
                 }
-                return false;
+                return true;
             }
         },
     ]

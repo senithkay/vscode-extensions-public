@@ -10,12 +10,17 @@ inputs:
     description: Update Ballerina extension version
     type: boolean
     required: false
-    default: true
+    default: false
   choreo:
     description: Update Choreo extension version
     type: boolean
     required: false
-    default: true      
+    default: false  
+  api-chat:
+    description: Update API Chat extension version
+    type: boolean
+    required: false
+    default: false        
   version:
     default: 'N/A'
     type: string
@@ -62,75 +67,29 @@ runs:
       with:
         version: ${{ inputs.balVersion }}
 
-    - name: Remove timestamp - balleina
-      shell: bash
+    - name: Update version - Balleina
       if: ${{ inputs.ballerina == 'true' }}
-      run: |
-        cd workspaces/ballerina/ballerina-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        if [[ ${#currentVersion} -ge 8 ]]; then
-          currentVersionWOPreId=${currentVersion%-*}
-          currentVersionNo=${currentVersionWOPreId:0:-8}
-          if [[ $currentVersionNo != *?[0-9] ]]; then
-            currentVersionNo=${currentVersionNo}0
-          fi
-          npm version $currentVersionNo --preid beta --no-git-tag-version
-        fi
-    - name: Remove timestamp - choreo
-      shell: bash
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'ballerina/ballerina-extension'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+
+    - name: Update version - Choreo
       if: ${{ inputs.choreo == 'true' }}
-      run: |
-        cd workspaces/choreo/choreo-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        if [[ ${#currentVersion} -ge 8 ]]; then
-          currentVersionWOPreId=${currentVersion%-*}
-          currentVersionNo=${currentVersionWOPreId:0:-8}
-          if [[ $currentVersionNo != *?[0-9] ]]; then
-            currentVersionNo=${currentVersionNo}0
-          fi            
-          npm version $currentVersionNo --preid beta --no-git-tag-version
-        fi
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'choreo/choreo-extension'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
 
-    - name: Update ballerina extension versions
-      shell: bash
-      if: ${{ inputs.version != 'N/A' && inputs.ballerina == 'true' }}
-      run: |
-        cd workspaces/ballerina/ballerina-extension
-        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
-
-    - name: Update choreo extension versions
-      shell: bash
-      if: ${{ inputs.version != 'N/A' && inputs.choreo == 'true' }}
-      run: |
-        cd workspaces/choreo/choreo-extension
-        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
-
-    - name: Get timestamp
-      shell: bash
-      id: timestamp
-      run: |
-        timestamp=$(date '+%y%m%d%H')
-        echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
-
-    - name: Set prerelase version - ballerina
-      shell: bash
-      if: ${{ inputs.isPreRelease == 'true' && inputs.ballerina == 'true' }}
-      run: |
-        cd workspaces/ballerina/ballerina-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
-        echo $newVersion
-        npm version $newVersion --preid beta --no-git-tag-version
-        
-    - name: Set prerelase version - choreo
-      shell: bash
-      if: ${{ inputs.isPreRelease == 'true' && inputs.choreo == 'true' }}
-      run: |
-        cd workspaces/choreo/choreo-extension
-        currentVersion=$(node -p "require('./package.json').version")
-        newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
-        echo $newVersion
-        npm version $newVersion --preid beta --no-git-tag-version
+    - name: Update version - API Chat
+      if: ${{ inputs.api-chat == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'api-chat'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
 
     - name: Build repo
       shell: bash

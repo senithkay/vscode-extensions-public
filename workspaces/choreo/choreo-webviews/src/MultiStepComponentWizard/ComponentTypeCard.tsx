@@ -28,7 +28,7 @@ export interface ComponentTypeCardProps {
     value: string | ChoreoComponentType | ChoreoServiceType | ChoreoImplementationType;
     formKey: keyof ComponentWizardState;
     label: string;
-    description: string;
+    description?: string;
     icon?: string;
 }
 

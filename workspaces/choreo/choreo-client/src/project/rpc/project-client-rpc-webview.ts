@@ -13,8 +13,8 @@
 import { Project, Component, Repository, Deployment, BuildStatus } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IChoreoProjectClient, LinkRepoMutationParams, GetComponentDeploymentStatusParams, GetComponentBuildStatusParams } from "../types";
-import { CreateByocComponentRequest, CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest, GetComponentDeploymentStatus, GetComponentBuildStatus } from "./types";
+import { ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IChoreoProjectClient, LinkRepoMutationParams, GetComponentDeploymentStatusParams, GetComponentBuildStatusParams, CreateBuildpackComponentParams, CreateMiComponentParams } from "../types";
+import { CreateByocComponentRequest, CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest, GetComponentDeploymentStatus, GetComponentBuildStatus, CreateBuildpackComponentRequest, CreateMiComponentRequest } from "./types";
 
 export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
 
@@ -45,6 +45,14 @@ export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
     }
     createByocComponent(params: CreateByocComponentParams): Promise<Component> {
         return this._messenger.sendRequest(CreateByocComponentRequest, HOST_EXTENSION, params);
+    }
+
+    createBuildPackComponent(params: CreateBuildpackComponentParams): Promise<Component> {
+        return this._messenger.sendRequest(CreateBuildpackComponentRequest, HOST_EXTENSION, params);
+    }
+
+    createMiComponent(params: CreateMiComponentParams): Promise<Component> {
+        return this._messenger.sendRequest(CreateMiComponentRequest, HOST_EXTENSION, params);
     }
 
     deleteComponent(params: DeleteComponentParams): Promise<void> {
