@@ -74,6 +74,7 @@
     <xs:import namespace="http://wso2.org/carbon/rules" schemaLocation="other/rule.xsd" />
     <xs:include schemaLocation="other/bam.xsd" />
     <xs:include schemaLocation="other/publishEvent.xsd" />
+    <xs:include schemaLocation="other/ntlm.xsd" />
 
     <xs:group name="mediatorList">
         <xs:annotation>
@@ -145,6 +146,7 @@
             <xs:element ref="brs:rule" />
             <xs:element ref="bam" />
             <xs:element ref="publishEvent" />
+            <xs:element ref="ntlm" />
         </xs:choice>
     </xs:group>
 
