@@ -17,11 +17,30 @@ import {
     GetBallerinaProjectParams,
     OverviewAPI
 } from "@wso2-enterprise/ballerina-core";
+import { getLangClient } from "../../visualizer/activator";
+import { workspace } from "vscode";
 
 export class OverviewRpcManager implements OverviewAPI {
+
+    private _langClient = getLangClient();
+
     async getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        // Check if there is at least one workspace folder
+        if (workspace.workspaceFolders?.length) {
+            const workspaceFolder = workspace.workspaceFolders[0];
+            const workspaceUri = workspaceFolder.uri;
+
+            return this._langClient.getBallerinaProjectComponents({
+                documentIdentifiers: [
+                    {
+                        uri: workspaceUri.toString(),
+                    }
+                ]
+            });
+        } else {
+            // Handle the case where there are no workspace folders
+            throw new Error("No workspace folders are open");
+        }
     }
 
     async getSTForFunction(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {

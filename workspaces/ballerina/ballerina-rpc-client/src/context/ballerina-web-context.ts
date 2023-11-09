@@ -11,10 +11,16 @@
 import { createContext, useContext } from "react";
 import { BallerinaRpcClient } from "../BallerinaRpcClient";
 
+
+type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported";
+export interface ViewLocation {
+  view?: Views;
+  location?: Location;
+}
 export interface VisualizerContext {
-    view: string,
+    viewLocation: ViewLocation,
     ballerinaRpcClient?: BallerinaRpcClient
-    setView?: (view: string) => void
+    setViewLocation?: (view: ViewLocation) => void
 }
 
 /**
@@ -22,7 +28,7 @@ export interface VisualizerContext {
  * This will be used within all the other components
  */
 const defaultState: VisualizerContext = {
-    view: "Overview"
+    viewLocation: { view: "Overview" }
 }
 export const Context = createContext<VisualizerContext>(defaultState);
 
