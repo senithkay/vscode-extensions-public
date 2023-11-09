@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "description": "Generate rpc-manager,rpc-handler and rpc-client ts files in relevant libraries",
   "main": "index.js",
+  "config": { 
+    "CORE_RPC_TYPE_FILE": "overview/index.ts",
+    "CORE_RPC_TYPE_DIR": "../../ballerina/ballerina-core/src/rpc-types",
+    "EXT_RPC_MANAGER_DIR": "../../ballerina/ballerina-extension/src/rpc-managers",
+    "RPC_CLIENT_DIR": "../../ballerina/ballerina-rpc-client/src/rpc-clients",
+    "CORE_MODULE_NAME": "@wso2-enterprise/ballerina-core"
+  },
   "scripts": {
-    "generate": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate": "node index.js"
   },
   "author": "",
   "license": "ISC",

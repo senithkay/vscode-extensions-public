@@ -13,25 +13,15 @@ const fs = require("fs");
 const path = require("path");
 
 
-// Path to the TypeScript file
-// TO DEBUG ASSIGN A TYPE LOCATION AND RUN DEBUG
-let rpcTypeTsFile = "";
+const CORE_RPC_TYPE_DIR = process.env.npm_package_config_CORE_RPC_TYPE_DIR;
+const EXT_RPC_MANAGER_DIR = process.env.npm_package_config_EXT_RPC_MANAGER_DIR;
+const RPC_CLIENT_DIR = process.env.npm_package_config_RPC_CLIENT_DIR;
+const CORE_MODULE_NAME = process.env.npm_package_config_CORE_MODULE_NAME;
+const typeFile = process.env.npm_package_config_CORE_RPC_TYPE_FILE;
 
-const CORE_RPC_TYPE_DIR = '../ballerina-core/src/rpc-types';
-const EXT_RPC_MANAGER_DIR = '../ballerina-extension/src/rpc-managers';
-const RPC_CLIENT_DIR = '../ballerina-rpc-client/src/rpc-clients';
+const tsFileDirPath = path.resolve(__dirname, `${CORE_RPC_TYPE_DIR}/${typeFile}`);
 
-const CORE_MODULE_NAME = '@wso2-enterprise/ballerina-core';
-
-const argument = process.env.npm_config_path || rpcTypeTsFile;
-if (argument) {
-    const tsFileDirPath = path.resolve(__dirname, `${CORE_RPC_TYPE_DIR}/${argument}`);
-    rpcTypeTsFile = tsFileDirPath;
-} else {
-    console.log("No path provided for ballerina-core rpc-type. You can pass the path like below.");
-    console.log("npm run generate --path=overview/index.ts");
-    return;
-}
+const rpcTypeTsFile = tsFileDirPath;
 
 console.log("Generating related typescript files. Please wait...");
 
