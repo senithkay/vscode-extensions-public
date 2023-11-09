@@ -104,7 +104,7 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                         </VSCodeTextField>
                         {repository.directoryPathError && <ErrorBanner errorMsg={repository.directoryPathError} />}
                         {webAppConfig?.dockerContext && !repository.selectedDirectoryMetadata?.isSubPathValid && (
-                            <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
+                            <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir">
                                 Initialize <b>{webAppConfig?.dockerContext}</b> as a new directory
                             </VSCodeCheckbox>
                         )}
@@ -157,7 +157,7 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                         </VSCodeTextField>
                         {repository.directoryPathError && <ErrorBanner errorMsg={repository.directoryPathError} />}
                         {webAppConfig?.webAppOutputDirectory && !repository.selectedDirectoryMetadata?.isSubPathValid && (
-                            <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
+                            <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir-static-files">
                                 Initialize <b>{webAppConfig?.webAppOutputDirectory}</b> as a new directory
                             </VSCodeCheckbox>
                         )}

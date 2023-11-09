@@ -116,7 +116,7 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                     </VSCodeTextField>
                     {formData.repository.directoryPathError && <ErrorBanner errorMsg={formData.repository.directoryPathError} />}
                     {repository?.subPath && !repository.selectedDirectoryMetadata?.isSubPathValid && (
-                        <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
+                        <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir">
                             Initialize <b>{repository?.subPath}</b> as a new directory
                         </VSCodeCheckbox>
                     )}

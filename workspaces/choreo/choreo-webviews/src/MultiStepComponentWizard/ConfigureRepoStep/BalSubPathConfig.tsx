@@ -82,7 +82,7 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
                 </VSCodeTextField>
                 {repository.directoryPathError && <ErrorBanner errorMsg={repository.directoryPathError} />}
                 {repository?.subPath && !repository.selectedDirectoryMetadata?.isSubPathValid && (
-                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
+                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir">
                         Initialize <b>{repository?.subPath}</b> as a new directory
                     </VSCodeCheckbox>
                 )}
