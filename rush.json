@@ -554,11 +554,11 @@
       "projectFolder": "workspaces/ballerina/statement-editor",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "swaggerview-lib",
-      "projectFolder": "workspaces/ballerina/swagger",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "swaggerview-lib",
+    //   "projectFolder": "workspaces/ballerina/swagger",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/syntax-tree",
       "projectFolder": "workspaces/ballerina/syntax-tree",
