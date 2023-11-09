@@ -14,17 +14,17 @@ import { PALETTE_COMMANDS } from '../project/cmds/cmd-runner';
 export function activateSubscriptions(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, () => {
-            openView("Overview");
+            openView({view: 'Overview'});
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, () => {
-            openView("Architecture");
+            openView({view: 'Architecture'});
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, () => {
-            openView("ER");
+            openView({ view: 'ER'});
         })
     );
 }

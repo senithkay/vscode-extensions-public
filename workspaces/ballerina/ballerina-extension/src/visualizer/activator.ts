@@ -37,6 +37,11 @@ interface OpenViewEvent {
     viewLocation?: Location | Views;
 }
 
+interface ViewLocation {
+    view?: Views;
+    location?: Location;
+}
+
 interface RenderWebViewEvent {
     type: "renderWebView";
 }
@@ -44,7 +49,7 @@ interface RenderWebViewEvent {
 type Event =
     | {
         type: "OPEN_VIEW";
-        viewLocation?: Location | string;
+        viewLocation?: ViewLocation;
     }
     | {
         type: "RENDER_WEB_VIEW"
@@ -139,8 +144,8 @@ const visualizerMachine = createMachine({
                     target: "ViewActive",
                     actions: assign({
                         // we will set either location or view
-                        view: (context, event) => (typeof event.viewLocation === 'string') ? event.viewLocation as Views : undefined,
-                        location: (context, event) => (typeof event.viewLocation === 'string') ? undefined : event.viewLocation
+                        view: (context, event) => event.viewLocation.view,
+                        location: (context, event) =>  event.viewLocation.location
                     })
                 }
             }
@@ -203,8 +208,8 @@ const visualizerMachine = createMachine({
                     target: "ViewActive.webViewLoaded",
                     actions: assign({
                         // we will set either location or view
-                        view: (context, event) => (typeof event.viewLocation === 'string') ? event.viewLocation as Views : undefined,
-                        location: (context, event) => (typeof event.viewLocation === 'string') ? undefined : event.viewLocation
+                        view: (context, event) => event.viewLocation.view,
+                        location: (context, event) =>  event.viewLocation.location
                     })
                 },
                 FILE_CHANGED: "ViewActive.updateView"
@@ -236,7 +241,7 @@ export function getContext() {
     return vsContext;
 }
 
-export function openView(viewLocation: Views) {
+export function openView(viewLocation: ViewLocation) {
     service.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
 
 }

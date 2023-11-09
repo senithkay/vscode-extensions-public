@@ -505,13 +505,13 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/visualizer",
-      "projectFolder": "workspaces/ballerina/visualizer",
+      "packageName": "@wso2-enterprise/visualizer-view",
+      "projectFolder": "workspaces/ballerina/visualizer-view",
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "@wso2-enterprise/overview",
-      "projectFolder": "workspaces/ballerina/overview",
+      "packageName": "@wso2-enterprise/overview-view",
+      "projectFolder": "workspaces/ballerina/overview-view",
       "versionPolicyName": "ballerina-extension"
     },
     {

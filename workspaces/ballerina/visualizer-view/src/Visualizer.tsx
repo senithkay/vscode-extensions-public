@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Overview } from "@wso2-enterprise/overview";
+import { Overview } from "@wso2-enterprise/overview-view";
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
