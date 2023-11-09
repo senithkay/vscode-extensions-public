@@ -244,7 +244,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
-		openView("Overview");
+		openView({view: "Overview"});
 		showDiagramEditor(0, 0, path, !ignoreFileCheck, nodePosition);
 	});
 
