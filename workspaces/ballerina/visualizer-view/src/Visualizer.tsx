@@ -9,21 +9,21 @@
 
 import { Overview } from "@wso2-enterprise/overview-view";
 import React, { useEffect } from "react";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function Webview() {
-    const { view, setView, ballerinaRpcClient } = useVisualizerContext();
+    const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
 
     useEffect(() => {
-        ballerinaRpcClient.onStateChanged((view: any) => {
-            setView(view.viewContext.view);
+        ballerinaRpcClient.onStateChanged((state: { viewContext: ViewLocation }) => {
+            setViewLocation(state.viewContext);
         });
     }, []);
     
     return (
         <>
-            {view === "Overview" &&  <Overview /> }
-            {view === "Architecture" &&  <h2>Hello Arch</h2> }
+            {viewLocation.view === "Overview" &&  <Overview /> }
+            {viewLocation.view === "Architecture" &&  <h2>Hello Arch</h2> }
         </>
     );
 };
