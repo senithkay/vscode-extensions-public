@@ -13,9 +13,6 @@
  */
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
-
-import { RequestType } from "vscode-messenger-common";
-
 export interface BallerinaConstructRequest {
     query: string;
     packageName?: string;

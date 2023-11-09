@@ -26,7 +26,7 @@ export class SwaggerView {
 
     async clickTryItOut(driver: WebDriver) {
         const tryItOutButton = By.className("try-out__btn");
-        await waitForMultipleElementsLocated(driver, [tryItOutButton]);
+        await waitForMultipleElementsLocated([tryItOutButton]);
         const tryIt = (await this.swaggerView.findWebElements(By.className("try-out__btn")))[0];
         await tryIt.click();
     }

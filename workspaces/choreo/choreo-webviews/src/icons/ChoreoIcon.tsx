@@ -21,8 +21,8 @@ export const ChoreoIcon = (props: SVGProps<SVGSVGElement> & { color?: string }) 
         <svg
             xmlns="http://www.w3.org/2000/svg"
             xmlSpace="preserve"
-            x={0}
-            y={0}
+            height="16"
+            width="16"
             viewBox="0 0 96 96"
             {...rest}
         >

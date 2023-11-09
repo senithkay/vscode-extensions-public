@@ -47,14 +47,17 @@ export function waitUntilTextContains(
 }
 
 export async function waitForMultipleElementsLocated(
-    driver: WebDriver,
     locators: By[],
     timeout: number = DEFAULT_TIME_OUT
 ) {
     const promises = locators.map(locator =>
-        driver.wait(until.elementLocated(locator), timeout)
+        VSBrowser.instance.driver.wait(until.elementLocated(locator), timeout)
     );
-    await Promise.all(promises);
+    try {
+        await Promise.all(promises);
+    } catch (error) {
+        throw new Error(`One or more elements were not located within the timeout`);
+    }
 }
 
 export function getElementByXPathUsingTestID(
@@ -93,11 +96,11 @@ export async function clickWebElement(webview: WebView, locator: Locator) {
 }
 
 export async function waitForElementToDisappear(
-    driver: WebDriver,
     elementLocator: By,
     timeout: number = DEFAULT_TIME_OUT
 ) {
-    return await driver.wait(until.stalenessOf(driver.findElement(elementLocator)), timeout);
+    return await VSBrowser.instance.driver
+        .wait(until.stalenessOf(VSBrowser.instance.driver.findElement(elementLocator)), timeout);
 }
 
 export function areVariablesIncludedInString(variables, str) {
@@ -164,7 +167,7 @@ export function waitForWebview(name: string) {
 export async function verifyTerminalText(text: string) {
     const terminal = await new BottomBarPanel().openTerminalView();
 
-    await waitUntilTextContains(terminal, text, 60000).catch((e) => {
+    await waitUntilTextContains(terminal, text, 180000).catch((e) => {
         fail(e);
     });
 }

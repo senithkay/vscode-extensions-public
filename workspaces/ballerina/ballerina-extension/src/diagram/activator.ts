@@ -19,7 +19,7 @@ import {
 } from '../core/extended-language-client';
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
-import { join } from "path";
+import { join, normalize } from "path";
 import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, getMessageObject } from '../telemetry';
 import { getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
@@ -389,11 +389,12 @@ class DiagramPanel {
 				handler: async (args: any[]): Promise<string | undefined> => {
 					// Get the active text editor
 					const filePath = args[0];
-					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+					const normalizedFilePath = normalize(filePath);
+					const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
 					if (doc) {
 						return doc.getText();
 					}
-					return readFileSync(filePath, { encoding: 'utf-8' });
+					return readFileSync(normalizedFilePath, { encoding: 'utf-8' });
 				}
 			},
 			{
@@ -401,13 +402,14 @@ class DiagramPanel {
 				handler: async (args: any[]): Promise<boolean> => {
 					// Get the active text editor
 					const filePath = args[0];
+					const normalizedFilePath = normalize(filePath);
 					const fileContent = args[1];
 					const skipForceSave = args.length > 2 ? args[2] : false;
-					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+					const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
 					commands.executeCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW);
 					if (doc) {
 						const edit = new WorkspaceEdit();
-						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
+						edit.replace(Uri.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
 						await workspace.applyEdit(edit);
 						langClient.updateStatusBar();
 						if (skipForceSave) {
@@ -423,11 +425,11 @@ class DiagramPanel {
 								}
 							],
 							textDocument: {
-								uri: Uri.file(filePath).toString(),
+								uri: Uri.file(normalizedFilePath).toString(),
 								version: 1
 							}
 						});
-						writeFileSync(filePath, fileContent);
+						writeFileSync(normalizedFilePath, fileContent);
 						langClient.updateStatusBar();
 					}
 					return false;
