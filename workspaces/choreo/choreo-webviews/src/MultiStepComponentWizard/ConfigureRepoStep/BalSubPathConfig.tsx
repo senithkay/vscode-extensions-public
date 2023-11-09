@@ -19,7 +19,7 @@ import { ComponentWizardState } from "../types";
 import { useQuery } from "@tanstack/react-query";
 import { cx } from "@emotion/css";
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
 import debounce from "lodash.debounce";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";

@@ -14,7 +14,9 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { AutoComplete, ErrorBanner, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit/lib/components/AutoComplete";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
+import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
