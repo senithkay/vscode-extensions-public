@@ -45,6 +45,8 @@ function checkDocumentForOpenAPI(document?: vscode.TextDocument) {
 			const fileContent = document.getText();
 			const isOpenAPI = fileContent.includes('openapi');
 			vscode.commands.executeCommand('setContext', 'isFileOpenAPI', isOpenAPI);
+		} else {
+			vscode.commands.executeCommand('setContext', 'isFileOpenAPI', false);
 		}
 	}
 }

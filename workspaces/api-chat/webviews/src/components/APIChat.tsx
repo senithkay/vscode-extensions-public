@@ -116,6 +116,11 @@ const APIChat = (props: {
         setTestInput("");
     }
 
+    const handleRerun = (command: string) => {
+        ConsoleAPI.getInstance().executeTest(command);
+        setTestInput("");
+    }
+
     const handleScenarioTest = (query: string) => {
         ConsoleAPI.getInstance().executeTest(query);
     }
@@ -140,9 +145,14 @@ const APIChat = (props: {
                         <Welcome state={props.state} queries={props.queries} handleScenarioTest={handleScenarioTest} />
                         {props.logs.map((log) => {
                             if (log.type === "COMMAND") {
-                                return <Command style={{ display: "flex", flexWrap: "nowrap" }}>
-                                    <Codicon name="account" />
-                                    <Message>{log.command}</Message>
+                                return <Command style={{ display: "flex", flexWrap: "nowrap", justifyContent: "space-between" }}>
+                                    <div style={{ display: "flex", flexWrap: "nowrap" }}>
+                                        <Codicon name="account" />
+                                        <Message>{log.command}</Message>
+                                    </div>
+                                    <VSCodeButton appearance="icon" onClick={() => handleRerun(log.command)} title="Rerun">
+                                        <Codicon name="debug-rerun" />
+                                    </VSCodeButton>
                                 </Command>;
                             }
                             if (log.type === "RESULT") {

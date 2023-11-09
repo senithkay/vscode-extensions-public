@@ -6,6 +6,7 @@ import { TestResult } from "../ConsoleAPI";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
 
+
 const colors = {
     "GET": '#3d7eff',
     "PUT": '#49cc90',
@@ -93,6 +94,11 @@ const TestResult = ({ log }: { log: TestResult }) => {
                 <Badge color={getColorByCode(log.output.code)}>{log.output.code}</Badge>
                 <Method style={{ color: getColorByMethod(log.request.method), width: "30px" }}>{log.request.method}</Method>
                 <span>{log.request.path}</span>
+                {/* <ContextMenu style={{ float: "right", marginRight: "10px" }}
+                    menuItems={[
+                        { id: "", label: <>Copy as cURL</>, onClick: () => { console.log("") } },
+                        { id: "", label: <>Open REST Client</>, onClick: () => { console.log("Item Selected") } },
+                    ]} /> */}
                 {isExpanded ?
                     <VSCodeButton appearance="icon" style={{ float: "right", marginRight: "10px" }}>
                         <Codicon name="chevron-up" />
@@ -132,7 +138,7 @@ const TestResult = ({ log }: { log: TestResult }) => {
 export default TestResult;
 
 const calculateNumberOfLines = (str: string): number => {
-    
+
     const lines = str.split(/\r?\n/);
 
     // Get approximate number of lines considering the character length

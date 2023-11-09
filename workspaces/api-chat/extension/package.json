@@ -27,7 +27,7 @@
         "command": "api-chat.console",
         "title": "Open API Chat",
         "category": "API Chat",
-        "when": "editorLangId == yaml && isFileOpenAPI",
+        "when": "isFileOpenAPI",
         "icon": "resources/images/apichat.svg"
       },
       {
@@ -46,7 +46,7 @@
     "menus": {
       "editor/title": [
         {
-          "when": "resourceLangId == yaml && isFileOpenAPI",
+          "when": "isFileOpenAPI",
           "command": "api-chat.console",
           "alt": "api-chat.console",
           "group": "navigation"

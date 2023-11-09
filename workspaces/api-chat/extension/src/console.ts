@@ -43,13 +43,14 @@ class Console {
         });
     }
 
-    public static render(extensionUri: vscode.Uri) {
+    public static render(extensionUri: vscode.Uri, fileName: string) {
         if (Console.currentPanel) {
             const panel = Console.currentPanel._panel;
             Console.currentPanel = new Console(panel, extensionUri);
             panel.reveal(vscode.ViewColumn.Two);
+            panel.title = "API Chat - " + fileName;
         } else {
-            const panel = vscode.window.createWebviewPanel("APIChatConsole", "API Chat Console", vscode.ViewColumn.Two, {
+            const panel = vscode.window.createWebviewPanel("APIChatConsole", "API Chat - " + fileName, vscode.ViewColumn.Two, {
                 enableScripts: true, retainContextWhenHidden: true
             });
             panel.iconPath = vscode.Uri.joinPath(extensionUri, "resources", "images", "apichat.svg");
@@ -120,17 +121,30 @@ class Console {
 export function activateConsole(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('api-chat.console', () => {
-            Console.render(context.extensionUri);
             const activeDocument = vscode.window.activeTextEditor?.document;
             if (activeDocument) {
+                const filePath = activeDocument.fileName;
+                const fileName = filePath.split('/').pop();
+                Console.render(context.extensionUri, fileName || '');
                 if (activeDocument) {
-                    const fileName = activeDocument.fileName;
-                    if (fileName.endsWith('.yaml') || fileName.endsWith('.yml')) {
+
+                    if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
                         // Parse the YAML file
                         const yamlContent = activeDocument.getText();
                         const parsedYaml = parse(yamlContent);
                         reset();
                         setOpenAPI(parsedYaml);
+                    }
+                    if (filePath.endsWith('.json')) {
+                        // Parse the YAML file
+                        const jsonContent = activeDocument.getText();
+                        try {
+                            const jsonObject = JSON.parse(jsonContent);
+                            reset();
+                            setOpenAPI(jsonObject);
+                        } catch (error: any) {
+                            vscode.window.showErrorMessage('Error parsing JSON: ' + error.message);
+                        }
                     }
                 }
             }
