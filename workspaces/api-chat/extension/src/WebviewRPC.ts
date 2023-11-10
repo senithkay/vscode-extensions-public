@@ -36,6 +36,8 @@ const refreshConsole: NotificationType<void> = { method: 'refreshConsole' };
 const setAuthenticationNotification: NotificationType<void> = { method: 'setAuthentication' };
 const getAuthenticationNotification: NotificationType<void> = { method: 'getAuthentication' };
 const stopExecutionNotification: NotificationType<void> = { method: 'stopExecution' };
+const runAsCurlNotification: NotificationType<TestResult> = { method: 'runAsCurl' };
+const openInRestClientNotification: NotificationType<TestResult> = { method: 'openRESTClient' };
 
 
 // Inform console of changing state
@@ -100,4 +102,12 @@ messenger.onRequest(setAuthenticationNotification, (authData: AuthBasic | AuthBe
 
 messenger.onRequest(getAuthenticationNotification, () => {
     return getAuthentication();
+});
+
+messenger.onRequest(runAsCurlNotification, () => {
+    console.log("Run as cURL");
+});
+
+messenger.onRequest(openInRestClientNotification, () => {
+    console.log("Open rest client");
 });

@@ -94,11 +94,6 @@ const TestResult = ({ log }: { log: TestResult }) => {
                 <Badge color={getColorByCode(log.output.code)}>{log.output.code}</Badge>
                 <Method style={{ color: getColorByMethod(log.request.method), width: "30px" }}>{log.request.method}</Method>
                 <span>{log.request.path}</span>
-                {/* <ContextMenu style={{ float: "right", marginRight: "10px" }}
-                    menuItems={[
-                        { id: "", label: <>Copy as cURL</>, onClick: () => { console.log("") } },
-                        { id: "", label: <>Open REST Client</>, onClick: () => { console.log("Item Selected") } },
-                    ]} /> */}
                 {isExpanded ?
                     <VSCodeButton appearance="icon" style={{ float: "right", marginRight: "10px" }}>
                         <Codicon name="chevron-up" />
@@ -128,6 +123,15 @@ const TestResult = ({ log }: { log: TestResult }) => {
                             rows={calculateNumberOfLines(JSON.stringify(log.output.payload, null, 2))}
                             readOnly={true}>
                         </VSCodeTextArea>
+                        {/* <div style={{ display: "flex", marginTop: "5px" }}>
+                            <VSCodeButton onClick={() => { }} appearance="icon">
+                                <Codicon name="copy" /> &nbsp;Run as cURL
+                            </VSCodeButton>
+                            &nbsp;
+                            <VSCodeButton onClick={() => { }} appearance="icon">
+                                <Codicon name="file-symlink-file" /> &nbsp;Open in REST Client
+                            </VSCodeButton>
+                        </div> */}
                     </RequestPanel>
                 </>
             )}
