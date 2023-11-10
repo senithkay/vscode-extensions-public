@@ -143,7 +143,7 @@ function getElements(mapping: any): Elements {
                                 elementAttributes[elementAttributeType.name] = elementAttributeType;
                             }
                             interfaces[attributeName] = elementAttributes;
-                            attributeType.isCollection = false;
+                            attributeType.isCollection = attributeInfo ?? false;
                         }
 
                     } else if (typeInfo) {
