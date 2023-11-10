@@ -147,10 +147,6 @@ function showMsgAndRestart(msg: string): void {
 }
 
 async function getComponentYamlMetadata(): Promise<{ project: Project; component: string } | undefined> {
-    const isLoggedIn = await ext.api.waitForLogin();
-    if (!isLoggedIn) {
-        return undefined;
-    }
     const openedComponent = await ext.api.getOpenedComponentName();
     const project = await ext.api.getChoreoProject();
     if (!openedComponent || !project) {
@@ -200,27 +196,33 @@ async function registerYamlLangugeServer(): Promise<void> {
             }
 
             return new Promise(async (resolve, reject) => {
-                try {
-                    const componentMetadata = await getComponentYamlMetadata();
-                    if (!componentMetadata) {
-                        resolve(JSON.stringify(schemaContentJSON));
-                    } else {
+                const componentMetadata = await getComponentYamlMetadata();
+                if (!componentMetadata) {
+                    resolve(JSON.stringify(schemaContentJSON));
+                } else {
+                    try {
                         const componentConfigKey = `${componentMetadata.project.orgId}-${componentMetadata.project.handler}-${componentMetadata.component}`;
                         const componentConfigs = await componentYamlCache.get(componentConfigKey, parseInt(componentMetadata.project.orgId), componentMetadata.project.handler, componentMetadata.component);
                         if (!componentConfigs) {
-                            return reject(window.showErrorMessage("Could not get component configs"));
+                            resolve(JSON.stringify(schemaContentJSON));
+                        } else {
+                            const enrichedSchema = enrichComponentSchema(
+                                schemaContentJSON,
+                                componentMetadata.component,
+                                componentMetadata.project.name,
+                                componentConfigs!
+                            );
+                            resolve(JSON.stringify(enrichedSchema));
                         }
+                    } catch {
                         const enrichedSchema = enrichComponentSchema(
                             schemaContentJSON,
                             componentMetadata.component,
-                            componentMetadata.project.name,
-                            componentConfigs
+                            componentMetadata.project.name
                         );
                         resolve(JSON.stringify(enrichedSchema));
-                    } 
-                } catch {
-                    reject(window.showErrorMessage("Could not register schema"));
-                }
+                    }
+                } 
             });
         }
 
