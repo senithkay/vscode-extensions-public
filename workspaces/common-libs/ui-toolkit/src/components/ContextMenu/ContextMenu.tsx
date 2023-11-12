@@ -57,6 +57,10 @@ const ExpandedMenu = styled.div<ContainerProps>`
     ${(props: ContextMenuProps) => props.sx};
 `;
 
+const IconWrapper = styled.div<ContainerProps>`
+    ${(props: ContextMenuProps) => props.sx};
+`;
+
 const SmallProgressRing = styled(VSCodeProgressRing)`
     height: calc(var(--design-unit) * 3px);
     width: calc(var(--design-unit) * 3px);
@@ -89,9 +93,15 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
             {isLoading ? (
                 <SmallProgressRing />
             ) : (
-                <VSCodeButton appearance="icon" style={iconSx} onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                    {icon ? icon : <Codicon name="ellipsis"  />}
-                </VSCodeButton>
+                iconSx ? (
+                    <IconWrapper onClick={handleClick} sx={iconSx} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                        {icon ? icon : <Codicon name="ellipsis"/>}
+                    </IconWrapper>
+                ) : (
+                    <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                        {icon ? icon : <Codicon name="ellipsis"/>}
+                    </VSCodeButton>
+                )
             )}
 
             {isMenuOpen && (

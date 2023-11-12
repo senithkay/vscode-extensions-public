@@ -22,6 +22,9 @@ storiesOf("Context Menu").add("Horizontal Menu", () => <ComponentStory />);
 
 const verticalIconStyles = {
     transform: "rotate(90deg)",
+    ":hover": {
+        backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
+    }
 }
 
 const VericleMenu = () => {
@@ -38,7 +41,11 @@ const rounderIconStyles = {
     height: "30px",
     borderRadius: "50%",
     transform: "rotate(90deg)",
-    border: "1px solid var(--vscode-editor-background)"
+    border: "1px solid var(--vscode-dropdown-border)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center"
 }
 const VericleMenuWithCircularBorder = () => {
 
