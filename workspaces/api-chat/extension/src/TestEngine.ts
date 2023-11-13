@@ -11,11 +11,8 @@ import * as vscode from 'vscode';
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { actions, createMachine, interpret, State, assign, EventObject } from 'xstate';
 import API from './API';
-import { getLogger } from './logger/logger';
+// import { getLogger } from './logger/logger';
 import { v4 as uuidv4 } from 'uuid';
-
-
-
 
 
 const outputChannel = vscode.window.createOutputChannel('api-chat');
@@ -138,10 +135,8 @@ function extractApiUrl(openapi: any): string | undefined {
 }
 
 function makeRequest(apiClient: AxiosInstance, request: Request, authData: any) {
-    getLogger().debug("Generating request");
     const path = replacePathParameters(request);
     request.path = path;
-    outputChannel.appendLine(`curl -X ${request.method} ${apiClient.getUri()}${path} -d '${JSON.stringify(request.inputs.requestBody)}'`);
 
     switch (request.method) {
         case 'GET':
@@ -247,7 +242,6 @@ const getTools = (context: TestMachineContext, event: any) => {
 };
 
 const executeCommand = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Executing command");
     return new Promise((resolve, reject) => {
         const payload = (context.taskStatus === undefined) ?
             { apiSpec: context.apiSpec, command: context.command } :
@@ -286,7 +280,6 @@ const executeCommand = (context: TestMachineContext, event: any) => {
 };
 
 const initExecution = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Initializing execution");
     return new Promise((resolve, reject) => {
         if (context.command) {
             const log: TestCommand = { command: context.command, type: "COMMAND" };
@@ -297,7 +290,6 @@ const initExecution = (context: TestMachineContext, event: any) => {
 }
 
 const executeRequest = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Executing request");
     return new Promise((resolve, reject) => {
         // if the status is completed skip
         if (context.taskStatus == "COMPLETED") {
@@ -315,6 +307,7 @@ const executeRequest = (context: TestMachineContext, event: any) => {
             else {
                 makeRequest(apiClient, request, context.authData)
                     .then((response: AxiosResponse) => {
+                        outputChannel.appendLine(generateCurlCommand(response));
                         const mappedResponse: Response = {
                             code: response.status,
                             payload: response.data,
@@ -325,6 +318,11 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                         };
                         resolve(mappedResponse);
                     }).catch((error: AxiosError) => {
+                        if (error.response) {
+                            outputChannel.appendLine(generateCurlCommand(error.response));
+                        } else {
+                            outputChannel.appendLine("Error on executing command")
+                        }
                         const mappedResponse: Response = {
                             code: error.response?.status || 0,
                             payload: error.response?.data,
@@ -335,14 +333,12 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                         };
                         resolve(mappedResponse);
                     });
-                getLogger().debug("Succesfully execute request");
             }
         }
     });
 };
 
 const processRequest = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Processing request");
     return new Promise((resolve, reject) => {
         if (context.executionError) {
             const log: TestError = { message: context.executionError, type: "ERROR" };
@@ -365,7 +361,6 @@ const processRequest = (context: TestMachineContext, event: any) => {
             };
             context.logs.push(log);
         }
-        getLogger().error("Succesfully process request");
         resolve({ taskStatus: context.taskStatus });
     });
 };
