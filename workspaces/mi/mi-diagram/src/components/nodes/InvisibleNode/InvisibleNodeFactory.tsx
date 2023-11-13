@@ -28,8 +28,8 @@ export class InvisibleNodeFactory extends AbstractReactFactory<InvisibleNodeMode
         return <InvisibleNodeWidget
             diagramEngine={this.engine}
             node={event.model}
-            width={0}
-            height={0}
+            width={70}
+            height={70}
         />;
     }
 

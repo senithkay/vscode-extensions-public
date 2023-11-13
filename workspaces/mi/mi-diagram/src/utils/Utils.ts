@@ -13,7 +13,6 @@ import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
 import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
 import { LogMediatorNodeFactory } from "../components/nodes/mediators/log/LogMediatorFactory";
 import { InvisibleNodeFactory } from "../components/nodes/InvisibleNode/InvisibleNodeFactory";
-import { DefaultState } from "../components/canvas/DefaultState";
 import { PlusNodeFactory } from "../components/nodes/plusNode/PlusNodeFactory";
 import { PlusNodeModel } from "../components/nodes/plusNode/PlusNodeModel";
 import { BaseNodeModel } from "../components/base/base-node/base-node";
@@ -21,10 +20,9 @@ import { InvisibleNodeModel } from "../components/nodes/InvisibleNode/InvisibleN
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
-        registerDefaultPanAndZoomCanvasAction: false,
-        registerDefaultZoomCanvasAction: false
+        registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultZoomCanvasAction: false,
     });
-    engine.getStateMachine().pushState(new DefaultState());
 
     engine.getLinkFactories().registerFactory(new MediatorLinkFactory());
     engine.getPortFactories().registerFactory(new MediatorPortFactory());

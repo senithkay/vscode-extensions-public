@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -8,18 +7,9 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import {
-	DragCanvasState,
-	State
-} from '@projectstorm/react-canvas-core';
-import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-
-export class DefaultState extends State<DiagramEngine> {
-	dragCanvas: DragCanvasState;
-
-	constructor() {
-		super({ name: 'starting-state' });
-		this.dragCanvas = new DragCanvasState();
-
-	}
-}
+export const OFFSET = {
+    START: {
+        X: 70,
+        Y: 70,
+    }
+};

@@ -19,6 +19,7 @@ import { generateEngine, createLinks } from '../../utils/Utils';
 import { InvisibleNodeModel } from '../nodes/InvisibleNode/InvisibleNodeModel';
 import { BaseNodeModel } from '../base/base-node/base-node';
 import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
+import { OFFSET } from '../../constants';
 
 export interface SequenceDiagramProps {
     nodes: BaseNodeModel[];
@@ -74,10 +75,11 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                 if (props.invertDirection) {
                     canvasPortLink = createLinks(nodes[nodes.length - 1], canvasPortNode, false, true);
                 } else {
-                    canvasPortLink = createLinks(canvasPortNode, nodes[0], false);
+                    canvasPortLink = createLinks(canvasPortNode, nodes[0], true);
                 }
 
-                canvasPortNode.setPosition(0, 100);
+                canvasPortNode.setPosition(0, OFFSET.START.Y);
+                model.setOffsetX(OFFSET.START.X);
 
                 model.setLocked(true);
 
@@ -119,6 +121,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             <CanvasContainer>
                 {haveNodes && <NavigationWrapperCanvasWidget
                     diagramEngine={diagramEngine as any}
+                    disableZoom={true}
                 />}
             </CanvasContainer>
         </div>;

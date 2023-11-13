@@ -9,12 +9,12 @@
 
 import { LinkModel, NodeModel, NodeModelGenerics, PortModel } from '@projectstorm/react-diagrams';
 import { MediatorBaseLinkModel as BaseLinkModel } from '../base-link/base-link';
-import { NodeProps } from "@projectstorm/react-diagrams-core";
+import { DiagramEngine, NodeProps } from "@projectstorm/react-diagrams-core";
 import { STNode } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface BaseNodeProps extends NodeProps {
     node: BaseNodeModel;
-    diagramEngine: any;
+    diagramEngine: DiagramEngine;
     width: number;
     height: number;
 }
