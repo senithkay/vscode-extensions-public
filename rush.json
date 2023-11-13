@@ -553,6 +553,11 @@
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "apk-config-language-support",
+      "projectFolder": "workspaces/apk/apk-extension",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }
