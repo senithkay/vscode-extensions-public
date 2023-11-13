@@ -357,7 +357,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                 throw new Error("Declarative API endpoint not provided");
             }
             const res = await getHttpClient().get(
-                `${this._declarativeAPI}/projectName/${projectHandler}/componentName/${componentName}/component-config`,
+                `${this._declarativeAPI}/core/v1alpha1/projectName/${projectHandler}/componentName/${componentName}/component-config`,
                 {
                     headers: {
                         "Content-Type": "application/json",
