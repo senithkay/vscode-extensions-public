@@ -13,6 +13,7 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
         alias: {
+            'react': path.resolve(__dirname, 'node_modules/react'),
             handlebars: 'handlebars/dist/handlebars.min.js',
             "crypto": false,
             "net": false,

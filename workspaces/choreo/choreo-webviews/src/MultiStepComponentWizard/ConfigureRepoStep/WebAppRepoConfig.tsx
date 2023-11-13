@@ -16,7 +16,7 @@ import styled from "@emotion/styled";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { ComponentWizardState } from "../types";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
-import { ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
+import { ChoreoBuildPackNames, ChoreoImplementationType, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
 import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { TextField } from "@wso2-enterprise/ui-toolkit";
 
@@ -72,10 +72,12 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
         props.onFormDataChange(prevFormData => ({ ...prevFormData, port }));
     };
 
+    // TODO: add directory creation checkbox & validations for webapp context & Files Directory
+
     return (
         <div>
             <StepContainer>
-                {implementationType && [ChoreoImplementationType.React, ChoreoImplementationType.Angular, ChoreoImplementationType.Vue].includes(implementationType) && (
+                {implementationType && WebAppSPATypes.includes(implementationType as ChoreoBuildPackNames) && (
                     <>
                         <VSCodeTextField
                             placeholder=""
@@ -143,18 +145,16 @@ export const WebAppRepoConfig = (props: WebAppRepoConfigProps) => {
                     </VSCodeTextField>
                 )}
 
-                {implementationType === ChoreoImplementationType.Docker && (
-                    <MarginTopWrap>
-                        <TextField
-                            value={props.formData?.port || ''}
-                            id='component-port-input'
-                            label="Port"
-                            placeholder="Port"
-                            onChange={(text: string) => setPortValue(text)}
-                            required
-                        />
-                    </MarginTopWrap>
-                )}                
+                {![ChoreoImplementationType.StaticFiles, ...WebAppSPATypes].includes(implementationType as any) && (
+                    <TextField
+                        value={props.formData?.port || ''}
+                        id='component-port-input'
+                        label="Port"
+                        placeholder="Port"
+                        onChange={(text: string) => setPortValue(text)}
+                        required
+                    />
+                )}
             </StepContainer>
             {props.webAppConfigError && <MarginTopWrap>
                     <ErrorBanner errorMsg={props.webAppConfigError} />
