@@ -2,13 +2,35 @@ import React, { useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
 import { CELL_LINK, Colors } from "../../../resources";
-import { Popover } from "@mui/material";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 
 interface WidgetProps {
     engine: DiagramEngine;
     link: CellLinkModel;
+}
+
+const tooltipPopOverStyle = {
+    backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
+    border: `1px solid ${Colors.PRIMARY_SELECTED}`,
+    padding: "10px",
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "280px",
+    gap: "8px",
+    pointerEvents: "none"
+}
+
+const observabilityPopOverStyle = {
+    backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
+    border: `1px solid ${Colors.PRIMARY_SELECTED}`,
+    padding: "10px",
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "column",
+    pointerEvents: "none"
 }
 
 export function CellLinkWidget(props: WidgetProps) {
@@ -74,18 +96,7 @@ export function CellLinkWidget(props: WidgetProps) {
                 open={open}
                 anchorEl={anchorEl}
                 onClose={handlePopoverClose}
-                anchorOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                transformOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                sx={{
-                    pointerEvents: "none",
-                    boxShadow: "0px 1px 3px rgba(0,0,0,0.1), 0px 1px 2px rgba(0,0,0,0.06)",
-                }}
+                sx={(link.observations?.length > 0 && !link.tooltip) ? observabilityPopOverStyle : tooltipPopOverStyle}
             >
                 {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
                 {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}

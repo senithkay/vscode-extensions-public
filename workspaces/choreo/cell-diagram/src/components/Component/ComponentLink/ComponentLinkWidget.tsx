@@ -29,17 +29,17 @@ const tooltipPopOverStyle = {
     flexDirection: "column",
     maxWidth: "280px",
     gap: "8px",
-    pointerEvents: "none",
+    pointerEvents: "none"
 }
 
-const oberservabilityPopOverStyle = {
+const observabilityPopOverStyle = {
     backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
     border: `1px solid ${Colors.PRIMARY_SELECTED}`,
     padding: "10px",
     borderRadius: "5px",
     display: "flex",
     flexDirection: "column",
-    pointerEvents: "none",
+    pointerEvents: "none"
 }
 
 export function ComponentLinkWidget(props: WidgetProps) {
@@ -105,7 +105,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
                 open={open}
                 anchorEl={anchorEl}
                 onClose={handlePopoverClose}
-                sx={(link.observations?.length > 0 && !link.tooltip) ? oberservabilityPopOverStyle : tooltipPopOverStyle}
+                sx={(link.observations?.length > 0 && !link.tooltip) ? observabilityPopOverStyle : tooltipPopOverStyle}
             >
                 {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
                 {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}

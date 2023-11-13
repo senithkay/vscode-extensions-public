@@ -9,24 +9,9 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { MoreVertIcon } from "../../resources/assets/icons";
 import { Colors } from "../../resources";
 import { Component } from "../../types";
-import { Menu, MenuItem } from "@mui/material";
-
-const MenuButton: React.FC<any> = styled.div`
-    position: absolute;
-    top: -4px;
-    right: -12px;
-    cursor: pointer;
-    z-index: 1;
-    svg {
-        fill: ${Colors.NODE_BORDER};
-        width: 24px;
-        transition: transform 0.3s ease-in-out;
-        transform: ${(props) => (props.rotate ? "rotate(180deg)" : "rotate(0)")};
-    }
-`;
+import { ContextMenu } from "@wso2-enterprise/ui-toolkit";
 
 const BubbleAnimation = styled.div`
     position: absolute;
@@ -52,6 +37,18 @@ const BubbleAnimation = styled.div`
     }
 `;
 
+const ItemContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* gap: 5px; */
+    justify-content: flex-start;
+    line-height: 1.5;
+    font-size: 16px;
+    font-weight: 500;
+    color: ${Colors.DEFAULT_TEXT};
+`;
+
 export interface MenuItem {
     label: string;
     callback: (id: string, version?: string) => void;
@@ -60,57 +57,59 @@ export interface MenuItem {
 interface MoreVertMenuProps {
     component: Component;
     menuItems: MenuItem[];
+    hasComponentKind?: boolean;
 }
 
+const relativePositionedRoundeIconStyles = {
+    position: "relative",
+    lineHeight: 0,
+    width: 30,
+    height: 30,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 70,
+    marginLeft: -10,
+    background: Colors.NODE_BACKGROUND_PRIMARY,
+    borderRadius: "50%",
+    transform: "rotate(90deg)",
+    border: `3px solid ${Colors.LIGHT_GREY}}`,
+    transition: "transform 0.3s ease-in-out"
+};
+
+const absolutePositionedRoundeIconStyles = {
+    position: "absolute",
+    lineHeight: 0,
+    width: 30,
+    height: 30,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 110,
+    marginLeft: -24,
+    background: Colors.NODE_BACKGROUND_PRIMARY,
+    borderRadius: "50%",
+    transform: "rotate(90deg)",
+    border: `3px solid ${Colors.LIGHT_GREY}}`,
+    transition: "transform 0.3s ease-in-out"
+};
+
 export function MoreVertMenu(props: MoreVertMenuProps) {
-    const { component, menuItems } = props;
-
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
-    const open = Boolean(anchorEl);
-
-    const handleMenuButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    const { component, menuItems, hasComponentKind } = props;
+    
+    const contextMenuItems = menuItems.map((item) => {
+        return {
+            id: item.label,
+            label: <ItemContainer>{item.label}</ItemContainer>,
+            onClick: () => {
+                item.callback(component.id, component.version);
+            }
+        };
+    })
 
     return (
-        <>
-            <MenuButton onClick={handleMenuButtonClick}>
-                <BubbleAnimation />
-                <MoreVertIcon />
-            </MenuButton>
-            <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                    "aria-labelledby": "basic-button",
-                }}
-                anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                }}
-                transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                }}
-            >
-                {menuItems.map((item, index) => (
-                    <MenuItem
-                        key={index}
-                        onClick={() => {
-                            item.callback(component.id, component.version);
-                        }}
-                    >
-                        {item.label}
-                    </MenuItem>
-                ))}
-            </Menu>
-        </>
+        <ContextMenu iconSx={hasComponentKind ? absolutePositionedRoundeIconStyles : relativePositionedRoundeIconStyles} menuItems={contextMenuItems}/>
     );
 }
