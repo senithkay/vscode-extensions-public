@@ -576,4 +576,17 @@ export class ChoreoExtensionApi {
 
         return undefined;
     }
+
+    public async isLocalComponent(componentName: string): Promise<boolean | undefined> {
+        const workspaceFile = workspace.workspaceFile;
+        const workspaceData = await workspace.fs.readFile(workspaceFile!);
+        const workspaceContent = new TextDecoder().decode(workspaceData);
+        const workspaceConfig = JSON.parse(workspaceContent) as WorkspaceConfig;
+
+        for (const folder of workspaceConfig.folders) {
+            if (folder.name === componentName) {
+                return !!folder.metadata;
+            }
+        }
+    }
 }

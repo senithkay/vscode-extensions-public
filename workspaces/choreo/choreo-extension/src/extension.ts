@@ -146,13 +146,19 @@ function showMsgAndRestart(msg: string): void {
     });
 }
 
-async function getComponentYamlMetadata(): Promise<{ project: Project; component: string } | undefined> {
+async function getComponentYamlMetadata():
+    Promise<{ project: Project; component: string, isLocalComponent: boolean } | undefined> 
+{
     const openedComponent = await ext.api.getOpenedComponentName();
     const project = await ext.api.getChoreoProject();
     if (!openedComponent || !project) {
         return undefined;
     }
-    return { project, component: openedComponent };
+    const isLocalComponent = await ext.api.isLocalComponent(openedComponent);
+    if (isLocalComponent === undefined) {
+        return undefined;
+    }
+    return { project, component: openedComponent, isLocalComponent };
 }
 
 async function registerYamlLangugeServer(): Promise<void> {
@@ -202,25 +208,19 @@ async function registerYamlLangugeServer(): Promise<void> {
                 } else {
                     try {
                         const componentConfigKey = `${componentMetadata.project.orgId}-${componentMetadata.project.handler}-${componentMetadata.component}`;
-                        const componentConfigs = await componentYamlCache.get(componentConfigKey, parseInt(componentMetadata.project.orgId), componentMetadata.project.handler, componentMetadata.component);
-                        if (!componentConfigs) {
-                            resolve(JSON.stringify(schemaContentJSON));
-                        } else {
-                            const enrichedSchema = enrichComponentSchema(
-                                schemaContentJSON,
-                                componentMetadata.component,
-                                componentMetadata.project.name,
-                                componentConfigs!
-                            );
-                            resolve(JSON.stringify(enrichedSchema));
+                        let componentConfigs: ComponentYamlContent[] | undefined;
+                        if (!componentMetadata.isLocalComponent) {
+                            componentConfigs = await componentYamlCache.get(componentConfigKey, parseInt(componentMetadata.project.orgId), componentMetadata.project.handler, componentMetadata.component);
                         }
-                    } catch {
                         const enrichedSchema = enrichComponentSchema(
                             schemaContentJSON,
                             componentMetadata.component,
-                            componentMetadata.project.name
+                            componentMetadata.project.name,
+                            componentConfigs
                         );
                         resolve(JSON.stringify(enrichedSchema));
+                    } catch(err) {
+                        reject(window.showErrorMessage("Could not register schema"));
                     }
                 } 
             });
