@@ -132,7 +132,7 @@ function extractApiUrl(openapi: any): string | undefined {
             url = server.url;
         }
         // Check if ditected url is a valid string
-        const regex = /^https?:\/\/[\w.-]+\.[a-zA-Z]{2,}$/;
+        const regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
         if (!regex.test(url)) {
             url = undefined;
         }
