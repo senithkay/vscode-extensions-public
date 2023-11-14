@@ -2,7 +2,7 @@
   "name": "api-chat",
   "displayName": "API Chat",
   "description": "Test APIs with OpenAPI descriptions",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "publisher": "WSO2",
   "repository": {
     "type": "github",
