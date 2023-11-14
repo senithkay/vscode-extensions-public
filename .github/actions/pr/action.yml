@@ -23,6 +23,10 @@ inputs:
     description: 'Is Ballerina'    
     type: boolean
     required: true
+  apiChat:
+    description: 'Is API Chat'    
+    type: boolean
+    required: true  
 runs:
   using: "composite"
   steps:
@@ -41,6 +45,11 @@ runs:
         if: ${{ inputs.choreo == 'true' }}
         shell: bash
         run: git add workspaces/choreo/*/*.json
+
+      - name: Add Choreo git changes
+        if: ${{ inputs.apiChat == 'true' }}
+        shell: bash
+        run: git add workspaces/api-chat/*/*.json
 
       - name: Commit version
         shell: bash
