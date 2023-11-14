@@ -11,11 +11,8 @@ import * as vscode from 'vscode';
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import { actions, createMachine, interpret, State, assign, EventObject } from 'xstate';
 import API from './API';
-import { getLogger } from './logger/logger';
+// import { getLogger } from './logger/logger';
 import { v4 as uuidv4 } from 'uuid';
-
-
-
 
 
 const outputChannel = vscode.window.createOutputChannel('api-chat');
@@ -138,10 +135,8 @@ function extractApiUrl(openapi: any): string | undefined {
 }
 
 function makeRequest(apiClient: AxiosInstance, request: Request, authData: any) {
-    getLogger().debug("Generating request");
     const path = replacePathParameters(request);
     request.path = path;
-    // console.log(`curl -X ${request.method} ${apiClient.getUri()}${path} -d '${JSON.stringify(request.inputs.requestBody)}'`);
 
     switch (request.method) {
         case 'GET':
@@ -198,8 +193,9 @@ function replacePathParameters(request: Request): string {
 }
 
 const assignOpenAPI = assign<TestMachineContext, SetOpenAPIEvent>({
-    xRequestId: uuidv4(),
-    openapi: (context, event) => event.openapi
+    xRequestId: (context, event) => uuidv4(),
+    openapi: (context, event) => event.openapi,
+    baseURL: (context, event) => undefined
 });
 
 const assignCommand = assign<TestMachineContext, SetCommandEvent>({
@@ -216,6 +212,7 @@ const assignAuthData = assign<TestMachineContext, SetAuthData>({
 
 
 const getTools = (context: TestMachineContext, event: any) => {
+    outputChannel.appendLine("Loading new OpenAPI id=" + context.xRequestId);
     return new Promise((resolve, reject) => {
         API.ready().then((client: any) => {
             client.post('/prepare', { openapi: context.openapi }, {
@@ -245,7 +242,6 @@ const getTools = (context: TestMachineContext, event: any) => {
 };
 
 const executeCommand = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Executing command");
     return new Promise((resolve, reject) => {
         const payload = (context.taskStatus === undefined) ?
             { apiSpec: context.apiSpec, command: context.command } :
@@ -284,7 +280,6 @@ const executeCommand = (context: TestMachineContext, event: any) => {
 };
 
 const initExecution = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Initializing execution");
     return new Promise((resolve, reject) => {
         if (context.command) {
             const log: TestCommand = { command: context.command, type: "COMMAND" };
@@ -295,7 +290,6 @@ const initExecution = (context: TestMachineContext, event: any) => {
 }
 
 const executeRequest = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Executing request");
     return new Promise((resolve, reject) => {
         // if the status is completed skip
         if (context.taskStatus == "COMPLETED") {
@@ -313,6 +307,7 @@ const executeRequest = (context: TestMachineContext, event: any) => {
             else {
                 makeRequest(apiClient, request, context.authData)
                     .then((response: AxiosResponse) => {
+                        outputChannel.appendLine(generateCurlCommand(response));
                         const mappedResponse: Response = {
                             code: response.status,
                             payload: response.data,
@@ -323,6 +318,11 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                         };
                         resolve(mappedResponse);
                     }).catch((error: AxiosError) => {
+                        if (error.response) {
+                            outputChannel.appendLine(generateCurlCommand(error.response));
+                        } else {
+                            outputChannel.appendLine("Error on executing command")
+                        }
                         const mappedResponse: Response = {
                             code: error.response?.status || 0,
                             payload: error.response?.data,
@@ -333,14 +333,12 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                         };
                         resolve(mappedResponse);
                     });
-                getLogger().debug("Succesfully execute request");
             }
         }
     });
 };
 
 const processRequest = (context: TestMachineContext, event: any) => {
-    getLogger().debug("Processing request");
     return new Promise((resolve, reject) => {
         if (context.executionError) {
             const log: TestError = { message: context.executionError, type: "ERROR" };
@@ -363,7 +361,6 @@ const processRequest = (context: TestMachineContext, event: any) => {
             };
             context.logs.push(log);
         }
-        getLogger().error("Succesfully process request");
         resolve({ taskStatus: context.taskStatus });
     });
 };
@@ -372,6 +369,7 @@ const createClient = (context: TestMachineContext, event: any) => {
     return new Promise((resolve, reject) => {
         if (context.baseURL === undefined) {
             const url = extractApiUrl(context.openapi);
+            outputChannel.appendLine("Ditected URL :" + url);
             if (url === undefined) {
                 reject();
             }
@@ -405,6 +403,29 @@ const generateAuthHeaders = (authData: AuthBasic | AuthBearer | AuthKey | AuthNo
 
     return headers;
 };
+
+function generateCurlCommand(response: AxiosResponse): string {
+    const { config, data } = response;
+    const { method, url, headers } = config;
+
+    let curlCommand = `curl -X ${method} "${url}"`;
+
+    // Add headers to the curl command
+    if (headers) {
+        Object.keys(headers).forEach((key) => {
+            const value = headers[key];
+            curlCommand += ` -H "${key}: ${value}"`;
+        });
+    }
+
+    // Add request body to the curl command
+    if (data) {
+        const body = JSON.stringify(data);
+        curlCommand += ` -d '${body}'`;
+    }
+
+    return curlCommand;
+}
 
 const testMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QBU4BcCiA7KBLLYAxAEoYDKGyA2gAwC6ioADgPay5q4taMgAeiAIw0AHADoArACYA7IIDMUwYIAsK+TJkBOADQgAnogC0msSqnzBWrTPkTVcgGwBfZ3tSxMOfEVIAxUjIACVoGJBBWdk5uXgEEKXUZMS0VeyUREXtHCT1DBCMVRzEMkS1ZO0FS2xTXd3RsPAIxfA5CCmQAfQB5AAUMADkAQR6ASVDeSI4uHnC4q3kiwQlHcus7TRFcxFlxGilRDRE9o4ktWpAPL0awMQAbFgBDCHwoMRg0ZBYWW9hCCG4bvgAG4sADWN3en2+sHG4Um0RmoDiFgsYkc6JkiRo8nMIhUWwQyxoYg0EhoyhEjmEgnOlwaPjuj2eODeYA+Xx+hDAACduSxuWImLcHmgAGb8gC2rPZ0NhzDYUxis22MikEkklhxgnReJojgJakEYkEauxNBkRxo5hcbgu9W8TXuTxeYgAxtywCKwABhW64MBYNB-AHNLAg8Fuj1e33+wNyiIKhGxFVqjUKFTaxy6-UGFOSfYiLWFRwpVS0+3XRnOlnuz1oH1+gNBnl8gVCkXi7lS2vRxtx+gTRPTZPxRTyNEYrE4qR4gmyI0aFTWCTyGwrPHlzz0x1Ml3vACq3NubUoHX3xAAMvH4cPlaPUejHJiNNjcfjcwhLOIRJitBlHPIIgWFa8iblcDJRhA+iEBgAAaGDevuyAYNeQ5KkiQgyE+JKaMo1iqjOKibB+ygKGImjmloSz-gBYHbjckHQd6F4YIMxCoVEt4YZ+ezqjsVL2KIjjvnkwlFDO1gZiWpwAWctp0g6DGelBhDel0-R+CMADi54YB0zEjAM1ADnCaGIvw2ynLs5irpkKxSOiBJ2WYEhASIpGCcsdGKWIYB8GAroAK6cDghCaf0IzBBxirmciNA0Oqqortk2hWtIxF5NY4g2FhpRLCWjg0HJdRbj5fkBcFLotJg-lBQiwZNMCYKAlgHAYK6FUItFSZ3hYRQJVYNhlHqQESCJiAqJiaJWsI1gmquRESN5lblXVLqimyroABbEGAACOgXoA1LXhjcq3BWA3VcRZCCFeOWiufI5IOeoAHjQgcgqMkqXJcsCglstDLnSFrwbWg227QdR0tvygrCmKkq+bVF1XehN13ckj3PcJCw4gaUhaGICTLmawjmEt8kVkDyMg0jnVgJDh2eMdoanXTdUM-tTNoKjsWIFoOLGhR2RkulUgEjI8XkQToiSZqlSA00wMusDnNQ8zMNtvDnZSqrjPoLzI5aCWySVNICWFio5pOeoJIzmqTgONIitnTTLpMHyHWwLA+vM-8jVhs1gqe3APtcwbJnypxaNzOoUjkQcihOBsGWIDjxoJBkEi2IUOUu+zlUsh7LBe2H6tBv7J1B8Xpe+zzghhFHMVG4LgjCxIov2wSpz3a5aolnqRXZPnytFyH3t11yvKw+2CNdsHJeh3Xht3qoigJ4WSfain3cPWixMWNnsgATSlOlSt0-ciQlDEAAmiv3H7CkaKqIVWjYuiRVOUaZLxeSwhSCUF5M+4ElZuxZGDCG4dmZkGQL0B+N0xpFEKkuI47k7oWgJAA+OX4lgOQtFmICI9wGvD1tAoMsD4GRwTNHPmH0BbGlEFaC0xsjgWAJGUQmb9SgaCUFbCmtosAsAgHAXgClriDloSOIwCQCRGG1F9MolgkqSypJNKQ+dqqSObnePEaIqLbyetIPq70TRfXSjiOaKxJrknzk6ZkUBtE9UfqRF+hQiofzflgwsRNf6qGWDiSkog7G7hZJCDk8BTJSN6ksLhr8PELC8R+dQxIfxkm1HqeYJobQlVATcexLoez1hjE2Jx11kRZDMNoGcsTsSlDnJLciS4-zVFKMlFQITqyvAPEeMpMdthWGQRiH8g0gKCAaeqB6hYZYW0mjIfOjE+l0JnEBEk6gfyEU0H1JyywXKFnNEoY2Ggcl2nPtTTqLwlkjlkR+LUTT8KYhFr+DpID6IF1ptVDAbs0Y3n6R9cWySySMKtjYAmk01AaNeWVEhYhIE7XIVcu85hFGZPRKcGQY1rQGiBWTIqqoUiYnMMQi5LIyHl0RdxLC8cCbamkLS422cJZkQLBYbQP49QaGJWtMei8J4IqiTo7i2TiT4tUBkQByhRDd0yDhJcohMiFHsCILlhdSFYAgBSm6bcNDAsqO-aQKxsjSuJG3IieJCxWD2KfXJbzNaauRO-LhuEqJZkAacHIH535iETooQqo1hLKtcM4IAA */
@@ -661,3 +682,5 @@ export function getAuthentication(): AuthBasic | AuthBearer | AuthKey | AuthNone
 export function stopExecution() {
     service.send({ type: "STOP" });
 }
+
+

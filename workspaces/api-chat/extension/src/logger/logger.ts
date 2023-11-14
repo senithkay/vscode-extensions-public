@@ -53,7 +53,7 @@ export async function initLogger(context: ExtensionContext): Promise<void> {
   const extLogger = configureLogger({
     extName: meta.displayName,
     logPath: context.logUri.fsPath,
-    logOutputChannel: window.createOutputChannel(meta.displayName, "json"),
+    logOutputChannel: window.createOutputChannel(meta.displayName),
     // set to `true` if you also want your VSCode extension to log to the console.
     logConsole: false,
     loggingLevelProp: LOGGING_LEVEL_PROP,
