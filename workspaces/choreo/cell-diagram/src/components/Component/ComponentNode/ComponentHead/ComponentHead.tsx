@@ -24,7 +24,7 @@ import {
     WebhookIcon,
 } from "../../../../resources/assets/icons";
 import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
-import { MenuItem, MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
+import { MenuItemDef, MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";
 import { COMPONENT_LINE_MIN_WIDTH } from "../../../../resources";
 
@@ -33,7 +33,7 @@ interface ServiceHeadProps {
     node: ComponentModel;
     isSelected: boolean;
     isFocused: boolean;
-    menuItems: MenuItem[];
+    menuItems: MenuItemDef[];
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
