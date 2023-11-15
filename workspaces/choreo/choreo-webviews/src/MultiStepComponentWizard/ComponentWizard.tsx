@@ -189,8 +189,8 @@ export const ComponentWizard: React.FC = () => {
                 org: '',
                 branch: '',
                 isMonoRepo: false,
-                isDirectoryValid: true,
-                createNewDir: false
+                createNewDir: false,
+                directoryPathError: ""
             },
             port: '3000',
             endpointContext: '.',

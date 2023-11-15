@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Workbench, VSBrowser } from "vscode-extension-tester";
+import { Workbench, VSBrowser, By } from "vscode-extension-tester";
 import { ADD_CHOREO_COMPONENT_COMMAND } from "./constants";
 import { CommonUtils } from "./CommonUtils";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
@@ -34,7 +34,7 @@ export class ComponentWizardView {
         await CommonUtils.waitUntilById("card-select-ballerina");
         await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitAndTypeById("directory-select-input", componentName);
-        await CommonUtils.waitUntilValidation();
+        await CommonUtils.waitAndClickById("init-component-dir");
         await CommonUtils.waitAndClickById("wizard-next-btn");
         await CommonUtils.waitAndClickById("wizard-save-btn");
         await CommonUtils.switchToDefaultFrame();

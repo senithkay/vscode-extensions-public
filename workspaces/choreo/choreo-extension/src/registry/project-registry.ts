@@ -14,7 +14,7 @@ import {
     Component,
     ComponentCount,
     Environment,
-    getLocalComponentDirMetaDataRes,
+    LocalComponentDirMetaDataRes,
     getLocalComponentDirMetaDataRequest,
     Organization,
     Project,
@@ -171,7 +171,7 @@ export class ProjectRegistry {
 
             const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
 
-            let subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+            let subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext || args.webAppConfig?.webAppOutputDirectory;
 
             if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess && args.webAppConfig?.webAppType === ChoreoBuildPackNames.StaticFiles) {
                 subPath = args.webAppConfig?.webAppOutputDirectory;
@@ -1030,7 +1030,7 @@ export class ProjectRegistry {
         vscode.commands.executeCommand('vscode.open', billingLink);
     }
 
-    public getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): getLocalComponentDirMetaDataRes {
+    public getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): LocalComponentDirMetaDataRes {
         // instead of calling getRepoMetadata api and checking remote directory is valid
         // this will check those values from local directory
 

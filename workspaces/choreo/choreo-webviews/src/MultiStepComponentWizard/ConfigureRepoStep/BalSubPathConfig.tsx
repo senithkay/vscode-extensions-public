@@ -6,13 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
-import { useQuery } from "@tanstack/react-query";
 import { cx } from "@emotion/css";
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
@@ -36,21 +32,7 @@ export interface RepoStructureConfigProps {
 
 export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
 
-    const { repository } = props.formData;
-    const { choreoProject } = useContext(ChoreoWebViewContext);
-    const [folderNameError, setFolderNameError] = useState("");
-
-    const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
-        ["getLocalComponentDirMetaData", choreoProject, repository],
-        () =>
-            ChoreoWebViewAPI.getInstance().getLocalComponentDirMetaData({
-                orgName: repository?.org ?? "",
-                repoName: repository?.repo ?? "",
-                projectId: choreoProject?.id ?? "",
-                subPath: repository?.subPath ?? "",
-            }),
-        { refetchOnWindowFocus: false }
-    );
+    const { repository } = props.formData;   
 
     const setFolderName = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -68,35 +50,6 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
             repository: { ...prevFormData.repository, createNewDir: !!!prevFormData.repository.createNewDir}
         }));
     };
-
-    // TODO: Need to remove the useEffect & find a better solution
-    useEffect(() => {
-        const updateFolderError = () => {
-            let folderError = "";
-            if (localDirectorMetaData) {
-                if (repository?.subPath) {
-                    if(!repository.createNewDir) {
-                        if (!localDirectorMetaData?.isSubPathValid ) {
-                            folderError = 'Sub path does not exist';
-                        } else if (!localDirectorMetaData?.isSubPathEmpty && !localDirectorMetaData?.hasBallerinaTomlInPath) {
-                            folderError = "Please provide a path that contains a Ballerina project."
-                        }
-                    }
-                } else if (!localDirectorMetaData?.hasBallerinaTomlInRoot) {
-                    folderError = "Repository root does not contain a valid Ballerina project"
-                }
-            }
-
-            setFolderNameError(folderError);
-        };
-
-        updateFolderError();
-    }, [repository?.subPath, localDirectorMetaData]);
-
-    useEffect(() => {
-        const isDirectoryValid = !folderNameError;
-        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
-    }, [folderNameError]);
     
     const updateSubFolderName = debounce(setFolderName, 500);
 
@@ -110,7 +63,7 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
                     id="directory-select-input"
                 >
                     Directory <RequiredFormInput />
-                    {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                    {repository.directoryPathError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     <RepoFileOpenDialogInput
                         label="Browse"
                         repo={`${repository?.org}/${repository?.repo}`}
@@ -123,13 +76,12 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
                         filters={{}}
                     />
                 </VSCodeTextField>
-                {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
-                {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.hasBallerinaTomlInPath) && (
-                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
-                        Initialize an empty component at {repository?.subPath}
+                {repository.directoryPathError && <ErrorBanner errorMsg={repository.directoryPathError} />}
+                {repository?.subPath && !repository.selectedDirectoryMetadata?.isSubPathValid && (
+                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir">
+                        Initialize <b>{repository?.subPath}</b> as a new directory
                     </VSCodeCheckbox>
                 )}
-                {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             </StepContainer>
         </div>
     );

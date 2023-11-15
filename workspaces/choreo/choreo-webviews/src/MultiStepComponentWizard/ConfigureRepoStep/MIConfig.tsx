@@ -6,18 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
-import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
-import { useQuery } from "@tanstack/react-query";
 
 const StepContainer = styled.div`
     display: flex;
@@ -44,21 +41,6 @@ export const MIConfig = (props: MIConfigProps) => {
 
     const { repository } = formData;
 
-    const { choreoProject } = useChoreoWebViewContext();
-
-    const [folderNameError, setFolderNameError] = useState("");
-
-    const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
-        ["getLocalComponentDirMetaData", choreoProject, repository],
-        () =>
-            ChoreoWebViewAPI.getInstance().getLocalComponentDirMetaData({
-                orgName: repository?.org,
-                repoName: repository?.repo,
-                projectId: choreoProject.id,
-                subPath: repository?.subPath
-            }),
-    );
-
     const setFolderName = (fName: string) => {
         onFormDataChange(prevFormData => ({
             ...prevFormData,
@@ -75,35 +57,6 @@ export const MIConfig = (props: MIConfigProps) => {
             repository: { ...prevFormData.repository, createNewDir: !!!prevFormData.repository.createNewDir}
         }));
     };
-
-    // TODO: Need to remove the useEffect & find a better solution
-    useEffect(() => {
-        const updateFolderError = () => {
-            let folderError = "";
-            if (localDirectorMetaData) {
-                if (repository?.subPath) {
-                    if(!repository.createNewDir) {
-                        if (!localDirectorMetaData?.isSubPathValid ) {
-                            folderError = 'Sub path does not exist';
-                        } else if (!localDirectorMetaData?.isSubPathEmpty && !localDirectorMetaData?.hasPomXmlInPath) {
-                            folderError = `Provide a valid path to the Micro Integrator Project.`;
-                        }
-                    }
-                } else if (!localDirectorMetaData?.hasPomXmlInInRoot) {
-                    folderError = "Repository root does not contain a valid Micro Integrator project"
-                }
-            }
-
-            setFolderNameError(folderError);
-        };
-
-        updateFolderError();
-    }, [repository?.subPath, localDirectorMetaData]);
-
-    useEffect(() => {
-        const isDirectoryValid = !folderNameError;
-        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
-    }, [folderNameError]);
 
     const updateSubFolderName = debounce(setFolderName, 500);
     
@@ -129,15 +82,14 @@ export const MIConfig = (props: MIConfigProps) => {
                             filters={{}}
                         />
                     </VSCodeTextField>
-                    {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
+                    {repository.directoryPathError && <ErrorBanner errorMsg={repository.directoryPathError} />}
                 </DirectoryContainer>
-                {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
-                {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.hasPomXmlInPath) && (
-                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
-                        Initialize an empty component at {repository?.subPath}
+                {repository.directoryPathError && <ErrorBanner errorMsg={repository.directoryPathError} />}
+                {repository?.subPath && !repository.selectedDirectoryMetadata?.isSubPathValid && (
+                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir">
+                        Initialize <b>{repository?.subPath}</b> as a new directory
                     </VSCodeCheckbox>
                 )}
-                {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             </StepContainer>
         </div>
     );

@@ -6,18 +6,15 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { AutoComplete, ErrorBanner, TextField } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
-import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
-import { useQuery } from "@tanstack/react-query";
 import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
@@ -49,53 +46,8 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
 
     const { repository, type } = formData;
 
-    const { choreoProject } = useChoreoWebViewContext();
-
-    const [folderNameError, setFolderNameError] = useState("");
-
-    const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
-        ["getLocalComponentDirMetaData", choreoProject, repository],
-        () =>
-            ChoreoWebViewAPI.getInstance().getLocalComponentDirMetaData({
-                orgName: repository?.org,
-                repoName: repository?.repo,
-                projectId: choreoProject.id,
-                subPath: repository?.subPath,
-                buildPackId: formData.implementationType
-            }),
-    );
-
     const selectedBuildPack = formData.buildPackList?.find(item => item.language === formData.implementationType);
     const supportedVersions: string[] = selectedBuildPack?.supportedVersions?.split(',')?.filter(item => !!item);
-
-    // TODO: Need to remove the useEffect & find a better solution
-    useEffect(() => {
-        const updateFolderError = () => {
-            let folderError = '';
-            if (localDirectorMetaData) {
-                if (repository?.subPath) {
-                    if(!repository.createNewDir) {
-                        if (!localDirectorMetaData?.isSubPathValid ) {
-                            folderError = 'Sub path does not exist';
-                        } else if (!localDirectorMetaData?.isSubPathEmpty && !localDirectorMetaData.isBuildpackPathValid) {
-                            folderError = `Provide a valid path to the ${formData.implementationType} Project.`;
-                        }
-                    }
-                } else if (!localDirectorMetaData.isBuildpackPathValid) {
-                    folderError = `Provide a valid path to the ${formData.implementationType} Project.`;
-                }
-            }
-
-            setFolderNameError(folderError);
-        };
-
-        updateFolderError();
-    }, [repository?.subPath, localDirectorMetaData]);
-
-    useEffect(() => {
-        const isDirectoryValid = !folderNameError;
-        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
-    }, [folderNameError]);
 
     const setFolderName = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -158,10 +110,10 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                             filters={{}}
                         />
                     </VSCodeTextField>
-                    {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
-                    {repository?.subPath && (!localDirectorMetaData?.isSubPathValid || !localDirectorMetaData?.isBuildpackPathValid) && (
-                        <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange}>
-                            Initialize an empty component at {repository?.subPath}
+                    {formData.repository.directoryPathError && <ErrorBanner errorMsg={formData.repository.directoryPathError} />}
+                    {repository?.subPath && !repository.selectedDirectoryMetadata?.isSubPathValid && (
+                        <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir">
+                            Initialize <b>{repository?.subPath}</b> as a new directory
                         </VSCodeCheckbox>
                     )}
                 </DirectoryContainer>
@@ -186,7 +138,6 @@ export const BuildPackConfig = (props: BuildPackConfigProps) => {
                     </MarginTopWrap>
                 )}
             </StepContainer>
-            {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
         </div>
     );
 };

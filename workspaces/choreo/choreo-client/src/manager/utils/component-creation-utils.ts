@@ -191,7 +191,7 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                     componentPath = join(componentPath, webAppConfig.dockerContext);
                 } else if (webAppConfig?.webAppOutputDirectory) {
                     componentPath = join(componentPath, webAppConfig.webAppOutputDirectory);
-                } else {
+                } else if (repoInfo.dockerFile) {
                     componentPath = dirname(join(componentPath, repoInfo.dockerFile))
                 }
             } else {
