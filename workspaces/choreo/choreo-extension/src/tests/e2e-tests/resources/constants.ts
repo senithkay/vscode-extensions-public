@@ -14,9 +14,8 @@
 import { join } from "path";
 
 export const CHOREO_PROJECTS_PATH = join(__dirname, '..', '..', '..', '..','src', 'tests', 'e2e-tests', 'test-projects');
-export const SAMPLE_BAL_SERVICE_PATH = join(__dirname, '..', '..', '..', '..','..','..','choreo-extension','src', 'tests', 'e2e-tests', 'resources', 'sample_bal_service');
 
-export const CELL_VIEW_COMMAND = 'Ballerina: Cell View';
+export const CELL_VIEW_COMMAND = 'Choreo: View Choreo Cell Diagram';
 export const ADD_CHOREO_COMPONENT_COMMAND = 'Choreo: Create New Component';
 export const SIGN_IN_COMMAND =  'Choreo: Sign In';
 export const SIGN_OUT_COMMAND =  'Choreo: Sign Out';
