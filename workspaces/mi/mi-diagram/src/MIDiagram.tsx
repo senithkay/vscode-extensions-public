@@ -14,8 +14,8 @@ import { ResourceCompartment } from './components/compartments/ResourceCompartme
 import { Refresh } from '@wso2-enterprise/mi-core';
 import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvider';
 import { Button } from '@wso2-enterprise/ui-toolkit';
-import AddMediator from './components/sidePanel/Pages/AddMediator';
 import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
+import SidePanelList from './components/sidePanel';
 
 export interface MIDiagramProps {
 	documentUri: string;
@@ -38,7 +38,6 @@ export function MIDiagram(props: MIDiagramProps) {
 		(async () => {
 			const st = await MIWebViewAPI.getInstance().getSyntaxTree(props.documentUri);
 			const stNode = (st as any).syntaxTree.node;
-			console.log(st);
 			setSTNode(stNode);
 			setLoading(false);
 		})();
@@ -55,7 +54,7 @@ export function MIDiagram(props: MIDiagramProps) {
 		canvas = stNode &&
 			<div>
 				<SidePanelProvider value={{ setIsOpen: setSidePanelOpen, setNodePosition: setSidePanelNodePosition }}>
-					<SidePanel
+					{isSidePanelOpen && <SidePanel
 						isOpen={isSidePanelOpen}
 						alignmanet="right"
 					>
@@ -63,11 +62,8 @@ export function MIDiagram(props: MIDiagramProps) {
 							<div>Add Mediator</div>
 							<Button onClick={closePanel} appearance="icon">X</Button>
 						</SidePanelTitleContainer>
-						<AddMediator
-							nodePosition={nodePosition}
-							file={props.documentUri}
-						/>
-					</SidePanel>
+						<SidePanelList nodePosition={nodePosition} documentUri={props.documentUri} />
+					</SidePanel>}
 					<APICompartment name='API'>
 						<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
 					</APICompartment>
