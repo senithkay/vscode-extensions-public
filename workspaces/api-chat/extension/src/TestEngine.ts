@@ -131,9 +131,8 @@ function extractApiUrl(openapi: any): string | undefined {
         if (server.hasOwnProperty('url') && typeof server.url === 'string') {
             url = server.url;
         }
-        // Check if ditected url is a valid string
-        const regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
-        if (!regex.test(url)) {
+        // Check openapi has variables if so request for the endpoint
+        if (server.variables !== undefined) {
             url = undefined;
         }
     }
@@ -329,20 +328,21 @@ const executeRequest = (context: TestMachineContext, event: any) => {
                         };
                         resolve(mappedResponse);
                     }).catch((error: AxiosError) => {
-                        if (error.response) {
-                            outputChannel.appendLine(generateCurlCommand(error.response));
+                        if (error.response == undefined) {
+                            outputChannel.appendLine("Error on executing command");
+                            reject(convertNetworkErrorToMessage(error));
                         } else {
-                            outputChannel.appendLine("Error on executing command")
+                            outputChannel.appendLine(generateCurlCommand(error.response));
+                            const mappedResponse: Response = {
+                                code: error.response?.status || 0,
+                                payload: error.response?.data,
+                                headers: {
+                                    contentLength: Number(error.response?.headers?.getContentLength) || 0,
+                                    contentType: error.response?.headers['Content-Type']?.toString()
+                                }
+                            };
+                            resolve(mappedResponse);
                         }
-                        const mappedResponse: Response = {
-                            code: error.response?.status || 0,
-                            payload: error.response?.data,
-                            headers: {
-                                contentLength: Number(error.response?.headers?.getContentLength) || 0,
-                                contentType: error.response?.headers['Content-Type']?.toString()
-                            }
-                        };
-                        resolve(mappedResponse);
                     });
             }
         }
@@ -437,6 +437,36 @@ function generateCurlCommand(response: AxiosResponse): string {
 
     return curlCommand;
 }
+
+function convertNetworkErrorToMessage(error: AxiosError): string {
+    if (!error.code) {
+        return "Unknown error occurred.";
+    }
+
+    switch (error.code) {
+        case 'EAI_AGAIN':
+            return "DNS lookup timed out. The server may be temporarily unavailable.";
+        case 'ENOTFOUND':
+            return "The requested address was not found. Please check the URL.";
+        case 'ECONNREFUSED':
+            return "The server refused the connection. It might be down or not accepting requests.";
+        case 'ETIMEDOUT':
+            return "The request timed out. The server might be too slow or overloaded.";
+        case 'ECONNRESET':
+            return "The connection was reset. The server might have closed the connection unexpectedly.";
+        case 'ENETUNREACH':
+            return "Network is unreachable. Please check your internet connection.";
+        case 'EHOSTUNREACH':
+            return "No route to the host. Please check the server address and your network connection.";
+        case 'EHOSTDOWN':
+            return "The server is down and not responding to requests.";
+        case 'EPIPE':
+            return "The connection was broken. Please try again later.";
+        default:
+            return `An unknown network error occurred: ${error.code}`;
+    }
+}
+
 
 const testMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QBU4BcCiA7KBLLYAxAEoYDKGyA2gAwC6ioADgPay5q4taMgAeiAIw0AHADoArACYA7IIDMUwYIAsK+TJkBOADQgAnogC0msSqnzBWrTPkTVcgGwBfZ3tSxMOfEVIAxUjIACVoGJBBWdk5uXgEEKXUZMS0VeyUREXtHCT1DBCMVRzEMkS1ZO0FS2xTXd3RsPAIxfA5CCmQAfQB5AAUMADkAQR6ASVDeSI4uHnC4q3kiwQlHcus7TRFcxFlxGilRDRE9o4ktWpAPL0awMQAbFgBDCHwoMRg0ZBYWW9hCCG4bvgAG4sADWN3en2+sHG4Um0RmoDiFgsYkc6JkiRo8nMIhUWwQyxoYg0EhoyhEjmEgnOlwaPjuj2eODeYA+Xx+hDAACduSxuWImLcHmgAGb8gC2rPZ0NhzDYUxis22MikEkklhxgnReJojgJakEYkEauxNBkRxo5hcbgu9W8TXuTxeYgAxtywCKwABhW64MBYNB-AHNLAg8Fuj1e33+wNyiIKhGxFVqjUKFTaxy6-UGFOSfYiLWFRwpVS0+3XRnOlnuz1oH1+gNBnl8gVCkXi7lS2vRxtx+gTRPTZPxRTyNEYrE4qR4gmyI0aFTWCTyGwrPHlzz0x1Ml3vACq3NubUoHX3xAAMvH4cPlaPUejHJiNNjcfjcwhLOIRJitBlHPIIgWFa8iblcDJRhA+iEBgAAaGDevuyAYNeQ5KkiQgyE+JKaMo1iqjOKibB+ygKGImjmloSz-gBYHbjckHQd6F4YIMxCoVEt4YZ+ezqjsVL2KIjjvnkwlFDO1gZiWpwAWctp0g6DGelBhDel0-R+CMADi54YB0zEjAM1ADnCaGIvw2ynLs5irpkKxSOiBJ2WYEhASIpGCcsdGKWIYB8GAroAK6cDghCaf0IzBBxirmciNA0Oqqortk2hWtIxF5NY4g2FhpRLCWjg0HJdRbj5fkBcFLotJg-lBQiwZNMCYKAlgHAYK6FUItFSZ3hYRQJVYNhlHqQESCJiAqJiaJWsI1gmquRESN5lblXVLqimyroABbEGAACOgXoA1LXhjcq3BWA3VcRZCCFeOWiufI5IOeoAHjQgcgqMkqXJcsCglstDLnSFrwbWg227QdR0tvygrCmKkq+bVF1XehN13ckj3PcJCw4gaUhaGICTLmawjmEt8kVkDyMg0jnVgJDh2eMdoanXTdUM-tTNoKjsWIFoOLGhR2RkulUgEjI8XkQToiSZqlSA00wMusDnNQ8zMNtvDnZSqrjPoLzI5aCWySVNICWFio5pOeoJIzmqTgONIitnTTLpMHyHWwLA+vM-8jVhs1gqe3APtcwbJnypxaNzOoUjkQcihOBsGWIDjxoJBkEi2IUOUu+zlUsh7LBe2H6tBv7J1B8Xpe+zzghhFHMVG4LgjCxIov2wSpz3a5aolnqRXZPnytFyH3t11yvKw+2CNdsHJeh3Xht3qoigJ4WSfain3cPWixMWNnsgATSlOlSt0-ciQlDEAAmiv3H7CkaKqIVWjYuiRVOUaZLxeSwhSCUF5M+4ElZuxZGDCG4dmZkGQL0B+N0xpFEKkuI47k7oWgJAA+OX4lgOQtFmICI9wGvD1tAoMsD4GRwTNHPmH0BbGlEFaC0xsjgWAJGUQmb9SgaCUFbCmtosAsAgHAXgClriDloSOIwCQCRGG1F9MolgkqSypJNKQ+dqqSObnePEaIqLbyetIPq70TRfXSjiOaKxJrknzk6ZkUBtE9UfqRF+hQiofzflgwsRNf6qGWDiSkog7G7hZJCDk8BTJSN6ksLhr8PELC8R+dQxIfxkm1HqeYJobQlVATcexLoez1hjE2Jx11kRZDMNoGcsTsSlDnJLciS4-zVFKMlFQITqyvAPEeMpMdthWGQRiH8g0gKCAaeqB6hYZYW0mjIfOjE+l0JnEBEk6gfyEU0H1JyywXKFnNEoY2Ggcl2nPtTTqLwlkjlkR+LUTT8KYhFr+DpID6IF1ptVDAbs0Y3n6R9cWySySMKtjYAmk01AaNeWVEhYhIE7XIVcu85hFGZPRKcGQY1rQGiBWTIqqoUiYnMMQi5LIyHl0RdxLC8cCbamkLS422cJZkQLBYbQP49QaGJWtMei8J4IqiTo7i2TiT4tUBkQByhRDd0yDhJcohMiFHsCILlhdSFYAgBSm6bcNDAsqO-aQKxsjSuJG3IieJCxWD2KfXJbzNaauRO-LhuEqJZkAacHIH535iETooQqo1hLKtcM4IAA */
@@ -584,7 +614,11 @@ const testMachine = createMachine({
                             })
                         },
                         onError: {
-                            target: "end",
+                            target: "processRequest",
+                            actions: assign({
+                                executionError: (context, event) => event.data,
+                                taskStatus: "TERMINATED"
+                            })
                         }
                     },
 
