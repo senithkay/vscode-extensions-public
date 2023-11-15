@@ -48,7 +48,6 @@ const PopoverDefault = () => {
             <Popover
                 open={isOpen}
                 anchorEl={anchorEvent}
-                onClose={closePanel}
                 sx={popOverStyle}
             >
                 <div>Test Content</div>

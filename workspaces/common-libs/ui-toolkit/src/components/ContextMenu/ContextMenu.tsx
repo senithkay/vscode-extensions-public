@@ -18,15 +18,14 @@ import styled from "@emotion/styled";
 import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
 
-
-export interface MenuItem {
+interface Item {
     id: number | string;
     label: React.ReactNode;
     onClick: () => void;
     disabled?: boolean;
 }
 export interface ContextMenuProps {
-    menuItems?: MenuItem[];
+    menuItems?: Item[];
     isOpen?: boolean;
     isLoading?: boolean;
     menuId?: string;

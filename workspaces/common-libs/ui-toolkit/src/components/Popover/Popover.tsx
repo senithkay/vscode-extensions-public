@@ -36,17 +36,13 @@ const StyledPopover = styled.div<ContainerProps>`
 export interface PopoverProps {
     open: boolean;
     anchorEl: HTMLElement | SVGGElement | null;
-    onClose?: () => void;
     sx?: any;
     id?: string;
     children?: React.ReactNode;
 }
 
 export const Popover: React.FC<PopoverProps> = (props: PopoverProps) => {
-    const { open, id, anchorEl: anchorEvent, onClose, sx, children } = props;
-    const handleMouseLeave = () => {
-        onClose && onClose();
-    };
+    const { open, id, anchorEl: anchorEvent, sx, children } = props;
   
     return (
         <div id={id}>
@@ -55,7 +51,6 @@ export const Popover: React.FC<PopoverProps> = (props: PopoverProps) => {
                     <StyledPopover
                         top={anchorEvent?.getBoundingClientRect().top}
                         left={anchorEvent?.getBoundingClientRect().left}
-                        onMouseLeave={handleMouseLeave}
                         sx={sx}
                     >
                         {children}

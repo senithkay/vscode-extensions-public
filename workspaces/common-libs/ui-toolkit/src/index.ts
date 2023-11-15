@@ -11,6 +11,7 @@ export * from './components/AutoComplete/AutoComplete';
 export * from './components/ProgressIndicator/ProgressIndicator';
 export { Stepper } from './components/Stepper/Stepper';
 export * from './components/TextField/TextField';
+export * from './components/Codicon/Codicon';
 export * from './components/Commons/Colors';
 export * from './components/ContextMenu/ContextMenu';
 export * from './components/Dialog/Dialog';
@@ -24,6 +25,8 @@ export * from './components/SidePanel/SidePanel';
 export * from './components/TextArea/TextArea';
 export * from './components/Divider/Divider';
 export * from './components/SeachBox/SearchBox';
+export * from './components/Menu/Menu';
+export * from './components/Menu/MenuItem';
 
 export * from './components/Commons/ErrorBanner';
 
