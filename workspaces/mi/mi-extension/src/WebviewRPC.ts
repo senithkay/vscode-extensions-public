@@ -13,10 +13,18 @@ import {
     ApplyEdit,
     ApplyEditParams,
     ExecuteCommandRequest,
+    GetConnectorRequest,
+    GetConnectorsRequest,
+    GetConnectorsResponse,
     GetSyntaxTreeRequest,
     ShowErrorMessage,
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
+import * as fs from "fs";
+import path = require("path");
+const { XMLParser } = require("fast-xml-parser");
+
+const connectorsPath = "../resources/connectors"
 
 // Register handlers
 export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
@@ -36,6 +44,43 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         });
     });
 
+    messenger.onRequest(GetConnectorsRequest, async () => {
+        const connectorNames: GetConnectorsResponse[] = [];
+        const connectors = fs.readdirSync(path.join(__dirname, connectorsPath));
+        connectors.forEach(connector => {
+            const connectorPath = path.join(__dirname, `${connectorsPath}/${connector}`);
+            const connectorInfoFile = path.join(connectorPath, `connector.xml`);
+            if (fs.existsSync(connectorInfoFile)) {
+                const connectorDefinition = fs.readFileSync(connectorInfoFile, "utf8");
+                const options = {
+                    ignoreAttributes: false,
+                    attributeNamePrefix: "@_"
+                };
+                const parser = new XMLParser(options);
+                const connectorInfo = parser.parse(connectorDefinition);
+                const connectorName = connectorInfo["connector"]["component"]["@_name"];
+                const connectorDescription = connectorInfo["connector"]["component"]["description"];
+                const connectorIcon = connectorInfo["connector"]["icon"];
+                connectorNames.push({ path: connectorPath, name: connectorName, description: connectorDescription, icon: connectorIcon });
+            }
+        });
+
+        return connectorNames;
+    });
+
+    messenger.onRequest(GetConnectorRequest, async (connectorPath: string): Promise<string[]> => {
+        const connectorFiles: string[] = [];
+        const uiSchemas = path.join(connectorPath, "uischema");
+        if (fs.existsSync(uiSchemas)) {
+            const connectorFilesList = fs.readdirSync(uiSchemas);
+            connectorFilesList.forEach(file => {
+                const connectorFile = fs.readFileSync(path.join(uiSchemas, file), "utf8");
+                connectorFiles.push(connectorFile);
+            });
+        }
+        return connectorFiles;
+    });
+
     messenger.onNotification(ShowErrorMessage, (error: string) => {
         window.showErrorMessage(error);
     });
@@ -50,7 +95,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
         const positionAt = document.positionAt(params.offset);
         const position = new Position(positionAt.line, positionAt.character);
-        edit.insert(Uri.parse(params.documentUri), position, params.text);
+        const currentLineIndentation = document.lineAt(position.line).text.match(/^\s*/);
+        const indentation = currentLineIndentation ? currentLineIndentation[0] : "";
+        const text = params.text.replace(/\n/g, "\n" + indentation) + "\n" + indentation;
+        edit.insert(Uri.parse(params.documentUri), position, text);
         await workspace.applyEdit(edit);
     });
 }

@@ -14,6 +14,9 @@ import {
     ApplyEdit,
     ApplyEditParams,
     ExecuteCommandRequest,
+    GetConnectorRequest,
+    GetConnectorsRequest,
+    GetConnectorsResponse,
     GetSyntaxTreeRequest,
     ShowErrorMessage
 } from "@wso2-enterprise/mi-core";
@@ -49,6 +52,14 @@ export class MIWebViewAPI {
 
     public applyEdit(params: ApplyEditParams) {
         this._messenger.sendNotification(ApplyEdit, HOST_EXTENSION, params);
+    }
+
+    public getConnectors(): Promise<GetConnectorsResponse[]> {
+        return this._messenger.sendRequest(GetConnectorsRequest, HOST_EXTENSION);
+    }
+
+    public getConnector(connectorPath: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetConnectorRequest, HOST_EXTENSION, connectorPath);
     }
 
     public getMessenger() {

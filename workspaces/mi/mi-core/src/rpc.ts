@@ -15,9 +15,18 @@ export interface ApplyEditParams {
    documentUri: string;
 }
 
+export interface GetConnectorsResponse {
+   path: string;
+   name: string;
+   description: string;
+   icon: string;
+}
+
 // request types 
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const GetSyntaxTreeRequest: RequestType<string, unknown> = { method: 'xml/getSynapseSyntaxTree' };
+export const GetConnectorsRequest: RequestType<void, GetConnectorsResponse[]> = { method: 'getConnectors' };
+export const GetConnectorRequest: RequestType<string, string[]> = { method: 'getConnector' };
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
