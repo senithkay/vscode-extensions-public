@@ -24,6 +24,7 @@ export interface ButtonProps {
     disabled?: boolean;
     children?: React.ReactNode;
     onClick?: () => void;
+    sx?: any;
 }
 
 export const Button = (props: ButtonProps) => {
@@ -31,7 +32,7 @@ export const Button = (props: ButtonProps) => {
 
     return (
         // Workaround for button not being disabled when disabled prop is passed
-        <VSCodeButton appearance={appearance} onClick={() => onClick()} title={tooltip} disabled={(disabled ? true : undefined)}>
+        <VSCodeButton appearance={appearance} onClick={() => onClick()} title={tooltip} disabled={(disabled ? true : undefined)} style={...props.sx}>
             {children}
         </VSCodeButton>
     );
