@@ -10,7 +10,6 @@
 import React, { useEffect, useRef } from "react";
 import { ConsoleAPI, TestCommand, TestResult, Queries, TestError, FinalResult } from "../ConsoleAPI";
 import { VSCodeButton, VSCodeTextField, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
-import { } from '@vscode/webview-ui-toolkit';
 import styled from "@emotion/styled";
 import Welcome from './Welcome';
 import { Codicon } from '../Codicon/Codicon';

@@ -33,7 +33,6 @@ export interface ContextMenuProps {
     children?: React.ReactNode;
     icon?: ReactNode;
     sx?: any;
-    style?: any;
 }
 
 interface ContainerProps {
@@ -71,7 +70,7 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { isLoading, isOpen, menuId, sx, menuItems, icon, style } = props;
+    const { isLoading, isOpen, menuId, sx, menuItems, icon } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -89,7 +88,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
             {isLoading ? (
                 <SmallProgressRing />
             ) : (
-                <VSCodeButton style={style} appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
                     {icon ? icon : <Codicon name="ellipsis" onClick={() => { }} />}
                 </VSCodeButton>
             )}
