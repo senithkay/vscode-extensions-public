@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../utils/WebViewRpc';
 import { GetConnectorsResponse } from '@wso2-enterprise/mi-core';
-import AddMediator from './Pages/AddMediator';
+import AddConnector from './Pages/AddConnector';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -82,7 +82,7 @@ const SidePanelList = (props: SidePanelListProps) => {
             <div>
                 {connectorList && actions.length == 0 && <ConnectorList />}
                 {actions.length > 0 && !form && <ActionList />}
-                {form && <AddMediator formData={form} nodePosition={props.nodePosition} documentUri={props.documentUri} />}
+                {form && <AddConnector formData={form} nodePosition={props.nodePosition} documentUri={props.documentUri} />}
             </div>
     );
 };
