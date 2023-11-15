@@ -35,7 +35,7 @@ export function generateEngine(): DiagramEngine {
 }
 
 export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel,
-    addPlus: boolean, addArrow: boolean = true): any[] {
+    addPlus: boolean = true, addArrow: boolean = true): any[] {
     const portsAndNodes = [];
     let sourcePort = sourceNode.getPort(sourceNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `right-${sourceNode.getID()}`);
     const targetPort = targetNode.getPort(targetNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `left-${targetNode.getID()}`);

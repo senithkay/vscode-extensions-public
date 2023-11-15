@@ -62,7 +62,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     for (let i = 0; i < nodes.length; i++) {
                         for (let j = i + 1; j < nodes.length; j++) {
                             if (nodes[i].getParentNode() == nodes[j].getParentNode()) {
-                                const link = createLinks(nodes[i], nodes[j], true, true);
+                                const link = createLinks(nodes[i], nodes[j]);
                                 model.addAll(...link);
                                 break;
                             }
@@ -73,9 +73,9 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                 const canvasPortNode = new InvisibleNodeModel("border", -1, null);
                 let canvasPortLink;
                 if (props.invertDirection) {
-                    canvasPortLink = createLinks(nodes[nodes.length - 1], canvasPortNode, false, true);
+                    canvasPortLink = createLinks(nodes[nodes.length - 1], canvasPortNode);
                 } else {
-                    canvasPortLink = createLinks(canvasPortNode, nodes[0], true);
+                    canvasPortLink = createLinks(canvasPortNode, nodes[0]);
                 }
 
                 canvasPortNode.setPosition(0, OFFSET.START.Y);
