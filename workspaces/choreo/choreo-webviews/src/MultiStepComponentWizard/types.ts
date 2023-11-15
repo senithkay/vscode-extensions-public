@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { Buildpack, ChoreoComponentType, ChoreoServiceType, ComponentAccessibility, ComponentNetworkVisibility, GitProvider } from "@wso2-enterprise/choreo-core";
+import { Buildpack, ChoreoComponentType, ChoreoServiceType, ComponentAccessibility, ComponentNetworkVisibility, GitProvider, LocalComponentDirMetaDataRes } from "@wso2-enterprise/choreo-core";
 
 export interface ComponentWizardState {
     name: string;
@@ -31,8 +31,9 @@ export interface ComponentWizardState {
         gitProvider?: GitProvider;
         credentialID?: string;
         isMonoRepo?: boolean;
-        isDirectoryValid?: boolean;
+        directoryPathError?: string;
         createNewDir?: boolean;
+        selectedDirectoryMetadata?: LocalComponentDirMetaDataRes;
     };
     webAppConfig?: {
         dockerContext?: string;

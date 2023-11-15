@@ -18,7 +18,7 @@ import {
    ComponentCount,
    ChoreoComponentCreationParams,
    getLocalComponentDirMetaDataRequest,
-   getLocalComponentDirMetaDataRes,
+   LocalComponentDirMetaDataRes,
    GitRepo,
    BuildStatus,
    Deployment,
@@ -129,7 +129,7 @@ export const GetChoreoWorkspaceMetadata: RequestType<void, ChoreoWorkspaceMetaDa
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const ReadEndpointsYaml: RequestType<SubpathAvailableRequest, Endpoint | undefined> = { method: 'readEndpointsYaml' };
 export const OpenBillingPortal: RequestType<string, void> = { method: 'openBillingPortal' };
-export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
+export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, LocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
 export const SetChoreoInstallOrg: RequestType<number, void> = { method: 'setChoreoInstallOrg' };
 export const ClearChoreoInstallOrg: RequestType<void, void> = { method: 'clearChoreoInstallOrg' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
