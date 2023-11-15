@@ -32,7 +32,7 @@ export class NodeInitVisitor implements Visitor {
         this.currentSequence.push(
             new LogMediatorNodeModel(
                 mapNode(node as any),
-                node.end,
+                node.start,
                 this.documentUri,
                 this.parents[this.parents.length - 1]
             )

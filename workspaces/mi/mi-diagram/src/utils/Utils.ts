@@ -45,7 +45,7 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
     }
 
     if (addPlus) {
-        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getNodePosition(), sourceNode.getDocumentUri());
+        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, targetNode.getNodePosition(), sourceNode.getDocumentUri());
         const link = createLinks(sourceNode, plusNode, false, false);
         sourcePort = plusNode.getPort(`right-${plusNode.getID()}`);
         portsAndNodes.push(plusNode, ...link);
