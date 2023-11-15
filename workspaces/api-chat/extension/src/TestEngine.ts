@@ -125,13 +125,19 @@ export interface Queries {
 
 
 function extractApiUrl(openapi: any): string | undefined {
+    let url = undefined;
     if (openapi && openapi.hasOwnProperty('servers') && Array.isArray(openapi.servers) && openapi.servers.length > 0) {
         const server = openapi.servers[0];
         if (server.hasOwnProperty('url') && typeof server.url === 'string') {
-            return server.url;
+            url = server.url;
+        }
+        // Check if ditected url is a valid string
+        const regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+        if (!regex.test(url)) {
+            url = undefined;
         }
     }
-    return undefined;
+    return url;
 }
 
 function makeRequest(apiClient: AxiosInstance, request: Request, authData: any) {
@@ -165,7 +171,12 @@ function makeRequest(apiClient: AxiosInstance, request: Request, authData: any) 
                 }
             });
         case 'DELETE':
-            return apiClient.delete(path)
+            return apiClient.delete(path, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...generateAuthHeaders(authData)
+                }
+            });
 
     }
     return Promise.reject('Unsupported method');

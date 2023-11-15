@@ -126,6 +126,7 @@ jobs:
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
+          apiChat: ${{ inputs.api-chat }}
 
   Notify:
     needs: [Release]
