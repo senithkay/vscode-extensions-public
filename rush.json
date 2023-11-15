@@ -567,6 +567,11 @@
       "packageName": "@wso2-enterprise/api-chat-vscode-webviews",
       "projectFolder": "workspaces/api-chat/webviews",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "apk-config-language-support",
+      "projectFolder": "workspaces/apk/apk-extension",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }
