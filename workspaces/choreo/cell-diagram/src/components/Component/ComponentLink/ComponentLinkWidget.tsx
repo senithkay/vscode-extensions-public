@@ -79,10 +79,6 @@ export function ComponentLinkWidget(props: WidgetProps) {
     const handleMouseLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
         unselectPath();
-        handlePopoverClose();
-    };
-
-    const handlePopoverClose = () => {
         setAnchorEl(null);
     };
 
@@ -104,7 +100,6 @@ export function ComponentLinkWidget(props: WidgetProps) {
                 id={link.getID()}
                 open={open}
                 anchorEl={anchorEl}
-                onClose={handlePopoverClose}
                 sx={(link.observations?.length > 0 && !link.tooltip) ? observabilityPopOverStyle : tooltipPopOverStyle}
             >
                 {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}

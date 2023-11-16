@@ -11,11 +11,12 @@ import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 
 import styled from "@emotion/styled";
 import { createPortal } from "react-dom";
+import { SxStyle } from "../Commons/Definitions";
 
 export interface ContainerProps {
 	top?: number;
     left?: number;
-    sx?: any;
+    sx?: SxStyle;
 }
 
 const StyledPopover = styled.div<ContainerProps>`
@@ -36,7 +37,7 @@ const StyledPopover = styled.div<ContainerProps>`
 export interface PopoverProps {
     open: boolean;
     anchorEl: HTMLElement | SVGGElement | null;
-    sx?: any;
+    sx?: SxStyle;
     id?: string;
     children?: React.ReactNode;
 }
