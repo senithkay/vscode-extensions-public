@@ -19,9 +19,9 @@ const ItemContainer = styled.div`
     align-items: center;
     justify-content: flex-start;
     line-height: 1.5;
-    font-size: 16px;
-    font-weight: 500;
+    font-weight: 800;
     color: ${Colors.DEFAULT_TEXT};
+    font-family: GilmerRegular;
     @keyframes fade-in-out {
         0% {
             opacity: 0;
@@ -46,8 +46,10 @@ interface MoreVertMenuProps {
 }
 
 const IconStyles = styled.div`
-    margin-left: -5px;
-    margin-bottom: 45px;
+    position: absolute;
+    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
+    margin-left: 70px;
+    margin-bottom: 80px;
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -85,13 +87,13 @@ export function MoreVertMenu(props: MoreVertMenuProps) {
     return (
         <>
             <IconStyles>
-                <Codicon onClick={handleClick} name="ellipsis"/>
+                <Codicon sx={{display: "flex", justifyContent: "center", alignItems: "center"}} iconSx={{fontSize: 25, fontWeight: "bold"}} onClick={handleClick} name="ellipsis"/>
             </IconStyles>
             <Popover
                 id={"contextMenu"}
                 open
                 anchorEl={anchorEl}
-                sx={{padding: "8px 0", minWidth: "150px", cursor: "pointer"}}
+                sx={{padding: "5px 0", cursor: "pointer"}}
             >
                 {contextMenuItems.map((item) =>
                     (<MenuItem key={`item ${item.id}`} item={item} onClick={item?.onClick} />)
