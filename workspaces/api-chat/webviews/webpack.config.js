@@ -14,6 +14,7 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js'],
         alias: {
             'react': path.resolve(__dirname, 'node_modules/react'),
+            'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
             handlebars: 'handlebars/dist/handlebars.min.js',
             "crypto": false,
             "net": false,
