@@ -19,7 +19,9 @@ import { ConfigureRepoAccordion } from "./ConfigureRepoAccordion";
 import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, CREATE_PROJECT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, Project } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
-import { AutoComplete, TextArea, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit/lib/components/AutoComplete";
+import { TextArea } from "@wso2-enterprise/ui-toolkit/lib/components/TextArea";
+import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField";
 import { useQuery } from "@tanstack/react-query";
 
 const WizardContainer = styled.div`

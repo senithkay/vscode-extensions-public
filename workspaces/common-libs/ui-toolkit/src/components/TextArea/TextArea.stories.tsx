@@ -12,7 +12,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { TextArea, TextAreaProps } from "./TextArea";
+import { TextArea, TextAreaProps } from ".";
 
 const Template: ComponentStory<typeof TextArea> = (args: TextAreaProps) => <TextArea {...args} />;
 

@@ -12,7 +12,8 @@ import { VSCodeDropdown, VSCodeOption, VSCodeTextField } from "@vscode/webview-u
 import { ComponentWizardState } from "./types";
 import { RepoFileOpenDialogInput } from "./ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
-import { ErrorBanner, ErrorIcon, Typography } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
+import { Typography } from "@wso2-enterprise/ui-toolkit/lib/components/Typography";
 import { ChoreoComponentType, ChoreoServiceType, ChoreoServiceTypeList, ComponentNetworkVisibility } from "@wso2-enterprise/choreo-core";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 import { useQuery } from "@tanstack/react-query";

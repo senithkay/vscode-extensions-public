@@ -8,9 +8,9 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Button, ButtonProps } from "./Button";
+import { Button, ButtonProps } from ".";
 import { colors } from "../Commons/Colors";
-import { Icon } from "../Icon/Icon";
+import { Icon } from "../Icon";
 
 const Template: ComponentStory<typeof Button> = (args: ButtonProps) =>
     <Button {...args}> 

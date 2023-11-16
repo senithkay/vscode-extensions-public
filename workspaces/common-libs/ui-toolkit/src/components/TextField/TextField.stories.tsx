@@ -12,8 +12,8 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { TextField, TextFieldProps } from "./TextField";
-import { Codicon } from "../Codicon/Codicon";
+import { TextField, TextFieldProps } from ".";
+import { Codicon } from "../Codicon";
 
 const Template: ComponentStory<typeof TextField> = (args: TextFieldProps) => <TextField {...args} />;
 

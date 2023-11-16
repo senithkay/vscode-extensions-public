@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit/lib/components/AutoComplete";
 import { Codicon } from "../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 

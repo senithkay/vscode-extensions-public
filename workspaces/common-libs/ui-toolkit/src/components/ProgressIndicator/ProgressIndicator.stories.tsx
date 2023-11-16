@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { ProgressIndicator, ProgressBarProps } from "./ProgressIndicator";
+import { ProgressIndicator, ProgressBarProps } from ".";
 
 const Template: ComponentStory<typeof ProgressIndicator> = (args: ProgressBarProps) => <ProgressIndicator {...args} />;
 

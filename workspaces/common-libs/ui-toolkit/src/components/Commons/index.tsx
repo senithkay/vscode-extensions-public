@@ -6,13 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
-import { ComponentStory } from "@storybook/react";
-import { Codicon, CodiconProps } from ".";
-
-const Template: ComponentStory<typeof Codicon> = (args: CodiconProps) => <Codicon {...args} />;
-
-export const SampleIcon = Template.bind();
-SampleIcon.args = { name: "add" };
-
-export default { component: Codicon, title: "Codicon" };
+export * from "./Colors";
+export * from "./ErrorBanner";
+export * from "./Overlay";
+export * from "./RequiredInput";

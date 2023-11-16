@@ -16,7 +16,7 @@ import { UserInfo } from "./UserInfo";
 import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { ProjectDetails } from "./ProjectDetails";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit/lib/components/ProgressIndicator";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { OrganizationInfo } from "./OrganizationInfo";

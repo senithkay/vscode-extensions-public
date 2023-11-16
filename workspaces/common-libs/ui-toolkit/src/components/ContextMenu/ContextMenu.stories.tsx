@@ -9,7 +9,7 @@
 import React from "react";
 import { storiesOf } from "@storybook/react";
 
-import { ContextMenu } from "./ContextMenu";
+import { ContextMenu } from ".";
 
 const ComponentStory = () => {
 
