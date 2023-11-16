@@ -9,9 +9,18 @@
 
 import { CompletionItemKind as MonacoCompletionItemKind } from "monaco-languageclient";
 import { CompletionItemKind as VSCodeCompletionItemKind, Uri, workspace } from "vscode";
-import { CompletionResponse } from "@wso2-enterprise/ballerina-low-code-editor";
 import { TextEncoder } from "util";
 import { isInDefinedVariables } from "./notebookController";
+
+export interface CompletionResponse {
+    detail: string;
+    insertText: string;
+    insertTextFormat: number;
+    kind: number;
+    label: string;
+    documentation?: string;
+    sortText?: string;
+}
 
 const QUOTE = "'";
 
