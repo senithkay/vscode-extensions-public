@@ -10,7 +10,6 @@
 import React, { useEffect, useState } from 'react';
 import {
     DiagramModel,
-    DagreEngine,
     DiagramEngine
 } from '@projectstorm/react-diagrams';
 
@@ -34,29 +33,42 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     const [diagramEngine, setEngine] = useState<DiagramEngine>(generateEngine());
     const [model] = useState<DiagramModel>(new DiagramModel());
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [haveNodes, setHaveNodes] = useState<boolean>(false);
-    const [isDitributing, setIsDitributing] = useState<boolean>(true);
-
-    const dagreEngine = new DagreEngine({
-        graph: {
-            rankdir: props.invertDirection ? 'RL' : 'LR',
-            ranksep: 70,
-            edgesep: 50,
-            nodesep: 10,
-            ranker: 'longest-path',
-            marginx: 120,
-            marginy: 40
-        }
-    });
 
     useEffect(() => {
         setLoading(true);
-        setHaveNodes(false);
-        setIsDitributing(true);
         (async () => {
             const nodes = [...props.nodes];
             if (nodes.length > 0) {
-                model.addAll(...nodes);
+
+                let canvasPortNode;
+                if (!props.invertDirection) {
+                    const nodeRange = {
+                        start: {
+                            line: 0,
+                            character: 0
+                        },
+                        end: {
+                            line: nodes[0].getRange().start.line,
+                            character: nodes[0].getRange().start.character
+                        }
+                    }
+                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
+                } else {
+                    const nodeRange = {
+                        start: {
+                            line: nodes[nodes.length - 1].getRange().end.line,
+                            character: nodes[nodes.length - 1].getRange().end.character
+                        },
+                        end: {
+                            line: nodes[nodes.length - 1].getRange().end.line,
+                            character: nodes[nodes.length - 1].getRange().end.character
+                        }
+                    }
+                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
+                }
+                canvasPortNode.setPosition(-OFFSET.START.X, OFFSET.START.Y);
+                const canvasPortLink = props.invertDirection ? createLinks(nodes[nodes.length - 1], canvasPortNode) : createLinks(canvasPortNode, nodes[0]);
+                model.addAll(...canvasPortLink);
 
                 if (nodes.length > 1) {
                     for (let i = 0; i < nodes.length; i++) {
@@ -70,65 +82,39 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     }
                 }
 
-                let canvasPortNode;
-                let canvasPortLink;
-                if (props.invertDirection) {
-                    const nodeRange = {
-                        start: {
-                            line: nodes[nodes.length - 1].getRange().end.line,
-                            character: nodes[nodes.length - 1].getRange().end.character
-                        },
-                        end: {
-                            line: nodes[nodes.length - 1].getRange().end.line,
-                            character: nodes[nodes.length - 1].getRange().end.character
-                        }
-                    }
-                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
-                    canvasPortLink = createLinks(nodes[nodes.length - 1], canvasPortNode);
-                } else {
-                    const nodeRange = {
-                        start: {
-                            line: 0,
-                            character: 0
-                        },
-                        end: {
-                            line: nodes[0].getRange().start.line,
-                            character: nodes[0].getRange().start.character
-                        }
-                    }
-                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
-                    canvasPortLink = createLinks(canvasPortNode, nodes[0]);
-                }
-
-                canvasPortNode.setPosition(0, OFFSET.START.Y);
                 model.setOffsetX(OFFSET.START.X);
-
-                model.setLocked(true);
-
                 diagramEngine.setModel(model);
                 setEngine(diagramEngine);
-                setHaveNodes(true);
-                setLoading(false);
                 await autoDistribute();
-
-                model.addAll(canvasPortNode, ...canvasPortLink);
-
-                setIsDitributing(false);
+                setLoading(false);
             } else {
                 setLoading(false);
-                setIsDitributing(false);
             }
         })();
     }, []);
 
     async function autoDistribute() {
-        return new Promise(function (resolve) {
-            setTimeout(() => {
-                dagreEngine.redistribute(diagramEngine.getModel());
-                diagramEngine.setModel(model);
-                resolve(true);
-            }, 30);
-        });
+        if (!props.invertDirection) {
+            let x = OFFSET.START.X;
+            let y = OFFSET.START.Y;
+            for (let i = 1; i < diagramEngine.getModel().getNodes().length; i++) {
+                const node = diagramEngine.getModel().getNodes()[i];
+                console.log(node);
+                node.setPosition(x, y);
+                x += OFFSET.BETWEEN.X;
+                y += OFFSET.BETWEEN.Y;
+            }
+        } else {
+            let x = 500;
+            let y = OFFSET.START.Y;
+            for (let i = 0; i < diagramEngine.getModel().getNodes().length - 1; i++) {
+                const node = diagramEngine.getModel().getNodes()[i];
+                console.log(node);
+                node.setPosition(x, y);
+                x -= node.width + OFFSET.BETWEEN.X;
+                y += OFFSET.BETWEEN.Y;
+            }
+        }
     };
 
     if (isLoading) {
@@ -138,13 +124,12 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             backgroundColor: 'var(--vscode-panel-background)',
             maxHeight: "50vh",
             overflow: "hidden",
-            opacity: isDitributing ? "0%" : "100%",
         }}>
             <CanvasContainer>
-                {haveNodes && <NavigationWrapperCanvasWidget
+                <NavigationWrapperCanvasWidget
                     diagramEngine={diagramEngine as any}
                     disableZoom={true}
-                />}
+                />
             </CanvasContainer>
         </div>;
     }
