@@ -534,11 +534,11 @@
     //   "projectFolder": "workspaces/ballerina/perf-forecast",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "@wso2-enterprise/project-design-diagrams",
-    //   "projectFolder": "workspaces/ballerina/project-design-diagrams",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/project-design-diagrams",
+      "projectFolder": "workspaces/ballerina/project-design-diagrams",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "@wso2-enterprise/persist-layer-diagram",
     //   "projectFolder": "workspaces/ballerina/persist-layer-diagram",
