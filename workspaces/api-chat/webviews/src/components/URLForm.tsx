@@ -34,8 +34,7 @@ function URLForm({ onURLSubmit: onURLSubmit, onClose: onClose }: { onURLSubmit: 
     <>
       <FormWrapper>
         <h3>Enter Service URL</h3>
-        <p>Unable to detect service URL from OpenAPI Specification. Please specify the service URL to continue.</p>
-
+        <p>Unable to detect service URL from OpenAPI Specification or provided URL is a template. Please specify the service URL to continue.</p>
         <VSCodeTextField
           value={urlInput}
           onInput={handleInputChange}
