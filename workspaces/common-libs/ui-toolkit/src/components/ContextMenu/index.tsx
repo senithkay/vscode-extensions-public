@@ -56,6 +56,10 @@ const ExpandedMenu = styled.div<ContainerProps>`
     ${(props: ContextMenuProps) => props.sx};
 `;
 
+const IconWrapper = styled.div<ContainerProps>`
+    ${(props: ContextMenuProps) => props.sx};
+`;
+
 const Container = styled.div`
     display: flex;
     align-items: center;

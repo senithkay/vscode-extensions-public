@@ -4,7 +4,7 @@ import { CellLinkModel } from "./CellLinkModel";
 import { CELL_LINK, Colors } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
-import { Popover } from "@wso2-enterprise/ui-toolkit";
+import { Popover } from "@wso2-enterprise/ui-toolkit/lib/components/Popover";
 
 interface WidgetProps {
     engine: DiagramEngine;

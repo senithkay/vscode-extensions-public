@@ -23,7 +23,7 @@ import {
 } from "@wso2-enterprise/ui-toolkit/lib/components/ContextMenu";
 import {
     Item
-} from "@wso2-enterprise/ui-toolkit/lib/components/MenuItem";
+} from "@wso2-enterprise/ui-toolkit/lib/components/Menu";
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
