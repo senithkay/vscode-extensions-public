@@ -11,14 +11,29 @@ import * as vscode from 'vscode';
 import { openChoreoCellDiagram, refreshChoreoCellDiagram } from '../constants';
 import { ext } from '../extensionVariables';
 import { CellDiagramView } from "../views/webviews/CellDiagramView";
-import { Project } from "@wso2-enterprise/ballerina-languageclient";
 
-export function showCellDiagram(project: Project) {
-    CellDiagramView.render(ext.context.extensionUri, project);
+export async function showCellDiagram() {
+    const project = await ext.api.getChoreoProject();
+    if (project === undefined) {
+        vscode.window.showErrorMessage("Need to be within a Choreo project in order to view the Cell diagram");
+        return;
+    }
+    const org = await ext.api.getSelectedOrg();
+    const projectModel = await ext.clients.cellViewClient.getProjectModelFromFs(org, project.id);
+
+    CellDiagramView.render(ext.context.extensionUri, projectModel);
 }
 
-export function refreshCellDiagram(project: Project) {
-    CellDiagramView.render(ext.context.extensionUri, project, true);
+export async function refreshCellDiagram() {
+    const project = await ext.api.getChoreoProject();
+    if (project === undefined) {
+        vscode.window.showErrorMessage("Need to be within a Choreo project in order to view/refresh the Cell diagram");
+        return;
+    }
+    const org = await ext.api.getSelectedOrg();
+    const projectModel = await ext.clients.cellViewClient.getProjectModelFromFs(org, project.id);
+
+    CellDiagramView.render(ext.context.extensionUri, projectModel, true);
 }
 
 export function activateCellDiagram(context: vscode.ExtensionContext) {
