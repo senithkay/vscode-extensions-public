@@ -70,11 +70,33 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     }
                 }
 
-                const canvasPortNode = new InvisibleNodeModel("border", -1, null);
+                let canvasPortNode;
                 let canvasPortLink;
                 if (props.invertDirection) {
+                    const nodeRange = {
+                        start: {
+                            line: nodes[nodes.length - 1].getRange().end.line,
+                            character: nodes[nodes.length - 1].getRange().end.character
+                        },
+                        end: {
+                            line: nodes[nodes.length - 1].getRange().end.line,
+                            character: nodes[nodes.length - 1].getRange().end.character
+                        }
+                    }
+                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
                     canvasPortLink = createLinks(nodes[nodes.length - 1], canvasPortNode);
                 } else {
+                    const nodeRange = {
+                        start: {
+                            line: 0,
+                            character: 0
+                        },
+                        end: {
+                            line: nodes[0].getRange().start.line,
+                            character: nodes[0].getRange().start.character
+                        }
+                    }
+                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
                     canvasPortLink = createLinks(canvasPortNode, nodes[0]);
                 }
 

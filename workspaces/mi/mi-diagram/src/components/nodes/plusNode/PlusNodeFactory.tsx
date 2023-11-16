@@ -31,7 +31,7 @@ export class PlusNodeFactory extends AbstractReactFactory<PlusNodeModel, Diagram
             width={30}
             height={70}
             level={"event.model.level"}
-            nodePosition={event.model.getNodePosition()}
+            range={event.model.getRange()}
             documentUri={event.model.getDocumentUri()}
         />;
     }

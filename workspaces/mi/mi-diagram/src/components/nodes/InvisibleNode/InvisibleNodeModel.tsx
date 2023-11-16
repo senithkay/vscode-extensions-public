@@ -9,13 +9,14 @@
 
 import { DefaultPortModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel } from "../../base/base-node/base-node";
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export const INVISIBLE_NODE = "InvisibleNode";
 
 export class InvisibleNodeModel extends BaseNodeModel {
 
-    constructor(id: string, nodePosition: number, documentUri: string) {
-        super(INVISIBLE_NODE, id, nodePosition, documentUri);
+    constructor(id: string, range: Range, documentUri: string) {
+        super(INVISIBLE_NODE, id, range, documentUri);
         this.addPort(new DefaultPortModel(false, PortModelAlignment.RIGHT));
     }
 }

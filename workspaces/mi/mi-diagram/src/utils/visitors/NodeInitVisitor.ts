@@ -10,7 +10,7 @@
 import {
     Log,
     STNode,
-    Sequence,
+    NamedSequence,
     Visitor,
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { LogMediatorNodeModel } from '../../components/nodes/mediators/log/LogMediatorModel';
@@ -24,22 +24,33 @@ export class NodeInitVisitor implements Visitor {
     private parents: STNode[] = [];
     private documentUri: string;
 
-    constructor(documentUri: string) { 
+    constructor(documentUri: string) {
         this.documentUri = documentUri;
     };
 
     beginVisitLog(node: Log) {
+        // TODO: Fix this
+        const nodeRange = {
+            start: {
+                line: node.start,
+                character: node.start
+            },
+            end: {
+                line: node.end,
+                character: node.end
+            }
+        }
         this.currentSequence.push(
             new LogMediatorNodeModel(
                 mapNode(node as any),
-                node.start,
+                nodeRange,
                 this.documentUri,
                 this.parents[this.parents.length - 1]
             )
         );
     }
 
-    beginVisitInSequence(node: Sequence): void {
+    beginVisitInSequence(node: NamedSequence): void {
         this.currentSequence = this.inSequenceNodes;
         this.parents.push(node);
     }
@@ -48,7 +59,7 @@ export class NodeInitVisitor implements Visitor {
         this.parents.pop();
     }
 
-    beginVisitOutSequence(node: Sequence): void {
+    beginVisitOutSequence(node: NamedSequence): void {
         this.currentSequence = this.outSequenceNodes;
         this.parents.push(node);
     }

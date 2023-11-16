@@ -14,6 +14,7 @@ import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../../utils/WebViewRpc';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 const cardStyle = {
     display: "block",
@@ -30,7 +31,7 @@ const Error = styled.span`
 
 interface AddConnectorProps {
     formData: any;
-    nodePosition: number;
+    nodePosition: Range;
     documentUri: string;
 }
 
@@ -94,7 +95,7 @@ const AddConnector = (props: AddConnectorProps) => {
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
             
             await MIWebViewAPI.getInstance().applyEdit({
-                documentUri: props.documentUri, offset: props.nodePosition, text: modifiedXml
+                documentUri: props.documentUri, offset: props.nodePosition.start.line, text: modifiedXml
             });
             sidePanelContext.setIsOpen(false);
         }

@@ -11,6 +11,7 @@ import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
 import { Log, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export const LOG_NODE = "LogNode";
 
@@ -19,12 +20,12 @@ export class LogMediatorNodeModel extends BaseNodeModel {
     readonly mediatorName: string;
     readonly level: string;
 
-    constructor(node: Log, nodePosition: number, documentUri: string, parentNode?: STNode) {
+    constructor(node: Log, range: Range, documentUri: string, parentNode?: STNode) {
         const id = `${node.tag}${node.start}${node.end}`;
-        super(LOG_NODE, id, nodePosition, documentUri, node, parentNode);
+        super(LOG_NODE, id, range, documentUri, node, parentNode);
 
         this.id = id;
-        this.level = node.level;
+        this.level = node.level as any;
 
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.RIGHT));

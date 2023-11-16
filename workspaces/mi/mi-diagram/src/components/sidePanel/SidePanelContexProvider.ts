@@ -8,10 +8,11 @@
  */
 
 import React, { Dispatch, SetStateAction } from "react";
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 interface SidePanelontext {
     setIsOpen: Dispatch<SetStateAction<boolean>>;
-    setNodePosition: Dispatch<SetStateAction<number>>;
+    setNodePosition: Dispatch<SetStateAction<Range>>;
 }
 
 const SidePanelContext = React.createContext<SidePanelontext>({

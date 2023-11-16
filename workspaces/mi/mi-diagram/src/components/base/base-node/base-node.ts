@@ -11,6 +11,7 @@ import { LinkModel, NodeModel, NodeModelGenerics, PortModel } from '@projectstor
 import { MediatorBaseLinkModel as BaseLinkModel } from '../base-link/base-link';
 import { DiagramEngine, NodeProps } from "@projectstorm/react-diagrams-core";
 import { STNode } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export interface BaseNodeProps extends NodeProps {
     node: BaseNodeModel;
@@ -22,10 +23,10 @@ export interface BaseNodeProps extends NodeProps {
 export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     private readonly parentNode?: STNode;
     private readonly node?: STNode;
-    private readonly nodePosition: number;
+    private readonly nodePosition: Range;
     private readonly documentUri: string;
 
-    constructor(type: string, id: string, nodePosition: number, documentUri: string, node?: STNode, parentNode?: STNode) {
+    constructor(type: string, id: string, nodePosition: Range, documentUri: string, node?: STNode, parentNode?: STNode) {
         super({
             type: type,
             id: id
@@ -74,7 +75,7 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
         return this.node;
     }
 
-    getNodePosition(): number {
+    getRange(): Range {
         return this.nodePosition;
     }
 

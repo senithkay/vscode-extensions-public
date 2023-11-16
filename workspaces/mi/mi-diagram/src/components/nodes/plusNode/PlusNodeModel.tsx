@@ -10,14 +10,15 @@
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel } from "../../base/base-node/base-node";
 import { MediatorPortModel } from "../../port/MediatorPortModel";
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export const PLUS_NODE = "PlusNode";
 
 export class PlusNodeModel extends BaseNodeModel {
     readonly id: string;
 
-    constructor(id: string, nodePosition: number, documentUri: string) {
-        super(PLUS_NODE, id, nodePosition, documentUri);
+    constructor(id: string, range: Range, documentUri: string) {
+        super(PLUS_NODE, id, range, documentUri);
 
         this.id = id;
 

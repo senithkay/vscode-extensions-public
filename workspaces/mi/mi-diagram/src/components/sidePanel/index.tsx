@@ -13,6 +13,7 @@ import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../utils/WebViewRpc';
 import { GetConnectorsResponse } from '@wso2-enterprise/mi-core';
 import AddConnector from './Pages/AddConnector';
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -20,7 +21,7 @@ const ButtonContainer = styled.div`
 `;
 
 export interface SidePanelListProps {
-    nodePosition: number;
+    nodePosition: Range;
     documentUri: string;
 }
 

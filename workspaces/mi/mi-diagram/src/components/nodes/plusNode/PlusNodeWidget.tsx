@@ -11,10 +11,11 @@ import React, { useContext } from 'react';
 import { PortWidget } from '@projectstorm/react-diagrams-core';
 import { BaseNodeProps } from '../../base/base-node/base-node';
 import SidePanelContext from '../../sidePanel/SidePanelContexProvider';
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export interface PlusNodeWidgetProps extends BaseNodeProps {
     level: string;
-    nodePosition: number;
+    range: Range;
     documentUri: string;
 }
 
@@ -22,7 +23,7 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
     const sidePanelContext = useContext(SidePanelContext)
 
     function handleClick() {
-        sidePanelContext.setNodePosition(props.nodePosition);
+        sidePanelContext.setNodePosition(props.range);
         sidePanelContext.setIsOpen(true);
     }
 

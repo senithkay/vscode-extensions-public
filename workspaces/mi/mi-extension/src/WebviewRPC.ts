@@ -95,9 +95,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
         const positionAt = document.positionAt(params.offset);
         const position = new Position(positionAt.line, positionAt.character);
-        const currentLineIndentation = document.lineAt(position.line).text.match(/^\s*/);
+        const currentLine = document.lineAt(position.line).text;
+        const currentLineIndentation = currentLine.match(/^\s*/);
         const indentation = currentLineIndentation ? currentLineIndentation[0] : "";
-        const text = params.text.replace(/\n/g, "\n" + indentation) + "\n" + indentation;
+        const textBefore = currentLine.substring(0, position.character).trim();
+        const text = `${textBefore.length > 0 ? "\n" + indentation : ""}${params.text.replace(/\n/g, "\n" + indentation)}${textBefore.length > 0 ? "" : "\n" + indentation}`;
         edit.insert(Uri.parse(params.documentUri), position, text);
         await workspace.applyEdit(edit);
     });

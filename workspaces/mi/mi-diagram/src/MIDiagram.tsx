@@ -16,6 +16,7 @@ import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvide
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './components/sidePanel';
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export interface MIDiagramProps {
 	documentUri: string;
@@ -26,7 +27,7 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [lastUpdated, setLastUpdated] = useState<number>(0);
 	const [stNode, setSTNode] = useState<number>(0);
 	const [isSidePanelOpen, setSidePanelOpen] = useState<boolean>(false);
-	const [nodePosition, setSidePanelNodePosition] = useState<number>();
+	const [nodeRange, setSidePanelNodeRange] = useState<Range>();
 
 	MIWebViewAPI.getInstance().getMessenger().onNotification(Refresh, () => {
 		setLastUpdated(Date.now());
@@ -53,7 +54,7 @@ export function MIDiagram(props: MIDiagramProps) {
 	} else {
 		canvas = stNode &&
 			<div>
-				<SidePanelProvider value={{ setIsOpen: setSidePanelOpen, setNodePosition: setSidePanelNodePosition }}>
+				<SidePanelProvider value={{ setIsOpen: setSidePanelOpen, setNodePosition: setSidePanelNodeRange }}>
 					{isSidePanelOpen && <SidePanel
 						isOpen={isSidePanelOpen}
 						alignmanet="right"
@@ -62,7 +63,7 @@ export function MIDiagram(props: MIDiagramProps) {
 							<div>Add Mediator</div>
 							<Button onClick={closePanel} appearance="icon">X</Button>
 						</SidePanelTitleContainer>
-						<SidePanelList nodePosition={nodePosition} documentUri={props.documentUri} />
+						<SidePanelList nodePosition={nodeRange} documentUri={props.documentUri} />
 					</SidePanel>}
 					<APICompartment name='API'>
 						<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />

@@ -45,7 +45,18 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
     }
 
     if (addPlus) {
-        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, targetNode.getNodePosition(), sourceNode.getDocumentUri());
+        // TODO: Fix this
+        const nodeRange = {
+            start: {
+                line: sourceNode.getRange().end.line,
+                character: sourceNode.getRange().end.character
+            },
+            end: {
+                line: targetNode.getRange().start.line,
+                character: targetNode.getRange().start.character
+            }
+        }
+        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, nodeRange, sourceNode.getDocumentUri());
         const link = createLinks(sourceNode, plusNode, false, false);
         sourcePort = plusNode.getPort(`right-${plusNode.getID()}`);
         portsAndNodes.push(plusNode, ...link);
