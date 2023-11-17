@@ -11,27 +11,24 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import React from 'react';
 const background = require('../../resources/assets/PatternBg.svg') as string;
-// import Fab from '@mui/material/Fab';
-// import SearchIcon from '@mui/icons-material/Search';
-// import { useStyles } from './style';
 
 const messageBox = css`
-  color: #6b6b6b;
-  font-family: 'GilmerRegular';
-  font-size: 16px;
-  padding: 10px;
+    color: #6b6b6b;
+    font-family: 'GilmerRegular';
+    font-size: 16px;
+    padding: 10px;
 `;
 
 // Define the styled container component
 const Container = styled.div`
-  align-items: center;
-  background-image: url(${background});
-  background-repeat: repeat;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
+    align-items: center;
+    background-image: url(${background});
+    background-repeat: repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
 `;
 
 export interface PromptScreenProps {
@@ -41,12 +38,11 @@ export interface PromptScreenProps {
 
 export function PromptScreen(props: PromptScreenProps) {
     const { userMessage } = props;
-    // const styles = useStyles();
 
     return (
         <Container>
             <h3 className={messageBox}>{userMessage}</h3>
-            {/* FIXME: If the problem panel is needed we need to implement Fab in UI toolkit */}
+            {/* FIXME: If there is a problem panel is needed we need to implement Fab in UI toolkit */}
             {/* {showProblemPanel &&
                 <Fab
                     aria-label='add'
