@@ -112,7 +112,7 @@ jobs:
           echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
           echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
-          echo "runAPKExtTests=${{ steps.diff.outputs.hasPKDiff }}" >> $GITHUB_OUTPUT
+          echo "runAPKExtTests=${{ steps.diff.outputs.hasAPKDiff }}" >> $GITHUB_OUTPUT
 
       - name: Build
         uses: ./.github/actions/build
