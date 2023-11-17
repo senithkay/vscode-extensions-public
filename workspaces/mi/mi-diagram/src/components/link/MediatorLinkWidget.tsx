@@ -18,11 +18,12 @@ import { Colors } from "../../resources/assets/Constants";
 interface WidgetProps {
     engine: DiagramEngine,
     link: MediatorLinkModel,
-    addArrow: boolean
+    addArrow: boolean,
+    isReturning?: boolean
 }
 
 export function MediatorLinkWidget(props: WidgetProps) {
-    const { link, engine } = props;
+    const { link, engine, isReturning } = props;
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
 
@@ -56,7 +57,7 @@ export function MediatorLinkWidget(props: WidgetProps) {
             <path
                 id={link.getID()}
                 cursor={'pointer'}
-                d={link.getCurvePath()}
+                d={isReturning ? link.getBoxPath() : link.getPath()}
                 fill="none"
                 pointerEvents="all"
                 stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}

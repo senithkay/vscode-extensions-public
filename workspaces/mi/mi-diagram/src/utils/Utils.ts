@@ -35,7 +35,7 @@ export function generateEngine(): DiagramEngine {
 }
 
 export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel,
-    addPlus: boolean = true, addArrow: boolean = true): any[] {
+    addPlus: boolean = true, addArrow: boolean = true, isReturning: boolean = false): any[] {
     const portsAndNodes = [];
     let sourcePort = sourceNode.getPort(sourceNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `right-${sourceNode.getID()}`);
     const targetPort = targetNode.getPort(targetNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `left-${targetNode.getID()}`);
@@ -56,12 +56,12 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
                 character: targetNode.getRange().start.character
             }
         }
-        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, nodeRange, sourceNode.getDocumentUri());
+        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, nodeRange, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode());
         const link = createLinks(sourceNode, plusNode, false, false);
         sourcePort = plusNode.getPort(`right-${plusNode.getID()}`);
         portsAndNodes.push(plusNode, ...link);
     }
-    const link: MediatorLinkModel = new MediatorLinkModel(`${sourcePort.getID()}::${targetPort.getID()}`, addArrow);
+    const link: MediatorLinkModel = new MediatorLinkModel(`${sourcePort.getID()}::${targetPort.getID()}`, addArrow, isReturning);
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);

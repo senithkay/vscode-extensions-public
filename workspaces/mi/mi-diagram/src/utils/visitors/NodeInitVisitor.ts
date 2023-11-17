@@ -23,6 +23,7 @@ export class NodeInitVisitor implements Visitor {
     private outSequenceNodes: BaseNodeModel[] = [];
     private parents: STNode[] = [];
     private documentUri: string;
+    private isInOutSequence = false;
 
     constructor(documentUri: string) {
         this.documentUri = documentUri;
@@ -45,6 +46,7 @@ export class NodeInitVisitor implements Visitor {
                 mapNode(node as any),
                 nodeRange,
                 this.documentUri,
+                this.isInOutSequence,
                 this.parents[this.parents.length - 1]
             )
         );
@@ -60,11 +62,13 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitOutSequence(node: NamedSequence): void {
+        this.isInOutSequence = true;
         this.currentSequence = this.outSequenceNodes;
         this.parents.push(node);
     }
 
     endVisitOutSequence(): void {
+        this.isInOutSequence = false;
         this.parents.pop();
     }
 

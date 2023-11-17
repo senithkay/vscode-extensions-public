@@ -74,11 +74,7 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
                     borderColor: "var(--vscode-panel-dropBorder)"
                 }}>
                     {/* Input & Output sequences */}
-                    <SequenceDiagram nodes={inSequenceNodes}></SequenceDiagram>
-                    <hr style={{
-                        borderColor: "var(--vscode-panel-dropBorder)"
-                    }}></hr>
-                    <SequenceDiagram nodes={outSequenceNodes} invertDirection={true}></SequenceDiagram>
+                    <SequenceDiagram inSequence={inSequenceNodes} outSequence={outSequenceNodes}></SequenceDiagram>
                 </div>
                 <div style={{
                     flex: "0 0 100px",

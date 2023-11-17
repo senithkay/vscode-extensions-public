@@ -25,12 +25,14 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     private readonly node?: STNode;
     private readonly nodePosition: Range;
     private readonly documentUri: string;
+    private readonly isInOutSequence: boolean;
 
-    constructor(type: string, id: string, nodePosition: Range, documentUri: string, node?: STNode, parentNode?: STNode) {
+    constructor(type: string, id: string, nodePosition: Range, documentUri: string, isInOutSequence: boolean, node?: STNode, parentNode?: STNode) {
         super({
             type: type,
             id: id
         });
+        this.isInOutSequence = isInOutSequence;
         this.node = node;
         this.parentNode = parentNode;
         this.nodePosition = nodePosition;
@@ -77,6 +79,10 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
 
     getRange(): Range {
         return this.nodePosition;
+    }
+
+    isInOutSequenceNode(): boolean {
+        return this.isInOutSequence;
     }
 
     getDocumentUri(): string {

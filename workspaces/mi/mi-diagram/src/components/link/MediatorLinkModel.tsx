@@ -13,9 +13,11 @@ export const MEDIATOR_LINK = "mediatorLink";
 
 export class MediatorLinkModel extends MediatorBaseLinkModel {
     addArrow: boolean;
+    isReturning: boolean;
 
-    constructor(id: string, addArrow: boolean = true) {
+    constructor(id: string, addArrow: boolean = true, isReturning: boolean = false) {
         super(id, MEDIATOR_LINK);
         this.addArrow = addArrow;
+        this.isReturning = isReturning;
     }
 }

@@ -38,7 +38,8 @@ export class LogMediatorNodeFactory extends AbstractReactFactory<LogMediatorNode
         return new LogMediatorNodeModel(
             event.initialConfig.model.node,
             event.initialConfig.model.nodePosition,
-            event.initialConfig.model.documentUri
+            event.initialConfig.model.documentUri,
+            event.initialConfig.model.isInOutSequence,
         );
     }
 }

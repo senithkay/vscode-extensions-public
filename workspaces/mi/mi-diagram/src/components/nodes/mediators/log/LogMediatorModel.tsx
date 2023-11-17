@@ -20,9 +20,9 @@ export class LogMediatorNodeModel extends BaseNodeModel {
     readonly mediatorName: string;
     readonly level: string;
 
-    constructor(node: Log, range: Range, documentUri: string, parentNode?: STNode) {
+    constructor(node: Log, range: Range, documentUri: string, isInOutSequence: boolean, parentNode?: STNode) {
         const id = `${node.tag}${node.start}${node.end}`;
-        super(LOG_NODE, id, range, documentUri, node, parentNode);
+        super(LOG_NODE, id, range, documentUri, isInOutSequence, node, parentNode);
 
         this.id = id;
         this.level = node.level as any;

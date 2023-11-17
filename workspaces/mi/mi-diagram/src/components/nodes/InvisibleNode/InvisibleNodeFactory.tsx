@@ -29,7 +29,7 @@ export class InvisibleNodeFactory extends AbstractReactFactory<InvisibleNodeMode
             diagramEngine={this.engine}
             node={event.model}
             width={0}
-            height={0}
+            height={70}
         />;
     }
 
@@ -37,7 +37,8 @@ export class InvisibleNodeFactory extends AbstractReactFactory<InvisibleNodeMode
         return new InvisibleNodeModel(
             event.initialConfig.model.id,
             null,
-            null
+            null,
+            event.initialConfig.model.isInOutSequence
         );
     }
 }

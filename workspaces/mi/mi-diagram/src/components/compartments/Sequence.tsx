@@ -21,8 +21,8 @@ import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
 
 export interface SequenceDiagramProps {
-    nodes: BaseNodeModel[];
-    invertDirection: boolean;
+    inSequence: BaseNodeModel[];
+    outSequence: BaseNodeModel[];
 }
 
 SequenceDiagram.defaultProps = {
@@ -37,81 +37,97 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     useEffect(() => {
         setLoading(true);
         (async () => {
-            const nodes = [...props.nodes];
-            if (nodes.length > 0) {
+            const inSequenceNodes = props.inSequence;
+            const outSequenceNodes = props.outSequence;
 
-                let canvasPortNode;
-                if (!props.invertDirection) {
-                    const nodeRange = {
-                        start: {
-                            line: 0,
-                            character: 0
-                        },
-                        end: {
-                            line: nodes[0].getRange().start.line,
-                            character: nodes[0].getRange().start.character
-                        }
-                    }
-                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
-                } else {
-                    const nodeRange = {
-                        start: {
-                            line: nodes[nodes.length - 1].getRange().end.line,
-                            character: nodes[nodes.length - 1].getRange().end.character
-                        },
-                        end: {
-                            line: nodes[nodes.length - 1].getRange().end.line,
-                            character: nodes[nodes.length - 1].getRange().end.character
-                        }
-                    }
-                    canvasPortNode = new InvisibleNodeModel("border", nodeRange, null);
-                }
-                canvasPortNode.setPosition(-OFFSET.START.X, OFFSET.START.Y);
-                const canvasPortLink = props.invertDirection ? createLinks(nodes[nodes.length - 1], canvasPortNode) : createLinks(canvasPortNode, nodes[0]);
-                model.addAll(...canvasPortLink);
+            diagramEngine.setModel(model);
+            setEngine(diagramEngine);
 
-                if (nodes.length > 1) {
-                    for (let i = 0; i < nodes.length; i++) {
-                        for (let j = i + 1; j < nodes.length; j++) {
-                            if (nodes[i].getParentNode() == nodes[j].getParentNode()) {
-                                const link = createLinks(nodes[i], nodes[j]);
-                                model.addAll(...link);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                model.setOffsetX(OFFSET.START.X);
-                diagramEngine.setModel(model);
-                setEngine(diagramEngine);
-                await autoDistribute();
-                setLoading(false);
-            } else {
-                setLoading(false);
+            if (inSequenceNodes.length > 0) {
+                drawSequence(inSequenceNodes, false);
             }
+            if (outSequenceNodes.length > 0) {
+                drawSequence(outSequenceNodes, true);
+            }
+
+            autoDistribute();
+            setLoading(false);
         })();
     }, []);
 
-    async function autoDistribute() {
-        if (!props.invertDirection) {
-            let x = OFFSET.START.X;
-            let y = OFFSET.START.Y;
-            for (let i = 1; i < diagramEngine.getModel().getNodes().length; i++) {
-                const node = diagramEngine.getModel().getNodes()[i];
-                console.log(node);
+    function drawSequence(nodes: any[], invertDirection: boolean) {
+        let canvasPortNode;
+        if (!invertDirection) {
+            const nodeRange = {
+                start: {
+                    line: 0,
+                    character: 0
+                },
+                end: {
+                    line: nodes[0].getRange().start.line,
+                    character: nodes[0].getRange().start.character
+                }
+            };
+            canvasPortNode = new InvisibleNodeModel("border", nodeRange, null, invertDirection);
+        } else {
+            const nodeRange = {
+                start: {
+                    line: nodes[nodes.length - 1].getRange().end.line,
+                    character: nodes[nodes.length - 1].getRange().end.character
+                },
+                end: {
+                    line: nodes[nodes.length - 1].getRange().end.line,
+                    character: nodes[nodes.length - 1].getRange().end.character
+                }
+            };
+            canvasPortNode = new InvisibleNodeModel("border2", nodeRange, null, invertDirection);
+        }
+        const sourceNode = invertDirection ? nodes[nodes.length - 1] : canvasPortNode;
+        const targetNode = invertDirection ? canvasPortNode : nodes[0];
+        const canvasPortLink = createLinks(sourceNode, targetNode);
+        model.addAll(sourceNode, ...canvasPortLink, targetNode);
+
+        if (nodes.length > 1) {
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    if (nodes[i].getParentNode() == nodes[j].getParentNode()) {
+                        const link = createLinks(nodes[i], nodes[j]);
+                        model.addAll(nodes[i], ...link, nodes[j]);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    function autoDistribute() {
+        let x;
+        let y = OFFSET.START.Y;
+        let isSwitched = false;
+        const nodes = diagramEngine.getModel().getNodes();
+        for (let i = 0; i < nodes.length; i++) {
+            const node: any = nodes[i];
+            const isInverted = node.isInOutSequenceNode();
+
+            if (i == 0) { isInverted ? x = OFFSET.BETWEEN.X * nodes.length : x = 0; }
+
+            if (!isInverted) {
                 node.setPosition(x, y);
                 x += OFFSET.BETWEEN.X;
                 y += OFFSET.BETWEEN.Y;
-            }
-        } else {
-            let x = 500;
-            let y = OFFSET.START.Y;
-            for (let i = 0; i < diagramEngine.getModel().getNodes().length - 1; i++) {
-                const node = diagramEngine.getModel().getNodes()[i];
-                console.log(node);
-                node.setPosition(x, y);
-                x -= node.width + OFFSET.BETWEEN.X;
+            } else {
+                if (!isSwitched) {
+                    x -= OFFSET.BETWEEN.X;
+                    y += OFFSET.START.Y_INVERTED;
+                    isSwitched = true;
+
+                    // create link between in and out
+                    const link = createLinks(nodes[i - 1] as any, node, false, true, true);
+                    model.addAll(...link);
+
+                }
+                node.setPosition(i == nodes.length - 1 ? 0 : x, y);
+                x -= OFFSET.BETWEEN.X;
                 y += OFFSET.BETWEEN.Y;
             }
         }
@@ -122,7 +138,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     } else {
         return <div style={{
             backgroundColor: 'var(--vscode-panel-background)',
-            maxHeight: "50vh",
+            maxHeight: "100vh",
             overflow: "hidden",
         }}>
             <CanvasContainer>

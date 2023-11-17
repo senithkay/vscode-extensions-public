@@ -28,7 +28,7 @@ export function InvisibleNodeWidget(props: BaseNodeProps) {
         <><PortWidget
             style={{
                 right: 0,
-                top: 0,
+                top: props.height / 2,
                 width: props.width,
                 height: props.height,
                 position: 'absolute'

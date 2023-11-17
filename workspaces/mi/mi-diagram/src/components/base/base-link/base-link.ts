@@ -81,6 +81,29 @@ export class MediatorBaseLinkModel extends DefaultLinkModel {
 		return lineCurve.getSVGCurve();
 	}
 
+	getBoxPath() {
+		const sourcePoint: Point = this.getSourcePort().getPosition().clone();
+		const targetPoint: Point = this.getTargetPort().getPosition().clone();
+		const sx = sourcePoint.x;
+		const sy = sourcePoint.y;
+		const tx = targetPoint.x;
+		const ty = targetPoint.y;
+		const curve = 40;
+		const offset = 70;
+		const dl = Math.max(sx + offset, tx + offset);
+		return `M${sx},${sy} L${dl},${sy} Q${dl + curve},${sy} ${dl + curve},${sy + curve} L${dl + curve},${ty - curve} Q${dl + curve},${ty} ${dl},${ty} L${tx},${ty}`;
+	}
+
+	getPath() {
+		const sourcePoint: Point = this.getSourcePort().getPosition().clone();
+		const targetPoint: Point = this.getTargetPort().getPosition().clone();
+		const sx = sourcePoint.x;
+		const sy = sourcePoint.y;
+		const tx = targetPoint.x;
+		const ty = targetPoint.y;
+		return `M${sx},${sy} L${tx},${ty}`;
+	}
+
 	onPositionChange = debounce(() => {
 		if (this.getSourcePort() && this.getTargetPort()) {
 			const { sourceLeft, sourceRight, targetLeft, targetRight } = this.getPortPositions();
