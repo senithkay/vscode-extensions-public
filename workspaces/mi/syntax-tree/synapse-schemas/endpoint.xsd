@@ -124,6 +124,15 @@
                                                         <xs:group ref="oauthParams" minOccurs="1" maxOccurs="1" />
                                                     </xs:complexType>
                                                 </xs:element>
+                                                <xs:element name="passwordCredentials" minOccurs="0" maxOccurs="1">
+                                                    <xs:complexType>
+                                                        <xs:sequence>
+                                                            <xs:group ref="oauthParams" minOccurs="1" maxOccurs="1" />
+                                                            <xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                                                            <xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                                                        </xs:sequence>
+                                                    </xs:complexType>
+                                                </xs:element>
                                             </xs:choice>
                                         </xs:complexType>
                                     </xs:element>
@@ -433,6 +442,14 @@
             <xs:element name="clientSecret" type="xs:string" minOccurs="1" maxOccurs="1" />
             <xs:element name="refreshToken" type="xs:string" minOccurs="0" maxOccurs="1" />
             <xs:element name="tokenUrl" type="xs:string" minOccurs="1" maxOccurs="1" />
+            <xs:element name="requestParameters" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="authMode" type="xs:string" minOccurs="1" maxOccurs="1" />
         </xs:sequence>
     </xs:group>
 
@@ -440,7 +457,8 @@
         <xs:sequence>
             <xs:element name="enableSec" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
-                    <xs:attribute name="policy" type="xs:string" use="optional" />
+                    <xs:attribute name="inboundPolicy" type="xs:string" use="optional" />
+                    <xs:attribute name="outboundPolicy" type="xs:string" use="optional" />
                 </xs:complexType>
             </xs:element>
             <xs:element name="enableRM" minOccurs="0" maxOccurs="1">
