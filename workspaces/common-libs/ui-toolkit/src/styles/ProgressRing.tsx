@@ -15,3 +15,9 @@ export const SmallProgressRing = styled(VSCodeProgressRing)`
     margin-top: auto;
     padding: 4px;
 `;
+
+export const ProgressRing = styled(VSCodeProgressRing)`
+    position: absolute;
+    margin-top: auto;
+    padding: 4px;
+`;
