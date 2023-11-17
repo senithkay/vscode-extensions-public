@@ -12,23 +12,31 @@
 import { Messenger } from "vscode-messenger-webview";
 import { vscode } from "./vscode";
 import { OverviewRpcClient } from "./rpc-clients/overview/rpc-client";
+import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
 
 export class BallerinaRpcClient {
 
     private messenger: Messenger;
     private _overview: OverviewRpcClient;
+    private _visualizer: VisualizerRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
         this._overview = new OverviewRpcClient(this.messenger);
+        this._visualizer = new VisualizerRpcClient(this.messenger);
     }
 
     getOverviewClient(): OverviewRpcClient {
         return this._overview;
     }
 
+    getVisualizerClient(): VisualizerRpcClient {
+        return this._visualizer;
+    }
+
     onStateChanged(callbal: (state: any) => void) {
         this.messenger.onNotification({ method: 'stateChanged' }, callbal);
     }
+
 }

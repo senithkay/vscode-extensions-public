@@ -20,6 +20,7 @@ export * from "./lang-server-interfaces/trigger-wizard-types";
 export * from "./lang-server-interfaces/extended-lang-server-types";
 
 export * from "./extension-interfaces/extension-types";
+export * from "./extension-interfaces/state-machine-types";
 
 export * from "./rpc-types/overview";
 export * from "./rpc-types/connector-wizard";
@@ -29,5 +30,5 @@ export * from "./rpc-types/service-designer";
 export * from "./rpc-types/performance-analyzer";
 export * from "./rpc-types/trigger-wizard";
 export * from "./rpc-types/visualizer";
-
 export * from "./rpc-types/overview/rpc-type";
+export * from "./rpc-types/visualizer/rpc-type";
