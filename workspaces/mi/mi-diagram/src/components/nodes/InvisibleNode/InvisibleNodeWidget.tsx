@@ -17,8 +17,8 @@ export function InvisibleNodeWidget(props: BaseNodeProps) {
         eventWillFire: (event: any) => {
             if (event.offsetX && event.offsetY) {
                 const zoom = props.diagramEngine.getModel().getZoomLevel() / 100;
-                const offsetX = (OFFSET.START.X * zoom) - event.offsetX;
-                const offsetY = (OFFSET.START.Y * zoom) - event.offsetY;
+                const offsetX = - event.offsetX;
+                const offsetY = (OFFSET.START.Y * zoom) - event.offsetY + (props.node.isInOutSequenceNode() ? OFFSET.START.Y_INVERTED : 0);
                 props.node.setPosition(offsetX, offsetY);
             }
         }

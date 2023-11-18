@@ -11,10 +11,10 @@ export const OFFSET = {
     START: {
         X: 70,
         Y: 50,
-        Y_INVERTED: 150,
+        Y_INVERTED: 250,
     },
     BETWEEN: {
-        X: 150,
+        X: 130,
         Y: 0,
     }
 };

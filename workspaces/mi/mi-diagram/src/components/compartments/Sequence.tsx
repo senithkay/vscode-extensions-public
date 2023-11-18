@@ -51,6 +51,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             }
 
             autoDistribute();
+            model.setOffsetX(-OFFSET.START.X);
             setLoading(false);
         })();
     }, []);
@@ -101,15 +102,13 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     }
 
     function autoDistribute() {
-        let x;
+        let x = OFFSET.START.X;
         let y = OFFSET.START.Y;
         let isSwitched = false;
         const nodes = diagramEngine.getModel().getNodes();
         for (let i = 0; i < nodes.length; i++) {
             const node: any = nodes[i];
             const isInverted = node.isInOutSequenceNode();
-
-            if (i == 0) { isInverted ? x = OFFSET.BETWEEN.X * nodes.length : x = 0; }
 
             if (!isInverted) {
                 node.setPosition(x, y);
@@ -126,7 +125,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     model.addAll(...link);
 
                 }
-                node.setPosition(i == nodes.length - 1 ? 0 : x, y);
+                node.setPosition(i == nodes.length - 1 ? OFFSET.START.X : x, y);
                 x -= OFFSET.BETWEEN.X;
                 y += OFFSET.BETWEEN.Y;
             }
