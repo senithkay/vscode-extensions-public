@@ -14,7 +14,6 @@ import SidePanelContext from '../../sidePanel/SidePanelContexProvider';
 import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export interface PlusNodeWidgetProps extends BaseNodeProps {
-    level: string;
     range: Range;
     documentUri: string;
 }
