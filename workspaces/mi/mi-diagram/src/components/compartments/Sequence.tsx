@@ -15,7 +15,6 @@ import {
 
 import { CanvasContainer } from '../../Canvas';
 import { generateEngine, createLinks } from '../../utils/Utils';
-import { InvisibleNodeModel } from '../nodes/InvisibleNode/InvisibleNodeModel';
 import { BaseNodeModel } from '../base/base-node/base-node';
 import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
