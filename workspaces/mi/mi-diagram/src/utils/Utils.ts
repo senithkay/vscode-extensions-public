@@ -16,7 +16,8 @@ import { InvisibleNodeFactory } from "../components/nodes/InvisibleNode/Invisibl
 import { PlusNodeFactory } from "../components/nodes/plusNode/PlusNodeFactory";
 import { PlusNodeModel } from "../components/nodes/plusNode/PlusNodeModel";
 import { BaseNodeModel } from "../components/base/base-node/base-node";
-import { InvisibleNodeModel } from "../components/nodes/InvisibleNode/InvisibleNodeModel";
+import { SequenceNodeFactory } from "../components/nodes/sequence/SequenceNodeFactory";
+import { SequenceNodeModel } from "../components/nodes/sequence/SequenceNodeModel";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -29,6 +30,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new LogMediatorNodeFactory());
     engine.getNodeFactories().registerFactory(new InvisibleNodeFactory());
     engine.getNodeFactories().registerFactory(new PlusNodeFactory());
+    engine.getNodeFactories().registerFactory(new SequenceNodeFactory());
 
     // engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return engine;
@@ -36,12 +38,15 @@ export function generateEngine(): DiagramEngine {
 
 export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel,
     addPlus: boolean = true, addArrow: boolean = true, isReturning: boolean = false): any[] {
+    if (!sourceNode || !targetNode) {
+        return [];
+    }
     const portsAndNodes = [];
-    let sourcePort = sourceNode.getPort(sourceNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `right-${sourceNode.getID()}`);
-    const targetPort = targetNode.getPort(targetNode instanceof InvisibleNodeModel ? PortModelAlignment.RIGHT : `left-${targetNode.getID()}`);
+    let sourcePort = sourceNode.getPort(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.RIGHT : `right-${sourceNode.getID()}`);
+    const targetPort = targetNode.getPort(targetNode instanceof SequenceNodeModel ? PortModelAlignment.RIGHT : `left-${targetNode.getID()}`);
 
     if (!sourcePort || !targetPort) {
-        return;
+        return [];
     }
 
     if (addPlus) {

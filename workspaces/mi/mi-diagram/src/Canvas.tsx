@@ -32,6 +32,8 @@ export const Container: React.FC<any> = styled.div`
   }
   svg:not(:root) {
     overflow: visible;
+    z-index: 99;
+    position: relative;
   }
 `;
 
