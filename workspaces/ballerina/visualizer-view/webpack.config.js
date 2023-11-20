@@ -57,5 +57,10 @@ module.exports = {
     devMiddleware: {
       mimeTypes: { 'text/css': ['css'] },
     },
-  }
+  },
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+        maxChunks: 1
+    })
+]
 };

@@ -1,3 +1,4 @@
+import { registerVisualizerRpcHandlers } from "../rpc-managers/visualizer/rpc-handler";
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -20,7 +21,7 @@ import { CMLocation, GetComponentModelResponse } from '@wso2-enterprise/ballerin
 import { ExtensionContext, WebviewPanel, workspace } from 'vscode';
 import { registerProjectDesignRPCHandlers } from '../project-design-diagrams/rpc-layer/rpc-handler';
 import { BallerinaExtension, ExtendedLangClient } from '../core';
-import { registerOverviewRpcHandlers } from '../rpc-managers/overview/rpc-handler';
+import { registerOverviewRpcHandlers } from "../rpc-managers/overview/rpc-handler";
 
 
 const stateChanged: NotificationType<any> = { method: 'stateChanged' };
@@ -36,10 +37,11 @@ export class RPCLayer {
         this._langClient = _ballerinaContext.langClient;
         this._vsContext = _ballerinaContext.context;
         this._ballerinaContext = _ballerinaContext;
-        
-        registerOverviewRpcHandlers(this._messenger);
 
-        // Inform console of changing state
+        registerOverviewRpcHandlers(this._messenger);
+        registerVisualizerRpcHandlers(this._messenger);
+
+        // Register state change notification
         getService().onTransition((state) => {
             const snapshot: any = {
                 state: stateString(state.value),
@@ -47,7 +49,6 @@ export class RPCLayer {
             };
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, snapshot);
         });
-
 
     }
 

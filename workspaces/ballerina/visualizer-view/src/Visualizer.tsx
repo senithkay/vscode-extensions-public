@@ -15,15 +15,22 @@ export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
 
     useEffect(() => {
+        setViewLocationState();
         ballerinaRpcClient.onStateChanged((state: { viewContext: ViewLocation }) => {
             setViewLocation(state.viewContext);
         });
     }, []);
-    
+
+    const setViewLocationState = async () => {
+        const state = await ballerinaRpcClient.getVisualizerClient().getVisualizerState();
+        if (state) {
+            setViewLocation(state);
+        }
+    }
     return (
         <>
-            {viewLocation.view === "Overview" &&  <Overview /> }
-            {viewLocation.view === "Architecture" &&  <h2>Hello Arch</h2> }
+            {viewLocation.view === "Overview" && <Overview />}
+            {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
         </>
     );
 };

@@ -17,8 +17,8 @@ import {
     GetBallerinaProjectParams,
     OverviewAPI
 } from "@wso2-enterprise/ballerina-core";
-import { getLangClient } from "../../visualizer/activator";
 import { workspace } from "vscode";
+import { getLangClient } from "../../visualizer/activator";
 
 export class OverviewRpcManager implements OverviewAPI {
 

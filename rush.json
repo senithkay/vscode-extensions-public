@@ -409,11 +409,11 @@
       "projectFolder": "workspaces/ballerina/ballerina-languageclient",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@ballerina/ballerina-by-examples",
-      "projectFolder": "workspaces/ballerina/bbe",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@ballerina/ballerina-by-examples",
+    //   "projectFolder": "workspaces/ballerina/bbe",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/font-wso2-vscode",
       "projectFolder": "workspaces/common-libs/font-wso2-vscode",
@@ -449,51 +449,51 @@
       "projectFolder": "workspaces/choreo/choreo-webviews",
       "versionPolicyName": "choreo-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/ballerina-data-mapper",
-      "projectFolder": "workspaces/ballerina/data-mapper",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/ballerina-expression-editor",
-      "projectFolder": "workspaces/ballerina/expression-editor",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "graphqlview-lib",
-      "projectFolder": "workspaces/ballerina/graphql",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
-      "projectFolder": "workspaces/ballerina/graphql-design-diagram",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/lang-service",
-      "projectFolder": "workspaces/ballerina/lang-service",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/ballerina-service-designer",
-      "projectFolder": "workspaces/ballerina/service-designer",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/ballerina-low-code-diagram",
-      "projectFolder": "workspaces/ballerina/low-code-diagram",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/ballerina-low-code-editor-distribution",
-      "projectFolder": "workspaces/ballerina/low-code-distribution",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "@wso2-enterprise/ballerina-low-code-editor",
-      "projectFolder": "workspaces/ballerina/low-code-editor",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-data-mapper",
+    //   "projectFolder": "workspaces/ballerina/data-mapper",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-expression-editor",
+    //   "projectFolder": "workspaces/ballerina/expression-editor",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "graphqlview-lib",
+    //   "projectFolder": "workspaces/ballerina/graphql",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
+    //   "projectFolder": "workspaces/ballerina/graphql-design-diagram",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/lang-service",
+    //   "projectFolder": "workspaces/ballerina/lang-service",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-service-designer",
+    //   "projectFolder": "workspaces/ballerina/service-designer",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-low-code-diagram",
+    //   "projectFolder": "workspaces/ballerina/low-code-diagram",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-low-code-editor-distribution",
+    //   "projectFolder": "workspaces/ballerina/low-code-distribution",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-low-code-editor",
+    //   "projectFolder": "workspaces/ballerina/low-code-editor",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/ballerina-core",
       "projectFolder": "workspaces/ballerina/ballerina-core",
@@ -519,41 +519,41 @@
       "projectFolder": "workspaces/ballerina/low-code-editor-commons",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
-      "projectFolder": "workspaces/ballerina/low-code-ui-components",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "notebook-renderer",
-      "projectFolder": "workspaces/ballerina/notebook-renderer",
-      "versionPolicyName": "ballerina-extension"
-    },
-    {
-      "packageName": "perf",
-      "projectFolder": "workspaces/ballerina/perf-forecast",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
+    //   "projectFolder": "workspaces/ballerina/low-code-ui-components",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "notebook-renderer",
+    //   "projectFolder": "workspaces/ballerina/notebook-renderer",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
+    // {
+    //   "packageName": "perf",
+    //   "projectFolder": "workspaces/ballerina/perf-forecast",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/project-design-diagrams",
       "projectFolder": "workspaces/ballerina/project-design-diagrams",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/persist-layer-diagram",
-      "projectFolder": "workspaces/ballerina/persist-layer-diagram",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/persist-layer-diagram",
+    //   "projectFolder": "workspaces/ballerina/persist-layer-diagram",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "@wso2-enterprise/cell-diagram",
       "projectFolder": "workspaces/choreo/cell-diagram",
       "versionPolicyName": "choreo-extension"
     },
-    {
-      "packageName": "@wso2-enterprise/ballerina-statement-editor",
-      "projectFolder": "workspaces/ballerina/statement-editor",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "@wso2-enterprise/ballerina-statement-editor",
+    //   "projectFolder": "workspaces/ballerina/statement-editor",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     // {
     //   "packageName": "swaggerview-lib",
     //   "projectFolder": "workspaces/ballerina/swagger",
@@ -564,11 +564,11 @@
       "projectFolder": "workspaces/ballerina/syntax-tree",
       "versionPolicyName": "ballerina-extension"
     },
-    {
-      "packageName": "variableview-lib",
-      "projectFolder": "workspaces/ballerina/variable-view",
-      "versionPolicyName": "ballerina-extension"
-    },
+    // {
+    //   "packageName": "variableview-lib",
+    //   "projectFolder": "workspaces/ballerina/variable-view",
+    //   "versionPolicyName": "ballerina-extension"
+    // },
     {
       "packageName": "ballerina",
       "projectFolder": "workspaces/ballerina/ballerina-extension",
