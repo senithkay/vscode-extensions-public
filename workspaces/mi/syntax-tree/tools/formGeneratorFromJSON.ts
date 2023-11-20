@@ -21,15 +21,16 @@ function fixIndentation(str: string, parentIndent: number) {
     return str.split('\n').map(line => {
         if (line.trim().length > 0) {
             const currentIndent = line.trimEnd().length - line.trim().length;
-            if ((currentIndent - rootIndent + parentIndent) < 0) console.error(line);
-            line = ' '.repeat(currentIndent - rootIndent + parentIndent) + line.trim();
+            if ((currentIndent - rootIndent + parentIndent) > 0) line = ' '.repeat(currentIndent - rootIndent + parentIndent) + line.trim();
         }
         return line;
     }).join('\n');
 }
 
 const generateForm = (jsonData: any): string => {
-    const name = `${capitalizeFirstLetter(jsonData.operationName)}Form`;
+    const operationName = jsonData.operationName;
+    const connectorName = jsonData.connectorName;
+    const operationNameCapitalized = `${capitalizeFirstLetter(operationName)}Form`;
 
     let componentContent = '';
     let formValidators = '\n';
@@ -120,74 +121,90 @@ const generateForm = (jsonData: any): string => {
     generateFormItems(jsonData.elements, 12);
 
     componentContent +=
-        fixIndentation(`
-        ${LICENSE_HEADER}
+        fixIndentation(
+            `
+${LICENSE_HEADER}
+import React, { useState } from 'react';
+import { AutoComplete, Button, ComponentCard, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
+import styled from '@emotion/styled';
+import SidePanelContext from '../../../SidePanelContexProvider';
+import { AddMediatorProps } from '../common';
+import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
+import { create } from 'xmlbuilder2';
 
-        import React, { useState } from 'react';
-        import { AutoComplete, Button, ComponentCard, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
-        import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
-        import styled from '@emotion/styled';
+const cardStyle = { 
+    display: "block", 
+    margin: "5px 0",
+    padding: "0 15px 15px 15px",
+    width: "auto",
+    cursor: "auto" 
+};
 
-        const cardStyle = { 
-            display: "block", 
-            margin: "5px 0",
-            padding: "0 15px 15px 15px",
-            width: "auto",
-            cursor: "auto" 
-        };
+const Error = styled.span\`
+    color: var(--vscode-errorForeground);
+    font-size: 12px;
+\`;
 
-        const Error = styled.span\`
-            color: var(--vscode-errorForeground);
-            font-size: 12px;
-        \`;
+const emailRegex = /^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/g;
+const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-        const emailRegex = /^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/g;
-        const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
+const ${operationNameCapitalized} = (props: AddMediatorProps) => {
+    const sidePanelContext = React.useContext(SidePanelContext);
+    const [formValues, setFormValues] = useState({} as any);
+    const [errors, setErrors] = useState({} as any);
 
-        const ${name} = () => {
-            const [formValues, setFormValues] = useState({} as any);
-            const [errors, setErrors] = useState({} as any);
+    const onClick = async () => {
+        let newErrors = {} as any;
+        Object.keys(formValidators).forEach((key) => {
+            const error = formValidators[key]();
+            if (error) {
+                newErrors[key] = (error);
+            }
+        });
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+        } else {
+            const template = create();
+            const root = template.ele("${connectorName ? connectorName : ''}${connectorName && operationName ? "." : ""}${operationName ? `${operationName}` : ''}");
+            // Fill the values
+            Object.keys(formValues).forEach((key) => {
+                root.ele(key).txt(formValues[key]);
+            });
+            const modifiedXml = template.end({ prettyPrint: true, headless: true });
+            
+            await MIWebViewAPI.getInstance().applyEdit({
+                documentUri: props.documentUri, offset: props.nodePosition.start.line, text: modifiedXml
+            });
+            sidePanelContext.setIsOpen(false);
+        }
+    };
 
-            const onClick = () => {
-                let newErrors = {} as any;
-                Object.keys(formValidators).forEach((key) => {
-                    const error = formValidators[key]();
-                    if (error) {
-                        newErrors[key] = (error);
-                    }
-                });
-                if (Object.keys(newErrors).length > 0) {
-                    setErrors(newErrors);
-                } else {
-                    console.log('Success:', formValues);
-                }
-            };
+    const formValidators: { [key: string]: (e?: any) => string | undefined } = {${fixIndentation(formValidators, 16)}
+    };
 
-            const formValidators: { [key: string]: (e?: any) => string | undefined } = {${fixIndentation(formValidators, 16)}
-            };
+    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+        const value = e ?? formValues[id];
+        let newErrors = { ...errors };
+        let error;
+        if (isRequired && !value) {
+            error = "This field is required";
+        } else if (validation === "e-mail" && !value.match(emailRegex)) {
+            error = "Invalid e-mail address";
+        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
+            error = "Invalid name";
+        } else if (validation === "custom" && !value.match(regex)) {
+            error = "Invalid input";
+        } else {
+            delete newErrors[id];
+            setErrors(newErrors);
+        }
+        setErrors({ ...errors, [id]: error });
+        return error;
+    };
 
-            const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-                const value = e ?? formValues[id];
-                let newErrors = { ...errors };
-                let error;
-                if (isRequired && !value) {
-                    error = "This field is required";
-                } else if (validation === "e-mail" && !value.match(emailRegex)) {
-                    error = "Invalid e-mail address";
-                } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-                    error = "Invalid name";
-                } else if (validation === "custom" && !value.match(regex)) {
-                    error = "Invalid input";
-                } else {
-                    delete newErrors[id];
-                    setErrors(newErrors);
-                }
-                setErrors({ ...errors, [id]: error });
-                return error;
-            };
-
-            return (
-                <div style={{ padding: "10px" }}>\n`, 0);
+    return (
+        <div style={{ padding: "10px" }}>\n`, 0);
     componentContent += fields;
 
     componentContent += fixIndentation(`
@@ -204,7 +221,7 @@ const generateForm = (jsonData: any): string => {
     );
 };
 
-export default ${name}; \n`, 0);
+export default ${operationNameCapitalized}; \n`, 0);
 
     return componentContent;
 };
@@ -234,7 +251,7 @@ const generateForms = () => {
                 // console.log(componentContent);
                 fs.writeFileSync(path.resolve(destination, `${jsonData.operationName}.tsx`), componentContent);
 
-                console.log('-----------------------------------');
+                console.log('---------------END-----------------');
             }
         }
     });

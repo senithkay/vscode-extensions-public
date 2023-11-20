@@ -29,7 +29,15 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(true);
     const [connectorList, setConnectorList] = useState<GetConnectorsResponse[]>([]);
     const [actions, setActions] = useState<any[]>([]);
-    const [form, setForm] = useState<any>();
+    const [connectorForm, setForm] = useState<any>();
+    const [mediatorForm, setMediatorForm] = useState<any>();
+    const mediators = [
+        {
+            title: "Throttle Mediator",
+            operationName: "throttle",
+            form: <Form nodePosition={props.nodePosition} documentUri={props.documentUri}></Form>,
+        }
+    ];
 
     useEffect(() => {
         setLoading(true);
@@ -48,6 +56,10 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const showConnectorForm = async (connectorSchema: any) => {
         setForm(connectorSchema);
+    };
+
+    const showMediatorForm = async (mediator: any) => {
+        setMediatorForm(mediator.form);
     };
 
     const ConnectorList = () => {
@@ -78,12 +90,28 @@ const SidePanelList = (props: SidePanelListProps) => {
             </>
     }
 
+    const MediatorList = () => {
+        return mediators.length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
+            <>
+                {mediators.map((action) => (
+                    <ButtonContainer key={action.title}>
+                        <Button key={action.operationName} appearance='secondary' sx={{ width: "100%" }} onClick={() => showMediatorForm(action)}>
+                            {action.title.charAt(0).toUpperCase() + action.title.slice(1)}
+                        </Button>
+                    </ButtonContainer>
+                ))}
+            </>
+    }
+
     return (
         isLoading ? <h1>Loading...</h1> :
             <div>
-                {connectorList && actions.length == 0 && <ConnectorList />}
-                {actions.length > 0 && !form && <ActionList />}
-                {form && <AddConnector formData={form} nodePosition={props.nodePosition} documentUri={props.documentUri} />}
+                {mediators.length > 0 && !mediatorForm && !connectorForm && <MediatorList />}
+                {connectorList && !mediatorForm && actions.length == 0 && <ConnectorList />}
+
+                {mediatorForm && <>{mediatorForm}</>}
+                {actions.length > 0 && !connectorForm && <ActionList />}
+                {connectorForm && <AddConnector formData={connectorForm} nodePosition={props.nodePosition} documentUri={props.documentUri} />}
             </div>
     );
 };
