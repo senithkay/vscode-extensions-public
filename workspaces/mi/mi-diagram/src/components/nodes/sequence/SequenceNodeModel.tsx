@@ -9,21 +9,12 @@
 
 import { DefaultPortModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel } from "../../base/base-node/base-node";
+import { Range } from '@wso2-enterprise/mi-core/src/types';
 
 export const SEQUENCE_NODE = "SequenceNode";
 
 export class SequenceNodeModel extends BaseNodeModel {
-    constructor(id: string, isInOutSequence: boolean) {
-        const range = {
-            start: {
-                line: 0,
-                character: 0
-            },
-            end: {
-                line: 0,
-                character: 0
-            }
-        }
+    constructor(id: string, range: Range, isInOutSequence: boolean) {
         super(SEQUENCE_NODE, id, range, null, isInOutSequence);
         this.addPort(new DefaultPortModel(false, PortModelAlignment.RIGHT));
     }

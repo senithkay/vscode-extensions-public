@@ -59,12 +59,18 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     }, []);
 
     function drawSequence(nodes: any[], invertDirection: boolean) {
-        let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, invertDirection);
-        const sourceNode = invertDirection ? nodes[nodes.length - 1] : canvasPortNode;
-        const targetNode = invertDirection ? canvasPortNode : nodes[0];
-        const canvasPortLink = createLinks(sourceNode, targetNode);
-        model.addAll(sourceNode, ...canvasPortLink, targetNode);
+        if (nodes.length > 0) {
+            const range = {
+                start: invertDirection ? nodes[nodes.length - 1].getRange().start : nodes[0].getRange().start,
+                end: invertDirection ? nodes[nodes.length - 1].getRange().start : nodes[0].getRange().start,
+            }
 
+            let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, range, invertDirection);
+            const sourceNode = invertDirection ? nodes[nodes.length - 1] : canvasPortNode;
+            const targetNode = invertDirection ? canvasPortNode : nodes[0];
+            const canvasPortLink = createLinks(sourceNode, targetNode);
+            model.addAll(sourceNode, ...canvasPortLink, targetNode);
+        }
         if (nodes.length > 1) {
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
