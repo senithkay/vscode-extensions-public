@@ -24,6 +24,8 @@ export const Container: React.FC<any> = styled.div`
     width: 100%; height: 100%;
     background-image: url('${background}');
     filter: invert(${isDarkMode() ? "1" : "0"});
+    background-color: var(--vscode-editor-background);
+    background-blend-mode: difference;
   }
   > * {
     height: 100%;

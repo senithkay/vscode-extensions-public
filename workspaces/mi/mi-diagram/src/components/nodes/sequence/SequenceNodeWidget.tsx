@@ -12,7 +12,6 @@ import { PortModelAlignment, PortWidget } from '@projectstorm/react-diagrams-cor
 import { BaseNodeProps } from '../../base/base-node/base-node';
 import { OFFSET } from '../../../constants';
 import { SequenceNodeModel } from './SequenceNodeModel';
-import { isDarkMode } from '../../../utils/Utils';
 
 interface SequenceNodeProps extends BaseNodeProps {
     side: "right" | "left"
@@ -35,7 +34,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
                 width: width,
                 height: height,
                 border: "2px solid gold",
-                background: isDarkMode() ? "#121212" : "#ffffff",
+                background: "var(--vscode-editor-background)",
                 borderRadius: props.side == "right" ? "0 25px 25px 0" : "25px 0 0 25px",
             }}></div>
             <PortWidget
