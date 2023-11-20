@@ -20,7 +20,8 @@ export function APICompartment(props: React.PropsWithChildren<Props>) {
             border: "1px",
             borderStyle: "solid",
             borderColor: "var(--vscode-panel-dropBorder)",
-            maxHeight: "100%"
+            maxHeight: "100%",
+            width: "fit-content",
         }}>
             <div
                 style={{

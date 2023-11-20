@@ -18,4 +18,10 @@ export const OFFSET = {
         X: 130,
         Y: 0,
     },
+    MARGIN: {
+        LEFT: 0,
+        RIGHT: 50,
+        TOP: 20,
+        BOTTOM: 20,
+    }
 };

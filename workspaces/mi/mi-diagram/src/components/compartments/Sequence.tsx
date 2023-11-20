@@ -33,6 +33,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     const [diagramEngine, setEngine] = useState<DiagramEngine>(generateEngine());
     const [model] = useState<DiagramModel>(new DiagramModel());
     const [isLoading, setLoading] = useState<boolean>(true);
+    const [canvasWidth, setCanvasWidth] = useState<number>(0);
 
     useEffect(() => {
         setLoading(true);
@@ -82,6 +83,9 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         let y = OFFSET.START.Y;
         let isSwitched = false;
         const nodes = diagramEngine.getModel().getNodes();
+        const inSeqNodes = nodes.filter((node: any) => !node.isInOutSequenceNode() && !(node instanceof SequenceNodeModel));
+        const outSeqNodes = nodes.filter((node: any) => node.isInOutSequenceNode() && !(node instanceof SequenceNodeModel));
+
         for (let i = 0; i < nodes.length; i++) {
             const node: any = nodes[i];
             const isInverted = node.isInOutSequenceNode();
@@ -106,6 +110,11 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                 y += OFFSET.BETWEEN.Y;
             }
         }
+        console.log(nodes)
+        const canvasWidthInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getX() + OFFSET.BETWEEN.X : 0;
+        const canvasWidthOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[outSeqNodes.length - 1].getX() + OFFSET.BETWEEN.X : 0;
+        const canvasWidth = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes);
+        setCanvasWidth(canvasWidth + OFFSET.MARGIN.RIGHT);
     };
 
     if (isLoading) {
@@ -114,6 +123,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         return <div style={{
             backgroundColor: 'var(--vscode-panel-background)',
             maxHeight: "100vh",
+            width: canvasWidth,
             overflow: "hidden",
         }}>
             <CanvasContainer>
