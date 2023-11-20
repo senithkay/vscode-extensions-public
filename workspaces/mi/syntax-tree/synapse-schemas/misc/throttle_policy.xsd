@@ -36,7 +36,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element type="xs:int" name="MaximumConcurrentAccess" />
-        <xs:element ref="wsp:Policy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" />
+        <xs:element ref="wsp:Policy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
