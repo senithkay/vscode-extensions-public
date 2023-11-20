@@ -395,9 +395,6 @@ console.log(`rpc-client.ts Done!`);
 
 // -------- RPC Client ts file End -------------------------------------->
 
-console.log(`All Done! Please register the relevant classes & export the rpc-types.ts`);
-
-
 
 // -------- Type Imports -------------------------------------->
 console.log(`Importing rpc-type...`);
@@ -502,6 +499,8 @@ webRPCRegisterClientSourceFile.saveSync();
 console.log(`Registering rpc-handler Done!`);
 
 // -------- RPC Client register End -------------------------------------->
+
+console.log(`All Done! Please check the relevant classes & export the rpc-types.ts`);
 
 
 // -------- Util Functions -------------------------------------->
