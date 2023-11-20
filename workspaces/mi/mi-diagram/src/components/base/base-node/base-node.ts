@@ -23,20 +23,35 @@ export interface BaseNodeProps extends NodeProps {
 export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     private readonly parentNode?: STNode;
     private readonly node?: STNode;
-    private readonly nodePosition: Range;
     private readonly documentUri: string;
     private readonly isInOutSequence: boolean;
+    private nodeRange: Range;
 
-    constructor(type: string, id: string, nodePosition: Range, documentUri: string, isInOutSequence: boolean, node?: STNode, parentNode?: STNode) {
+    constructor(type: string, id: string, documentUri: string, isInOutSequence: boolean, node?: STNode, parentNode?: STNode) {
         super({
             type: type,
             id: id
         });
+
         this.isInOutSequence = isInOutSequence;
-        this.node = node;
         this.parentNode = parentNode;
-        this.nodePosition = nodePosition;
         this.documentUri = documentUri;
+
+        if (node) {
+            this.node = node;
+            // TODO: Fix this
+            const nodeRange = {
+                start: {
+                    line: node.start,
+                    character: node.start
+                },
+                end: {
+                    line: node.end,
+                    character: node.end
+                }
+            }
+            this.nodeRange = nodeRange;
+        }
     }
 
     handleHover = (ports: PortModel[], task: string) => {
@@ -77,8 +92,12 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
         return this.node;
     }
 
-    getRange(): Range {
-        return this.nodePosition;
+    getNodeRange(): Range {
+        return this.nodeRange;
+    }
+
+    setNodeRange(range: Range) {
+        this.nodeRange = range;
     }
 
     isInOutSequenceNode(): boolean {

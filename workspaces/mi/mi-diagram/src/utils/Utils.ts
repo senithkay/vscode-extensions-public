@@ -11,13 +11,14 @@ import createEngine, { DiagramEngine, PortModelAlignment } from "@projectstorm/r
 import { MediatorLinkFactory } from "../components/link/MediatorLinkFactory";
 import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
 import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
-import { LogMediatorNodeFactory } from "../components/nodes/mediators/log/LogMediatorFactory";
+import { SimpleMediatorNodeFactory } from "../components/nodes/mediators/simpleMediator/SimpleMediatorFactory";
 import { InvisibleNodeFactory } from "../components/nodes/InvisibleNode/InvisibleNodeFactory";
 import { PlusNodeFactory } from "../components/nodes/plusNode/PlusNodeFactory";
 import { PlusNodeModel } from "../components/nodes/plusNode/PlusNodeModel";
 import { BaseNodeModel } from "../components/base/base-node/base-node";
 import { SequenceNodeFactory } from "../components/nodes/sequence/SequenceNodeFactory";
 import { SequenceNodeModel } from "../components/nodes/sequence/SequenceNodeModel";
+import { AdvancedMediatorNodeFactory } from "../components/nodes/mediators/advancedMediator/AdvancedMediatorFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -27,7 +28,8 @@ export function generateEngine(): DiagramEngine {
 
     engine.getLinkFactories().registerFactory(new MediatorLinkFactory());
     engine.getPortFactories().registerFactory(new MediatorPortFactory());
-    engine.getNodeFactories().registerFactory(new LogMediatorNodeFactory());
+    engine.getNodeFactories().registerFactory(new SimpleMediatorNodeFactory());
+    engine.getNodeFactories().registerFactory(new AdvancedMediatorNodeFactory());
     engine.getNodeFactories().registerFactory(new InvisibleNodeFactory());
     engine.getNodeFactories().registerFactory(new PlusNodeFactory());
     engine.getNodeFactories().registerFactory(new SequenceNodeFactory());
@@ -53,15 +55,16 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
         // TODO: Fix this
         const nodeRange = {
             start: {
-                line: sourceNode.getRange().end.line,
-                character: sourceNode.getRange().end.character
+                line: sourceNode.getNodeRange().end.line,
+                character: sourceNode.getNodeRange().end.character
             },
             end: {
-                line: targetNode.getRange().start.line,
-                character: targetNode.getRange().start.character
+                line: targetNode.getNodeRange().start.line,
+                character: targetNode.getNodeRange().start.character
             }
         }
-        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, nodeRange, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode());
+        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode());
+        plusNode.setNodeRange(nodeRange);
         const link = createLinks(sourceNode, plusNode, false, false);
         sourcePort = plusNode.getPort(`right-${plusNode.getID()}`);
         portsAndNodes.push(plusNode, ...link);

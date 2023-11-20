@@ -15,7 +15,8 @@ export const SEQUENCE_NODE = "SequenceNode";
 
 export class SequenceNodeModel extends BaseNodeModel {
     constructor(id: string, range: Range, isInOutSequence: boolean) {
-        super(SEQUENCE_NODE, id, range, null, isInOutSequence);
+        super(SEQUENCE_NODE, id, null, isInOutSequence);
+        this.setNodeRange(range);
         this.addPort(new DefaultPortModel(false, PortModelAlignment.RIGHT));
     }
 }

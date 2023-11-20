@@ -61,8 +61,8 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     function drawSequence(nodes: any[], invertDirection: boolean) {
         if (nodes.length > 0) {
             const range = {
-                start: invertDirection ? nodes[nodes.length - 1].getRange().start : nodes[0].getRange().start,
-                end: invertDirection ? nodes[nodes.length - 1].getRange().start : nodes[0].getRange().start,
+                start: invertDirection ? nodes[nodes.length - 1].getNodeRange().start : nodes[0].getNodeRange().start,
+                end: invertDirection ? nodes[nodes.length - 1].getNodeRange().start : nodes[0].getNodeRange().start,
             }
 
             let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, range, invertDirection);

@@ -10,22 +10,30 @@
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
-import { Log, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
-export const LOG_NODE = "LogNode";
+export const SIMPLE_NODE = "SimpleNode";
 
-export class LogMediatorNodeModel extends BaseNodeModel {
+interface SimpleMediatorNodeModelProps {
+    node: STNode;
+    name: string,
+    description: string,
+    documentUri: string;
+    isInOutSequence: boolean;
+    parentNode?: STNode;
+}
+export class SimpleMediatorNodeModel extends BaseNodeModel {
     readonly id: string;
     readonly mediatorName: string;
-    readonly level: string;
+    readonly mediatorDescription: string;
 
-    constructor(node: Log, range: Range, documentUri: string, isInOutSequence: boolean, parentNode?: STNode) {
+    constructor(props: SimpleMediatorNodeModelProps) {
+        const { node, documentUri, isInOutSequence, parentNode } = props;
         const id = `${node.tag}${node.start}${node.end}`;
-        super(LOG_NODE, id, range, documentUri, isInOutSequence, node, parentNode);
+        super(SIMPLE_NODE, id, documentUri, isInOutSequence, node, parentNode);
 
         this.id = id;
-        this.level = node.level as any;
+        this.mediatorDescription = props.description;
 
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.RIGHT));

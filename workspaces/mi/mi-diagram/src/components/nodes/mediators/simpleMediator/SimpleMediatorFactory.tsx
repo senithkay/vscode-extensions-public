@@ -7,21 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-// tslint:disable: no-implicit-dependencies jsx-no-multiline-js
 import React from "react";
 
 import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MediatorNodeWidget } from "./LogMediatorWidget";
-import { LOG_NODE, LogMediatorNodeModel } from "./LogMediatorModel";
+import { MediatorNodeWidget } from "./SimpleMediatorWidget";
+import { SIMPLE_NODE, SimpleMediatorNodeModel } from "./SimpleMediatorModel";
 
 interface GenerateReactWidgetProps {
-    model: LogMediatorNodeModel;
+    model: SimpleMediatorNodeModel;
 }
 
-export class LogMediatorNodeFactory extends AbstractReactFactory<LogMediatorNodeModel, DiagramEngine> {
+export class SimpleMediatorNodeFactory extends AbstractReactFactory<SimpleMediatorNodeModel, DiagramEngine> {
     constructor() {
-        super(LOG_NODE);
+        super(SIMPLE_NODE);
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
@@ -30,16 +29,17 @@ export class LogMediatorNodeFactory extends AbstractReactFactory<LogMediatorNode
             node={event.model}
             width={70}
             height={70}
-            level={event.model.level}
+            description={event.model.mediatorDescription}
         />;
     }
 
-    generateModel(event: { initialConfig: any }) {
-        return new LogMediatorNodeModel(
-            event.initialConfig.model.node,
-            event.initialConfig.model.nodePosition,
-            event.initialConfig.model.documentUri,
-            event.initialConfig.model.isInOutSequence,
-        );
+    generateModel(event: { initialConfig: GenerateReactWidgetProps }) {
+        return new SimpleMediatorNodeModel({
+            node: event.initialConfig.model.getNode(),
+            name: event.initialConfig.model.mediatorName,
+            description: event.initialConfig.model.mediatorDescription,
+            documentUri: event.initialConfig.model.getDocumentUri(),
+            isInOutSequence: event.initialConfig.model.isInOutSequenceNode(),
+        });
     }
 }

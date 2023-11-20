@@ -11,11 +11,11 @@ import React from 'react';
 import { PortWidget } from '@projectstorm/react-diagrams-core';
 import { BaseNodeProps } from '../../../base/base-node/base-node';
 
-export interface LogMediatorWidgetProps extends BaseNodeProps {
-    level: string;
+export interface SimpleMediatorWidgetProps extends BaseNodeProps {
+    description: string;
 }
 
-export function MediatorNodeWidget(props: LogMediatorWidgetProps) {
+export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     return (
         <>
             <svg
@@ -35,7 +35,7 @@ export function MediatorNodeWidget(props: LogMediatorWidgetProps) {
                     font-size="70px"
                     font-family="Arial, Helvetica, sans-serif"
                     font-weight="bold"
-                >LOG ({props.level})</text>
+                >LOG ({props.description})</text>
                 <g id="Group 1" transform="translate(10,-30)">
                     <rect
                         id="Rectangle 1"

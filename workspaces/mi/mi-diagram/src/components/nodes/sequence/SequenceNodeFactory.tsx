@@ -37,7 +37,7 @@ export class SequenceNodeFactory extends AbstractReactFactory<SequenceNodeModel,
     generateModel(event: { initialConfig: GenerateReactWidgetProps }) {
         return new SequenceNodeModel(
             event.initialConfig.model.getID(),
-            event.initialConfig.model.getRange(),
+            event.initialConfig.model.getNodeRange(),
             event.initialConfig.model.isInOutSequenceNode(),
         );
     }
