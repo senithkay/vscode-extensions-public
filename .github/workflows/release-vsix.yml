@@ -140,6 +140,7 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           apk: ${{ inputs.apk }}
+          apiChat: ${{ inputs.api-chat }}
 
   Notify:
     needs: [Release]
