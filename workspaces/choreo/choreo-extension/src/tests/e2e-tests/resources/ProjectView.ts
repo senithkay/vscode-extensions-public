@@ -25,9 +25,10 @@ export class ProjectView {
     static async deleteProjectIfAlreadyExists(projectName: string, projectsPath: string, gitProvider?: GitProvider) {
         console.log("Checking if project already exists before creating it");
         const updatedPath = join(projectsPath, "temp");
-        await new Workbench().executeCommand(OPEN_CHOREO_PROJECT);
         CommonUtils.removeDir(join(updatedPath, projectName));
         let projectExist = true;
+        await new Workbench().executeCommand(OPEN_CHOREO_PROJECT);
+        await CommonUtils.wait(5000);
 
         try {
             await CommonUtils.setQuickInputFieldValue({
@@ -54,7 +55,7 @@ export class ProjectView {
             await GitUtils.handleGitLogin(gitProvider);
             await CommonUtils.initializeVSCode();
             await CommonUtils.waitUntil(By.xpath('//a[@aria-label="Choreo"]'));
-            await CommonUtils.waitForIFrameCount(3);
+            await CommonUtils.waitForIFrameCount(2);
             await this.deleteCurrentlyOpenedProject();
         }
     }
@@ -76,12 +77,14 @@ export class ProjectView {
     /** Verify whether the component name is visible within the cell view */
     static async verifyComponentWithinCellView(componentName: string) {
         console.log("Verifying component is visible in the cell view");
-        await new Workbench().executeCommand(CELL_VIEW_COMMAND);
-        await CommonUtils.waitUntil(By.xpath('//a[contains(@class, "label-name") and text() = "Cell View"]'));
+        await CommonUtils.switchToIFrame("Project");
+        await CommonUtils.waitAndClick(By.xpath('//*[@title="Open Cell View"]'));
+        await CommonUtils.switchToDefaultFrame();
+        await CommonUtils.waitUntil(By.xpath('//a[contains(@class, "label-name") and text() = "Cell Diagram"]'));
         await CommonUtils.waitForIFrameCount(3);
-        await CommonUtils.switchToIFrame("Cell View");
+        await CommonUtils.switchToIFrame("Cell Diagram");
         await CommonUtils.waitUntil(
-            By.xpath(`//div[contains(@class, 'cell-diagram-container')]//*[text()='${componentName}']`),
+            By.xpath(`//div[@data-nodeid="componentNode|${componentName}"]`),
             30000
         );
         await CommonUtils.switchToDefaultFrame();

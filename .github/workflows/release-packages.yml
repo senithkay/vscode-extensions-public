@@ -51,6 +51,7 @@ jobs:
       enableCache: false
       ballerina: false
       choreo: false
+      apk: false
       version: ${{ inputs.version }}
 
   Release:
@@ -120,3 +121,4 @@ jobs:
           commonLibs: true
           choreo: true
           ballerina: true
+          apk: true

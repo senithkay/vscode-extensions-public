@@ -18,4 +18,40 @@ const ComponentStory = () => {
     );
 };
 
-storiesOf("Context Menu").add("Menu", () => <ComponentStory />);
+storiesOf("Context Menu").add("Horizontal Menu", () => <ComponentStory />);
+
+const verticalIconStyles = {
+    transform: "rotate(90deg)",
+    ":hover": {
+        backgroundColor: "var(--vscode-welcomePage-tileHoverBackground)",
+    }
+}
+
+const VericleMenu = () => {
+
+    return (
+        <ContextMenu iconSx={verticalIconStyles} menuItems={[{id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}}]}/>
+    );
+};
+
+storiesOf("Context Menu").add("Verticle Menu", () => <VericleMenu />);
+
+const rounderIconStyles = {
+    width: "30px",
+    height: "30px",
+    borderRadius: "50%",
+    transform: "rotate(90deg)",
+    border: "1px solid var(--vscode-dropdown-border)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center"
+}
+const VericleMenuWithCircularBorder = () => {
+
+    return (
+        <ContextMenu iconSx={rounderIconStyles} menuItems={[{id: "", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}}]}/>
+    );
+};
+
+storiesOf("Context Menu").add("Vericle Menu With Circular Border", () => <VericleMenuWithCircularBorder />);

@@ -134,6 +134,18 @@
                 "${workspaceFolder}/workspaces/api-chat/extension/dist/**/*.js"
             ],
             "preLaunchTask": "npm: watch-api-chat"
-        }
+        },
+        {
+			"name": "APK Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
+			],
+			"outFiles": [
+				"${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
+			],
+			"preLaunchTask": "npm: watch-apk"
+		},
     ]
 }

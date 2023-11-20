@@ -9,18 +9,6 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { Colors } from "../../resources";
-
-const Container = styled.div`
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
-    border: 1px solid ${Colors.PRIMARY_SELECTED};
-    padding: 10px;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    max-width: 280px;
-    gap: 8px;
-`;
 
 const Section = styled.div`
     display: flex;
@@ -44,10 +32,8 @@ export function TooltipLabel(props: TooltipLabelProps) {
     const { tooltip } = props;
 
     return (
-        <Container>
-            <Section>
-                <Row>{tooltip}</Row>
-            </Section>
-        </Container>
+        <Section>
+            <Row>{tooltip}</Row>
+        </Section>
     );
 }

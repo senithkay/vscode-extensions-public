@@ -12,6 +12,7 @@ on:
           - 'ballerina'
           - 'choreo'
           - 'api-chat'
+          - 'apk'
       isPreRelease:
         required: true
         type: boolean 

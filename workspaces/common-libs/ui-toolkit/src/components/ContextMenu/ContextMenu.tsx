@@ -18,22 +18,21 @@ import styled from "@emotion/styled";
 import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
 
-
-export interface MenuItem {
+interface Item {
     id: number | string;
     label: React.ReactNode;
     onClick: () => void;
     disabled?: boolean;
 }
 export interface ContextMenuProps {
-    menuItems?: MenuItem[];
+    menuItems?: Item[];
     isOpen?: boolean;
     isLoading?: boolean;
     menuId?: string;
     children?: React.ReactNode;
     icon?: ReactNode;
     sx?: any;
-    style?: any;
+    iconSx?: any;
 }
 
 interface ContainerProps {
@@ -57,6 +56,10 @@ const ExpandedMenu = styled.div<ContainerProps>`
     ${(props: ContextMenuProps) => props.sx};
 `;
 
+const IconWrapper = styled.div<ContainerProps>`
+    ${(props: ContextMenuProps) => props.sx};
+`;
+
 const SmallProgressRing = styled(VSCodeProgressRing)`
     height: calc(var(--design-unit) * 3px);
     width: calc(var(--design-unit) * 3px);
@@ -71,7 +74,7 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { isLoading, isOpen, menuId, sx, menuItems, icon, style } = props;
+    const { isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -89,9 +92,15 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
             {isLoading ? (
                 <SmallProgressRing />
             ) : (
-                <VSCodeButton style={style} appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
-                    {icon ? icon : <Codicon name="ellipsis" onClick={() => { }} />}
-                </VSCodeButton>
+                iconSx ? (
+                    <IconWrapper onClick={handleClick} sx={iconSx} id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                        {icon ? icon : <Codicon name="ellipsis"/>}
+                    </IconWrapper>
+                ) : (
+                    <VSCodeButton appearance="icon" onClick={handleClick} title="More Actions" id={`component-list-menu-${menuId ? menuId : "btn"}`}>
+                        {icon ? icon : <Codicon name="ellipsis"/>}
+                    </VSCodeButton>
+                )
             )}
 
             {isMenuOpen && (
