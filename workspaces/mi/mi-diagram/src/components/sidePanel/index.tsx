@@ -35,7 +35,7 @@ const SidePanelList = (props: SidePanelListProps) => {
         {
             title: "Throttle Mediator",
             operationName: "throttle",
-            form: <Form nodePosition={props.nodePosition} documentUri={props.documentUri}></Form>,
+            // form: <Form nodePosition={props.nodePosition} documentUri={props.documentUri}></Form>,
         }
     ];
 
