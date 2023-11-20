@@ -21,7 +21,7 @@ import * as path from 'path';
 import {
     LanguageClientOptions
 } from 'vscode-languageclient';
-import { ServerOptions } from "vscode-languageclient/node";
+import { ServerOptions } from "vscode-languageclient";
 import {  DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 
 import { activateTagClosing, AutoCloseResult } from './tagClosing';

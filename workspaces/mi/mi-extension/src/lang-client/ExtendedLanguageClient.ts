@@ -9,7 +9,7 @@
 
 import { GetSyntaxTreeRequest } from "@wso2-enterprise/mi-core";
 import { Position, Uri, workspace } from "vscode";
-import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
+import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient";
 
 export interface GetSyntaxTreeParams {
     documentIdentifier: {
