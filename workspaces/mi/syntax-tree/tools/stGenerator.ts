@@ -8,6 +8,7 @@
  */
 
 import path = require("path");
+import { LICENSE_HEADER } from "./commons";
 
 const fs = require('fs');
 
@@ -221,9 +222,12 @@ export function generateInterfaces(language: Language) {
     }
     visitorStr += `\n}\n`;
 
-    fs.writeFileSync(path.join(__dirname, `../../generated/syntax-tree-interfaces.${language}`), `${stInterfacesStr}\n${enumStr}`);
-    fs.writeFileSync(path.join(__dirname, `../../generated/base-visitor.${language}`), `${visitorStr}`);
-    console.log("Generated syntax-tree-interfaces.ts");
+    const visitorPath = path.join(__dirname, `../../generated/base-visitor.${language}`);
+    const stInterfacesPath = path.join(__dirname, `../../generated/syntax-tree-interfaces.${language}`);
+    fs.writeFileSync(stInterfacesPath, `${LICENSE_HEADER}${stInterfacesStr}\n${enumStr}`);
+    fs.writeFileSync(visitorPath, `${LICENSE_HEADER}${visitorStr}`);
+    console.log(`Generated ${visitorPath}`);
+    console.log(`Generated ${stInterfacesPath}`);
 }
 
 function parseAttributeType(attributeName: string, attributeType: AttributeType, enums: Elements, str: string, indentation: number, language: Language): string {

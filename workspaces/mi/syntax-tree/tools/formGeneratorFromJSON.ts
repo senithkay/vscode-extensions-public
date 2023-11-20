@@ -9,6 +9,7 @@
 
 import path = require("path");
 import * as fs from "fs";
+import { LICENSE_HEADER } from "./commons";
 
 function capitalizeFirstLetter(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -27,9 +28,8 @@ function fixIndentation(str: string, parentIndent: number) {
     }).join('\n');
 }
 
-const generateForm = (jsonFilePath: string, tsFilePath: string) => {
-    const jsonData = JSON.parse(fs.readFileSync(path.resolve(jsonFilePath), 'utf-8'));
-    const name = `${capitalizeFirstLetter(jsonData.connectorName)}Form`;
+const generateForm = (jsonData: any): string => {
+    const name = `${capitalizeFirstLetter(jsonData.operationName)}Form`;
 
     let componentContent = '';
     let formValidators = '\n';
@@ -42,7 +42,7 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
                 const inputName = parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_');
                 const isRequired = required == 'true';
 
-                const validator = `"${inputName}": (e?: any) => validateField("${inputName}", e ?? (formValues as any)["${inputName}"], ${isRequired}, ${validation ? `"${validation}"` : validation}, ${validationRegEx ? `"${validationRegEx}"` : validationRegEx}),\n`;
+                const validator = `"${inputName}": (e?: any) => validateField("${inputName}", e, ${isRequired} ${validation ? `, "${validation}"` : ""} ${validationRegEx ? `, "${validationRegEx}"` : ""}),\n`;
 
                 if (inputType === 'stringOrExpression' || inputType === 'string') {
                     formValidators += validator;
@@ -53,14 +53,14 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
                             label="${displayName}"
                             size={50}
                             placeholder="${helpTip}"
-                            value={(formValues as any)["${inputName}"]}
+                            value={formValues["${inputName}"]}
                             onChange={(e: any) => {
                                 setFormValues({ ...formValues, "${inputName}": e });
                                 formValidators["${inputName}"](e);
                             }}
                             required={${isRequired}}
                         />
-                        {(errors as any)["${inputName}"] && <Error>{(errors as any)["${inputName}"]}</Error>}\n`, indentation);
+                        {errors["${inputName}"] && <Error>{errors["${inputName}"]}</Error>}\n`, indentation);
                 } else if (inputType === 'connection') {
                     formValidators += validator;
 
@@ -69,7 +69,7 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
                     <label>${displayName}</label> ${isRequired ? `<RequiredFormInput />` : ''}
                     <VSCodeDropdown
                         label="${displayName}"
-                        value={(formValues as any)["${inputName}"]}
+                        value={formValues["${inputName}"]}
                         autoWidth={true}
                         onChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e.target.value });
@@ -89,7 +89,7 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
 
                     dropdownStr += `
                     </VSCodeDropdown>
-                    {(errors as any)["${inputName}"] && <Error>{(errors as any)["${inputName}"]}</Error>}\n`;
+                    {errors["${inputName}"] && <Error>{errors["${inputName}"]}</Error>}\n`;
                     fields +=
                         fixIndentation(dropdownStr, indentation);
                 } else if (inputType === 'comboOrExpression') {
@@ -98,7 +98,7 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
                     const comboValues = element.value.comboValues;
                     let comboStr = `
                         <label>${displayName}</label> ${isRequired ? `<RequiredFormInput />` : ''}
-                        <AutoComplete items={[${comboValues.map((value: string) => `"${value}"`)}]} selectedItem={(formValues as any)["${inputName}"]} onChange={(e: any) => {
+                        <AutoComplete items={[${comboValues.map((value: string) => `"${value}"`)}]} selectedItem={formValues["${inputName}"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e });
                             formValidators["${inputName}"](e);
                         }} />`;
@@ -108,11 +108,11 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
             } else if (element.type === 'attributeGroup') {
                 fields +=
                     fixIndentation(`
-                    <Card>    
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>   
                         <h3>${element.value.groupName}</h3>\n`, indentation);
                 generateFormItems(element.value.elements, indentation + 4, `${element.value.groupName.trim().replace(/\s/g, '_')}.`);
                 fields += fixIndentation(`
-                </Card>`, indentation);
+                </ComponentCard>`, indentation);
             }
         });
     };
@@ -121,23 +121,20 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
 
     componentContent +=
         fixIndentation(`
+        ${LICENSE_HEADER}
+
         import React, { useState } from 'react';
-        import { AutoComplete, Button, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+        import { AutoComplete, Button, ComponentCard, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
         import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
         import styled from '@emotion/styled';
 
-        interface CardContainerProps {
-            sx?: any;
-        }
-
-        const Card = styled.div<CardContainerProps>\`
-            margin: 5px 0;
-            display: block;
-            padding: 0 15px 15px 15px;
-            width: auto;
-            border: 1px solid \${colors.vscodeEditorWidgetBorder};
-            \${(props: CardContainerProps) => props.sx};
-        \`;
+        const cardStyle = { 
+            display: "block", 
+            margin: "5px 0",
+            padding: "0 15px 15px 15px",
+            width: "auto",
+            cursor: "auto" 
+        };
 
         const Error = styled.span\`
             color: var(--vscode-errorForeground);
@@ -148,11 +145,11 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
         const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
         const ${name} = () => {
-            const [formValues, setFormValues] = useState({});
-            const [errors, setErrors] = useState({});
+            const [formValues, setFormValues] = useState({} as any);
+            const [errors, setErrors] = useState({} as any);
 
             const onClick = () => {
-                let newErrors: any = {};
+                let newErrors = {} as any;
                 Object.keys(formValidators).forEach((key) => {
                     const error = formValidators[key]();
                     if (error) {
@@ -169,7 +166,8 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
             const formValidators: { [key: string]: (e?: any) => string | undefined } = {${fixIndentation(formValidators, 16)}
             };
 
-            const validateField = (id: string, value: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+            const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+                const value = e ?? formValues[id];
                 let newErrors = { ...errors };
                 let error;
                 if (isRequired && !value) {
@@ -181,7 +179,7 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
                 } else if (validation === "custom" && !value.match(regex)) {
                     error = "Invalid input";
                 } else {
-                    delete (newErrors as any)[id];
+                    delete newErrors[id];
                     setErrors(newErrors);
                 }
                 setErrors({ ...errors, [id]: error });
@@ -208,8 +206,38 @@ const generateForm = (jsonFilePath: string, tsFilePath: string) => {
 
 export default ${name}; \n`, 0);
 
-    // fs.writeFileSync(path.resolve(tsFilePath), componentContent);
-    console.log(componentContent);
+    return componentContent;
 };
 
-generateForm(path.join(__dirname, '../../generated/test.json'), 'path/to/ts/file');
+const generateForms = () => {
+    const s = process.argv.find(arg => arg.startsWith('-s='));
+    const d = process.argv.find(arg => arg.startsWith('-d='));
+
+    if (!s || !d) {
+        console.error('Please provide source and destination paths');
+        return;
+    }
+
+    const source = s.split('=')[1];
+    const destination = d.split('=')[1];
+
+    const jsonFiles = fs.readdirSync(path.resolve(source));
+    jsonFiles.forEach((file) => {
+        if (file.endsWith('.json')) {
+            const fileContent = fs.readFileSync(path.resolve(source, file), 'utf8');
+            const jsonData = JSON.parse(fileContent);
+            if (jsonData.operationName) {
+                console.log(`Generating form for ${file}`);
+                console.log('-----------------------------------');
+
+                const componentContent = generateForm(jsonData);
+                // console.log(componentContent);
+                fs.writeFileSync(path.resolve(destination, `${jsonData.operationName}.tsx`), componentContent);
+
+                console.log('-----------------------------------');
+            }
+        }
+    });
+}
+
+generateForms();
