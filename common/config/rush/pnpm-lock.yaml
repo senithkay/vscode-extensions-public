@@ -5,6 +5,67 @@ importers:
   .:
     specifiers: {}
 
+  ../../workspaces/apk/apk-extension:
+    specifiers:
+      '@types/glob': ^8.0.0
+      '@types/mocha': ^10.0.1
+      '@types/node': ^18.11.19
+      '@types/vscode': ^1.63.0
+      '@typescript-eslint/eslint-plugin': ~5.48.2
+      '@typescript-eslint/parser': ~5.48.2
+      '@vscode/test-electron': ^2.3.2
+      eslint: ^8.32.0
+      glob: ^8.1.0
+      mocha: ^10.2.0
+      typescript: ^4.9.4
+      vsce: ^2.15.0
+    devDependencies:
+      '@types/glob': 8.1.0
+      '@types/mocha': 10.0.4
+      '@types/node': 18.18.10
+      '@types/vscode': 1.84.1
+      '@typescript-eslint/eslint-plugin': 5.48.2_4sbn74firui7je3hbwbzdheutq
+      '@typescript-eslint/parser': 5.48.2_bdjfo4nt5w6vivygtrkrhl46dy
+      '@vscode/test-electron': 2.3.6
+      eslint: 8.53.0
+      glob: 8.1.0
+      mocha: 10.2.0
+      typescript: 4.9.5
+      vsce: 2.15.0
+
+  ../../workspaces/ballerina/ballerina-core:
+    specifiers:
+      '@types/vscode': ^1.83.1
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@vitejs/plugin-react': ^4.1.0
+      '@wso2-enterprise/ballerina-languageclient': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      typescript: ^5.2.2
+      vite: ^4.5.0
+      vscode-languageserver-protocol: ^3.17.5
+      vscode-messenger-common: ^0.4.5
+    dependencies:
+      '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
+      '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      vscode-languageserver-protocol: 3.17.5
+      vscode-messenger-common: 0.4.5
+    devDependencies:
+      '@types/vscode': 1.84.1
+      '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
+      '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
+      '@vitejs/plugin-react': 4.1.1_vite@4.5.0
+      copyfiles: 2.4.1
+      eslint: 8.53.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
+      eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
+      typescript: 5.2.2
+      vite: 4.5.0
+
   ../../workspaces/ballerina/ballerina-extension:
     specifiers:
       '@sentry/webpack-plugin': ^1.20.1
@@ -9831,12 +9892,6 @@ packages:
 
   /@types/retry/0.12.0:
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
-
-  /@types/rimraf/2.0.5:
-    resolution: {integrity: sha512-YyP+VfeaqAyFmXoTh3HChxOQMyjByRMsHU7kc5KOJkSlXudhMhQIALbYV7rHh/l8d2lX3VUQzprrcAgWdRuU8g==}
-    dependencies:
-      '@types/glob': 8.1.0
-      '@types/node': 18.17.14
     dev: true
 
   /@types/scheduler/0.16.6:
@@ -9978,7 +10033,7 @@ packages:
   /@types/ws/8.5.9:
     resolution: {integrity: sha512-jbdrY0a8lxfdTp/+r7Z4CkycbOFN8WX+IOchLJr3juT/xzbJ8URyTVSJ/hvNdadTgM1mnedb47n+Y31GsFnQlg==}
     dependencies:
-      '@types/node': 18.17.14
+      '@types/node': 20.9.0
 
   /@types/yargs-parser/21.0.3:
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -33897,7 +33952,7 @@ packages:
     resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
     engines: {node: '>=4.0.0'}
     dependencies:
-      sax: 1.2.4
+      sax: 1.3.0
       xmlbuilder: 11.0.1
     dev: true
 
