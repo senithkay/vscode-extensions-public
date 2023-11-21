@@ -11,6 +11,7 @@ on:
         options:
           - 'ballerina'
           - 'choreo' 
+          - 'apk'
       isPreRelease:
         required: true
         type: boolean 

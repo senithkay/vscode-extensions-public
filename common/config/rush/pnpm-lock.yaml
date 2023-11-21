@@ -5,6 +5,34 @@ importers:
   .:
     specifiers: {}
 
+  ../../workspaces/apk/apk-extension:
+    specifiers:
+      '@types/glob': ^8.0.0
+      '@types/mocha': ^10.0.1
+      '@types/node': ^18.11.19
+      '@types/vscode': ^1.63.0
+      '@typescript-eslint/eslint-plugin': ~5.48.2
+      '@typescript-eslint/parser': ~5.48.2
+      '@vscode/test-electron': ^2.3.2
+      eslint: ^8.32.0
+      glob: ^8.1.0
+      mocha: ^10.2.0
+      typescript: ^4.9.4
+      vsce: ^2.15.0
+    devDependencies:
+      '@types/glob': 8.1.0
+      '@types/mocha': 10.0.4
+      '@types/node': 18.18.10
+      '@types/vscode': 1.84.1
+      '@typescript-eslint/eslint-plugin': 5.48.2_4sbn74firui7je3hbwbzdheutq
+      '@typescript-eslint/parser': 5.48.2_bdjfo4nt5w6vivygtrkrhl46dy
+      '@vscode/test-electron': 2.3.6
+      eslint: 8.53.0
+      glob: 8.1.0
+      mocha: 10.2.0
+      typescript: 4.9.5
+      vsce: 2.15.0
+
   ../../workspaces/ballerina/ballerina-core:
     specifiers:
       '@types/vscode': ^1.83.1
@@ -10005,7 +10033,7 @@ packages:
   /@types/ws/8.5.9:
     resolution: {integrity: sha512-jbdrY0a8lxfdTp/+r7Z4CkycbOFN8WX+IOchLJr3juT/xzbJ8URyTVSJ/hvNdadTgM1mnedb47n+Y31GsFnQlg==}
     dependencies:
-      '@types/node': 18.18.9
+      '@types/node': 20.9.0
 
   /@types/yargs-parser/21.0.3:
     resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
@@ -32426,6 +32454,34 @@ packages:
     resolution: {integrity: sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==}
     dev: true
 
+  /vsce/2.15.0:
+    resolution: {integrity: sha512-P8E9LAZvBCQnoGoizw65JfGvyMqNGlHdlUXD1VAuxtvYAaHBKLBdKPnpy60XKVDAkQCfmMu53g+gq9FM+ydepw==}
+    engines: {node: '>= 14'}
+    deprecated: vsce has been renamed to @vscode/vsce. Install using @vscode/vsce instead.
+    hasBin: true
+    dependencies:
+      azure-devops-node-api: 11.2.0
+      chalk: 2.4.2
+      cheerio: 1.0.0-rc.12
+      commander: 6.2.1
+      glob: 7.2.3
+      hosted-git-info: 4.1.0
+      keytar: 7.9.0
+      leven: 3.1.0
+      markdown-it: 12.3.2
+      mime: 1.6.0
+      minimatch: 3.1.2
+      parse-semver: 1.1.1
+      read: 1.0.7
+      semver: 5.7.2
+      tmp: 0.2.1
+      typed-rest-client: 1.8.11
+      url-join: 4.0.1
+      xml2js: 0.4.23
+      yauzl: 2.10.0
+      yazl: 2.5.1
+    dev: true
+
   /vscode-debugadapter-testsupport/1.51.0:
     resolution: {integrity: sha512-rb8tfn7J3kxLi1rRhEyG5ggGkFcJH2WrYYrq6Vb1tDAcHoFXF580M1dAA2jPOrc0I14GuWxMnndvfGkfG10VxA==}
     deprecated: This package has been renamed to @vscode/debugadapter-testsupport, please update to the new name
@@ -33890,6 +33946,14 @@ packages:
 
   /xml-name-validator/3.0.0:
     resolution: {integrity: sha512-A5CUptxDsvxKJEU3yO6DuWBSJz/qizqzJKOMIfUJHETbBw/sFaDxgd6fxm1ewUaM0jZ444Fc5vC5ROYurg/4Pw==}
+    dev: true
+
+  /xml2js/0.4.23:
+    resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
+    engines: {node: '>=4.0.0'}
+    dependencies:
+      sax: 1.3.0
+      xmlbuilder: 11.0.1
     dev: true
 
   /xml2js/0.5.0:
