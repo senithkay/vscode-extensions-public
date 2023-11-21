@@ -12,7 +12,7 @@ import { createContext, useContext } from "react";
 import { BallerinaRpcClient } from "../BallerinaRpcClient";
 
 
-type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported";
+type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner";
 export interface ViewLocation {
   view?: Views;
   location?: Location;

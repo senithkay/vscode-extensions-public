@@ -23,6 +23,11 @@ export function activateSubscriptions(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
+        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_SERVICE_DESIGNER_VIEW, () => {
+            openView({view: 'ServiceDesigner'});
+        })
+    );
+    context.subscriptions.push(
         vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, () => {
             openView({ view: 'ER'});
         })

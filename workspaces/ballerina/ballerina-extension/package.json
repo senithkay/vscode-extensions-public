@@ -428,6 +428,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.view.serviceDesigner",
+                "title": "Service Designer View",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.view.cellView",
                 "title": "Cell View",
                 "category": "Ballerina"

@@ -515,6 +515,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/service-designer-view",
+      "projectFolder": "workspaces/ballerina/service-designer-view",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/ballerina-low-code-edtior-commons",
       "projectFolder": "workspaces/ballerina/low-code-editor-commons",
       "versionPolicyName": "ballerina-extension"

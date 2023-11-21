@@ -8,6 +8,7 @@
  */
 
 import { Overview } from "@wso2-enterprise/overview-view";
+import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
 import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
@@ -29,7 +30,9 @@ export function Webview() {
     }
     return (
         <>
+            <h2>Hello Nav</h2>
             {viewLocation.view === "Overview" && <Overview />}
+            {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
             {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
         </>
     );

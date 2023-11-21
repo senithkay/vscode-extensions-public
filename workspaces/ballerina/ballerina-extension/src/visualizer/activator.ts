@@ -7,7 +7,7 @@ import { createMachine, assign, interpret } from 'xstate';
 import { WebViewMethod, WebViewRPCHandler, getCommonWebViewOptions, getOutputChannel } from '../utils';
 import { activateBallerina } from '../extension';
 import { EditLayerRPC, getComponentModel } from '../project-design-diagrams/utils';
-import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { VisualizerContext } from "@wso2-enterprise/ballerina-core";
 import { RPCLayer } from './webRPCRegister';
 import { render } from './renderer';
 // import { messenger } from './webRPCRegister';
@@ -18,30 +18,6 @@ let langClient: any;
 let vsContext: ExtensionContext;
 let balExtContext: BallerinaExtension;
 
-type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported";
-type Model = any;
-
-// webview Name for packed js file
-export type WebViews = "ballerinaDiagram" | "architectureView" | "persistERDiagram";
-
-
-interface VisualizerContext {
-    // Currently active view location in source
-    view?: Views;
-    location?: Location;
-    model?: Model;
-}
-
-interface OpenViewEvent {
-    type: "openView";
-    viewLocation?: Location | Views;
-}
-
-interface ViewLocation {
-    view?: Views;
-    location?: Location;
-}
-
 interface RenderWebViewEvent {
     type: "renderWebView";
 }
@@ -49,7 +25,7 @@ interface RenderWebViewEvent {
 type Event =
     | {
         type: "OPEN_VIEW";
-        viewLocation?: ViewLocation;
+        viewLocation?: VisualizerContext;
     }
     | {
         type: "RENDER_WEB_VIEW"
@@ -241,7 +217,7 @@ export function getContext() {
     return vsContext;
 }
 
-export function openView(viewLocation: ViewLocation) {
+export function openView(viewLocation: VisualizerContext) {
     service.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
 
 }
