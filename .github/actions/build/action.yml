@@ -20,7 +20,12 @@ inputs:
     description: Update API Chat extension version
     type: boolean
     required: false
-    default: false        
+    default: false   
+  apk:
+    description: Update APK extension version
+    type: boolean
+    required: false
+    default: false       
   version:
     default: 'N/A'
     type: string
@@ -88,6 +93,14 @@ runs:
       uses: ./.github/actions/updateVersion
       with:
         path: 'api-chat'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+    
+    - name: Update version - APK
+      if: ${{ inputs.apk == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'apk/apk-extension'
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 

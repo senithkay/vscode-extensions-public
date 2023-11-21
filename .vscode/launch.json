@@ -118,6 +118,18 @@
 			],
 			"console": "integratedTerminal",
 			"preLaunchTask": "compile:choreo-tests"
-		}
+		},
+        {
+			"name": "APK Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
+			],
+			"outFiles": [
+				"${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
+			],
+			"preLaunchTask": "npm: watch-apk"
+		},
     ]
 }

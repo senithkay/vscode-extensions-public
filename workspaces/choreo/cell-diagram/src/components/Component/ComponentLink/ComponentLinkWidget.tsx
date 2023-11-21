@@ -11,13 +11,35 @@ import React, { useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentLinkModel } from "./ComponentLinkModel";
 import { COMPONENT_LINK, Colors } from "../../../resources";
-import { Popover } from "@mui/material";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 
 interface WidgetProps {
     engine: DiagramEngine;
     link: ComponentLinkModel;
+}
+
+const tooltipPopOverStyle = {
+    backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
+    border: `1px solid ${Colors.PRIMARY_SELECTED}`,
+    padding: "10px",
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "280px",
+    gap: "8px",
+    pointerEvents: "none"
+}
+
+const observabilityPopOverStyle = {
+    backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
+    border: `1px solid ${Colors.PRIMARY_SELECTED}`,
+    padding: "10px",
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "column",
+    pointerEvents: "none"
 }
 
 export function ComponentLinkWidget(props: WidgetProps) {
@@ -57,10 +79,6 @@ export function ComponentLinkWidget(props: WidgetProps) {
     const handleMouseLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
         unselectPath();
-        handlePopoverClose();
-    };
-
-    const handlePopoverClose = () => {
         setAnchorEl(null);
     };
 
@@ -82,18 +100,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
                 id={link.getID()}
                 open={open}
                 anchorEl={anchorEl}
-                onClose={handlePopoverClose}
-                anchorOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                transformOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                sx={{
-                    pointerEvents: "none",
-                }}
+                sx={(link.observations?.length > 0 && !link.tooltip) ? observabilityPopOverStyle : tooltipPopOverStyle}
             >
                 {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
                 {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}

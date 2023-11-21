@@ -23,6 +23,10 @@ inputs:
     description: 'Is Ballerina'    
     type: boolean
     default: false
+  apk:
+    description: 'Is APK'
+    type: boolean
+    default: false
   commonLibs:
     description: 'Is Common Lib'    
     type: boolean
@@ -45,6 +49,11 @@ runs:
         if: ${{ inputs.choreo == 'true' }}
         shell: bash
         run: git add workspaces/choreo/*/*.json
+
+      - name: Add APK git changes
+        if: ${{ inputs.apk == 'true' }}
+        shell: bash
+        run: git add workspaces/apk/*/*.json
 
       - name: Add common lib git changes
         if: ${{ inputs.commonLibs == 'true' }}
