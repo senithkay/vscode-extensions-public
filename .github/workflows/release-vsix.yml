@@ -16,6 +16,11 @@ on:
         type: boolean
         required: true
         default: false
+      apk:
+        description: Release APK extension
+        type: boolean
+        required: true
+        default: false
       version:
         type: choice
         description: 'Enter the version type'
@@ -36,6 +41,7 @@ jobs:
       enableCache: false
       ballerina: ${{ inputs.ballerina }}
       choreo: ${{ inputs.choreo }}
+      apk: ${{ inputs.apk }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
 
@@ -104,6 +110,15 @@ jobs:
           token: ${{ secrets.PUBLISH_PAT }}
           threadId: ${{ github.run_id }}
 
+      - name: Create a release in wso2/apk repo
+        if: ${{ github.event.inputs.apk == 'true' }}
+        uses: ./.github/actions/release
+        with:
+          repo: wso2/apk
+          name: apk
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
+
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:
@@ -114,6 +129,7 @@ jobs:
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
+          apk: ${{ inputs.apk }}
 
   Notify:
     needs: [Release]
