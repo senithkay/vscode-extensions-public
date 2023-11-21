@@ -40,10 +40,11 @@ import {
     ConnectionMetadata,
     ConnectionType,
     ConnectorMetadata,
-    NodesAndLinks,
+    DiagramData,
     Project,
     ComponentMetadata,
     Observations,
+    Gateways,
 } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getNodePortId, getCellPortMetadata, getCellLinkName } from "../components/Cell/cell-util";
@@ -95,18 +96,19 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-export function getNodesNLinks(project: Project): NodesAndLinks {
+export function getDiagramDataFromProject(project: Project): DiagramData {
     const componentNodes: Map<string, CommonModel> = generateComponentNodes(project);
     const connectorNodes: Map<string, ConnectionModel> = generateConnectorNodes(project);
     const connectionNodes: Map<string, ConnectionModel> = generateConnectionNodes(project);
     const externalNodes: Map<string, ExternalModel> = generateExternalNodes();
     const emptyNodes: Map<string, EmptyModel> = generateEmptyNodes(project.name, [...connectionNodes.values(), ...connectorNodes.values()]);
+    const gateways = getCellGateways(project);
 
     const componentLinks: Map<string, ComponentLinkModel> = generateComponentLinks(project, componentNodes);
     const cellLinks: Map<string, ComponentLinkModel> = generateCellLinks(project, emptyNodes, componentNodes);
     const connectorLinks: Map<string, ExternalLinkModel> = generateConnectorLinks(emptyNodes, connectorNodes);
     const connectionLinks: Map<string, ExternalLinkModel> = generateConnectionLinks(emptyNodes, connectionNodes);
-    const externalLinks: Map<string, ExternalLinkModel> = generateExternalLinks(emptyNodes, externalNodes);
+    const externalLinks: Map<string, ExternalLinkModel> = generateExternalLinks(emptyNodes, externalNodes, gateways);
 
     return {
         nodes: {
@@ -123,12 +125,13 @@ export function getNodesNLinks(project: Project): NodesAndLinks {
             connectionLinks,
             externalLinks,
         },
+        gateways,
     };
 }
 
 // Cell utils
 
-export function getComponentDiagramWidth(models: NodesAndLinks): number {
+export function getComponentDiagramWidth(models: DiagramData): number {
     const tempModel = new DiagramModel();
     tempModel.addAll(
         ...models.nodes.componentNodes.values(),
@@ -442,6 +445,30 @@ function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[
     return nodes;
 }
 
+function getCellGateways(project: Project): Gateways {
+    const gateways = {
+        internet: false,
+        intranet: false,
+    };
+
+    project.components?.forEach((component, _key) => {
+        for (const serviceId in component.services) {
+            if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
+                const service = component.services[serviceId];
+                // add platform connections
+                if (service.deploymentMetadata?.gateways.internet.isExposed) {
+                    gateways.internet = true;
+                }
+                if (service.deploymentMetadata?.gateways.intranet.isExposed) {
+                    gateways.intranet = true;
+                }
+            }
+        }
+    });
+
+    return gateways;
+}
+
 // Links generation utils
 
 function generateComponentLinks(project: Project, nodes: Map<string, CommonModel>): Map<string, ComponentLinkModel> {
@@ -679,7 +706,11 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
     return links;
 }
 
-function generateExternalLinks(emptyNodes: Map<string, EmptyModel>, externalNodes: Map<string, ExternalModel>): Map<string, ExternalLinkModel> {
+function generateExternalLinks(
+    emptyNodes: Map<string, EmptyModel>,
+    externalNodes: Map<string, ExternalModel>,
+    gateways: Gateways
+): Map<string, ExternalLinkModel> {
     const links: Map<string, ExternalLinkModel> = new Map();
     // East bound external node link
     const eastBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.EastBound));
@@ -691,7 +722,7 @@ function generateExternalLinks(emptyNodes: Map<string, EmptyModel>, externalNode
     }
     // North bound external node link
     const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.NorthBound));
-    if (northBoundEmptyNode) {
+    if (northBoundEmptyNode && gateways.internet) {
         const northBoundLink = createExternalLink(northBoundEmptyNode, externalNodes, CellBounds.NorthBound, PortModelAlignment.TOP, true);
         if (northBoundLink) {
             links.set(northBoundLink.getID(), northBoundLink);
@@ -699,7 +730,7 @@ function generateExternalLinks(emptyNodes: Map<string, EmptyModel>, externalNode
     }
     // West bound external node link
     const westBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.WestBound));
-    if (westBoundEmptyNode) {
+    if (westBoundEmptyNode && gateways.intranet) {
         const westBoundLink = createExternalLink(westBoundEmptyNode, externalNodes, CellBounds.WestBound, PortModelAlignment.LEFT, true);
         if (westBoundLink) {
             links.set(westBoundLink.getID(), westBoundLink);

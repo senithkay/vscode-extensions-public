@@ -113,9 +113,15 @@ export interface Observations {
 // Util function types
 
 export type CommonModel = ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
-export interface NodesAndLinks {
+export interface DiagramData {
     nodes: Nodes;
     links: Links;
+    gateways: Gateways;
+}
+
+export interface Gateways {
+    internet: boolean;
+    intranet: boolean;
 }
 
 export interface Nodes {

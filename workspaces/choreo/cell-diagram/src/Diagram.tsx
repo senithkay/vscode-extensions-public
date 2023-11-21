@@ -10,7 +10,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell, animateDiagram } from "./utils";
+import { generateEngine, getComponentDiagramWidth, getDiagramDataFromProject, manualDistribute, calculateCellWidth, isRenderInsideCell, animateDiagram } from "./utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItemDef } from "./components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
@@ -88,19 +88,20 @@ export function CellDiagram(props: CellDiagramProps) {
 
     // draw diagram
     const drawDiagram = () => {
-        // get node and links
-        const nodeNLinks = getNodesNLinks(project);
+        // get diagram data (nodes, links, gateways) from project
+        const diagramData = getDiagramDataFromProject(project);
         // auto distribute component nodes, component links, empty nodes and cell links
         // get component diagram boundaries
         // calculate component diagram width
-        const componentDiagramWidth = getComponentDiagramWidth(nodeNLinks);
+        const componentDiagramWidth = getComponentDiagramWidth(diagramData);
         cellNodeWidth.current = componentDiagramWidth;
         // get cell node
         const cellNode = new CellModel(
             MAIN_CELL,
             componentDiagramWidth,
-            Array.from((nodeNLinks.nodes.connectorNodes as Map<string, ConnectionModel>).values()),
-            Array.from((nodeNLinks.nodes.connectionNodes as Map<string, ConnectionModel>).values())
+            diagramData.gateways,
+            Array.from((diagramData.nodes.connectorNodes as Map<string, ConnectionModel>).values()),
+            Array.from((diagramData.nodes.connectionNodes as Map<string, ConnectionModel>).values())
         );
         // create diagram model
         const model = new DiagramModel();
@@ -110,17 +111,17 @@ export function CellDiagram(props: CellDiagramProps) {
         const models = model.addAll(
             // nodes
             cellNode,
-            ...nodeNLinks.nodes.componentNodes.values(),
-            ...nodeNLinks.nodes.connectionNodes.values(),
-            ...nodeNLinks.nodes.connectorNodes.values(),
-            ...nodeNLinks.nodes.emptyNodes.values(),
-            ...nodeNLinks.nodes.externalNodes.values(),
+            ...diagramData.nodes.componentNodes.values(),
+            ...diagramData.nodes.connectionNodes.values(),
+            ...diagramData.nodes.connectorNodes.values(),
+            ...diagramData.nodes.emptyNodes.values(),
+            ...diagramData.nodes.externalNodes.values(),
             // links
-            ...nodeNLinks.links.connectionLinks.values(),
-            ...nodeNLinks.links.connectorLinks.values(),
-            ...nodeNLinks.links.externalLinks.values(),
-            ...nodeNLinks.links.componentLinks.values(),
-            ...nodeNLinks.links.cellLinks.values()
+            ...diagramData.links.connectionLinks.values(),
+            ...diagramData.links.connectorLinks.values(),
+            ...diagramData.links.externalLinks.values(),
+            ...diagramData.links.componentLinks.values(),
+            ...diagramData.links.cellLinks.values()
         );
 
         models.forEach((item) => {

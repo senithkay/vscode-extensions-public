@@ -50,7 +50,13 @@ export const CellNode: React.FC<StyleProps> = styled.div`
     }
 `;
 
-export const Circle: React.FC<any> = styled.div`
+interface ElementProps {
+    show: boolean;
+}
+
+
+export const Circle: React.FC<ElementProps> = styled.div`
+    visibility: ${(props: ElementProps) => (props.show ? "unset" : "hidden")};
     width: ${CIRCLE_WIDTH}px;
     height: ${CIRCLE_WIDTH}px;
     border-radius: 50%;
