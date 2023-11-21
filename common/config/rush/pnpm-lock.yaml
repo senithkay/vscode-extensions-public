@@ -610,6 +610,47 @@ importers:
       webpack-cli: 4.10.0_zavrerpxzp6jnuelcvydcdki6q
       webpack-dev-server: 4.15.1_xufw7vsm4hgw2efzchq5tzqpge
 
+  ../../workspaces/ballerina/service-designer-view:
+    specifiers:
+      '@types/react': ^18.2.33
+      '@types/react-dom': ^18.2.14
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@vitejs/plugin-react': ^4.1.0
+      '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      monaco-editor: 0.44.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^5.2.2
+      vite: ^4.5.0
+      vscode-messenger-common: ^0.4.5
+      vscode-messenger-webview: ^0.4.5
+    dependencies:
+      '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      monaco-editor: 0.44.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
+    devDependencies:
+      '@types/react': 18.2.37
+      '@types/react-dom': 18.2.15
+      '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
+      '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
+      '@vitejs/plugin-react': 4.1.1_vite@4.5.0
+      copyfiles: 2.4.1
+      eslint: 8.53.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
+      eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
+      typescript: 5.2.2
+      vite: 4.5.0
+
   ../../workspaces/ballerina/syntax-tree:
     specifiers:
       husky: ^7.0.1
@@ -635,6 +676,7 @@ importers:
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
+      '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -654,6 +696,7 @@ importers:
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/overview-view': link:../overview-view
+      '@wso2-enterprise/service-designer-view': link:../service-designer-view
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -1773,7 +1816,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.12.9
-      '@babel/helper-plugin-utils': 7.10.4
+      '@babel/helper-plugin-utils': 7.22.5
       '@babel/plugin-syntax-object-rest-spread': 7.8.3_@babel+core@7.12.9
       '@babel/plugin-transform-parameters': 7.22.15_@babel+core@7.12.9
     dev: true
@@ -18509,7 +18552,7 @@ packages:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.8
+      minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
     dev: true
