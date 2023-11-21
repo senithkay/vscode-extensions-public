@@ -10,6 +10,7 @@
 import { Overview } from "@wso2-enterprise/overview-view";
 import React, { useEffect } from "react";
 import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { NavigationBar } from "./components/NavigationBar";
 
 export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
@@ -29,6 +30,8 @@ export function Webview() {
     }
     return (
         <>
+            <NavigationBar />
+            <h2>Hello Nav</h2>
             {viewLocation.view === "Overview" && <Overview />}
             {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
         </>
