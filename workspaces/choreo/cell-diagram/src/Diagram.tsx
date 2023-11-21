@@ -133,7 +133,7 @@ export function CellDiagram(props: CellDiagramProps) {
             }
         });
         // initially render end of diagram
-        model.setOffset(DIAGRAM_END, DIAGRAM_END);
+        model.setOffset(DIAGRAM_END * 4, DIAGRAM_END * 4);
         // draw diagram with all nodes and links
         diagramEngine.setModel(model);
         setDiagramModel(model);

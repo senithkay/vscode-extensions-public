@@ -78,4 +78,4 @@ export const LABEL_FONT_SIZE = 20;
 export const LABEL_MAX_WIDTH = 160;
 
 export const BORDER_GAP = 40;
-export const DIAGRAM_END = 10000;
+export const DIAGRAM_END = 1000;
