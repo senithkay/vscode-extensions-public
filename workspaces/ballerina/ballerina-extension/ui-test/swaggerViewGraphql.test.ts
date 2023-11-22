@@ -45,7 +45,7 @@ describe('GraphQL UI Tests', () => {
         await lens.click();
 
         // Confirm path
-        await wait(3000); // Pause for a while server to start. It may take some time to server to respond initially
+        await wait(5000); // Pause for a while server to start. It may take some time to server to respond initially
         const inputBox = new InputBox();
         await inputBox.confirm();
         
