@@ -41,11 +41,12 @@ describe('GraphQL UI Tests', () => {
         await verifyTerminalText(RUN_OUTPUT);
 
         // Click on `Try it` code lens to open up swagger
+        await wait(3000);
         const lens = await editorView.getCodeLens("Try it");
         await lens.click();
 
         // Confirm path
-        await wait(5000); // Pause for a while server to start. It may take some time to server to respond initially
+        await wait(3000); // Pause for a while server to start. It may take some time to server to respond initially
         const inputBox = new InputBox();
         await inputBox.confirm();
         

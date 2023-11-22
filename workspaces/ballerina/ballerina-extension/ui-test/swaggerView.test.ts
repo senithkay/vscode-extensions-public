@@ -10,7 +10,7 @@
 import { By, EditorView, VSBrowser, WebDriver, WebView, Workbench, until } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe } from 'mocha';
-import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText } from './util';
+import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText, wait } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -48,6 +48,7 @@ describe('Swagger view UI Tests', () => {
         await verifyTerminalText(RUN_OUTPUT);
 
         // Click on `Try it` code lens to open up swagger
+        await wait(3000);
         const lens = await editorView.getCodeLens("Try it");
         await lens.click();
         
