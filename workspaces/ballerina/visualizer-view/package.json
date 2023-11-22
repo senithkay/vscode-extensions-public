@@ -9,7 +9,7 @@
   "types": "lib/DesignDiagram.d.ts",
   "scripts": {
     "start": "tsc --watch & vite build --watch & vite preview --port=9000",
-    "build": "tsc --pretty && npm run copy:assets && webpack && pnpm run postbuild",
+    "build": "tsc --pretty && npm run copy:assets && vite build && pnpm run postbuild",
     "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
     "deploy": "npm publish",
     "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../ballerina-extension/resources/jslibs"
