@@ -661,78 +661,21 @@ export interface ServiceReference {
     env?: ServiceReferenceEnv[];
 }
 
-export interface ConfigurationKey {
-    name: string;
-    envName: string;
-    volume?: {
-        mountPath: string;
-    };
-}
-
-export interface ConfigurationGroupEnv {
-    from: string;
-    to: string;
-}
-
-export interface ConfigurationGroupFile {
-    from: string;
-    to: string;
-}
-
-export interface ConfigurationGroup {
-    name: string;
-    env?: ConfigurationGroupEnv[];
-    volume?: {
-        mountPath: string;
-        files: ConfigurationGroupFile[];
-    };
-}
-
-export interface Build {
-    branch: string;
-    revision?: string;
-}
-
-export interface Image {
-    registry: string;
-    repository: string;
-    tag: string;
-}
-
-export interface ComponentConfig {
-    apiVersion: string;
-    kind: string;
-    metadata: {
-        name: string;
-        projectName: string;
-    };
-    spec: {
-        build?: Build;
-        image?: Image;
-        inbound?: Inbound[];
-        outbound?: Outbound;
-        configurations?: {
-            keys?: ConfigurationKey[];
-            groups?: ConfigurationGroup[];
-        };
-    };
-}
-
-export interface ComponentConfigSchema {
+export interface ComponentYamlSchema {
     $schema?: string;
     $id?: string;
     title?: string;
     description?: string;
     type: string;
     properties?: {
-        [key: string]: ComponentConfigSchema;
+        [key: string]: ComponentYamlSchema;
     };
     definitions?: {
-        [key: string]: ComponentConfigSchema;
+        [key: string]: ComponentYamlSchema;
     };
     allOf?: [
         {
-            [key: string]: ComponentConfigSchema;
+            [key: string]: ComponentYamlSchema;
         }
     ];
     default?: string;
@@ -741,7 +684,7 @@ export interface ComponentConfigSchema {
     pattern?: string;
     format?: string;
     minLength?: number;
-    items?: ComponentConfigSchema;
+    items?: ComponentYamlSchema;
     required?: string[];
     $ref?: string;
 }
