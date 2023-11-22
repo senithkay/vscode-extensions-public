@@ -22,11 +22,10 @@ export const REQUEST_RECIEVED_OUTPUT = 'request received';
 describe('Swagger view UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
     const FILE_NAME = 'hello_service.bal';
-    let browser: VSBrowser;
     let driver: WebDriver;
     let workbench : Workbench;
 
-    beforeEach(async () => {
+    before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await VSBrowser.instance.waitForWorkbench();
         workbench = new Workbench();
