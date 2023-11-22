@@ -31,8 +31,8 @@ import { choreoSignInCmdId, COMPONENT_YAML_SCHEMA, COMPONENT_YAML_SCHEMA_DIR } f
 import { activateTelemetry } from "./telemetry/telemetry";
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from "./telemetry/utils";
 import {
-    ComponentConfig,
-    ComponentConfigSchema,
+    ComponentYamlContent,
+    ComponentYamlSchema,
     OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT,
     OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT,
     OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT,
@@ -172,7 +172,7 @@ async function registerYamlLangugeServer(): Promise<void> {
         const SCHEMA = COMPONENT_YAML_SCHEMA;
 
         // cache
-        const componentYamlCache = new Cache<ComponentConfig[], [number, string, string]>({
+        const componentYamlCache = new Cache<ComponentYamlContent[], [number, string, string]>({
             getDataFunc: (orgId: number, projectHandler: string, componentName: string) => 
             ext.clients.projectClient.getComponentConfig(orgId, projectHandler, componentName)
         });
@@ -181,7 +181,7 @@ async function registerYamlLangugeServer(): Promise<void> {
         const schemaFilePath = path.join(ext.context.extensionPath, COMPONENT_YAML_SCHEMA_DIR);
         
         const schemaContent = fs.readFileSync(schemaFilePath, "utf8");
-        const schemaContentJSON = JSON.parse(schemaContent) as ComponentConfigSchema;
+        const schemaContentJSON = JSON.parse(schemaContent) as ComponentYamlSchema;
 
         function onRequestSchemaURI(resource: string): string | undefined {
             if (regexFilePathChecker(resource, /\.choreo\/component.*\.yaml$/)) {
