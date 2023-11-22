@@ -25,20 +25,16 @@ describe('Swagger view UI Tests', () => {
     let browser: VSBrowser;
     let driver: WebDriver;
     let workbench : Workbench;
-    
-    before(async () => {
+
+    beforeEach(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await VSBrowser.instance.waitForWorkbench();
-        browser = VSBrowser.instance;
-        driver = browser.driver;
         workbench = new Workbench();
-
         await enableDndMode(workbench);
-        await clickOnActivity(EXPLORER_ACTIVITY);
     });
 
     it('Test tryit button', async () => {
-
+        await clickOnActivity(EXPLORER_ACTIVITY);
         // Click on `Run` code lens to run service
         const editorView = new ExtendedEditorView(new EditorView());
         const runLens = await editorView.getCodeLens("Run");
