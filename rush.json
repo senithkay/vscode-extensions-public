@@ -242,7 +242,10 @@
     /**
      * The list of shell commands to run after the Rush build command finishes
      */
-    "postRushBuild": ["cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot"]
+    "postRushBuild": [
+      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot"
+    ]
   },
   /**
    * Installation variants allow you to maintain a parallel set of configuration files that can be
@@ -583,6 +586,11 @@
       "packageName": "apk-config-language-support",
       "projectFolder": "workspaces/apk/apk-extension",
       "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "eggplant-extension",
+      "projectFolder": "workspaces/eggplant/eggplant-extension",
+      "versionPolicyName": "eggplant-extension"
     }
   ]
 }
