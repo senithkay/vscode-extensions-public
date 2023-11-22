@@ -10,7 +10,7 @@
 import { By, EditorView, VSBrowser, WebDriver, WebView, Workbench, until } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe } from 'mocha';
-import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText, wait } from './util';
+import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText, wait, enableDndMode } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -33,13 +33,11 @@ describe('Swagger view UI Tests', () => {
         driver = browser.driver;
         workbench = new Workbench();
 
-        await workbench.executeCommand(DND_PALETTE_COMMAND);
+        await enableDndMode(workbench);
         await clickOnActivity(EXPLORER_ACTIVITY);
     });
 
     it('Test tryit button', async () => {
-        
-        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 180000);
 
         // Click on `Run` code lens to run service
         const editorView = new ExtendedEditorView(new EditorView());
