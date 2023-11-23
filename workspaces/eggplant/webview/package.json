@@ -1,0 +1,46 @@
+{
+  "name": "@wso2-enterprise/eggplant-webview",
+  "version": "1.0.0",
+  "description": "Eggplant Extension Visualizer Webview",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/DesignDiagram.js",
+  "types": "lib/DesignDiagram.d.ts",
+  "scripts": {
+    "start": "tsc --watch & vite build --watch & vite preview --port=9000",
+    "build": "tsc --pretty && npm run copy:assets && vite build && pnpm run postbuild",
+    "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
+    "deploy": "npm publish",
+    "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../eggplant-extension/resources/jslibs"
+  },
+  "keywords": [],
+  "dependencies": {
+    "@types/vscode-webview": "^1.57.4",
+    "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vscode-messenger-common": "^0.4.5",
+    "vscode-messenger-webview": "^0.4.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.33",
+    "@types/react-dom": "^18.2.14",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "@vitejs/plugin-react": "^4.1.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.52.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vite-tsconfig-paths": "^4.2.1"
+  },
+  "author": "wso2",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/vscode-extentions.git"
+  }
+}
