@@ -1,0 +1,198 @@
+{
+  "name": "Validate",
+  "type":"mediator",
+  "title": "Validate Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "source",
+              "displayName": "Source",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "enableSchemaCaching",
+              "displayName": "Enable Schema Caching",
+              "inputType": "checkbox",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "schemas",
+              "displayName": "Schemas",
+              "form": {
+                "title": "Validate Schema",
+                "description": "Editing of the properties of an object ValidateSchema",
+                "elements": [
+                  {
+                    "type": "attributeGroup",
+                    "value": {
+                      "groupName": "Properties",
+                      "elements": [
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "validateSchemaKeyType",
+                            "displayName": "Validate Schema Key Type",
+                            "inputType": "combo",
+                            "defaultValue": "Static",
+                            "comboValues": [
+                              "Static",
+                              "Dynamic"
+                            ],
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "validateStaticSchemaKey",
+                            "displayName": "Validate Static Schema Key",
+                            "inputType": "registry",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "validateSchemaKeyType": "Static"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "validateDynamicSchemaKey",
+                            "displayName": "Validate Dynamic Schema Key",
+                            "inputType": "expression",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "validateSchemaKeyType": "Dynamic"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "required": true,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "features",
+              "displayName": "Features",
+              "form": {
+                "title": "Validate Feature",
+                "description": "Editing of the properties of an object Validate Feature",
+                "elements": [
+                  {
+                    "type": "attributeGroup",
+                    "value": {
+                      "groupName": "Properties",
+                      "elements": [
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "featureName",
+                            "displayName": "Feature Name",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "featureEnabled",
+                            "displayName": "Feature Enabled",
+                            "inputType": "checkbox",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "resources",
+              "displayName": "Resources",
+              "form": {
+                "title": "Validate Resource",
+                "description": "Editing of the properties of an object Validate Resource",
+                "elements": [
+                  {
+                    "type": "attributeGroup",
+                    "value": {
+                      "groupName": "Properties",
+                      "elements": [
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "location",
+                            "displayName": "Location",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "locationKey",
+                            "displayName": "Location Key",
+                            "inputType": "registry",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
