@@ -24,7 +24,6 @@
         // "strictNullChecks": true,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "suppressImplicitAnyIndexErrors": true,
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
