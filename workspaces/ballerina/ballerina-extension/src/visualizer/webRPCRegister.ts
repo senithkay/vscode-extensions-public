@@ -8,20 +8,15 @@ import { registerVisualizerRpcHandlers } from "../rpc-managers/visualizer/rpc-ha
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as vscode from 'vscode';
-import { Messenger } from 'vscode-messenger';
-import { NotificationType, RequestType } from "vscode-messenger-common";
-import {
-    getContext,
-    getLangClient, getService, openView
-} from './activator';
 import { error } from 'console';
-import { checkIsChoreoProject, deleteProjectComponent, getActiveChoreoProject, getComponentModel, showChoreoProjectOverview } from '../project-design-diagrams/utils/shared-utils';
-import { CMLocation, GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { ExtensionContext, WebviewPanel, workspace } from 'vscode';
-import { registerProjectDesignRPCHandlers } from '../project-design-diagrams/rpc-layer/rpc-handler';
-import { BallerinaExtension, ExtendedLangClient } from '../core';
+import { ExtensionContext, WebviewPanel } from 'vscode';
+import { Messenger } from 'vscode-messenger';
+import { NotificationType } from "vscode-messenger-common";
+import { BallerinaExtension } from '../core';
 import { registerOverviewRpcHandlers } from "../rpc-managers/overview/rpc-handler";
+import {
+    getService
+} from './activator';
 
 
 const stateChanged: NotificationType<any> = { method: 'stateChanged' };

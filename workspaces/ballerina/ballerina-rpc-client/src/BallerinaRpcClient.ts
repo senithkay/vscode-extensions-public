@@ -10,9 +10,9 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { vscode } from "./vscode";
 import { OverviewRpcClient } from "./rpc-clients/overview/rpc-client";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
+import { vscode } from "./vscode";
 
 export class BallerinaRpcClient {
 
@@ -31,7 +31,7 @@ export class BallerinaRpcClient {
         return this._overview;
     }
 
-    getVisualizerClient(): VisualizerRpcClient {
+    getVisualizerRpcClient(): VisualizerRpcClient {
         return this._visualizer;
     }
 

@@ -11,12 +11,13 @@ import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
 export function render(webView: Webview) {
-    const body = `<div class = "container" id = "webview-container" />`;
+    const body = `<div class="container" id="webview-container" />`;
     const bodyCss = ``;
     const styles = `
         .container {
-            background-color: white;
-            height: 100%;
+            background-color: var(--vscode-editor-background);
+            padding: 15px;
+            height: 100vh;
             overflow: hidden;
             width: 100%;
         }

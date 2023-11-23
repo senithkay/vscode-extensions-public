@@ -11,8 +11,9 @@
  *  associated services.
  */
 
-import { VisualizerContext } from "../../extension-interfaces/state-machine-types";
+import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 
 export interface VisualizerAPI {
-    getVisualizerState: () => Promise<VisualizerContext>;
+    getVisualizerState: () => Promise<VisualizerLocationContext>;
+    openVisualizerView: (params: VisualizerLocationContext) => Promise<VisualizerLocationContext>;
 }

@@ -8,11 +8,16 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { getVisualizerState } from "@wso2-enterprise/ballerina-core";
+import {
+    getVisualizerState,
+    openVisualizerView,
+    VisualizerLocationContext
+} from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
 
 export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
     messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
+    messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
 }
