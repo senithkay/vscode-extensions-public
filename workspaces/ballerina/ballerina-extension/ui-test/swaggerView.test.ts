@@ -27,9 +27,6 @@ describe('Swagger view UI Tests', () => {
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
-        await VSBrowser.instance.waitForWorkbench();
-        workbench = new Workbench();
-        await enableDndMode(workbench);
     });
 
     it('Test tryit button', async () => {
@@ -68,9 +65,5 @@ describe('Swagger view UI Tests', () => {
         // check response
         const response = await swaggerView.getResponse();
         expect(response).is.equal('"Hello, World!"');
-    });
-
-    afterEach(async () => {
-        workbench.executeCommand(DND_PALETTE_COMMAND);
     });
 });
