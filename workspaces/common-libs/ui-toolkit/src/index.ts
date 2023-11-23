@@ -25,6 +25,7 @@ export * from './components/SidePanel/SidePanel';
 export * from './components/TextArea/TextArea';
 export * from './components/Divider/Divider';
 export * from './components/SeachBox/SearchBox';
+export * from './components/Badge/Badge';
 export * from './components/Menu/Menu';
 export * from './components/Menu/MenuItem';
 
