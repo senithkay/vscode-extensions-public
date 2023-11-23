@@ -10,17 +10,17 @@
 import { Overview } from "@wso2-enterprise/overview-view";
 import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
-import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { ProgressIndicator, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NavigationBar } from "./components/NavigationBar";
 import styled from "@emotion/styled";
+import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 
 export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
 
     useEffect(() => {
         setViewLocationState();
-        ballerinaRpcClient.onStateChanged((state: { viewContext: ViewLocation }) => {
+        ballerinaRpcClient.onStateChanged((state: { viewContext: VisualizerLocationContext }) => {
             setViewLocation(state.viewContext);
         });
     }, []);

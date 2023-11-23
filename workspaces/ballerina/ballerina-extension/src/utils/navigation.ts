@@ -8,7 +8,7 @@ export async function handleVisualizerView(params: VisualizerLocationContext) {
     const position: TextDocumentPositionParams = {
         textDocument: { uri: Uri.file(params.location.fileName).toString() },
         position: { line: params.location.position.startLine, character: params.location.position.startColumn }
-    }
+    };
     const node = await getLangClient().getDefinitionPosition(position) as BallerinaSTModifyResponse;
     if (node.parseSuccess) {
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
