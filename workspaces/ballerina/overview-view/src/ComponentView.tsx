@@ -8,6 +8,8 @@
  */
 import React from "react";
 import { ComponentViewInfo } from "./ComponentListView";
+import { ComponentCard, Icon, Typography } from "@wso2-enterprise/ui-toolkit";
+// import styled from "@emotion/styled";
 
 interface ComponentViewProps {
     type?: string;
@@ -17,13 +19,13 @@ interface ComponentViewProps {
 
 
 export function ComponentView(props: ComponentViewProps) {
-    const { info, updateSelection } = props;
+    const { info, type, updateSelection } = props;
 
     const handleComponentClick = () => {
         updateSelection(info);
     };
 
-    const isComponentAllowed = (type: string) => {
+    const isComponentAllowed = () => {
         switch (type) {
             case 'classes':
             case 'objects':
@@ -36,18 +38,58 @@ export function ComponentView(props: ComponentViewProps) {
         }
     }
 
+    // const ComponentContainer = styled.div`
+    //     width: 120px;
+    //     display: flex;
+    //     flex-direction: row;
+    //     border: 1px solid #ccc; /* Add a border with a color of your choice */
+    //     border-radius: 5px; /* Adjust the border-radius to your preferred value */
+    //     padding: 10px; /* Add padding for better visual appearance, adjust as needed */
+    // `;
+
     return (
-        <div
-            onClick={isComponentAllowed(props.type) ? handleComponentClick : undefined}
-            title={info.name.length ? info.name : '/'}
+        // <ComponentContainer
+        //     onClick={isComponentAllowed(props.type) ? handleComponentClick : undefined}
+        //     title={info.name.length ? info.name : '/'}
+        // >
+        //     <div className="icon">
+        //        Icon XX
+        //     </div>
+        //     <h2>
+        //         {info.name.length ? info.name : '/'}
+        //     </h2>
+        // </ComponentContainer>
+
+        <ComponentCard
+            id="Test"
+            onClick={isComponentAllowed() ? handleComponentClick : undefined}
+            sx={{
+                '&:hover, &.active': {
+                    '.icon svg g': {
+                        fill: 'var(--vscode-editor-foreground)'
+                    },
+                    backgroundColor: 'var(--vscode-pickerGroup-border)',
+                    border: '1px solid var(--vscode-focusBorder)'
+                },
+                alignItems: 'center',
+                border: '1px solid var(--vscode-editor-foreground)',
+                borderRadius: 5,
+                cursor: isComponentAllowed() ? 'cursor' : 'not-allowed',
+                display: 'flex',
+                height: 50,
+                justifyContent: 'left',
+                marginBottom: 16,
+                marginRight: 16,
+                padding: 10,
+                transition: '0.3s',
+                width: 200
+            }}
         >
-            <div className="icon">
-               Icon
-            </div>
-            <h4>
+            <Icon name="ballerina" />
+            <Typography variant="h3">
                 {info.name.length ? info.name : '/'}
-            </h4>
-        </div>
+            </Typography>
+        </ComponentCard>
     )
 }
 

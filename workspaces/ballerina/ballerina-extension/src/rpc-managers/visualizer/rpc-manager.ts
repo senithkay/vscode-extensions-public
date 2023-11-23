@@ -10,14 +10,28 @@
  */
 import {
     VisualizerAPI,
-    VisualizerContext,
+    VisualizerLocationContext,
 } from "@wso2-enterprise/ballerina-core";
-import { getService } from "../../visualizer/activator";
+import { getService, openView } from "../../visualizer/activator";
+import { handleVisualizerView } from "../../utils/navigation";
 
 export class VisualizerRpcManager implements VisualizerAPI {
-    async getVisualizerState(): Promise<VisualizerContext> {
+
+    async getVisualizerState(): Promise<VisualizerLocationContext> {
         const snapshot = getService().getSnapshot();
         return new Promise((resolve) => {
+            resolve(snapshot.context);
+        });
+    }
+
+    async openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
+        return new Promise(async (resolve) => {
+            if (params.location) {
+                await handleVisualizerView(params);
+            } else {
+                openView(params);
+            }
+            const snapshot = getService().getSnapshot();
             resolve(snapshot.context);
         });
     }

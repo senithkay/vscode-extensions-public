@@ -472,14 +472,18 @@ importers:
 
   ../../workspaces/ballerina/overview-view:
     specifiers:
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@vitejs/plugin-react': ^4.1.0
+      '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
@@ -492,9 +496,13 @@ importers:
       vscode-messenger-common: ^0.4.5
       vscode-messenger-webview: ^0.4.5
     dependencies:
+      '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
+      '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
+      '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       monaco-editor: 0.44.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -697,14 +705,18 @@ importers:
 
   ../../workspaces/ballerina/visualizer-view:
     specifiers:
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
       '@types/vscode-webview': ^1.57.4
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@vitejs/plugin-react': ^4.1.0
+      '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
       '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -720,9 +732,13 @@ importers:
       vscode-messenger-common: ^0.4.5
       vscode-messenger-webview: ^0.4.5
     dependencies:
+      '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
+      '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
       '@types/vscode-webview': 1.57.4
+      '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/service-designer-view': link:../service-designer-view
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
@@ -4221,6 +4237,27 @@ packages:
       hoist-non-react-statics: 3.3.2
     dev: false
 
+  /@emotion/react/11.11.1_u5zja476buyywzbvglb2fbhaii:
+    resolution: {integrity: sha512-5mlW1DquU5HaxjLkfkGN1GA/fvVGdyHURRiX/0FHl2cfIfRxSOfmxEH5YS43edp0OldZrZ+dkBKbngxcNCdZvA==}
+    peerDependencies:
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.2
+      '@emotion/babel-plugin': 11.11.0
+      '@emotion/cache': 11.11.0
+      '@emotion/serialize': 1.1.2
+      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1_react@18.2.0
+      '@emotion/utils': 1.2.1
+      '@emotion/weak-memoize': 0.3.1
+      '@types/react': 18.2.37
+      hoist-non-react-statics: 3.3.2
+      react: 18.2.0
+    dev: false
+
   /@emotion/serialize/1.1.2:
     resolution: {integrity: sha512-zR6a/fkFP4EAcCMQtLOhIgpprZOwNmCldtpaISpvz348+DP4Mz8ZoKaGGCQpbzepNIUWbq4w6hNZkwDyKoS+HA==}
     dependencies:
@@ -4233,6 +4270,27 @@ packages:
 
   /@emotion/sheet/1.2.2:
     resolution: {integrity: sha512-0QBtGvaqtWi+nx6doRwDdBIzhNdZrXUppvTM4dtZZWEGTXL/XE/yJxLMGlDT1Gt+UHH5IX1n+jkXyytE/av7OA==}
+    dev: false
+
+  /@emotion/styled/11.11.0_euzcf6iuyj3ljki2cuw32fl6cm:
+    resolution: {integrity: sha512-hM5Nnvu9P3midq5aaXj4I+lnSfNi7Pmd4EWk1fOZ3pxookaQTNew6bp4JaCBYM4HVFZF9g7UjJmsUmC2JlxOng==}
+    peerDependencies:
+      '@emotion/react': ^11.0.0-rc.0
+      '@types/react': '*'
+      react: '>=16.8.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.2
+      '@emotion/babel-plugin': 11.11.0
+      '@emotion/is-prop-valid': 1.2.1
+      '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
+      '@emotion/serialize': 1.1.2
+      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1_react@18.2.0
+      '@emotion/utils': 1.2.1
+      '@types/react': 18.2.37
+      react: 18.2.0
     dev: false
 
   /@emotion/styled/11.11.0_m2p4vb7sk3bgtigomdsrlykj2q:
@@ -27784,7 +27842,7 @@ packages:
     dependencies:
       object-assign: 4.1.1
       react: 17.0.2
-      react-is: 17.0.2
+      react-is: 18.2.0
     dev: true
 
   /react-test-renderer/17.0.2_react@17.0.2:

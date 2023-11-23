@@ -11,6 +11,10 @@
 import React from "react";
 import { ComponentView } from "./ComponentView";
 import { ProjectComponentProcessor } from "./util/project-component-processor";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
+import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 
 
@@ -43,6 +47,7 @@ export type ComponentCollection = {
 // when you select a symbol, it will show the symbol's visualization in the diagram view
 export function ComponentListView(props: { currentComponents: ComponentCollection | any }) {
 
+    const { ballerinaRpcClient } = useVisualizerContext();
     const categories: React.ReactElement[] = [];
 
     let currentComponents: ComponentCollection | any;
@@ -50,12 +55,33 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
     if (props.currentComponents) {
         const projectComponentProcessor = new ProjectComponentProcessor(props.currentComponents);
         projectComponentProcessor.process();
-        currentComponents =  projectComponentProcessor.getComponents();
+        currentComponents = projectComponentProcessor.getComponents();
     }
 
     // useEffect(() => {
     //     // fetchData();
     // }, []);
+
+    const CategoryContainer = styled.div`
+    `;
+
+    const Capitalize = styled.span`
+        text-transform: capitalize;
+    `;
+
+    const handleComponentSelection = async (info: ComponentViewInfo) => {
+        console.log({
+            file: info.filePath,
+            position: info.position
+        })
+        const context: VisualizerLocationContext = {
+            location: {
+                fileName: info.filePath,
+                position: info.position
+            }
+        }
+        await ballerinaRpcClient.getVisualizerRpcClient().openVisualizerView(context);
+    }
 
     if (currentComponents) {
         Object.keys(currentComponents)
@@ -68,7 +94,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                         <ComponentView
                             key={key + compIndex}
                             info={comp}
-                            updateSelection={null}
+                            updateSelection={handleComponentSelection}
                             type={key}
                         />
                     )
@@ -77,18 +103,18 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                 if (components.length === 0) return;
 
                 categories.push(
-                    <div>
-                        <div>{key}</div>
+                    <CategoryContainer>
+                        <Typography variant="h2">
+                            <Capitalize>{key}</Capitalize>
+                        </Typography>
                         <div>{components}</div>
-                    </div>
+                    </CategoryContainer>
                 );
             });
     }
 
-
     return (
         <>
-            <div>List</div>
             {categories}
         </>
     );

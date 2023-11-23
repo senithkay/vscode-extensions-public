@@ -1,31 +1,23 @@
 
-import { BallerinaExtension, ENABLE_INLAY_HINTS, ENABLE_SEMANTIC_HIGHLIGHTING, ExtendedLangClient, LANGUAGE } from '..//core';
-import { getServerOptions } from '../server/server';
-import { ExtensionContext, Location, ViewColumn, WebviewPanel, window, workspace } from 'vscode';
-import { RevealOutputChannelOn, ServerOptions, State } from 'vscode-languageclient/node';
+import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from '../core';
+import { ExtensionContext, ViewColumn, WebviewPanel, window } from 'vscode';
 import { createMachine, assign, interpret } from 'xstate';
-import { WebViewMethod, WebViewRPCHandler, getCommonWebViewOptions, getOutputChannel } from '../utils';
+import { getCommonWebViewOptions } from '../utils';
 import { activateBallerina } from '../extension';
-import { EditLayerRPC, getComponentModel } from '../project-design-diagrams/utils';
-import { VisualizerContext } from "@wso2-enterprise/ballerina-core";
+import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 import { RPCLayer } from './webRPCRegister';
 import { render } from './renderer';
-// import { messenger } from './webRPCRegister';
 
 
 let webViewPanel: WebviewPanel | undefined;
-let langClient: any;
+
 let vsContext: ExtensionContext;
 let balExtContext: BallerinaExtension;
-
-interface RenderWebViewEvent {
-    type: "renderWebView";
-}
 
 type Event =
     | {
         type: "OPEN_VIEW";
-        viewLocation?: VisualizerContext;
+        viewLocation?: VisualizerLocationContext;
     }
     | {
         type: "RENDER_WEB_VIEW"
@@ -71,7 +63,7 @@ function openWebView(): Promise<void> {
     });
 }
 
-function findView(context: VisualizerContext): Promise<void> {
+function findView(context: VisualizerLocationContext): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         // Find the exact location or the view to render and show
         resolve();
@@ -85,11 +77,37 @@ function updateViewLocation(): Promise<void> {
 }
 
 
+export function startMachine(context: any) {
+    vsContext = context;
+    service.start();
+}
+
+export function getService() {
+    return service;
+}
+
+export function getLangClient() {
+    return <ExtendedLangClient>balExtContext.langClient;
+}
+
+export function getContext() {
+    return vsContext;
+}
+
+export function openView(viewLocation: VisualizerLocationContext) {
+    service.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
+}
+
+export function closeView() {
+    service.send({ type: "CLOSE" });
+}
+
+
 const visualizerMachine = createMachine({
     /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4B0AkgHaoAuAxBAPYVgmoUBuDA1i2prgWLkq1BG04BjLNVRMA2gAYAuoqWJQABwawasiupAAPRACYAjGZIKArCYUAOAMxnr1gJz23HgDQgAnqYKjiQmACxeXgBskaEA7KGRsfYAvsm+fNh4hKSUNLTERAykGjjSAGZFALYkGQLZwjRiHAxSMvLKqgZaOm36SEaI0ZEkZiZ21mY2jtbTvgEIbrEkkU4mK7Em7hZOqenomYKkAKJEhUS0AEpHACoXAJqd-d26TAbGCKNziKO7ILVZQguYCwED8tAA8gAFI4AOQA+sgyEcAOqPTTaF59UDvcLBSLTUKhBSbab40JfD6xBQkNyOeKxMzOBRuEyxFm-f6HGqoMAAdwAghIZOwwLQAMIAGXBAGUjmiQM9em9EI5IiYaSYWY57GY3GTEhTHCZ7MtVXFzMyxmZYhz9nUhGg+YLhaKobCEUjUcouhilf13pNYhT7AphsSHEMZms3NZbfwAaRHQKhagRbQAGJkCVHOFigAS-JhAHEjgAReWKvTKj4KIP+QaxYabBSTRx6rxBWNpP52hPcp0pkUkdg83m5OiMZisZo8bnxrlJ52plgjvnjpqSaR6VQV31V-2IQnDaxORw2eyJOJOCkxtwkWLWFuM0N2SInuMHeqLwcr0fj-KnEUJAlOUVRzp+DqjkuQ6rmOIgbi0W7tCo3pPHurwHh8oTGiMJ6hKMTjhI+dbzES6qhCGapjJqjiqiYH72omUE-iQvJgAARkmEoMCCkD0EwLDiNwvC9guzEuqxHFcTxECQAhrTbh0qHoj0+7YogjahCQbbWEkzJmJEFjEsG+IkI+CgWYScTxNqDF9t+ElsZxo7cbxEAAWcwGlNQFRENUnJfuJy6Sc5fKubJEDyUhFA7spCroViAwIJp2kxnpbgGUZJjBgZVgWbWkRuHExKuHZYkDhJsHhWwUC0IiKJwlc-Klg8cWVhh6k1oZJDYQyQSjOs7gmeq+UtkSMQ6aEZWBRVwUYBoEDSGASb8VOQmzgFkGzUO82LdQy2jlFvSxWoaGqR1SVHmZp7npeSSOBSDKWPloy2NMLaatNW3JhJu1LStBRASBPlgZtTHbSwf37UmR2KShp0qZi1ZXSetG3fS171gg0TBOZCjYfiRVuC2qTdhQDCyfA-Rgz652Je8AC0qoUgzD49REiwuPpCRfTkIi00jmHYRS1pNuEeoTBsNiso4vMkCcZwC36nWjGsJAhuYrh0vYUbWCLkxWOMjIssy+GxDa3ZgyQQIgvMiPK0lqrDPi1hxNqoYxEVD1Y3Y6phFEeo2B4RpTZbokzT9y5K2pSVDVj1hvve5nm-EmqhDMcsOcFsHjtHF3vMa6ozKMDjGuNCTe-MRNmfltixNM9dmKHezzhH0EsE50luXn9OIO41LajMVIJ8yjfBjYScWQZaqhhlZiZ0FMEuTJNU99WGXWNpoR0tGDhRiRiAXkXL3l5NC8Q8Oo426Ca+Yarli6hrCREvE2-DezXiqhMhW0vPYet99duJAoYHT5LfTqhczLODsPYMuoYK4UjfMEZsQcLw2F0m4c+kcl58gVkUcBSUN5bx3oVPeRoD7Y0KpPCw6cm7my8KTZIQA */
     tsTypes: {} as import("./activator.typegen").Typegen0,
     schema: {
-        context: {} as VisualizerContext,
+        context: {} as VisualizerLocationContext,
         events: {} as Event
     },
     context: {
@@ -121,7 +139,8 @@ const visualizerMachine = createMachine({
                     actions: assign({
                         // we will set either location or view
                         view: (context, event) => event.viewLocation.view,
-                        location: (context, event) =>  event.viewLocation.location
+                        location: (context, event) =>  event.viewLocation.location,
+                        stNode: (context, event) => event.viewLocation.stNode
                     })
                 }
             }
@@ -185,7 +204,8 @@ const visualizerMachine = createMachine({
                     actions: assign({
                         // we will set either location or view
                         view: (context, event) => event.viewLocation.view,
-                        location: (context, event) =>  event.viewLocation.location
+                        location: (context, event) =>  event.viewLocation.location,
+                        stNode: (context, event) => event.viewLocation.stNode
                     })
                 },
                 FILE_CHANGED: "ViewActive.updateView"
@@ -195,35 +215,5 @@ const visualizerMachine = createMachine({
     id: "Visualizer"
 });
 
-
 let service = interpret(visualizerMachine);
-
-
-export function startMachine(context: any) {
-    vsContext = context;
-    service.start();
-}
-
-export function getService() {
-    return service;
-}
-
-
-export function getLangClient() {
-    return <ExtendedLangClient>balExtContext.langClient;
-}
-
-export function getContext() {
-    return vsContext;
-}
-
-export function openView(viewLocation: VisualizerContext) {
-    service.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
-
-}
-
-export function closeView() {
-    service.send({ type: "CLOSE" });
-}
-
 

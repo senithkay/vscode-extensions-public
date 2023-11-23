@@ -10,30 +10,43 @@
 import { Overview } from "@wso2-enterprise/overview-view";
 import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
-import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { NavigationBar } from "./components/NavigationBar";
+import styled from "@emotion/styled";
+import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 
 export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
 
     useEffect(() => {
         setViewLocationState();
-        ballerinaRpcClient.onStateChanged((state: { viewContext: ViewLocation }) => {
+        ballerinaRpcClient.onStateChanged((state: { viewContext: VisualizerLocationContext }) => {
             setViewLocation(state.viewContext);
         });
     }, []);
 
     const setViewLocationState = async () => {
-        const state = await ballerinaRpcClient.getVisualizerClient().getVisualizerState();
+        const state = await ballerinaRpcClient.getVisualizerRpcClient().getVisualizerState();
         if (state) {
             setViewLocation(state);
         }
     }
+
+    const VisualizerContainer = styled.div`
+        width: 100%;
+    `;
+
+    const OrgLabel = styled.span`
+        color: var(--vscode-descriptionForeground);
+    `;
+
     return (
-        <>
-            <h2>Hello Nav</h2>
+        <VisualizerContainer>
+            <NavigationBar />
             {viewLocation.view === "Overview" && <Overview />}
             {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
+            {viewLocation.view === "DataMapper" && <h2>Hello Data Mapper</h2>}
             {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
-        </>
+        </VisualizerContainer>
     );
 };

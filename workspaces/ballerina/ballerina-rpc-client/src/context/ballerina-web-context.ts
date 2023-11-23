@@ -10,17 +10,13 @@
 
 import { createContext, useContext } from "react";
 import { BallerinaRpcClient } from "../BallerinaRpcClient";
+import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 
 
-type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner";
-export interface ViewLocation {
-  view?: Views;
-  location?: Location;
-}
 export interface VisualizerContext {
-    viewLocation: ViewLocation,
+    viewLocation: VisualizerLocationContext,
     ballerinaRpcClient?: BallerinaRpcClient
-    setViewLocation?: (view: ViewLocation) => void
+    setViewLocation?: (view: VisualizerLocationContext) => void
 }
 
 /**

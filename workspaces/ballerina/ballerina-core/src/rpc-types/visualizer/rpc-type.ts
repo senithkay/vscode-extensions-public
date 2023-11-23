@@ -8,8 +8,9 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { VisualizerContext } from "../../extension-interfaces/state-machine-types";
+import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "visualizer";
-export const getVisualizerState: RequestType<void, VisualizerContext> = { method: `${_preFix}/getVisualizerState` };
+export const getVisualizerState: RequestType<void, VisualizerLocationContext> = { method: `${_preFix}/getVisualizerState` };
+export const openVisualizerView: RequestType<VisualizerLocationContext, VisualizerLocationContext> = { method: `${_preFix}/openVisualizerView` };
