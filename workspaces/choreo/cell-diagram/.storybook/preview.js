@@ -1,10 +1,9 @@
-import { addDecorator } from '@storybook/react';
-import { withInfo } from '@storybook/addon-info';
-
-addDecorator(withInfo);
-export const decorators = [
-    (Story, context) => {
-      import('../.storybook/lightTheme.css');
-      return <Story />
-    }
-];
+export const parameters = {
+    actions: { argTypesRegex: "^on[A-Z].*" },
+    controls: {
+        matchers: {
+            color: /(background|color)$/i,
+            date: /Date$/,
+        },
+    },
+};
