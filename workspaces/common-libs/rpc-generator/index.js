@@ -396,107 +396,107 @@ console.log(`rpc-client.ts Done!`);
 // -------- RPC Client ts file End -------------------------------------->
 
 
-// -------- Type Imports -------------------------------------->
-console.log(`Importing rpc-type...`);
-const rpcTypeIndex = path.resolve(process.env.npm_package_config_CORE_RPC_TYPE_DIR, 'src', 'index.ts');
+// // -------- Type Imports -------------------------------------->
+// console.log(`Importing rpc-type...`);
+// const rpcTypeIndex = path.resolve(process.env.npm_package_config_CORE_RPC_TYPE_DIR, 'src', 'index.ts');
 
-// Create a new TypeScript project
-const rpcTypeIndexProject = new tsMorph.Project();
+// // Create a new TypeScript project
+// const rpcTypeIndexProject = new tsMorph.Project();
 
-// Add the TypeScript file to the project
-const rpcTypeIndexSourceFile = rpcTypeIndexProject.addSourceFileAtPath(rpcTypeIndex);
+// // Add the TypeScript file to the project
+// const rpcTypeIndexSourceFile = rpcTypeIndexProject.addSourceFileAtPath(rpcTypeIndex);
 
-// Import the statement
-const exportStatement = `export * from "./rpc-types/${dirName}/rpc-type";`;
+// // Import the statement
+// const exportStatement = `export * from "./rpc-types/${dirName}/rpc-type";`;
 
-// Add the statement to the source file
-rpcTypeIndexSourceFile.addStatements(exportStatement);
+// // Add the statement to the source file
+// rpcTypeIndexSourceFile.addStatements(exportStatement);
 
-// Save the modified source file
-rpcTypeIndexSourceFile.saveSync();
+// // Save the modified source file
+// rpcTypeIndexSourceFile.saveSync();
 
-console.log(`Importing rpc-type Done!`);
+// console.log(`Importing rpc-type Done!`);
 
-// -------- Type Imports End -------------------------------------->
-
-
-// -------- RPC Handler register -------------------------------------->
-console.log(`Registering rpc-handler...`);
-const webRPCRegister = path.resolve(process.env.npm_package_config_EXT_RPC_MANAGER_DIR, 'src', 'visualizer', 'webRPCRegister.ts');
-
-// Create a new TypeScript project
-const webRPCRegisterProject = new tsMorph.Project();
-
-// Add the TypeScript file to the project
-const webRPCRegisterSourceFile = webRPCRegisterProject.addSourceFileAtPath(webRPCRegister);
-
-// Find the constructor in the class
-const classDeclarationRPCLayer = webRPCRegisterSourceFile.getClass("RPCLayer");
-const constructorDeclaration = classDeclarationRPCLayer?.getConstructors()[0];
-
-if (constructorDeclaration) {
-    // Insert a new function call statement inside the constructor
-    const handlerFunction = `${handlerName}(this._messenger);`;
-    constructorDeclaration.insertStatements(classDeclarationRPCLayer.getChildCount(), handlerFunction);
-}
-
-handleImportStatment(webRPCRegisterSourceFile, `../rpc-managers/${dirName}/rpc-handler`, `${handlerName}`);
-webRPCRegisterSourceFile.organizeImports();
-
-// Save the modified source file
-webRPCRegisterSourceFile.saveSync();
-
-console.log(`Registering rpc-handler Done!`);
-
-// -------- RPC Handler register End -------------------------------------->
+// // -------- Type Imports End -------------------------------------->
 
 
-// -------- RPC Client register -------------------------------------->
-console.log(`Registering rpc-handler...`);
-const webRPCRegisterClient = path.resolve(process.env.npm_package_config_RPC_CLIENT_DIR, 'src', 'BallerinaRpcClient.ts');
+// // // -------- RPC Handler register -------------------------------------->
+// // console.log(`Registering rpc-handler...`);
+// // const webRPCRegister = path.resolve(process.env.npm_package_config_EXT_RPC_MANAGER_DIR, 'src', 'visualizer', 'webRPCRegister.ts');
 
-// Create a new TypeScript project
-const webRPCRegisterClientProject = new tsMorph.Project();
+// // // Create a new TypeScript project
+// // const webRPCRegisterProject = new tsMorph.Project();
 
-// Add the TypeScript file to the project
-const webRPCRegisterClientSourceFile = webRPCRegisterClientProject.addSourceFileAtPath(webRPCRegisterClient);
+// // // Add the TypeScript file to the project
+// // const webRPCRegisterSourceFile = webRPCRegisterProject.addSourceFileAtPath(webRPCRegister);
 
-// Find the constructor in the class
-const classDeclarationRPCClientLayer = webRPCRegisterClientSourceFile.getClass("BallerinaRpcClient");
+// // // Find the constructor in the class
+// // const classDeclarationRPCLayer = webRPCRegisterSourceFile.getClass("RPCLayer");
+// // const constructorDeclaration = classDeclarationRPCLayer?.getConstructors()[0];
 
-const clientPropName = `_${dirName.replace("-", "_")}`;
+// // if (constructorDeclaration) {
+// //     // Insert a new function call statement inside the constructor
+// //     const handlerFunction = `${handlerName}(this._messenger);`;
+// //     constructorDeclaration.insertStatements(classDeclarationRPCLayer.getChildCount(), handlerFunction);
+// // }
 
-const propertiesCount = classDeclarationRPCClientLayer.getProperties().length;
+// // handleImportStatment(webRPCRegisterSourceFile, `../rpc-managers/${dirName}/rpc-handler`, `${handlerName}`);
+// // webRPCRegisterSourceFile.organizeImports();
 
-classDeclarationRPCClientLayer.insertProperty(propertiesCount, {
-    name: clientPropName,
-    type: clientClassName,
-    scope: tsMorph.Scope.Private
-});
+// // // Save the modified source file
+// // webRPCRegisterSourceFile.saveSync();
 
-const constructorDeclarationClient = classDeclarationRPCClientLayer?.getConstructors()[0];
+// // console.log(`Registering rpc-handler Done!`);
 
-if (constructorDeclarationClient) {
-    // Insert a new function call statement inside the constructor
-    const handlerFunction = `this.${clientPropName} = new ${clientClassName}(this.messenger);`;
-    constructorDeclarationClient.insertStatements(constructorDeclarationClient.getChildCount() - 1, handlerFunction);
-}
+// // // -------- RPC Handler register End -------------------------------------->
 
-classDeclarationRPCClientLayer.addMethod({
-    name: `get${clientClassName}`,
-    returnType: `${clientClassName}`,
-    statements: writer => {
-        writer.writeLine(`return this.${clientPropName};`);
-    },
-})
 
-handleImportStatment(webRPCRegisterClientSourceFile, `./rpc-clients/${dirName}/rpc-client`, `${clientClassName}`);
-webRPCRegisterClientSourceFile.organizeImports();
+// // -------- RPC Client register -------------------------------------->
+// console.log(`Registering rpc-handler...`);
+// const webRPCRegisterClient = path.resolve(process.env.npm_package_config_RPC_CLIENT_DIR, 'src', 'BallerinaRpcClient.ts');
 
-// Save the modified source file
-webRPCRegisterClientSourceFile.saveSync();
+// // Create a new TypeScript project
+// const webRPCRegisterClientProject = new tsMorph.Project();
 
-console.log(`Registering rpc-handler Done!`);
+// // Add the TypeScript file to the project
+// const webRPCRegisterClientSourceFile = webRPCRegisterClientProject.addSourceFileAtPath(webRPCRegisterClient);
+
+// // Find the constructor in the class
+// const classDeclarationRPCClientLayer = webRPCRegisterClientSourceFile.getClass("BallerinaRpcClient");
+
+// const clientPropName = `_${dirName.replace("-", "_")}`;
+
+// const propertiesCount = classDeclarationRPCClientLayer.getProperties().length;
+
+// classDeclarationRPCClientLayer.insertProperty(propertiesCount, {
+//     name: clientPropName,
+//     type: clientClassName,
+//     scope: tsMorph.Scope.Private
+// });
+
+// const constructorDeclarationClient = classDeclarationRPCClientLayer?.getConstructors()[0];
+
+// if (constructorDeclarationClient) {
+//     // Insert a new function call statement inside the constructor
+//     const handlerFunction = `this.${clientPropName} = new ${clientClassName}(this.messenger);`;
+//     constructorDeclarationClient.insertStatements(constructorDeclarationClient.getChildCount() - 1, handlerFunction);
+// }
+
+// classDeclarationRPCClientLayer.addMethod({
+//     name: `get${clientClassName}`,
+//     returnType: `${clientClassName}`,
+//     statements: writer => {
+//         writer.writeLine(`return this.${clientPropName};`);
+//     },
+// })
+
+// handleImportStatment(webRPCRegisterClientSourceFile, `./rpc-clients/${dirName}/rpc-client`, `${clientClassName}`);
+// webRPCRegisterClientSourceFile.organizeImports();
+
+// // Save the modified source file
+// webRPCRegisterClientSourceFile.saveSync();
+
+// console.log(`Registering rpc-handler Done!`);
 
 // -------- RPC Client register End -------------------------------------->
 
