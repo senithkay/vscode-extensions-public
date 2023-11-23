@@ -27,6 +27,7 @@ describe('Swagger view UI Tests', () => {
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        await VSBrowser.instance.waitForWorkbench();
     });
 
     it('Test tryit button', async () => {
