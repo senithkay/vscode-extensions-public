@@ -12,8 +12,11 @@ import {
     VisualizerAPI,
     VisualizerLocationContext,
 } from "@wso2-enterprise/ballerina-core";
+import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
 import { getService, openView } from "../../visualizer/activator";
-import { handleVisualizerView } from "../../utils/navigation";
+import { TextDocumentPositionParams } from "vscode-languageclient";
+import { Uri } from "vscode";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -33,6 +36,22 @@ export class VisualizerRpcManager implements VisualizerAPI {
             }
             const snapshot = getService().getSnapshot();
             resolve(snapshot.context);
+        });
+    }
+
+    async getSyntaxTree(): Promise<STNode> {
+        return new Promise(async (resolve) => {
+            const context = getService().getSnapshot().context;
+            const position: TextDocumentPositionParams = {
+                textDocument: { uri: Uri.file(context.location.fileName).toString() },
+                position: { line: context.location.position.startLine, character: context.location.position.startColumn }
+            };
+            const node = await getSyntaxTreeFromPosition(position);
+            if (node.parseSuccess) {
+                resolve(node.syntaxTree);
+            } else {
+                resolve(undefined);
+            }
         });
     }
 }

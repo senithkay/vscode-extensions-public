@@ -139,8 +139,7 @@ const visualizerMachine = createMachine({
                     actions: assign({
                         // we will set either location or view
                         view: (context, event) => event.viewLocation.view,
-                        location: (context, event) =>  event.viewLocation.location,
-                        stNode: (context, event) => event.viewLocation.stNode
+                        location: (context, event) =>  event.viewLocation.location
                     })
                 }
             }
@@ -204,8 +203,7 @@ const visualizerMachine = createMachine({
                     actions: assign({
                         // we will set either location or view
                         view: (context, event) => event.viewLocation.view,
-                        location: (context, event) =>  event.viewLocation.location,
-                        stNode: (context, event) => event.viewLocation.stNode
+                        location: (context, event) =>  event.viewLocation.location
                     })
                 },
                 FILE_CHANGED: "ViewActive.updateView"

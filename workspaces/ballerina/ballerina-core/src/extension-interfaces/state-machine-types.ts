@@ -1,5 +1,3 @@
-import { STNode } from "@wso2-enterprise/syntax-tree";
-
 export type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner" | "DataMapper";
 
 export interface VisualizerLocation {
@@ -15,5 +13,4 @@ export interface Position {
 export interface VisualizerLocationContext {
     view?: Views;
     location?: VisualizerLocation;
-    stNode?: STNode
 }

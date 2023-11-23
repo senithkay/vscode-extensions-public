@@ -9,8 +9,10 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "visualizer";
 export const getVisualizerState: RequestType<void, VisualizerLocationContext> = { method: `${_preFix}/getVisualizerState` };
 export const openVisualizerView: RequestType<VisualizerLocationContext, VisualizerLocationContext> = { method: `${_preFix}/openVisualizerView` };
+export const getSyntaxTree: RequestType<void, STNode> = { method: `${_preFix}/getSyntaxTree` };
