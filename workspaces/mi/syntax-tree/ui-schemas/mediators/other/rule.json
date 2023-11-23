@@ -1,0 +1,541 @@
+{
+  "name": "Rule",
+  "type":"mediator",
+  "title": "Rule Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Source",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "sourceValue",
+              "displayName": "Source Value",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "sourceXPath",
+              "displayName": "Source XPath",
+              "inputType": "expression",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Target",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "targetValue",
+              "displayName": "Target Value",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "targetAction",
+              "displayName": "Target Action",
+              "inputType": "combo",
+              "comboValues": [
+                "Replace",
+                "Child",
+                "Sibiling"
+              ],
+              "defaultValue": "Replace",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "targetXPath",
+              "displayName": "Target XPath",
+              "inputType": "expression",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "targetResultXPath",
+              "displayName": "Target Result XPath",
+              "inputType": "expression",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Rule Set",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "ruleSetType",
+              "displayName": "Rule Set Type",
+              "inputType": "combo",
+              "comboValues": [
+                "Regular",
+                "Decision Table"
+              ],
+              "defaultValue": "Regular",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "ruleSetSourceType",
+              "displayName": "Rule Set Source Type",
+              "inputType": "combo",
+              "comboValues": [
+                "INLINE",
+                "REGISTRY_REFERENCE",
+                "URL"
+              ],
+              "defaultValue": "INLINE",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "ruleSetSourceCode",
+              "displayName": "Rule Set Source Code",
+              "inputType": "string",
+              "defaultValue": "<code/>",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "ruleSetSourceType": "INLINE"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "inlineRegistryKey",
+              "displayName": "Inline Registry Key",
+              "inputType": "registry",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "ruleSetSourceType": "REGISTRY_REFERENCE"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "ruleSetURL",
+              "displayName": "Rule Set URL",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "ruleSetSourceType": "URL"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Input Facts",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "inputWrapperName",
+              "displayName": "Input Wrapper Name",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "inputNamespace",
+              "displayName": "Input Namespace",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "factsConfiguration",
+              "displayName": "Facts Configuration",
+              "form": {
+                "title": "Facts Configuration",
+                "description": "Editing of the properties of an object Facts Configuration",
+                "elements": [
+                  {
+                    "type": "table",
+                    "value": {
+                      "name": "facts",
+                      "displayName": "Facts",
+                      "form": {
+                        "title": "Rule Fact",
+                        "description": "Editing of the properties of an object Rule Fact",
+                        "elements": [
+                          {
+                            "type": "attributeGroup",
+                            "value": {
+                              "groupName": "Properties",
+                              "elements": [
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "factType",
+                                    "displayName": "Fact Type",
+                                    "inputType": "combo",
+                                    "comboValues": [
+                                      "CUSTOM",
+                                      "dom",
+                                      "message",
+                                      "context",
+                                      "omelement",
+                                      "mediator"
+                                    ],
+                                    "defaultValue": "CUSTOM",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "factCustomType",
+                                    "displayName": "Fact Custom Type",
+                                    "inputType": "string",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "factName",
+                                    "displayName": "Fact Name",
+                                    "inputType": "string",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "valueType",
+                                    "displayName": "Value Type",
+                                    "inputType": "combo",
+                                    "comboValues": [
+                                      "NONE",
+                                      "LITERAL",
+                                      "EXPRESSION",
+                                      "REGISTRY_REFERENCE"
+                                    ],
+                                    "defaultValue": "NONE",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "valueLiteral",
+                                    "displayName": "Value Literal",
+                                    "inputType": "string",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": "",
+                                    "enableCondition": [
+                                      {
+                                        "valueType": "LITERAL"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "propertyExpression",
+                                    "displayName": "Property Expression",
+                                    "inputType": "expression",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": "",
+                                    "enableCondition": [
+                                      {
+                                        "valueType": "EXPRESSION"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "valueReferenceKey",
+                                    "displayName": "Value Reference Key",
+                                    "inputType": "registry",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": "",
+                                    "enableCondition": [
+                                      {
+                                        "valueType": "REGISTRY_REFERENCE"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Output Facts",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "outputWrapperName",
+              "displayName": "Output Wrapper Name",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "outputNamespace",
+              "displayName": "Output Namespace",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "resultsConfiguration",
+              "displayName": "Results Configuration",
+              "form": {
+                "title": "Rule Results Configuration",
+                "description": "Editing of the properties of an object Rule Results Configuration",
+                "elements": [
+                  {
+                    "type": "table",
+                    "value": {
+                      "name": "results",
+                      "displayName": "Results",
+                      "form": {
+                        "title": "Rule Result",
+                        "description": "Editing of the properties of an object Rule Result",
+                        "elements": [
+                          {
+                            "type": "attributeGroup",
+                            "value": {
+                              "groupName": "Properties",
+                              "elements": [
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "resultType",
+                                    "displayName": "Result Type",
+                                    "inputType": "combo",
+                                    "comboValues": [
+                                      "CUSTOM",
+                                      "dom",
+                                      "message",
+                                      "context",
+                                      "omelement",
+                                      "mediator"
+                                    ],
+                                    "defaultValue": "CUSTOM",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "resultCustomType",
+                                    "displayName": "Result Custom Type",
+                                    "inputType": "string",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "resultName",
+                                    "displayName": "Result Name",
+                                    "inputType": "string",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "valueType",
+                                    "displayName": "Value Type",
+                                    "inputType": "combo",
+                                    "comboValues": [
+                                      "NONE",
+                                      "LITERAL",
+                                      "EXPRESSION",
+                                      "REGISTRY_REFERENCE"
+                                    ],
+                                    "defaultValue": "NONE",
+                                    "required": false,
+                                    "helpTip": ""
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "valueLiteral",
+                                    "displayName": "Value Literal",
+                                    "inputType": "string",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": "",
+                                    "enableCondition": [
+                                      {
+                                        "valueType": "LITERAL"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "propertyExpression",
+                                    "displayName": "Property Expression",
+                                    "inputType": "expression",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": "",
+                                    "enableCondition": [
+                                      {
+                                        "valueType": "EXPRESSION"
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "type": "attribute",
+                                  "value": {
+                                    "name": "valueReferenceKey",
+                                    "displayName": "Value Reference Key",
+                                    "inputType": "registry",
+                                    "defaultValue": "",
+                                    "required": false,
+                                    "helpTip": "",
+                                    "enableCondition": [
+                                      {
+                                        "valueType": "REGISTRY_REFERENCE"
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Misc",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

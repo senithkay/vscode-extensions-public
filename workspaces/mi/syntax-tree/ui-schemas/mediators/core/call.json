@@ -1,0 +1,221 @@
+{
+    "name": "Call",
+    "type":"mediator",
+    "title": "Call Mediator",
+    "help": "",
+    "elements": [
+        {
+            "type": "attributeGroup",
+            "value": {
+                "groupName": "Properties",
+                "elements": [
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "enableBlockingCalls",
+                            "displayName": "Enable Blocking Calls",
+                            "inputType": "checkbox",
+                            "defaultValue": false,
+                            "required": false,
+                            "helpTip": "Enable blocking calls"
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "initAxis2ClientOptions",
+                            "displayName": "Initialize Axis2 Client Options",
+                            "inputType": "checkbox",
+                            "defaultValue": false,
+                            "required": false,
+                            "helpTip": "Initialize Axis2 client options"
+                        }
+                    },
+                    {
+                        "type": "attributeGroup",
+                        "value": {
+                            "groupName": "EndpointType",
+                            "elements": [
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "endpointType",
+                                        "displayName": "Endpoint Type",
+                                        "inputType": "combo",
+                                        "defaultValue": "INLINE",
+                                        "comboValues": [
+                                            "INLINE",
+                                            "NONE",
+                                            "REGISTRYKEY",
+                                            "XPATH"
+                                        ],
+                                        "required": true,
+                                        "helpTip": "Endpoint Type"
+                                    }
+                                },
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "endpointRegistryKey",
+                                        "displayName": "Endpoint Registry Key",
+                                        "inputType": "registry",
+                                        "defaultValue": "",
+                                        "required": false,
+                                        "helpTip": "Endpoint Registry Key",
+                                        "enableCondition": [
+                                            {
+                                                "payload": "REGISTRYKEY"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "type": "attribute",
+                                    "value": {
+                                        "name": "endpointXpath",
+                                        "displayName": "Endpoint Xpath",
+                                        "inputType": "stringOrExpression",
+                                        "defaultValue": "",
+                                        "required": false,
+                                        "helpTip": "Endpoint Xpath",
+                                        "enableCondition": [
+                                            {
+                                                "payload": "XPATH"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "sourceType",
+                            "displayName": "Source Type",
+                            "inputType": "combo",
+                            "defaultValue": "none",
+                            "comboValues": [
+                                "none",
+                                "body",
+                                "property",
+                                "inline",
+                                "custom"
+                            ],
+                            "required": false,
+                            "helpTip": "Source Type"
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "sourceProperty",
+                            "displayName": "Source Property",
+                            "inputType": "stringOrExpression",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Source Property",
+                            "enableCondition": [
+                                {
+                                    "payload": "property"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "contentType",
+                            "displayName": "Content Type",
+                            "inputType": "stringOrExpression",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Content Type",
+                            "enableCondition": [
+                                "OR",
+                                {
+                                    "payload": "property"
+                                },
+                                {
+                                    "payload": "inline"
+                                },
+                                {
+                                    "payload": "custom"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "sourcePayload",
+                            "displayName": "Source Payload",
+                            "inputType": "stringOrExpression",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Source Payload",
+                            "enableCondition": [
+                                {
+                                    "payload": "inline"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "sourceXPath",
+                            "displayName": "Source XPath",
+                            "inputType": "stringOrExpression",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Source XPath"
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "targetType",
+                            "displayName": "Target Type",
+                            "inputType": "comboOrExpression",
+                            "defaultValue": "body",
+                            "comboValues": [
+                                "body",
+                                "property"
+                            ],
+                            "required": false,
+                            "helpTip": "Target Type"
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "targetProperty",
+                            "displayName": "Target Property",
+                            "inputType": "stringOrExpression",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Target Property",
+                            "enableCondition": [
+                                {
+                                    "payload": "property"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "description",
+                            "displayName": "Description",
+                            "inputType": "string",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Description"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
