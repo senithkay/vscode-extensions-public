@@ -1283,6 +1283,47 @@ importers:
       mocha: 10.2.0
       typescript: 5.2.2
 
+  ../../workspaces/eggplant/webview:
+    specifiers:
+      '@types/react': ^18.2.33
+      '@types/react-dom': ^18.2.14
+      '@types/vscode-webview': ^1.57.4
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@vitejs/plugin-react': ^4.1.0
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^5.2.2
+      vite: ^4.5.0
+      vite-tsconfig-paths: ^4.2.1
+      vscode-messenger-common: ^0.4.5
+      vscode-messenger-webview: ^0.4.5
+    dependencies:
+      '@types/vscode-webview': 1.57.4
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
+    devDependencies:
+      '@types/react': 18.2.37
+      '@types/react-dom': 18.2.15
+      '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
+      '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
+      '@vitejs/plugin-react': 4.1.1_vite@4.5.0
+      copyfiles: 2.4.1
+      eslint: 8.53.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
+      eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
+      typescript: 5.2.2
+      vite: 4.5.0
+      vite-tsconfig-paths: 4.2.1_cnaluuumdmttzz4zpr3jp6tchm
+
 packages:
 
   /@aashutoshrathi/word-wrap/1.2.6:
