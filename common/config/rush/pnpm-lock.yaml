@@ -1259,6 +1259,30 @@ importers:
       http-server: 14.1.1
       typescript: 4.9.5
 
+  ../../workspaces/eggplant/eggplant-extension:
+    specifiers:
+      '@types/mocha': ^10.0.3
+      '@types/node': 18.x
+      '@types/vscode': ^1.84.0
+      '@typescript-eslint/eslint-plugin': ^6.9.0
+      '@typescript-eslint/parser': ^6.9.0
+      '@vscode/test-electron': ^2.3.6
+      eslint: ^8.52.0
+      glob: ^10.3.10
+      mocha: ^10.2.0
+      typescript: ^5.2.2
+    devDependencies:
+      '@types/mocha': 10.0.4
+      '@types/node': 18.18.10
+      '@types/vscode': 1.84.1
+      '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
+      '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
+      '@vscode/test-electron': 2.3.6
+      eslint: 8.53.0
+      glob: 10.3.10
+      mocha: 10.2.0
+      typescript: 5.2.2
+
 packages:
 
   /@aashutoshrathi/word-wrap/1.2.6:

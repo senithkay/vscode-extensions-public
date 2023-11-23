@@ -1,6 +1,6 @@
-# eggplant README
+# LowCode Editor
 
-This is the README for your extension "eggplant". After writing up a brief description, we recommend including the following sections.
+This is a Low Code editor
 
 ## Features
 

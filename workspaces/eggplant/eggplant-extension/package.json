@@ -3,6 +3,9 @@
   "displayName": "eggplant",
   "description": "",
   "version": "0.0.1",
+  "repository": {
+    "url": "http://repo.url"
+  },
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -41,7 +44,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "build": "vsce package"
   },
   "devDependencies": {
     "@types/vscode": "^1.84.0",
