@@ -73,7 +73,7 @@ export function TextField(props: TextFieldProps) {
                 {iconComponent && (<span slot={position}>{iconComponent}</span>)}
                 <LabelContainer>
                     <div style={{color: "var(--vscode-editor-foreground	)"}}> 
-                        {label} 
+                        <label htmlFor={`${id}-label`}>{label}</label> 
                     </div>
                     {(required && label) && (<RequiredFormInput />)}
                 </LabelContainer>

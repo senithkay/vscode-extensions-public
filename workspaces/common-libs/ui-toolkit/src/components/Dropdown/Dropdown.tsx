@@ -45,7 +45,7 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
 const DropDownContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap : 4px;
+    gap : 2px;
     color: var(--vscode-editor-foreground);
 `;
 

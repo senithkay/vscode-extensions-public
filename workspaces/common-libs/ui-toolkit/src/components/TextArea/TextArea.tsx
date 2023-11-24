@@ -65,7 +65,9 @@ export function TextArea(props: TextAreaProps) {
                 resize={resize}
                 id={id}
             >
-                <LabelContainer><div style={{color: "var(--vscode-editor-foreground	)"}}>{label}</div> {(required && label) && (<RequiredFormInput />)}</LabelContainer>
+                <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
+                    <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
+                </LabelContainer>
             </VSCodeTextArea>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
