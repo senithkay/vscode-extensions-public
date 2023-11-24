@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import { BallerinaProjectComponents, ComponentInfo, ComponentViewInfo, FileListEntry, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { BallerinaProjectComponents, ComponentInfo, ComponentViewInfo, FileListEntry, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-core";
 import { ComponentCollection } from "../ComponentListView";
-import { Uri } from "monaco-editor";
+import { URI } from "vscode-uri"
 
 
 export class ProjectComponentProcessor {
@@ -80,7 +81,7 @@ export class ProjectComponentProcessor {
             const fileEntryKey = `${this.currentModule.name ? `${this.currentModule.name}/` : ''}${component.filePath}`;
 
             if (!this.fileMap.has(fileEntryKey)) {
-                const uri = Uri.parse(genFilePath(this.currentPackage, this.currentModule, component));
+                const uri = URI.parse(genFilePath(this.currentPackage, this.currentModule, component));
                 this.fileMap.set(fileEntryKey, {
                     uri: {
                         path: uri.path,

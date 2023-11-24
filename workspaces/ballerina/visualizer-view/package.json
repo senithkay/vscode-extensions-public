@@ -25,11 +25,8 @@
     "@wso2-enterprise/overview-view": "workspace:*",
     "@wso2-enterprise/service-designer-view": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
-    "@wso2-enterprise/font-wso2-vscode": "workspace:*",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "vscode-messenger-common": "^0.4.5",
-    "vscode-messenger-webview": "^0.4.5"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.33",

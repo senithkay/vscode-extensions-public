@@ -48,7 +48,7 @@ function openWebView(): Promise<void> {
         webViewPanel = window.createWebviewPanel(
             "visualizer",
             "Visualizer",
-            { viewColumn: ViewColumn.One, preserveFocus: false },
+            { viewColumn: ViewColumn.Beside, preserveFocus: false },
             getCommonWebViewOptions()
         );
 

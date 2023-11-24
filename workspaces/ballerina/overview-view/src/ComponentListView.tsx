@@ -69,6 +69,10 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         text-transform: capitalize;
     `;
 
+    const ComponentContainer = styled.div`
+        display: flex;
+    `;
+
     const handleComponentSelection = async (info: ComponentViewInfo) => {
         console.log({
             file: info.filePath,
@@ -107,7 +111,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                         <Typography variant="h2">
                             <Capitalize>{key}</Capitalize>
                         </Typography>
-                        <div>{components}</div>
+                        <ComponentContainer>{components}</ComponentContainer>
                     </CategoryContainer>
                 );
             });
