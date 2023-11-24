@@ -1,4 +1,4 @@
-import { BallerinaSTModifyResponse, VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
+import { BallerinaSTModifyResponse, VisualizerLocation, VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 import { getLangClient, openView } from "../visualizer/activator";
 import { Uri } from "vscode";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -10,17 +10,17 @@ export async function getSyntaxTreeFromPosition(position: BallerinaFunctionSTReq
    return await getLangClient().getSTByRange(position) as BallerinaSTModifyResponse;
 }
 
-export async function handleVisualizerView(params: VisualizerLocationContext) {
+export async function handleVisualizerView(location: VisualizerLocation) {
     const req: BallerinaFunctionSTRequest = {
-        documentIdentifier: { uri: Uri.file(params.location.fileName).toString() },
+        documentIdentifier: { uri: Uri.file(location.fileName).toString() },
         lineRange: {
             start : {
-                line: params.location.position.startLine,
-                character: params.location.position.startColumn
+                line: location.position.startLine,
+                character: location.position.startColumn
             },
             end : {
-                line: params.location.position.endLine,
-                character: params.location.position.endColumn
+                line: location.position.endLine,
+                character: location.position.endColumn
             }
         }
     };
