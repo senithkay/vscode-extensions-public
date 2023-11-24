@@ -11,9 +11,11 @@
 import {
     VisualizerAPI,
     VisualizerLocationContext,
+    getSyntaxTree,
     getVisualizerState,
     openVisualizerView
 } from "@wso2-enterprise/ballerina-core";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -30,5 +32,9 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
         return this._messenger.sendRequest(openVisualizerView, HOST_EXTENSION, params);
+    }
+
+    getSyntaxTree(): Promise<STNode> {
+        return this._messenger.sendRequest(getSyntaxTree, HOST_EXTENSION);
     }
 }

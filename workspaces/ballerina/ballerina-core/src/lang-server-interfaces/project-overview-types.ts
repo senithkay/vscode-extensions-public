@@ -11,7 +11,9 @@
  *  associated services.
  */
 
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { DocumentIdentifier, LineRange } from "./common-types";
+import { Position } from "vscode-languageserver-types";
 
 export interface GetBallerinaPackagesParams {
     documentIdentifiers: DocumentIdentifier[];
@@ -53,8 +55,13 @@ export interface PackageSummary {
     modules: ModuleSummary[]
 }
 
+interface RRange {
+    start: Position;
+    end: Position;
+}
+
 export interface BallerinaFunctionSTRequest {
-    lineRange: Range;
+    lineRange: RRange;
     documentIdentifier: DocumentIdentifier;
 }
 
@@ -71,3 +78,22 @@ export interface ExecutorPosition {
     name: string;
 }
 
+export interface Uri {
+    fsPath: string
+    external: string
+    path: string;
+    sheme: string;
+}
+export interface FileListEntry {
+    fileName: string;
+    uri: Uri;
+}
+
+export interface ComponentViewInfo {
+    filePath: string;
+    position: NodePosition;
+    fileName?: string;
+    moduleName?: string;
+    uid?: string;
+    name?: string;
+}

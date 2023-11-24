@@ -3,6 +3,12 @@ import { getLangClient, openView } from "../visualizer/activator";
 import { Uri } from "vscode";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
+import { TextDocumentPositionParams } from "vscode-languageclient";
+
+
+export async function getSyntaxTreeFromPosition(position: BallerinaFunctionSTRequest){
+   return await getLangClient().getSTByRange(position) as BallerinaSTModifyResponse;
+}
 
 export async function handleVisualizerView(params: VisualizerLocationContext) {
     const req: BallerinaFunctionSTRequest = {
@@ -19,7 +25,7 @@ export async function handleVisualizerView(params: VisualizerLocationContext) {
         }
     };
 
-    const node = await getLangClient().getSTByRange(req) as BallerinaSTModifyResponse;
+    const node = await getSyntaxTreeFromPosition(req);
     if (node.parseSuccess) {
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             openView({ view: "ServiceDesigner" });

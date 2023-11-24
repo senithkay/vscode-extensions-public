@@ -12,8 +12,10 @@
  */
 
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface VisualizerAPI {
     getVisualizerState: () => Promise<VisualizerLocationContext>;
     openVisualizerView: (params: VisualizerLocationContext) => Promise<VisualizerLocationContext>;
+    getSyntaxTree: () => Promise<STNode>;
 }
