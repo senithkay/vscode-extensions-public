@@ -1,0 +1,258 @@
+{
+  "name": "Property Group",
+  "type":"mediator",
+  "title": "Property Group Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": true,
+              "helpTip": "Description"
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "properties",
+              "displayName": "Properties",
+              "form": {
+                "title": "PropertyMediator",
+                "description": "Editing of the properties of an object PropertyMediator",
+                "elements": [
+                  {
+                    "type": "attributeGroup",
+                    "value": {
+                      "groupName": "Properties",
+                      "elements": [
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyName",
+                            "displayName": "Property Name",
+                            "inputType": "combo",
+                            "defaultValue": "",
+                            "comboValues": [
+                              "Action",
+                              "COPY_CONTENT_LENGTH_FROM_INCOMING",
+                              "CacheLevel",
+                              "ClientApiNonBlocking",
+                              "ConcurrentConsumers",
+                              "ContentType",
+                              "disableAddressingForOutMessages",
+                              "DISABLE_CHUNKING",
+                              "DISABLE_SMOOKS_RESULT_PAYLOAD",
+                              "ERROR_CODE",
+                              "ERROR_DETAIL",
+                              "ERROR_EXCEPTION",
+                              "ERROR_MESSAGE",
+                              "FAULTS_AS_HTTP_200",
+                              "FORCE_ERROR_ON_SOAP_FAULT",
+                              "FORCE_HTTP_1_0",
+                              "FORCE_HTTP_CONTENT_LENGTH",
+                              "FORCE_POST_PUT_NOBODY",
+                              "FORCE_SC_ACCEPTED",
+                              "FaultTo",
+                              "From",
+                              "HTTP_ETAG",
+                              "HTTP_SC",
+                              "JMS_COORELATION_ID",
+                              "messageType",
+                              "MESSAGE_FORMAT",
+                              "MaxConcurrentConsumers",
+                              "MercuryLastMessage",
+                              "MercurySequenceKey",
+                              "MessageID",
+                              "NO_ENTITY_BODY",
+                              "NO_KEEPALIVE",
+                              "OUT_ONLY",
+                              "OperationName",
+                              "POST_TO_URI",
+                              "preserveProcessedHeaders",
+                              "PRESERVE_WS_ADDRESSING",
+                              "REQUEST_HOST_HEADER",
+                              "RESPONSE",
+                              "REST_URL_POSTFIX",
+                              "RelatesTo",
+                              "ReplyTo",
+                              "SERVER_IP",
+                              "SYSTEM_DATE",
+                              "SYSTEM_TIME",
+                              "TRANSPORT_HEADERS",
+                              "TRANSPORT_IN_NAME",
+                              "To",
+                              "transportNonBlocking"
+                            ],
+                            "required": true,
+                            "helpTip": "Property Name"
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "newPropertyName",
+                            "displayName": "New Property Name",
+                            "inputType": "string",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "New Property Name"
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyDataType",
+                            "displayName": "Property Data Type",
+                            "inputType": "combo",
+                            "defaultValue": "STRING",
+                            "comboValues": [
+                              "STRING",
+                              "INTEGER",
+                              "BOOLEAN",
+                              "DOUBLE",
+                              "FLOAT",
+                              "LONG",
+                              "SHORT",
+                              "OM",
+                              "JSON"
+                            ],
+                            "required": true,
+                            "helpTip": "Property Data Type"
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyAction",
+                            "displayName": "Property Action",
+                            "inputType": "combo",
+                            "defaultValue": "set",
+                            "comboValues": [
+                              "set",
+                              "remove"
+                            ],
+                            "required": true,
+                            "helpTip": "Property Action"
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyScope",
+                            "displayName": "Property Scope",
+                            "inputType": "combo",
+                            "defaultValue": "DEFAULT",
+                            "comboValues": [
+                              "DEFAULT",
+                              "TRANSPORT",
+                              "AXIS2",
+                              "AXIS2_CLIENT",
+                              "OPERATION",
+                              "REGISTRY",
+                              "SYSTEM",
+                              "ANALYTICS"
+                            ],
+                            "required": true,
+                            "helpTip": "Property Scope"
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "valueType",
+                            "displayName": "Value Type",
+                            "inputType": "combo",
+                            "defaultValue": "LITERAL",
+                            "comboValues": [
+                              "LITERAL",
+                              "EXPRESSION"
+                            ],
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "value",
+                            "displayName": "Value",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "valueType": "LITERAL"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "valueExpression",
+                            "displayName": "Value Expression",
+                            "inputType": "expression",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "valueType": "EXPRESSION"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "valueStringPattern",
+                            "displayName": "Value String Pattern",
+                            "inputType": "string",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Value String Pattern"
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "valueStringCapturingGroup",
+                            "displayName": "Value String Capturing Group",
+                            "inputType": "string",
+                            "defaultValue": "0",
+                            "required": false,
+                            "helpTip": "Value String Capturing Group"
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "description",
+                            "displayName": "Description",
+                            "inputType": "string",
+                            "defaultValue": "",
+                            "required": false,
+                            "helpTip": "Description"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "name": "Fault",
+  "type": "mediator",
+  "title": "Fault Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "soapVersion",
+              "displayName": "SOAP Version",
+              "inputType": "combo",
+              "defaultValue": "soap11",
+              "comboValues": [
+                "soap11",
+                "soap12",
+                "POX"
+              ],
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "soap11",
+              "displayName": "SOAP11",
+              "inputType": "combo",
+              "defaultValue": "VersionMismatch",
+              "comboValues": [
+                "VersionMismatch",
+                "MustUnderstand",
+                "Client",
+                "Server"
+              ],
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "actor",
+              "displayName": "Actor",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "serializeResponse",
+              "displayName": "Serialize Response",
+              "inputType": "checkbox",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Detail",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "detailType",
+                    "displayName": "Type",
+                    "inputType": "combo",
+                    "defaultValue": "VALUE",
+                    "comboValues": [
+                      "VALUE",
+                      "EXPRESSION"
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "detailValue",
+                    "displayName": "Value",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "detailType": "VALUE"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "detailExpression",
+                    "displayName": "Expression",
+                    "inputType": "expression",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "detailType": "EXPRESSION"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Reason",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "reasonType",
+                    "displayName": "Type",
+                    "inputType": "combo",
+                    "defaultValue": "VALUE",
+                    "comboValues": [
+                      "VALUE",
+                      "EXPRESSION"
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "reasonValue",
+                    "displayName": "Value",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "reasonType": "VALUE"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "reasonExpression",
+                    "displayName": "Expression",
+                    "inputType": "expression",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "reasonType": "EXPRESSION"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
