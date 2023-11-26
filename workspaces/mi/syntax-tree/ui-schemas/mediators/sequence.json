@@ -1,0 +1,79 @@
+{
+  "name": "Sequence",
+  "type": "mediator",
+  "title": "Sequence Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Referring Sequence",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "referringSequenceType",
+                    "displayName": "Referring Sequence Type",
+                    "inputType": "combo",
+                    "defaultValue": "Static",
+                    "comboValues": [
+                      "Static",
+                      "dynamic"
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "staticReferenceKey",
+                    "displayName": "Static Reference Key",
+                    "inputType": "String",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "referringSequenceType": "static"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "dynamicReferenceKey",
+                    "displayName": "Dynamic Reference Key",
+                    "inputType": "String",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "referringSequenceType": "dynamic"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "String",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
