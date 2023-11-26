@@ -648,6 +648,9 @@ importers:
 
   ../../workspaces/ballerina/service-designer-view:
     specifiers:
+      '@emotion/css': ^11.10.5
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
       '@typescript-eslint/eslint-plugin': ^6.9.1
@@ -655,6 +658,8 @@ importers:
       '@vitejs/plugin-react': ^4.1.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
@@ -667,8 +672,13 @@ importers:
       vscode-messenger-common: ^0.4.5
       vscode-messenger-webview: ^0.4.5
     dependencies:
+      '@emotion/css': 11.11.2
+      '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
+      '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       monaco-editor: 0.44.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

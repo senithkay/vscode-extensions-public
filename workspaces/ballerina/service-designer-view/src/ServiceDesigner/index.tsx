@@ -7,13 +7,23 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
+import { ResourceForm } from "./components/ResourceForm//ResourceForm";
 
 export function ServiceDesigner() {
+    const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
+
+    const handleOnClose = () => {
+        setIsSidePanelOpen(false);
+    };
+    const handleOnClick = () => {
+        setIsSidePanelOpen(true);
+    };
 
     return (
         <div data-testid="service-design-view">
-           <h2>Hello Service Designer</h2>
+           <h2 onClick={handleOnClick}>Hello Service Designer - bbbb</h2>
+           <ResourceForm isOpen = {isSidePanelOpen} onClose={handleOnClose}/>
         </div>
     )
 }
