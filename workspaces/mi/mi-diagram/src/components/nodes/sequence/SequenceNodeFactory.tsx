@@ -28,8 +28,6 @@ export class SequenceNodeFactory extends AbstractReactFactory<SequenceNodeModel,
         return <SequenceNodeWidget
             diagramEngine={this.engine}
             node={event.model}
-            width={event.model.width}
-            height={event.model.height}
             side={event.model.isInOutSequenceNode() ? "left" : "right"}
         />;
     }

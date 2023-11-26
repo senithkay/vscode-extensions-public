@@ -28,8 +28,6 @@ export class PlusNodeFactory extends AbstractReactFactory<PlusNodeModel, Diagram
         return <PlusNodeWidget
             diagramEngine={this.engine}
             node={event.model}
-            width={30}
-            height={70}
             range={event.model.getNodeRange()}
             documentUri={event.model.getDocumentUri()}
         />;
@@ -38,7 +36,6 @@ export class PlusNodeFactory extends AbstractReactFactory<PlusNodeModel, Diagram
     generateModel(event: { initialConfig: any }) {
         return new PlusNodeModel(
             event.initialConfig.model.id,
-            event.initialConfig.model.nodePosition,
             event.initialConfig.model.documentUri,
             event.initialConfig.model.isInOutSequence,
         );

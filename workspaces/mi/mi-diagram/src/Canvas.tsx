@@ -15,7 +15,7 @@ import { isDarkMode } from "./utils/Utils";
 const background = require('./resources/assets/PatternBg.svg') as string;
 
 export const Container: React.FC<any> = styled.div`
-  height: 500px;
+  height: inherit;
   position: relative;
   &::before {
     content: "";

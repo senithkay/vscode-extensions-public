@@ -27,8 +27,6 @@ export class SimpleMediatorNodeFactory extends AbstractReactFactory<SimpleMediat
         return <MediatorNodeWidget
             diagramEngine={this.engine}
             node={event.model}
-            width={70}
-            height={70}
             description={event.model.mediatorDescription}
         />;
     }

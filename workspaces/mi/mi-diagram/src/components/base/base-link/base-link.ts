@@ -9,9 +9,6 @@
 
 import { DefaultLinkModel, DiagramEngine, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { BezierCurve, Point } from '@projectstorm/geometry';
-import { debounce } from 'lodash';
-import { getOpposingPort } from './utils';
-
 export class MediatorBaseLinkModel extends DefaultLinkModel {
 	diagramEngine: DiagramEngine;
 
@@ -20,17 +17,6 @@ export class MediatorBaseLinkModel extends DefaultLinkModel {
 			id: id,
 			type: type
 		});
-	}
-
-	initLinks = (diagramEngine: DiagramEngine) => {
-		this.diagramEngine = diagramEngine;
-		this.getSourcePort().registerListener({
-			positionChanged: () => this.onPositionChange()
-		});
-
-		this.getTargetPort().registerListener({
-			positionChanged: () => this.onPositionChange()
-		})
 	}
 
 	selectLinkedNodes = () => {
@@ -102,65 +88,6 @@ export class MediatorBaseLinkModel extends DefaultLinkModel {
 		const tx = targetPoint.x;
 		const ty = targetPoint.y;
 		return `M${sx},${sy} L${tx},${ty}`;
-	}
-
-	onPositionChange = debounce(() => {
-		if (this.getSourcePort() && this.getTargetPort()) {
-			const { sourceLeft, sourceRight, targetLeft, targetRight } = this.getPortPositions();
-
-			if (sourceLeft <= targetLeft) {
-				if (sourceRight <= targetLeft) {
-					this.checkPorts(PortModelAlignment.RIGHT, PortModelAlignment.LEFT);
-				} else if (targetRight <= sourceRight) {
-					this.checkPorts(PortModelAlignment.RIGHT, PortModelAlignment.RIGHT);
-				} else {
-					this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.LEFT);
-				}
-			} else {
-				if (targetRight <= sourceLeft) {
-					this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.RIGHT);
-				} else {
-					this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.LEFT);
-				}
-			}
-		}
-	}, 500);
-
-	getPortPositions = () => {
-		let sourceLeft: number;
-		let sourceRight: number;
-		let targetLeft: number;
-		let targetRight: number;
-
-		if (this.getSourcePort().getOptions().alignment === PortModelAlignment.LEFT) {
-			sourceLeft = this.getSourcePort().getPosition().x;
-			sourceRight = sourceLeft + this.getSourcePort().getNode().width;
-		} else {
-			sourceRight = this.getSourcePort().getPosition().x;
-			sourceLeft = sourceRight - this.getSourcePort().getNode().width;
-		}
-
-		if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-			targetLeft = this.getTargetPort().getPosition().x;
-			targetRight = targetLeft + this.getTargetPort().getNode().width;
-		} else {
-			targetRight = this.getTargetPort().getPosition().x;
-			targetLeft = targetRight - this.getTargetPort().getNode().width;
-		}
-
-		return { sourceLeft, sourceRight, targetLeft, targetRight };
-	}
-
-	checkPorts = (source: PortModelAlignment, target: PortModelAlignment) => {
-		if (!this.getSourcePort().getID().startsWith(source)) {
-			this.setSourcePort(this.getSourcePort().getNode().getPortFromID(getOpposingPort(this.getSourcePort().getID(), source)));
-			this.diagramEngine.repaintCanvas();
-		}
-
-		if (!this.getTargetPort().getID().startsWith(target)) {
-			this.setTargetPort(this.getTargetPort().getNode().getPortFromID(getOpposingPort(this.getTargetPort().getID(), target)));
-			this.diagramEngine.repaintCanvas();
-		}
 	}
 
 	getArrowHeadPoints = (): string => {

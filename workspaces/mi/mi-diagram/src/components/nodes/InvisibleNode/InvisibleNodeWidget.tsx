@@ -18,7 +18,7 @@ export function InvisibleNodeWidget(props: BaseNodeProps) {
             if (event.offsetX && event.offsetY) {
                 const zoom = props.diagramEngine.getModel().getZoomLevel() / 100;
                 const offsetX = - event.offsetX;
-                const offsetY = (OFFSET.START.Y * zoom) - event.offsetY + (props.node.isInOutSequenceNode() ? OFFSET.START.Y_INVERTED : 0);
+                const offsetY = (OFFSET.START.Y * zoom) - event.offsetY + (props.node.isInOutSequenceNode() ? OFFSET.BETWEEN.SEQUENCE : 0);
                 props.node.setPosition(offsetX, offsetY);
             }
         }
@@ -28,9 +28,9 @@ export function InvisibleNodeWidget(props: BaseNodeProps) {
         <><PortWidget
             style={{
                 right: 0,
-                top: props.height / 2,
-                width: props.width,
-                height: props.height,
+                top: props.node.height / 2,
+                width: props.node.width,
+                height: props.node.height,
                 position: 'absolute'
             }}
             port={props.node.getPort(PortModelAlignment.RIGHT)}

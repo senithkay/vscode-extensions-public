@@ -23,13 +23,11 @@ interface WidgetProps {
 }
 
 export function MediatorLinkWidget(props: WidgetProps) {
-    const { link, engine, isReturning } = props;
+    const { link, isReturning } = props;
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
 
     useEffect(() => {
-        link.initLinks(engine);
-
         link.registerListener({
             'SELECT': selectPath,
             'UNSELECT': unselectPath

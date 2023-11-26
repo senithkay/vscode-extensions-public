@@ -8,10 +8,10 @@
  */
 
 import React, { useContext } from 'react';
-import { PortWidget } from '@projectstorm/react-diagrams-core';
 import { BaseNodeProps } from '../../base/base-node/base-node';
 import SidePanelContext from '../../sidePanel/SidePanelContexProvider';
 import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { MediatorPortWidget } from '../../port/MediatorPortWidget';
 
 export interface PlusNodeWidgetProps extends BaseNodeProps {
     range: Range;
@@ -19,7 +19,17 @@ export interface PlusNodeWidgetProps extends BaseNodeProps {
 }
 
 export function PlusNodeWidget(props: PlusNodeWidgetProps) {
+    const node = props.node;
+    node.height = 30;
+    node.width = 30;
     const sidePanelContext = useContext(SidePanelContext)
+
+    const nodePosition = node.getPosition();
+
+    const leftPort = node.getPortByAllignment('left');
+    const rightPort = node.getPortByAllignment('right');
+    leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
+    rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
 
     function handleClick() {
         sidePanelContext.setNodePosition(props.range);
@@ -29,8 +39,8 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
     return (
         <>
             <svg
-                width={props.width}
-                height={props.height}
+                width={props.node.width}
+                height={props.node.height}
                 viewBox="0 0 600 600"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -50,26 +60,16 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
                     </defs>
                 </g>
             </svg>
-            <PortWidget
-                style={{
-                    left: 0,
-                    top: props.height / 2,
-                    position: 'absolute'
-                }}
-                port={props.node.getPortByAllignment('left')}
+            <MediatorPortWidget
+                port={leftPort}
                 engine={props.diagramEngine}
-            >
-            </PortWidget>
-            <PortWidget
-                style={{
-                    right: 0,
-                    top: props.height / 2,
-                    position: 'absolute'
-                }}
-                port={props.node.getPortByAllignment('right')}
+                node={props.node}
+            />
+            <MediatorPortWidget
+                port={rightPort}
                 engine={props.diagramEngine}
-            >
-            </PortWidget>
+                node={props.node}
+            />
         </>
     );
 }

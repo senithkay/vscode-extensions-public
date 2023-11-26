@@ -9,19 +9,19 @@
 
 export const OFFSET = {
     START: {
-        X: 70,
-        Y: 70,
-        Y_INVERTED: 200,
-        SEQUENCE: 35,
+        X: 50,
+        Y: 50
     },
     BETWEEN: {
         X: 130,
         Y: 0,
+        SEQUENCE: 30,
     },
     MARGIN: {
         LEFT: 0,
-        RIGHT: 50,
+        RIGHT: 80,
         TOP: 20,
-        BOTTOM: 20,
+        BOTTOM: 50,
+        SEQUENCE: 50,
     }
 };

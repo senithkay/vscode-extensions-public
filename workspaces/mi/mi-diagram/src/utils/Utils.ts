@@ -39,13 +39,13 @@ export function generateEngine(): DiagramEngine {
 }
 
 export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel,
-    addPlus: boolean = true, addArrow: boolean = true, isReturning: boolean = false): any[] {
+    addPlus: boolean = true, addArrow: boolean = true): any[] {
     if (!sourceNode || !targetNode) {
         return [];
     }
     const portsAndNodes = [];
-    let sourcePort = sourceNode.getPort(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.RIGHT : `right-${sourceNode.getID()}`);
-    const targetPort = targetNode.getPort(targetNode instanceof SequenceNodeModel ? PortModelAlignment.RIGHT : `left-${targetNode.getID()}`);
+    let sourcePort = sourceNode.getPortByAllignment(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.LEFT : (sourceNode.isInOutSequenceNode() ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT));
+    const targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.RIGHT : (targetNode.isInOutSequenceNode() ? PortModelAlignment.RIGHT : PortModelAlignment.LEFT));
 
     if (!sourcePort || !targetPort) {
         return [];
@@ -66,10 +66,10 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
         const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode());
         plusNode.setNodeRange(nodeRange);
         const link = createLinks(sourceNode, plusNode, false, false);
-        sourcePort = plusNode.getPort(`right-${plusNode.getID()}`);
+        sourcePort = plusNode.getPortByAllignment(sourceNode.isInOutSequenceNode() ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT);
         portsAndNodes.push(plusNode, ...link);
     }
-    const link: MediatorLinkModel = new MediatorLinkModel(`${sourcePort.getID()}::${targetPort.getID()}`, addArrow, isReturning);
+    const link: MediatorLinkModel = new MediatorLinkModel(`${sourcePort.getID()}::${targetPort.getID()}`, addArrow, sourceNode.isInOutSequenceNode() != targetNode.isInOutSequenceNode());
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
