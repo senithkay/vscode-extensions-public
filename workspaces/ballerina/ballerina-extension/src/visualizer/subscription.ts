@@ -8,13 +8,19 @@
  */
 
 import * as vscode from 'vscode';
-import { openView } from './activator';
 import { PALETTE_COMMANDS } from '../project/cmds/cmd-runner';
+import { openView } from './activator';
+import { handleVisualizerView } from '../utils/navigation';
 
 export function activateSubscriptions(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, () => {
-            openView({view: 'Overview'});
+        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (path, position) => {
+            openView({view: "Overview", location: {fileName: path, position: position}});
+        })
+    );
+    context.subscriptions.push(
+        vscode.commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (path, position) => {
+            handleVisualizerView({fileName: path, position: position});
         })
     );
     context.subscriptions.push(

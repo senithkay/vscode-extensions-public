@@ -1,19 +1,13 @@
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 export type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner" | "DataMapper";
 
 export interface VisualizerLocation {
     fileName: string;
-    position: Position;
+    position: NodePosition;
 }
-export interface Position {
-    endColumn: number;
-    endLine: number;
-    startColumn: number;
-    startLine: number;
-}
+
 export interface VisualizerLocationContext {
     view?: Views;
     location?: VisualizerLocation;
-    stNode?: STNode
 }

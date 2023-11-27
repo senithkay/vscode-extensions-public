@@ -1,15 +1,31 @@
-import { BallerinaSTModifyResponse, VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
+import { BallerinaSTModifyResponse, VisualizerLocation, VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 import { getLangClient, openView } from "../visualizer/activator";
 import { Uri } from "vscode";
-import { TextDocumentPositionParams } from "vscode-languageclient";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
+import { TextDocumentPositionParams } from "vscode-languageclient";
 
-export async function handleVisualizerView(params: VisualizerLocationContext) {
-    const position: TextDocumentPositionParams = {
-        textDocument: { uri: Uri.file(params.location.fileName).toString() },
-        position: { line: params.location.position.startLine, character: params.location.position.startColumn }
+
+export async function getSyntaxTreeFromPosition(position: BallerinaFunctionSTRequest){
+   return await getLangClient().getSTByRange(position) as BallerinaSTModifyResponse;
+}
+
+export async function handleVisualizerView(location: VisualizerLocation) {
+    const req: BallerinaFunctionSTRequest = {
+        documentIdentifier: { uri: Uri.file(location.fileName).toString() },
+        lineRange: {
+            start : {
+                line: location.position.startLine,
+                character: location.position.startColumn
+            },
+            end : {
+                line: location.position.endLine,
+                character: location.position.endColumn
+            }
+        }
     };
-    const node = await getLangClient().getDefinitionPosition(position) as BallerinaSTModifyResponse;
+
+    const node = await getSyntaxTreeFromPosition(req);
     if (node.parseSuccess) {
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
             openView({ view: "ServiceDesigner" });

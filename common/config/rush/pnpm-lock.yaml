@@ -47,12 +47,12 @@ importers:
       eslint-plugin-react-refresh: ^0.4.4
       typescript: ^5.2.2
       vite: ^4.5.0
-      vscode-languageserver-protocol: ^3.17.5
+      vscode-languageserver-types: ^3.17.5
       vscode-messenger-common: ^0.4.5
     dependencies:
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
-      vscode-languageserver-protocol: 3.17.5
+      vscode-languageserver-types: 3.17.5
       vscode-messenger-common: 0.4.5
     devDependencies:
       '@types/vscode': 1.84.1
@@ -259,6 +259,7 @@ importers:
       '@typescript-eslint/parser': ^6.9.1
       '@vitejs/plugin-react': ^4.1.0
       '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
       copyfiles: ^2.4.1
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
@@ -273,6 +274,7 @@ importers:
     dependencies:
       '@types/vscode-webview': 1.57.4
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/syntax-tree': link:../syntax-tree
       monaco-editor: 0.44.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -475,42 +477,34 @@ importers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
       '@types/react': ^18.2.33
-      '@types/react-dom': ^18.2.14
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@vitejs/plugin-react': ^4.1.0
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-core': workspace:*
-      '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
-      monaco-editor: 0.44.0
       react: ^18.2.0
       react-dom: ^18.2.0
       typescript: ^5.2.2
       vite: ^4.5.0
-      vscode-messenger-common: ^0.4.5
-      vscode-messenger-webview: ^0.4.5
+      vscode-uri: ^3.0.8
     dependencies:
       '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
       '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
       '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
-      '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
-      monaco-editor: 0.44.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      vscode-messenger-common: 0.4.5
-      vscode-messenger-webview: 0.4.5
+      vscode-uri: 3.0.8
     devDependencies:
       '@types/react': 18.2.37
-      '@types/react-dom': 18.2.15
       '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
       '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
       '@vitejs/plugin-react': 4.1.1_vite@4.5.0
@@ -726,7 +720,6 @@ importers:
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
-      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
       '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -739,8 +732,6 @@ importers:
       typescript: ^5.2.2
       vite: ^4.5.0
       vite-tsconfig-paths: ^4.2.1
-      vscode-messenger-common: ^0.4.5
-      vscode-messenger-webview: ^0.4.5
     dependencies:
       '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
       '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
@@ -748,14 +739,11 @@ importers:
       '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
-      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/service-designer-view': link:../service-designer-view
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      vscode-messenger-common: 0.4.5
-      vscode-messenger-webview: 0.4.5
     devDependencies:
       '@types/react': 18.2.37
       '@types/react-dom': 18.2.15

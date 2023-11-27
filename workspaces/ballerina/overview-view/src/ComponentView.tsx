@@ -76,8 +76,8 @@ export function ComponentView(props: ComponentViewProps) {
                 borderRadius: 5,
                 cursor: isComponentAllowed() ? 'cursor' : 'not-allowed',
                 display: 'flex',
-                height: 50,
-                justifyContent: 'left',
+                height: 25,
+                justifyContent: 'space-between',
                 marginBottom: 16,
                 marginRight: 16,
                 padding: 10,
@@ -85,7 +85,7 @@ export function ComponentView(props: ComponentViewProps) {
                 width: 200
             }}
         >
-            <Icon name="ballerina" />
+            <Icon name={iconNameTranslator(type)} />
             <Typography variant="h3">
                 {info.name.length ? info.name : '/'}
             </Typography>
@@ -93,30 +93,31 @@ export function ComponentView(props: ComponentViewProps) {
     )
 }
 
-// function iconNameTranslator(type: string) {
-//     switch (type) {
-//         case 'functions':
-//             return 'Function';
-//         case 'services':
-//             return 'Service';
-//         case 'records':
-//             return 'TypeDefinition';
-//         case 'objects':
-//             return 'Object';
-//         case 'classes':
-//             return 'Class';
-//         case 'types':
-//             return 'TypeDefinition';
-//         case 'constants':
-//             return 'Constant';
-//         case 'enums':
-//             return 'Enum';
-//         case 'listeners':
-//             return 'Listener';
-//         case 'moduleVariables':
-//             return 'Variable';
-//         default:
-//             return 'TypeDefinition';
-//     }
-// }
+
+function iconNameTranslator(type: string) {
+    switch (type) {
+        case 'functions':
+            return 'function-icon';
+        case 'services':
+            return 'service-icon';
+        case 'records':
+            return 'record-icon';
+        case 'objects':
+            return 'record-icon';
+        case 'classes':
+            return 'class-icon';
+        case 'types':
+            return 'record-icon';
+        case 'constants':
+            return 'constant-icon';
+        case 'enums':
+            return 'enum-icon';
+        case 'listeners':
+            return 'listener-icon';
+        case 'moduleVariables':
+            return 'variable-icon';
+        default:
+            return 'record-icon';
+    }
+}
 
