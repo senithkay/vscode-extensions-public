@@ -16,8 +16,6 @@ import { Range } from '@wso2-enterprise/mi-core/src';
 export interface BaseNodeProps extends NodeProps {
     node: BaseNodeModel;
     diagramEngine: DiagramEngine;
-    width: number;
-    height: number;
 }
 
 export class BaseNodeModel extends NodeModel<NodeModelGenerics> {

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
+import createEngine, { DiagramEngine, NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { MediatorLinkFactory } from "../components/link/MediatorLinkFactory";
 import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
 import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
@@ -19,6 +19,7 @@ import { BaseNodeModel } from "../components/base/base-node/base-node";
 import { SequenceNodeFactory } from "../components/nodes/sequence/SequenceNodeFactory";
 import { SequenceNodeModel } from "../components/nodes/sequence/SequenceNodeModel";
 import { AdvancedMediatorNodeFactory } from "../components/nodes/mediators/advancedMediator/AdvancedMediatorFactory";
+import { OFFSET } from "../constants";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -38,6 +39,26 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
+export function setNodePositions(nodes: NodeModel[], isInOutSequence: boolean, startX: number, startY: number, sequenceHeight: number) {
+    startX += OFFSET.BETWEEN.X;
+    startY += OFFSET.BETWEEN.Y;
+    if (!isInOutSequence) {
+        for (let i = 0; i < nodes.length; i++) {
+            const node: any = nodes[i];
+            node.setPosition(startX, startY + (sequenceHeight / 2) - node.height / 2);
+            startX += (node instanceof SequenceNodeModel ? 0 : node.width) + OFFSET.BETWEEN.X;
+            startY += OFFSET.BETWEEN.Y;
+        }
+    } else {
+        for (let i = nodes.length - 1; i >= 0; i--) {
+            const node: any = nodes[i];
+            node.setPosition(startX, startY + (sequenceHeight / 2) - node.height / 2);
+            startX += (node instanceof SequenceNodeModel ? 0 : node.width) + OFFSET.BETWEEN.X;
+            startY += OFFSET.BETWEEN.Y;
+        }
+    }
+}
+
 export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel,
     addPlus: boolean = true, addArrow: boolean = true): any[] {
     if (!sourceNode || !targetNode) {
@@ -45,7 +66,7 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
     }
     const portsAndNodes = [];
     let sourcePort = sourceNode.getPortByAllignment(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.LEFT : (sourceNode.isInOutSequenceNode() ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT));
-    const targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.RIGHT : (targetNode.isInOutSequenceNode() ? PortModelAlignment.RIGHT : PortModelAlignment.LEFT));
+    const targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.LEFT : (targetNode.isInOutSequenceNode() ? PortModelAlignment.RIGHT : PortModelAlignment.LEFT));
 
     if (!sourcePort || !targetPort) {
         return [];

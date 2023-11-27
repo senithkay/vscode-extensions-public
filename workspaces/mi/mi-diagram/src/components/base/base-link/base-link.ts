@@ -9,6 +9,7 @@
 
 import { DefaultLinkModel, DiagramEngine, PortModelAlignment } from '@projectstorm/react-diagrams';
 import { BezierCurve, Point } from '@projectstorm/geometry';
+import { BaseNodeModel } from '../base-node/base-node';
 export class MediatorBaseLinkModel extends DefaultLinkModel {
 	diagramEngine: DiagramEngine;
 
@@ -94,13 +95,15 @@ export class MediatorBaseLinkModel extends DefaultLinkModel {
 		let points: string;
 		let targetPort: Point = this.getTargetPort().getPosition();
 
-		if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
+		const alignment = this.getTargetPort().getOptions().alignment;
+		const isInOutSequence = (this.getSourcePort().getNode() as BaseNodeModel).isInOutSequenceNode();
+		if (alignment === PortModelAlignment.RIGHT || (isInOutSequence && alignment === PortModelAlignment.LEFT)) {
 			points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 6},
 				${targetPort.x + 12} ${targetPort.y - 6}`;
-		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
+		} else if (alignment === PortModelAlignment.LEFT) {
 			points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 10} ${targetPort.y + 6},
 				${targetPort.x - 10} ${targetPort.y - 6}`;
-		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
+		} else if (alignment === PortModelAlignment.BOTTOM) {
 			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 10} ${targetPort.y + 14},
 				${targetPort.x - 10} ${targetPort.y + 14}`;
 		}

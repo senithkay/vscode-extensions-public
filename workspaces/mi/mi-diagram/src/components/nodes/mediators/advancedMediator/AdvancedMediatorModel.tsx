@@ -12,33 +12,40 @@ import { BaseNodeModel } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
-export const SIMPLE_NODE = "SimpleNode";
+export const ADVANCED_NODE = "AdvancedNode";
 
-interface SimpleMediatorNodeModelProps {
+interface SubSequence {
+    name: string;
+    nodes: BaseNodeModel[];
+    width?: number;
+    height?: number;
+}
+
+interface AdvancedMediatorNodeModelProps {
     node: STNode;
     name: string,
     description: string,
     documentUri: string;
     isInOutSequence: boolean;
+    subSequences: SubSequence[];
     parentNode?: STNode;
 }
-export class SimpleMediatorNodeModel extends BaseNodeModel {
+export class AdvancedMediatorNodeModel extends BaseNodeModel {
     readonly id: string;
     readonly mediatorName: string;
     readonly mediatorDescription: string;
+    readonly subSequences: SubSequence[] = [];
 
-    constructor(props: SimpleMediatorNodeModelProps) {
-        const { node, documentUri, isInOutSequence, parentNode } = props;
+    constructor(props: AdvancedMediatorNodeModelProps) {
+        const { node, documentUri, isInOutSequence, subSequences, parentNode } = props;
         const id = `${node.tag}${node.start}${node.end}`;
-        super(SIMPLE_NODE, id, documentUri, isInOutSequence, node, parentNode);
+        super(ADVANCED_NODE, id, documentUri, isInOutSequence, node, parentNode);
 
         this.id = id;
         this.mediatorDescription = props.description;
-        this.width = 70;
-        this.height = 70;
+        this.subSequences = subSequences;
 
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.RIGHT));
-        this.addPort(new MediatorPortModel(this.id, PortModelAlignment.TOP));
     }
 }

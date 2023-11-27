@@ -22,7 +22,7 @@ export function MediatorPortWidget(props: CustomPortProps) {
     const { port, engine } = props;
     const portStyles: CSSProperties = port.getOptions().alignment === PortModelAlignment.LEFT ?
         { left: 0, ...sidePortStyles } : port.getOptions().alignment === PortModelAlignment.RIGHT ?
-            { left: 0, ...sidePortStyles } : port.getOptions().alignment === PortModelAlignment.TOP ?
+            { right: 0, ...sidePortStyles } : port.getOptions().alignment === PortModelAlignment.TOP ?
                 { top: 0, ...inclusionPortStyles } : { bottom: 0, ...inclusionPortStyles };
 
     return (
@@ -30,11 +30,10 @@ export function MediatorPortWidget(props: CustomPortProps) {
             engine={engine}
             port={port}
             style={{
-                    ...portStyles,
-                    left: 0,
-                    top: props.node.height / 2,
-                    
-                }}
+                ...portStyles,
+                top: props.node.height / 2,
+                width: 0,
+            }}
         />
     )
 }

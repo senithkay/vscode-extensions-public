@@ -18,9 +18,6 @@ export interface SimpleMediatorWidgetProps extends BaseNodeProps {
 
 export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     const node: SimpleMediatorNodeModel = props.node as SimpleMediatorNodeModel;
-    props.node.width = 70;
-    props.node.height = 70;
-    node.fireEvent({}, "updateDimensions");
 
     const nodePosition = node.getPosition();
 

@@ -11,8 +11,8 @@ import React from 'react';
 import { PortModelAlignment } from '@projectstorm/react-diagrams-core';
 import { BaseNodeProps } from '../../base/base-node/base-node';
 import { OFFSET } from '../../../constants';
-import { SequenceNodeModel } from './SequenceNodeModel';
 import { MediatorPortWidget } from '../../port/MediatorPortWidget';
+import { IN_SEQUENCE_TAG, OUT_SEQUENCE_TAG } from '../../compartments/Sequence';
 
 interface SequenceNodeProps extends BaseNodeProps {
     side: "right" | "left"
@@ -20,8 +20,9 @@ interface SequenceNodeProps extends BaseNodeProps {
 
 export function SequenceNodeWidget(props: SequenceNodeProps) {
     const node = props.node;
-    const inSeqNodes = props.diagramEngine.getModel().getNodes().filter((node: any) => !node.isInOutSequenceNode() && !(node instanceof SequenceNodeModel));
-    const outSeqNodes = props.diagramEngine.getModel().getNodes().filter((node: any) => node.isInOutSequenceNode() && !(node instanceof SequenceNodeModel));
+    const nodes = props.diagramEngine.getModel().getNodes();
+    const inSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === IN_SEQUENCE_TAG);
+    const outSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === OUT_SEQUENCE_TAG);
     const canvasWidthInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getX() + inSeqNodes[inSeqNodes.length - 1].width : 0;
     const canvasWidthOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[0].getX() + outSeqNodes[0].width : 0;
     const width = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes) + (OFFSET.BETWEEN.X) + 70;
@@ -45,6 +46,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     const rightPort = node.getPortByAllignment(PortModelAlignment.RIGHT);
     rightPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
 
+    node.fireEvent({}, "updateDimensions");
     return (
         <>
             <div style={{

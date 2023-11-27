@@ -20,8 +20,6 @@ export interface PlusNodeWidgetProps extends BaseNodeProps {
 
 export function PlusNodeWidget(props: PlusNodeWidgetProps) {
     const node = props.node;
-    node.height = 30;
-    node.width = 30;
     const sidePanelContext = useContext(SidePanelContext)
 
     const nodePosition = node.getPosition();

@@ -14,11 +14,15 @@ import {
 } from '@projectstorm/react-diagrams';
 
 import { CanvasContainer } from '../../Canvas';
-import { generateEngine, createLinks } from '../../utils/Utils';
+import { generateEngine, createLinks, setNodePositions } from '../../utils/Utils';
 import { BaseNodeModel } from '../base/base-node/base-node';
 import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
 import { SequenceNodeModel } from '../nodes/sequence/SequenceNodeModel';
+import { PlusNodeModel } from '../nodes/plusNode/PlusNodeModel';
+
+export const IN_SEQUENCE_TAG = "inSequence";
+export const OUT_SEQUENCE_TAG = "outSequence";
 
 export interface SequenceDiagramProps {
     inSequence: BaseNodeModel[];
@@ -51,13 +55,13 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             if (outSequenceNodes.length > 0) {
                 drawSequence(outSequenceNodes, true);
             }
-            diagramEngine.getModel().getNodes()[2].registerListener({
+            diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
                     if (event.function == "updateDimensions") {
                         autoDistribute();
                     }
                 }
-            });
+            }));
             autoDistribute();
             model.setLocked(true);
             setLoading(false);
@@ -94,43 +98,26 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         console.log("Distributing...");
         let x = OFFSET.START.X;
         let y = OFFSET.START.Y;
-        let inSeqHeight = 0;
         const nodes = diagramEngine.getModel().getNodes();
-        const inSeqNodes = nodes.filter((node: any) => !node.isInOutSequenceNode() && !(node instanceof SequenceNodeModel));
-        const outSeqNodes = nodes.filter((node: any) => node.isInOutSequenceNode() && !(node instanceof SequenceNodeModel));
+        const inSeqNodes = nodes.filter((node: any) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel) || node.parentNode?.tag === IN_SEQUENCE_TAG);
+        const outSeqNodes = nodes.filter((node: any) => (node.isInOutSequenceNode() && node instanceof PlusNodeModel) || node.parentNode?.tag === OUT_SEQUENCE_TAG);
         const inSeqNode = nodes.filter((node: any) => !node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const outSeqNode = nodes.filter((node: any) => node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
-        const canvasHeightInSeqNodes = inSeqNode ? inSeqNode.height : 0;
-        const canvasHeightOutSeqNodes = outSeqNode ? outSeqNode.height : 0;
-
+        const inSequenceHeight = inSeqNode ? inSeqNode.height : 0;
+        const outSequenceHeight = outSeqNode ? outSeqNode.height : 0;
         if (inSeqNode) {
             inSeqNode.setPosition(x, y);
 
-            x += OFFSET.BETWEEN.X;
-            y += OFFSET.BETWEEN.Y;
-            for (let i = 0; i < inSeqNodes.length; i++) {
-                const node: any = inSeqNodes[i];
-                node.setPosition(x, y + (canvasHeightInSeqNodes / 2) - node.height / 2);
-                x += (node instanceof SequenceNodeModel ? 0 : node.width) + OFFSET.BETWEEN.X;
-                y += OFFSET.BETWEEN.Y;
-                inSeqHeight = Math.max(inSeqHeight, node.height);
-            }
+            setNodePositions(inSeqNodes, false, x, y, inSequenceHeight);
 
             x = OFFSET.START.X;
-            y = OFFSET.START.Y + canvasHeightInSeqNodes + OFFSET.BETWEEN.SEQUENCE;
+            y = OFFSET.START.Y + inSequenceHeight + OFFSET.BETWEEN.SEQUENCE;
         }
 
         if (outSeqNode) {
             outSeqNode.setPosition(x, y);
 
-            x += OFFSET.BETWEEN.X;
-            y += OFFSET.BETWEEN.Y;
-            for (let i = outSeqNodes.length - 1; i >= 0; i--) {
-                const node: any = outSeqNodes[i];
-                node.setPosition(x, y + (canvasHeightOutSeqNodes / 2) - node.height / 2);
-                x += (node instanceof SequenceNodeModel ? 0 : node.width) + OFFSET.BETWEEN.X;
-                y += OFFSET.BETWEEN.Y;
-            }
+            setNodePositions(outSeqNodes, true, x, y, outSequenceHeight);
         }
 
         if (inSeqNode && outSeqNode && inSeqNodes.length > 0 && outSeqNodes.length > 0) {
@@ -143,7 +130,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         const canvasWidthOutSeqNodes = outSeqNode ? outSeqNode.width : 0;
         const canvasWidth = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes);
         setCanvasWidth(canvasWidth + OFFSET.START.X + OFFSET.MARGIN.LEFT + OFFSET.MARGIN.RIGHT);
-        setCanvasHeight(canvasHeightInSeqNodes + canvasHeightOutSeqNodes + OFFSET.START.Y + OFFSET.MARGIN.TOP + OFFSET.MARGIN.BOTTOM);
+        setCanvasHeight(inSequenceHeight + outSequenceHeight + OFFSET.START.Y + OFFSET.MARGIN.TOP + OFFSET.MARGIN.BOTTOM);
     };
 
     if (isLoading) {
