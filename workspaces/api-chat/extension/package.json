@@ -72,7 +72,7 @@
     "compile": "webpack --mode production",
     "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../webviews/build/*.js ./resources/jslibs",
     "copy-codicons": "copyfiles -f ./node_modules/@vscode/codicons/dist/* ./resources/codicons",
-    "watch": "tsc -watch -p ./",
+    "watch-api-chat": "tsc -watch -p ./",
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
