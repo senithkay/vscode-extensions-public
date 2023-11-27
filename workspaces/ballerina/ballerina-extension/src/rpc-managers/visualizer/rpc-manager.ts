@@ -31,7 +31,7 @@ export class VisualizerRpcManager implements VisualizerAPI {
     async openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
         return new Promise(async (resolve) => {
             if (params.location) {
-                await handleVisualizerView(params);
+                await handleVisualizerView(params.location);
             } else {
                 openView(params);
             }

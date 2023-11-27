@@ -95,7 +95,7 @@ export async function activateBallerina(context: ExtensionContext): Promise<Ball
         // activateDebugConfigProvider(ballerinaExtInstance);
         // // Enable Ballerina Project related features
         // activateProjectFeatures();
-        // activateEditorSupport(ballerinaExtInstance);
+        activateEditorSupport(ballerinaExtInstance);
         // // Enable performance forecaster
         // activatePerformanceForecaster(ballerinaExtInstance);
         // // Enable try it views
