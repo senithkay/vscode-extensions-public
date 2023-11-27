@@ -24,6 +24,7 @@
     "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
     "@wso2-enterprise/overview-view": "workspace:*",
     "@wso2-enterprise/service-designer-view": "workspace:*",
+    "@wso2-enterprise/data-mapper-view": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

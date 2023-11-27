@@ -285,6 +285,47 @@ importers:
       eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
       typescript: 5.2.2
 
+  ../../workspaces/ballerina/data-mapper-view:
+    specifiers:
+      '@types/react': ^18.2.33
+      '@types/react-dom': ^18.2.14
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@vitejs/plugin-react': ^4.1.0
+      '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      monaco-editor: 0.44.0
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^5.2.2
+      vite: ^4.5.0
+      vscode-messenger-common: ^0.4.5
+      vscode-messenger-webview: ^0.4.5
+    dependencies:
+      '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      monaco-editor: 0.44.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
+    devDependencies:
+      '@types/react': 18.2.37
+      '@types/react-dom': 18.2.15
+      '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
+      '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
+      '@vitejs/plugin-react': 4.1.1_vite@4.5.0
+      copyfiles: 2.4.1
+      eslint: 8.53.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
+      eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
+      typescript: 5.2.2
+      vite: 4.5.0
+
   ../../workspaces/ballerina/low-code-editor-commons:
     specifiers:
       '@babel/core': ^7.20.12
@@ -704,6 +745,7 @@ importers:
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/data-mapper-view': workspace:*
       '@wso2-enterprise/overview-view': workspace:*
       '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -727,6 +769,7 @@ importers:
       '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/data-mapper-view': link:../data-mapper-view
       '@wso2-enterprise/overview-view': link:../overview-view
       '@wso2-enterprise/service-designer-view': link:../service-designer-view
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
@@ -11626,7 +11669,7 @@ packages:
   /@types/react-dom/17.0.14:
     resolution: {integrity: sha512-H03xwEP1oXmSfl3iobtmQ/2dHF5aBHr8aUMwyGZya6OW45G+xtdzmq6HkncefiBt5JU8DVyaWl/nWZbjZCnzAQ==}
     dependencies:
-      '@types/react': 17.0.70
+      '@types/react': 18.2.37
     dev: true
 
   /@types/react-dom/18.2.13:
@@ -11644,7 +11687,7 @@ packages:
   /@types/react-lottie/1.2.9:
     resolution: {integrity: sha512-G4EebckAIEZgNc0/5+6mtaUJX+3ZxKg601PJlZl665G4sJATPr1T6G6Lz5iXZsllZ8T/waYO3wzlOLXCkkJltA==}
     dependencies:
-      '@types/react': 17.0.70
+      '@types/react': 18.2.37
     dev: true
 
   /@types/react-transition-group/4.4.9:
@@ -29450,7 +29493,7 @@ packages:
       '@formatjs/intl-displaynames': 5.4.3
       '@formatjs/intl-listformat': 6.5.3
       '@types/hoist-non-react-statics': 3.3.5
-      '@types/react': 17.0.70
+      '@types/react': 18.2.37
       hoist-non-react-statics: 3.3.2
       intl-messageformat: 9.13.0
       react: 17.0.2
@@ -29489,7 +29532,7 @@ packages:
       react: ^17.x
     dependencies:
       '@types/react': 17.0.70
-      monaco-editor: 0.25.2
+      monaco-editor: 0.44.0
       prop-types: 15.8.1
       react: 17.0.2
     dev: false
