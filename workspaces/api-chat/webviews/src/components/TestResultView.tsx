@@ -9,7 +9,7 @@
  
 import React, { useState } from "react";
 import { VSCodeButton, VSCodeTextArea } from '@vscode/webview-ui-toolkit/react';
-import { Badge } from "@wso2-enterprise/ui-toolkit";
+import { Badge } from "@wso2-enterprise/ui-toolkit/lib/components/Badge";
 import { TestResult } from "../ConsoleAPI";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";

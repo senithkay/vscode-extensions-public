@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Badge, BadgeProps } from "./Badge";
+import { Badge, BadgeProps } from ".";
 
 const Template: ComponentStory<typeof Badge> = (args: BadgeProps) =>
     <Badge {...args}> 
