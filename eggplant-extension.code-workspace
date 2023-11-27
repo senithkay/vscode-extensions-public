@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "workspaces/eggplant/eggplant-extension"
+		},
+		{
+			"path": "workspaces/eggplant/webview"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off"
+	}
+}

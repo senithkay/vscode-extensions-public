@@ -3,6 +3,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { activateActivityBarWebViews } from './ActivityBar/activate';
 
+
+// 1. load webview inside the activity bra and lowcode panels 
+// 2. define a state machine 
+// 3. render the overview 
+// 4 render the lowcode view 
+
 export function activate(context: vscode.ExtensionContext) {
 	activateActivityBarWebViews(context);
 
@@ -19,7 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-
 }
 
 function openEggplantPerspective() {
