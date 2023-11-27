@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell, animateDiagram } from "./utils";
-import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItem } from "./components";
+import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItemDef } from "./components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
@@ -23,7 +23,7 @@ import { CellModel } from "./components/Cell/CellNode/CellModel";
 export interface CellDiagramProps {
     project: Project;
     // custom component menu
-    componentMenu?: MenuItem[];
+    componentMenu?: MenuItemDef[];
     showControls?: boolean;
     animation?: boolean;
     // custom event handler

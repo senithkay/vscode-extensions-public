@@ -8,14 +8,14 @@
  */
 
 import React, { createContext, ReactNode } from "react";
-import { MenuItem } from "..";
+import { MenuItemDef } from "..";
 
 interface IDiagramContext {
     selectedNodeId: string;
     hasDiagnostics: boolean;
     focusedNodeId?: string;
     observationVersion?: string;
-    componentMenu?: MenuItem[];
+    componentMenu?: MenuItemDef[];
     zoomLevel: number;
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
     setSelectedNodeId: (id: string) => void;

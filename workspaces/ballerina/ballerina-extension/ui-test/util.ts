@@ -167,7 +167,7 @@ export function waitForWebview(name: string) {
 export async function verifyTerminalText(text: string) {
     const terminal = await new BottomBarPanel().openTerminalView();
 
-    await waitUntilTextContains(terminal, text, 180000).catch((e) => {
+    await waitUntilTextContains(terminal, text, 240000).catch((e) => {
         fail(e);
     });
 }

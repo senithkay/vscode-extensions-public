@@ -19,6 +19,7 @@ interface StyleProps {
     isCollapsed?: boolean;
     isFocused?: boolean;
     borderWidth?: number;
+    hasComponentKind?: boolean;
 }
 
 export const ComponentNode: React.FC<any> = styled.div`
