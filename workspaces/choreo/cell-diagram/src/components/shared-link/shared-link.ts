@@ -9,8 +9,7 @@
 
 import { DefaultLinkModel, DiagramEngine, NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BezierCurve, Point } from "@projectstorm/geometry";
-import { debounce, forIn } from "lodash";
-import { getOpposingPort } from "./utils";
+import { forIn } from "lodash";
 import { EMPTY_NODE } from "../../resources";
 import { EmptyModel } from "../Cell/EmptyNode/EmptyModel";
 import { CellBounds } from "../Cell/CellNode/CellModel";
@@ -32,13 +31,6 @@ export class SharedLinkModel extends DefaultLinkModel {
 
     initLinks = (diagramEngine: DiagramEngine) => {
         this.diagramEngine = diagramEngine;
-        this.getSourcePort().registerListener({
-            positionChanged: () => this.onPositionChange(),
-        });
-
-        this.getTargetPort().registerListener({
-            positionChanged: () => this.onPositionChange(),
-        });
     };
 
     fireEventTroughLink = (event: string) => {
@@ -120,81 +112,23 @@ export class SharedLinkModel extends DefaultLinkModel {
         return lineCurve.getSVGCurve();
     };
 
-    onPositionChange = debounce(() => {
-        if (this.getSourcePort() && this.getTargetPort()) {
-            const { sourceLeft, sourceRight, targetLeft, targetRight } = this.getPortPositions();
-
-            if (sourceLeft <= targetLeft) {
-                if (sourceRight <= targetLeft) {
-                    this.checkPorts(PortModelAlignment.RIGHT, PortModelAlignment.LEFT);
-                } else if (targetRight <= sourceRight) {
-                    this.checkPorts(PortModelAlignment.RIGHT, PortModelAlignment.RIGHT);
-                } else {
-                    this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.LEFT);
-                }
-            } else {
-                if (targetRight <= sourceLeft) {
-                    this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.RIGHT);
-                } else {
-                    this.checkPorts(PortModelAlignment.LEFT, PortModelAlignment.LEFT);
-                }
-            }
-        }
-    }, 500);
-
-    getPortPositions = () => {
-        let sourceLeft: number;
-        let sourceRight: number;
-        let targetLeft: number;
-        let targetRight: number;
-
-        if (this.getSourcePort().getOptions().alignment === PortModelAlignment.LEFT) {
-            sourceLeft = this.getSourcePort().getPosition().x;
-            sourceRight = sourceLeft + this.getSourcePort().getNode().width;
-        } else {
-            sourceRight = this.getSourcePort().getPosition().x;
-            sourceLeft = sourceRight - this.getSourcePort().getNode().width;
-        }
-
-        if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-            targetLeft = this.getTargetPort().getPosition().x;
-            targetRight = targetLeft + this.getTargetPort().getNode().width;
-        } else {
-            targetRight = this.getTargetPort().getPosition().x;
-            targetLeft = targetRight - this.getTargetPort().getNode().width;
-        }
-
-        return { sourceLeft, sourceRight, targetLeft, targetRight };
-    };
-
-    checkPorts = (source: PortModelAlignment, target: PortModelAlignment) => {
-        if (!this.getSourcePort().getID().startsWith(source)) {
-            this.setSourcePort(this.getSourcePort().getNode().getPortFromID(getOpposingPort(this.getSourcePort().getID(), source)));
-            this.diagramEngine.repaintCanvas();
-        }
-
-        if (!this.getTargetPort().getID().startsWith(target)) {
-            this.setTargetPort(this.getTargetPort().getNode().getPortFromID(getOpposingPort(this.getTargetPort().getID(), target)));
-            this.diagramEngine.repaintCanvas();
-        }
-    };
-
-    getArrowHeadPoints = (): string => {
+    getArrowHeadPoints = (scale = 1): string => {
         let points: string;
+        const sizeMultiplier = Math.max(Math.min(scale / 9, 4), 1);
         const targetPort: Point = this.getTargetPort().getPosition();
 
         if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-            points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 6},
-				${targetPort.x + 12} ${targetPort.y - 6}`;
+            points = `${targetPort.x + 2 * sizeMultiplier} ${targetPort.y}, ${targetPort.x + 12 * sizeMultiplier} ${targetPort.y + 6 * sizeMultiplier},
+                ${targetPort.x + 12 * sizeMultiplier} ${targetPort.y - 6 * sizeMultiplier}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14} ${targetPort.y + 10},
-                ${targetPort.x - 14} ${targetPort.y - 10}`;
+            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14 * sizeMultiplier} ${targetPort.y + 10 * sizeMultiplier},
+                ${targetPort.x - 14 * sizeMultiplier} ${targetPort.y - 10 * sizeMultiplier}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
-            points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 10} ${targetPort.y + 14},
-				${targetPort.x - 10} ${targetPort.y + 14}`;
+            points = `${targetPort.x} ${targetPort.y + 2 * sizeMultiplier}, ${targetPort.x + 10 * sizeMultiplier} ${targetPort.y + 14 * sizeMultiplier},
+                ${targetPort.x - 10 * sizeMultiplier} ${targetPort.y + 14 * sizeMultiplier}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10} ${targetPort.y - 15},
-					${targetPort.x - 10} ${targetPort.y - 15}`;
+            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10 * sizeMultiplier} ${targetPort.y - 15 * sizeMultiplier},
+                ${targetPort.x - 10 * sizeMultiplier} ${targetPort.y - 15 * sizeMultiplier}`;
         }
         return points;
     };
@@ -205,5 +139,20 @@ export class SharedLinkModel extends DefaultLinkModel {
 
     setTooltip = (tooltip: string) => {
         this.tooltip = tooltip;
+    };
+
+    getTooltipPosition = () => {
+        const sourcePortPosition = this.getSourcePort().getPosition();
+        const targetPortPosition = this.getTargetPort().getPosition();
+        const offset = 120;
+        // Get midpoint of the link line
+        return {
+            x: (sourcePortPosition.x + targetPortPosition.x) / 2 - offset,
+            y: (sourcePortPosition.y + targetPortPosition.y) / 2 - offset,
+        };
+    };
+
+    scaleValueToLinkWidth = (value: number, originalMin: number, originalMax: number, newMin: number = 2, newMax: number = 30): number => {
+        return newMin + ((value - originalMin) * (newMax - newMin)) / (originalMax - originalMin);
     };
 }

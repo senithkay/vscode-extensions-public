@@ -7,13 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { BezierCurve, Point } from '@projectstorm/geometry';
-import { SharedLinkModel } from '../../shared-link/shared-link';
+import { PortModelAlignment } from "@projectstorm/react-diagrams";
+import { BezierCurve, Point } from "@projectstorm/geometry";
+import { SharedLinkModel } from "../../shared-link/shared-link";
 
 interface LinkOrigins {
-	nodeId: string;
-	attributeId: string;
+    nodeId: string;
 }
 
 export class ExternalLinkModel extends SharedLinkModel {
@@ -21,15 +20,15 @@ export class ExternalLinkModel extends SharedLinkModel {
     targetNode: LinkOrigins;
 
     constructor(id: string) {
-        super(id, 'externalLink');
+        super(id, "externalLink");
     }
 
-    setSourceNode(nodeId: string, attributeId?: string) {
-        this.sourceNode = { nodeId, attributeId };
+    setSourceNode(nodeId: string) {
+        this.sourceNode = { nodeId };
     }
-	
-    setTargetNode(nodeId: string, attributeId?: string) {
-        this.targetNode = { nodeId, attributeId };
+
+    setTargetNode(nodeId: string) {
+        this.targetNode = { nodeId };
     }
 
     getArrowHeadPoints = (): string => {
@@ -50,7 +49,7 @@ export class ExternalLinkModel extends SharedLinkModel {
 					${targetPort.x - 10} ${targetPort.y - 15}`;
         }
         return points;
-    }
+    };
 
     getCurvePath = (): string => {
         const lineCurve = new BezierCurve();
@@ -82,5 +81,5 @@ export class ExternalLinkModel extends SharedLinkModel {
         }
 
         return lineCurve.getSVGCurve();
-    }
+    };
 }

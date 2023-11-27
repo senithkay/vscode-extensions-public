@@ -9,22 +9,29 @@
 
 import React, { createContext, ReactNode } from "react";
 import { MenuItemDef } from "..";
+import { DiagramLayer } from "../Controls/DiagramLayers";
+import { useActiveLayers } from "../../hooks/useActiveLayers";
+import { ObservationSummary } from "../../types";
 
 interface IDiagramContext {
     selectedNodeId: string;
-    hasDiagnostics: boolean;
     focusedNodeId?: string;
-    observationVersion?: string;
     componentMenu?: MenuItemDef[];
     zoomLevel: number;
-    setHasDiagnostics: (hasDiagnostics: boolean) => void;
+    observationSummary: ObservationSummary;
     setSelectedNodeId: (id: string) => void;
     setFocusedNodeId?: (id: string) => void;
-    setObservationVersion?: (version: string) => void;
     onComponentDoubleClick?: (componentId: string) => void;
+    diagramLayers: {
+        activeLayers: DiagramLayer[];
+        addLayer: (layer: DiagramLayer) => void;
+        removeLayer: (layer: DiagramLayer) => void;
+        hasLayer: (layer: DiagramLayer) => boolean;
+    };
 }
-
-interface DiagramContextProps extends IDiagramContext {
+// Omitted states are handled by the Diagram context provider
+type OmittedDiagramContext = Omit<IDiagramContext, "diagramLayers">;
+interface DiagramContextProps extends OmittedDiagramContext {
     children: ReactNode;
 }
 
@@ -35,30 +42,32 @@ export function CellDiagramContext(props: DiagramContextProps) {
     const {
         children,
         selectedNodeId,
-        hasDiagnostics,
         focusedNodeId,
-        observationVersion,
         componentMenu,
         zoomLevel,
+        observationSummary,
         setSelectedNodeId,
-        setHasDiagnostics,
         setFocusedNodeId,
-        setObservationVersion,
         onComponentDoubleClick,
     } = props;
 
+    const { activeLayers, addLayer, removeLayer, hasLayer } = useActiveLayers();
+
     const context: IDiagramContext = {
         selectedNodeId,
-        hasDiagnostics,
         focusedNodeId,
-        observationVersion,
         componentMenu,
         zoomLevel,
+        observationSummary,
         setSelectedNodeId,
-        setHasDiagnostics,
         setFocusedNodeId,
-        setObservationVersion,
         onComponentDoubleClick,
+        diagramLayers: {
+            activeLayers,
+            addLayer,
+            removeLayer,
+            hasLayer,
+        },
     };
 
     return <DiagramContext.Provider value={{ ...context }}>{children}</DiagramContext.Provider>;

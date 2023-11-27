@@ -10,15 +10,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import CircularProgress from "@mui/material/CircularProgress";
-import { generateEngine, getComponentDiagramWidth, getDiagramDataFromProject, manualDistribute, calculateCellWidth, isRenderInsideCell, animateDiagram } from "./utils";
+import {
+    generateEngine,
+    getComponentDiagramWidth,
+    getDiagramDataFromProject,
+    manualDistribute,
+    calculateCellWidth,
+    isRenderInsideCell,
+    animateDiagram,
+} from "./utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItemDef } from "./components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
-import { Project } from "./types";
+import { ObservationSummary, Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
+import { DiagramLayers } from "./components/Controls/DiagramLayers";
 
 export interface CellDiagramProps {
     project: Project;
@@ -36,14 +45,13 @@ export function CellDiagram(props: CellDiagramProps) {
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
     const [selectedNodeId, setSelectedNodeId] = useState<string>("");
-    const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [focusedNodeId, setFocusedNodeId] = useState<string>("");
     const [userMessage, setUserMessage] = useState<string>("");
-    const [observationVersion, setObservationVersion] = useState<string | undefined>(undefined);
     const [zoomLevel, setZoomLevel] = useState(1);
     const [isDiagramLoaded, setIsDiagramLoaded] = useState(false);
 
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
+    const observationSummary = useRef<ObservationSummary>(null);
 
     const styles = useStyles();
 
@@ -139,6 +147,9 @@ export function CellDiagram(props: CellDiagramProps) {
         diagramEngine.setModel(model);
         setDiagramModel(model);
 
+        // update observability summary
+        observationSummary.current = diagramData.observationSummary;
+
         setTimeout(() => {
             // manual distribute - update empty node, external node and connector node position based on cell node position
             manualDistribute(model);
@@ -190,15 +201,12 @@ export function CellDiagram(props: CellDiagramProps) {
 
     const ctx = {
         selectedNodeId,
-        hasDiagnostics,
         focusedNodeId,
-        observationVersion,
         componentMenu,
         zoomLevel,
+        observationSummary: observationSummary.current,
         setSelectedNodeId,
-        setHasDiagnostics,
         setFocusedNodeId,
-        setObservationVersion,
         onComponentDoubleClick,
     };
 
@@ -220,6 +228,7 @@ export function CellDiagram(props: CellDiagramProps) {
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
+                            {showControls && <DiagramLayers animation={animation} />}
                         </>
                     ) : userMessage ? (
                         <PromptScreen userMessage={userMessage} />

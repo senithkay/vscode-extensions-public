@@ -7,13 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentLinkModel } from "./ComponentLinkModel";
 import { COMPONENT_LINK, Colors } from "../../../resources";
 import { Popover } from "@wso2-enterprise/ui-toolkit";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { DiagramLayer } from "../../Controls/DiagramLayers";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -29,8 +31,8 @@ const tooltipPopOverStyle = {
     flexDirection: "column",
     maxWidth: "280px",
     gap: "8px",
-    pointerEvents: "none"
-}
+    pointerEvents: "none",
+};
 
 const observabilityPopOverStyle = {
     backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
@@ -39,11 +41,18 @@ const observabilityPopOverStyle = {
     borderRadius: "5px",
     display: "flex",
     flexDirection: "column",
-    pointerEvents: "none"
-}
+    pointerEvents: "none",
+};
 
 export function ComponentLinkWidget(props: WidgetProps) {
     const { link } = props;
+
+    const {
+        diagramLayers: { hasLayer },
+        observationSummary: {
+            requestCount: { min, max },
+        },
+    } = useContext(DiagramContext);
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
@@ -82,10 +91,28 @@ export function ComponentLinkWidget(props: WidgetProps) {
         setAnchorEl(null);
     };
 
+    const getRequestCount = () => {
+        if (!hasLayer(DiagramLayer.OBSERVABILITY) || !link.observations || link.observations.length === 0) {
+            return 0;
+        }
+        return link.observations?.reduce((acc, obs) => acc + obs.requestCount, 0);
+    };
+
+    const strokeWidth = () => {
+        const requestCount = getRequestCount();
+        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : 2;
+    };
+
+    const arrowHeadPoints = () => {
+        const requestCount = getRequestCount();
+        const strokeWidth = requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : undefined;
+        return link.getArrowHeadPoints(strokeWidth);
+    };
+
     return (
         <>
             <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={COMPONENT_LINK}>
-                <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
+                <polygon points={arrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY} />
                 <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
                 <path
                     id={link.getID()}
@@ -93,14 +120,14 @@ export function ComponentLinkWidget(props: WidgetProps) {
                     cursor={"pointer"}
                     fill={"none"}
                     stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
-                    strokeWidth={2}
+                    strokeWidth={strokeWidth()}
                 />
             </g>
             <Popover
                 id={link.getID()}
                 open={open}
                 anchorEl={anchorEl}
-                sx={(link.observations?.length > 0 && !link.tooltip) ? observabilityPopOverStyle : tooltipPopOverStyle}
+                sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}
             >
                 {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
                 {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}

@@ -117,11 +117,16 @@ export interface DiagramData {
     nodes: Nodes;
     links: Links;
     gateways: Gateways;
+    observationSummary: ObservationSummary;
 }
 
 export interface Gateways {
     internet: boolean;
     intranet: boolean;
+}
+
+export interface ObservationSummary {
+    requestCount: { min: number; max: number };
 }
 
 export interface Nodes {

@@ -10,20 +10,26 @@
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { CellDiagram, CellDiagramProps } from "../Diagram";
-import { Container } from "./utils";
+import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 
 export default {
     title: "Cell Diagram",
     component: CellDiagram,
+    args: {
+        animation: true,
+        showControls: true,
+        componentMenu: componentMenu,
+        onComponentDoubleClick: handleComponentDoubleClick,
+    },
 };
 
-export const Simple: Story = (args: CellDiagramProps) => (
+export const Template: Story = (args: CellDiagramProps) => (
     <Container>
         <CellDiagram {...args} />
     </Container>
 );
 
-Simple.args = {
+Template.args = {
     project: {
         id: "PRG",
         components: [

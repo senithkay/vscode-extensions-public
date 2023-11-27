@@ -45,6 +45,7 @@ import {
     ComponentMetadata,
     Observations,
     Gateways,
+    ObservationSummary,
 } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getNodePortId, getCellPortMetadata, getCellLinkName } from "../components/Cell/cell-util";
@@ -103,6 +104,7 @@ export function getDiagramDataFromProject(project: Project): DiagramData {
     const externalNodes: Map<string, ExternalModel> = generateExternalNodes();
     const emptyNodes: Map<string, EmptyModel> = generateEmptyNodes(project.name, [...connectionNodes.values(), ...connectorNodes.values()]);
     const gateways = getCellGateways(project);
+    const observationSummary = getObservationSummary(project);
 
     const componentLinks: Map<string, ComponentLinkModel> = generateComponentLinks(project, componentNodes);
     const cellLinks: Map<string, ComponentLinkModel> = generateCellLinks(project, emptyNodes, componentNodes);
@@ -126,6 +128,7 @@ export function getDiagramDataFromProject(project: Project): DiagramData {
             externalLinks,
         },
         gateways,
+        observationSummary,
     };
 }
 
@@ -467,6 +470,40 @@ function getCellGateways(project: Project): Gateways {
     });
 
     return gateways;
+}
+
+function getObservationSummary(project: Project): ObservationSummary {
+    let maxRequestCount = 0;
+    let minRequestCount = Infinity;
+
+    const calculateRequestCount = (observations: any[]) => {
+        if (observations?.length > 0) {
+            const requestCount = observations.reduce((acc, obs) => acc + obs.requestCount, 0);
+            if (requestCount > maxRequestCount) {
+                maxRequestCount = requestCount;
+            }
+            if (requestCount < minRequestCount) {
+                minRequestCount = requestCount;
+            }
+        }
+    };
+
+    project.components?.forEach((component, _key) => {
+        for (const serviceId in component.services) {
+            if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
+                const service = component.services[serviceId];
+                calculateRequestCount(service.deploymentMetadata?.gateways.internet.observations);
+                calculateRequestCount(service.deploymentMetadata?.gateways.intranet.observations);
+                if (component.connections.length > 0) {
+                    component.connections.forEach((connection) => {
+                        calculateRequestCount(connection.observations);
+                    });
+                }
+            }
+        }
+    });
+
+    return { requestCount: { max: maxRequestCount, min: minRequestCount === Infinity ? 0 : minRequestCount } };
 }
 
 // Links generation utils

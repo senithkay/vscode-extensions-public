@@ -38,7 +38,7 @@ export const dagreEngine = new DagreEngine({
 
         ranker: 'tight-tree',
     },
-    includeLinks: true,
+    // includeLinks: true,
 });
 
 export const NAME_JOIN_CHAR = "|";
