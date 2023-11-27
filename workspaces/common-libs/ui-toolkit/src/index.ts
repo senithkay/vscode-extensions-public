@@ -27,6 +27,8 @@ export * from './components/Divider/Divider';
 export * from './components/SeachBox/SearchBox';
 export * from './components/Menu/Menu';
 export * from './components/Menu/MenuItem';
+export * from './components/Dropdown/Dropdown';
+export * from './components/LinkButton/LinkButton';
 
 export * from './components/Commons/ErrorBanner';
 

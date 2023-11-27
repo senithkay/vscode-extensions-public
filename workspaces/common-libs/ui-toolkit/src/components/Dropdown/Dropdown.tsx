@@ -14,6 +14,7 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { ErrorBanner } from "../Commons/ErrorBanner";
+import { RequiredFormInput } from "../Commons/RequiredInput";
 
 export interface OptionProps {
     id?: string;
@@ -24,6 +25,7 @@ export interface OptionProps {
 export interface DropdownProps {
     id: string;
     isLoading?: boolean;
+    isRequired?: boolean;
     label?: string;
     value?: string;
     disabled?: boolean;
@@ -43,20 +45,36 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
 const DropDownContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap : 4px;
+    gap : 2px;
     color: var(--vscode-editor-foreground);
 `;
 
+interface ContainerProps {
+    sx?: any;
+}
+
+const Container = styled.div<ContainerProps>`
+    ${(props: ContainerProps) => props.sx};
+`;
+
+const LabelContainer = styled.div<ContainerProps>`
+    display: flex;
+    flex-direction: row;
+`;
+
 export const Dropdown: React.FC<DropdownProps> = (props: DropdownProps) => {
-    const { isLoading, value, id, items, label, errorMsg, disabled, sx, onChange } = props;
+    const { isLoading, isRequired, value, id, items, label, errorMsg, disabled, sx, onChange } = props;
 
     return (
-        <>
+        <Container>
             {isLoading ? (
                 <SmallProgressRing />
             ) : (
                 <DropDownContainer>
-                    <label htmlFor={id}>{label}</label>
+                    <LabelContainer>
+                        <label htmlFor={id}>{label}</label> 
+                        {(isRequired && label) && (<RequiredFormInput />)}
+                    </LabelContainer>
                     <VSCodeDropdown value={value} id={id} onChange={(e: any) => onChange(e.target.value)} style={sx} disabled={disabled}>
                         {items?.map((item: OptionProps) => (
                             <VSCodeOption key={item?.id} value={item.value}>
@@ -69,6 +87,6 @@ export const Dropdown: React.FC<DropdownProps> = (props: DropdownProps) => {
                     )}
                 </DropDownContainer>
             )}
-        </>
+        </Container>
     );
 };

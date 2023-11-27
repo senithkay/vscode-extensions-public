@@ -12,7 +12,7 @@ import React from "react";
 
 const RequiredElement = styled.span`
     color: var(--vscode-errorForeground);
-    font-size: 14px;
+    font-size: 13px;
 `;
 
 export function RequiredFormInput() {

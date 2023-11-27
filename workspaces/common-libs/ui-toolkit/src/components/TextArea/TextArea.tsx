@@ -10,6 +10,7 @@ import React from 'react';
 import { VSCodeTextArea } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import styled from '@emotion/styled';
 
 export interface TextAreaProps {
     value: string;
@@ -25,18 +26,32 @@ export interface TextAreaProps {
     readonly?: boolean;
     resize?: string;
     validationMessage?: string;
+    sx?: any;
     onChange?: (e: string) => void;
 }
 
+interface ContainerProps {
+    sx?: any;
+}
+
+const Container = styled.div<ContainerProps>`
+    ${(props: TextAreaProps) => props.sx};
+`;
+
+const LabelContainer = styled.div<ContainerProps>`
+    display: flex;
+    flex-direction: row;
+`;
+
 export function TextArea(props: TextAreaProps) {
     const { label, value, id, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
-        rows, disabled, resize, readonly, errorMsg
+        rows, disabled, resize, readonly, errorMsg, sx
     } = props;
     const handleChange = (e: any) => {
         onChange && onChange(e.target.value);
     }
     return (
-        <>
+        <Container sx={sx}>
             <VSCodeTextArea
                 autoFocus={autoFocus}
                 validationMessage={validationMessage}
@@ -50,11 +65,13 @@ export function TextArea(props: TextAreaProps) {
                 resize={resize}
                 id={id}
             >
-                {label} {(required && label) && (<RequiredFormInput />)}
+                <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
+                    <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}
+                </LabelContainer>
             </VSCodeTextArea>
             {errorMsg && (
                 <ErrorBanner errorMsg={errorMsg} />
             )}
-        </>
+        </Container>
     );
 }
