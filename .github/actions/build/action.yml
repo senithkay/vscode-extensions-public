@@ -20,7 +20,12 @@ inputs:
     description: Update API Chat extension version
     type: boolean
     required: false
-    default: false        
+    default: false   
+  apk:
+    description: Update APK extension version
+    type: boolean
+    required: false
+    default: false       
   version:
     default: 'N/A'
     type: string
@@ -28,6 +33,9 @@ inputs:
   balVersion:
     default: 2201.7.1
     type: string 
+  API_CHAT_API_KEY:
+    type: string
+    required: true  
 
 runs:
   using: "composite"
@@ -87,7 +95,15 @@ runs:
       if: ${{ inputs.api-chat == 'true' }}
       uses: ./.github/actions/updateVersion
       with:
-        path: 'api-chat'
+        path: 'api-chat/extension'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+    
+    - name: Update version - APK
+      if: ${{ inputs.apk == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'apk/apk-extension'
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
@@ -99,6 +115,7 @@ runs:
         node common/scripts/install-run-rush.js build --verbose
       env:
         isPreRelease: ${{ inputs.isPreRelease == 'true' }}
+        API_CHAT_API_KEY: ${{ inputs.API_CHAT_API_KEY }}
 
     - name: Compress build
       shell: bash

@@ -18,7 +18,6 @@ export class Cache<V, Args extends any[]> {
         if (this._timerIndex.has(key)) {
             clearTimeout(this._timerIndex.get(key));
         }
-        console.log('Setting expiration for key', key);
         const timer = setTimeout(async () => {
             this._timerIndex.delete(key);
             await this.invalidate(key, ...args);
