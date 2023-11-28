@@ -65,7 +65,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
                 fill={"none"}
                 stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
                 strokeWidth={2}
-                marker-end={"url(#" + link.getLinkArrowId() + ")"}
+                markerEnd={"url(#" + link.getLinkArrowId() + ")"}
             />
         </g>
     );

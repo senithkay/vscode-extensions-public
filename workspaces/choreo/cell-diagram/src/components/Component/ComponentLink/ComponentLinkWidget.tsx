@@ -156,7 +156,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
                     stroke={strokeColor()}
                     strokeWidth={strokeWidth()}
                     strokeDasharray={strokeDash()}
-                    marker-end={"url(#" + link.getLinkArrowId() + ")"}
+                    markerEnd={"url(#" + link.getLinkArrowId() + ")"}
                 />
                 {hasDiffLayer && link.observationOnly && (
                     <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px" }}>

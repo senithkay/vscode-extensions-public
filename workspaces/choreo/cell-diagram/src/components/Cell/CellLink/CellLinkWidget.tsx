@@ -144,7 +144,7 @@ export function CellLinkWidget(props: WidgetProps) {
                     stroke={strokeColor()}
                     strokeWidth={strokeWidth()}
                     strokeDasharray={strokeDash()}
-                    marker-end={link.showArrowHead() ? "url(#" + link.getLinkArrowId() + ")" : ""}
+                    markerEnd={link.showArrowHead() ? "url(#" + link.getLinkArrowId() + ")" : ""}
                 />
                 {hasDiffLayer && link.observationOnly && (
                     <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px" }}>
