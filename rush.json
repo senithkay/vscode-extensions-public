@@ -596,6 +596,11 @@
       "packageName": "@wso2-enterprise/eggplant-webview",
       "projectFolder": "workspaces/eggplant/webview",
       "versionPolicyName": "eggplant-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/eggplant-diagram",
+      "projectFolder": "workspaces/eggplant/eggplant-diagram",
+      "versionPolicyName": "eggplant-extension"
     }
   ]
 }

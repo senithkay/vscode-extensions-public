@@ -5,6 +5,15 @@
 		},
 		{
 			"path": "workspaces/eggplant/webview"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-diagram"
+		},
+		{
+			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/ballerina/ballerina-extension"
 		}
 	],
 	"settings": {

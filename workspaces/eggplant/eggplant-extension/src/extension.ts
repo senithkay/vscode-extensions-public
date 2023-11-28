@@ -6,11 +6,12 @@ import { ext } from './eggplantExtentionContext';
 import { activateLowCodeWebViews } from './LowCode/activate';
 
 
-
-// 1. load webview inside the activity bra and lowcode panels 
-// 2. define a state machine 
-// 3. render the overview 
-// 4 render the lowcode view 
+// 1. Render the low code diagram in the webview
+// 2. pass ls to eggplant extention
+// 3. define state machine 
+// 4. populate overview
+// 5. populate diagram
+// 6. define editing
 
 export function activate(context: vscode.ExtensionContext) {
 	// Initialize the eggplant extention context so we do not need to pass the variables around

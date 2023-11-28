@@ -10,6 +10,7 @@
 // import { Overview } from "@wso2-enterprise/overview-view";
 // import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
+import LowCode from './LowCode'
 // import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function Webview({ mode }: { mode: string }) {
@@ -31,7 +32,7 @@ export function Webview({ mode }: { mode: string }) {
     return (
         <>
             {mode === "overview" && <h1>Overview</h1>}
-            {mode === "lowcode" && <h1>LowCode</h1>}
+            {mode === "lowcode" && <LowCode />}
         </>
     );
 };
