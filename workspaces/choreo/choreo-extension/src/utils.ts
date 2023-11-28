@@ -196,7 +196,7 @@ export function regexFilePathChecker(path: string, regex: RegExp): boolean {
 export function enrichComponentSchema(
     schema: ComponentYamlSchema,
     component: string, project: string,
-    componentConfigs: ComponentYamlContent[] | undefined = undefined
+    componentConfigs: ComponentYamlContent[] | undefined
 ): ComponentYamlSchema {
     delete schema.definitions!.name.default;
     delete schema.definitions!.projectName.default;
