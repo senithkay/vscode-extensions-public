@@ -20,6 +20,7 @@ import { Observations } from "../../types";
 export class SharedLinkModel extends DefaultLinkModel {
     diagramEngine: DiagramEngine;
     observations: Observations[];
+    observationOnly: boolean;
     tooltip: string;
 
     constructor(id: string, type: string) {
@@ -133,26 +134,34 @@ export class SharedLinkModel extends DefaultLinkModel {
         return points;
     };
 
-    setObservations = (observations: Observations[]) => {
+    setObservations = (observations: Observations[], observationOnly?: boolean) => {
         this.observations = observations;
+        if (observationOnly) {
+            this.observationOnly = observationOnly;
+        }
     };
 
     setTooltip = (tooltip: string) => {
         this.tooltip = tooltip;
     };
 
-    getTooltipPosition = () => {
+    getMidPoint = () => {
         const sourcePortPosition = this.getSourcePort().getPosition();
         const targetPortPosition = this.getTargetPort().getPosition();
-        const offset = 120;
         // Get midpoint of the link line
         return {
-            x: (sourcePortPosition.x + targetPortPosition.x) / 2 - offset,
-            y: (sourcePortPosition.y + targetPortPosition.y) / 2 - offset,
+            x: (sourcePortPosition.x + targetPortPosition.x) / 2,
+            y: (sourcePortPosition.y + targetPortPosition.y) / 2,
         };
     };
 
     scaleValueToLinkWidth = (value: number, originalMin: number, originalMax: number, newMin: number = 2, newMax: number = 30): number => {
         return newMin + ((value - originalMin) * (newMax - newMin)) / (originalMax - originalMin);
+    };
+
+    getLinkArrowId = () => {
+        // remove special characters from id
+        const id = this.getID().replace(/[^a-zA-Z0-9]/g, "");
+        return id + "-arrow";
     };
 }

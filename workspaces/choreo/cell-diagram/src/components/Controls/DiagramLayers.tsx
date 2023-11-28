@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import gsap from "gsap";
 import { useDiagramContext } from "../DiagramContext/DiagramContext";
-import { Colors } from "../../resources";
+import { Colors, DiffIcon, LayersIcon, ObservationIcon } from "../../resources";
 
 export const DiagramLayersPanel: React.FC<any> = styled.div`
     display: flex;
@@ -39,7 +39,7 @@ export const MainButton: React.FC<any> = styled.div`
     width: 68px;
     height: 68px;
     border-radius: 2px;
-    color: ${Colors.GREY};
+    color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.GREY)};
     background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
     display: inline-flex;
     align-items: center;
@@ -58,6 +58,10 @@ export const LayerButton: React.FC<any> = styled.div`
     font-size: 12px;
     cursor: pointer;
     color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.DEFAULT_TEXT)};
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     div {
         border: 1px solid ${(props) => (props.selected ? Colors.PRIMARY : Colors.LIGHT_GREY)};
         background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
@@ -97,7 +101,7 @@ interface DiagramLayersProps {
 export function DiagramLayers(props: DiagramLayersProps) {
     const { animation = true } = props;
     const {
-        diagramLayers: { addLayer, removeLayer, hasLayer },
+        diagramLayers: { addLayer, removeLayer, removeAllLayers, hasLayer },
     } = useDiagramContext();
     const [hover, setHover] = useState(false);
     const controlPanelRef = useRef(null);
@@ -135,15 +139,17 @@ export function DiagramLayers(props: DiagramLayersProps) {
     };
 
     const toggleBetweenDiagramLayers = () => {
-        if (hasLayer(DiagramLayer.OBSERVABILITY)) {
+        if (hasLayer(DiagramLayer.OBSERVABILITY) && !hasLayer(DiagramLayer.DIFF)) {
             removeLayer(DiagramLayer.OBSERVABILITY);
             addLayer(DiagramLayer.DIFF);
-        } else if (hasLayer(DiagramLayer.DIFF)) {
-            removeLayer(DiagramLayer.DIFF);
+        } else if (hasLayer(DiagramLayer.DIFF) && !hasLayer(DiagramLayer.OBSERVABILITY)) {
+            addLayer(DiagramLayer.OBSERVABILITY);
+        } else if (hasLayer(DiagramLayer.DIFF) && hasLayer(DiagramLayer.OBSERVABILITY)) {
+            removeAllLayers();
         } else {
             addLayer(DiagramLayer.OBSERVABILITY);
         }
-    }
+    };
 
     const handleMouseOver = () => {
         if (timeoutId) {
@@ -164,36 +170,21 @@ export function DiagramLayers(props: DiagramLayersProps) {
     return (
         <DiagramLayersPanel ref={controlPanelRef}>
             <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} onClick={toggleBetweenDiagramLayers}>
-                <MainButton onClick={() => {}}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path
-                            fill="currentColor"
-                            d="M12 22A10 10 0 0 1 2 12A10 10 0 0 1 12 2c5.5 0 10 4 10 9a6 6 0 0 1-6 6h-1.8c-.3 0-.5.2-.5.5c0 .1.1.2.1.3c.4.5.6 1.1.6 1.7c.1 1.4-1 2.5-2.4 2.5m0-18a8 8 0 0 0-8 8a8 8 0 0 0 8 8c.3 0 .5-.2.5-.5c0-.2-.1-.3-.1-.4c-.4-.5-.6-1-.6-1.6c0-1.4 1.1-2.5 2.5-2.5H16a4 4 0 0 0 4-4c0-3.9-3.6-7-8-7m-5.5 6c.8 0 1.5.7 1.5 1.5S7.3 13 6.5 13S5 12.3 5 11.5S5.7 10 6.5 10m3-4c.8 0 1.5.7 1.5 1.5S10.3 9 9.5 9S8 8.3 8 7.5S8.7 6 9.5 6m5 0c.8 0 1.5.7 1.5 1.5S15.3 9 14.5 9S13 8.3 13 7.5S13.7 6 14.5 6m3 4c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5s-1.5-.7-1.5-1.5s.7-1.5 1.5-1.5"
-                        />
-                    </svg>
+                <MainButton selected={hasLayer(DiagramLayer.OBSERVABILITY) || hasLayer(DiagramLayer.DIFF)}>
+                    <LayersIcon styles={{ width: 24, height: 24 }} />
                 </MainButton>
             </div>
             {hover && (
                 <LayersPanel onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
                     <LayerButton onClick={toggleObservabilityLayer} selected={hasLayer(DiagramLayer.OBSERVABILITY)}>
                         <LayerIcon>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <path
-                                    fill="currentColor"
-                                    d="M9.64 13.4C8.63 12.5 7.34 12.03 6 12v3l-4-4l4-4v3c1.67 0 3.3.57 4.63 1.59a7.97 7.97 0 0 0-.99 1.81M18 15v-3c-.5 0-4.5.16-4.95 4.2c1.56.55 2.38 2.27 1.83 3.83a3.006 3.006 0 0 1-3.83 1.83c-1.55-.56-2.38-2.27-1.83-3.83c.28-.86.98-1.53 1.83-1.83A6.748 6.748 0 0 1 18 10V7l4 4zm-5 4a1 1 0 0 0-1-1a1 1 0 0 0-1 1a1 1 0 0 0 1 1a1 1 0 0 0 1-1m-2-7.88c.58-.66 1.25-1.23 2-1.69V5h3l-4-4l-4 4h3z"
-                                />
-                            </svg>
+                            <ObservationIcon styles={{ width: 24, height: 24 }} />
                         </LayerIcon>
                         Obs
                     </LayerButton>
                     <LayerButton onClick={toggleDiffLayer} selected={hasLayer(DiagramLayer.DIFF)}>
                         <LayerIcon>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <path
-                                    fill="currentColor"
-                                    d="M20 22c1.11 0 2-.89 2-2v-2h-2v2h-2v2zm-4 0v-2h-3v2zm-5 0v-2H9v-2H7v2c0 1.11.89 2 2 2zm11-6v-3h-2v3zM9 16V9h7V3c0-1.11-.89-2-2-2H3c-1.11 0-2 .89-2 2v11c0 1.11.89 2 2 2zm-2-2H3V3h11v4H9c-1.11 0-2 .89-2 2zm15-3V9c0-1.11-.89-2-2-2h-2v2h2v2z"
-                                />
-                            </svg>
+                            <DiffIcon styles={{ width: 24, height: 24 }} />
                         </LayerIcon>
                         Drift
                     </LayerButton>

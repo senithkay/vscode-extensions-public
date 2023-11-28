@@ -57,6 +57,7 @@ export interface Connection {
     onPlatform?: boolean;
     tooltip?: string;
     observations?: Observations[];
+    observationOnly?: boolean;
 }
 
 export enum ConnectionType {
@@ -88,11 +89,13 @@ export interface DeploymentMetadata {
             isExposed: boolean;
             tooltip?: string;
             observations?: Observations[];
+            observationOnly?: boolean;
         };
         intranet: {
             isExposed: boolean;
             tooltip?: string;
             observations?: Observations[];
+            observationOnly?: boolean;
         };
     };
 }

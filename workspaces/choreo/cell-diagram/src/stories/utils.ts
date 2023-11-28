@@ -14,6 +14,8 @@ import { action } from "@storybook/addon-actions";
 export const Container = styled.div`
     height: calc(100vh - 40px);
     width: calc(100vw - 40px);
+    height: 100svh;
+    width: 100svw;
 `;
 
 export const componentMenu: MenuItem[] = [

@@ -530,7 +530,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
                         }
                         if (connection.tooltip) {
                             link.setTooltip(connection.tooltip);
@@ -551,7 +551,7 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
                         }
                         if (connection.tooltip) {
                             link.setTooltip(connection.tooltip);
@@ -622,6 +622,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
             let isExposed = false;
             let tooltip = "";
             const observations: Observations[] = [];
+            let observationOnly = false;
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
                     const service = component.services[serviceId];
@@ -636,6 +637,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                                 return obs;
                             })
                         );
+                        observationOnly = observationOnly || service.deploymentMetadata?.gateways.internet.observationOnly;
                     }
                     tooltip = service.deploymentMetadata?.gateways.internet.tooltip;
                 }
@@ -651,7 +653,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     link.setSourceNode(northBoundEmptyNode.getID());
                     link.setTargetNode(targetComponent.getID());
                     if (observations?.length > 0) {
-                        link.setObservations(observations);
+                        link.setObservations(observations, observationOnly);
                     }
                     if (tooltip) {
                         link.setTooltip(tooltip);
@@ -664,6 +666,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
             let isExposed = false;
             let tooltip = "";
             const observations: Observations[] = [];
+            let observationOnly = false;
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
                     const service = component.services[serviceId];
@@ -672,6 +675,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     if (service.deploymentMetadata?.gateways.intranet.observations?.length > 0) {
                         observations.push(...service.deploymentMetadata?.gateways.intranet.observations);
                     }
+                    observationOnly = observationOnly || service.deploymentMetadata?.gateways.intranet.observationOnly;
                     tooltip = service.deploymentMetadata?.gateways.intranet.tooltip;
                 }
             }
@@ -686,7 +690,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     link.setSourceNode(northBoundEmptyNode.getID());
                     link.setTargetNode(targetComponent.getID());
                     if (observations.length > 0) {
-                        link.setObservations(observations);
+                        link.setObservations(observations, observationOnly);
                     }
                     if (tooltip) {
                         link.setTooltip(tooltip);
@@ -709,7 +713,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(southBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
                         }
                         if (connection.tooltip) {
                             link.setTooltip(connection.tooltip);
@@ -729,7 +733,7 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(eastBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
                         }
                         if (connection.tooltip) {
                             link.setTooltip(connection.tooltip);

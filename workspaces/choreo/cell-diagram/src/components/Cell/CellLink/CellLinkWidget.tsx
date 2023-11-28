@@ -49,6 +49,8 @@ export function CellLinkWidget(props: WidgetProps) {
     const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
 
     const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
+    const hasObservabilityLayer = hasLayer(DiagramLayer.OBSERVABILITY);
+    const hasDiffLayer = hasLayer(DiagramLayer.DIFF);
 
     useEffect(() => {
         const listener = link.registerListener({
@@ -83,7 +85,7 @@ export function CellLinkWidget(props: WidgetProps) {
     };
 
     const getRequestCount = () => {
-        if (!hasLayer(DiagramLayer.OBSERVABILITY) || !link.observations || link.observations.length === 0) {
+        if (!hasObservabilityLayer || !link.observations || link.observations.length === 0) {
             return 0;
         }
         return link.observations?.reduce((acc, obs) => acc + obs.requestCount, 0);
@@ -94,35 +96,73 @@ export function CellLinkWidget(props: WidgetProps) {
         return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : 2;
     };
 
-    const arrowHeadPoints = () => {
-        const requestCount = getRequestCount();
-        const strokeWidth = requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : undefined;
-        return link.getArrowHeadPoints(strokeWidth);
+    const strokeColor = () => {
+        if (isSelected) {
+            return Colors.PRIMARY_SELECTED;
+        }
+        if (hasDiffLayer && link.observationOnly) {
+            return Colors.ERROR;
+        }
+        if (hasObservabilityLayer && link.observations?.length > 0) {
+            return Colors.PRIMARY;
+        }
+        return Colors.DEFAULT_TEXT;
     };
-    
+
+    const strokeDash = () => {
+        if (hasDiffLayer && !(link.observations?.length > 0)) {
+            return "8,8";
+        }
+        return "";
+    };
+
+    const midPoint = link.getMidPoint();
+
     return (
         <>
             <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={CELL_LINK}>
-                <polygon points={arrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT} />
+                <defs>
+                    <marker
+                        id={link.getLinkArrowId()}
+                        markerWidth="6"
+                        markerHeight="6"
+                        markerUnits="strokeWidth"
+                        refX="3"
+                        refY="3"
+                        viewBox="0 0 6 6"
+                        orient="auto"
+                    >
+                        <polygon points="0,6 0,0 6,3" fill={strokeColor()}></polygon>
+                    </marker>
+                </defs>
                 <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
                 <path
                     id={link.getID()}
                     d={link.getCurvePath()}
                     cursor={"pointer"}
                     fill={"none"}
-                    stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
+                    stroke={strokeColor()}
                     strokeWidth={strokeWidth()}
+                    strokeDasharray={strokeDash()}
+                    marker-end={link.showArrowHead() ? "url(#" + link.getLinkArrowId() + ")" : ""}
                 />
+                {hasDiffLayer && link.observationOnly && (
+                    <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px" }}>
+                        !!
+                    </text>
+                )}
             </g>
-            <Popover
-                id={link.getID()}
-                open={open}
-                anchorEl={anchorEl}
-                sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}
-            >
-                {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
-                {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
-            </Popover>
+            {(hasObservabilityLayer || link.tooltip) && (
+                <Popover
+                    id={link.getID()}
+                    open={open}
+                    anchorEl={anchorEl}
+                    sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}
+                >
+                    {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
+                    {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
+                </Popover>
+            )}
         </>
     );
 }

@@ -25,6 +25,8 @@ export enum Colors {
     NODE_BACKGROUND_SECONDARY = '#d3d3d3',
     NODE_BORDER = '#393939',
 
+    ERROR = '#FF0000',
+
     GREY = '#808080',
     LIGHT_GREY = '#d3d3d3',
 }

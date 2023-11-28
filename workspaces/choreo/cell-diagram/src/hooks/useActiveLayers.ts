@@ -7,20 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DiagramLayer } from "../components/Controls/DiagramLayers";
 
 export const useActiveLayers = () => {
     const [activeLayers, setActiveLayers] = useState<DiagramLayer[]>([DiagramLayer.ARCHITECTURE]);
 
-    // print active layers when they changed
-    useEffect(() => {
-        console.log("diagram active layers", activeLayers);
-    }, [activeLayers]);
-
     const addLayer = (layer: DiagramLayer) => {
         if (!activeLayers.includes(layer)) {
-            setActiveLayers([...activeLayers, layer]);
+            setActiveLayers((prev) => [...prev, layer]);
         }
     };
 
@@ -30,9 +25,13 @@ export const useActiveLayers = () => {
         }
     };
 
+    const removeAllLayers = () => {
+        setActiveLayers([DiagramLayer.ARCHITECTURE]);
+    };
+
     const hasLayer = (layer: DiagramLayer) => {
         return activeLayers.includes(layer);
     };
 
-    return { activeLayers, addLayer, removeLayer, hasLayer };
+    return { activeLayers, addLayer, removeLayer, removeAllLayers, hasLayer };
 };

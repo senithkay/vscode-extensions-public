@@ -50,4 +50,19 @@ export class CellLinkModel extends SharedLinkModel {
         }
         return points;
     };
+
+    showArrowHead = (): boolean => {
+        const targetPortAlignment = this.getTargetPort().getOptions().alignment;
+        const sourceNodeId = this.sourceNode.nodeId;
+    
+        if (targetPortAlignment === PortModelAlignment.LEFT && getEmptyNodeName(CellBounds.WestBound) === sourceNodeId) {
+            return true;
+        }
+    
+        if (targetPortAlignment === PortModelAlignment.TOP && getEmptyNodeName(CellBounds.NorthBound) === sourceNodeId) {
+            return true;
+        }
+    
+        return false;
+    };
 }

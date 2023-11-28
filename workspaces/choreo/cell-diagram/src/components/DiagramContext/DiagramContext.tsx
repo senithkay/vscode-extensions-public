@@ -26,6 +26,7 @@ interface IDiagramContext {
         activeLayers: DiagramLayer[];
         addLayer: (layer: DiagramLayer) => void;
         removeLayer: (layer: DiagramLayer) => void;
+        removeAllLayers: () => void;
         hasLayer: (layer: DiagramLayer) => boolean;
     };
 }
@@ -51,7 +52,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
         onComponentDoubleClick,
     } = props;
 
-    const { activeLayers, addLayer, removeLayer, hasLayer } = useActiveLayers();
+    const { activeLayers, addLayer, removeLayer, removeAllLayers, hasLayer } = useActiveLayers();
 
     const context: IDiagramContext = {
         selectedNodeId,
@@ -66,6 +67,7 @@ export function CellDiagramContext(props: DiagramContextProps) {
             activeLayers,
             addLayer,
             removeLayer,
+            removeAllLayers,
             hasLayer,
         },
     };
