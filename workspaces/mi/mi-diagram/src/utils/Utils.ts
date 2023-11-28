@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine, NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
+import createEngine, { DefaultDiagramState, DiagramEngine, NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { MediatorLinkFactory } from "../components/link/MediatorLinkFactory";
 import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
 import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
@@ -23,9 +23,14 @@ import { OFFSET } from "../constants";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
-        registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultPanAndZoomCanvasAction: false,
         registerDefaultZoomCanvasAction: false,
     });
+
+    const state = engine.getStateMachine().getCurrentState();
+    if (state instanceof DefaultDiagramState) {
+        state.dragCanvas.config.allowDrag = false;
+    }
 
     engine.getLinkFactories().registerFactory(new MediatorLinkFactory());
     engine.getPortFactories().registerFactory(new MediatorPortFactory());

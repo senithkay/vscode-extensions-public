@@ -35,7 +35,6 @@ export class InvisibleNodeFactory extends AbstractReactFactory<InvisibleNodeMode
         return new InvisibleNodeModel(
             event.initialConfig.model.id,
             null,
-            null,
             event.initialConfig.model.isInOutSequence
         );
     }

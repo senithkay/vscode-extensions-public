@@ -95,7 +95,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     }
 
     function autoDistribute() {
-        console.log("Distributing...");
         let x = OFFSET.START.X;
         let y = OFFSET.START.Y;
         const nodes = diagramEngine.getModel().getNodes();
@@ -146,6 +145,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                 <NavigationWrapperCanvasWidget
                     diagramEngine={diagramEngine as any}
                     disableZoom={true}
+                    disableMouseEvents={true}
                 />
             </CanvasContainer>
         </div>;
