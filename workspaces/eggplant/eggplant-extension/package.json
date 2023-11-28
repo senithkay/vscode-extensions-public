@@ -1,62 +1,75 @@
 {
-  "name": "eggplant-extension",
-  "displayName": "eggplant",
-  "description": "",
-  "version": "0.0.1",
-  "repository": {
-    "url": "http://repo.url"
-  },
-  "engines": {
-    "vscode": "^1.84.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "workspaceContains:**/Ballerina.toml"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "eggplant",
-          "title": "Eggplant",
-          "icon": "$(circuit-board)"
-        }
-      ]
+    "name": "eggplant-extension",
+    "displayName": "eggplant",
+    "description": "",
+    "version": "0.0.1",
+    "repository": {
+        "url": "http://repo.url"
     },
-    "views": {
-      "eggplant": [
-        {
-          "type": "webview",
-          "id": "eggplant.activity.overview",
-          "name": "Overview"
-        }
-      ]
+    "engines": {
+        "vscode": "^1.84.0"
     },
-    "defaultViewContainer": "activitybar:eggplant",
-    "commands": []
-  },
-  "scripts": {
-    "vscode:prepublish": "pnpm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "pnpm run compile && pnpm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
-    "build": "vsce package"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.84.0",
-    "@types/mocha": "^10.0.3",
-    "@types/node": "18.x",
-    "@typescript-eslint/eslint-plugin": "^6.9.0",
-    "@typescript-eslint/parser": "^6.9.0",
-    "eslint": "^8.52.0",
-    "glob": "^10.3.10",
-    "mocha": "^10.2.0",
-    "typescript": "^5.2.2",
-    "@vscode/test-electron": "^2.3.6"
-  }
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "workspaceContains:**/Ballerina.toml"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "eggplant",
+                    "title": "Eggplant",
+                    "icon": "$(circuit-board)"
+                }
+            ]
+        },
+        "views": {
+            "explorer": [
+                {
+                    "id": "lowcode",
+                    "name": "Low Code Editor",
+                    "when": "true"
+                }
+            ],
+            "eggplant": [
+                {
+                    "type": "webview",
+                    "id": "eggplant.activity.overview",
+                    "name": "Overview"
+                }
+            ]
+        },
+        "defaultViewContainer": "activitybar:eggplant",
+        "commands": [
+            {
+                "command": "eggplant.openLowCode",
+                "title": "Open Low Code"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "pnpm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "pnpm run compile && pnpm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js",
+        "build": "vsce package"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.84.0",
+        "@types/mocha": "^10.0.3",
+        "@types/node": "18.x",
+        "@typescript-eslint/eslint-plugin": "^6.9.0",
+        "@typescript-eslint/parser": "^6.9.0",
+        "eslint": "^8.52.0",
+        "glob": "^10.3.10",
+        "mocha": "^10.2.0",
+        "typescript": "^5.2.2",
+        "@vscode/test-electron": "^2.3.6",
+        "@wso2-enterprise/eggplant-webview": "workspace:*"
+    }
 }

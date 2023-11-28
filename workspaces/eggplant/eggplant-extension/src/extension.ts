@@ -2,6 +2,9 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { activateActivityBarWebViews } from './ActivityBar/activate';
+import { ext } from './eggplantExtentionContext';
+import { activateLowCodeWebViews } from './LowCode/activate';
+
 
 
 // 1. load webview inside the activity bra and lowcode panels 
@@ -10,7 +13,10 @@ import { activateActivityBarWebViews } from './ActivityBar/activate';
 // 4 render the lowcode view 
 
 export function activate(context: vscode.ExtensionContext) {
+	// Initialize the eggplant extention context so we do not need to pass the variables around
+	ext.context = context;
 	activateActivityBarWebViews(context);
+	activateLowCodeWebViews(context);
 
 	vscode.workspace.findFiles('**/Ballerina.toml', '**/node_modules/**', 1).then(files => {
 		if (files.length > 0) {
@@ -20,26 +26,14 @@ export function activate(context: vscode.ExtensionContext) {
 					return;
 				}
 				if (data.includes('eggplant')) {
-					openEggplantPerspective();
+					vscode.commands.executeCommand('workbench.view.extension.eggplant');
+					vscode.commands.executeCommand('eggplant.openLowCode');
 				}
 			});
 		}
 	});
-}
 
-function openEggplantPerspective() {
-	// render the low code editor
-	vscode.commands.executeCommand('eggplant.showWebview');
-	const panel = vscode.window.createWebviewPanel(
-		'eggplantView', // Identifies the type of the webview. Used internally
-		'Eggplant View', // Title of the panel displayed to the user
-		vscode.ViewColumn.One, // Editor column to show the new webview panel in.
-		{} // Webview options. More on these later.
-	);
-	panel.webview.html = `<h1>Hello Eggplant</h1>`;
 
-	// Focus eggplant perspective
-	vscode.commands.executeCommand('workbench.view.extension.eggplant');
 }
 
 

@@ -20,32 +20,32 @@ import { ext } from '../eggplantExtentionContext';
 // import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
 
 
-export class Overview implements vscode.WebviewViewProvider {
 
-    public static readonly viewType = 'eggplant.activity.overview';
+export class LowCode {
+    public static currentPanel: LowCode | undefined;
+    private _panel: vscode.WebviewPanel | undefined;
+    private _disposables: vscode.Disposable[] = [];
+    //private _rpcHandler: WebViewPanelRpc;
 
-    private _view?: vscode.WebviewView;
-    // private _rpc?: WebViewViewRPC;
+    constructor() {
+        this._panel = LowCode.createWebview();
+        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+        this._panel.webview.html = this.getWebviewContent(this._panel.webview);
+        //this._rpcHandler = new WebViewPanelRpc(this._panel);
+    }
 
-    constructor(
-        private readonly _extensionUri: vscode.Uri,
-    ) { }
+    private static createWebview(): vscode.WebviewPanel {
+        const panel = vscode.window.createWebviewPanel(
+            'lowcode',
+            'Low Code Editor',
+            vscode.ViewColumn.One,
+            { enableScripts: true }
+        );
+        return panel;
+    }
 
-    public resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext,
-        _token: vscode.CancellationToken,
-    ) {
-        this._view = webviewView;
-        webviewView.webview.options = {
-            // Allow scripts in the webview
-            enableScripts: true,
-            localResourceRoots: [
-                this._extensionUri
-            ]
-        };
-        webviewView.webview.html = this.getWebviewContent(webviewView.webview);
-        // this._rpc = new WebViewViewRPC(webviewView);
+    public getWebview(): vscode.WebviewPanel | undefined {
+        return this._panel;
     }
 
     private getWebviewContent(webview: vscode.Webview) {
@@ -75,7 +75,7 @@ export class Overview implements vscode.WebviewViewProvider {
             <script>
             function render() {
                 visualizerWebview.renderWebview(
-                    document.getElementById("root"), "overview"
+                    document.getElementById("root"), "lowcode"
                 );
             }
             render();
@@ -83,5 +83,19 @@ export class Overview implements vscode.WebviewViewProvider {
         </body>
         </html>
       `;
+    }
+
+    public dispose() {
+        LowCode.currentPanel = undefined;
+        this._panel?.dispose();
+
+        while (this._disposables.length) {
+            const disposable = this._disposables.pop();
+            if (disposable) {
+                disposable.dispose();
+            }
+        }
+
+        this._panel = undefined;
     }
 }

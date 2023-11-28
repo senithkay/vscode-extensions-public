@@ -27,7 +27,8 @@ export default defineConfig({
   },
   server: {
     port: 9000,
-    cors: true
+    cors: true,
+    hmr: false
   },
   optimizeDeps: {
     include: ['react', 'react-dom'],

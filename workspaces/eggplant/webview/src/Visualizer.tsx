@@ -7,33 +7,31 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Overview } from "@wso2-enterprise/overview-view";
-import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
+// import { Overview } from "@wso2-enterprise/overview-view";
+// import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
-import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+// import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
-export function Webview() {
-    const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
+export function Webview({ mode }: { mode: string }) {
+    // const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
 
-    useEffect(() => {
-        setViewLocationState();
-        ballerinaRpcClient.onStateChanged((state: { viewContext: ViewLocation }) => {
-            setViewLocation(state.viewContext);
-        });
-    }, []);
+    // useEffect(() => {
+    //     setViewLocationState();
+    //     ballerinaRpcClient.onStateChanged((state: { viewContext: ViewLocation }) => {
+    //         setViewLocation(state.viewContext);
+    //     });
+    // }, []);
 
-    const setViewLocationState = async () => {
-        const state = await ballerinaRpcClient.getVisualizerClient().getVisualizerState();
-        if (state) {
-            setViewLocation(state);
-        }
-    }
+    // const setViewLocationState = async () => {
+    //     const state = await ballerinaRpcClient.getVisualizerClient().getVisualizerState();
+    //     if (state) {
+    //         setViewLocation(state);
+    //     }
+    // }
     return (
         <>
-            <h2>Hello Nav</h2>
-            {viewLocation.view === "Overview" && <Overview />}
-            {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
-            {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
+            {mode === "overview" && <h1>Overview</h1>}
+            {mode === "lowCode" && <h1>LowCode</h1>}
         </>
     );
 };
