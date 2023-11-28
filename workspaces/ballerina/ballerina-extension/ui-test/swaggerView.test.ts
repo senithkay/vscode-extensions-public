@@ -23,16 +23,17 @@ describe('Swagger view UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
     const FILE_NAME = 'hello_service.bal';
     let driver: WebDriver;
-    let workbench : Workbench;
+    let browser: VSBrowser;
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await VSBrowser.instance.waitForWorkbench();
-        workbench = new Workbench();
-        await enableDndMode(workbench);
+        browser = VSBrowser.instance;
+        driver = browser.driver;
     });
 
     it('Test tryit button', async () => {
+        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 360000);
         await clickOnActivity(EXPLORER_ACTIVITY);
         // Click on `Run` code lens to run service
         const editorView = new ExtendedEditorView(new EditorView());
@@ -68,9 +69,5 @@ describe('Swagger view UI Tests', () => {
         // check response
         const response = await swaggerView.getResponse();
         expect(response).is.equal('"Hello, World!"');
-    });
-
-    after(async () => {
-        workbench.executeCommand(DND_PALETTE_COMMAND);
     });
 });
