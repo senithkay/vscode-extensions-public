@@ -24,6 +24,7 @@ export default defineConfig({
         assetFileNames: `[name].[ext]`,
       },
     },
+    sourcemap: true,
   },
   server: {
     port: 9000,
