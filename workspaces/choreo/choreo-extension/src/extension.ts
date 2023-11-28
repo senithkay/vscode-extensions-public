@@ -212,8 +212,9 @@ async function registerYamlLangugeServer(): Promise<void> {
                         if (!componentMetadata.isLocalComponent) {
                             componentConfigs = await componentYamlCache.get(componentConfigKey, parseInt(componentMetadata.project.orgId), componentMetadata.project.handler, componentMetadata.component);
                         }
+                        const clonedSchema = JSON.parse(JSON.stringify(schemaContentJSON)) as ComponentYamlSchema;
                         const enrichedSchema = enrichComponentSchema(
-                            schemaContentJSON,
+                            clonedSchema,
                             componentMetadata.component,
                             componentMetadata.project.name,
                             componentConfigs
