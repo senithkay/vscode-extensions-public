@@ -23,12 +23,17 @@ describe('Swagger view UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
     const FILE_NAME = 'hello_service.bal';
     let driver: WebDriver;
+    let browser: VSBrowser;
 
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
+        await VSBrowser.instance.waitForWorkbench();
+        browser = VSBrowser.instance;
+        driver = browser.driver;
     });
 
     it('Test tryit button', async () => {
+        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 120000);
         await clickOnActivity(EXPLORER_ACTIVITY);
         // Click on `Run` code lens to run service
         const editorView = new ExtendedEditorView(new EditorView());
