@@ -31,7 +31,7 @@ export function Webview({ mode }: { mode: string }) {
     return (
         <>
             {mode === "overview" && <h1>Overview</h1>}
-            {mode === "lowCode" && <h1>LowCode</h1>}
+            {mode === "lowcode" && <h1>LowCode</h1>}
         </>
     );
 };
