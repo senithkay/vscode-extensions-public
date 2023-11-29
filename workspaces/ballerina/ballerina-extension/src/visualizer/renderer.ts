@@ -18,7 +18,7 @@ export function render(webView: Webview) {
             background-color: var(--vscode-editor-background);
             padding: 15px;
             height: 100vh;
-            overflow: hidden;
+            overflow: auto;
             width: 100%;
         }
     `;
