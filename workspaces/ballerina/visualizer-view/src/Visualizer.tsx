@@ -15,6 +15,7 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NavigationBar } from "./components/NavigationBar";
 import styled from "@emotion/styled";
 import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
+import { fnST } from "./data-provider/st"
 
 export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
@@ -41,12 +42,37 @@ export function Webview() {
         color: var(--vscode-descriptionForeground);
     `;
 
+    const dataMapper = (
+        <DataMapper
+            library={undefined}
+            targetPosition={{ ...fnST.position, startColumn: 0, endColumn: 0 }}
+            fnST={fnST}
+            langClientPromise={
+                getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+            }
+            filePath={currentFile.path}
+            currentFile={currentFile}
+            openedViaPlus={false}
+            projectComponents={projectComponents}
+            ballerinaVersion={ballerinaVersion}
+            applyModifications={undefined}
+            updateFileContent={undefined}
+            goToSource={undefined}
+            onClose={undefined}
+            onSave={undefined}
+            importStatements={[]}
+            recordPanel={undefined}
+            updateActiveFile={undefined}
+            updateSelectedComponent={undefined}
+        />
+    );
+
     return (
         <VisualizerContainer>
             <NavigationBar />
             {viewLocation.view === "Overview" && <Overview />}
             {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
-            {viewLocation.view === "DataMapper" && <DataMapper />}
+            {viewLocation.view === "DataMapper" && dataMapper}
             {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
         </VisualizerContainer>
     );
