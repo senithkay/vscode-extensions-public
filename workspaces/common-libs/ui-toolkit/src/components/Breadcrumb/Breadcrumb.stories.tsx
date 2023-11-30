@@ -1,6 +1,7 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import Breadcrumbs, { BreadcrumbProps } from "./Breadcrumb";
+import { Codicon } from "../Codicon/Codicon";
 
 const Template: ComponentStory<typeof Breadcrumbs> = (args: BreadcrumbProps) => (
     <Breadcrumbs {...args}>
@@ -15,6 +16,7 @@ const Template: ComponentStory<typeof Breadcrumbs> = (args: BreadcrumbProps) => 
 export const Default = Template.bind();
 Default.args = {
     maxItems: 3,
+    separator: <Codicon name="chevron-right" />,
 };
 
 export default { component: Breadcrumbs, title: "Breadcrumb" };
