@@ -32,3 +32,5 @@ export * from "./rpc-types/trigger-wizard";
 export * from "./rpc-types/visualizer";
 export * from "./rpc-types/overview/rpc-type";
 export * from "./rpc-types/visualizer/rpc-type";
+export * from "./rpc-types/data-mapper";
+export * from "./rpc-types/data-mapper/rpc-type";
