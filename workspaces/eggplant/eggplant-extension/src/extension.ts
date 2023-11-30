@@ -19,6 +19,30 @@ export function activate(context: vscode.ExtensionContext) {
 	activateActivityBarWebViews(context);
 	activateLowCodeWebViews(context);
 
+	// Get Ballerina extension
+	const ballerinaExt = vscode.extensions.getExtension('wso2.ballerina');
+	if (!ballerinaExt) {
+		console.error('Cannot find Ballerina extension');
+		return;
+	}
+
+	// Activate Ballerina extension if not activated
+	if (!ballerinaExt.isActive) {
+		ballerinaExt.activate().then(() => {
+			let workspaceUri = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri : null;
+			// @ts-ignore
+			ballerinaExt.exports.langClient.getBallerinaProjectComponents({
+				documentIdentifiers: [{ uri: workspaceUri?.path + "/main.bal" }]
+				// @ts-ignore
+			}).then((componentResponse: BallerinaProjectComponents) => {
+				console.log(componentResponse);
+			});
+			console.log('Ballerina extension activated');
+		}, error => {
+			console.error('Failed to activate Ballerina extension:', error);
+		});
+	}
+
 	vscode.workspace.findFiles('**/Ballerina.toml', '**/node_modules/**', 1).then(files => {
 		if (files.length > 0) {
 			fs.readFile(files[0].fsPath, 'utf8', (err, data) => {

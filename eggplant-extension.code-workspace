@@ -11,9 +11,6 @@
 		},
 		{
 			"path": "workspaces/common-libs/ui-toolkit"
-		},
-		{
-			"path": "workspaces/ballerina/ballerina-extension"
 		}
 	],
 	"settings": {

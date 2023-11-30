@@ -12,11 +12,17 @@ import { EggplantDiagram } from "@wso2-enterprise/eggplant-diagram";
 
 const model = {
     nodes: [
-        { name: "A", links: [{ name: "B" }, { name: "C" }] },
-        { name: "B", links: [{ name: "FunctionEnd" }] },
-        { name: "C", links: [{ name: "FunctionEnd" }] },
-        { name: "FunctionStart", links: [{ name: "A" }] },
+        { name: "GetAppointmentFee", links: [{ name: "LogAppointmentFee" }, { name: "CreatePaymentRequest" }] },
+        { name: "FunctionStart", links: [{ name: "LogHospitalDetails" }, { name: "CreateAppointmentPayload" }] },
+        { name: "LogAppointmentFee", links: [] },
         { name: "FunctionEnd", links: [] },
+        { name: "CreatePaymentRequest", links: [{ name: "MakePayment" }] },
+        { name: "LogHospitalDetails", links: [] },
+        { name: "CreateAppointment", links: [{ name: "GetAppointmentFee" }, { name: "LogAppointment" }] },
+        { name: "LogAppointment", links: [] },
+        { name: "MakePayment", links: [{ name: "FunctionEnd" }, { name: "LogPaymentResponse" }] },
+        { name: "LogPaymentResponse", links: [] },
+        { name: "CreateAppointmentPayload", links: [{ name: "CreateAppointment" }] },
     ],
 };
 

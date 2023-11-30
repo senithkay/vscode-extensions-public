@@ -1384,6 +1384,9 @@ importers:
 
   ../../workspaces/eggplant/webview:
     specifiers:
+      '@emotion/css': ^11.10.5
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.11.0
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
       '@types/vscode-webview': ^1.57.4
@@ -1411,6 +1414,9 @@ importers:
       webpack-cli: ^4.10.0
       webpack-dev-server: ^4.15.1
     dependencies:
+      '@emotion/css': 11.11.2
+      '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
+      '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
       '@types/vscode-webview': 1.57.4
       '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
