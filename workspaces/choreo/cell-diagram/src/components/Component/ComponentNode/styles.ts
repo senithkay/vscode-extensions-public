@@ -44,7 +44,6 @@ export const ComponentHead: React.FC<any> = styled.div`
     border-radius: 50%;
     height: ${COMPONENT_CIRCLE_WIDTH}px;
     width: ${COMPONENT_CIRCLE_WIDTH}px;
-    line-height: 28px;
 
     display: flex;
     flex-direction: column;

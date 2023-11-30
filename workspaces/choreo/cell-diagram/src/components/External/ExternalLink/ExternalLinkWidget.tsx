@@ -47,15 +47,15 @@ export function ExternalLinkWidget(props: WidgetProps) {
             <defs>
                 <marker
                     id={link.getLinkArrowId()}
-                    markerWidth="6"
-                    markerHeight="6"
+                    markerWidth="8"
+                    markerHeight="8"
                     markerUnits="strokeWidth"
-                    refX="3"
+                    refX="4"
                     refY="3"
                     viewBox="0 0 6 6"
                     orient="auto"
                 >
-                    <polygon points="0,6 0,0 6,3" fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}></polygon>
+                    <polygon points="0,6 0,0 5,3" fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}></polygon>
                 </marker>
             </defs>
             <path

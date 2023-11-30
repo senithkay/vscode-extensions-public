@@ -84,6 +84,7 @@ export const ObservationsNDiff: Story = (args: CellDiagramProps) => (
 );
 
 ObservationsNDiff.args = {
+    defaultDiagramLayer: "diff",
     project: {
         id: "A",
         name: "A",

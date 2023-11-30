@@ -58,6 +58,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
     const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
 
     const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
+    const hasArchitectureLayer = hasLayer(DiagramLayer.ARCHITECTURE);
     const hasObservabilityLayer = hasLayer(DiagramLayer.OBSERVABILITY);
     const hasDiffLayer = hasLayer(DiagramLayer.DIFF);
 
@@ -106,7 +107,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
     };
 
     const strokeColor = () => {
-        if (isSelected) {
+        if (isSelected && (hasArchitectureLayer || hasDiffLayer)) {
             return Colors.PRIMARY_SELECTED;
         }
         if (hasDiffLayer && link.observationOnly) {
@@ -115,9 +116,10 @@ export function ComponentLinkWidget(props: WidgetProps) {
         if (hasObservabilityLayer && link.observations?.length > 0) {
             return Colors.PRIMARY;
         }
-        if (!hasObservabilityLayer && !hasDiffLayer) {
-            return Colors.PRIMARY;
+        if (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) {
+            return "transparent";
         }
+
         return Colors.DEFAULT_TEXT;
     };
 
@@ -136,15 +138,15 @@ export function ComponentLinkWidget(props: WidgetProps) {
                 <defs>
                     <marker
                         id={link.getLinkArrowId()}
-                        markerWidth="6"
-                        markerHeight="6"
+                        markerWidth="8"
+                        markerHeight="8"
                         markerUnits="strokeWidth"
-                        refX="3"
+                        refX="4"
                         refY="3"
                         viewBox="0 0 6 6"
                         orient="auto"
                     >
-                        <polygon points="0,6 0,0 6,3" fill={strokeColor()}></polygon>
+                        <polygon points="0,6 0,0 5,3" fill={strokeColor()}></polygon>
                     </marker>
                 </defs>
                 <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
@@ -156,7 +158,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
                     stroke={strokeColor()}
                     strokeWidth={strokeWidth()}
                     strokeDasharray={strokeDash()}
-                    markerEnd={"url(#" + link.getLinkArrowId() + ")"}
+                    markerEnd={!hasObservabilityLayer ? "url(#" + link.getLinkArrowId() + ")" : ""}
                 />
                 {hasDiffLayer && link.observationOnly && (
                     <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px" }}>

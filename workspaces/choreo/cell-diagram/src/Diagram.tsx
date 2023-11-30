@@ -27,7 +27,7 @@ import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { ObservationSummary, Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
-import { DiagramLayers } from "./components/Controls/DiagramLayers";
+import { DiagramLayer, DiagramLayers } from "./components/Controls/DiagramLayers";
 
 export interface CellDiagramProps {
     project: Project;
@@ -35,12 +35,13 @@ export interface CellDiagramProps {
     componentMenu?: MenuItemDef[];
     showControls?: boolean;
     animation?: boolean;
+    defaultDiagramLayer?: DiagramLayer;
     // custom event handler
     onComponentDoubleClick?: (componentId: string) => void;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { project, componentMenu, showControls = true, animation = true, onComponentDoubleClick } = props;
+    const { project, componentMenu, showControls = true, animation = true, defaultDiagramLayer = DiagramLayer.ARCHITECTURE, onComponentDoubleClick } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -199,12 +200,15 @@ export function CellDiagram(props: CellDiagramProps) {
         }, 8);
     };
 
+    const showDiagramLayers = showControls && observationSummary.current?.requestCount.max > 0 || false;
+
     const ctx = {
         selectedNodeId,
         focusedNodeId,
         componentMenu,
         zoomLevel,
         observationSummary: observationSummary.current,
+        defaultDiagramLayer,
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,
@@ -228,7 +232,7 @@ export function CellDiagram(props: CellDiagramProps) {
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
-                            {showControls && <DiagramLayers animation={animation} />}
+                            {showDiagramLayers && <DiagramLayers animation={animation} />}
                         </>
                     ) : userMessage ? (
                         <PromptScreen userMessage={userMessage} />

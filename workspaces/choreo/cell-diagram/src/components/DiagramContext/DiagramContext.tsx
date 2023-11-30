@@ -24,9 +24,9 @@ interface IDiagramContext {
     onComponentDoubleClick?: (componentId: string) => void;
     diagramLayers: {
         activeLayers: DiagramLayer[];
+        setLayer: (layer: DiagramLayer) => void;
         addLayer: (layer: DiagramLayer) => void;
         removeLayer: (layer: DiagramLayer) => void;
-        removeAllLayers: () => void;
         hasLayer: (layer: DiagramLayer) => boolean;
     };
 }
@@ -34,6 +34,7 @@ interface IDiagramContext {
 type OmittedDiagramContext = Omit<IDiagramContext, "diagramLayers">;
 interface DiagramContextProps extends OmittedDiagramContext {
     children: ReactNode;
+    defaultDiagramLayer: DiagramLayer;
 }
 
 const defaultState: any = {};
@@ -47,12 +48,13 @@ export function CellDiagramContext(props: DiagramContextProps) {
         componentMenu,
         zoomLevel,
         observationSummary,
+        defaultDiagramLayer,
         setSelectedNodeId,
         setFocusedNodeId,
         onComponentDoubleClick,
     } = props;
 
-    const { activeLayers, addLayer, removeLayer, removeAllLayers, hasLayer } = useActiveLayers();
+    const { activeLayers, addLayer, removeLayer, setLayer, hasLayer } = useActiveLayers({ defaultDiagramLayer });
 
     const context: IDiagramContext = {
         selectedNodeId,
@@ -65,9 +67,9 @@ export function CellDiagramContext(props: DiagramContextProps) {
         onComponentDoubleClick,
         diagramLayers: {
             activeLayers,
+            setLayer,
             addLayer,
             removeLayer,
-            removeAllLayers,
             hasLayer,
         },
     };

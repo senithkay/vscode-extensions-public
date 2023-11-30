@@ -11,12 +11,13 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import gsap from "gsap";
 import { useDiagramContext } from "../DiagramContext/DiagramContext";
-import { Colors, DiffIcon, LayersIcon, ObservationIcon } from "../../resources";
+import { Colors, DiagramIcon, DiffIcon, LayersIcon, ObservationIcon } from "../../resources";
 
 export const DiagramLayersPanel: React.FC<any> = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: end;
     gap: 4px;
     position: absolute;
     bottom: 15px;
@@ -29,24 +30,24 @@ export const LayersPanel: React.FC<any> = styled.div`
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    padding: 4px 8px;
+    padding: 6px 6px 4px;
     background-color: white;
     border: 1px solid ${Colors.LIGHT_GREY};
 `;
 
 export const MainButton: React.FC<any> = styled.div`
     border: 1px solid ${Colors.LIGHT_GREY};
-    width: 68px;
-    height: 68px;
+    width: 32px;
+    height: 32px;
     border-radius: 2px;
     color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.GREY)};
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
+    background-color: #fff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: relative;
     box-sizing: border-box;
-    padding: 4px;
+    padding: 5px;
     cursor: pointer;
 `;
 
@@ -56,7 +57,7 @@ export const LayerButton: React.FC<any> = styled.div`
     align-items: center;
     justify-content: space-between;
     font-size: 12px;
-    cursor: pointer;
+    cursor: ${(props) => (props.clickable ? "pointer" : "not-allowed")};
     color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.DEFAULT_TEXT)};
     user-select: none;
     -webkit-user-select: none;
@@ -101,11 +102,11 @@ interface DiagramLayersProps {
 export function DiagramLayers(props: DiagramLayersProps) {
     const { animation = true } = props;
     const {
-        diagramLayers: { addLayer, removeLayer, removeAllLayers, hasLayer },
+        diagramLayers: { addLayer, removeLayer, hasLayer, activeLayers },
     } = useDiagramContext();
     const [hover, setHover] = useState(false);
     const controlPanelRef = useRef(null);
-    let timeoutId: NodeJS.Timeout | null = null;
+    const canRemoveLayer = activeLayers.length > 1;
 
     useEffect(() => {
         if (animation) {
@@ -121,6 +122,14 @@ export function DiagramLayers(props: DiagramLayersProps) {
             );
         }
     }, []);
+
+    const toggleArchitectureLayer = () => {
+        if (hasLayer(DiagramLayer.ARCHITECTURE)) {
+            removeLayer(DiagramLayer.ARCHITECTURE);
+        } else {
+            addLayer(DiagramLayer.ARCHITECTURE);
+        }
+    };
 
     const toggleObservabilityLayer = () => {
         if (hasLayer(DiagramLayer.OBSERVABILITY)) {
@@ -138,51 +147,44 @@ export function DiagramLayers(props: DiagramLayersProps) {
         }
     };
 
-    const toggleBetweenDiagramLayers = () => {
-        if (hasLayer(DiagramLayer.OBSERVABILITY) && !hasLayer(DiagramLayer.DIFF)) {
-            removeLayer(DiagramLayer.OBSERVABILITY);
-            addLayer(DiagramLayer.DIFF);
-        } else if (hasLayer(DiagramLayer.DIFF) && !hasLayer(DiagramLayer.OBSERVABILITY)) {
-            addLayer(DiagramLayer.OBSERVABILITY);
-        } else if (hasLayer(DiagramLayer.DIFF) && hasLayer(DiagramLayer.OBSERVABILITY)) {
-            removeAllLayers();
-        } else {
-            addLayer(DiagramLayer.OBSERVABILITY);
-        }
-    };
-
-    const handleMouseOver = () => {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-        }
-        setHover(true);
-    };
-
-    const handleMouseOut = () => {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-        }
-        timeoutId = setTimeout(() => {
-            setHover(false);
-        }, 1000);
+    const toggleDiagramLayerPanel = () => {
+        setHover((prev) => !prev);
     };
 
     return (
         <DiagramLayersPanel ref={controlPanelRef}>
-            <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} onClick={toggleBetweenDiagramLayers}>
+            <div onClick={toggleDiagramLayerPanel}>
                 <MainButton selected={hasLayer(DiagramLayer.OBSERVABILITY) || hasLayer(DiagramLayer.DIFF)}>
                     <LayersIcon styles={{ width: 24, height: 24 }} />
                 </MainButton>
             </div>
             {hover && (
-                <LayersPanel onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-                    <LayerButton onClick={toggleObservabilityLayer} selected={hasLayer(DiagramLayer.OBSERVABILITY)}>
+                <LayersPanel>
+                    <LayerButton
+                        onClick={toggleArchitectureLayer}
+                        selected={hasLayer(DiagramLayer.ARCHITECTURE)}
+                        clickable={hasLayer(DiagramLayer.ARCHITECTURE) ? canRemoveLayer : true}
+                    >
+                        <LayerIcon>
+                            <DiagramIcon styles={{ width: 24, height: 24 }} />
+                        </LayerIcon>
+                        Static
+                    </LayerButton>
+                    <LayerButton
+                        onClick={toggleObservabilityLayer}
+                        selected={hasLayer(DiagramLayer.OBSERVABILITY)}
+                        clickable={hasLayer(DiagramLayer.OBSERVABILITY) ? canRemoveLayer : true}
+                    >
                         <LayerIcon>
                             <ObservationIcon styles={{ width: 24, height: 24 }} />
                         </LayerIcon>
                         Obs
                     </LayerButton>
-                    <LayerButton onClick={toggleDiffLayer} selected={hasLayer(DiagramLayer.DIFF)}>
+                    <LayerButton
+                        onClick={toggleDiffLayer}
+                        selected={hasLayer(DiagramLayer.DIFF)}
+                        clickable={hasLayer(DiagramLayer.DIFF) ? canRemoveLayer : true}
+                    >
                         <LayerIcon>
                             <DiffIcon styles={{ width: 24, height: 24 }} />
                         </LayerIcon>

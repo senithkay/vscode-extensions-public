@@ -10,8 +10,12 @@
 import { useState } from "react";
 import { DiagramLayer } from "../components/Controls/DiagramLayers";
 
-export const useActiveLayers = () => {
-    const [activeLayers, setActiveLayers] = useState<DiagramLayer[]>([DiagramLayer.ARCHITECTURE]);
+interface ActiveLayersHookProps {
+    defaultDiagramLayer: DiagramLayer;
+}
+
+export const useActiveLayers = (props: ActiveLayersHookProps) => {
+    const [activeLayers, setActiveLayers] = useState<DiagramLayer[]>([props.defaultDiagramLayer]);
 
     const addLayer = (layer: DiagramLayer) => {
         if (!activeLayers.includes(layer)) {
@@ -20,18 +24,19 @@ export const useActiveLayers = () => {
     };
 
     const removeLayer = (layer: DiagramLayer) => {
-        if (activeLayers.includes(layer) && layer !== DiagramLayer.ARCHITECTURE) {
+        if (activeLayers.length > 1) {
+            // Don't allow removing the last layer
             setActiveLayers(activeLayers.filter((l) => l !== layer));
         }
     };
 
-    const removeAllLayers = () => {
-        setActiveLayers([DiagramLayer.ARCHITECTURE]);
+    const setLayer = (layer: DiagramLayer) => {
+        setActiveLayers([layer]);
     };
 
     const hasLayer = (layer: DiagramLayer) => {
         return activeLayers.includes(layer);
     };
 
-    return { activeLayers, addLayer, removeLayer, removeAllLayers, hasLayer };
+    return { activeLayers, addLayer, removeLayer, setLayer, hasLayer };
 };

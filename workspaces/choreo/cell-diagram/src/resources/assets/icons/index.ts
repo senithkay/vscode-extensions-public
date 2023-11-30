@@ -18,6 +18,7 @@ export { MoreVertIcon } from "./MoreVertIcon";
 export { LayersIcon } from "./LayersIcon";
 export { ObservationIcon } from "./ObservationIcon";
 export { DiffIcon } from "./DiffIcon";
+export { DiagramIcon } from "./DiagramIcon";
 
 // Cell icons
 export { GatewayIcon } from "./GatewayIcon";
