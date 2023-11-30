@@ -14,6 +14,7 @@ import { AdvancedMediatorNodeModel } from './AdvancedMediatorModel';
 import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
+import { getSVGIcon } from '../Icons';
 
 export interface AdvancedMediatorWidgetProps extends BaseNodeProps {
     name: string;
@@ -89,124 +90,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                     alignItems: "center",
                     display: "flex",
                 }}>
-                    <svg
-                        width={70}
-                        height={70}
-                        viewBox="0 0 600 600"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <circle id="Ellipse 1" cx="300" cy="300" r="300" fill="#3D84B8" />
-                        <text
-                            x="50%"
-                            y="75%"
-                            dominant-baseline="middle"
-                            text-anchor="middle"
-                            fill="white"
-                            font-size="70px"
-                            font-family="Arial, Helvetica, sans-serif"
-                            font-weight="bold"
-                        >{props.name} ({props.description})</text>
-                        <g id="Group 1" transform="translate(10,-30)">
-                            <rect
-                                id="Rectangle 1"
-                                x="157"
-                                y="289"
-                                width="128"
-                                height="25"
-                                rx="12.5"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 5"
-                                x="118"
-                                y="344"
-                                width="94"
-                                height="25"
-                                rx="12.5"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 7"
-                                x="118"
-                                y="400"
-                                width="354"
-                                height="23"
-                                rx="11.5"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 6"
-                                x="223"
-                                y="344"
-                                width="105"
-                                height="25"
-                                rx="12.5"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 2"
-                                x="118"
-                                y="234"
-                                width="143"
-                                height="24"
-                                rx="12"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 4"
-                                x="118"
-                                y="179"
-                                width="239"
-                                height="25"
-                                rx="12.5"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 3"
-                                x="270"
-                                y="234"
-                                width="87"
-                                height="24"
-                                rx="12"
-                                fill="white"
-                            />
-                            <path
-                                id="Vector"
-                                d="M372.889 192H395.111V343.515L456.222 274.071L472 292L384 392L296 292L311.778 274.071L372.889 343.515V192Z"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 8"
-                                x="373"
-                                y="177"
-                                width="22"
-                                height="34"
-                                rx="10"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 9"
-                                x="463.447"
-                                y="266"
-                                width="23.4558"
-                                height="34"
-                                rx="10"
-                                transform="rotate(41.3146 463.447 266)"
-                                fill="white"
-                            />
-                            <rect
-                                id="Rectangle 10"
-                                x="288"
-                                y="282.812"
-                                width="23.9522"
-                                height="34"
-                                rx="10"
-                                transform="rotate(-41.31 288 282.812)"
-                                fill="white"
-                            />
-                        </g>
-                    </svg>
+                    {getSVGIcon(props.name, props.description, 70, node.height)}
                 </div>
                 <div
                     style={{
