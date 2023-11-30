@@ -47,10 +47,6 @@ export function Webview() {
             library={undefined}
             targetPosition={{ ...fnST.position, startColumn: 0, endColumn: 0 }}
             fnST={fnST}
-            langClientPromise={
-                getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-            }
-            filePath={currentFile.path}
             currentFile={currentFile}
             openedViaPlus={false}
             projectComponents={projectComponents}

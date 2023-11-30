@@ -22,6 +22,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 // import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
@@ -102,8 +103,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface DataMapperProps {
     targetPosition?: NodePosition;
     fnST: FunctionDefinition;
-    langClientPromise: Promise<IBallerinaLangClient>;
-    filePath: string;
     currentFile?: {
         content: string,
         path: string,
@@ -190,8 +189,6 @@ function DataMapperC(props: DataMapperProps) {
         fnST,
         targetPosition,
         ballerinaVersion,
-        langClientPromise,
-        filePath,
         currentFile,
         openedViaPlus,
         projectComponents,
@@ -206,6 +203,10 @@ function DataMapperC(props: DataMapperProps) {
         updateActiveFile,
         updateSelectedComponent,
     } = props;
+
+    const { viewLocation, ballerinaRpcClient } = useVisualizerContext();
+    const langClientPromise: Promise<IBallerinaLangClient> = ballerinaRpcClient.getDataMapperRpcClient().getLangClient();
+    const filePath = viewLocation.location?.fileName;
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
