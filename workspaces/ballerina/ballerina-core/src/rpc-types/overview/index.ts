@@ -11,13 +11,10 @@
  *  associated services.
  */
 
-import { BallerinaFunctionSTRequest, BallerinaProjectComponents, ExecutorPositionsResponse, GetBallerinaPackagesParams, GetBallerinaProjectParams } from "../../lang-server-interfaces/project-overview-types";
+import { BallerinaFunctionSTRequest, ExecutorPositionsResponse, GetBallerinaProjectParams } from "../../lang-server-interfaces/project-overview-types";
 import { BallerinaSTModifyResponse } from "../../lang-server-interfaces/extended-lang-server-types";
 
 export interface OverviewAPI {
-    getBallerinaProjectComponents: (
-        params: GetBallerinaPackagesParams
-    ) => Promise<BallerinaProjectComponents>;
     getSTForFunction: (
         params: BallerinaFunctionSTRequest
     ) => Promise<BallerinaSTModifyResponse>;

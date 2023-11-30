@@ -9,15 +9,16 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaProjectComponents,
+    GetBallerinaPackagesParams,
     VisualizerAPI,
-    VisualizerLocationContext,
+    VisualizerLocationContext
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
+import { STNode } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "vscode";
 import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
 import { getService, openView } from "../../visualizer/activator";
-import { TextDocumentPositionParams } from "vscode-languageclient";
-import { Uri } from "vscode";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -63,5 +64,10 @@ export class VisualizerRpcManager implements VisualizerAPI {
                 resolve(undefined);
             }
         });
+    }
+
+    async getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

@@ -9,8 +9,11 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaProjectComponents,
+    GetBallerinaPackagesParams,
     VisualizerAPI,
     VisualizerLocationContext,
+    getBallerinaProjectComponents,
     getSyntaxTree,
     getVisualizerState,
     openVisualizerView
@@ -36,5 +39,9 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     getSyntaxTree(): Promise<STNode> {
         return this._messenger.sendRequest(getSyntaxTree, HOST_EXTENSION);
+    }
+
+    getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
+        return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION, params);
     }
 }

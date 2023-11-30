@@ -9,10 +9,12 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    GetBallerinaPackagesParams,
     VisualizerLocationContext,
+    getBallerinaProjectComponents,
     getSyntaxTree,
     getVisualizerState,
-    openVisualizerView,
+    openVisualizerView
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
@@ -22,4 +24,5 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
     messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
     messenger.onRequest(getSyntaxTree, () => rpcManger.getSyntaxTree());
+    messenger.onRequest(getBallerinaProjectComponents, (args: GetBallerinaPackagesParams) => rpcManger.getBallerinaProjectComponents(args));
 }
