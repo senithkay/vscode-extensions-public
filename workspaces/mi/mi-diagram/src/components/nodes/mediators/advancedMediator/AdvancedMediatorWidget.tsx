@@ -27,11 +27,10 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
     const leftPort = node.getPortByAllignment(PortModelAlignment.LEFT);
     const rightPort = node.getPortByAllignment(PortModelAlignment.RIGHT);
 
-    let [subSequencesWidth, setSubSequencesWidth] = useState(0);
+    let [subSequencesWidth, setSubSequencesWidth] = useState(70);
 
     let subSequencesHeight = 0;
     useEffect(() => {
-        let subSeqWidth = 0;
 
         leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
         rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
@@ -46,7 +45,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                     subSequenceHeight = Math.max(subSequenceHeight, subNodes[i].height);
                     for (let j = i + 1; j < subNodes.length; j++) {
                         if (subNodes[i].getParentNode() == subNodes[j].getParentNode()) {
-                            const link = createLinks(subNodes[i], subNodes[j]);
+                            const link = createLinks(subNodes[i], subNodes[j], subNodes[i].getParentNode());
                             props.diagramEngine.getModel().addAll(subNodes[i], ...link, subNodes[j]);
                             subNodesAndLinks.push(subNodes[i], ...link.filter((plusNode) => plusNode instanceof PlusNodeModel), subNodes[j]);
                             break;
@@ -62,13 +61,13 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
             setNodePositions(subNodesAndLinks, false, nodePosition.x, nodePosition.y + subSequencesHeight + 30, subSequenceHeight + 25);
             subSequence.width = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getX() - subNodes[0].getX()) + subNodes[subNodes.length - 1].width + 75 : 0;
             subSequence.height = subSequenceHeight + 25;
-            subSeqWidth = Math.max(subSeqWidth, subSequence.width);
+            subSequencesWidth = Math.max(subSequencesWidth, subSequence.width);
             subSequencesHeight += subSequence.height + 30;
         });
 
         node.height = subSequencesHeight + 20;
-        node.width = subSeqWidth + 112;
-        setSubSequencesWidth(subSeqWidth);
+        node.width = subSequencesWidth + 112;
+        setSubSequencesWidth(subSequencesWidth);
     }, [node.height, node.width, subSequencesHeight, subSequencesWidth]);
 
     node.fireEvent({}, "updateDimensions");

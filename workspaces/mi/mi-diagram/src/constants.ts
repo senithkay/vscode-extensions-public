@@ -25,3 +25,8 @@ export const OFFSET = {
         SEQUENCE: 50,
     }
 };
+
+// MEDIATOR NAMES
+export const MEDIATORS = {
+    LOG: "Log"
+}

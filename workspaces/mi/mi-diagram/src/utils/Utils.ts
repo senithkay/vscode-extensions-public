@@ -20,6 +20,7 @@ import { SequenceNodeFactory } from "../components/nodes/sequence/SequenceNodeFa
 import { SequenceNodeModel } from "../components/nodes/sequence/SequenceNodeModel";
 import { AdvancedMediatorNodeFactory } from "../components/nodes/mediators/advancedMediator/AdvancedMediatorFactory";
 import { OFFSET } from "../constants";
+import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -64,7 +65,7 @@ export function setNodePositions(nodes: NodeModel[], isInOutSequence: boolean, s
     }
 }
 
-export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel,
+export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel, parentNode: STNode,
     addPlus: boolean = true, addArrow: boolean = true): any[] {
     if (!sourceNode || !targetNode) {
         return [];
@@ -89,9 +90,9 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
                 character: targetNode.getNodeRange().start.character
             }
         }
-        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode());
+        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode(), parentNode);
         plusNode.setNodeRange(nodeRange);
-        const link = createLinks(sourceNode, plusNode, false, false);
+        const link = createLinks(sourceNode, plusNode, parentNode, false, false);
         sourcePort = plusNode.getPortByAllignment(sourceNode.isInOutSequenceNode() ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT);
         portsAndNodes.push(plusNode, ...link);
     }

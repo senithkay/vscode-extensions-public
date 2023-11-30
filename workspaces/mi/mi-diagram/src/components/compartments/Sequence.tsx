@@ -77,14 +77,14 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, range, invertDirection);
         const sourceNode = invertDirection ? nodes[nodes.length - 1] : canvasPortNode;
         const targetNode = invertDirection ? canvasPortNode : nodes[0];
-        const canvasPortLink = createLinks(sourceNode, targetNode);
+        const canvasPortLink = createLinks(sourceNode, targetNode, null);
         if (!invertDirection) model.addAll(sourceNode, ...canvasPortLink, targetNode);
 
         if (nodes.length > 1) {
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     if (nodes[i].getParentNode() == nodes[j].getParentNode()) {
-                        const link = createLinks(nodes[i], nodes[j]);
+                        const link = createLinks(nodes[i], nodes[j], null);
                         model.addAll(nodes[i], ...link, nodes[j]);
                         break;
                     }
@@ -97,9 +97,9 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     function autoDistribute() {
         let x = OFFSET.START.X;
         let y = OFFSET.START.Y;
-        const nodes = diagramEngine.getModel().getNodes();
-        const inSeqNodes = nodes.filter((node: any) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel) || node.parentNode?.tag === IN_SEQUENCE_TAG);
-        const outSeqNodes = nodes.filter((node: any) => (node.isInOutSequenceNode() && node instanceof PlusNodeModel) || node.parentNode?.tag === OUT_SEQUENCE_TAG);
+        const nodes: any = diagramEngine.getModel().getNodes();
+        const inSeqNodes = nodes.filter((node: BaseNodeModel) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === IN_SEQUENCE_TAG);
+        const outSeqNodes = nodes.filter((node: BaseNodeModel) => (node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === OUT_SEQUENCE_TAG);
         const inSeqNode = nodes.filter((node: any) => !node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const outSeqNode = nodes.filter((node: any) => node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const inSequenceHeight = inSeqNode ? inSeqNode.height : 0;
@@ -121,7 +121,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
 
         if (inSeqNode && outSeqNode && inSeqNodes.length > 0 && outSeqNodes.length > 0) {
             // create links between in and out
-            const link = createLinks(inSeqNodes[inSeqNodes.length - 1] as any, outSeqNodes[0] as any, false, true)[0];
+            const link = createLinks(inSeqNodes[inSeqNodes.length - 1] as any, outSeqNodes[0] as any, null, false, true)[0];
             model.addAll(link);
         }
 

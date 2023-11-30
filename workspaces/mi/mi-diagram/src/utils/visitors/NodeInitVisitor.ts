@@ -10,12 +10,14 @@
 import {
     Log,
     STNode,
-    NamedSequence,
     Visitor,
+    Resource,
+    APIResource,
+    Sequence,
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
-import { mapNode } from './ModelMapper';
 import { BaseNodeModel } from '../../components/base/base-node/base-node';
+import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
+import { MEDIATORS } from '../../constants';
 
 export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
@@ -29,21 +31,36 @@ export class NodeInitVisitor implements Visitor {
         this.documentUri = documentUri;
     };
 
+    beginVisitResource(node: Resource): void {
+        this.parents.push(node);
+
+        if ((node as any).inSequence || (node as any).outSequence) {
+            this.beginVisitAPIResource(node as any);
+        }
+    }
+
+    beginVisitAPIResource(node: APIResource): void {
+        this.parents.push(node);
+    }
+
+    endVisitAPIResource(_node: APIResource): void {
+        this.parents.pop();
+    }
+
     beginVisitLog(node: Log) {
         this.currentSequence.push(
             new SimpleMediatorNodeModel({
-                node: mapNode(node as any),
-                name: "Log",
-                description: "node.level.toString()",
+                node: node,
+                name: MEDIATORS.LOG,
+                description: node.level.toString(),
                 documentUri: this.documentUri,
                 isInOutSequence: this.isInOutSequence,
                 parentNode: this.parents[this.parents.length - 1]
             }
-            )
-        );
+            ));
     }
 
-    beginVisitInSequence(node: NamedSequence): void {
+    beginVisitInSequence(node: Sequence): void {
         this.currentSequence = this.inSequenceNodes;
         this.parents.push(node);
     }
@@ -52,7 +69,7 @@ export class NodeInitVisitor implements Visitor {
         this.parents.pop();
     }
 
-    beginVisitOutSequence(node: NamedSequence): void {
+    beginVisitOutSequence(node: Sequence): void {
         this.isInOutSequence = true;
         this.currentSequence = this.outSequenceNodes;
         this.parents.push(node);

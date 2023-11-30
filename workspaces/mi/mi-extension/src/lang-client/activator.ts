@@ -21,8 +21,8 @@ import * as path from 'path';
 import {
     LanguageClientOptions
 } from 'vscode-languageclient';
-import { ServerOptions } from "vscode-languageclient";
-import {  DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { ServerOptions } from "vscode-languageclient/node";
+import { DidChangeConfigurationNotification, RequestType, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 
 import { activateTagClosing, AutoCloseResult } from './tagClosing';
 import { ExtendedLanguageClient } from './ExtendedLanguageClient';
@@ -33,8 +33,7 @@ export interface ScopeInfo {
 }
 
 namespace TagCloseRequest {
-    export const type: RequestType<TextDocumentPositionParams, AutoCloseResult, any> =
-        new RequestType('xml/closeTag');
+    export const method: string = 'xml/closeTag';
 }
 
 let ignoreAutoCloseTags = false;
@@ -88,7 +87,7 @@ export class MILanguageClient {
                 middleware: {
                     workspace: {
                         didChangeConfiguration: async () => {
-                            this.languageClient!.sendNotification(DidChangeConfigurationNotification.type,
+                            this.languageClient!.sendNotification(DidChangeConfigurationNotification.method,
                                 { settings: getXMLSettings() });
                             if (!ignoreAutoCloseTags) {
                                 verifyAutoClosing();
@@ -107,7 +106,7 @@ export class MILanguageClient {
             //Setup autoCloseTags
             let tagProvider: (document: TextDocument, position: Position) => Thenable<AutoCloseResult> = (document: TextDocument, position: Position) => {
                 let param = this.languageClient!.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
-                return this.languageClient!.sendRequest(TagCloseRequest.type, param);
+                return this.languageClient!.sendRequest(TagCloseRequest.method, param);
             };
 
             activateTagClosing(tagProvider, { SynapseXml: true, xsl: true },

@@ -38,7 +38,7 @@ export class AdvancedMediatorNodeModel extends BaseNodeModel {
 
     constructor(props: AdvancedMediatorNodeModelProps) {
         const { node, documentUri, isInOutSequence, subSequences, parentNode } = props;
-        const id = `${node.tag}${node.start}${node.end}`;
+        const id = `${node.tag}${node.range.start.line}${node.range.start.character}${node.range.end.line}${node.range.end.character}`;
         super(ADVANCED_NODE, id, documentUri, isInOutSequence, node, parentNode);
 
         this.id = id;

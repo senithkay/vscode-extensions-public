@@ -38,7 +38,7 @@ export function MIDiagram(props: MIDiagramProps) {
 
 		(async () => {
 			const st = await MIWebViewAPI.getInstance().getSyntaxTree(props.documentUri);
-			const stNode = (st as any).syntaxTree.node;
+			const stNode = (st as any).syntaxTree;
 			setSTNode(stNode);
 			setLoading(false);
 		})();

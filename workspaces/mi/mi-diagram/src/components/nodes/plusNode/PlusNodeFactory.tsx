@@ -38,6 +38,7 @@ export class PlusNodeFactory extends AbstractReactFactory<PlusNodeModel, Diagram
             event.initialConfig.model.id,
             event.initialConfig.model.documentUri,
             event.initialConfig.model.isInOutSequence,
+            event.initialConfig.model.parentNode
         );
     }
 }

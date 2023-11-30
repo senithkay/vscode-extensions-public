@@ -8,15 +8,20 @@
 */
 
 export interface STNode {
-    end: number;
-    endTagOffOffset: number;
-    endTagOpenOffset: number;
     hasTextNode: boolean;
     selfClosed: boolean;
-    start: number;
-    startTagOffOffset: number;
-    startTagOpenOffset: number;
+    range: Range;
     tag: string;
+}
+
+export interface Range {
+    start: Position;
+    end: Position;
+}
+
+export interface Position {
+    line: number;
+    character: number;
 }
 
 export interface TBindingOperationFault extends TExtensibleDocumented, STNode {

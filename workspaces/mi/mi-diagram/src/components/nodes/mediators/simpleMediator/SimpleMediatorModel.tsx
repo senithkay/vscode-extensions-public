@@ -29,7 +29,7 @@ export class SimpleMediatorNodeModel extends BaseNodeModel {
 
     constructor(props: SimpleMediatorNodeModelProps) {
         const { node, documentUri, isInOutSequence, parentNode } = props;
-        const id = `${node.tag}${node.start}${node.end}`;
+        const id = `${node.tag}${node.range.start.line}.${node.range.start.character}:${node.range.end.line}.${node.range.end.character}`;
         super(SIMPLE_NODE, id, documentUri, isInOutSequence, node, parentNode);
 
         this.id = id;

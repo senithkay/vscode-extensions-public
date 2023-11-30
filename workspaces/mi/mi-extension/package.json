@@ -95,7 +95,7 @@
     "@playwright/test": "~1.37.1",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "vscode-extension-tester": "~5.9.1",
-    "vscode-languageclient": "^4.1.4",
+    "vscode-languageclient": "^8.0.2",
     "xml2js": "~0.6.2",
     "@types/xml2js": "~0.4.12",
     "jsonix": "~3.0.0",
