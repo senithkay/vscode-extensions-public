@@ -14,10 +14,13 @@ import {
     Resource,
     APIResource,
     Sequence,
+    Throttle,
+    traversNode,
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
 import { MEDIATORS } from '../../constants';
+import { AdvancedMediatorNodeModel } from '../../components/nodes/mediators/advancedMediator/AdvancedMediatorModel';
 
 export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
@@ -26,6 +29,7 @@ export class NodeInitVisitor implements Visitor {
     private parents: STNode[] = [];
     private documentUri: string;
     private isInOutSequence = false;
+    private skipChildrenVisit = false;
 
     constructor(documentUri: string) {
         this.documentUri = documentUri;
@@ -60,6 +64,46 @@ export class NodeInitVisitor implements Visitor {
             ));
     }
 
+    beginVisitThrottle(node: Throttle): void {
+        const currentSequence = this.currentSequence;
+        const onAcceptSequenceNodes: [] = [];
+        const onRejectSequenceNodes: [] = [];
+        this.currentSequence = onAcceptSequenceNodes;
+
+        this.parents.push(node);
+        (node.onAccept.mediatorList as any).forEach((mediator: STNode) => {
+            traversNode(mediator, this);
+        });
+
+        this.currentSequence = onRejectSequenceNodes;
+        (node.onReject.mediatorList as any).forEach((mediator: STNode) => {
+            traversNode(mediator, this);
+        });
+        this.parents.pop();
+
+        this.currentSequence = currentSequence;
+        this.currentSequence.push(
+            new AdvancedMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.THROTTLE,
+                description: node.id.toString(),
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1],
+                subSequences: [{
+                    name: "OnAccept", nodes: onAcceptSequenceNodes
+                }, {
+                    name: "OnReject", nodes: onRejectSequenceNodes
+                }]
+            }
+            ));
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitThrottle(): void {
+        this.skipChildrenVisit = false;
+    }
+
     beginVisitInSequence(node: Sequence): void {
         this.currentSequence = this.inSequenceNodes;
         this.parents.push(node);
@@ -78,6 +122,10 @@ export class NodeInitVisitor implements Visitor {
     endVisitOutSequence(): void {
         this.isInOutSequence = false;
         this.parents.pop();
+    }
+
+    skipChildren(): boolean {
+        return this.skipChildrenVisit;
     }
 
     getInSequenceNodes(): BaseNodeModel[] {

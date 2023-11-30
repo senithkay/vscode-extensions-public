@@ -16,6 +16,7 @@ import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
 
 export interface AdvancedMediatorWidgetProps extends BaseNodeProps {
+    name: string;
     description: string;
 }
 
@@ -58,7 +59,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 subNodesAndLinks.push(subNodes[0]);
             }
 
-            setNodePositions(subNodesAndLinks, false, nodePosition.x, nodePosition.y + subSequencesHeight + 30, subSequenceHeight + 25);
+            setNodePositions(subNodesAndLinks, false, nodePosition.x + 20, nodePosition.y + subSequencesHeight + 30, subSequenceHeight + 25);
             subSequence.width = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getX() - subNodes[0].getX()) + subNodes[subNodes.length - 1].width + 75 : 0;
             subSequence.height = subSequenceHeight + 25;
             subSequencesWidth = Math.max(subSequencesWidth, subSequence.width);
@@ -66,7 +67,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
         });
 
         node.height = subSequencesHeight + 20;
-        node.width = subSequencesWidth + 112;
+        node.width = subSequencesWidth + 132;
         setSubSequencesWidth(subSequencesWidth);
     }, [node.height, node.width, subSequencesHeight, subSequencesWidth]);
 
@@ -89,7 +90,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                     display: "flex",
                 }}>
                     <svg
-                        width={50}
+                        width={70}
                         height={70}
                         viewBox="0 0 600 600"
                         fill="none"
@@ -105,7 +106,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                             font-size="70px"
                             font-family="Arial, Helvetica, sans-serif"
                             font-weight="bold"
-                        >LOG ({props.description})</text>
+                        >{props.name} ({props.description})</text>
                         <g id="Group 1" transform="translate(10,-30)">
                             <rect
                                 id="Rectangle 1"

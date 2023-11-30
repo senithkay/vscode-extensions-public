@@ -42,6 +42,7 @@ export class AdvancedMediatorNodeModel extends BaseNodeModel {
         super(ADVANCED_NODE, id, documentUri, isInOutSequence, node, parentNode);
 
         this.id = id;
+        this.mediatorName = props.name;
         this.mediatorDescription = props.description;
         this.subSequences = subSequences;
 

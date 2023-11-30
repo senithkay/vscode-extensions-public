@@ -27,6 +27,7 @@ export class AdvancedMediatorNodeFactory extends AbstractReactFactory<AdvancedMe
         return <MediatorNodeWidget
             diagramEngine={this.engine}
             node={event.model}
+            name={event.model.mediatorName}
             description={event.model.mediatorDescription}
         />;
     }

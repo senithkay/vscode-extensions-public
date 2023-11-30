@@ -13,6 +13,7 @@ import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { SimpleMediatorNodeModel } from './SimpleMediatorModel';
 
 export interface SimpleMediatorWidgetProps extends BaseNodeProps {
+    name: string;
     description: string;
 }
 
@@ -45,7 +46,7 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
                     font-size="70px"
                     font-family="Arial, Helvetica, sans-serif"
                     font-weight="bold"
-                >LOG ({props.description})</text>
+                >{props.name} ({props.description})</text>
                 <g id="Group 1" transform="translate(10,-30)">
                     <rect
                         id="Rectangle 1"

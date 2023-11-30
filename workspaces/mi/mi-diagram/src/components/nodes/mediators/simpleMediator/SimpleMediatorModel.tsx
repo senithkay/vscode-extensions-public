@@ -33,6 +33,7 @@ export class SimpleMediatorNodeModel extends BaseNodeModel {
         super(SIMPLE_NODE, id, documentUri, isInOutSequence, node, parentNode);
 
         this.id = id;
+        this.mediatorName = props.name;
         this.mediatorDescription = props.description;
         this.width = 70;
         this.height = 70;

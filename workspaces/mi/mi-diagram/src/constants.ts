@@ -28,5 +28,6 @@ export const OFFSET = {
 
 // MEDIATOR NAMES
 export const MEDIATORS = {
-    LOG: "Log"
+    LOG: "Log",
+    THROTTLE: "Throttle",
 }

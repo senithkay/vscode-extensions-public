@@ -24,7 +24,7 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
 
     const keys = Object.keys(node);
     keys.forEach((key) => {
-        if (metaNodes.includes(key)) {
+        if (metaNodes.includes(key) || visitor.skipChildren()) {
             return;
         }
 

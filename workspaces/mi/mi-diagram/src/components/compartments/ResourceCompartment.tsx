@@ -19,7 +19,6 @@ interface Props {
 }
 
 export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
-console.log(props.stNode);
     const visitor = new NodeInitVisitor(props.documentUri);
     traversNode(props.stNode.api, visitor);
 

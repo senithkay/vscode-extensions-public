@@ -9,7 +9,9 @@
 
 import * as Synapse from "./syntax-tree-interfaces";
 
-    export interface Visitor {
+export interface Visitor {
+    skipChildren?(): boolean;
+
     beginVisitSTNode?(node: Synapse.STNode): void;
     endVisitSTNode?(node: Synapse.STNode): void;
 
