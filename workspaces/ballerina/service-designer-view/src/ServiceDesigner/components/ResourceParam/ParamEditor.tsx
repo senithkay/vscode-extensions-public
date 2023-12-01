@@ -10,28 +10,12 @@
 
 import React from 'react';
 
-import styled from '@emotion/styled';
 import { ActionButtons, Dropdown, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { PARAM_TYPES, ParameterConfig } from '../../definitions';
+import { EditorContainer, EditorContent } from '../../styles';
 
 const options = [{ id: "0", value: PARAM_TYPES.DEFAULT }, { id: "1", value: PARAM_TYPES.HEADER }];
-
-const ParamContainer = styled.div`
-    display: flex;
-    margin: 10px 0;
-    flex-direction: column;
-    border-radius: 5px;
-    padding: 10px;
-    border: 1px solid var(--vscode-dropdown-border);
-`;
-
-const ParamContent = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 10px 0;
-`;
 
 export interface ParamProps {
     param: ParameterConfig;
@@ -89,7 +73,7 @@ export function ParamEditor(props: ParamProps) {
     };
 
     return (
-        <ParamContainer>
+        <EditorContainer>
             {optionList && (
                 <Dropdown
                     id="param-type-selector"
@@ -102,7 +86,7 @@ export function ParamEditor(props: ParamProps) {
 					value={selectedOption}
 				/>
             )}
-            <ParamContent>
+            <EditorContent>
                 <TextField
                     size={21}
                     label='Type'
@@ -126,7 +110,7 @@ export function ParamEditor(props: ParamProps) {
                     value={defaultValue}
                     onChange={handleValueChange}
                 />
-            </ParamContent>
+            </EditorContent>
             <VSCodeCheckbox checked={isSelected} onChange={handleReqFieldChange} id="is-req-checkbox">
                 Is Required?
             </VSCodeCheckbox>
@@ -135,6 +119,6 @@ export function ParamEditor(props: ParamProps) {
                 secondaryButton={{ text : "Cancel", onClick: handleOnCancel }}
                 sx={{justifyContent: "flex-end"}}
             />
-        </ParamContainer >
+        </EditorContainer >
     );
 }

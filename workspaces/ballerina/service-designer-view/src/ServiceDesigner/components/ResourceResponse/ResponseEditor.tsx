@@ -10,25 +10,9 @@
 
 import React from 'react';
 
-import styled from '@emotion/styled';
 import { ActionButtons, TextField } from '@wso2-enterprise/ui-toolkit';
 import { ResponseConfig } from '../../definitions';
-
-const ParamContainer = styled.div`
-    display: flex;
-    margin: 10px 0;
-    flex-direction: column;
-    border-radius: 5px;
-    padding: 10px;
-    border: 1px solid var(--vscode-dropdown-border);
-`;
-
-const ParamContent = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 10px 0;
-`;
+import { EditorContainer, EditorContent } from '../../styles';
 
 export interface ParamProps {
     response: ResponseConfig;
@@ -61,30 +45,29 @@ export function ResponseEditor(props: ParamProps) {
     };
 
     return (
-        <ParamContainer>
-            <TextField
-                size={30}
-                label='Code'
-                required
-                placeholder='Enter code'
-                value={`${code}`}
-                onChange={handleCodeChange}
-            />
-            <ParamContent>
+        <EditorContainer>
+            <EditorContent>
                 <TextField
-                    size={30}
-                    label='Type'
+                    size={34}
+                    label='Code'
                     required
+                    placeholder='Enter code'
+                    value={`${code}`}
+                    onChange={handleCodeChange}
+                />
+                <TextField
+                    size={34}
+                    label='Type'
                     placeholder='Enter type'
                     value={type}
                     onChange={setTypeValue}
                 />
-            </ParamContent>
+            </EditorContent>
             <ActionButtons
                 primaryButton={{ text : "Save", onClick: handleOnSave }}
                 secondaryButton={{ text : "Cancel", onClick: handleOnCancel }}
                 sx={{justifyContent: "flex-end"}}
             />
-        </ParamContainer >
+        </EditorContainer >
     );
 }
