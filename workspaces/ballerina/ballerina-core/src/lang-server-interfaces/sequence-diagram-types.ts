@@ -26,7 +26,7 @@ export interface Location {
 }
 
 export interface DElement extends DNode {
-    elementBody: DElementBody;
+    elementBody?: DElementBody;
 }
 
 export interface DElementBody extends DNode {
@@ -38,10 +38,13 @@ export interface Participant extends DElement {
     name: string;
     participantKind: PariticipantKind;
     packageName: string;
-    type: string;
+    type?: string;
+    hasInteractions: boolean;
 }
 
 export type PariticipantKind = 'WORKER' | 'ENDPOINT';
+
+export type InteractionType = 'ENDPOINT_INTERACTION' | 'FUNCTION_INTERACTION' | 'METHOD_INTERACTION' | 'RETURN_ACTION';
 
 export interface SequenceModel extends DNode {
     participants: Participant[];
@@ -50,11 +53,21 @@ export interface SequenceModel extends DNode {
 export interface Interaction extends DNode {
     sourceId: string;
     targetId: string;
-    interactionType: string;
+    interactionType: InteractionType;
 }
 
 export interface FunctionActionStatement extends Interaction {
     functionName: string;
+}
+
+export interface MethodActionStatement extends Interaction {
+    methodName: string;
+    expression: string;
+}
+
+export interface ReturnAction extends Interaction {
+    name: string;
+    type: string;
 }
 
 export interface EndpointActionStatement extends Interaction {
@@ -67,17 +80,17 @@ export interface EndpointActionStatement extends Interaction {
 export type ActionType = "RESOURCE_ACTION" | "REMOTE_ACTION"
 
 export interface DoStatement extends DElement {
-    onFailStatement: OnFailStatement;
+    onFailClause?: OnFailClause;
 }
 
-export interface OnFailStatement extends DElement {
+export interface OnFailClause extends DElement {
     type: string;
     name: string;
 }
 
 export interface WhileStatement extends DElement {
     condition: string;
-    onFailStatement: OnFailStatement;
+    onFailClause?: OnFailClause;
 }
 
 export interface IfStatement extends DElement {
@@ -86,10 +99,18 @@ export interface IfStatement extends DElement {
 }
 
 export interface LockStatement extends DElement {
-    onFailStatement: OnFailStatement;
+    onFailClause: OnFailClause;
 }
 
 export interface ForeachStatement extends DElement {
     collection: string;
-    onFailStatement: OnFailStatement;
+    onFailClause: OnFailClause;
+}
+
+export interface StatementBlock extends DElement {
+    statementBlockText: string;
+}
+
+export interface ElseStatement extends DElement {
+    
 }
