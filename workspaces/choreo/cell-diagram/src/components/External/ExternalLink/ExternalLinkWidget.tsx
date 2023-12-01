@@ -55,7 +55,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
                     viewBox="0 0 6 6"
                     orient="auto"
                 >
-                    <polygon points="0,6 0,0 5,3" fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}></polygon>
+                    <polygon points="0,6 0,0 5,3" fill={isSelected ? Colors.SECONDARY : Colors.OUTLINE}></polygon>
                 </marker>
             </defs>
             <path
@@ -63,7 +63,7 @@ export function ExternalLinkWidget(props: WidgetProps) {
                 d={link.getCurvePath()}
                 cursor={"pointer"}
                 fill={"none"}
-                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.NODE_BORDER}
+                stroke={isSelected ? Colors.SECONDARY : Colors.OUTLINE}
                 strokeWidth={2}
                 markerEnd={"url(#" + link.getLinkArrowId() + ")"}
             />

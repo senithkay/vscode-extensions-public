@@ -11,7 +11,6 @@ import styled from "@emotion/styled";
 import { CIRCLE_WIDTH, Colors, LABEL_FONT_SIZE, LABEL_MAX_WIDTH } from "../../../resources";
 import { Orientation } from "./ConnectionModel";
 
-const PRIMARY_HOVER: string = "#2c09ed";
 interface StyleProps {
     isAnonymous: boolean;
     isSelected?: boolean;
@@ -23,7 +22,7 @@ interface StyleProps {
 }
 
 export const ConnectionNode: React.FC<any> = styled.div`
-    color: ${Colors.DEFAULT_TEXT};
+    color: ${Colors.ON_SURFACE_VARIANT};
     display: flex;
     flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? "column" : "row")};
     align-items: center;
@@ -38,9 +37,9 @@ export const ConnectionNode: React.FC<any> = styled.div`
 `;
 
 export const ConnectionHead: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
+    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
     border: ${(props: StyleProps) =>
-        `${props.borderWidth}px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER}`};
+        `${props.borderWidth}px solid ${props.isSelected ? Colors.SECONDARY : props.isFocused ? Colors.SECONDARY : Colors.OUTLINE}`};
     border-radius: 50%;
     height: ${CIRCLE_WIDTH}px;
     width: ${CIRCLE_WIDTH}px;
@@ -61,6 +60,6 @@ export const IconWrapper: React.FC<any> = styled.div`
     height: 32px;
     width: 32px;
     svg {
-        fill: ${(props: StyleProps) => (props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER)};
+        fill: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY : Colors.OUTLINE)};
     }
 `;

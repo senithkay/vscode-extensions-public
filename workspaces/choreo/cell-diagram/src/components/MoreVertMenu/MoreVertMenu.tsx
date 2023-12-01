@@ -20,7 +20,7 @@ const ItemContainer = styled.div`
     justify-content: flex-start;
     line-height: 1.5;
     font-weight: 800;
-    color: ${Colors.DEFAULT_TEXT};
+    color: ${Colors.ON_SURFACE_VARIANT};
     font-family: GilmerRegular;
     @keyframes fade-in-out {
         0% {
@@ -36,7 +36,7 @@ const ItemContainer = styled.div`
 
 const IconStyles = styled.div`
     position: absolute;
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
+    background-color: ${Colors.SURFACE};
     margin-left: 68px;
     margin-bottom: 58px;
     width: 24px;
@@ -49,7 +49,7 @@ const IconStyles = styled.div`
     justify-content: center;
     align-items: center;
     line-height: 0;
-    border: 3px solid ${Colors.LIGHT_GREY};
+    border: 3px solid ${Colors.SURFACE_DIM};
     transition: "transform 0.3s ease-in-out";
 `;
 

@@ -43,7 +43,7 @@ export const CellNode: React.FC<StyleProps> = styled.div`
     }
 
     #mainCell path {
-        stroke: ${Colors.NODE_BORDER};
+        stroke: ${Colors.OUTLINE};
         stroke-width: ${(props: StyleProps) => props.borderWidth};
         fill: none;
         pointer-events: none;
@@ -60,24 +60,24 @@ export const Circle: React.FC<ElementProps> = styled.div`
     width: ${CIRCLE_WIDTH}px;
     height: ${CIRCLE_WIDTH}px;
     border-radius: 50%;
-    border: ${CELL_LINE_MIN_WIDTH}px solid ${Colors.NODE_BORDER};
+    border: ${CELL_LINE_MIN_WIDTH}px solid ${Colors.OUTLINE};
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
+    background-color: ${Colors.SURFACE};
 `;
 
 export const Dot: React.FC<any> = styled.div`
     width: ${DOT_WIDTH}px;
     height: ${DOT_WIDTH}px;
     border-radius: 50%;
-    border: ${CELL_LINE_MIN_WIDTH}px solid ${Colors.NODE_BORDER};
+    border: ${CELL_LINE_MIN_WIDTH}px solid ${Colors.OUTLINE};
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: ${Colors.NODE_BACKGROUND_SECONDARY};
+    background-color: ${Colors.SURFACE_DIM};
 `;
 
 export const TopPortCircle: React.FC<any> = styled(Circle)`
@@ -132,7 +132,7 @@ export const PortLabel: React.FC<any> = styled.div`
     flex-direction: column;
     align-items: flex-start;
     font-family: "GilmerMedium";
-    color: ${Colors.NODE_BORDER};
+    color: ${Colors.OUTLINE};
     font-size: 20px;
     span {
         text-align: left;
@@ -171,14 +171,14 @@ export const BottomPortLabel: React.FC<any> = styled(PortLabel)`
 export const IconWrapper: React.FC<any> = styled.div`
     height: 32px;
     width: 32px;
-    color: ${Colors.NODE_BORDER};
+    color: ${Colors.OUTLINE};
     font-size: 28px;
 `;
 
 export const TopIconWrapper: React.FC<any> = styled.div`
     height: 32px;
     width: 32px;
-    color: ${Colors.NODE_BORDER};
+    color: ${Colors.OUTLINE};
     font-size: 28px;
     transform: rotate(90deg);
 `;

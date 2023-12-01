@@ -32,15 +32,15 @@ export const LayersPanel: React.FC<any> = styled.div`
     gap: 8px;
     padding: 6px 6px 4px;
     background-color: white;
-    border: 1px solid ${Colors.LIGHT_GREY};
+    border: 1px solid ${Colors.SURFACE_DIM};
 `;
 
 export const MainButton: React.FC<any> = styled.div`
-    border: 1px solid ${Colors.LIGHT_GREY};
+    border: 1px solid ${Colors.SURFACE_DIM};
     width: 32px;
     height: 32px;
     border-radius: 2px;
-    color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.GREY)};
+    color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
     background-color: #fff;
     display: inline-flex;
     align-items: center;
@@ -58,15 +58,15 @@ export const LayerButton: React.FC<any> = styled.div`
     justify-content: space-between;
     font-size: 12px;
     cursor: ${(props) => (props.clickable ? "pointer" : "not-allowed")};
-    color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.DEFAULT_TEXT)};
+    color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.ON_SURFACE_VARIANT)};
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     div {
-        border: 1px solid ${(props) => (props.selected ? Colors.PRIMARY : Colors.LIGHT_GREY)};
-        background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
-        color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.GREY)};
+        border: 1px solid ${(props) => (props.selected ? Colors.PRIMARY : Colors.SURFACE_DIM)};
+        background-color: ${Colors.SURFACE};
+        color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
     }
     &:hover {
         color: ${Colors.PRIMARY};

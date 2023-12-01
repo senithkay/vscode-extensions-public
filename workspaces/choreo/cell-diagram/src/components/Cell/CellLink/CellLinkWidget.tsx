@@ -14,8 +14,8 @@ interface WidgetProps {
 }
 
 const tooltipPopOverStyle = {
-    backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
-    border: `1px solid ${Colors.PRIMARY_SELECTED}`,
+    backgroundColor: Colors.SURFACE,
+    border: `1px solid ${Colors.SECONDARY}`,
     padding: "10px",
     borderRadius: "5px",
     display: "flex",
@@ -26,8 +26,8 @@ const tooltipPopOverStyle = {
 };
 
 const observabilityPopOverStyle = {
-    backgroundColor: Colors.NODE_BACKGROUND_PRIMARY,
-    border: `1px solid ${Colors.PRIMARY_SELECTED}`,
+    backgroundColor: Colors.SURFACE,
+    border: `1px solid ${Colors.SECONDARY}`,
     padding: "10px",
     borderRadius: "5px",
     display: "flex",
@@ -99,7 +99,7 @@ export function CellLinkWidget(props: WidgetProps) {
 
     const strokeColor = () => {
         if (isSelected && (hasArchitectureLayer || hasDiffLayer)) {
-            return Colors.PRIMARY_SELECTED;
+            return Colors.SECONDARY;
         }
         if (hasDiffLayer && link.observationOnly) {
             return Colors.ERROR;
@@ -111,7 +111,7 @@ export function CellLinkWidget(props: WidgetProps) {
             return "transparent";
         }
 
-        return Colors.DEFAULT_TEXT;
+        return Colors.ON_SURFACE_VARIANT;
     };
 
     const strokeDash = () => {
