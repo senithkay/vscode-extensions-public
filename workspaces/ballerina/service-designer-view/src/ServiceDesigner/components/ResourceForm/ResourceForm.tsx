@@ -8,70 +8,26 @@
  */
 
 import React, { useState } from 'react';
-import { ActionButtons, Button, Codicon, Divider, Dropdown, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
-
-const verbs = [
-	{
-		content: 'GET',
-		id: 'GET',
-		value: 'GET'
-	},
-	{
-		content: 'PUT',
-		id: 'PUT',
-		value: 'PUT'
-	},
-	{
-		content: 'DELETE',
-		id: 'DELETE',
-		value: 'DELETE'	
-	},
-	{
-		content: 'POST',
-		id: 'POST',
-		value: 'POST'
-	},
-	{
-		content: 'PATCH',
-		id: 'PATCH',
-		value: 'PATCH'
-	}
-];
-
+import { ActionButtons, Button, Divider, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
+import { ResourcePath } from '../ResourcePath/ResourcePath';
+import { ResourceParam } from '../ResourceParam/ResourceParam';
+import { PARAM_TYPES } from '../ParamEditor/ParamEditor';
+import { ParameterConfig } from '../ParamEditor/ParamItem';
 
 export interface ResourceFormProps {
 	isOpen: boolean;
     onClose: () => void;
 }
 
-const PathContainer = styled.div`
-    display: flex;
-	flex-direction: row;
-`;
-
-const AddButtonWrapper = styled.div`
-    display: flex;
-	justify-content: flex-end;
-	margin: 8px 0;
-`;
-
 export function ResourceForm(props: ResourceFormProps) {
     const { isOpen, onClose } = props;
+	const [parameters, setParameters] = useState<ParameterConfig[]>([{id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT}]);
 
-	const [selectedMethod, setSelectedMethod] = useState("GET");
-	const [path, setPath] = useState("");
-
-	const handleMethodChange = (input: string) => {
-		setSelectedMethod(input);
+	const handleParamChange = (params: ParameterConfig[]) => {
+		setParameters(params);
+		console.log("handleParamChange", params);
 	};
-
-	const handlePathChange = (input: string) => {
-		setPath(input);
-	};
-
-	const handlePathAdd = () => {
-	};
+	console.log("ResourceForm", parameters);
 
 	return (
 		<>
@@ -81,49 +37,15 @@ export function ResourceForm(props: ResourceFormProps) {
 				sx={{width: 600}}
 			>
 				<SidePanelTitleContainer>
-					<>Configure Resource</>
+					<Typography sx={{margin: 0}} variant="h3">Configure Resource</Typography>
 					<Button onClick={onClose} appearance="icon">X</Button>
 				</SidePanelTitleContainer>
 
 				<SidePanelBody>
-					<PathContainer>
-						<div
-							style={{
-								width: 160
-							}}
-						>
-							<Dropdown
-								sx={{width: 160}}
-								isRequired
-								errorMsg=""
-								id="drop-down"
-								items={verbs}
-								label="HTTP Method"
-								onChange={handleMethodChange}
-								value={selectedMethod}
-							/>
-						</div>
-						<TextField
-							sx={{marginLeft: 10, flexGrow: 1}}
-							autoFocus
-							errorMsg=""
-							label="Resource Path"
-							size={70}
-							onChange={handlePathChange}
-							placeholder="path/foo"
-							value={path}
-						/>
-					</PathContainer>
-					<></>
-					<AddButtonWrapper>
-						<LinkButton onClick={handlePathAdd} >
-							<Codicon name="add"/>
-							<Typography sx={{margin: 0}} variant="h4">Add Path Param</Typography>
-						</LinkButton>
-					</AddButtonWrapper>
-
+					<ResourcePath />
 					<Divider />
-					
+					<Typography sx={{marginBlockEnd: 10}} variant="h4">Parameters</Typography>
+					<ResourceParam parameters={parameters} onChange={handleParamChange}/>
                     <ActionButtons
                         primaryButton={{ text : "Save", onClick: () => console.log("Save Button Clicked"), tooltip: "Save" }}
                         secondaryButton={{ text : "Cancel", onClick: onClose, tooltip: "Cancel" }}
