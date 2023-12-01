@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Dropdown, DropdownProps } from "./Dropdown";
+import { Dropdown, DropdownProps } from ".";
 
 const Template: ComponentStory<typeof Dropdown> = (args: DropdownProps) => <div style={{width: 300}}><Dropdown {...args} /></div>;
 

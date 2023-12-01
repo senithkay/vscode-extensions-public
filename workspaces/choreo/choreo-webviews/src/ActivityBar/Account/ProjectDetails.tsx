@@ -18,7 +18,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { Codicon } from "../../Codicon/Codicon";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { HorizontalGrid, LeftAllignGridRow, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
+import { HorizontalGrid, LeftAllignGridRow, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit/lib/styles";
 
 const Container = styled.div`
     display: flex;

@@ -8,8 +8,8 @@
  */
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
-import { Dialog } from "./Dialog";
-import { Button } from "../Button/Button";
+import { Dialog } from ".";
+import { Button } from "../Button";
 
 const DialogComponent = () => {
     const [isOpen, setIsOpen] = useState(false);

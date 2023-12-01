@@ -18,7 +18,8 @@ import { useComponentDeploymentStatus } from "../../hooks/use-component-deployme
 import { DeploymentStatusText } from "./DeploymentStatusText";
 import { ComponentDetailActions } from './ComponentDetailActions';
 import { BuildStatusText } from "./BuildStatusText";
-import { ErrorBanner, HorizontalGrid, LeftAllignGridRow, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
+import { HorizontalGrid, LeftAllignGridRow, TruncatedGridCell, TruncatedGridTitleCell } from "@wso2-enterprise/ui-toolkit/lib/styles";
 
 const Container = styled.div`
   display: flex;

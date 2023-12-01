@@ -19,8 +19,11 @@ import {
     OPEN_GITHUB_REPO_PAGE_EVENT,
 } from "@wso2-enterprise/choreo-core";
 import {
-    ContextMenu, Item,
-} from "@wso2-enterprise/ui-toolkit";
+    ContextMenu,
+} from "@wso2-enterprise/ui-toolkit/lib/components/ContextMenu";
+import {
+    Item
+} from "@wso2-enterprise/ui-toolkit/lib/components/Menu";
 import { Codicon } from "../../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";

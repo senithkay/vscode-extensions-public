@@ -12,11 +12,11 @@ import {
     VSCodeDataGrid,
     VSCodeDataGridCell,
     VSCodeDataGridRow,
-    VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { Overlay } from "../Commons/Overlay";
-import { Codicon } from "../Codicon/Codicon";
+import { Codicon } from "../Codicon";
+import { SmallProgressRing } from "../../styles/ProgressRing";
 
 interface Item {
     id: number | string;
@@ -58,13 +58,6 @@ const ExpandedMenu = styled.div<ContainerProps>`
 
 const IconWrapper = styled.div<ContainerProps>`
     ${(props: ContextMenuProps) => props.sx};
-`;
-
-const SmallProgressRing = styled(VSCodeProgressRing)`
-    height: calc(var(--design-unit) * 3px);
-    width: calc(var(--design-unit) * 3px);
-    margin-top: auto;
-    padding: 4px;
 `;
 
 const Container = styled.div`

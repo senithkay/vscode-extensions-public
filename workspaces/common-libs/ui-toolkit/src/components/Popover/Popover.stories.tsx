@@ -16,7 +16,7 @@
  */
 import React, { useState } from "react";
 import { storiesOf } from "@storybook/react";
-import { Popover } from "./Popover";
+import { Popover } from ".";
 
 const popOverStyle = {
     backgroundColor: "white",

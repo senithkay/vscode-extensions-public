@@ -13,8 +13,8 @@ import { VSCodeCheckbox, VSCodeTextField } from "@vscode/webview-ui-toolkit/reac
 import { ComponentWizardState } from "../types";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 import { ChoreoBuildPackNames, ChoreoImplementationType, WebAppSPATypes } from "@wso2-enterprise/choreo-core";
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
-import { TextField } from "@wso2-enterprise/ui-toolkit";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
+import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField";
 
 const StepContainer = styled.div`
     display: flex;
