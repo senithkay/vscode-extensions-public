@@ -111,9 +111,11 @@ export function ParamEditor(props: ParamProps) {
                     onChange={handleValueChange}
                 />
             </EditorContent>
-            <VSCodeCheckbox checked={isSelected} onChange={handleReqFieldChange} id="is-req-checkbox">
-                Is Required?
-            </VSCodeCheckbox>
+            {option === PARAM_TYPES.DEFAULT && (
+                <VSCodeCheckbox checked={isSelected} onChange={handleReqFieldChange} id="is-req-checkbox">
+                    Is Required?
+                </VSCodeCheckbox>
+            )}
             <ActionButtons
                 primaryButton={{ text : "Save", onClick: handleOnSave }}
                 secondaryButton={{ text : "Cancel", onClick: handleOnCancel }}

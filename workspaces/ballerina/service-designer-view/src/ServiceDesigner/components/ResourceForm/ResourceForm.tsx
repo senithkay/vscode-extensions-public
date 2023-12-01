@@ -13,6 +13,7 @@ import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { Response } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
 import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions';
+import { Payload } from '../Payload/Payload';
 
 export interface ResourceFormProps {
 	isOpen: boolean;
@@ -22,6 +23,7 @@ export interface ResourceFormProps {
 export function ResourceForm(props: ResourceFormProps) {
     const { isOpen, onClose } = props;
 	const [parameters, setParameters] = useState<ParameterConfig[]>([{id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true}]);
+	const [payload, setPayload] = useState<ParameterConfig>({id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.PAYLOAD});
 	const [response, setResponse] = useState<ResponseConfig[]>([{id: 0, code: 200}]);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
@@ -30,6 +32,10 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	const handleResponseChange = (resp: ResponseConfig[]) => {
 		setResponse(resp);
+	};
+
+	const handlePayloadChange = (params: ParameterConfig) => {
+		setPayload(params);
 	};
 
 	return (
@@ -51,6 +57,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 					<Typography sx={{marginBlockEnd: 10}} variant="h4">Parameters</Typography>
 					<ResourceParam parameters={parameters} onChange={handleParamChange}/>
+					<Payload parameter={payload} onChange={handlePayloadChange}/>
 
 					<Divider />
 
