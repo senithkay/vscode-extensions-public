@@ -82,4 +82,37 @@ export class ExternalLinkModel extends SharedLinkModel {
 
         return lineCurve.getSVGCurve();
     };
+
+    getTwoBendPath = (): string => {
+        let path = "";
+        let startHorizontally = false;
+
+        if (
+            this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT ||
+            this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT
+        ) {
+            startHorizontally = true;
+        }
+
+        if (this.getSourcePort() && this.getTargetPort()) {
+            const sourcePoint: Point = this.getSourcePort().getPosition().clone();
+            const targetPoint: Point = this.getTargetPort().getPosition().clone();
+
+            if (startHorizontally) {
+                // Start horizontally, then bend in the center of the y-axis
+                path = `M ${sourcePoint.x} ${sourcePoint.y} `;
+                path += `L ${(sourcePoint.x + targetPoint.x) / 2} ${sourcePoint.y} `;
+                path += `L ${(sourcePoint.x + targetPoint.x) / 2} ${targetPoint.y} `;
+                path += `L ${targetPoint.x} ${targetPoint.y}`;
+            } else {
+                // Start vertically, then bend in the center of the x-axis
+                path = `M ${sourcePoint.x} ${sourcePoint.y} `;
+                path += `L ${sourcePoint.x} ${(sourcePoint.y + targetPoint.y) / 2} `;
+                path += `L ${targetPoint.x} ${(sourcePoint.y + targetPoint.y) / 2} `;
+                path += `L ${targetPoint.x} ${targetPoint.y}`;
+            }
+        }
+
+        return path;
+    };
 }

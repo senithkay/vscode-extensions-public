@@ -297,7 +297,7 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
                 const connectionNode = model.getNode(getConnectionNameById(connectionId));
                 if (connectionNode) {
                     portPosition.x = portPosition.x + externalLinkOffset;
-                    portPosition.y = portPosition.y - connectionNode.height / 2;
+                    portPosition.y = portPosition.y - connectionNode.height / 2 + 7.5;
                     connectionNode.setPosition(portPosition);
                 }
             }
@@ -598,6 +598,7 @@ function generateConnectionLinks(emptyNodes: Map<string, EmptyModel>, connection
         }
         const sourcePort: CellPortModel | null = eastboundEmptyNode.getPort(getNodePortId(eastboundEmptyNode.getID(), PortModelAlignment.RIGHT));
         const targetPort: ConnectionPortModel | null = connectionNode.getPort(`left-${connectionNode.getID()}`);
+        console.log("targetPort", targetPort);
 
         if (sourcePort && targetPort) {
             const linkId = getExternalLinkName(sourcePort.getID(), targetPort.getID());

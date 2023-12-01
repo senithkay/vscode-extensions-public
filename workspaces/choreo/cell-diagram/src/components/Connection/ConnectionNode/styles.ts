@@ -28,7 +28,6 @@ export const ConnectionNode: React.FC<any> = styled.div`
     flex-direction: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? "column" : "row")};
     align-items: center;
     justify-content: center;
-    text-align: center;
     gap: 10px;
     padding: 2px;
     pointer-events: all;
@@ -48,7 +47,6 @@ export const ConnectionHead: React.FC<any> = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    line-height: 28px;
 `;
 
 export const ConnectionName: React.FC<any> = styled.span`
@@ -56,19 +54,13 @@ export const ConnectionName: React.FC<any> = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: center;
-    max-width: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? LABEL_MAX_WIDTH: 'unset')};
-    &:hover {
-        color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
-        cursor: ${(props: StyleProps) => (props.isClickable ? `grabbing` : ``)};
-        text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};
-    }
+    max-width: ${(props: StyleProps) => (props.orientation === Orientation.VERTICAL ? LABEL_MAX_WIDTH : "unset")};
 `;
 
 export const IconWrapper: React.FC<any> = styled.div`
     height: 32px;
     width: 32px;
     svg {
-        fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER)};
+        fill: ${(props: StyleProps) => (props.isSelected ? Colors.PRIMARY_FOCUSED : Colors.NODE_BORDER)};
     }
 `;
