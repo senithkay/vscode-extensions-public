@@ -12,5 +12,5 @@
  */
 
 export interface DataMapperAPI {
-    getLangClient: () => Promise<any>;
+    getLangClient: () => Promise<unknown>;
 }

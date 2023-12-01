@@ -11,7 +11,7 @@
 import {
     DataMapperAPI
 } from "@wso2-enterprise/ballerina-core";
-import { getLangClient } from "src/visualizer/activator";
+import { getLangClient } from "../../visualizer/activator";
 
 
 export class DataMapperRpcManager implements DataMapperAPI {

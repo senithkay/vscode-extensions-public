@@ -42,8 +42,12 @@ export class BallerinaRpcClient {
         return this._dataMapper;
     }
 
-    onStateChanged(callbal: (state: any) => void) {
-        this.messenger.onNotification({ method: 'stateChanged' }, callbal);
+    onStateChanged(callback: (state: any) => void) {
+        this.messenger.onNotification({ method: 'stateChanged' }, callback);
+    }
+
+    onFileContentChanged(callback: (state: any) => void) {
+        this.messenger.onNotification({ method: 'fileContentChanged' }, callback);
     }
 
 }

@@ -11,4 +11,4 @@
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "data-mapper";
-export const getLangClient: RequestType<void, any> = { method: `${_preFix}/getLangClient` };
+export const getLangClient: RequestType<void, unknown> = { method: `${_preFix}/getLangClient` };

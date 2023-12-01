@@ -47,10 +47,8 @@ export function Webview() {
             library={undefined}
             targetPosition={{ ...fnST.position, startColumn: 0, endColumn: 0 }}
             fnST={fnST}
-            currentFile={currentFile}
             openedViaPlus={false}
-            projectComponents={projectComponents}
-            ballerinaVersion={ballerinaVersion}
+            ballerinaVersion={'2201.7.2 (swan lake update 7)'}
             applyModifications={undefined}
             updateFileContent={undefined}
             goToSource={undefined}

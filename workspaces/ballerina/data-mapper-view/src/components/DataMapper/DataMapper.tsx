@@ -12,8 +12,8 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    BallerinaProjectComponents,
     ComponentViewInfo,
+    CurrentFile,
     FileListEntry,
     LibraryDataResponse,
     LibraryDocResponse,
@@ -23,6 +23,7 @@ import {
 // import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
@@ -43,12 +44,13 @@ import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./Confi
 import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
-import { DataMapperError, ErrorNodeKind } from "./Error/DataMapperError";
+import { ErrorNodeKind } from "./Error/DataMapperError";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
+import { URI } from "vscode-uri";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -103,14 +105,8 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface DataMapperProps {
     targetPosition?: NodePosition;
     fnST: FunctionDefinition;
-    currentFile?: {
-        content: string,
-        path: string,
-        size: number
-    };
     openedViaPlus?: boolean;
     ballerinaVersion?: string;
-    projectComponents?: BallerinaProjectComponents;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
     goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
@@ -184,14 +180,12 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
     }
 };
 
-function DataMapperC(props: DataMapperProps) {
+export function DataMapper(props: DataMapperProps) {
     const {
         fnST,
         targetPosition,
         ballerinaVersion,
-        currentFile,
         openedViaPlus,
-        projectComponents,
         applyModifications,
         updateFileContent,
         goToSource,
@@ -207,6 +201,14 @@ function DataMapperC(props: DataMapperProps) {
     const { viewLocation, ballerinaRpcClient } = useVisualizerContext();
     const langClientPromise: Promise<IBallerinaLangClient> = ballerinaRpcClient.getDataMapperRpcClient().getLangClient();
     const filePath = viewLocation.location?.fileName;
+    const projectComponents: BallerinaProjectComponents = {packages: []};
+    // const projectComponents = ballerinaRpcClient.getVisualizerRpcClient().getBallerinaProjectComponents({
+    //     documentIdentifiers: [
+    //         {
+    //             uri: URI.file(filePath).toString(),
+    //         }
+    //     ]
+    // });
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
@@ -232,6 +234,7 @@ function DataMapperC(props: DataMapperProps) {
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
     const [currentReferences, setCurrentReferences] = useState<string[]>([]);
+    const [currentFile, setCurrentFile] = useState<CurrentFile>();
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -329,6 +332,16 @@ function DataMapperC(props: DataMapperProps) {
             enumDecls: enums,
         }
     }, [projectComponents]);
+
+    useEffect(() => {
+        ballerinaRpcClient.onFileContentChanged((content: string ) => {
+            setCurrentFile({
+                content,
+                path: filePath,
+                size: 1
+            });
+        });
+    }, []);
 
     useEffect(() => {
         if (fnST) {
@@ -591,4 +604,4 @@ function DataMapperC(props: DataMapperProps) {
     )
 }
 
-export const DataMapper = React.memo(DataMapperC);
+// export const DataMapper = React.memo(DataMapperC);
