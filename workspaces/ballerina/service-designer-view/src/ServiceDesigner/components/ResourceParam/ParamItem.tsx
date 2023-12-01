@@ -9,19 +9,11 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { PARAM_TYPES } from "./ParamEditor";
 import { ParamIcon } from "./ParamIcon";
 import styled from "@emotion/styled";
 import { css, cx } from "@emotion/css";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-
-export interface ParameterConfig {
-    id: number;
-    name: string;
-    type?: string;
-    option?: PARAM_TYPES;
-    defaultValue?: string;
-}
+import { ParameterConfig } from "../../definitions";
 
 interface ParamItemProps {
     param: ParameterConfig;
@@ -77,10 +69,6 @@ const IconTextWrapper = styled.div`
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 `;
-
-// const HeaderWrapper = styled.div`
-//     display: flex;
-// `;
 
 const headerLabelStyles = cx(css`
     display: flex;
@@ -139,10 +127,6 @@ export function ParamItem(props: ParamItemProps) {
             onEditClick(param);
         }
     };
-
-    console.log("ParamItem.tsx: handleEdit: param: ", handleDelete);
-
-    // const icon = (<ParamIcons type={param?.option} />);
 
     return (
         <HeaderLabel data-testid={`${label}-item`}>

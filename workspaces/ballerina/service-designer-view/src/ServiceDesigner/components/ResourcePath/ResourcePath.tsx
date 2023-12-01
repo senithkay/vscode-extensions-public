@@ -10,6 +10,7 @@
 import React, { useState } from 'react';
 import { Codicon, Dropdown, LinkButton, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
+import { PathParam } from '../../definitions';
 
 const verbs = [
 	{
@@ -49,12 +50,6 @@ const AddButtonWrapper = styled.div`
 	justify-content: flex-end;
 	margin: 8px 0;
 `;
-
-export interface PathParam {
-	type: string;
-	name: string;
-};
-
 
 export function ResourcePath() {
 	const [selectedMethod, setSelectedMethod] = useState("GET");

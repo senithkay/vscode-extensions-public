@@ -12,13 +12,13 @@ import React, { useState } from 'react';
 
 import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { PARAM_TYPES, ParameterConfig } from '../../definitions';
-import { ParamEditor } from './ParamEditor';
-import { ParamItem } from './ParamItem';
+import { ResponseItem } from './ResponseItem';
+import { ResponseEditor } from './ResponseEditor';
+import { ResponseConfig } from '../../definitions';
 
 export interface ResourceParamProps {
-    parameters: ParameterConfig[];
-    onChange?: (parameters: ParameterConfig[]) => void,
+    response: ResponseConfig[];
+    onChange?: (parameters: ResponseConfig[]) => void,
     readonly?: boolean;
 }
 
@@ -26,32 +26,30 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
-export function ResourceParam(props: ResourceParamProps) {
-    const { parameters, readonly, onChange } = props;
+export function Response(props: ResourceParamProps) {
+    const { response, readonly, onChange } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
-    const onEdit = (param: ParameterConfig) => {
+    const onEdit = (param: ResponseConfig) => {
         setEditingSegmentId(param.id);
     };
 
     const onAddClick = () => {
-        const updatedParameters = [...parameters];
+        const updatedParameters = [...response];
         setEditingSegmentId(updatedParameters.length);
-        const newParam: ParameterConfig = {
+        const newResp: ResponseConfig = {
             id: updatedParameters.length,
-            name: "param",
-            type: "string",
-            option: PARAM_TYPES.DEFAULT,
-            defaultValue: ""
+            code: 200,
+            type: "string"
         };
-        updatedParameters.push(newParam);
+        updatedParameters.push(newResp);
         onChange(updatedParameters);
         setIsNew(true);
     };
 
-    const onDelete = (param: ParameterConfig) => {
-        const updatedParameters = [...parameters];
+    const onDelete = (param: ResponseConfig) => {
+        const updatedParameters = [...response];
         const indexToRemove = param.id;
         if (indexToRemove >= 0 && indexToRemove < updatedParameters.length) {
             updatedParameters.splice(indexToRemove, 1);
@@ -63,8 +61,8 @@ export function ResourceParam(props: ResourceParamProps) {
         onChange(reArrangedParameters);
     };
 
-    const onChangeParam = (paramConfig: ParameterConfig) => {
-        const updatedParameters = [...parameters];
+    const onChangeParam = (paramConfig: ResponseConfig) => {
+        const updatedParameters = [...response];
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
             updatedParameters[index] = paramConfig;
@@ -77,42 +75,34 @@ export function ResourceParam(props: ResourceParamProps) {
     const onParamEditCancel = (id?: number) => {
         setEditingSegmentId(-1);
         if (isNew) {
-            onDelete({ id, name: "" });
+            onDelete({ id });
         }
         setIsNew(false);
     };
 
     const paramComponents: React.ReactElement[] = [];
-    parameters
-        .forEach((param: ParameterConfig, index) => {
+    response
+        .forEach((param: ResponseConfig, index) => {
             if (editingSegmentId === index) {
                 paramComponents.push(
-                    <ParamEditor
-                        param={{
+                    <ResponseEditor
+                        response={{
                             id: index,
-                            name: param.name,
                             type: param.type,
-                            option: param.option,
-                            defaultValue: param.defaultValue,
-                            isRequired: param.isRequired
+                            code: param.code
                         }}
                         isEdit={true}
-                        optionList={[PARAM_TYPES.DEFAULT, PARAM_TYPES.HEADER]}
-                        option={param.option}
-                        isTypeReadOnly={false}
                         onChange={onChangeParam}
                         onCancel={onParamEditCancel}
                     />
                 )
             }  else if ((editingSegmentId !== index)) {
                 paramComponents.push(
-                    <ParamItem
-                        param={{
+                    <ResponseItem
+                        response={{
                             id: index,
-                            name: param.name,
                             type: param.type,
-                            option: param.option,
-                            defaultValue: param.defaultValue
+                            code: param.code
                         }}
                         readonly={editingSegmentId !== -1 || readonly}
                         onDelete={onDelete}
@@ -129,15 +119,10 @@ export function ResourceParam(props: ResourceParamProps) {
                 <AddButtonWrapper>
                     <LinkButton sx={ readonly && {color: "var(--vscode-badge-background)"}} onClick={!readonly && onAddClick} >
                         <Codicon name="add"/>
-                        <>Add Parameter</>
+                        <>Add Response</>
                     </LinkButton>
                 </AddButtonWrapper>
             )}
-            {/* {(editingSegmentId !== -1) && !isEditingPram && (
-                <div>
-                    <TextPreloaderVertical position="fixedMargin" />
-                </div>
-                )} */}
         </div>
     );
 }

@@ -12,5 +12,6 @@ export default defineConfig({
       },
       input: 'src/index.tsx', // Replace with the path to your entry file
     },
+    sourcemap: true,
   },
 })

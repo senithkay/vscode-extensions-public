@@ -19,6 +19,7 @@
     "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
     "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+    "@vscode/webview-ui-toolkit": "^1.2.0",
     "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.5",

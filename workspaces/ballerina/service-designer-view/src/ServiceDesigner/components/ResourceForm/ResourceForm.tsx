@@ -10,9 +10,9 @@
 import React, { useState } from 'react';
 import { ActionButtons, Button, Divider, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
+import { Response } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
-import { PARAM_TYPES } from '../ParamEditor/ParamEditor';
-import { ParameterConfig } from '../ParamEditor/ParamItem';
+import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions';
 
 export interface ResourceFormProps {
 	isOpen: boolean;
@@ -21,13 +21,16 @@ export interface ResourceFormProps {
 
 export function ResourceForm(props: ResourceFormProps) {
     const { isOpen, onClose } = props;
-	const [parameters, setParameters] = useState<ParameterConfig[]>([{id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT}]);
+	const [parameters, setParameters] = useState<ParameterConfig[]>([{id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true}]);
+	const [response, setResponse] = useState<ResponseConfig[]>([{id: 0, code: 200}]);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
 		setParameters(params);
-		console.log("handleParamChange", params);
 	};
-	console.log("ResourceForm", parameters);
+
+	const handleResponseChange = (resp: ResponseConfig[]) => {
+		setResponse(resp);
+	};
 
 	return (
 		<>
@@ -43,9 +46,17 @@ export function ResourceForm(props: ResourceFormProps) {
 
 				<SidePanelBody>
 					<ResourcePath />
+
 					<Divider />
+
 					<Typography sx={{marginBlockEnd: 10}} variant="h4">Parameters</Typography>
 					<ResourceParam parameters={parameters} onChange={handleParamChange}/>
+
+					<Divider />
+
+					<Typography sx={{marginBlockEnd: 10}} variant="h4">Responses</Typography>
+					<Response response={response} onChange={handleResponseChange}/>
+
                     <ActionButtons
                         primaryButton={{ text : "Save", onClick: () => console.log("Save Button Clicked"), tooltip: "Save" }}
                         secondaryButton={{ text : "Cancel", onClick: onClose, tooltip: "Cancel" }}
