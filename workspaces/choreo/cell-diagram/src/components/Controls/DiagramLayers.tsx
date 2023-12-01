@@ -31,17 +31,17 @@ export const LayersPanel: React.FC<any> = styled.div`
     align-items: center;
     gap: 8px;
     padding: 6px 6px 4px;
-    background-color: white;
+    background-color: ${Colors.SURFACE_BRIGHT};
     border: 1px solid ${Colors.SURFACE_DIM};
 `;
 
 export const MainButton: React.FC<any> = styled.div`
     border: 1px solid ${Colors.SURFACE_DIM};
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 2px;
     color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-    background-color: #fff;
+    background-color: ${Colors.SURFACE_BRIGHT};
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -49,6 +49,9 @@ export const MainButton: React.FC<any> = styled.div`
     box-sizing: border-box;
     padding: 5px;
     cursor: pointer;
+    &:active {
+        background-color: ${Colors.SURFACE_DIM};
+    }
 `;
 
 export const LayerButton: React.FC<any> = styled.div`

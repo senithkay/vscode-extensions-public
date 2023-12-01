@@ -31,12 +31,10 @@ import { DiagramLayer, DiagramLayers } from "./components/Controls/DiagramLayers
 
 export interface CellDiagramProps {
     project: Project;
-    // custom component menu
     componentMenu?: MenuItemDef[];
     showControls?: boolean;
     animation?: boolean;
     defaultDiagramLayer?: DiagramLayer;
-    // custom event handler
     onComponentDoubleClick?: (componentId: string) => void;
 }
 

@@ -26,7 +26,7 @@ const Container = styled.div<ContainerProps>`
     align-items: center;
     padding: 6px 10px;
     &:hover, &.active {
-        background: var(--vscode-editorHoverWidget-background);
+        background: var(--vscode-editorHoverWidget-background, #dcdddf);
     };
 `;
 

@@ -46,7 +46,7 @@ export const Popover: React.FC<PopoverProps> = (props: PopoverProps) => {
     const { open, id, anchorEl: anchorEvent, sx, children } = props;
   
     return (
-        <div id={id}>
+        <div id={id} style={{ display: open ? 'block' : 'none' }}>
             {open &&
                 createPortal(
                     <StyledPopover
