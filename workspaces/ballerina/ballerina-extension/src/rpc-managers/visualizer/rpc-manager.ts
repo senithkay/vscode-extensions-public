@@ -16,11 +16,13 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "vscode";
+import { Uri, workspace } from "vscode";
 import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
-import { getService, openView } from "../../visualizer/activator";
+import { getLangClient, getService, openView } from "../../visualizer/activator";
 
 export class VisualizerRpcManager implements VisualizerAPI {
+
+    private _langClient = getLangClient();
 
     async getVisualizerState(): Promise<VisualizerLocationContext> {
         const snapshot = getService().getSnapshot();
@@ -67,7 +69,21 @@ export class VisualizerRpcManager implements VisualizerAPI {
     }
 
     async getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        // Check if there is at least one workspace folder
+        if (workspace.workspaceFolders?.length) {
+            const workspaceFolder = workspace.workspaceFolders[0];
+            const workspaceUri = workspaceFolder.uri;
+
+            return this._langClient.getBallerinaProjectComponents({
+                documentIdentifiers: [
+                    {
+                        uri: workspaceUri.toString(),
+                    }
+                ]
+            });
+        } else {
+            // Handle the case where there are no workspace folders
+            throw new Error("No workspace folders are open");
+        }
     }
 }
