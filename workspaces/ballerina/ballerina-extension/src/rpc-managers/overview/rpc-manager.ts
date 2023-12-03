@@ -27,15 +27,17 @@ export class OverviewRpcManager implements OverviewAPI {
     async getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
         // Check if there is at least one workspace folder
         if (workspace.workspaceFolders?.length) {
-            const workspaceFolder = workspace.workspaceFolders[0];
-            const workspaceUri = workspaceFolder.uri;
+            const workspaceUri = [];
+            workspace.workspaceFolders.forEach(folder => {
+                workspaceUri.push(
+                    {
+                        uri: folder.uri.toString(),
+                    }
+                );
+            });
 
             return this._langClient.getBallerinaProjectComponents({
-                documentIdentifiers: [
-                    {
-                        uri: workspaceUri.toString(),
-                    }
-                ]
+                documentIdentifiers: workspaceUri
             });
         } else {
             // Handle the case where there are no workspace folders
