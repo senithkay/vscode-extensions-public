@@ -60,6 +60,7 @@ import {
     DIAGRAM_END,
     DOT_WIDTH,
     EXTERNAL_LINK,
+    LINE_MIN_WIDTH,
     MAIN_CELL,
     MAIN_CELL_DEFAULT_HEIGHT,
     dagreEngine,
@@ -308,17 +309,23 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
             }
             // change west bound external link position
             if (bound === CellBounds.WestBound && align === PortModelAlignment.LEFT) {
+                // change west bound empty node position
+                const nodePosition = port.getPosition().clone();
+                nodePosition.x = nodePosition.x - LINE_MIN_WIDTH * 2;
+                model.getNode(getEmptyNodeName(CellBounds.WestBound)).setPosition(nodePosition);
+                // change west bound external link position
                 const portPosition = port.getPosition().clone();
-                model.getNode(getEmptyNodeName(CellBounds.WestBound)).setPosition(portPosition.clone());
                 portPosition.x = portPosition.x - externalLinkOffset;
                 model.getNode(getExternalNodeName(bound))?.setPosition(portPosition);
             }
             // change north bound positions
             if (bound === CellBounds.NorthBound && align === PortModelAlignment.TOP) {
-                const portPosition = port.getPosition().clone();
                 // change north bound empty node position
-                model.getNode(getEmptyNodeName(CellBounds.NorthBound)).setPosition(portPosition.clone());
+                const nodePosition = port.getPosition().clone();
+                nodePosition.y = nodePosition.y - LINE_MIN_WIDTH * 2;
+                model.getNode(getEmptyNodeName(CellBounds.NorthBound)).setPosition(nodePosition);
                 // change north bound external link position
+                const portPosition = port.getPosition().clone();
                 portPosition.y = portPosition.y - externalLinkOffset;
                 model.getNode(getExternalNodeName(bound))?.setPosition(portPosition);
             }
@@ -417,11 +424,11 @@ function generateExternalNodes(): Map<string, ExternalModel> {
 function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[]): Map<string, EmptyModel> {
     const nodes: Map<string, EmptyModel> = new Map<string, EmptyModel>();
 
-    const northBoundEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH);
+    const northBoundEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH + LINE_MIN_WIDTH * 4);
     northBoundEmptyNode.setPosition(0, DIAGRAM_END * -1);
     nodes.set(northBoundEmptyNode.getID(), northBoundEmptyNode);
 
-    const westBoundEmptyNode = new EmptyModel(CellBounds.WestBound, CIRCLE_WIDTH);
+    const westBoundEmptyNode = new EmptyModel(CellBounds.WestBound, CIRCLE_WIDTH + LINE_MIN_WIDTH * 4);
     westBoundEmptyNode.setPosition(DIAGRAM_END * -1, 0);
     nodes.set(westBoundEmptyNode.getID(), westBoundEmptyNode);
 
