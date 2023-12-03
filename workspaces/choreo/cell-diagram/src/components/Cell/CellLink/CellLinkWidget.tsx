@@ -7,6 +7,7 @@ import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { Popover } from "@wso2-enterprise/ui-toolkit";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { DiagramLayer } from "../../Controls/DiagramLayers";
+import { SharedLink } from "../../shared-link/shared-link";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -141,7 +142,8 @@ export function CellLinkWidget(props: WidgetProps) {
                     </marker>
                 </defs>
                 <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
-                <path
+                <SharedLink.Path
+                    selected={hasObservabilityLayer && isSelected}
                     id={link.getID()}
                     d={link.getCurvePath()}
                     cursor={"pointer"}

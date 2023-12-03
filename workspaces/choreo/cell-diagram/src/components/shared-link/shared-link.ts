@@ -10,6 +10,8 @@
 import { DefaultLinkModel, DiagramEngine, NodeModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BezierCurve, Point } from "@projectstorm/geometry";
 import { forIn } from "lodash";
+import styled from "@emotion/styled";
+import { css, keyframes } from "@emotion/react";
 import { EMPTY_NODE } from "../../resources";
 import { EmptyModel } from "../Cell/EmptyNode/EmptyModel";
 import { CellBounds } from "../Cell/CellNode/CellModel";
@@ -164,4 +166,26 @@ export class SharedLinkModel extends DefaultLinkModel {
         const id = this.getID().replace(/[^a-zA-Z0-9]/g, "");
         return id + "-arrow";
     };
+}
+
+export namespace SharedLink {
+    export const Keyframes = keyframes`
+		from {
+			stroke-dashoffset: 0;
+		}
+		to {
+			stroke-dashoffset: 24;
+		}
+	`;
+
+    const selected = css`
+        stroke-dasharray: 10, 6;
+        animation: ${Keyframes} 1s linear infinite;
+    `;
+
+    export const Path = styled.path<{ selected: boolean }>`
+        ${(p) => p.selected && selected};
+        fill: none;
+        pointer-events: auto;
+    `;
 }
