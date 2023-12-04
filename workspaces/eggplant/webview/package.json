@@ -22,6 +22,7 @@
     "@types/vscode-webview": "^1.57.4",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
     "@wso2-enterprise/eggplant-diagram": "workspace:*",
+    "@wso2-enterprise/eggplant-rpc-client": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vscode-messenger-common": "^0.4.5",

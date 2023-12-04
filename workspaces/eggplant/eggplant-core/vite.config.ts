@@ -5,13 +5,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    sourcemap: true,
     rollupOptions: {
       output: {
         dir: "build",
         entryFileNames: '[name].js'
       },
-      input: 'src/index.tsx', // Replace with the path to your entry file
+      input: 'src/index.ts', // Replace with the path to your entry file
     },
   },
 })
