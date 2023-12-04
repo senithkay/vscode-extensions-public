@@ -9,9 +9,11 @@
     "types": "lib/index.d.ts",
     "scripts": {
         "watch": "tsc --pretty --watch",
-        "build": "tsc --pretty",
+        "build": "tsc --pretty && npm run copy:assets && pnpm run postbuild",
+        "storybook": "start-storybook -p 6006",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-        "storybook": "start-storybook -p 6006"
+        "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
+        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../ballerina-extension/resources/jslibs"
     },
     "keywords": [],
     "dependencies": {
