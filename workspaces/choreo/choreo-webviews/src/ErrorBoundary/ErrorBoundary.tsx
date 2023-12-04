@@ -13,7 +13,7 @@
 
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import React, { FC, Component, ErrorInfo } from "react";
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 

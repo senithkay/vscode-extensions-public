@@ -44,5 +44,3 @@ export const Menu: React.FC<MenuProps> = (props: MenuProps) => {
         </Container>
     );
 };
-
-export { MenuItem } from "./MenuItem";

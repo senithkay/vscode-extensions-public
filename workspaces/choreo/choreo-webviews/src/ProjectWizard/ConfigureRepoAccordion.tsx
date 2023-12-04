@@ -14,10 +14,10 @@ import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { ChoreoAppInstaller } from "../GithubRepoSelector/ChoreoAppInstaller";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
 import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { Codicon } from "../Codicon/Codicon";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit/lib/components/ProgressIndicator";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 const GhRepoSelectorActions = styled.div`
     display  : flex;

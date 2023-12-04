@@ -7,29 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { css } from '@emotion/react';
-import styled from '@emotion/styled';
 import React from 'react';
-const background = require('../../resources/assets/PatternBg.svg') as string;
-
-const messageBox = css`
-    color: #6b6b6b;
-    font-family: 'GilmerRegular';
-    font-size: 16px;
-    padding: 10px;
-`;
-
-// Define the styled container component
-const Container = styled.div`
-    align-items: center;
-    background-image: url(${background});
-    background-repeat: repeat;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100vh;
-    width: 100vw;
-`;
+import Fab from '@mui/material/Fab';
+import SearchIcon from '@mui/icons-material/Search';
+import { useStyles } from './style';
 
 export interface PromptScreenProps {
     userMessage: string;
@@ -37,13 +18,13 @@ export interface PromptScreenProps {
 }
 
 export function PromptScreen(props: PromptScreenProps) {
-    const { userMessage } = props;
+    const { showProblemPanel, userMessage } = props;
+    const styles = useStyles();
 
     return (
-        <Container>
-            <h3 className={messageBox}>{userMessage}</h3>
-            {/* FIXME: If there is a problem panel is needed we need to implement Fab in UI toolkit */}
-            {/* {showProblemPanel &&
+        <div className={styles.container}>
+            <h3 className={styles.messageBox}>{userMessage}</h3>
+            {showProblemPanel &&
                 <Fab
                     aria-label='add'
                     className={styles.button}
@@ -55,7 +36,7 @@ export function PromptScreen(props: PromptScreenProps) {
                     <SearchIcon sx={{ marginRight: '5px' }} />
                     View Diagnostics
                 </Fab>
-            } */}
-        </Container>
+            }
+        </div>
     );
 }

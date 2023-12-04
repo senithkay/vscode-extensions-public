@@ -8,7 +8,8 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Item, Menu, MenuProps, MenuItem } from ".";
+import { Item, Menu, MenuProps } from "./Menu";
+import { MenuItem } from "./MenuItem";
 
 const items: Item[] = [{id: "test", label: <>Test Item</>, onClick: () => {console.log("Item Selected")}, disabled: false}, 
     {id: "test2", label: <>Test Item 2</>, onClick: () => {console.log("Item Selected")}, disabled: false}

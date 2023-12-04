@@ -10,9 +10,7 @@ import React, { useEffect } from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { AutoComplete } from "@wso2-enterprise/ui-toolkit/lib/components/AutoComplete";
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
-import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField";
+import { AutoComplete, ErrorBanner, TextField } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";

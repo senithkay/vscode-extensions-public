@@ -15,7 +15,7 @@ import React from "react";
 import { useChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectActionsCard } from "./Components/ProjectActionsCard";
 import styled from "@emotion/styled";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit/lib/components/ProgressIndicator";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { EmptyWorkspaceMessage } from "./Components/EmptyWorkspaceMessage";
 import { SignInToChoreoMessage } from "./Components/SignIntoChoreoMessage";
 

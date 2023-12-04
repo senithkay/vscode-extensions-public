@@ -8,9 +8,9 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { ComponentCard, ComponentCardProps } from ".";
-import { Typography } from "../Typography";
-import { Icon } from "../Icon";
+import { ComponentCard, ComponentCardProps } from "./ComponentCard";
+import { Typography } from "../Typography/Typography";
+import { Icon } from "../Icon/Icon";
 
 const Template: ComponentStory<typeof ComponentCard> = (args: ComponentCardProps) => 
     <ComponentCard {...args}>

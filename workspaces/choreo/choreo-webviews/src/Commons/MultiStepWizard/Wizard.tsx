@@ -14,7 +14,7 @@ import { createElement } from "react";
 import { ValidationRule, WizardProps } from "./types";
 import { useChoreoWebViewContext, IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { Stepper } from "@wso2-enterprise/ui-toolkit/lib/components/Stepper";
+import { Stepper } from "@wso2-enterprise/ui-toolkit";
 
 const WizardContainer = styled.div`
     display: flex;

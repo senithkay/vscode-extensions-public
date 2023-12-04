@@ -12,7 +12,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Stepper, StepperProps } from ".";
+import { Stepper, StepperProps } from "./Stepper";
 
 const defaultSteps = ["Create Test Component", "Add Component", "Select Git Repo", "Verify Information"];
 

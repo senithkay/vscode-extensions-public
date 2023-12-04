@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Codicon, CodiconProps } from ".";
+import { Codicon, CodiconProps } from "./Codicon";
 
 const Template: ComponentStory<typeof Codicon> = (args: CodiconProps) => <Codicon {...args} />;
 

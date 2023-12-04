@@ -11,9 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources";
 import { Component } from "../../types";
-import { Codicon } from "@wso2-enterprise/ui-toolkit/lib/components/Codicon";
-import { MenuItem, Item } from "@wso2-enterprise/ui-toolkit/lib/components/Menu";
-import { Popover } from "@wso2-enterprise/ui-toolkit/lib/components/Popover";
+import { Codicon, MenuItem, Item, Popover } from "@wso2-enterprise/ui-toolkit";
 
 const ItemContainer = styled.div`
     display: flex;

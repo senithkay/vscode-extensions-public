@@ -8,7 +8,7 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { Item } from ".";
+import { Item } from "./Menu";
 
 export interface MenuItemProps {
     item: Item;

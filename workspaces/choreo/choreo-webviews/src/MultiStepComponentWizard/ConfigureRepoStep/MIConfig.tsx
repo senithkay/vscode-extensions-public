@@ -10,7 +10,7 @@ import React from "react";
 import styled from "@emotion/styled";
 
 import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { ErrorBanner } from "@wso2-enterprise/ui-toolkit/lib/components/Commons";
+import { ErrorBanner } from "@wso2-enterprise/ui-toolkit";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";
