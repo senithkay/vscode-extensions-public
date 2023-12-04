@@ -94,7 +94,7 @@ export function MoreVertMenu(props: MoreVertMenuProps) {
                     name="ellipsis"
                 />
             </IconStyles>
-            <Popover id={"contextMenu"} open={anchorEl} anchorEl={anchorEl} sx={{ padding: 0, cursor: "pointer", borderRadius: 4 }}>
+            <Popover id={"contextMenu"} open={Boolean(anchorEl)} anchorEl={anchorEl} sx={{ padding: 0, cursor: "pointer", borderRadius: 4 }}>
                 {contextMenuItems.map((item) => (
                     <MenuItem key={`item ${item.id}`} item={item} onClick={item?.onClick} />
                 ))}
