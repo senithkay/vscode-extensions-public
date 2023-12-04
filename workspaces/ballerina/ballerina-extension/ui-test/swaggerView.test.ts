@@ -10,7 +10,7 @@
 import { By, EditorView, VSBrowser, WebDriver, WebView, Workbench, until } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe } from 'mocha';
-import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText } from './util';
+import { clickOnActivity, waitForWebview, waitUntilTextContains, waitForMultipleElementsLocated, waitUntil, verifyTerminalText, wait, enableDndMode } from './util';
 import { expect } from 'chai';
 import { DND_PALETTE_COMMAND, EXPLORER_ACTIVITY } from './constants';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -22,25 +22,19 @@ export const REQUEST_RECIEVED_OUTPUT = 'request received';
 describe('Swagger view UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data', 'helloServicePackage');
     const FILE_NAME = 'hello_service.bal';
-    let browser: VSBrowser;
     let driver: WebDriver;
-    let workbench : Workbench;
-    
+    let browser: VSBrowser;
+
     before(async () => {
         await VSBrowser.instance.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/${FILE_NAME}`);
         await VSBrowser.instance.waitForWorkbench();
         browser = VSBrowser.instance;
         driver = browser.driver;
-        workbench = new Workbench();
-
-        await workbench.executeCommand(DND_PALETTE_COMMAND);
-        await clickOnActivity(EXPLORER_ACTIVITY);
     });
 
     it('Test tryit button', async () => {
-        
-        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 120000);
-
+        await driver.wait(until.elementLocated(By.className("codelens-decoration")), 360000);
+        await clickOnActivity(EXPLORER_ACTIVITY);
         // Click on `Run` code lens to run service
         const editorView = new ExtendedEditorView(new EditorView());
         const runLens = await editorView.getCodeLens("Run");
@@ -48,6 +42,7 @@ describe('Swagger view UI Tests', () => {
         await verifyTerminalText(RUN_OUTPUT);
 
         // Click on `Try it` code lens to open up swagger
+        await wait(3000);
         const lens = await editorView.getCodeLens("Try it");
         await lens.click();
         
@@ -74,9 +69,5 @@ describe('Swagger view UI Tests', () => {
         // check response
         const response = await swaggerView.getResponse();
         expect(response).is.equal('"Hello, World!"');
-    });
-
-    afterEach(async () => {
-        workbench.executeCommand(DND_PALETTE_COMMAND);
     });
 });

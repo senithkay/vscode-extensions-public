@@ -20,7 +20,7 @@ import {
     BuildStatus,
     ProjectDeleteResponse,
     EndpointData,
-    ComponentConfig
+    ComponentYamlContent
 } from "@wso2-enterprise/choreo-core";
 import {
     CreateComponentParams,
@@ -344,7 +344,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         throw new Error("Method not implemented."); // TODO: Kavith
     }
 
-    async getComponentConfig(orgId: number, projectHandler: string, componentName: string): Promise<ComponentConfig[] | undefined> {
+    async getComponentConfig(orgId: number, projectHandler: string, componentName: string): Promise<ComponentYamlContent[] | undefined> {
         const token = await this._tokenStore.getToken(orgId);
         if (!token) {
             throw new Error("User is not logged in");
@@ -357,7 +357,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                 throw new Error("Declarative API endpoint not provided");
             }
             const res = await getHttpClient().get(
-                `${this._declarativeAPI}/projectName/${projectHandler}/componentName/${componentName}/component-config`,
+                `${this._declarativeAPI}/core/v1alpha1/projectName/${projectHandler}/componentName/${componentName}/component-config`,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -365,7 +365,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                     },
                 }
             );
-            return res.data as ComponentConfig[];
+            return res.data as ComponentYamlContent[];
         } catch (err) {
             throw new Error(API_CALL_ERROR, { cause: err });        
         }    
