@@ -9,7 +9,7 @@
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel } from "../../base/base-node/base-node";
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { MediatorPortModel } from "../../port/MediatorPortModel";
 
 export const SEQUENCE_NODE = "SequenceNode";

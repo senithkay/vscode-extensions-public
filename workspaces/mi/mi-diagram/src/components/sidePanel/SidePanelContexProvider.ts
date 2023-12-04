@@ -8,7 +8,7 @@
  */
 
 import React, { Dispatch, SetStateAction } from "react";
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 interface SidePanelontext {
     setIsOpen: Dispatch<SetStateAction<boolean>>;

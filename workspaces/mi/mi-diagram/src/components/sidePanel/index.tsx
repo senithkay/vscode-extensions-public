@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../utils/WebViewRpc';
 import { GetConnectorsResponse } from '@wso2-enterprise/mi-core';
 import AddConnector from './Pages/AddConnector';
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const ButtonContainer = styled.div`
     text-align: center;

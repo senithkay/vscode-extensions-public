@@ -10,7 +10,7 @@
 import React, { useContext } from 'react';
 import { BaseNodeProps } from '../../base/base-node/base-node';
 import SidePanelContext from '../../sidePanel/SidePanelContexProvider';
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { MediatorPortWidget } from '../../port/MediatorPortWidget';
 
 export interface PlusNodeWidgetProps extends BaseNodeProps {

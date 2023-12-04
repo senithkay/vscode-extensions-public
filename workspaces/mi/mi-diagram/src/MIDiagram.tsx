@@ -16,7 +16,7 @@ import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvide
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './components/sidePanel';
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface MIDiagramProps {
 	documentUri: string;
