@@ -53,14 +53,14 @@ const IconStyles = styled.div`
     transition: "transform 0.3s ease-in-out";
 `;
 
-export interface MenuItemDef {
+export interface MoreVertMenuItem {
     label: string;
     callback: (id: string, version?: string) => void;
 }
 
 interface MoreVertMenuProps {
     component: Component;
-    menuItems: MenuItemDef[];
+    menuItems: MoreVertMenuItem[];
     hasComponentKind?: boolean;
 }
 

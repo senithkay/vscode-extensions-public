@@ -19,7 +19,7 @@ import {
     isRenderInsideCell,
     animateDiagram,
 } from "./utils";
-import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItemDef } from "./components";
+import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MoreVertMenuItem } from "./components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
@@ -29,9 +29,11 @@ import { ObservationSummary, Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
 import { DiagramLayer, DiagramLayers } from "./components/Controls/DiagramLayers";
 
+export type { MoreVertMenuItem } from "./components";
+
 export interface CellDiagramProps {
     project: Project;
-    componentMenu?: MenuItemDef[];
+    componentMenu?: MoreVertMenuItem[];
     showControls?: boolean;
     animation?: boolean;
     defaultDiagramLayer?: DiagramLayer;
@@ -198,7 +200,7 @@ export function CellDiagram(props: CellDiagramProps) {
         }, 8);
     };
 
-    const showDiagramLayers = showControls && observationSummary.current?.requestCount.max > 0 || false;
+    const showDiagramLayers = (showControls && observationSummary.current?.requestCount.max > 0) || false;
 
     const ctx = {
         selectedNodeId,
