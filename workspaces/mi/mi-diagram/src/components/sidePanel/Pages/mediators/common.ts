@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface AddMediatorProps {
     nodePosition: Range;

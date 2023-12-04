@@ -14,7 +14,7 @@ import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../../utils/WebViewRpc';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
-import { Range } from '@wso2-enterprise/mi-core/src/types';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 const cardStyle = {
     display: "block",
