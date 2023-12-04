@@ -8,13 +8,9 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "prebuild": "npm run lint",
-    "build": "pnpm run lint && tsc --pretty && npm run copy:assets",
-    "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/resources/assets/fonts/*.*\" lib/",
     "watch": "tsc --pretty --watch",
-    "clean": "rimraf lib/",
-    "clean:nm": "rimraf node_modules",
-    "lint": "eslint --ext .",
+    "build": "pnpm run lint && tsc --pretty",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint --fix --ext ."
   },
   "dependencies": {
