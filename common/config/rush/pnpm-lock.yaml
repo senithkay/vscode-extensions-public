@@ -1259,6 +1259,35 @@ importers:
       http-server: 14.1.1
       typescript: 4.9.5
 
+  ../../workspaces/eggplant/eggplant-core:
+    specifiers:
+      '@types/vscode': ^1.83.1
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@vitejs/plugin-react': ^4.1.0
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      typescript: ^5.2.2
+      vite: ^4.5.0
+      vscode-languageserver-types: ^3.17.5
+      vscode-messenger-common: ^0.4.5
+    dependencies:
+      vscode-languageserver-types: 3.17.5
+      vscode-messenger-common: 0.4.5
+    devDependencies:
+      '@types/vscode': 1.84.1
+      '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
+      '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
+      '@vitejs/plugin-react': 4.1.1_vite@4.5.0
+      copyfiles: 2.4.1
+      eslint: 8.53.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
+      eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
+      typescript: 5.2.2
+      vite: 4.5.0
+
   ../../workspaces/eggplant/eggplant-diagram:
     specifiers:
       '@babel/core': ^7.20.12
@@ -1364,11 +1393,25 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.0
       '@typescript-eslint/parser': ^6.9.0
       '@vscode/test-electron': ^2.3.6
+      '@vscode/vsce': ^2.22.0
+      '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/eggplant-webview': workspace:*
+      copy-webpack-plugin: ^11.0.0
+      copyfiles: ^2.4.1
       eslint: ^8.52.0
       glob: ^10.3.10
       mocha: ^10.2.0
+      source-map-support: ^0.5.21
+      ts-loader: ^9.4.1
       typescript: ^5.2.2
+      vscode-messenger: ^0.4.5
+      webpack: ^5.56.0
+      webpack-cli: ^4.10.0
+      webpack-permissions-plugin: ^1.0.9
+    dependencies:
+      '@wso2-enterprise/eggplant-core': link:../eggplant-core
+      '@wso2-enterprise/eggplant-webview': link:../webview
+      vscode-messenger: 0.4.5
     devDependencies:
       '@types/mocha': 10.0.4
       '@types/node': 18.18.10
@@ -1376,10 +1419,52 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
       '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
       '@vscode/test-electron': 2.3.6
-      '@wso2-enterprise/eggplant-webview': link:../webview
+      '@vscode/vsce': 2.22.0
+      copy-webpack-plugin: 11.0.0_webpack@5.89.0
+      copyfiles: 2.4.1
       eslint: 8.53.0
       glob: 10.3.10
       mocha: 10.2.0
+      source-map-support: 0.5.21
+      ts-loader: 9.5.0_f4hgawfnjaxmyxuegmwdtssuwi
+      typescript: 5.2.2
+      webpack: 5.89.0_webpack-cli@4.10.0
+      webpack-cli: 4.10.0_webpack@5.89.0
+      webpack-permissions-plugin: 1.0.9
+
+  ../../workspaces/eggplant/eggplant-rpc-client:
+    specifiers:
+      '@types/react': ^18.2.33
+      '@types/react-dom': ^18.2.14
+      '@types/vscode-webview': ^1.57.3
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@wso2-enterprise/eggplant-core': workspace:*
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^5.2.2
+      vscode-messenger-common: ^0.4.5
+      vscode-messenger-webview: ^0.4.5
+    dependencies:
+      '@types/vscode-webview': 1.57.4
+      '@wso2-enterprise/eggplant-core': link:../eggplant-core
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      vscode-messenger-common: 0.4.5
+      vscode-messenger-webview: 0.4.5
+    devDependencies:
+      '@types/react': 18.2.37
+      '@types/react-dom': 18.2.15
+      '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
+      '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
+      copyfiles: 2.4.1
+      eslint: 8.53.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
+      eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
       typescript: 5.2.2
 
   ../../workspaces/eggplant/webview:
@@ -1394,6 +1479,7 @@ importers:
       '@typescript-eslint/parser': ^6.9.1
       '@vitejs/plugin-react': ^4.1.0
       '@wso2-enterprise/eggplant-diagram': workspace:*
+      '@wso2-enterprise/eggplant-rpc-client': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -1419,6 +1505,7 @@ importers:
       '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
       '@types/vscode-webview': 1.57.4
       '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
+      '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

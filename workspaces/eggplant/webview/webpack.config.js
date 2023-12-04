@@ -21,7 +21,10 @@ module.exports = {
       {
         test: /\.(ts|tsx)$/,
         loader: "ts-loader",
-        exclude: '/node_modules/'
+        exclude: '/node_modules/',
+        options: {
+          configFile: path.resolve(__dirname, 'tsconfig.json'),
+        },
       },
       {
         enforce: "pre",

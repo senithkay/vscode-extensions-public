@@ -15,7 +15,7 @@
     "activationEvents": [
         "workspaceContains:**/Ballerina.toml"
     ],
-    "main": "./out/extension.js",
+    "main": "./out/extension",
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -53,13 +53,19 @@
     "scripts": {
         "vscode:prepublish": "pnpm run compile",
         "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "watch": "webpack --mode none --watch",
         "pretest": "pnpm run compile && pnpm run lint",
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js",
-        "build": "vsce package"
+        "build": "pnpm run compile && pnpm run lint"
+    },
+    "dependencies": {
+        "@wso2-enterprise/eggplant-webview": "workspace:*",
+        "@wso2-enterprise/eggplant-core": "workspace:*",
+        "vscode-messenger": "^0.4.5"
     },
     "devDependencies": {
+        "@vscode/vsce": "^2.22.0",
         "@types/vscode": "^1.84.0",
         "@types/mocha": "^10.0.3",
         "@types/node": "18.x",
@@ -70,6 +76,12 @@
         "mocha": "^10.2.0",
         "typescript": "^5.2.2",
         "@vscode/test-electron": "^2.3.6",
-        "@wso2-enterprise/eggplant-webview": "workspace:*"
+        "copyfiles": "^2.4.1",
+        "copy-webpack-plugin": "^11.0.0",
+        "source-map-support": "^0.5.21",
+        "ts-loader": "^9.4.1",
+        "webpack": "^5.56.0",
+        "webpack-cli": "^4.10.0",
+        "webpack-permissions-plugin": "^1.0.9"
     }
 }
