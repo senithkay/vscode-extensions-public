@@ -171,10 +171,10 @@ export class SharedLinkModel extends DefaultLinkModel {
 export namespace SharedLink {
     export const Keyframes = keyframes`
 		from {
-			stroke-dashoffset: 0;
+			stroke-dashoffset: 24;
 		}
 		to {
-			stroke-dashoffset: 24;
+			stroke-dashoffset: 0;
 		}
 	`;
 
