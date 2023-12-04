@@ -9,9 +9,10 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { ReactNode, useMemo, useState } from "react";
 
-import { IBallerinaLangClient, STModification } from "@wso2-enterprise/ballerina-languageclient";
 // import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+// tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
+import { IBallerinaLangClient, STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -54,7 +55,7 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
     //     letVarDeclModel.checked = list.length > 0;
     //     handleOnCheck();
     // };
-    
+
 
     const handleEdit = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
         event.preventDefault();

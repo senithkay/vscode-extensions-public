@@ -22,7 +22,7 @@ export class DataMapperRpcClient implements DataMapperAPI {
         this._messenger = messenger;
     }
 
-    getLangClient(): Promise<any> {
+    getLangClient(): Promise<unknown> {
         return this._messenger.sendRequest(getLangClient, HOST_EXTENSION);
     }
 }

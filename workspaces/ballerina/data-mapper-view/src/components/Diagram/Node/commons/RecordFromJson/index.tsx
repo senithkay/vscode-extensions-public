@@ -192,7 +192,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 )}
                 <div className={classes.buttonWrapper}>
                     <div className={classes.spaceBetween}>
-                        <Button 
+                        <Button
                             appearance="secondary"
                             onClick={onCancel}
                             tooltip={"Cancel"}
@@ -207,7 +207,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                         /> */}
                     </div>
                     <div className={classes.spaceBetween}>
-                        <Button 
+                        <Button
                             appearance="primary"
                             onClick={convertToJSon}
                             tooltip={"Cancel"}

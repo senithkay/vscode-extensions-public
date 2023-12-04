@@ -12,7 +12,6 @@ import React, { ReactNode, useEffect, useMemo, useState } from "react";
 
 import { Link } from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl/FormControl";
-import AddIcon from "@material-ui/icons/Add";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DeleteButton,
@@ -26,7 +25,7 @@ import {
 //     useStyles as useFormStyles
 // } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { LetVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { SidePanel, Button } from "@wso2-enterprise/ui-toolkit";
+import { Button, SidePanel } from "@wso2-enterprise/ui-toolkit";
 import classNames from "classnames";
 
 import { ExpressionInfo } from "../DataMapper";

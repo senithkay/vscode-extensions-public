@@ -15,8 +15,8 @@ import {
     ResolvedTypeForExpression
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { URI } from "vscode-uri";
 import { CodeAction, CompletionItemKind, Diagnostic, WorkspaceEdit } from "vscode-languageserver-types";
+import { URI } from "vscode-uri";
 
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";

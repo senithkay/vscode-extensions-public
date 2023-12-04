@@ -15,7 +15,9 @@ import { getLangClient } from "../../visualizer/activator";
 
 
 export class DataMapperRpcManager implements DataMapperAPI {
-    async getLangClient(): Promise<any> {
-        return Promise.resolve(getLangClient());
+    async getLangClient() {
+        return new Promise((resolve) => {
+            resolve(getLangClient());
+        });
     }
 }

@@ -15,10 +15,21 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NavigationBar } from "./components/NavigationBar";
 import styled from "@emotion/styled";
 import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
-import { fnST } from "./data-provider/st"
+import { fnST } from "./data-provider/st";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
+
+    const queryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+            staleTime: 1000,
+          },
+        },
+      });
 
     useEffect(() => {
         setViewLocationState();
@@ -62,12 +73,14 @@ export function Webview() {
     );
 
     return (
-        <VisualizerContainer>
-            <NavigationBar />
-            {viewLocation.view === "Overview" && <Overview />}
-            {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
-            {viewLocation.view === "DataMapper" && dataMapper}
-            {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
-        </VisualizerContainer>
+        <QueryClientProvider client={queryClient}>
+            <VisualizerContainer>
+                <NavigationBar />
+                {viewLocation.view === "Overview" && <Overview />}
+                {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
+                {viewLocation.view === "DataMapper" && dataMapper}
+                {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
+            </VisualizerContainer>
+        </QueryClientProvider>
     );
 };

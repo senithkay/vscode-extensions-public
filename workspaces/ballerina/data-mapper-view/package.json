@@ -71,7 +71,9 @@
     "zustand": "^4.0.0-rc.1",
     "@material-ui/lab": "^4.0.0-alpha.52",
     "reflect-metadata": "^0.1.13",
-    "blueimp-md5": "^2.19.0"
+    "blueimp-md5": "^2.19.0",
+    "@tanstack/react-query": "^5.10.0",
+    "@tanstack/query-core": "^5.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

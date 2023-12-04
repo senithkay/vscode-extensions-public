@@ -22,13 +22,13 @@ import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
 	DagreEngine,
 	DefaultDiagramState,
+	DefaultLabelFactory,
+	DefaultLinkFactory,
+	DefaultNodeFactory,
+	DefaultPortFactory,
 	DiagramEngine,
 	DiagramModel,
 	NodeLayerFactory,
-	DefaultLinkFactory,
-	DefaultLabelFactory,
-	DefaultNodeFactory,
-	DefaultPortFactory,
 	PathFindingLinkFactory
 } from "@projectstorm/react-diagrams";
 import "reflect-metadata";
