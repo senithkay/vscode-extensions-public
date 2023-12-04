@@ -11,8 +11,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { BitBucketIcon, GithubIcon } from "../icons";
-import { ComponentCard } from "@wso2-enterprise/ui-toolkit/lib/components/ComponentCard";
-import { Typography } from "@wso2-enterprise/ui-toolkit/lib/components/Typography";
+import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
 
 const IconContainer = styled.div`
     height: 50px;

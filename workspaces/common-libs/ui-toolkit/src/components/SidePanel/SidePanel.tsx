@@ -8,7 +8,7 @@
  */
 import styled from '@emotion/styled';
 import React from 'react';
-import { Overlay } from '../Commons/Overlay';
+import { Overlay } from './../Commons/Overlay';
 import { colors } from '../Commons/Colors';
 
 export interface SidePanelProps {

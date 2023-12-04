@@ -11,7 +11,7 @@
  *  associated services.
  */
 import React from "react";
-import { StepCard, StepTitle, StepCardProps, StepCircle, HorizontalBar, BottomTitleWrapper, BottomTitleHorizontalBar, IconTitleWrapper } from ".";
+import { StepCard, StepTitle, StepCardProps, StepCircle, HorizontalBar, BottomTitleWrapper, BottomTitleHorizontalBar, IconTitleWrapper } from "./Stepper";
 import styled from "@emotion/styled";
 import { colors } from "../Commons/Colors";
 

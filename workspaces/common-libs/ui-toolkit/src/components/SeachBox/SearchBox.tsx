@@ -7,8 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import React from 'react';
-import { Codicon } from '../Codicon';
-import { TextField } from '../TextField';
+import { Codicon } from '../Codicon/Codicon';
+import { TextField } from '../TextField/TextField';
 
 export interface SeachBoxProps {
     value: string;

@@ -14,7 +14,7 @@ import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_CELL_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { CellViewIcon } from "../../../icons";
-import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit/lib/components/Button";
+import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit";
 
 export const CellViewButton = () => {
     const handleClick = async () => {

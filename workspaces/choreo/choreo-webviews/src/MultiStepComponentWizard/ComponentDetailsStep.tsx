@@ -14,8 +14,7 @@ import { ComponentWizardState } from "./types";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ConfigCardList } from "./ConfigCardList";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit/lib/components/ProgressIndicator";
-import { TextField } from "@wso2-enterprise/ui-toolkit/lib/components/TextField";
+import { TextField, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 import { SectionWrapper } from "../ProjectWizard/ProjectWizard";
 
 const StepContainer = styled.div`

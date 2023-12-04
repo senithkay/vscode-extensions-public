@@ -9,8 +9,7 @@
 import React from "react";
 
 import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType } from "@wso2-enterprise/choreo-core";
-import { ComponentCard } from "@wso2-enterprise/ui-toolkit/lib/components/ComponentCard";
-import { Typography } from "@wso2-enterprise/ui-toolkit/lib/components/Typography";
+import { ComponentCard, Typography } from "@wso2-enterprise/ui-toolkit";
 import { ComponentWizardState } from "./types";
 import styled from "@emotion/styled";
 

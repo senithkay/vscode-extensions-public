@@ -14,7 +14,7 @@ import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
-import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit/lib/components/ProgressIndicator";
+import { ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 const BranchListContainer = styled.div`
     display: flex;

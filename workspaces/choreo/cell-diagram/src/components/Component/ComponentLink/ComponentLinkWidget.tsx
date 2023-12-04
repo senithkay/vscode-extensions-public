@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentLinkModel } from "./ComponentLinkModel";
 import { COMPONENT_LINK, Colors } from "../../../resources";
-import { Popover } from "@wso2-enterprise/ui-toolkit/lib/components/Popover";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 

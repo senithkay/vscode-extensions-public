@@ -10,10 +10,10 @@ import React, { ReactNode } from "react";
 import {
     VSCodeDropdown,
     VSCodeOption,
+    VSCodeProgressRing,
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { ErrorBanner } from "../Commons/ErrorBanner";
-import { SmallProgressRing } from "../../styles/ProgressRing";
 
 export interface OptionProps {
     id?: string;
@@ -32,6 +32,13 @@ export interface DropdownProps {
     sx?: any;
     onChange?: (value: string) => void;
 }
+
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 3px);
+    width: calc(var(--design-unit) * 3px);
+    margin-top: auto;
+    padding: 4px;
+`;
 
 const DropDownContainer = styled.div`
     display: flex;

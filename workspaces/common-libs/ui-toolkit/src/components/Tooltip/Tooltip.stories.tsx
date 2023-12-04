@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Tooltip, TooltipProps } from ".";
+import { Tooltip, TooltipProps } from "./Tooltip";
 
 const Template: ComponentStory<typeof Tooltip> = (args: TooltipProps) =>
     <Tooltip {...args}>

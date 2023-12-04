@@ -9,15 +9,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import CircularProgress from "@mui/material/CircularProgress";
 import { generateEngine, getComponentDiagramWidth, getNodesNLinks, manualDistribute, calculateCellWidth, isRenderInsideCell, animateDiagram } from "./utils";
 import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItemDef } from "./components";
-import { DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
-import { Container, DiagramContainer } from "./utils/CanvasStyles";
+import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
+import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
-import "./utils/CanvasStyles.css"
-import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit/lib/components/DiagramNavigationWrapper";
-import { SmallProgressRing } from "@wso2-enterprise/ui-toolkit/lib/styles";
+import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
 
@@ -45,6 +44,8 @@ export function CellDiagram(props: CellDiagramProps) {
     const [isDiagramLoaded, setIsDiagramLoaded] = useState(false);
 
     const cellNodeWidth = useRef<number>(0); // INFO: use this reference to check if cell node width should change
+
+    const styles = useStyles();
 
     useEffect(() => {
         if (diagramEngine) {
@@ -214,7 +215,7 @@ export function CellDiagram(props: CellDiagramProps) {
                         <>
                             <NavigationWrapperCanvasWidget
                                 diagramEngine={diagramEngine}
-                                className={"diagram-container"}
+                                className={styles.canvas}
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
@@ -222,7 +223,7 @@ export function CellDiagram(props: CellDiagramProps) {
                     ) : userMessage ? (
                         <PromptScreen userMessage={userMessage} />
                     ) : (
-                        <SmallProgressRing />
+                        <CircularProgress sx={{ color: Colors.PRIMARY }} />
                     )}
                 </DiagramContainer>
             </CellDiagramContext>

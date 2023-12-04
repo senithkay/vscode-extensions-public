@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Divider, DeviderProps } from ".";
+import { Divider, DeviderProps } from "./Divider";
 
 const Template: ComponentStory<typeof Divider> = (args: DeviderProps) => <Divider {...args} />;
 
