@@ -12,6 +12,7 @@ import styled from "@emotion/styled";
 import { Colors } from "../../resources";
 import { Component } from "../../types";
 import { Codicon, MenuItem, Item, Popover } from "@wso2-enterprise/ui-toolkit";
+import { MoreVertMenuItem } from "../../types";
 
 const ItemContainer = styled.div`
     display: flex;
@@ -52,11 +53,6 @@ const IconStyles = styled.div`
     border: 3px solid ${Colors.SURFACE_DIM};
     transition: "transform 0.3s ease-in-out";
 `;
-
-export interface MoreVertMenuItem {
-    label: string;
-    callback: (id: string, version?: string) => void;
-}
 
 interface MoreVertMenuProps {
     component: Component;

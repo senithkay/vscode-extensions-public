@@ -139,3 +139,14 @@ export interface Nodes {
 export interface Links {
     [key: string]: Map<string, ComponentLinkModel | ExternalLinkModel | CellLinkModel>;
 }
+
+export interface MoreVertMenuItem {
+    label: string;
+    callback: (id: string, version?: string) => void;
+}
+
+export enum DiagramLayer {
+    ARCHITECTURE = "architecture",
+    OBSERVABILITY = "observability",
+    DIFF = "diff",
+}

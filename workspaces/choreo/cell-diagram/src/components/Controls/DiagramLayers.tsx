@@ -12,6 +12,7 @@ import styled from "@emotion/styled";
 import gsap from "gsap";
 import { useDiagramContext } from "../DiagramContext/DiagramContext";
 import { Colors, DiagramIcon, DiffIcon, LayersIcon, ObservationIcon } from "../../resources";
+import { DiagramLayer } from "../../types";
 
 export const DiagramLayersPanel: React.FC<any> = styled.div`
     display: flex;
@@ -91,12 +92,6 @@ export const LayerIcon: React.FC<any> = styled.div`
     box-sizing: border-box;
     padding: 4px;
 `;
-
-export enum DiagramLayer {
-    ARCHITECTURE = "architecture",
-    OBSERVABILITY = "observability",
-    DIFF = "diff",
-}
 
 interface DiagramLayersProps {
     animation?: boolean;

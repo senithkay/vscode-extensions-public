@@ -19,17 +19,17 @@ import {
     isRenderInsideCell,
     animateDiagram,
 } from "./utils";
-import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MoreVertMenuItem } from "./components";
+import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
-
-import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
-import { ObservationSummary, Project } from "./types";
+import { DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
-import { DiagramLayer, DiagramLayers } from "./components/Controls/DiagramLayers";
+import { DiagramLayers } from "./components/Controls/DiagramLayers";
+import "./resources/assets/font/fonts.css";
 
-export type { MoreVertMenuItem } from "./components";
+export { DiagramLayer } from "./types";
+export type { MoreVertMenuItem, Project } from "./types";
 
 export interface CellDiagramProps {
     project: Project;

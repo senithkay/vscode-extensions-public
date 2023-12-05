@@ -8,10 +8,9 @@
  */
 
 import React, { createContext, ReactNode } from "react";
-import { MoreVertMenuItem } from "..";
-import { DiagramLayer } from "../Controls/DiagramLayers";
+import { DiagramLayer } from "../../types";
 import { useActiveLayers } from "../../hooks/useActiveLayers";
-import { ObservationSummary } from "../../types";
+import { MoreVertMenuItem, ObservationSummary } from "../../types";
 
 interface IDiagramContext {
     selectedNodeId: string;

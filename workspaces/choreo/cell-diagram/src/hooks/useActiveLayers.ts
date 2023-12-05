@@ -8,7 +8,7 @@
  */
 
 import { useState } from "react";
-import { DiagramLayer } from "../components/Controls/DiagramLayers";
+import { DiagramLayer } from "../types";
 
 interface ActiveLayersHookProps {
     defaultDiagramLayer: DiagramLayer;

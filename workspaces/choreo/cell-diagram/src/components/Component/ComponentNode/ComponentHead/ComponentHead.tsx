@@ -24,7 +24,8 @@ import {
     WebhookIcon,
 } from "../../../../resources/assets/icons";
 import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
-import { MoreVertMenuItem, MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
+import { MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
+import { MoreVertMenuItem } from "../../../../types";
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";
 import { COMPONENT_LINE_MIN_WIDTH } from "../../../../resources";
 
