@@ -8,11 +8,23 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { getLangClient, } from "@wso2-enterprise/ballerina-core";
+import {
+    DefinitionRequest,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromFnDefinitionRequest,
+    definition,
+    getTypeFromExpression,
+    getTypeFromSymbol,
+    getTypesFromFnDefinition
+} from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { DataMapperRpcManager } from "./rpc-manager";
 
 export function registerDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new DataMapperRpcManager();
-    messenger.onRequest(getLangClient, () => rpcManger.getLangClient());
+    messenger.onRequest(getTypeFromExpression, (args: TypeFromExpressionRequest) => rpcManger.getTypeFromExpression(args));
+    messenger.onRequest(getTypeFromSymbol, (args: TypeFromSymbolRequest) => rpcManger.getTypeFromSymbol(args));
+    messenger.onRequest(getTypesFromFnDefinition, (args: TypesFromFnDefinitionRequest) => rpcManger.getTypesFromFnDefinition(args));
+    messenger.onRequest(definition, (args: DefinitionRequest) => rpcManger.definition(args));
 }

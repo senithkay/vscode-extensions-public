@@ -11,6 +11,19 @@
  *  associated services.
  */
 
+import {
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
+    TypesFromSymbolResponse
+} from "../..";
+import { Location, LocationLink } from "vscode-languageserver-types";
+import { DefinitionRequest } from "../../lang-server-interfaces/data-mapper-types";
+
 export interface DataMapperAPI {
-    getLangClient: () => Promise<unknown>;
+    getTypeFromExpression: (params: TypeFromExpressionRequest) => Promise<TypesFromExpressionResponse>;
+    getTypeFromSymbol: (params: TypeFromSymbolRequest) => Promise<TypesFromSymbolResponse>;
+    getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Promise<TypesFromSymbolResponse>;
+    definition: (params: DefinitionRequest) => Promise<Location | Location[] | LocationLink[] | null>;
 }

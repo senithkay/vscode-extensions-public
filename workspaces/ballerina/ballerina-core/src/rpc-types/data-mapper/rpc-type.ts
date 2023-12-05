@@ -8,7 +8,19 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import {
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
+    TypesFromSymbolResponse
+} from "../..";
+import { Location, LocationLink } from "vscode-languageserver-types";
+import { DefinitionRequest } from "../../lang-server-interfaces/data-mapper-types";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "data-mapper";
-export const getLangClient: RequestType<void, unknown> = { method: `${_preFix}/getLangClient` };
+export const getTypeFromExpression: RequestType<TypeFromExpressionRequest, TypesFromExpressionResponse> = { method: `${_preFix}/getTypeFromExpression` };
+export const getTypeFromSymbol: RequestType<TypeFromSymbolRequest, TypesFromSymbolResponse> = { method: `${_preFix}/getTypeFromSymbol` };
+export const getTypesFromFnDefinition: RequestType<TypesFromFnDefinitionRequest, TypesFromSymbolResponse> = { method: `${_preFix}/getTypesFromFnDefinition` };
+export const definition: RequestType<DefinitionRequest, Location | Location[] | LocationLink[] | null> = { method: `${_preFix}/definition` };

@@ -9,9 +9,16 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    DataMapperAPI
+    DataMapperAPI,
+    DefinitionRequest,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
+    TypesFromSymbolResponse
 } from "@wso2-enterprise/ballerina-core";
 import { getLangClient } from "../../visualizer/activator";
+import { Location, LocationLink } from "vscode-languageserver-types";
 
 
 export class DataMapperRpcManager implements DataMapperAPI {
@@ -19,5 +26,25 @@ export class DataMapperRpcManager implements DataMapperAPI {
         return new Promise((resolve) => {
             resolve(getLangClient());
         });
+    }
+
+    async getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Promise<TypesFromSymbolResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async definition(params: DefinitionRequest): Promise<Location | Location[] | LocationLink[] | null> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

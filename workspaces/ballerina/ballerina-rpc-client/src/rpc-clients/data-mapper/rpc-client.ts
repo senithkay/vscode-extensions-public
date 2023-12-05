@@ -10,7 +10,16 @@
  */
 import {
     DataMapperAPI,
-    getLangClient
+    DefinitionRequest,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
+    TypesFromSymbolResponse,
+    definition,
+    getTypeFromExpression,
+    getTypeFromSymbol,
+    getTypesFromFnDefinition
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -22,7 +31,19 @@ export class DataMapperRpcClient implements DataMapperAPI {
         this._messenger = messenger;
     }
 
-    getLangClient(): Promise<unknown> {
-        return this._messenger.sendRequest(getLangClient, HOST_EXTENSION);
+    getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse> {
+        return this._messenger.sendRequest(getTypeFromExpression, HOST_EXTENSION, params);
+    }
+
+    getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse> {
+        return this._messenger.sendRequest(getTypeFromSymbol, HOST_EXTENSION, params);
+    }
+
+    getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Promise<TypesFromSymbolResponse> {
+        return this._messenger.sendRequest(getTypesFromFnDefinition, HOST_EXTENSION, params);
+    }
+
+    definition(params: DefinitionRequest): Promise<> {
+        return this._messenger.sendRequest(definition, HOST_EXTENSION, params);
     }
 }
