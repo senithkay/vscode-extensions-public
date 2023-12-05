@@ -16,7 +16,7 @@ import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, 
 
 interface ParamItemProps {
     param: ParameterConfig;
-    readonly: boolean;
+    readonly?: boolean;
     onDelete?: (param: ParameterConfig) => void;
     onEditClick?: (param: ParameterConfig) => void;
 }

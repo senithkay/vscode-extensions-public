@@ -23,12 +23,15 @@ export interface ParamProps {
     optionList?: PARAM_TYPES[];
     option?: PARAM_TYPES;
     isTypeReadOnly?: boolean;
+    hideType?: boolean;
+    hideDefaultValue?: boolean;
     onChange: (param: ParameterConfig) => void;
     onCancel?: (id?: number) => void;
 }
 
 export function ParamEditor(props: ParamProps) {
-    const { param, option, optionList, onChange, onCancel } = props;
+    const { param, option, optionList, hideType = false, hideDefaultValue = false,
+        onChange, onCancel } = props;
 
     const [selectedOption, setSelectedOption] = React.useState(option);
     const [name, setNameValue] = React.useState(param.name);
@@ -87,14 +90,16 @@ export function ParamEditor(props: ParamProps) {
 				/>
             )}
             <EditorContent>
-                <TextField
-                    size={21}
-                    label='Type'
-                    required
-                    placeholder='Enter type'
-                    value={type}
-                    onChange={handleTypeChange}
-                />
+                {!hideType && (
+                    <TextField
+                        size={21}
+                        label='Type'
+                        required
+                        placeholder='Enter type'
+                        value={type}
+                        onChange={handleTypeChange}
+                    />
+                )}
                 <TextField
                     label='Name'
                     size={21}
@@ -103,13 +108,15 @@ export function ParamEditor(props: ParamProps) {
                     value={name}
                     onChange={handleChange}
                 />
-                <TextField
-                    label='Default Value'
-                    size={21}
-                    placeholder='Enter default value'
-                    value={defaultValue}
-                    onChange={handleValueChange}
-                />
+                {!hideDefaultValue && (
+                    <TextField
+                        label='Default Value'
+                        size={21}
+                        placeholder='Enter default value'
+                        value={defaultValue}
+                        onChange={handleValueChange}
+                    />
+                )}
             </EditorContent>
             {option === PARAM_TYPES.DEFAULT && (
                 <VSCodeCheckbox checked={isSelected} onChange={handleReqFieldChange} id="is-req-checkbox">
