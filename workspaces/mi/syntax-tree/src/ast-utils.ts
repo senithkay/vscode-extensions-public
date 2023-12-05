@@ -13,7 +13,12 @@ import { STNode } from './syntax-tree-interfaces';
 const metaNodes = ['viewState', 'position', 'parent'];
 
 export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
-    let beginVisitFn: any = (visitor as any)[`beginVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
+    let name = ""
+    node.tag.split('-').forEach((tag) => {
+        name += tag.charAt(0).toUpperCase() + tag.slice(1);
+    });
+
+    let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitSTNode && visitor.beginVisitSTNode;
     }
@@ -47,7 +52,7 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
         traversNode(childNode, visitor, node);
     });
 
-    let endVisitFn: any = (visitor as any)[`endVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
+    let endVisitFn: any = (visitor as any)[`endVisit${name}`];
     if (!endVisitFn) {
         endVisitFn = visitor.endVisitSTNode && visitor.endVisitSTNode;
     }
@@ -58,7 +63,12 @@ export function traversNode(node: STNode, visitor: Visitor, parent?: STNode) {
 }
 
 export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: STNode) {
-    let beginVisitFn: any = (visitor as any)[`beginVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
+    let name = ""
+    node.tag.split('-').forEach((tag) => {
+        name += tag.charAt(0).toUpperCase() + tag.slice(1);
+    });
+
+    let beginVisitFn: any = (visitor as any)[`beginVisit${name}`];
     if (!beginVisitFn) {
         beginVisitFn = visitor.beginVisitSTNode && visitor.beginVisitSTNode;
     }
@@ -92,7 +102,7 @@ export async function traversNodeAsync(node: STNode, visitor: Visitor, parent?: 
         await traversNodeAsync(childNode, visitor, node);
     }
 
-    let endVisitFn: any = (visitor as any)[`endVisit${node.tag.charAt(0).toUpperCase() + node.tag.slice(1)}`];
+    let endVisitFn: any = (visitor as any)[`endVisit${name}`];
     if (!endVisitFn) {
         endVisitFn = visitor.endVisitSTNode && visitor.endVisitSTNode;
     }
