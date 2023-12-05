@@ -1,33 +1,30 @@
 const path = require("path");
-const webpack = require('webpack');
+
 module.exports = {
   entry: "./src/index.tsx",
   target: "web",
   devtool: "source-map",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "EggplantDiagram.js",
-    library: "persistDiagram",
+    filename: "Visualizer.js",
+    library: "visualizerWebview",
   },
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
     alias: {
-      handlebars: 'handlebars/dist/handlebars.min.js',
-      "vscode": require.resolve('monaco-languageclient/lib/vscode-compatibility'),
-      "crypto": false,
-      "net": false,
-      "os": false,
-      "path": false,
-      "fs": false,
-      "child_process": false
-    }
+      'react': path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+    },
   },
   module: {
     rules: [
       {
         test: /\.(ts|tsx)$/,
         loader: "ts-loader",
-        exclude: '/node_modules/'
+        exclude: '/node_modules/',
+        options: {
+          configFile: path.resolve(__dirname, 'tsconfig.json'),
+        },
       },
       {
         enforce: "pre",
