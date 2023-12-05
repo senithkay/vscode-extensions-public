@@ -6,7 +6,7 @@ import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { Popover } from "@wso2-enterprise/ui-toolkit";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { DiagramLayer } from "../../Controls/DiagramLayers";
+import { DiagramLayer } from "../../../types";
 import { SharedLink } from "../../shared-link/shared-link";
 
 interface WidgetProps {
@@ -111,6 +111,9 @@ export function CellLinkWidget(props: WidgetProps) {
         if (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) {
             return "transparent";
         }
+        if (hasArchitectureLayer && !hasObservabilityLayer && !hasDiffLayer && link.observationOnly) {
+            return "transparent";
+        }
 
         return Colors.ON_SURFACE_VARIANT;
     };
@@ -154,7 +157,7 @@ export function CellLinkWidget(props: WidgetProps) {
                     markerEnd={link.showArrowHead() && !hasObservabilityLayer ? "url(#" + link.getLinkArrowId() + ")" : ""}
                 />
                 {hasDiffLayer && link.observationOnly && (
-                    <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px" }}>
+                    <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px", userSelect: "none" }}>
                         !!
                     </text>
                 )}
