@@ -9,11 +9,22 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    WebviewAPI
+    VisualizerLocationContext,
+    WebviewAPI,
 } from "@wso2-enterprise/eggplant-core";
 
 export class WebviewRpcManager implements WebviewAPI {
     async getHelloWorld(): Promise<string> {
         return Promise.resolve("Hello World!");
+    }
+
+    async getVisualizerState(): Promise<VisualizerLocationContext> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

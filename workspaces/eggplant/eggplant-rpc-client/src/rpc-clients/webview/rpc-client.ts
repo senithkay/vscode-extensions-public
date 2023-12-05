@@ -9,8 +9,11 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    VisualizerLocationContext,
     WebviewAPI,
-    getHelloWorld
+    getHelloWorld,
+    getVisualizerState,
+    openVisualizerView
 } from "@wso2-enterprise/eggplant-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -20,6 +23,14 @@ export class WebviewRpcClient implements WebviewAPI {
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
+    }
+
+    getVisualizerState(): Promise<VisualizerLocationContext> {
+        return this._messenger.sendRequest(getVisualizerState, HOST_EXTENSION);
+    }
+
+    openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
+        return this._messenger.sendRequest(openVisualizerView, HOST_EXTENSION, params);
     }
 
     getHelloWorld(): Promise<string> {

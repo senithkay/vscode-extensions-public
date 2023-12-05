@@ -8,7 +8,10 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "webview";
+export const getVisualizerState: RequestType<void, VisualizerLocationContext> = { method: `${_preFix}/getVisualizerState` };
+export const openVisualizerView: RequestType<VisualizerLocationContext, VisualizerLocationContext> = { method: `${_preFix}/openVisualizerView` };
 export const getHelloWorld: RequestType<void, string> = { method: `${_preFix}/getHelloWorld` };

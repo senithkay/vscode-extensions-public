@@ -8,11 +8,18 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { getHelloWorld, } from "@wso2-enterprise/eggplant-core";
+import {
+    VisualizerLocationContext,
+    getHelloWorld,
+    getVisualizerState,
+    openVisualizerView,
+} from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { WebviewRpcManager } from "./rpc-manager";
 
 export function registerWebviewRpcHandlers(messenger: Messenger) {
     const rpcManger = new WebviewRpcManager();
+    messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
+    messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
     messenger.onRequest(getHelloWorld, () => rpcManger.getHelloWorld());
 }

@@ -11,6 +11,10 @@
  *  associated services.
  */
 
+import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
+
 export interface WebviewAPI {
+    getVisualizerState: () => Promise<VisualizerLocationContext>;
+    openVisualizerView: (params: VisualizerLocationContext) => Promise<VisualizerLocationContext>;
     getHelloWorld: () => Promise<string>;
 }
