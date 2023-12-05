@@ -57,6 +57,7 @@ export interface Connection {
     onPlatform?: boolean;
     tooltip?: string;
     observations?: Observations[];
+    observationOnly?: boolean;
 }
 
 export enum ConnectionType {
@@ -88,11 +89,13 @@ export interface DeploymentMetadata {
             isExposed: boolean;
             tooltip?: string;
             observations?: Observations[];
+            observationOnly?: boolean;
         };
         intranet: {
             isExposed: boolean;
             tooltip?: string;
             observations?: Observations[];
+            observationOnly?: boolean;
         };
     };
 }
@@ -113,9 +116,20 @@ export interface Observations {
 // Util function types
 
 export type CommonModel = ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
-export interface NodesAndLinks {
+export interface DiagramData {
     nodes: Nodes;
     links: Links;
+    gateways: Gateways;
+    observationSummary: ObservationSummary;
+}
+
+export interface Gateways {
+    internet: boolean;
+    intranet: boolean;
+}
+
+export interface ObservationSummary {
+    requestCount: { min: number; max: number };
 }
 
 export interface Nodes {

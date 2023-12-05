@@ -9,24 +9,25 @@
 
 import { DagreEngine } from './Dagre/DagreEngine'; // TODO: Update library props to support node parents
 
-export enum Colors {
-    DEFAULT_TEXT = '#40404B',
-
+export enum Colors {    
     PRIMARY = '#5567D5',
-    PRIMARY_LIGHT = '#CBCEDB',
-    PRIMARY_SELECTED = '#ffaf4d',
-    PRIMARY_FOCUSED = '#d59155',
+    ON_PRIMARY = '#FFF',
+    PRIMARY_CONTAINER = '#F0F1FB',
+    
+    SECONDARY = '#ffaf4d',
+    ON_SECONDARY = '#FFF',
+    SECONDARY_CONTAINER = '#fffaf2', 
+    
+    SURFACE_BRIGHT = '#FFF',
+    SURFACE = '#F7F8FB',
+    SURFACE_DIM = '#CBCEDB',
+    ON_SURFACE = '#000',
+    ON_SURFACE_VARIANT = '#40404B',
 
-    SECONDARY = '#F0F1FB',
-    SECONDARY_SELECTED = '#fffaf2',
-    SHADED_SELECTED = '#faead2',
+    OUTLINE = '#393939',
+    OUTLINE_VARIANT = '#808080',
 
-    NODE_BACKGROUND_PRIMARY = '#F7F8FB',
-    NODE_BACKGROUND_SECONDARY = '#d3d3d3',
-    NODE_BORDER = '#393939',
-
-    GREY = '#808080',
-    LIGHT_GREY = '#d3d3d3',
+    ERROR = '#ED2633',
 }
 
 export const dagreEngine = new DagreEngine({
@@ -38,7 +39,7 @@ export const dagreEngine = new DagreEngine({
 
         ranker: 'tight-tree',
     },
-    includeLinks: true,
+    // includeLinks: true,
 });
 
 export const NAME_JOIN_CHAR = "|";
@@ -78,4 +79,4 @@ export const LABEL_FONT_SIZE = 20;
 export const LABEL_MAX_WIDTH = 160;
 
 export const BORDER_GAP = 40;
-export const DIAGRAM_END = 10000;
+export const DIAGRAM_END = 1000;

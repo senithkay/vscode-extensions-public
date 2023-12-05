@@ -20,7 +20,7 @@ const ItemContainer = styled.div`
     justify-content: flex-start;
     line-height: 1.5;
     font-weight: 800;
-    color: ${Colors.DEFAULT_TEXT};
+    color: ${Colors.ON_SURFACE_VARIANT};
     font-family: GilmerRegular;
     @keyframes fade-in-out {
         0% {
@@ -34,6 +34,25 @@ const ItemContainer = styled.div`
     }
 `;
 
+const IconStyles = styled.div`
+    position: absolute;
+    background-color: ${Colors.SURFACE};
+    margin-left: 68px;
+    margin-bottom: 58px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transform: rotate(90deg);
+    border: 1px solid var(--vscode-dropdown-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 0;
+    border: 3px solid ${Colors.SURFACE_DIM};
+    transition: "transform 0.3s ease-in-out";
+`;
+
 export interface MenuItemDef {
     label: string;
     callback: (id: string, version?: string) => void;
@@ -45,29 +64,10 @@ interface MoreVertMenuProps {
     hasComponentKind?: boolean;
 }
 
-const IconStyles = styled.div`
-    position: absolute;
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
-    margin-left: 70px;
-    margin-bottom: 80px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    transform: rotate(90deg);
-    border: 1px solid var(--vscode-dropdown-border);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    line-height: 0;
-    border: 3px solid ${Colors.LIGHT_GREY};
-    transition: "transform 0.3s ease-in-out";
-`;
-
 export function MoreVertMenu(props: MoreVertMenuProps) {
     const { component, menuItems } = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    
+
     const handleClick = (event?: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event?.stopPropagation();
         setAnchorEl(event.currentTarget);
@@ -80,24 +80,24 @@ export function MoreVertMenu(props: MoreVertMenuProps) {
             onClick: () => {
                 item.callback(component.id, component.version);
                 setAnchorEl(null);
-            }
+            },
         };
-    })
+    });
 
     return (
         <>
             <IconStyles>
-                <Codicon sx={{display: "flex", justifyContent: "center", alignItems: "center"}} iconSx={{fontSize: 25, fontWeight: "bold"}} onClick={handleClick} name="ellipsis"/>
+                <Codicon
+                    sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+                    iconSx={{ fontSize: 20, fontWeight: "bold" }}
+                    onClick={handleClick}
+                    name="ellipsis"
+                />
             </IconStyles>
-            <Popover
-                id={"contextMenu"}
-                open
-                anchorEl={anchorEl}
-                sx={{padding: "5px 0", cursor: "pointer"}}
-            >
-                {contextMenuItems.map((item) =>
-                    (<MenuItem key={`item ${item.id}`} item={item} onClick={item?.onClick} />)
-                )}
+            <Popover id={"contextMenu"} open={Boolean(anchorEl)} anchorEl={anchorEl} sx={{ padding: 0, cursor: "pointer", borderRadius: 4 }}>
+                {contextMenuItems.map((item) => (
+                    <MenuItem key={`item ${item.id}`} item={item} onClick={item?.onClick} />
+                ))}
             </Popover>
         </>
     );

@@ -8,102 +8,429 @@
  */
 
 import React from "react";
-import { storiesOf } from "@storybook/react";
-import { CellDiagram } from "../Diagram";
-import { Project } from "../types";
+import { Story, Meta } from "@storybook/react/types-6-0";
+import { CellDiagram, CellDiagramProps } from "../Diagram";
 import { Container, componentMenu, handleComponentDoubleClick } from "./utils";
 
-const ComponentModel: Project = {
-    id: "dcf4efe2-9d10-462a-b29b-69df17161209",
-    name: "Aquarium",
-    components: [
-        {
-            id: "e367584f-398d-4809-93e2-a666f3ee9e82",
-            label: "history",
-            version: "v1.0",
-            type: "service",
-            buildPack: "ballerina",
-            services: {},
-            connections: [],
-        },
-        {
-            id: "3d51292f-076d-4c53-9a47-b6f87ed69cc7",
-            label: "salesservice",
-            version: "v1.1",
-            type: "service",
-            buildPack: "ballerina",
-            services: {
-                "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-9a47-b6f87ed69cc7:sales": {
-                    id: "madushagunasekara:dcf4efe2-9d10-462a-b29b-69df17161209:3d51292f-076d-4c53-9a47-b6f87ed69cc7:sales",
-                    label: "",
-                    type: "",
-                    dependencyIds: [],
-                    deploymentMetadata: {
-                        gateways: {
-                            internet: {
-                                isExposed: true,
-                                observations: [
-                                    {
-                                        componentVersion: "v1.0",
-                                        avgLatency: 150325186,
-                                        destinationNodeId: 1,
-                                        errorCount: 0,
-                                        p50Latency: 9642748,
-                                        p90Latency: 532982765,
-                                        p99Latency: 532982765,
-                                        requestCount: 7,
-                                        sourceNodeId: 0,
-                                    },
-                                    {
-                                        componentVersion: "v1.0",
-                                        avgLatency: 70517093,
-                                        destinationNodeId: 1,
-                                        errorCount: 0,
-                                        p50Latency: 4530806,
-                                        p90Latency: 531359104,
-                                        p99Latency: 531359104,
-                                        requestCount: 8,
-                                        sourceNodeId: 0,
-                                    },
-                                    {
-                                        componentVersion: "v1.0",
-                                        avgLatency: 27858694,
-                                        destinationNodeId: 3,
-                                        errorCount: 6,
-                                        p50Latency: 3620943,
-                                        p90Latency: 21053012,
-                                        p99Latency: 693394560,
-                                        requestCount: 51,
-                                        sourceNodeId: 2,
-                                    },
-                                    {
-                                        componentVersion: "v1.1",
-                                        avgLatency: 242825819,
-                                        destinationNodeId: 4,
-                                        errorCount: 0,
-                                        p50Latency: 4346338,
-                                        p90Latency: 481305300,
-                                        p99Latency: 481305300,
-                                        requestCount: 2,
-                                        sourceNodeId: 2,
-                                    },
-                                ],
-                            },
-                            intranet: {
-                                isExposed: false,
+export default {
+    title: "Samples",
+    component: CellDiagram,
+    args: {
+        animation: true,
+        showControls: true,
+        componentMenu: componentMenu,
+        onComponentDoubleClick: handleComponentDoubleClick,
+    },
+};
+
+export const Links: Story = (args: CellDiagramProps) => (
+    <Container>
+        <CellDiagram {...args} />
+    </Container>
+);
+
+Links.args = {
+    project: {
+        id: "PRG",
+        components: [
+            {
+                id: "A",
+                type: "service",
+                connections: [
+                    {
+                        id: "ORG:PRG:B",
+                    },
+                ],
+            },
+            {
+                id: "B",
+                type: "service",
+                services: {
+                    "PRG:B:Service1:Get": {
+                        id: "PRG:B:Service1:Get",
+                        type: "http",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: true,
+                                },
+                                intranet: {
+                                    isExposed: false,
+                                },
                             },
                         },
                     },
                 },
+                connections: [
+                    {
+                        id: "ORG:ORG:IDA",
+                    },
+                ],
             },
-            connections: [],
-        },
-    ],
-    modelVersion: "0.4.0",
+            {
+                id: "C",
+                type: "service",
+                connections: [{ id: "EDA", type: "connector" }],
+            },
+        ],
+    },
 };
 
-storiesOf("Test", module).add("Observability data and events", () => (
+export const ObservationsNDiff: Story = (args: CellDiagramProps) => (
     <Container>
-        <CellDiagram project={ComponentModel} componentMenu={componentMenu} onComponentDoubleClick={handleComponentDoubleClick} />
+        <CellDiagram {...args} />
     </Container>
-));
+);
+
+ObservationsNDiff.args = {
+    defaultDiagramLayer: "diff",
+    project: {
+        id: "A",
+        name: "A",
+        components: [
+            {
+                id: "Users",
+                version: "0.2.0",
+                type: "service",
+                services: {
+                    "ABC:A:Users:get": {
+                        id: "ABC:A:Users:get",
+                        label: "Get Users",
+                        type: "http",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: true,
+                                    tooltip: "test tooltip with observations",
+                                    observations: [
+                                        {
+                                            version: "0.2.0",
+                                            avgLatency: 136631633,
+                                            destinationNodeId: 1,
+                                            errorCount: 0,
+                                            p50Latency: 21132684,
+                                            p90Latency: 1043810050,
+                                            p99Latency: 2199582500,
+                                            requestCount: 36,
+                                            sourceNodeId: 0,
+                                        },
+                                    ],
+                                },
+                                intranet: {
+                                    isExposed: true,
+                                    observations: [
+                                        {
+                                            version: "0.2.0",
+                                            avgLatency: 207605809,
+                                            destinationNodeId: 2,
+                                            errorCount: 4,
+                                            p50Latency: 22461844,
+                                            p90Latency: 1469733900,
+                                            p99Latency: 1469733900,
+                                            requestCount: 16,
+                                            sourceNodeId: 0,
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                    "ABC:A:Users:post": {
+                        id: "ABC:A:Users:post",
+                        label: "Add Users",
+                        type: "http",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: true,
+                                    observations: [
+                                        {
+                                            version: "0.2.0",
+                                            avgLatency: 136631633,
+                                            destinationNodeId: 1,
+                                            errorCount: 10,
+                                            p50Latency: 21132684,
+                                            p90Latency: 1043810050,
+                                            p99Latency: 2199582500,
+                                            requestCount: 36,
+                                            sourceNodeId: 0,
+                                        },
+                                    ],
+                                },
+                                intranet: {
+                                    isExposed: false,
+                                },
+                            },
+                        },
+                    },
+                    "ABC:A:Users:put": {
+                        id: "ABC:A:Users:put",
+                        label: "Update Users",
+                        type: "http",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: true,
+                                    observations: [
+                                        {
+                                            version: "0.2.0",
+                                            avgLatency: 136631633,
+                                            destinationNodeId: 1,
+                                            errorCount: 10,
+                                            p50Latency: 21132684,
+                                            p90Latency: 1043810050,
+                                            p99Latency: 2199582500,
+                                            requestCount: 2500,
+                                            sourceNodeId: 0,
+                                        },
+                                    ],
+                                },
+                                intranet: {
+                                    isExposed: false,
+                                },
+                            },
+                        },
+                    },
+                },
+                connections: [
+                    {
+                        id: "ABC:A:Products:basepath",
+                        onPlatform: true,
+                        observations: [],
+                    },
+                    {
+                        id: "googleapps://firebase",
+                        label: "Firebase",
+                        onPlatform: false,
+                        type: "datastore",
+                        observations: [
+                            {
+                                version: "0.2.0",
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 4000,
+                                sourceNodeId: 2,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "Products",
+                label: "Products",
+                version: "0.2.0",
+                type: "service",
+                services: {
+                    "ABC:A:Products:get": {
+                        id: "ABC:A:Products:get",
+                        label: "Get Products",
+                        type: "http",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: false,
+                                },
+                                intranet: {
+                                    isExposed: false,
+                                },
+                            },
+                        },
+                    },
+                },
+                connections: [
+                    {
+                        id: "ABC:B:Users:get",
+                        label: "Org Users",
+                        onPlatform: true,
+                        observations: [
+                            {
+                                version: "0.2.0",
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 10000,
+                                sourceNodeId: 2,
+                            },
+                        ],
+                        observationOnly: true,
+                    },
+                    {
+                        id: "mysql://mysql",
+                        onPlatform: true,
+                        type: "datastore",
+                        observations: [
+                            {
+                                version: "0.2.0",
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 20,
+                                sourceNodeId: 2,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "Invoices",
+                version: "0.2.0",
+                type: "service",
+                services: {
+                    "ABC:A:Invoices:get": {
+                        id: "ABC:A:Invoices:get",
+                        label: "Get Invoices",
+                        type: "http",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: false,
+                                },
+                                intranet: {
+                                    isExposed: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                connections: [
+                    {
+                        id: "ABC:B:Invoices:post",
+                        label: "Org Invoices",
+                        type: "http",
+                        onPlatform: true,
+                        observations: [
+                            {
+                                version: "0.2.0",
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 158,
+                                sourceNodeId: 2,
+                            },
+                        ],
+                    },
+                    {
+                        id: "ABC:A:Users:get",
+                        onPlatform: true,
+                        observations: [
+                            {
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 150,
+                                sourceNodeId: 2,
+                                componentVersion: "0.2.0",
+                            },
+                            {
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 300,
+                                sourceNodeId: 2,
+                                componentVersion: "0.1.0",
+                            },
+                        ],
+                    },
+                    {
+                        id: "mysql://mysql",
+                        label: "MySQL DB",
+                        onPlatform: false,
+                        type: "datastore",
+                        observations: [
+                            {
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 2000,
+                                sourceNodeId: 2,
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                id: "Transactions",
+                version: "0.2.0",
+                type: "service",
+                services: {
+                    "ABC:A:Invoices:get": {
+                        id: "ABC:A:Invoices:get",
+                        label: "Get Invoices",
+                        type: "http",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: false,
+                                },
+                                intranet: {
+                                    isExposed: false,
+                                },
+                            },
+                        },
+                    },
+                },
+                connections: [
+                    {
+                        id: "ABC:A:Products:basepath",
+                        onPlatform: true,
+                        observations: [
+                            {
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 1500,
+                                sourceNodeId: 2,
+                                componentVersion: "0.2.0",
+                            },
+                            {
+                                avgLatency: 191934320,
+                                destinationNodeId: 1,
+                                errorCount: 0,
+                                p50Latency: 191934320,
+                                p90Latency: 191934320,
+                                p99Latency: 191934320,
+                                requestCount: 3000,
+                                sourceNodeId: 2,
+                                componentVersion: "0.1.0",
+                            },
+                        ],
+                        observationOnly: true,
+                    },
+                ],
+            },
+        ],
+        modelVersion: "0.4.0",
+    },
+};
