@@ -16,11 +16,11 @@ import {
     TypesFromSymbolResponse
 } from "../..";
 import { Location, LocationLink } from "vscode-languageserver-types";
-import { DefinitionRequest } from "../../lang-server-interfaces/data-mapper-types";
+import { TextDocumentPositionParams } from "../../lang-server-interfaces/vscode-langserver-types";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "data-mapper";
 export const getTypeFromExpression: RequestType<TypeFromExpressionRequest, TypesFromExpressionResponse> = { method: `${_preFix}/getTypeFromExpression` };
 export const getTypeFromSymbol: RequestType<TypeFromSymbolRequest, TypesFromSymbolResponse> = { method: `${_preFix}/getTypeFromSymbol` };
 export const getTypesFromFnDefinition: RequestType<TypesFromFnDefinitionRequest, TypesFromSymbolResponse> = { method: `${_preFix}/getTypesFromFnDefinition` };
-export const definition: RequestType<DefinitionRequest, Location | Location[] | LocationLink[] | null> = { method: `${_preFix}/definition` };
+export const definition: RequestType<TextDocumentPositionParams, Location | Location[] | LocationLink[] | null> = { method: `${_preFix}/definition` };

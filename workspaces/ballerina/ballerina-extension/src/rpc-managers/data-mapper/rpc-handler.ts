@@ -9,14 +9,14 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    DefinitionRequest,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromFnDefinitionRequest,
     definition,
     getTypeFromExpression,
     getTypeFromSymbol,
-    getTypesFromFnDefinition
+    getTypesFromFnDefinition,
+    TextDocumentPositionParams
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { DataMapperRpcManager } from "./rpc-manager";
@@ -26,5 +26,5 @@ export function registerDataMapperRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTypeFromExpression, (args: TypeFromExpressionRequest) => rpcManger.getTypeFromExpression(args));
     messenger.onRequest(getTypeFromSymbol, (args: TypeFromSymbolRequest) => rpcManger.getTypeFromSymbol(args));
     messenger.onRequest(getTypesFromFnDefinition, (args: TypesFromFnDefinitionRequest) => rpcManger.getTypesFromFnDefinition(args));
-    messenger.onRequest(definition, (args: DefinitionRequest) => rpcManger.definition(args));
+    messenger.onRequest(definition, (args: TextDocumentPositionParams) => rpcManger.definition(args));
 }

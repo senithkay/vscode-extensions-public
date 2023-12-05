@@ -10,10 +10,24 @@
  */
 import {
     BallerinaProjectComponents,
+    BallerinaProjectParams,
+    BallerinaSTModifyResponse,
+    CodeActionParams,
+    CompletionParams,
+    CompletionResponse,
+    DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams,
     GetBallerinaPackagesParams,
+    JsonToRecordRequest,
+    JsonToRecordResponse,
+    PublishDiagnosticsParams,
+    RenameParams,
+    TextDocumentPositionParams,
     VisualizerAPI,
     VisualizerLocationContext
 } from "@wso2-enterprise/ballerina-core";
+import { CodeAction, WorkspaceEdit } from "vscode-languageserver-types";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
@@ -89,4 +103,48 @@ export class VisualizerRpcManager implements VisualizerAPI {
         }
     }
 
+    async getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async rename(params: RenameParams): Promise<WorkspaceEdit> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async didOpen(params: DidOpenTextDocumentParams): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async didChange(params: DidChangeTextDocumentParams): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async didClose(params: DidCloseTextDocumentParams): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
 }

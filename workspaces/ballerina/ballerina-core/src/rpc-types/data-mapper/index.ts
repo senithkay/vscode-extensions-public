@@ -19,11 +19,11 @@ import {
     TypesFromSymbolResponse
 } from "../..";
 import { Location, LocationLink } from "vscode-languageserver-types";
-import { DefinitionRequest } from "../../lang-server-interfaces/data-mapper-types";
+import { TextDocumentPositionParams } from "../../lang-server-interfaces/vscode-langserver-types";
 
 export interface DataMapperAPI {
     getTypeFromExpression: (params: TypeFromExpressionRequest) => Promise<TypesFromExpressionResponse>;
     getTypeFromSymbol: (params: TypeFromSymbolRequest) => Promise<TypesFromSymbolResponse>;
     getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Promise<TypesFromSymbolResponse>;
-    definition: (params: DefinitionRequest) => Promise<Location | Location[] | LocationLink[] | null>;
+    definition: (params: TextDocumentPositionParams) => Promise<Location | Location[] | LocationLink[] | null>;
 }

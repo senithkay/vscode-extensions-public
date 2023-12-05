@@ -240,7 +240,6 @@ export function DataMapper(props: DataMapperProps) {
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
     const [currentReferences, setCurrentReferences] = useState<string[]>([]);
     const [currentFile, setCurrentFile] = useState<CurrentFile>();
-    const [langClientState, setLangClientState] = useState<IBallerinaLangClient>();
 
     // const { projectComponents } = useProjectComponents(langClientPromise, filePath, "currentFile.content");
 
@@ -406,10 +405,6 @@ export function DataMapper(props: DataMapperProps) {
         setIsSelectionComplete(false)
         void (async () => {
             if (selection.selectedST.stNode) {
-                const langClient = await ballerinaRpcClient.getDataMapperRpcClient().getLangClient();
-                if (langClient) {
-                    setLangClientState(undefined);
-                }
                 const diagnostics = await handleDiagnostics(filePath, undefined)
 
                 const context = new DataMapperContext(

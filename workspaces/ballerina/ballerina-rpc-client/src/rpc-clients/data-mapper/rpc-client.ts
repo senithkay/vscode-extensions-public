@@ -10,7 +10,6 @@
  */
 import {
     DataMapperAPI,
-    DefinitionRequest,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
@@ -19,10 +18,12 @@ import {
     definition,
     getTypeFromExpression,
     getTypeFromSymbol,
-    getTypesFromFnDefinition
+    getTypesFromFnDefinition,
+    TextDocumentPositionParams
 } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
+import { Location, LocationLink } from "vscode-languageserver-types";
 
 export class DataMapperRpcClient implements DataMapperAPI {
     private _messenger: Messenger;
@@ -43,7 +44,7 @@ export class DataMapperRpcClient implements DataMapperAPI {
         return this._messenger.sendRequest(getTypesFromFnDefinition, HOST_EXTENSION, params);
     }
 
-    definition(params: DefinitionRequest): Promise<> {
+    definition(params: TextDocumentPositionParams): Promise<Location | Location[] | LocationLink[] | null> {
         return this._messenger.sendRequest(definition, HOST_EXTENSION, params);
     }
 }

@@ -18,7 +18,7 @@ export * from "./lang-server-interfaces/graphql-diagram-types";
 export * from "./lang-server-interfaces/http-service-desginer-types";
 export * from "./lang-server-interfaces/trigger-wizard-types";
 export * from "./lang-server-interfaces/extended-lang-server-types";
-export * from "./lang-server-interfaces/data-mapper-types";
+export * from "./lang-server-interfaces/vscode-langserver-types";
 
 export * from "./extension-interfaces/extension-types";
 export * from "./extension-interfaces/state-machine-types";

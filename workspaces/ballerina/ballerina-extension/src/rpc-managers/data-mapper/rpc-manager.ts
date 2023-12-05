@@ -10,12 +10,12 @@
  */
 import {
     DataMapperAPI,
-    DefinitionRequest,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
     TypesFromExpressionResponse,
     TypesFromFnDefinitionRequest,
-    TypesFromSymbolResponse
+    TypesFromSymbolResponse,
+    TextDocumentPositionParams
 } from "@wso2-enterprise/ballerina-core";
 import { getLangClient } from "../../visualizer/activator";
 import { Location, LocationLink } from "vscode-languageserver-types";
@@ -43,7 +43,7 @@ export class DataMapperRpcManager implements DataMapperAPI {
         throw new Error('Not implemented');
     }
 
-    async definition(params: DefinitionRequest): Promise<Location | Location[] | LocationLink[] | null> {
+    async definition(params: TextDocumentPositionParams): Promise<Location | Location[] | LocationLink[] | null> {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }

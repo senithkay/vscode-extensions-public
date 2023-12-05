@@ -10,15 +10,39 @@
  */
 import {
     BallerinaProjectComponents,
+    BallerinaProjectParams,
+    BallerinaSTModifyResponse,
+    CodeActionParams,
+    CompletionParams,
+    CompletionResponse,
+    DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams,
     GetBallerinaPackagesParams,
+    JsonToRecordRequest,
+    JsonToRecordResponse,
+    PublishDiagnosticsParams,
+    RenameParams,
+    TextDocumentPositionParams,
     VisualizerAPI,
     VisualizerLocationContext,
     getBallerinaProjectComponents,
     getSyntaxTree,
     getVisualizerState,
-    openVisualizerView
+    openVisualizerView,
+    getCompletion,
+    getDiagnostics,
+    codeAction,
+    rename,
+    getDefinitionPosition,
+    convert,
+    didOpen,
+    didChange,
+    didClose
 } from "@wso2-enterprise/ballerina-core";
+import { WorkspaceEdit } from "vscode-languageserver-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { CodeAction } from "vscode-languageserver-types";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -43,5 +67,41 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
         return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION, params);
+    }
+
+    getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
+        return this._messenger.sendRequest(getCompletion, HOST_EXTENSION, params);
+    }
+
+    getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
+        return this._messenger.sendRequest(getDiagnostics, HOST_EXTENSION, params);
+    }
+
+    codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+        return this._messenger.sendRequest(codeAction, HOST_EXTENSION, params);
+    }
+
+    rename(params: RenameParams): Promise<WorkspaceEdit> {
+        return this._messenger.sendRequest(rename, HOST_EXTENSION, params);
+    }
+
+    getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse> {
+        return this._messenger.sendRequest(getDefinitionPosition, HOST_EXTENSION, params);
+    }
+
+    convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse> {
+        return this._messenger.sendRequest(convert, HOST_EXTENSION, params);
+    }
+
+    didOpen(params: DidOpenTextDocumentParams): Promise<void> {
+        return this._messenger.sendRequest(didOpen, HOST_EXTENSION, params);
+    }
+
+    didChange(params: DidChangeTextDocumentParams): Promise<void>  {
+        return this._messenger.sendRequest(didChange, HOST_EXTENSION, params);
+    }
+
+    didClose(params: DidCloseTextDocumentParams): Promise<void>  {
+        return this._messenger.sendRequest(didClose, HOST_EXTENSION, params);
     }
 }
