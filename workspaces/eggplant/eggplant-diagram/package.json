@@ -13,7 +13,7 @@
         "storybook": "start-storybook -p 6006",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
-        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../ballerina-extension/resources/jslibs"
+        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../eggplant-extension/resources/jslibs"
     },
     "keywords": [],
     "dependencies": {

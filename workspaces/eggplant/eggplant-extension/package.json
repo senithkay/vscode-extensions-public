@@ -62,8 +62,7 @@
     "dependencies": {
         "@wso2-enterprise/eggplant-webview": "workspace:*",
         "@wso2-enterprise/eggplant-core": "workspace:*",
-        "vscode-messenger": "^0.4.5",
-        "xstate": "^4.38.3"
+        "vscode-messenger": "^0.4.5"
     },
     "devDependencies": {
         "@vscode/vsce": "^2.22.0",
@@ -72,18 +71,17 @@
         "@types/node": "18.x",
         "@typescript-eslint/eslint-plugin": "^6.9.0",
         "@typescript-eslint/parser": "^6.9.0",
-        "@vscode/test-electron": "^2.3.6",
-        "@wso2-enterprise/eggplant-webview": "workspace:*",
         "eslint": "^8.52.0",
         "glob": "^10.3.10",
         "mocha": "^10.2.0",
         "typescript": "^5.2.2",
+        "@vscode/test-electron": "^2.3.6",
         "copyfiles": "^2.4.1",
         "copy-webpack-plugin": "^11.0.0",
         "source-map-support": "^0.5.21",
         "ts-loader": "^9.4.1",
         "webpack": "^5.56.0",
         "webpack-cli": "^4.10.0",
-        "webpack-permissions-plugin": "^1.0.9",
+        "webpack-permissions-plugin": "^1.0.9"
     }
 }
