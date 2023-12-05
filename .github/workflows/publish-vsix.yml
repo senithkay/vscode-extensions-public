@@ -10,7 +10,8 @@ on:
         default: 'ballerina'
         options:
           - 'ballerina'
-          - 'choreo' 
+          - 'choreo'
+          - 'api-chat'
           - 'apk'
       isPreRelease:
         required: true

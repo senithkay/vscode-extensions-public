@@ -23,7 +23,7 @@ on:
         description: Update API Chat extension version
         type: boolean
         required: false
-        default: false   
+        default: true   
       apk:
         description: Update APK extension version
         type: boolean
@@ -124,6 +124,7 @@ jobs:
           api-chat: ${{ inputs.api-chat }}
           apk: ${{ inputs.apk }}
           version: ${{ inputs.version }}
+          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests

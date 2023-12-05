@@ -13,6 +13,7 @@ extractedDistribution
 .npmrc
 test-resources
 **/resources/font-wso2-vscode
+.env
 
 # gradle
 .gradle
