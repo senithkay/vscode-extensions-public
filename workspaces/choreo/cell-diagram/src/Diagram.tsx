@@ -26,6 +26,7 @@ import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
 import { DiagramLayers } from "./components/Controls/DiagramLayers";
+import { DiagramLegend } from "./components/Controls/DiagramLegend";
 import "./resources/assets/font/fonts.css";
 
 export { DiagramLayer } from "./types";
@@ -233,6 +234,7 @@ export function CellDiagram(props: CellDiagramProps) {
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
                             {showDiagramLayers && <DiagramLayers animation={animation} />}
+                            {showDiagramLayers && <DiagramLegend animation={animation} />}
                         </>
                     ) : userMessage ? (
                         <PromptScreen userMessage={userMessage} />
