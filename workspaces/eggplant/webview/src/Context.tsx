@@ -8,12 +8,13 @@
  */
 
 import React, { ReactNode, useState } from "react";
-import { BallerinaRpcClient, VisualizerContext, Context, ViewLocation } from "@wso2-enterprise/ballerina-rpc-client";
+import { EggplantRpcClient, VisualizerContext, Context, } from "@wso2-enterprise/eggplant-rpc-client";
+import { VisualizerLocationContext } from "@wso2-enterprise/eggplant-core";
 
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
 
-  const setView = (view: ViewLocation) => {
+  const setView = (view: VisualizerLocationContext) => {
     setVisualizerState((prevState: VisualizerContext) => ({
       ...prevState,
       viewLocation: view,
@@ -23,7 +24,7 @@ export function VisualizerContextProvider({ children }: { children: ReactNode })
   const [visualizerState, setVisualizerState] = useState<VisualizerContext>({
     viewLocation: { view: "Overview" },
     setViewLocation: setView,
-    ballerinaRpcClient: new BallerinaRpcClient() // Create the root RPC layer client object
+    eggplantRpcClient: new EggplantRpcClient() // Create the root RPC layer client object
   });
 
   return (

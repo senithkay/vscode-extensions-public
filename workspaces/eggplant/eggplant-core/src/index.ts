@@ -13,5 +13,7 @@
 
 // EXPORT ALL THE TYPES FROM HERE -------------------->
 
+export * from "./extension-interfaces/state-machine-types";
+
 export * from "./rpc-types/webview";
 export * from "./rpc-types/webview/rpc-type";
