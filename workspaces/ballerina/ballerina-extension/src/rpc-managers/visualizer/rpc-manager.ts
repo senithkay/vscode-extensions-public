@@ -19,6 +19,8 @@ import {
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     GetBallerinaPackagesParams,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse,
     JsonToRecordRequest,
     JsonToRecordResponse,
     NOT_SUPPORTED_TYPE,
@@ -28,10 +30,10 @@ import {
     VisualizerAPI,
     VisualizerLocationContext
 } from "@wso2-enterprise/ballerina-core";
-import { CodeAction, WorkspaceEdit } from "vscode-languageserver-types";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Uri, workspace } from "vscode";
+import { CodeAction, WorkspaceEdit } from "vscode-languageserver-types";
 import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
 import { getLangClient, getService, openView } from "../../visualizer/activator";
 
@@ -138,5 +140,13 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     async didClose(params: DidCloseTextDocumentParams): Promise<void> {
         return this._langClient.didClose(params);
+    }
+
+    async getST(params: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
+        return await this._langClient.getSyntaxTree(params) as GetSyntaxTreeResponse;
+    }
+
+    async getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
+        return await this._langClient.getSTByRange(params) as BallerinaSTModifyResponse;
     }
 }

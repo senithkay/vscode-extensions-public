@@ -14,6 +14,7 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
+import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 // import {
 //     FormHeaderSection,
 //     PrimaryButton,
@@ -118,6 +119,7 @@ const reducer = (state: JsonToRecordState, action: {type: string, payload: boole
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const { onSave, onCancel, langClientPromise } = recordFromJsonProps;
     const classes = useStyles();
+    const { ballerinaRpcClient } = useVisualizerContext();
 
     const [formState, dispatchFromState] = useReducer(reducer, {
         jsonValue: "",
@@ -143,8 +145,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         if (formState.isLoading) {
             void (async () => {
                 const recordName = "TempName";
-                const langClient = await langClientPromise;
-                const recordResponse = await langClient.convert(
+                const recordResponse = await ballerinaRpcClient.getVisualizerRpcClient().convert(
                     {
                         jsonString: formState.jsonValue,
                         recordName,

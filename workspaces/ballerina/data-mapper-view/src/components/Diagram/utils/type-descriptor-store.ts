@@ -22,7 +22,7 @@ import { Uri } from "monaco-editor";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { FnDefPositions, TypeFindingVisitor } from "../visitors/TypeFindingVisitor";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { URI } from "vscode-uri";
 
 export enum TypeStoreStatus {
@@ -49,7 +49,12 @@ export class TypeDescriptorStore {
         return this.instance;
     }
 
-    public async storeTypeDescriptors(stNode: FunctionDefinition, context: IDataMapperContext, isArraysSupported: boolean) {
+    public async storeTypeDescriptors(
+        stNode: FunctionDefinition,
+        context: IDataMapperContext,
+        isArraysSupported: boolean,
+        ballerinaRpcClient: BallerinaRpcClient) {
+
         if (this.stNode
                 && isPositionsEquals(this.stNode.position, stNode.position)
                 && this.stNode.source === stNode.source) {
@@ -69,9 +74,9 @@ export class TypeDescriptorStore {
         const fileUri = Uri.file(context.currentFile.path).toString();
 
         const promises = [
-            await this.setTypesForFnParamsAndReturnType(fileUri, fnDefPositions),
-            await this.setTypesForSymbol(fileUri, symbolNodesPositions),
-            await this.setTypesForExpressions(fileUri, expressionNodesRanges)
+            await this.setTypesForFnParamsAndReturnType(fileUri, fnDefPositions, ballerinaRpcClient),
+            await this.setTypesForSymbol(fileUri, symbolNodesPositions, ballerinaRpcClient),
+            await this.setTypesForExpressions(fileUri, expressionNodesRanges, ballerinaRpcClient)
         ];
 
         await Promise.allSettled(promises);
@@ -80,9 +85,11 @@ export class TypeDescriptorStore {
         }
     }
 
-    async setTypesForExpressions(fileUri: string, expressionNodesRanges: ExpressionRange[]) {
+    async setTypesForExpressions(
+        fileUri: string,
+        expressionNodesRanges: ExpressionRange[],
+        ballerinaRpcClient: BallerinaRpcClient) {
 
-        const { ballerinaRpcClient } = useVisualizerContext();
         const typesFromExpression = await ballerinaRpcClient.getDataMapperRpcClient().getTypeFromExpression({
             documentIdentifier: {
                 uri: URI.file(fileUri).toString()
@@ -95,9 +102,11 @@ export class TypeDescriptorStore {
         }
     }
 
-    async setTypesForSymbol(fileUri: string, symbolNodesPositions: LinePosition[]) {
+    async setTypesForSymbol(
+        fileUri: string,
+        symbolNodesPositions: LinePosition[],
+        ballerinaRpcClient: BallerinaRpcClient) {
 
-        const { ballerinaRpcClient } = useVisualizerContext();
         const typesFromSymbol = await ballerinaRpcClient.getDataMapperRpcClient().getTypeFromSymbol({
             documentIdentifier: {
                 uri: fileUri
@@ -110,12 +119,15 @@ export class TypeDescriptorStore {
         }
     }
 
-    async setTypesForFnParamsAndReturnType(fileUri: string, fnDefPositions: FnDefPositions) {
+    async setTypesForFnParamsAndReturnType(
+        fileUri: string,
+        fnDefPositions: FnDefPositions,
+        ballerinaRpcClient: BallerinaRpcClient) {
 
         if (fnDefPositions.fnNamePosition === undefined || fnDefPositions.returnTypeDescPosition === undefined) {
             return;
         }
-        const { ballerinaRpcClient } = useVisualizerContext();
+
         const FnParamsAndReturnType = await ballerinaRpcClient.getDataMapperRpcClient().getTypesFromFnDefinition({
             documentIdentifier: {
                 uri: fileUri

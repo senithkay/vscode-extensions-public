@@ -26,6 +26,7 @@ import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function JoinClauseItem(props: {
     intermediateNode: JoinClause;
@@ -37,6 +38,7 @@ export function JoinClauseItem(props: {
 }) {
     const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } = props;
     const classes = useStyles();
+    const { ballerinaRpcClient } = useVisualizerContext();
     const [nameEditable, setNameEditable] = useState(false);
     const variableName = (intermediateNode?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName;
     const [updatedName, setUpdatedName] = useState(variableName.value);
@@ -63,7 +65,7 @@ export function JoinClauseItem(props: {
                     context.filePath,
                     updatedName,
                     node.position as NodePosition,
-                    context.langClientPromise
+                    ballerinaRpcClient
                 );
                 const modifications: STModification[] = [];
 

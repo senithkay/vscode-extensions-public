@@ -38,7 +38,12 @@ import {
     convert,
     didOpen,
     didChange,
-    didClose
+    didClose,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse,
+    getST,
+    getSTByRange,
+    BallerinaFunctionSTRequest
 } from "@wso2-enterprise/ballerina-core";
 import { WorkspaceEdit } from "vscode-languageserver-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -63,6 +68,14 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     getSyntaxTree(): Promise<STNode> {
         return this._messenger.sendRequest(getSyntaxTree, HOST_EXTENSION);
+    }
+
+    getST(params: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
+        return this._messenger.sendRequest(getST, HOST_EXTENSION, params);
+    }
+
+    getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
+        return this._messenger.sendRequest(getSTByRange, HOST_EXTENSION, params);
     }
 
     getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {

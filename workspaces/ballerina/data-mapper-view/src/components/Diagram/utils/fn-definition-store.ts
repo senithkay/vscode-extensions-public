@@ -18,6 +18,7 @@ import { URI } from "vscode-uri";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { getFnDefsForFnCalls } from "../../../utils/st-utils";
 import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
+import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface FnDefInfo {
     fnCallPosition: LinePosition;
@@ -43,21 +44,24 @@ export class FunctionDefinitionStore {
         return this.instance;
     }
 
-    public async storeFunctionDefinitions(stNode: STNode, context: IDataMapperContext){
+    public async storeFunctionDefinitions(
+        stNode: STNode,
+        context: IDataMapperContext,
+        ballerinaRpcClient: BallerinaRpcClient) {
+
         this.fnDefinitions.clear();
-        const langClient = await context.langClientPromise;
         const fileUri = URI.file(context.currentFile.path).toString();
         const visitor = new FunctionCallFindingVisitor();
         traversNode(stNode, visitor);
 
         const fnCallPositions = visitor.getFunctionCallPositions();
 
-        await this.setFnDefinitions(fileUri, fnCallPositions);
+        await this.setFnDefinitions(fileUri, fnCallPositions, ballerinaRpcClient);
     }
 
-    async setFnDefinitions(fileUri: string, fnCallPositions: LinePosition[]) {
+    async setFnDefinitions(fileUri: string, fnCallPositions: LinePosition[], ballerinaRpcClient: BallerinaRpcClient) {
 
-        const fnDefs = await getFnDefsForFnCalls(fnCallPositions, fileUri)
+        const fnDefs = await getFnDefsForFnCalls(fnCallPositions, fileUri, ballerinaRpcClient)
 
         for (const fnDef of fnDefs) {
             this.fnDefinitions.set(fnDef.fnCallPosition, fnDef)

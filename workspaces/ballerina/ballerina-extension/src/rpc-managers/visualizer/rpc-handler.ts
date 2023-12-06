@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaFunctionSTRequest,
     BallerinaProjectParams,
     CodeActionParams,
     CompletionParams,
@@ -30,6 +31,8 @@ import {
     getCompletion,
     getDefinitionPosition,
     getDiagnostics,
+    getST,
+    getSTByRange,
     getSyntaxTree,
     getVisualizerState,
     openVisualizerView,
@@ -43,6 +46,8 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
     messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
     messenger.onRequest(getSyntaxTree, () => rpcManger.getSyntaxTree());
+    messenger.onRequest(getST, (args: GetSyntaxTreeParams) => rpcManger.getST(args));
+    messenger.onRequest(getSTByRange, (args: BallerinaFunctionSTRequest) => rpcManger.getSTByRange(args));
     messenger.onRequest(getBallerinaProjectComponents, (args: GetBallerinaPackagesParams) => rpcManger.getBallerinaProjectComponents(args));
     messenger.onRequest(getCompletion, (args: CompletionParams) => rpcManger.getCompletion(args));
     messenger.onRequest(getDiagnostics, (args: BallerinaProjectParams) => rpcManger.getDiagnostics(args));

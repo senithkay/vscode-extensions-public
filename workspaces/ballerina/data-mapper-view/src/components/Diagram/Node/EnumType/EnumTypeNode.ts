@@ -82,18 +82,19 @@ export class EnumTypeNode extends DataMapperNodeModel {
         });
         const types = await getTypesForExpressions(
             this.context.filePath,
-            exprRanges
+            exprRanges,
+            this.context.visualizerContext.ballerinaRpcClient
         );
 
         const allEnumTypeDecls: DMEnumTypeDecl[] = [];
         for (const type of types) {
             const definitionPosition = await getDefinitionPosition(
                 this.context.filePath,
-                this.context.langClientPromise,
                 {
                     line: type.requestedRange.startLine.line,
                     offset: type.requestedRange.startLine.offset,
-                }
+                },
+                this.context.visualizerContext.ballerinaRpcClient
             );
             if (definitionPosition.parseSuccess) {
                 const enumTypePath = Uri.parse(definitionPosition.defFilePath).fsPath;

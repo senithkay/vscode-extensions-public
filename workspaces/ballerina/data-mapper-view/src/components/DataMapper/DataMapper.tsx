@@ -201,7 +201,7 @@ export function DataMapper(props: DataMapperProps) {
         updateSelectedComponent,
     } = props;
 
-    const { viewLocation, ballerinaRpcClient } = useVisualizerContext();
+    const visualizerContext = useVisualizerContext();
     const langClientPromise: Promise<IBallerinaLangClient> = undefined;
     // const langClientPromise: Promise<IBallerinaLangClient> = ballerinaRpcClient.getDataMapperRpcClient().getLangClient() as any;
     // const filePath = viewLocation.location?.fileName;
@@ -239,7 +239,11 @@ export function DataMapper(props: DataMapperProps) {
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
     const [currentReferences, setCurrentReferences] = useState<string[]>([]);
-    const [currentFile, setCurrentFile] = useState<CurrentFile>();
+    const [currentFile, setCurrentFile] = useState<CurrentFile>({
+        content: "",
+        path: filePath,
+        size: 1
+    });
 
     // const { projectComponents } = useProjectComponents(langClientPromise, filePath, "currentFile.content");
 
@@ -340,15 +344,15 @@ export function DataMapper(props: DataMapperProps) {
         }
     }, [projectComponents]);
 
-    // useEffect(() => {
-    //     ballerinaRpcClient.onFileContentChanged((content: string ) => {
-    //         setCurrentFile({
-    //             content,
-    //             path: filePath,
-    //             size: 1
-    //         });
-    //     });
-    // }, []);
+    useEffect(() => {
+        visualizerContext.ballerinaRpcClient.onFileContentChanged((content: string ) => {
+            setCurrentFile({
+                content,
+                path: filePath,
+                size: 1
+            });
+        });
+    }, []);
 
     // const resolveLangClient = async () => {
     //     const langClient = await ballerinaRpcClient.getDataMapperRpcClient().getLangClient();;
@@ -405,13 +409,13 @@ export function DataMapper(props: DataMapperProps) {
         setIsSelectionComplete(false)
         void (async () => {
             if (selection.selectedST.stNode) {
-                const diagnostics = await handleDiagnostics(filePath, undefined)
+                const diagnostics = await handleDiagnostics(filePath, visualizerContext.ballerinaRpcClient);
 
                 const context = new DataMapperContext(
                     filePath,
                     fnST,
                     selection,
-                    langClientPromise,
+                    visualizerContext,
                     currentFile,
                     moduleVariables,
                     handleSelectedST,
@@ -431,9 +435,9 @@ export function DataMapper(props: DataMapperProps) {
                 );
 
                 if (shouldRestoreTypes) {
-                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
+                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion), visualizerContext.ballerinaRpcClient);
                     const functionDefinitions = FunctionDefinitionStore.getInstance();
-                    await functionDefinitions.storeFunctionDefinitions(fnST, context);
+                    await functionDefinitions.storeFunctionDefinitions(fnST, context, visualizerContext.ballerinaRpcClient);
                     setShouldRestoreTypes(false);
                 }
 
@@ -618,7 +622,6 @@ export function DataMapper(props: DataMapperProps) {
                                         applyModifications={applyModifications}
                                         enableStatementEditor={enableStatementEditor}
                                         fnDef={selection.selectedST.stNode}
-                                        langClientPromise={langClientPromise}
                                         filePath={filePath}
                                     />
                                 )}

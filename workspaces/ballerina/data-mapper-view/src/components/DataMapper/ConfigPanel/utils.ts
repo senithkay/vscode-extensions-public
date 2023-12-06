@@ -37,6 +37,7 @@ import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupp
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./InputParamsPanel/types";
+import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
@@ -239,7 +240,7 @@ export async function getDiagnosticsForFnName(name: string,
                                               targetPosition: NodePosition,
                                               currentFileContent: string,
                                               filePath: string,
-                                              langClientPromise: Promise<IBallerinaLangClient>) {
+                                              ballerinaRpcClient: BallerinaRpcClient) {
     const parametersStr = inputParams
         .map((item) => `${item.type} ${item.name}`)
         .join(",");
@@ -284,14 +285,16 @@ export async function getDiagnosticsForFnName(name: string,
     const source = getSource(stModification);
     const content = addToTargetPosition(currentFileContent, fnConfigPosition, source);
 
-    const diagnostics = await getVirtualDiagnostics(filePath, currentFileContent, content, langClientPromise);
+    const diagnostics = await getVirtualDiagnostics(filePath, currentFileContent, content, ballerinaRpcClient);
 
     return getSelectedDiagnostics(diagnostics, diagTargetPosition, 0, name.length);
 }
 
-export async function getDefaultFnName(filePath: string, targetPosition: NodePosition,
-                                       langClientPromise: Promise<IBallerinaLangClient>): Promise<string> {
-    const langClient = await langClientPromise;
+export async function getDefaultFnName(
+    filePath: string,
+    targetPosition: NodePosition,
+    ballerinaRpcClient: BallerinaRpcClient
+): Promise<string> {
     const completionParams: CompletionParams = {
         textDocument: {
             uri: monaco.Uri.file(filePath).toString()
@@ -304,7 +307,7 @@ export async function getDefaultFnName(filePath: string, targetPosition: NodePos
             triggerKind: 3
         }
     };
-    const completions = await langClient.getCompletion(completionParams);
+    const completions = await ballerinaRpcClient.getVisualizerRpcClient().getCompletion(completionParams);
     const existingFnNames = completions.map((completion) => {
         if (completion.kind === CompletionItemKind.Function) {
             return completion?.filterText;
@@ -322,10 +325,9 @@ export async function getDefaultFnName(filePath: string, targetPosition: NodePos
 async function getVirtualDiagnostics(filePath: string,
                                      currentFileContent: string,
                                      newContent: string,
-                                     langClientPromise: Promise<IBallerinaLangClient>): Promise<Diagnostic[]> {
+                                     ballerinaRpcClient: BallerinaRpcClient): Promise<Diagnostic[]> {
     const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    const langClient = await langClientPromise;
-    langClient.didOpen({
+    ballerinaRpcClient.getVisualizerRpcClient().didOpen({
         textDocument: {
             uri: docUri,
             languageId: "ballerina",
@@ -333,7 +335,7 @@ async function getVirtualDiagnostics(filePath: string,
             version: 1
         }
     });
-    langClient.didChange({
+    ballerinaRpcClient.getVisualizerRpcClient().didChange({
         contentChanges: [
             {
                 text: newContent
@@ -344,12 +346,12 @@ async function getVirtualDiagnostics(filePath: string,
             version: 1
         }
     });
-    const diagResp = await langClient.getDiagnostics({
+    const diagResp = await ballerinaRpcClient.getVisualizerRpcClient().getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
     });
-    langClient.didClose({
+    ballerinaRpcClient.getVisualizerRpcClient().didClose({
         textDocument: {
             uri: docUri
         }

@@ -52,7 +52,6 @@ export interface LocalVarConfigPanelProps {
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
-    langClientPromise: Promise<IBallerinaLangClient>;
     filePath: string;
 }
 
@@ -62,7 +61,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         applyModifications,
         fnDef,
         enableStatementEditor,
-        langClientPromise,
         filePath
     } = props;
 
@@ -154,7 +152,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     handleOnCheck={handleOnCheck}
                                     onEditClick={onEditClick}
                                     applyModifications={applyModifications}
-                                    langClientPromise={langClientPromise}
                                     filePath={filePath}
                                 />
                             </>

@@ -26,6 +26,7 @@ import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
@@ -44,6 +45,7 @@ export function LetClauseItem(props: {
         itemIndex,
     } = props;
     const classes = useStyles();
+    const { ballerinaRpcClient } = useVisualizerContext();
     const [nameEditable, setNameEditable] = useState(false);
     const letVarDeclaration = intermediateNode.letVarDeclarations[0] as LetVarDecl;
     const variableName = (
@@ -73,7 +75,7 @@ export function LetClauseItem(props: {
                     context.filePath,
                     updatedName,
                     node.position as NodePosition,
-                    context.langClientPromise
+                    ballerinaRpcClient
                 );
                 const modifications: STModification[] = [];
 

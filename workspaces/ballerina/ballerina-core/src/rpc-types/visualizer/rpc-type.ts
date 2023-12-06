@@ -20,22 +20,26 @@ import {
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     GetBallerinaPackagesParams,
-    GetSyntaxTreeParams,
-    GetSyntaxTreeResponse,
     JsonToRecordRequest,
     JsonToRecordResponse,
     PublishDiagnosticsParams,
     RenameParams,
-    TextDocumentPositionParams
+    TextDocumentPositionParams,
+    NOT_SUPPORTED_TYPE,
+    GetSyntaxTreeResponse,
+    GetSyntaxTreeParams,
+    BallerinaFunctionSTRequest
 } from "../..";
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
-import { RequestType } from "vscode-messenger-common";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "visualizer";
 export const getVisualizerState: RequestType<void, VisualizerLocationContext> = { method: `${_preFix}/getVisualizerState` };
 export const openVisualizerView: RequestType<VisualizerLocationContext, VisualizerLocationContext> = { method: `${_preFix}/openVisualizerView` };
 export const getSyntaxTree: RequestType<void, STNode> = { method: `${_preFix}/getSyntaxTree` };
+export const getST: RequestType<GetSyntaxTreeParams, GetSyntaxTreeResponse> = { method: `${_preFix}/getST` };
+export const getSTByRange: RequestType<BallerinaFunctionSTRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/getSTByRange` };
 export const getBallerinaProjectComponents: RequestType<GetBallerinaPackagesParams, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };
 export const getCompletion: RequestType<CompletionParams, CompletionResponse[]> = { method: `${_preFix}/getCompletion` };
 export const getDiagnostics: RequestType<BallerinaProjectParams, PublishDiagnosticsParams[]> = { method: `${_preFix}/getDiagnostics` };

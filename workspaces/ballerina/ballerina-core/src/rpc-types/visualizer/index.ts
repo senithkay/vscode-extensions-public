@@ -28,7 +28,10 @@ import {
     PublishDiagnosticsParams,
     RenameParams,
     TextDocumentPositionParams,
-    NOT_SUPPORTED_TYPE
+    NOT_SUPPORTED_TYPE,
+    GetSyntaxTreeResponse,
+    GetSyntaxTreeParams,
+    BallerinaFunctionSTRequest
 } from "../..";
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -37,6 +40,8 @@ export interface VisualizerAPI {
     getVisualizerState: () => Promise<VisualizerLocationContext>;
     openVisualizerView: (params: VisualizerLocationContext) => Promise<VisualizerLocationContext>;
     getSyntaxTree: () => Promise<STNode>;
+    getST: (params: GetSyntaxTreeParams) => Promise<GetSyntaxTreeResponse>;
+    getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse>;
     getBallerinaProjectComponents: (params: GetBallerinaPackagesParams) => Promise<BallerinaProjectComponents>;
     getCompletion: (params: CompletionParams) => Promise<CompletionResponse[]>;
     getDiagnostics: (params: BallerinaProjectParams) => Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE>;

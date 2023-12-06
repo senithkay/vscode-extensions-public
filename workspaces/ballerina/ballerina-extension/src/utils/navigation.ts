@@ -28,13 +28,13 @@ export async function handleVisualizerView(location: VisualizerLocation) {
     const node = await getSyntaxTreeFromPosition(req);
     if (node.parseSuccess) {
         if (STKindChecker.isServiceDeclaration(node.syntaxTree)) {
-            openView({ view: "ServiceDesigner" });
+            openView({ view: "ServiceDesigner", location: location });
         } else if (STKindChecker.isFunctionDefinition(node.syntaxTree) && STKindChecker.isExpressionFunctionBody(node.syntaxTree.functionBody)) {
-            openView({ view: "DataMapper" });
+            openView({ view: "DataMapper", location: location });
         } else if (STKindChecker.isTypeDefinition(node.syntaxTree) && STKindChecker.isRecordTypeDesc(node.syntaxTree.typeDescriptor)) {
-            openView({ view: "Architecture" });
+            openView({ view: "Architecture", location: location });
         } else {
-            openView({ view: "Overview" });
+            openView({ view: "Overview", location: location });
         }
     }
 }

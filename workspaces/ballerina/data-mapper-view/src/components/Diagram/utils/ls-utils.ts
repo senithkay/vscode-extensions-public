@@ -20,13 +20,10 @@ import { URI } from "vscode-uri";
 
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
-export async function getDiagnostics(
-    docUri: string,
-    langClientPromise: Promise<IBallerinaLangClient>): Promise<PublishDiagnosticsParams[]> {
-    const langClient = await langClientPromise;
-    const diagnostics = await langClient.getDiagnostics({
+export async function getDiagnostics(docUri: string, ballerinaRpcClient: BallerinaRpcClient): Promise<PublishDiagnosticsParams[]> {
+    const diagnostics = await ballerinaRpcClient.getVisualizerRpcClient().getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
@@ -35,10 +32,9 @@ export async function getDiagnostics(
     return diagnostics;
 }
 
-export const handleDiagnostics = async (fileURI: string,
-                                        langClientPromise: Promise<IBallerinaLangClient>):
+export const handleDiagnostics = async (fileURI: string, ballerinaRpcClient: BallerinaRpcClient):
     Promise<Diagnostic[]> => {
-    const diagResp = await getDiagnostics(URI.file(fileURI).toString(), langClientPromise);
+    const diagResp = await getDiagnostics(URI.file(fileURI).toString(), ballerinaRpcClient);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     return diag;
 }
@@ -63,8 +59,8 @@ export function isDiagInRange(nodePosition: NodePosition, diagPosition: NodePosi
 }
 
 
-export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langClient: IBallerinaLangClient): Promise<CodeAction[]> {
-    const codeAction = await langClient.codeAction({
+export async function getCodeAction(filePath: string, diagnostic: Diagnostic, ballerinaRpcClient: BallerinaRpcClient): Promise<CodeAction[]> {
+    const codeAction = await ballerinaRpcClient.getVisualizerRpcClient().codeAction({
         context: {
             diagnostics: [{
                 code: diagnostic.code,
@@ -101,9 +97,12 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, la
     return codeAction
 }
 
-export async function getRenameEdits(fileURI: string, newName: string, position: NodePosition, langClientPromise: Promise<IBallerinaLangClient>): Promise<WorkspaceEdit> {
-    const langClient = await langClientPromise;
-    const renameEdits = await langClient.rename({
+export async function getRenameEdits(fileURI: string,
+    newName: string,
+    position: NodePosition,
+    ballerinaRpcClient: BallerinaRpcClient): Promise<WorkspaceEdit> {
+
+    const renameEdits = await ballerinaRpcClient.getVisualizerRpcClient().rename({
         textDocument: { uri: URI.file(fileURI).toString() },
         position: {
             line: position.startLine,
@@ -114,14 +113,13 @@ export async function getRenameEdits(fileURI: string, newName: string, position:
     return renameEdits;
 }
 
-export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
-                                        langClientPromise: Promise<IBallerinaLangClient>):
-    Promise<CodeAction[]> => {
-    const langClient = await langClientPromise;
+export const handleCodeActions = async (fileURI: string,
+    diagnostics: Diagnostic[],
+    ballerinaRpcClient: BallerinaRpcClient): Promise<CodeAction[]> => {
     let codeActions: CodeAction[] = []
 
     for (const diagnostic of diagnostics) {
-        const codeAction = await getCodeAction(URI.file(fileURI).toString(), diagnostic, langClient)
+        const codeAction = await getCodeAction(URI.file(fileURI).toString(), diagnostic, ballerinaRpcClient)
         codeActions = [...codeActions, ...codeAction]
     }
     return codeActions;
@@ -129,12 +127,11 @@ export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic
 
 export async function getRecordCompletions(
     currentFileContent: string,
-    langClientPromise: Promise<IBallerinaLangClient>,
     importStatements: string[],
     fnSTPosition: NodePosition,
-    path: string): Promise<CompletionResponseWithModule[]> {
+    path: string,
+    ballerinaRpcClient: BallerinaRpcClient): Promise<CompletionResponseWithModule[]> {
 
-    const langClient = await langClientPromise;
     const typeLabelsToIgnore = ["StrandData"];
     const completionMap = new Map<string, CompletionResponseWithModule>();
 
@@ -143,14 +140,15 @@ export async function getRecordCompletions(
         position: { character: 0, line: 0 },
         context: { triggerKind: 22 },
     };
-    const completions = await langClient.getCompletion(completionParams);
+
+    const completions = await ballerinaRpcClient.getVisualizerRpcClient().getCompletion(completionParams);
     const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
     recCompletions.forEach((item) => completionMap.set(item.insertText, item));
 
     if (importStatements.length > 0) {
 
         const exprFileUrl = URI.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-        langClient.didOpen({
+        ballerinaRpcClient.getVisualizerRpcClient().didOpen({
             textDocument: {
                 languageId: "ballerina",
                 text: currentFileContent,
@@ -172,12 +170,12 @@ export async function getRecordCompletions(
                 `${moduleName}:`
             );
 
-            langClient.didChange({
+            ballerinaRpcClient.getVisualizerRpcClient().didChange({
                 textDocument: { uri: exprFileUrl, version: 1 },
                 contentChanges: [{ text: updatedContent }],
             });
 
-            const importCompletions = await langClient.getCompletion({
+            const importCompletions = await ballerinaRpcClient.getVisualizerRpcClient().getCompletion({
                 textDocument: { uri: exprFileUrl },
                 position: { character: fnSTPosition.endColumn + moduleName.length + 1, line: fnSTPosition.endLine },
                 context: { triggerKind: 22 },
@@ -191,12 +189,12 @@ export async function getRecordCompletions(
                 }
             });
         }
-        langClient.didChange({
+        ballerinaRpcClient.getVisualizerRpcClient().didChange({
             textDocument: { uri: exprFileUrl, version: 1 },
             contentChanges: [{ text: currentFileContent }],
         });
 
-        langClient.didClose({ textDocument: { uri: exprFileUrl } });
+        ballerinaRpcClient.getVisualizerRpcClient().didClose({ textDocument: { uri: exprFileUrl } });
     }
 
     const allCompletions = Array.from(completionMap.values()).filter(
@@ -207,9 +205,9 @@ export async function getRecordCompletions(
 }
 
 export async function getTypesForExpressions(fileURI: string,
-                                             expressionNodesRanges: ExpressionRange[])
+                                             expressionNodesRanges: ExpressionRange[],
+                                             ballerinaRpcClient: BallerinaRpcClient)
     : Promise<ResolvedTypeForExpression[]> {
-    const { ballerinaRpcClient } = useVisualizerContext();
     const typesFromExpression = await ballerinaRpcClient.getDataMapperRpcClient().getTypeFromExpression({
         documentIdentifier: {
             uri: URI.file(fileURI).toString()
@@ -220,13 +218,11 @@ export async function getTypesForExpressions(fileURI: string,
     return typesFromExpression.types;
 }
 
-export async function getDefinitionPosition(
-    fileURI: string,
-    langClientPromise: Promise<IBallerinaLangClient>,
+export async function getDefinitionPosition(fileURI: string,
     position: LinePosition,
-) {
-    const langClient = await langClientPromise;
-    const definitionPosition = await langClient.getDefinitionPosition(
+    ballerinaRpcClient: BallerinaRpcClient) {
+
+    const definitionPosition = await ballerinaRpcClient.getVisualizerRpcClient().getDefinitionPosition(
         {
             textDocument: {
                 uri: URI.file(fileURI).toString()

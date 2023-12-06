@@ -1,4 +1,4 @@
-import { Position, CodeActionContext, TextDocumentIdentifier } from "vscode-languageserver-types";
+import { Position, Range, CodeActionContext, TextDocumentIdentifier } from "vscode-languageserver-types";
 
 export interface CodeActionParams extends WorkDoneProgressParams, PartialResultParams {
     textDocument: TextDocumentIdentifier;

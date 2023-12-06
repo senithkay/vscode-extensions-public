@@ -15,10 +15,6 @@ import * as React from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
-// import DefaultLabelFactory from "@projectstorm/react-diagrams";
-// import DefaultNodeFactory from "@projectstorm/react-diagrams";
-// import DefaultPortFactory from "@projectstorm/react-diagrams";
-// import PathFindingLinkFactory from "@projectstorm/react-diagrams";
 import {
 	DagreEngine,
 	DefaultDiagramState,
