@@ -30,4 +30,14 @@ export const OFFSET = {
 export const MEDIATORS = {
     LOG: "Log",
     THROTTLE: "Throttle",
+    STORE: "Store",
+    PROPERTY: "Property",
+    PROPERTYGROUP: "PropertyGroup",
+    RESPOND: "Respond",
+    LOOPBACK: "Loopback",
+    DROP: "Drop",
+    CALL: "Call",
+    CALLTEMPLATE: "CallTemplate",
+    SEND: "Send",
+    SEQUENCE: "Sequence",
 }
