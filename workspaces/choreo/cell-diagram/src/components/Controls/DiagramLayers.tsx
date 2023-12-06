@@ -137,6 +137,9 @@ export function DiagramLayers(props: DiagramLayersProps) {
                         selected={hasLayer(DiagramLayer.ARCHITECTURE)}
                         clickable={hasLayer(DiagramLayer.ARCHITECTURE) ? canRemoveLayer : true}
                         tooltipTitle={"Toggle static architecture layer"}
+                        tooltipDescription={
+                            "Visualize the static architecture defined in the component-config.yaml file. This layer represents the intended architecture of the system and shows the connections between components as specified by the user."
+                        }
                     >
                         <LayerIcon>
                             <DiagramIcon styles={{ width: 24, height: 24 }} />
@@ -148,6 +151,9 @@ export function DiagramLayers(props: DiagramLayersProps) {
                         selected={hasLayer(DiagramLayer.OBSERVABILITY)}
                         clickable={hasLayer(DiagramLayer.OBSERVABILITY) ? canRemoveLayer : true}
                         tooltipTitle={"Toggle runtime architecture layer"}
+                        tooltipDescription={
+                            "Visualize the runtime architecture of the system. This layer represents the actual runtime architecture of the system and shows the connections between components based on observability data."
+                        }
                     >
                         <LayerIcon>
                             <ObservationIcon styles={{ width: 24, height: 24 }} />
@@ -159,6 +165,9 @@ export function DiagramLayers(props: DiagramLayersProps) {
                         selected={hasLayer(DiagramLayer.DIFF)}
                         clickable={hasLayer(DiagramLayer.DIFF) ? canRemoveLayer : true}
                         tooltipTitle={"Toggle architectural drift layer"}
+                        tooltipDescription={
+                            "Detect architectural drift by comparing the static and runtime architecture layers. This layer highlights the differences between the static and runtime architecture layers, allowing you to identify architectural drift."
+                        }
                     >
                         <LayerIcon>
                             <DiffIcon styles={{ width: 24, height: 24 }} />

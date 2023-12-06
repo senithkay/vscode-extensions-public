@@ -44,18 +44,34 @@ const Button = styled.div<ButtonProps>`
     }
 `;
 
+const TooltipContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 12px;
+`;
+
+const Title = styled.div`
+    font-size: 12px;
+    font-weight: 600;
+`;
+
+const Description = styled.div`
+    font-size: 12px;
+`;
+
 interface LayerButtonProps {
     children: ReactNode;
     selected?: boolean;
     clickable?: boolean;
     onClick: () => void;
     tooltipTitle?: string;
+    tooltipDescription?: string;
     tooltipPlacement?: "left-end" | "right-end" | "top-start";
-    tooltipHelpLink?: string;
 }
 
 export function LayerButton(props: LayerButtonProps) {
-    const { children, onClick, selected = false, clickable = true, tooltipTitle, tooltipPlacement = "top-start", tooltipHelpLink } = props;
+    const { children, onClick, selected = false, clickable = true, tooltipTitle, tooltipDescription, tooltipPlacement = "top-start" } = props;
 
     return (
         <Tooltip
@@ -63,11 +79,12 @@ export function LayerButton(props: LayerButtonProps) {
             placement={tooltipPlacement}
             title={
                 <>
-                    {tooltipTitle}
-                    {tooltipHelpLink && (
-                        <IconButton aria-label="info" size="small" onClick={() => {}}>
-                            <InfoIcon styles={{ width: 12, height: 12, color: "#fff" }} />
-                        </IconButton>
+                    {!tooltipDescription && <> {tooltipTitle} </>}
+                    {tooltipDescription && (
+                        <TooltipContainer>
+                            <Title>{tooltipTitle}</Title>
+                            <Description>{tooltipDescription}</Description>
+                        </TooltipContainer>
                     )}
                 </>
             }
