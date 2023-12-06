@@ -7,39 +7,41 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { ReactNode } from 'react';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import { useStyles } from './style';
+import React, { ReactNode } from "react";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import { useStyles } from "./style";
 
 interface ControlButtonProps {
     children: ReactNode;
     onClick: () => void;
     tooltipTitle: string;
+    tooltipPlacement?: "left-end" | "right-end" | "top-start";
 }
 
 export function CanvasControlButton(props: ControlButtonProps) {
-    const { children, onClick, tooltipTitle } = props;
+    const { children, onClick, tooltipTitle, tooltipPlacement = "left-end" } = props;
     const styles = useStyles();
 
     return (
         <Tooltip
             arrow
-            placement={'left-end'}
+            placement={tooltipPlacement}
             title={tooltipTitle}
+            enterNextDelay={200}
             componentsProps={{
                 tooltip: {
                     sx: {
-                        fontFamily: 'GilmerRegular',
-                        fontSize: '12px',
-                        padding: '6px 10px'
-                    }
-                }
+                        fontFamily: "GilmerRegular",
+                        fontSize: "12px",
+                        padding: "6px 10px",
+                    },
+                },
             }}
             PopperProps={{
                 modifiers: [
                     {
-                        name: 'offset',
+                        name: "offset",
                         options: {
                             offset: [0, -10],
                         },
@@ -49,10 +51,10 @@ export function CanvasControlButton(props: ControlButtonProps) {
         >
             <IconButton
                 className={styles.controlButton}
-                size='small'
+                size="small"
                 onClick={onClick}
                 sx={{
-                    cursor: 'pointer'
+                    cursor: "pointer",
                 }}
             >
                 {children}

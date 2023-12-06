@@ -19,19 +19,22 @@ import {
     isRenderInsideCell,
     animateDiagram,
 } from "./utils";
-import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel, MenuItemDef } from "./components";
+import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, ConnectionModel } from "./components";
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
-
-import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
-import { ObservationSummary, Project } from "./types";
+import { DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
-import { DiagramLayer, DiagramLayers } from "./components/Controls/DiagramLayers";
+import { DiagramLayers } from "./components/Controls/DiagramLayers";
+import { DiagramLegend } from "./components/Controls/DiagramLegend";
+import "./resources/assets/font/fonts.css";
+
+export { DiagramLayer } from "./types";
+export type { MoreVertMenuItem, Project } from "./types";
 
 export interface CellDiagramProps {
     project: Project;
-    componentMenu?: MenuItemDef[];
+    componentMenu?: MoreVertMenuItem[];
     showControls?: boolean;
     animation?: boolean;
     defaultDiagramLayer?: DiagramLayer;
@@ -198,7 +201,7 @@ export function CellDiagram(props: CellDiagramProps) {
         }, 8);
     };
 
-    const showDiagramLayers = showControls && observationSummary.current?.requestCount.max > 0 || false;
+    const showDiagramLayers = (showControls && observationSummary.current?.requestCount.max > 0) || false;
 
     const ctx = {
         selectedNodeId,
@@ -231,6 +234,7 @@ export function CellDiagram(props: CellDiagramProps) {
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
                             {showDiagramLayers && <DiagramLayers animation={animation} />}
+                            {showDiagramLayers && <DiagramLegend animation={animation} />}
                         </>
                     ) : userMessage ? (
                         <PromptScreen userMessage={userMessage} />

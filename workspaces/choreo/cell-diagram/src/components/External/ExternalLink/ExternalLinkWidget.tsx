@@ -61,7 +61,6 @@ export function ExternalLinkWidget(props: WidgetProps) {
             <path
                 id={link.getID()}
                 d={link.getCurvePath()}
-                cursor={"pointer"}
                 fill={"none"}
                 stroke={isSelected ? Colors.SECONDARY : Colors.OUTLINE}
                 strokeWidth={2}
