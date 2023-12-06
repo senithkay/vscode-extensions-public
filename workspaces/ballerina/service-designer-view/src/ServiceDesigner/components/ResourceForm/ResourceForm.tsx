@@ -8,13 +8,19 @@
  */
 
 import React, { useState } from 'react';
-import { ActionButtons, Button, Divider, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { Response } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
 import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
+import styled from '@emotion/styled';
+
+const AdvancedParamTitleWrapper = styled.div`
+	display: flex;
+	flex-direction: row;
+`;
 
 export interface ResourceFormProps {
 	isOpen: boolean;
@@ -27,11 +33,16 @@ export function ResourceForm(props: ResourceFormProps) {
 	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map([
 		[PARAM_TYPES.HEADER, { id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.HEADER }]
 	]));
+	const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedParams.size > 0);
 	const [payload, setPayload] = useState<ParameterConfig>({id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.PAYLOAD});
 	const [response, setResponse] = useState<ResponseConfig[]>([{id: 0, code: 200}]);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
 		setParameters(params);
+	};
+
+	const handleAdvanceParamToggle = () => {
+		setShowAdvanced(!showAdvanced);
 	};
 
 	const handleAdvancedParamChange = (params: Map<string, ParameterConfig>) => {
@@ -66,8 +77,11 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Typography sx={{marginBlockEnd: 10}} variant="h4">Parameters</Typography>
 					<ResourceParam parameters={parameters} onChange={handleParamChange}/>
 					<Payload parameter={payload} onChange={handlePayloadChange}/>
-					<Typography sx={{marginBlockEnd: 10}} variant="h4">Advanced Parameters</Typography>
-					<AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange}/>
+					<AdvancedParamTitleWrapper>
+						<Typography sx={{marginBlockEnd: 10}} variant="h4">Advanced Parameters</Typography>
+						<LinkButton sx={{marginTop: 12, marginLeft: 8}} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
+					</AdvancedParamTitleWrapper>
+					{showAdvanced && <AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange}/>}
 					<Divider />
 
 					<Typography sx={{marginBlockEnd: 10}} variant="h4">Responses</Typography>
