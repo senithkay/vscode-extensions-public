@@ -60,6 +60,10 @@ export function ObservationLabel({ observations }: ObservationLabelProps) {
         { name: "50% Latency", valueFn: (obs: Observations) => convertToMs(obs.p50Latency) + " ms" },
     ];
 
+    function formatNumberWithCommas(x: string): string {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     return (
         <Table>
             <thead>
@@ -75,7 +79,7 @@ export function ObservationLabel({ observations }: ObservationLabelProps) {
                     <TableRow key={metric.name}>
                         <TableHeader>{metric.name}</TableHeader>
                         {displayedObservations.map((obs, index) => (
-                            <TableData key={index}>{metric.valueFn(obs)}</TableData>
+                            <TableData key={index}>{formatNumberWithCommas(metric.valueFn(obs).toString())}</TableData>
                         ))}
                     </TableRow>
                 ))}

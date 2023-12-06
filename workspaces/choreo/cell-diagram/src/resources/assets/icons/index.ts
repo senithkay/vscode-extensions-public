@@ -15,9 +15,15 @@ export { RemoveIcon } from "./RemoveIcon";
 export { WarningIcon } from "./WarningIcon";
 export { RefreshIcon } from "./RefreshIcon";
 export { MoreVertIcon } from "./MoreVertIcon";
+export { LayersIcon } from "./LayersIcon";
+export { ObservationIcon } from "./ObservationIcon";
+export { DiffIcon } from "./DiffIcon";
+export { DiagramIcon } from "./DiagramIcon";
+
 // Cell icons
 export { GatewayIcon } from "./GatewayIcon";
 export { ConnectionIcon } from "./ConnectionIcon";
+
 // Component type icons
 export { ServiceIcon } from "./ServiceIcon";
 export { WebAppIcon } from "./WebAppIcon";
