@@ -160,12 +160,11 @@ export function ComponentLinkWidget(props: WidgetProps) {
                         <polygon points="0,6 0,0 5,3" fill={strokeColor()}></polygon>
                     </marker>
                 </defs>
-                <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
+                <path d={link.getCurvePath()} fill={"none"} stroke={"transparent"} strokeWidth={40} />
                 <SharedLink.Path
                     selected={hasObservabilityLayer && isSelected}
                     id={link.getID()}
                     d={link.getCurvePath()}
-                    cursor={"pointer"}
                     fill={"none"}
                     stroke={strokeColor()}
                     strokeWidth={strokeWidth()}
