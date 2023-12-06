@@ -26,53 +26,40 @@ export interface ParamProps {
     hideType?: boolean;
     hideDefaultValue?: boolean;
     onChange: (param: ParameterConfig) => void;
-    onCancel?: (id?: number) => void;
+    onSave?: (param: ParameterConfig) => void;
+    onCancel?: (param?: ParameterConfig) => void;
 }
 
 export function ParamEditor(props: ParamProps) {
     const { param, option, optionList, hideType = false, hideDefaultValue = false,
-        onChange, onCancel } = props;
-
-    const [selectedOption, setSelectedOption] = React.useState(option);
-    const [name, setNameValue] = React.useState(param.name);
-    const [type, setType] = React.useState(param.type);
-    const [defaultValue, setDefaultValue] = React.useState(param.defaultValue);
-    const [isSelected, setIsSelected] = React.useState(param.isRequired);
+        onChange, onSave, onCancel } = props;
 
     const handleOnSelect = (value: string) => {
-        setSelectedOption(value as PARAM_TYPES);
+        onChange({ ...param, option: value as PARAM_TYPES });
     };
 
     const handleTypeChange = (value: string) => {
-        setType(value);
+        onChange({ ...param, type: value });        
     };
 
     const handleChange = (value: string) => {
-        setNameValue(value);
+        onChange({ ...param, name: value });
     };
 
     const handleValueChange = (value: string) => {
-        setDefaultValue(value);
+        onChange({ ...param, defaultValue: value });
     };
 
     const handleReqFieldChange = () => {
-        setIsSelected(!isSelected);
+        onChange({ ...param, isRequired: !param.isRequired });
     };
 
     const handleOnCancel = () => {
-        onCancel(param.id);
+        onCancel(param);
     };
 
     const handleOnSave = () => {
-        const newParam: ParameterConfig = {
-            id: param.id,
-            name,
-            type,
-            option: selectedOption,
-            defaultValue,
-            isRequired: isSelected
-        };
-        onChange(newParam);
+        onSave(param);
     };
 
     return (
@@ -86,7 +73,7 @@ export function ParamEditor(props: ParamProps) {
 					items={options}
 					label="Param Type"
 					onChange={handleOnSelect}
-					value={selectedOption}
+					value={param.option}
 				/>
             )}
             <EditorContent>
@@ -96,7 +83,7 @@ export function ParamEditor(props: ParamProps) {
                         label='Type'
                         required
                         placeholder='Enter type'
-                        value={type}
+                        value={param.type}
                         onChange={handleTypeChange}
                     />
                 )}
@@ -105,7 +92,7 @@ export function ParamEditor(props: ParamProps) {
                     size={21}
                     required
                     placeholder='Enter name'
-                    value={name}
+                    value={param.name}
                     onChange={handleChange}
                 />
                 {!hideDefaultValue && (
@@ -113,13 +100,13 @@ export function ParamEditor(props: ParamProps) {
                         label='Default Value'
                         size={21}
                         placeholder='Enter default value'
-                        value={defaultValue}
+                        value={param.defaultValue}
                         onChange={handleValueChange}
                     />
                 )}
             </EditorContent>
             {option === PARAM_TYPES.DEFAULT && (
-                <VSCodeCheckbox checked={isSelected} onChange={handleReqFieldChange} id="is-req-checkbox">
+                <VSCodeCheckbox checked={param.isRequired} onChange={handleReqFieldChange} id="is-req-checkbox">
                     Is Required?
                 </VSCodeCheckbox>
             )}

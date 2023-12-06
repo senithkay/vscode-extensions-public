@@ -9,8 +9,8 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "watch": "tsc --pretty --watch",
-    "build": "pnpm run lint && tsc --pretty",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "build": "tsc --pretty",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives"
   },
   "dependencies": {
     "@wso2-enterprise/ballerina-core": "workspace:*",

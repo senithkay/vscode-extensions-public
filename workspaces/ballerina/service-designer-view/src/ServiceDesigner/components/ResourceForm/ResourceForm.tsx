@@ -14,6 +14,7 @@ import { Response } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
 import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
+import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 
 export interface ResourceFormProps {
 	isOpen: boolean;
@@ -23,11 +24,18 @@ export interface ResourceFormProps {
 export function ResourceForm(props: ResourceFormProps) {
     const { isOpen, onClose } = props;
 	const [parameters, setParameters] = useState<ParameterConfig[]>([{id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true}]);
+	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map([
+		[PARAM_TYPES.HEADER, { id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.HEADER }]
+	]));
 	const [payload, setPayload] = useState<ParameterConfig>({id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.PAYLOAD});
 	const [response, setResponse] = useState<ResponseConfig[]>([{id: 0, code: 200}]);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
 		setParameters(params);
+	};
+
+	const handleAdvancedParamChange = (params: Map<string, ParameterConfig>) => {
+		setAdvancedParam(params);
 	};
 
 	const handleResponseChange = (resp: ResponseConfig[]) => {
@@ -58,7 +66,8 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Typography sx={{marginBlockEnd: 10}} variant="h4">Parameters</Typography>
 					<ResourceParam parameters={parameters} onChange={handleParamChange}/>
 					<Payload parameter={payload} onChange={handlePayloadChange}/>
-
+					<Typography sx={{marginBlockEnd: 10}} variant="h4">Advanced Parameters</Typography>
+					<AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange}/>
 					<Divider />
 
 					<Typography sx={{marginBlockEnd: 10}} variant="h4">Responses</Typography>
@@ -70,6 +79,7 @@ export function ResourceForm(props: ResourceFormProps) {
                         sx={{justifyContent: "flex-end"}}
                     />
                 </SidePanelBody>
+				
 			</SidePanel>
 		</>
 	);

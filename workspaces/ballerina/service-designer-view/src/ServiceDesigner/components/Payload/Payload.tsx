@@ -52,6 +52,10 @@ export function Payload(props: ResourceParamProps) {
 
     const onChangeParam = (param: ParameterConfig) => {
         onChange(param);
+    };
+
+    const onSaveParam = (param: ParameterConfig) => {
+        onChange(param);
         setEditInprogress(false);
     };
 
@@ -72,6 +76,7 @@ export function Payload(props: ResourceParamProps) {
                     }}
                     isEdit={true}
                     option={parameter.option}
+                    onSave={onSaveParam}
                     onChange={onChangeParam}
                     onCancel={onParamEditCancel}
                 />

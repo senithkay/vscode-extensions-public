@@ -18,17 +18,19 @@ export interface ParamProps {
     response: ResponseConfig;
     isEdit: boolean;
     onChange: (param: ResponseConfig) => void;
+    onSave?: (param: ResponseConfig) => void;
     onCancel?: (id?: number) => void;
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, onChange, onCancel } = props;
-
-    const [type, setTypeValue] = React.useState(response.type);
-    const [code, setCode] = React.useState(response.code);
+    const { response, onSave, onChange, onCancel } = props;
 
     const handleCodeChange = (value: string) => {
-        setCode(parseInt(value));
+        onChange({ ...response, code: Number(value) });
+    };
+
+    const handleTypeChange = (value: string) => {
+        onChange({ ...response, type: value });
     };
 
     const handleOnCancel = () => {
@@ -38,10 +40,10 @@ export function ResponseEditor(props: ParamProps) {
     const handleOnSave = () => {
         const newParam: ResponseConfig = {
             id: response.id,
-            type: type,
-            code: code,
+            type: response.type,
+            code: response.code,
         };
-        onChange(newParam);
+        onSave(newParam);
     };
 
     return (
@@ -52,15 +54,15 @@ export function ResponseEditor(props: ParamProps) {
                     label='Code'
                     required
                     placeholder='Enter code'
-                    value={`${code}`}
+                    value={`${response.code}`}
                     onChange={handleCodeChange}
                 />
                 <TextField
                     size={34}
                     label='Type'
                     placeholder='Enter type'
-                    value={type}
-                    onChange={setTypeValue}
+                    value={response.type}
+                    onChange={handleTypeChange}
                 />
             </EditorContent>
             <ActionButtons

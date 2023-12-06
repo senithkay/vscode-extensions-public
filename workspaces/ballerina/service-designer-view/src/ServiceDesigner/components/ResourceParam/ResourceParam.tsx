@@ -70,14 +70,17 @@ export function ResourceParam(props: ResourceParamProps) {
             updatedParameters[index] = paramConfig;
         }
         onChange(updatedParameters);
-        setEditingSegmentId(-1);
-        setIsNew(false);
     };
 
-    const onParamEditCancel = (id?: number) => {
+    const onSaveParam = (paramConfig: ParameterConfig) => {
+        onChangeParam(paramConfig);
+        setEditingSegmentId(-1);
+    };
+
+    const onParamEditCancel = (param: ParameterConfig) => {
         setEditingSegmentId(-1);
         if (isNew) {
-            onDelete({ id, name: "" });
+            onDelete(param);
         }
         setIsNew(false);
     };
@@ -100,6 +103,7 @@ export function ResourceParam(props: ResourceParamProps) {
                         optionList={[PARAM_TYPES.DEFAULT, PARAM_TYPES.HEADER]}
                         option={param.option}
                         isTypeReadOnly={false}
+                        onSave={onSaveParam}
                         onChange={onChangeParam}
                         onCancel={onParamEditCancel}
                     />

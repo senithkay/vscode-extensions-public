@@ -68,8 +68,17 @@ export function Response(props: ResourceParamProps) {
             updatedParameters[index] = paramConfig;
         }
         onChange(updatedParameters);
+    };
+
+    const onSaveParam = (paramConfig: ResponseConfig) => {
+        const updatedParameters = [...response];
+        const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
+        if (index !== -1) {
+            updatedParameters[index] = paramConfig;
+        }
         setEditingSegmentId(-1);
         setIsNew(false);
+        onChange(updatedParameters);
     };
 
     const onParamEditCancel = (id?: number) => {
@@ -93,6 +102,7 @@ export function Response(props: ResourceParamProps) {
                         }}
                         isEdit={true}
                         onChange={onChangeParam}
+                        onSave={onSaveParam}
                         onCancel={onParamEditCancel}
                     />
                 )
