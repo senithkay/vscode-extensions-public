@@ -75,8 +75,10 @@ export function getDiagramProviderProps(
     navigateUptoParent: (position: NodePosition) => void,
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
-    const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+    const {
+        langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
+        getLibrariesData, getLibrariesList, getLibraryData
+    } = props;
 
 
     async function showTryitView(serviceName: string) {
