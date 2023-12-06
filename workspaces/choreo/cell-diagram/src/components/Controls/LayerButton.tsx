@@ -9,9 +9,9 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { Colors, InfoIcon } from "../../resources";
+import { Colors } from "../../resources";
 import { ReactNode } from "react";
-import { IconButton, Tooltip } from "@mui/material";
+import { Tooltip } from "@mui/material";
 
 interface ButtonProps {
     selected?: boolean;
