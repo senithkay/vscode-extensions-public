@@ -11,6 +11,12 @@
 		},
 		{
 			"path": "workspaces/common-libs/ui-toolkit"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-core"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-rpc-client"
 		}
 	],
 	"settings": {

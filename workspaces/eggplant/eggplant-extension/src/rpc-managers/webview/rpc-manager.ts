@@ -48,7 +48,7 @@ export class WebviewRpcManager implements WebviewAPI {
                     }
                 );
             });
-            const context =  snapshot.context;
+            const context = snapshot.context;
             const langClient = context.langServer as LangClientInterface;
             return langClient.getBallerinaProjectComponents({
                 documentIdentifiers: workspaceUri
@@ -57,5 +57,10 @@ export class WebviewRpcManager implements WebviewAPI {
             // Handle the case where there are no workspace folders
             throw new Error("No workspace folders are open");
         }
+    }
+
+    async getEggplantModel(): Promise<EggplantModel> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

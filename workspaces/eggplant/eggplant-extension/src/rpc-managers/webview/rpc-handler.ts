@@ -13,6 +13,8 @@ import {
     getBallerinaProjectComponents,
     getVisualizerState,
     openVisualizerView,
+    getEggplantModel,
+    getHelloWorld,
 } from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { WebviewRpcManager } from "./rpc-manager";

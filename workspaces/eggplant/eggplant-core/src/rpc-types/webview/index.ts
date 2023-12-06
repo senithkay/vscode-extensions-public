@@ -13,9 +13,11 @@
 
 import { VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+import { EggplantModel } from "./types";
 
 export interface WebviewAPI {
     getVisualizerState: () => Promise<VisualizerLocation>;
     openVisualizerView: (params: VisualizerLocation) => void;
     getBallerinaProjectComponents: () => Promise<BallerinaProjectComponents>;
+    getEggplantModel: () => Promise<EggplantModel>;
 }

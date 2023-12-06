@@ -18,3 +18,4 @@ export * from "./lang-server-interfaces/lang-client-interface";
 
 export * from "./rpc-types/webview";
 export * from "./rpc-types/webview/rpc-type";
+export * from "./rpc-types/webview/types";
