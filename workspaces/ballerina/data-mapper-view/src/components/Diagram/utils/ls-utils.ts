@@ -20,6 +20,7 @@ import { URI } from "vscode-uri";
 
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export async function getDiagnostics(
     docUri: string,
@@ -206,11 +207,10 @@ export async function getRecordCompletions(
 }
 
 export async function getTypesForExpressions(fileURI: string,
-                                             langClientPromise: Promise<IBallerinaLangClient>,
                                              expressionNodesRanges: ExpressionRange[])
     : Promise<ResolvedTypeForExpression[]> {
-    const langClient = await langClientPromise;
-    const typesFromExpression = await langClient.getTypeFromExpression({
+    const { ballerinaRpcClient } = useVisualizerContext();
+    const typesFromExpression = await ballerinaRpcClient.getDataMapperRpcClient().getTypeFromExpression({
         documentIdentifier: {
             uri: URI.file(fileURI).toString()
         },

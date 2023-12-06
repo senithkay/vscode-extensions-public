@@ -713,7 +713,8 @@
         "vscode-test": "^1.6.1",
         "xml-js": "^1.6.11",
         "xstate": "^4.38.3",
-        "vscode-languageserver-types": "^3.17.5"
+        "vscode-languageserver-types": "^3.17.5",
+        "vscode-uri": "^3.0.8"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.20.1",

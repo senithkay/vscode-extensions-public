@@ -21,6 +21,7 @@ import {
     GetBallerinaPackagesParams,
     JsonToRecordRequest,
     JsonToRecordResponse,
+    NOT_SUPPORTED_TYPE,
     PublishDiagnosticsParams,
     RenameParams,
     TextDocumentPositionParams,
@@ -104,47 +105,38 @@ export class VisualizerRpcManager implements VisualizerAPI {
     }
 
     async getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.getCompletion(params);
     }
 
-    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]|NOT_SUPPORTED_TYPE> {
+        return this._langClient.getDiagnostics(params);
     }
 
     async codeAction(params: CodeActionParams): Promise<CodeAction[]> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.codeAction(params);
     }
 
     async rename(params: RenameParams): Promise<WorkspaceEdit> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.rename(params);
     }
 
-    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse|NOT_SUPPORTED_TYPE> {
+        return this._langClient.getDefinitionPosition(params);
     }
 
-    async convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse|NOT_SUPPORTED_TYPE> {
+        return this._langClient.convertJsonToRecord(params);
     }
 
     async didOpen(params: DidOpenTextDocumentParams): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.didOpen(params);
     }
 
     async didChange(params: DidChangeTextDocumentParams): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.didChange(params);
     }
 
     async didClose(params: DidCloseTextDocumentParams): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.didClose(params);
     }
 }

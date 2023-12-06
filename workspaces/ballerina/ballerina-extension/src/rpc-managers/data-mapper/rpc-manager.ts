@@ -22,29 +22,22 @@ import { Location, LocationLink } from "vscode-languageserver-types";
 
 
 export class DataMapperRpcManager implements DataMapperAPI {
-    async getLangClient() {
-        return new Promise((resolve) => {
-            resolve(getLangClient());
-        });
-    }
+
+    private _langClient = getLangClient();
 
     async getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.getTypeFromExpression(params);
     }
 
     async getTypeFromSymbol(params: TypeFromSymbolRequest): Promise<TypesFromSymbolResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.getTypeFromSymbol(params);
     }
 
     async getTypesFromFnDefinition(params: TypesFromFnDefinitionRequest): Promise<TypesFromSymbolResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.getTypesFromFnDefinition(params);
     }
 
     async definition(params: TextDocumentPositionParams): Promise<Location | Location[] | LocationLink[] | null> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return this._langClient.definition(params);
     }
 }

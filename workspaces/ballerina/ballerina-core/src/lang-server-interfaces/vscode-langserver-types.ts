@@ -23,7 +23,11 @@ export interface DidOpenTextDocumentParams {
 
 export interface DidChangeTextDocumentParams {
     textDocument: VersionedTextDocumentIdentifier;
-    contentChanges: TextDocumentContentChangeEvent[];
+    contentChanges: [
+        {
+            text: string;
+        }
+    ];
 }
 
 export interface DidCloseTextDocumentParams {
@@ -48,14 +52,6 @@ export interface TextDocumentItem {
 export interface VersionedTextDocumentIdentifier extends TextDocumentIdentifier {
     version: integer;
 }
-
-export type TextDocumentContentChangeEvent = {
-    range: Range;
-    rangeLength?: uinteger;
-    text: string;
-} | {
-    text: string;
-};
 
 export type DocumentUri = string;
 export type integer = number;

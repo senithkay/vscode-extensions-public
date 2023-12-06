@@ -52,15 +52,12 @@ export class FunctionDefinitionStore {
 
         const fnCallPositions = visitor.getFunctionCallPositions();
 
-        await this.setFnDefinitions(langClient, fileUri, fnCallPositions, context.langClientPromise);
+        await this.setFnDefinitions(fileUri, fnCallPositions);
     }
 
-    async setFnDefinitions(langClient: IBallerinaLangClient,
-                           fileUri: string,
-                           fnCallPositions: LinePosition[],
-                           langClientPromise: Promise<IBallerinaLangClient>) {
+    async setFnDefinitions(fileUri: string, fnCallPositions: LinePosition[]) {
 
-        const fnDefs = await getFnDefsForFnCalls(fnCallPositions, fileUri, langClientPromise)
+        const fnDefs = await getFnDefsForFnCalls(fnCallPositions, fileUri)
 
         for (const fnDef of fnDefs) {
             this.fnDefinitions.set(fnDef.fnCallPosition, fnDef)

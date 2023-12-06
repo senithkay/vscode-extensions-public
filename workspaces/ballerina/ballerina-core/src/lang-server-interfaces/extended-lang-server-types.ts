@@ -202,3 +202,7 @@ export interface TypesFromFnDefinitionRequest {
     fnPosition: LinePosition;
     returnTypeDescPosition: LinePosition;
 }
+
+export interface NOT_SUPPORTED_TYPE {
+
+}

@@ -14,6 +14,7 @@ import {
 } from "vscode-languageserver-types";
 
 import { FnDefInfo } from "../components/Diagram/utils/fn-definition-store";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface FunctionInfo {
     fnDefInfo: FnDefInfo;
@@ -82,14 +83,12 @@ export function genLetExpressionVariableName(letExpressions: LetExpression[]): s
     return varName;
 }
 
-export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
-                                          fileUri: string,
-                                          langClientPromise: Promise<IBallerinaLangClient>): Promise<FnDefInfo[]> {
-    const langClient = await langClientPromise;
+export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[], fileUri: string): Promise<FnDefInfo[]> {
+    const { ballerinaRpcClient } = useVisualizerContext();
     const fnDefs: FnDefInfo[] = [];
     const fnInfo: Map<string, FunctionInfo[]> = new Map();
     for (const position of fnCallPositions) {
-        const reply = await langClient.definition({
+        const reply = await ballerinaRpcClient.getDataMapperRpcClient().definition({
             position: {
                 line: position.line,
                 character: position.offset

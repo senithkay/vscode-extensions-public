@@ -27,7 +27,8 @@ import {
     JsonToRecordResponse,
     PublishDiagnosticsParams,
     RenameParams,
-    TextDocumentPositionParams
+    TextDocumentPositionParams,
+    NOT_SUPPORTED_TYPE
 } from "../..";
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -38,11 +39,11 @@ export interface VisualizerAPI {
     getSyntaxTree: () => Promise<STNode>;
     getBallerinaProjectComponents: (params: GetBallerinaPackagesParams) => Promise<BallerinaProjectComponents>;
     getCompletion: (params: CompletionParams) => Promise<CompletionResponse[]>;
-    getDiagnostics: (params: BallerinaProjectParams) => Promise<PublishDiagnosticsParams[]>;
+    getDiagnostics: (params: BallerinaProjectParams) => Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE>;
     codeAction: (params: CodeActionParams) => Promise<CodeAction[]>;
     rename: (params: RenameParams) => Promise<WorkspaceEdit>;
-    getDefinitionPosition: (params: TextDocumentPositionParams) => Promise<BallerinaSTModifyResponse>;
-    convert: (params: JsonToRecordRequest) => Promise<JsonToRecordResponse>;
+    getDefinitionPosition: (params: TextDocumentPositionParams) => Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE>;
+    convert: (params: JsonToRecordRequest) => Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
     didOpen: (Params: DidOpenTextDocumentParams) => void;
     didChange: (params: DidChangeTextDocumentParams) => void;
     didClose: (params: DidCloseTextDocumentParams) => void;

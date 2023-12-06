@@ -82,7 +82,6 @@ export class EnumTypeNode extends DataMapperNodeModel {
         });
         const types = await getTypesForExpressions(
             this.context.filePath,
-            this.context.langClientPromise,
             exprRanges
         );
 
