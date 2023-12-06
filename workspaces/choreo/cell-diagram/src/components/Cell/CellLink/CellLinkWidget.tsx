@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
-import { CELL_LINK, Colors } from "../../../resources";
+import { CELL_LINK, Colors, WarningIcon } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { Popover } from "@wso2-enterprise/ui-toolkit";
@@ -54,6 +54,10 @@ export function CellLinkWidget(props: WidgetProps) {
     const hasObservabilityLayer = hasLayer(DiagramLayer.OBSERVABILITY);
     const hasDiffLayer = hasLayer(DiagramLayer.DIFF);
 
+    const hideLink =
+        (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) ||
+        (hasArchitectureLayer && !hasObservabilityLayer && !hasDiffLayer && link.observationOnly);
+
     useEffect(() => {
         const listener = link.registerListener({
             SELECT: selectPath,
@@ -62,9 +66,12 @@ export function CellLinkWidget(props: WidgetProps) {
         return () => {
             link.deregisterListener(listener);
         };
-    }, [link]);
+    }, [link, hideLink]);
 
     const selectPath = () => {
+        if (hideLink) {
+            return;
+        }
         setIsSelected(true);
         link.selectLinkedNodes();
     };
@@ -76,6 +83,9 @@ export function CellLinkWidget(props: WidgetProps) {
 
     const handleMouseOver = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
+        if (hideLink) {
+            return;
+        }
         selectPath();
         setAnchorEl(event.currentTarget);
     };
@@ -108,10 +118,7 @@ export function CellLinkWidget(props: WidgetProps) {
         if (hasObservabilityLayer && link.observations?.length > 0) {
             return Colors.PRIMARY;
         }
-        if (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) {
-            return "transparent";
-        }
-        if (hasArchitectureLayer && !hasObservabilityLayer && !hasDiffLayer && link.observationOnly) {
+        if (hideLink) {
             return "transparent";
         }
 
@@ -144,23 +151,19 @@ export function CellLinkWidget(props: WidgetProps) {
                         <polygon points="0,6 0,0 5,3" fill={strokeColor()}></polygon>
                     </marker>
                 </defs>
-                <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
+                <path d={link.getCurvePath()} cursor={hideLink ? "" : "pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
                 <SharedLink.Path
                     selected={hasObservabilityLayer && isSelected}
                     id={link.getID()}
                     d={link.getCurvePath()}
-                    cursor={"pointer"}
+                    cursor={hideLink ? "" : "pointer"}
                     fill={"none"}
                     stroke={strokeColor()}
                     strokeWidth={strokeWidth()}
                     strokeDasharray={strokeDash()}
                     markerEnd={link.showArrowHead() && !hasObservabilityLayer ? "url(#" + link.getLinkArrowId() + ")" : ""}
                 />
-                {hasDiffLayer && link.observationOnly && (
-                    <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px", userSelect: "none" }}>
-                        !!
-                    </text>
-                )}
+                {hasDiffLayer && link.observationOnly && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
             </g>
             {(hasObservabilityLayer || link.tooltip) && (
                 <Popover
