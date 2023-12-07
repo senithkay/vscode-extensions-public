@@ -9,14 +9,12 @@
 
 import { Overview } from "@wso2-enterprise/overview-view";
 import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
-import { DataMapper } from "@wso2-enterprise/data-mapper-view";
+import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NavigationBar } from "./components/NavigationBar";
 import styled from "@emotion/styled";
 import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
-import { useSyntaxTreeFromRange } from "./hooks"
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 
 export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
@@ -44,44 +42,12 @@ export function Webview() {
         color: var(--vscode-descriptionForeground);
     `;
 
-    const { data } = useSyntaxTreeFromRange();
-    const fnST = data?.syntaxTree;
-    const fnSTPosition = fnST ? {
-        ...fnST.position,
-        startColumn: 0,
-        endColumn: 0
-    } : {
-        startLine: 0,
-        startColumn: 0,
-        endLine: 0,
-        endColumn: 0
-    };
-
-    const dataMapper = (
-        <DataMapper
-            library={undefined}
-            targetPosition={fnSTPosition}
-            fnST={fnST as FunctionDefinition}
-            openedViaPlus={false}
-            ballerinaVersion={'2201.7.2 (swan lake update 7)'}
-            applyModifications={undefined}
-            updateFileContent={undefined}
-            goToSource={undefined}
-            onClose={undefined}
-            onSave={undefined}
-            importStatements={[]}
-            recordPanel={undefined}
-            updateActiveFile={undefined}
-            updateSelectedComponent={undefined}
-        />
-    );
-
     return (
         <VisualizerContainer>
             <NavigationBar />
             {viewLocation.view === "Overview" && <Overview />}
             {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
-            {viewLocation.view === "DataMapper" && dataMapper}
+            {viewLocation.view === "DataMapper" && <DataMapperView />}
             {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
         </VisualizerContainer>
     );

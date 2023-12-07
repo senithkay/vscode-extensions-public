@@ -10,8 +10,14 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI } from "vscode-uri";
+import { BallerinaSTModifyResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-export const useSyntaxTreeFromRange = () => {
+export const useSyntaxTreeFromRange = ():{
+    data: BallerinaSTModifyResponse;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
     const getST = async () => {
         if (viewLocation?.location) {
