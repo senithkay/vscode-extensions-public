@@ -9,6 +9,7 @@
 import { ExpressionRange, IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     addToTargetPosition,
+    BallerinaSTModifyResponse,
     CompletionParams,
     LinePosition,
     PublishDiagnosticsParams,
@@ -220,7 +221,7 @@ export async function getTypesForExpressions(fileURI: string,
 
 export async function getDefinitionPosition(fileURI: string,
     position: LinePosition,
-    ballerinaRpcClient: BallerinaRpcClient) {
+    ballerinaRpcClient: BallerinaRpcClient): Promise<BallerinaSTModifyResponse> {
 
     const definitionPosition = await ballerinaRpcClient.getVisualizerRpcClient().getDefinitionPosition(
         {

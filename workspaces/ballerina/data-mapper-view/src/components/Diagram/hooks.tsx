@@ -6,22 +6,22 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
-import { QueryObserverResult, RefetchOptions, useQuery } from '@tanstack/react-query';
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { Uri } from "monaco-editor";
+import { BallerinaProjectComponents } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-export const useProjectComponents = (getDiagramEditorLangClient: Promise<IBallerinaLangClient>, currentFilePath: string, currentFileContent: string): {
+export const useProjectComponents = (currentFilePath: string, currentFileContent: string): {
     projectComponents: BallerinaProjectComponents,
     isFetching: boolean,
     isError: boolean,
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<unknown, Error>>
+    refetch: any
 } => {
     const fetchProjectComponents = async () => {
     try {
-        const langClient = await getDiagramEditorLangClient;
-        const componentResponse = await langClient.getBallerinaProjectComponents({
+        const { ballerinaRpcClient } = useVisualizerContext();
+        const componentResponse = await ballerinaRpcClient.getVisualizerRpcClient().getBallerinaProjectComponents({
             documentIdentifiers: [
                 {
                     uri: Uri.file(currentFilePath).toString(),

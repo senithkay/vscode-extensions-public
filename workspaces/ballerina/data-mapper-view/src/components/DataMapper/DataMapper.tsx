@@ -10,10 +10,9 @@
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    BallerinaProjectComponents,
     ComponentViewInfo,
     CurrentFile,
     FileListEntry,
@@ -52,6 +51,7 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
+import { useProjectComponents } from "../Diagram/hooks";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
@@ -245,7 +245,7 @@ export function DataMapper(props: DataMapperProps) {
         size: 1
     });
 
-    // const { projectComponents } = useProjectComponents(langClientPromise, filePath, "currentFile.content");
+    // const { projectComponents } = useProjectComponents(filePath, "currentFile.content");
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -453,7 +453,8 @@ export function DataMapper(props: DataMapperProps) {
             try {
                 traversNode(selection.selectedST.stNode, nodeInitVisitor);
                 const nodes = nodeInitVisitor.getNodes();
-                if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
+                // if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
+                if (hasIONodesPresent(nodes)) {
                     setDmNodes(nodes);
                 }
             } catch (e) {
@@ -550,87 +551,75 @@ export function DataMapper(props: DataMapperProps) {
         recordPanel
     }
 
-    const queryClient = new QueryClient({
-        defaultOptions: {
-          queries: {
-            retry: false,
-            refetchOnWindowFocus: false,
-            staleTime: 1000,
-          },
-        },
-      });
-
     return (
-        <QueryClientProvider client={queryClient}>
-            <DataMapperErrorBoundary hasError={hasInternalError}>
-                <LSClientContext.Provider value={langClientPromise}>
-                    <CurrentFileContext.Provider value={currentFile}>
-                        {selection.state === DMState.INITIALIZED && (
-                            <div className={classes.root}>
-                                {(!!showDMOverlay || showLocalVarConfigPanel) &&
-                                    <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
-                                }
-                                {fnST && (
-                                    <DataMapperHeader
-                                        selection={selection}
-                                        dmSupported={dMSupported}
-                                        changeSelection={handleSelectedST}
-                                        onConfigOpen={onConfigOpen}
-                                    />
-                                )}
-                                {!dMSupported && (
-                                    <>
-                                        {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
-                                        {/* <div className={classes.dmUnsupportedMessage}>
-                                            <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
-                                        </div> */}
-                                    </>
-                                )}
-                                {errorKind && (
-                                    <>
-                                        <div className={classes.overlay} />
-                                        {/* <div className={classes.errorMessage}>
-                                            <WarningBanner
-                                                message={<DataMapperError errorNodeKind={errorKind} />}
-                                                className={classes.errorBanner}
-                                            />
-                                        </div> */}
-                                    </>
-                                )}
-                                <DataMapperDiagram
-                                    nodes={dmNodes}
-                                    onError={handleErrors}
+        <DataMapperErrorBoundary hasError={hasInternalError}>
+            <LSClientContext.Provider value={langClientPromise}>
+                <CurrentFileContext.Provider value={currentFile}>
+                    {selection.state === DMState.INITIALIZED && (
+                        <div className={classes.root}>
+                            {(!!showDMOverlay || showLocalVarConfigPanel) &&
+                                <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                            }
+                            {fnST && (
+                                <DataMapperHeader
+                                    selection={selection}
+                                    dmSupported={dMSupported}
+                                    changeSelection={handleSelectedST}
+                                    onConfigOpen={onConfigOpen}
                                 />
-                                {/* {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />} */}
-                                {!!currentEditableField && dMSupported && (
-                                    <StatementEditorComponent
-                                        expressionInfo={currentEditableField}
-                                        langClientPromise={langClientPromise}
-                                        applyModifications={applyModifications}
-                                        updateFileContent={updateFileContent}
-                                        currentFile={currentFile}
-                                        library={library}
-                                        onCancel={cancelStatementEditor}
-                                        onClose={closeStatementEditor}
-                                        importStatements={importStatements}
-                                        currentReferences={currentReferences}
-                                    />
-                                )}
-                                {showLocalVarConfigPanel && (
-                                    <LocalVarConfigPanel
-                                        handleLocalVarConfigPanel={handleLocalVarConfigPanel}
-                                        applyModifications={applyModifications}
-                                        enableStatementEditor={enableStatementEditor}
-                                        fnDef={selection.selectedST.stNode}
-                                        filePath={filePath}
-                                    />
-                                )}
-                            </div>
-                        )}
-                    </CurrentFileContext.Provider>
-                </LSClientContext.Provider>
-            </DataMapperErrorBoundary>
-        </QueryClientProvider>
+                            )}
+                            {!dMSupported && (
+                                <>
+                                    {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
+                                    {/* <div className={classes.dmUnsupportedMessage}>
+                                        <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
+                                    </div> */}
+                                </>
+                            )}
+                            {errorKind && (
+                                <>
+                                    <div className={classes.overlay} />
+                                    {/* <div className={classes.errorMessage}>
+                                        <WarningBanner
+                                            message={<DataMapperError errorNodeKind={errorKind} />}
+                                            className={classes.errorBanner}
+                                        />
+                                    </div> */}
+                                </>
+                            )}
+                            <DataMapperDiagram
+                                nodes={dmNodes}
+                                onError={handleErrors}
+                            />
+                            {/* {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />} */}
+                            {!!currentEditableField && dMSupported && (
+                                <StatementEditorComponent
+                                    expressionInfo={currentEditableField}
+                                    langClientPromise={langClientPromise}
+                                    applyModifications={applyModifications}
+                                    updateFileContent={updateFileContent}
+                                    currentFile={currentFile}
+                                    library={library}
+                                    onCancel={cancelStatementEditor}
+                                    onClose={closeStatementEditor}
+                                    importStatements={importStatements}
+                                    currentReferences={currentReferences}
+                                />
+                            )}
+                            {showLocalVarConfigPanel && (
+                                <LocalVarConfigPanel
+                                    handleLocalVarConfigPanel={handleLocalVarConfigPanel}
+                                    applyModifications={applyModifications}
+                                    enableStatementEditor={enableStatementEditor}
+                                    fnDef={selection.selectedST.stNode}
+                                    filePath={filePath}
+                                />
+                            )}
+                        </div>
+                    )}
+                </CurrentFileContext.Provider>
+            </LSClientContext.Provider>
+        </DataMapperErrorBoundary>
     )
 }
 
