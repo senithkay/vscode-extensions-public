@@ -350,12 +350,11 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             throw new Error("User is not logged in");
         }
 
-        console.log(`Calling declarative API - ${new Date()}`);
-
         try {
             if (!this._declarativeAPI) {
                 throw new Error("Declarative API endpoint not provided");
             }
+            
             const res = await getHttpClient().get(
                 `${this._declarativeAPI}/core/v1alpha1/projectName/${projectHandler}/componentName/${componentName}/component-config`,
                 {
@@ -365,9 +364,10 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                     },
                 }
             );
+
             return res.data as ComponentYamlContent[];
         } catch (err) {
-            throw new Error(API_CALL_ERROR, { cause: err });        
+            throw new Error(API_CALL_ERROR, { cause: err });
         }    
     }
 }
