@@ -1,0 +1,47 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React from "react";
+import styled from "@emotion/styled";
+import { Colors, EVENT_TYPES } from "../../resources";
+
+export interface TrayItemWidgetProps {
+    model: any;
+    color?: string;
+    name: string;
+}
+
+namespace S {
+    export const Tray = styled.div<{ color: string }>`
+        color: ${Colors.ON_SURFACE};
+        font-family: "GilmerRegular";
+        padding: 5px;
+        margin: 0px 10px;
+        border: solid 1px ${(p) => p.color};
+        border-radius: 5px;
+        margin-bottom: 2px;
+        cursor: pointer;
+    `;
+}
+
+export function TrayItemWidget(props: TrayItemWidgetProps) {
+    const { model, color, name } = props;
+    return (
+        <S.Tray
+            color={color}
+            draggable={true}
+            onDragStart={(event) => {
+                event.dataTransfer.setData(EVENT_TYPES.ADD_NODE, JSON.stringify(model));
+            }}
+            className="tray-item"
+        >
+            {name}
+        </S.Tray>
+    );
+}
