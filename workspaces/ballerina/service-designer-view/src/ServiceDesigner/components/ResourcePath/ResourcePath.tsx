@@ -26,7 +26,7 @@ const verbs = [
 	{
 		content: 'DELETE',
 		id: 'DELETE',
-		value: 'DELETE'	
+		value: 'DELETE'
 	},
 	{
 		content: 'POST',
@@ -65,7 +65,7 @@ export function ResourcePath() {
 	};
 
 	const handlePathAdd = () => {
-		const param: PathParam = {type: "string", name: "param"};
+		const param: PathParam = { type: "string", name: "param" };
 		const updatedParameters = [...pathParams];
 		updatedParameters.push(param)
 		setPathParams(updatedParameters);
@@ -81,7 +81,7 @@ export function ResourcePath() {
 					}}
 				>
 					<Dropdown
-						sx={{width: 160}}
+						sx={{ width: 160 }}
 						isRequired
 						errorMsg=""
 						id="drop-down"
@@ -92,7 +92,7 @@ export function ResourcePath() {
 					/>
 				</div>
 				<TextField
-					sx={{marginLeft: 15, flexGrow: 1}}
+					sx={{ marginLeft: 15, flexGrow: 1 }}
 					autoFocus
 					errorMsg=""
 					label="Resource Path"
@@ -104,7 +104,7 @@ export function ResourcePath() {
 			</PathContainer>
 			<AddButtonWrapper>
 				<LinkButton onClick={handlePathAdd} >
-					<Codicon name="add"/>
+					<Codicon name="add" />
 					<>Add Path Param</>
 				</LinkButton>
 			</AddButtonWrapper>

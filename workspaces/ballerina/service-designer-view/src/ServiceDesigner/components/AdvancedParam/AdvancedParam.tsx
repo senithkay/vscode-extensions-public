@@ -49,7 +49,7 @@ export function AdvancedParams(props: ResourceParamProps) {
         return (
             <AddButtonWrapper>
                 <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
-                    <Codicon name="add"/>
+                    <Codicon name="add" />
                     <>{`Add ${paramType}`}</>
                 </LinkButton>
             </AddButtonWrapper>
@@ -67,7 +67,7 @@ export function AdvancedParams(props: ResourceParamProps) {
                 setEditingComponent(undefined);
                 onChange(updatedParamters);
             };
-    
+
             const onDelete = (param: ParameterConfig) => {
                 updatedParamters.delete(param.option);
                 onChange(updatedParamters);
@@ -76,12 +76,12 @@ export function AdvancedParams(props: ResourceParamProps) {
             const onEdit = () => {
                 setEditingComponent(paramType);
             };
-    
+
             const onParamEditCancel = () => {
                 setEditingComponent(undefined);
                 onDelete(param);
             };
-    
+
             const component = (
                 <div>
                     {editingComponent === paramType ? (

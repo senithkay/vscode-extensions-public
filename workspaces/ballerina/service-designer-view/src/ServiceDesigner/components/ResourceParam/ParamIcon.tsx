@@ -14,7 +14,7 @@ export interface Props {
 }
 
 export function ParamIcon(props: Props): JSX.Element {
-    
+
     return (
         <Icon name={props.option} />
     )

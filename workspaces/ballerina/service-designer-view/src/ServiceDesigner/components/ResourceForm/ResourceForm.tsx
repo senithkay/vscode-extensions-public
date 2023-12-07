@@ -24,18 +24,18 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	isOpen: boolean;
-    onClose: () => void;
+	onClose: () => void;
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-    const { isOpen, onClose } = props;
-	const [parameters, setParameters] = useState<ParameterConfig[]>([{id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true}]);
+	const { isOpen, onClose } = props;
+	const [parameters, setParameters] = useState<ParameterConfig[]>([{ id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true }]);
 	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map([
 		[PARAM_TYPES.HEADER, { id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.HEADER }]
 	]));
 	const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedParams.size > 0);
-	const [payload, setPayload] = useState<ParameterConfig>({id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.PAYLOAD});
-	const [response, setResponse] = useState<ResponseConfig[]>([{id: 0, code: 200}]);
+	const [payload, setPayload] = useState<ParameterConfig>({ id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.PAYLOAD });
+	const [response, setResponse] = useState<ResponseConfig[]>([{ id: 0, code: 200 }]);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
 		setParameters(params);
@@ -62,10 +62,10 @@ export function ResourceForm(props: ResourceFormProps) {
 			<SidePanel
 				isOpen={isOpen}
 				alignmanet="right"
-				sx={{width: 600}}
+				sx={{ width: 600 }}
 			>
 				<SidePanelTitleContainer>
-					<Typography sx={{margin: 0}} variant="h3">Configure Resource</Typography>
+					<Typography sx={{ margin: 0 }} variant="h3">Configure Resource</Typography>
 					<Button onClick={onClose} appearance="icon">X</Button>
 				</SidePanelTitleContainer>
 
@@ -74,26 +74,26 @@ export function ResourceForm(props: ResourceFormProps) {
 
 					<Divider />
 
-					<Typography sx={{marginBlockEnd: 10}} variant="h4">Parameters</Typography>
-					<ResourceParam parameters={parameters} onChange={handleParamChange}/>
-					<Payload parameter={payload} onChange={handlePayloadChange}/>
+					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Parameters</Typography>
+					<ResourceParam parameters={parameters} onChange={handleParamChange} />
+					<Payload parameter={payload} onChange={handlePayloadChange} />
 					<AdvancedParamTitleWrapper>
-						<Typography sx={{marginBlockEnd: 10}} variant="h4">Advanced Parameters</Typography>
-						<LinkButton sx={{marginTop: 12, marginLeft: 8}} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
+						<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
+						<LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
 					</AdvancedParamTitleWrapper>
-					{showAdvanced && <AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange}/>}
+					{showAdvanced && <AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange} />}
 					<Divider />
 
-					<Typography sx={{marginBlockEnd: 10}} variant="h4">Responses</Typography>
-					<Response response={response} onChange={handleResponseChange}/>
+					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
+					<Response response={response} onChange={handleResponseChange} />
 
-                    <ActionButtons
-                        primaryButton={{ text : "Save", onClick: () => console.log("Save Button Clicked"), tooltip: "Save" }}
-                        secondaryButton={{ text : "Cancel", onClick: onClose, tooltip: "Cancel" }}
-                        sx={{justifyContent: "flex-end"}}
-                    />
-                </SidePanelBody>
-				
+					<ActionButtons
+						primaryButton={{ text: "Save", onClick: () => console.log("Save Button Clicked"), tooltip: "Save" }}
+						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
+						sx={{ justifyContent: "flex-end" }}
+					/>
+				</SidePanelBody>
+
 			</SidePanel>
 		</>
 	);

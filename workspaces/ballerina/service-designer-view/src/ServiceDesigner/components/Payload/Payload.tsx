@@ -98,7 +98,7 @@ export function Payload(props: ResourceParamProps) {
                     ) : (
                         <AddButtonWrapper>
                             <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
-                                <Codicon name="add"/>
+                                <Codicon name="add" />
                                 <>Add Payload</>
                             </LinkButton>
                         </AddButtonWrapper>

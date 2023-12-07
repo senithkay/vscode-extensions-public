@@ -62,8 +62,8 @@ export function ParamItem(props: ParamItemProps) {
                             <Codicon name="trash" onClick={handleDelete} />
                         </DeleteIconWrapper>
                     </ActionIconWrapper>
-                 )}
+                )}
             </ContentSection>
         </HeaderLabel>
     );
-}``
+} ``

@@ -106,7 +106,7 @@ export function Response(props: ResourceParamProps) {
                         onCancel={onParamEditCancel}
                     />
                 )
-            }  else if ((editingSegmentId !== index)) {
+            } else if ((editingSegmentId !== index)) {
                 paramComponents.push(
                     <ResponseItem
                         response={{
@@ -127,8 +127,8 @@ export function Response(props: ResourceParamProps) {
             {paramComponents}
             {(editingSegmentId === -1) && (
                 <AddButtonWrapper>
-                    <LinkButton sx={ readonly && {color: "var(--vscode-badge-background)"}} onClick={!readonly && onAddClick} >
-                        <Codicon name="add"/>
+                    <LinkButton sx={readonly && { color: "var(--vscode-badge-background)" }} onClick={!readonly && onAddClick} >
+                        <Codicon name="add" />
                         <>Add Response</>
                     </LinkButton>
                 </AddButtonWrapper>

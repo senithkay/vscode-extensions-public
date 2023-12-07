@@ -39,7 +39,7 @@ export function ParamEditor(props: ParamProps) {
     };
 
     const handleTypeChange = (value: string) => {
-        onChange({ ...param, type: value });        
+        onChange({ ...param, type: value });
     };
 
     const handleChange = (value: string) => {
@@ -67,14 +67,14 @@ export function ParamEditor(props: ParamProps) {
             {optionList && (
                 <Dropdown
                     id="param-type-selector"
-					sx={{width: 172}}
-					isRequired
-					errorMsg=""
-					items={options}
-					label="Param Type"
-					onChange={handleOnSelect}
-					value={param.option}
-				/>
+                    sx={{ width: 172 }}
+                    isRequired
+                    errorMsg=""
+                    items={options}
+                    label="Param Type"
+                    onChange={handleOnSelect}
+                    value={param.option}
+                />
             )}
             <EditorContent>
                 {!hideType && (
@@ -111,9 +111,9 @@ export function ParamEditor(props: ParamProps) {
                 </VSCodeCheckbox>
             )}
             <ActionButtons
-                primaryButton={{ text : "Save", onClick: handleOnSave }}
-                secondaryButton={{ text : "Cancel", onClick: handleOnCancel }}
-                sx={{justifyContent: "flex-end"}}
+                primaryButton={{ text: "Save", onClick: handleOnSave }}
+                secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
+                sx={{ justifyContent: "flex-end" }}
             />
         </EditorContainer >
     );

@@ -66,9 +66,9 @@ export function ResponseEditor(props: ParamProps) {
                 />
             </EditorContent>
             <ActionButtons
-                primaryButton={{ text : "Save", onClick: handleOnSave }}
-                secondaryButton={{ text : "Cancel", onClick: handleOnCancel }}
-                sx={{justifyContent: "flex-end"}}
+                primaryButton={{ text: "Save", onClick: handleOnSave }}
+                secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}
+                sx={{ justifyContent: "flex-end" }}
             />
         </EditorContainer >
     );

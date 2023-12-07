@@ -59,8 +59,8 @@ export function ResponseItem(props: ParamItemProps) {
                             <Codicon name="trash" onClick={handleDelete} />
                         </DeleteIconWrapper>
                     </ActionIconWrapper>
-                 )}
+                )}
             </ContentSection>
         </HeaderLabel>
     );
-}``
+}
