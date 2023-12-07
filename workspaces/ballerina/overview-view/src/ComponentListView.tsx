@@ -58,9 +58,6 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         currentComponents = projectComponentProcessor.getComponents();
     }
 
-    // useEffect(() => {
-    //     // fetchData();
-    // }, []);
 
     const CategoryContainer = styled.div`
     `;
@@ -71,6 +68,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
 
     const ComponentContainer = styled.div`
         display: flex;
+        flex-wrap: wrap;
     `;
 
     const handleComponentSelection = async (info: ComponentViewInfo) => {

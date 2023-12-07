@@ -14,41 +14,51 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
 
 import { ComponentListView } from './ComponentListView';
+import { ConstructorPanel } from './components/ConstructorPanel';
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
+import { TitleBar } from './components/TitleBar';
 
 export function Overview() {
-  const [currentComponents, setCurrentComponents] = useState<any>();
-  const [loading, setLoading] = useState(true);
-  const { ballerinaRpcClient } = useVisualizerContext();
+    const [currentComponents, setCurrentComponents] = useState<any>();
+    const [loading, setLoading] = useState(true);
+    const { ballerinaRpcClient } = useVisualizerContext();
+
+    const [isPanelOpen, setPanelOpen] = useState(false);
+
+    const openPanel = () => {
+        setPanelOpen(!isPanelOpen);
+    };
 
 
-  const fetchData = async () => {
-    try {
-      const res = await ballerinaRpcClient.getOverviewClient().getBallerinaProjectComponents(undefined);
-      setCurrentComponents(res);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
+    const fetchData = async () => {
+        try {
+            const res = await ballerinaRpcClient.getOverviewClient().getBallerinaProjectComponents(undefined);
+            setCurrentComponents(res);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    if (loading) {
+        // Render a loading indicator
+        return <div>Loading...</div>;
     }
-  };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  if (loading) {
-    // Render a loading indicator
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <>
-      <h3>Overview Page</h3>
-      {currentComponents ? (
-        <ComponentListView currentComponents={currentComponents} />
-      ) : (
-        <div>No data available</div>
-      )}
-    </>
-  );
+    return (
+        <>
+            <TitleBar />
+            {currentComponents ? (
+                <ComponentListView currentComponents={currentComponents} />
+            ) : (
+                <div>No data available</div>
+            )}
+        </>
+    );
 }
