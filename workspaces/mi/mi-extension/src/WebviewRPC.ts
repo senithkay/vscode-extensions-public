@@ -46,6 +46,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(GetConnectorsRequest, async () => {
         const connectorNames: GetConnectorsResponse[] = [];
+        if (!fs.existsSync(path.join(__dirname, connectorsPath))) {
+            return connectorNames;
+        }
+
         const connectors = fs.readdirSync(path.join(__dirname, connectorsPath));
         connectors.forEach(connector => {
             const connectorPath = path.join(__dirname, `${connectorsPath}/${connector}`);
@@ -93,8 +97,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             document = await workspace.openTextDocument(Uri.parse(params.documentUri));
         }
 
-        const positionAt = document.positionAt(params.offset);
-        const position = new Position(positionAt.line, positionAt.character);
+        const position = params.position;
         const currentLine = document.lineAt(position.line).text;
         const currentLineIndentation = currentLine.match(/^\s*/);
         const indentation = currentLineIndentation ? currentLineIndentation[0] : "";

@@ -20,16 +20,6 @@ const stInterfacesTS =
     tag: string;
 }\n`;
 
-export interface Range {
-    start: Position;
-    end: Position;
-}
-
-export interface Position {
-    line: number;
-    character: number;
-}
-
 const visitorTS =
     `import * as Synapse from "./syntax-tree-interfaces";
 

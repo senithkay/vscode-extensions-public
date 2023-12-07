@@ -8,9 +8,10 @@
  */
 
 import { RequestType, NotificationType } from 'vscode-messenger-common';
+import { Position } from 'vscode';
 
 export interface ApplyEditParams {
-   offset: number;
+   position: Position;
    text: string;
    documentUri: string;
 }
