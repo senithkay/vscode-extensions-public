@@ -74,7 +74,7 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
     let sourcePort = sourceNode.getPortByAllignment(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.LEFT : (sourceNode.isInOutSequenceNode() ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT));
     const targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.LEFT : (targetNode.isInOutSequenceNode() ? PortModelAlignment.RIGHT : PortModelAlignment.LEFT));
 
-    if (!sourcePort || !targetPort) {
+    if (!sourcePort || !targetPort || sourceNode.isDropSequence()) {
         return [];
     }
 

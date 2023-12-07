@@ -16,6 +16,15 @@ import {
     Sequence,
     Throttle,
     traversNode,
+    Store,
+    Property,
+    PropertyGroup,
+    Respond,
+    Loopback,
+    Call,
+    CallTemplate,
+    Send,
+    Drop
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
@@ -60,6 +69,137 @@ export class NodeInitVisitor implements Visitor {
                 documentUri: this.documentUri,
                 isInOutSequence: this.isInOutSequence,
                 parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitStore(node: Store) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.STORE,
+                description: node.messageStore ? node.messageStore.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitProperty(node: Property) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.PROPERTY,
+                description: node.type.toString(),
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitPropertyGroup(node: PropertyGroup) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.PROPERTYGROUP,
+                description: node.description ? node.description.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitRespond(node: Respond) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.RESPOND,
+                description: node.description ? node.description.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitLoopback(node: Loopback) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.LOOPBACK,
+                description: node.description ? node.description.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitCall(node: Call) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.CALL,
+                description: node.description ? node.description.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitCallTemplate(node: CallTemplate) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.CALLTEMPLATE,
+                description: node.target?.toString(),
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitSend(node: Send) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.SEND,
+                description: node.description ? node.description.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitSequence(node: Sequence) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.SEQUENCE,
+                description: node.tag? node.tag.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitDrop(node: Drop) {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.DROP,
+                description: node.description? node.description.toString() : "",
+                documentUri: this.documentUri,
+                isInOutSequence: this.isInOutSequence,
+                parentNode: this.parents[this.parents.length - 1],
+                dropSequence: true
             }
             ));
     }
