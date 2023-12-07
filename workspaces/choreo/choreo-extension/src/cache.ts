@@ -39,20 +39,28 @@ export class Cache<V, Args extends any[]> {
             }
             return value as V;
         }
-        const res = await this.params.getDataFunc(...args);
-        if (res) {
-            await ext.context.globalState.update(key, res);
-            this.setExpiration(key, ...args);
-            return res;
+        try {
+            const res = await this.params.getDataFunc(...args);
+            if (res) {
+                await ext.context.globalState.update(key, res);
+                this.setExpiration(key, ...args);
+                return res;
+            }
+            return undefined;
+        } catch(err) {
+            throw err;
         }
-        return undefined;
     }
 
     public async invalidate(key: string, ...args: Args): Promise<void> {
-        const res = await this.params.getDataFunc(...args);
-        if (res) {
-            await ext.context.globalState.update(key, res);
-            this.setExpiration(key, ...args);
+        try {
+            const res = await this.params.getDataFunc(...args);
+            if (res) {
+                await ext.context.globalState.update(key, res);
+                this.setExpiration(key, ...args);
+            }
+        } catch(err) {
+            throw err;
         }
     }
 }

@@ -17,13 +17,13 @@
             "type": "string",
             "description": "Name of the component that this configuration belongs to.",
             "minLength": 1,
-            "const": ""
+            "default": ""
         },
         "projectName": {
             "type": "string",
             "description": "Project name of the component that this component belongs to. Cannot be changed after creation.",
             "minLength": 1,
-            "const": ""
+            "default": ""
         },
         "branch": {
             "type": "string",
