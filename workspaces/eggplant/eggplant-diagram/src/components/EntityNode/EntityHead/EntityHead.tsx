@@ -14,6 +14,7 @@ import { EntityModel } from "../EntityModel";
 import { EntityHead, EntityName, OutPorts, OutPortsWrapper } from "../styles";
 import { END_NODE, START_NODE } from "../../../resources";
 import { getEntityPortId } from "../../EntityPort/EntityPortModel";
+import { WorkerPortWidget } from "../../Port/PortWidget";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -47,14 +48,15 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
             onMouseLeave={() => handleOnHover("UNSELECT")}
             data-testid={`entity-head-${displayName}`}
         >
-            <EntityPortWidget port={node.getPort(getEntityPortId(node.getID(), PortModelAlignment.LEFT))} engine={engine} />
+            <WorkerPortWidget port={node.getPort(getEntityPortId(node.getID(), PortModelAlignment.LEFT))} engine={engine} />
+        
 
             <EntityName onClick={onClick}>{displayName}</EntityName>
 
             <OutPortsWrapper>
                 {node.entityObject.links.map((link, index) => (
                     <OutPorts>
-                        <EntityPortWidget
+                        <WorkerPortWidget
                             key={index}
                             port={node.getPort(getEntityPortId(node.getID(), PortModelAlignment.RIGHT, link.name))}
                             engine={engine}

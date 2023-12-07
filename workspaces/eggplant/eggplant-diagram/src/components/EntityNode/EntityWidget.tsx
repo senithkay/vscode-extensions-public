@@ -8,50 +8,75 @@
  */
 
 import React, { useContext, useEffect, useState } from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { DiagramEngine, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { EntityModel } from "./EntityModel";
 import { EntityLinkModel } from "../EntityLink/EntityLinkModel";
 import { EntityHeadWidget } from "./EntityHead/EntityHead";
-import { EntityNode } from "./styles";
+import { EntityName, EntityNode, FieldName, OutPorts, OutPortsWrapper, RecordFieldContainer } from "./styles";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { END_NODE, START_NODE } from "../../resources";
+import { WorkerLinkModel } from "../Link/LinkModel";
+import { WorkerPortWidget } from "../Port/PortWidget";
+import { getEntityPortId } from "../EntityPort/EntityPortModel";
 
 interface EntityWidgetProps {
     node: EntityModel;
     engine: DiagramEngine;
 }
 
+
+
+
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
     const { selectedNodeId } = useContext(DiagramContext);
-    const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
+    const [selectedLink, setSelectedLink] = useState<WorkerLinkModel>(undefined);
 
-    useEffect(() => {
-        node.registerListener({
-            SELECT: (event: any) => {
-                setSelectedLink(event.entity as EntityLinkModel);
-            },
-            UNSELECT: () => {
-                setSelectedLink(undefined);
-            },
-        });
-    }, [node]);
+    // useEffect(() => {
+    //     node.registerListener({
+    //         SELECT: (event: any) => {
+    //             setSelectedLink(event.entity as LinkModel);
+    //         },
+    //         UNSELECT: () => {
+    //             setSelectedLink(undefined);
+    //         },
+    //     });
+    // }, [node]);
 
     const handleOnHeaderWidgetClick = () => {
         // TODO: handle entity click
     };
 
+    const displayName: string = node.entityObject.name === START_NODE ? "Start" : node.entityObject.name === END_NODE ? "End" : node.entityObject.name;
+
     return (
-        <EntityNode
-            isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
+        <RecordFieldContainer
+            isSelected={node.getID() === selectedNodeId}
             isPill={node.entityObject.name === START_NODE || node.entityObject.name === END_NODE}
         >
-            <EntityHeadWidget
+            {/* <EntityHeadWidget
                 engine={engine}
                 node={node}
-                isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
+                isSelected={node.getID() === selectedNodeId}
                 onClick={handleOnHeaderWidgetClick}
-            />
-        </EntityNode>
+            /> */}
+
+            <WorkerPortWidget port={node.getPort(getEntityPortId(node.getID(), PortModelAlignment.LEFT))} engine={engine} />
+
+
+            <FieldName onClick={handleOnHeaderWidgetClick}>{displayName}</FieldName>
+
+            <OutPortsWrapper>
+                {node.entityObject.links.map((link, index) => (
+                    <OutPorts>
+                        <WorkerPortWidget
+                            key={index}
+                            port={node.getPort(getEntityPortId(node.getID(), PortModelAlignment.RIGHT, link.name))}
+                            engine={engine}
+                        />
+                    </OutPorts>
+                ))}
+            </OutPortsWrapper>
+        </RecordFieldContainer>
     );
 }

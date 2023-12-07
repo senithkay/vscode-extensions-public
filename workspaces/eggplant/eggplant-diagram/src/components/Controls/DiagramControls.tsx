@@ -30,6 +30,8 @@ export const ControlPanel: React.FC<any> = styled.div`
     position: absolute;
     right: 15px;
     width: 32px;
+    height: fit-content;
+    min-height: max-content;
 `;
 
 export function DiagramControls(props: ControlProps) {

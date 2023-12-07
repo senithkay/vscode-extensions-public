@@ -10,3 +10,4 @@
 
 export { EggplantDiagram } from './Diagram';
 export type { Model } from './types/types';
+export { DiagramCanvas } from "./DiagramCanvas";

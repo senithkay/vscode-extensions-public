@@ -7,7 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { PortModel, PortModelAlignment } from "@projectstorm/react-diagrams";
+import { DefaultLinkModel, PortModel, PortModelAlignment, PortModelGenerics } from "@projectstorm/react-diagrams";
+import { EntityLinkModel } from "../EntityLink/EntityLinkModel";
 
 export class EntityPortModel extends PortModel {
     constructor(id: string, portType: PortModelAlignment) {
@@ -20,8 +21,16 @@ export class EntityPortModel extends PortModel {
     }
 
     isLocked(): boolean {
+        return false;
+    }
+
+    canLinkToPort(port: PortModel<PortModelGenerics>): boolean {
         return true;
     }
+
+    // createLinkModel() {
+    //     return new DefaultLinkModel();
+    // }
 }
 
 export function getEntityPortName(parentEntity: string, targetEntity?: string): string {

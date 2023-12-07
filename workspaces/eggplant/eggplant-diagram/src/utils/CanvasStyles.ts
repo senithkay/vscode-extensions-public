@@ -18,7 +18,7 @@ export const useStyles = makeStyles(() =>
             backgroundImage: `url('${CanvasBackground}')`,
             backgroundRepeat: 'repeat',
             minHeight: 'calc(100vh - 50px)',
-            minWidth: '100vw'
+            minWidth: '100%'
         }
     })
 );
@@ -26,10 +26,8 @@ export const useStyles = makeStyles(() =>
 export const Container = styled.div`
     align-items: center;
     display: flex;
-    flex-direction: column;
     height: 100vh;
-    justify-content: center;
-    width: 100vw;
+    width: 100%;
 `;
 
 export const DiagramContainer = styled.div`
@@ -39,8 +37,26 @@ export const DiagramContainer = styled.div`
     flex-direction: column;
     height: calc(100vh - 50px);
     justify-content: center;
-    width: 100vw;
+    width: 100%;
     svg:not(:root) {
         overflow: visible;
     }
 `;
+
+export const WorkerContainer: React.FC<any> = styled.div`
+  height: 100vh;
+  background-image: url('${CanvasBackground}');
+  background-repeat: repeat;
+  display: flex;
+  font-family: 'GilmerRegular';
+
+  > * {
+    height: 100%;
+    min-height: 100%;
+    width: 100%;
+  }
+  svg:not(:root) {
+    overflow: visible;
+  }
+`;
+

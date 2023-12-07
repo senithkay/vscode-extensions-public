@@ -13,11 +13,12 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { modelMapper, generateEngine } from "./utils";
 import { DiagramControls, OverlayLayerModel, PromptScreen } from "./components";
 import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from "./resources";
-import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
+import { Container, DiagramContainer, WorkerContainer, useStyles } from "./utils/CanvasStyles";
 
 import "./resources/assets/font/fonts.css";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
 import { Model } from "./types/types";
+import { DefaultState } from "./components/PortLinking/DefaultState";
 
 interface EggplantDiagramProps {
     model: Model;
@@ -62,12 +63,15 @@ export function EggplantDiagram(props: EggplantDiagramProps) {
                     .find((layer) => layer instanceof OverlayLayerModel)
             );
             diagramEngine.setModel(model);
+            // Use this custom "DefaultState" instead of the actual default state we get with the engine
+            diagramEngine.getStateMachine().pushState(new DefaultState());
         }, 30);
     };
 
     return (
-        <Container>
-            <DiagramContainer>
+        // <Container>
+        //     <DiagramContainer>
+        <WorkerContainer>
                 {diagramEngine?.getModel() && diagramModel ? (
                     <>
                         <NavigationWrapperCanvasWidget
@@ -81,7 +85,8 @@ export function EggplantDiagram(props: EggplantDiagramProps) {
                 ) : (
                     <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 )}
-            </DiagramContainer>
-        </Container>
+        </WorkerContainer>
+        //     </DiagramContainer>
+        // </Container>
     );
 }

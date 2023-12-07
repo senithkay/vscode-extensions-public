@@ -7,10 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine, DiagramModel, PortModelAlignment } from "@projectstorm/react-diagrams";
+import createEngine, { DefaultLinkModel, DefaultNodeModel, DiagramEngine, DiagramModel, PortModelAlignment } from "@projectstorm/react-diagrams";
 import { EntityLinkModel, EntityModel, EntityPortModel, OverlayLayerFactory, EntityFactory, EntityLinkFactory, EntityPortFactory } from "../components";
 import { Node } from "../types/types";
 import { getEntityPortId } from "../components/EntityPort/EntityPortModel";
+import { WorkerPortFactory } from "../components/Port/WorkerPortFactory";
+import { LinkFactory } from "../components/Link/LinkFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
@@ -21,6 +23,8 @@ export function generateEngine(): DiagramEngine {
     engine.getPortFactories().registerFactory(new EntityPortFactory());
     engine.getNodeFactories().registerFactory(new EntityFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+    engine.getLinkFactories().registerFactory(new LinkFactory());
+    engine.getPortFactories().registerFactory(new WorkerPortFactory());
     return engine;
 }
 

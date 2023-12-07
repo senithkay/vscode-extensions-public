@@ -30,11 +30,29 @@ export const EntityNode: React.FC<any> = styled.div`
     color: ${Colors.DEFAULT_TEXT};
     display: flex;
     flex-direction: column;
-    padding: 10px;
+    padding: 0px;
     cursor: grab;
     &:active {
         cursor: grabbing;
     }
+`;
+
+export const RecordFieldContainer: React.FC<any> = styled.div`
+  align-items: center;
+  background-color: ${(props: StyleProps) => (props.isPill ? PILL_BACKGROUND : Colors.NODE_BACKGROUND)};
+  border-radius: ${(props: StyleProps) => (props.isPill ? "36px" : "6px")} !important;
+  border-bottom: 0.5px solid #cccde3;
+  color: #000000;
+  display: flex;
+  flex-direction: row;
+  font-family: GilmerRegular;
+  font-size: 12px;
+  height: 30px;
+  justify-content: flex-start;
+  line-height: 16px;
+  min-width: calc(100% - 16px);
+  padding: 0px;
+  text-align: center;
 `;
 
 export const EntityHead: React.FC<any> = styled.div`
@@ -46,7 +64,7 @@ export const EntityHead: React.FC<any> = styled.div`
     justify-content: space-between;
     line-height: 20px;
     min-width: ${(props: StyleProps) => (props.isCollapsed ? `calc(100% - 40px)` : `calc(100% - 100px)`)};
-    padding: ${(props: StyleProps) => (props.isCollapsed ? `0px 20px` : `0px 20px`)};
+    padding: 0px;
     text-align: center;
 `;
 
@@ -56,6 +74,26 @@ export const EntityName: React.FC<any> = styled.span`
         cursor: ${(props: StyleProps) => (props.isClickable ? `grabbing` : ``)};
         text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};
     }
+
+
+`;
+
+export const FieldName: React.FC<any> = styled.span`
+  align-items: center;
+  color: #000000;
+  display: flex;
+  flex: 1;
+  font-family: GilmerRegular;
+  font-size: 12px;
+  line-height: 30px;
+  min-width: 20px;
+  justify-content: center;
+
+  &:hover {
+    color: ${(props: StyleProps) => (props.isClickable ? PRIMARY_HOVER : ``)};
+    cursor: ${(props: StyleProps) => (props.isClickable ? `grabbing` : ``)};
+    text-decoration: ${(props: StyleProps) => (props.isClickable ? `underline` : ``)};
+}
 `;
 
 export const AttributeContainer: React.FC<any> = styled.div`

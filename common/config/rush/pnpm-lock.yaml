@@ -1364,6 +1364,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.0
       '@typescript-eslint/parser': ^6.9.0
       '@vscode/test-electron': ^2.3.6
+      '@vscode/vsce': ^2.22.0
       '@wso2-enterprise/eggplant-webview': workspace:*
       eslint: ^8.52.0
       glob: ^10.3.10
@@ -1376,6 +1377,7 @@ importers:
       '@typescript-eslint/eslint-plugin': 6.10.0_u434aypout3c3z2ybwpl5ggmim
       '@typescript-eslint/parser': 6.10.0_5iy6f2d3forlnf27wdbuobyvmm
       '@vscode/test-electron': 2.3.6
+      '@vscode/vsce': 2.22.0
       '@wso2-enterprise/eggplant-webview': link:../webview
       eslint: 8.53.0
       glob: 10.3.10

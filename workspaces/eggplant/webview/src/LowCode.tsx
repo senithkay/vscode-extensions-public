@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { EggplantDiagram } from "@wso2-enterprise/eggplant-diagram";
+import { DiagramCanvas } from "@wso2-enterprise/eggplant-diagram";
 
 const model = {
     nodes: [
@@ -30,7 +30,7 @@ const model = {
 const LowCode = () => {
     return (
         <div>
-            <EggplantDiagram model={model} />
+            <DiagramCanvas model={model} />
         </div>
     );
 };

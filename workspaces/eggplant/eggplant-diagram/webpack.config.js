@@ -6,7 +6,7 @@ module.exports = {
   devtool: "source-map",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "EggplantDiagram.js",
+    filename: "DiagramCanvas.js",
     library: "persistDiagram",
   },
   resolve: {

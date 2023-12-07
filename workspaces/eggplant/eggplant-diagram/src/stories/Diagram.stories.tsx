@@ -9,14 +9,14 @@
 
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import { EggplantDiagram } from "../Diagram";
+import { DiagramCanvas } from "../DiagramCanvas";
 
 export default {
     title: "EggplantDiagram",
-    component: EggplantDiagram,
+    component: DiagramCanvas,
 } as Meta;
 
-const Template: Story = (args: any) => <EggplantDiagram {...args} />;
+const Template: Story = (args: any) => <DiagramCanvas {...args} />;
 
 export const Simple = Template.bind({});
 Simple.args = {

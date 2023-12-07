@@ -11,6 +11,8 @@ import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { SharedNodeModel } from "../shared-node/shared-node";
 import { EntityPortModel, getEntityPortName } from "../EntityPort/EntityPortModel";
 import { Node } from "../../types/types";
+import { WorkerPortModel } from "../Port/WorkerPortModel";
+
 
 export class EntityModel extends SharedNodeModel {
     readonly entityObject: Node;
@@ -19,10 +21,10 @@ export class EntityModel extends SharedNodeModel {
         super("entityNode", entityName);
         this.entityObject = entityObject;
 
-        this.addPort(new EntityPortModel(getEntityPortName(entityName), PortModelAlignment.LEFT));
+        this.addPort(new WorkerPortModel(getEntityPortName(entityName), PortModelAlignment.LEFT));
 
         entityObject.links.map((link) => {
-            this.addPort(new EntityPortModel(getEntityPortName(entityName, link.name), PortModelAlignment.RIGHT));
+            this.addPort(new WorkerPortModel(getEntityPortName(entityName, link.name), PortModelAlignment.RIGHT));
         });
     }
 }
