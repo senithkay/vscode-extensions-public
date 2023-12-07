@@ -68,17 +68,21 @@ export class NodeInitVisitor implements Visitor {
         const currentSequence = this.currentSequence;
         const onAcceptSequenceNodes: [] = [];
         const onRejectSequenceNodes: [] = [];
-        this.currentSequence = onAcceptSequenceNodes;
 
         this.parents.push(node);
-        (node.onAccept.mediatorList as any).forEach((mediator: STNode) => {
-            traversNode(mediator, this);
-        });
+        if (node.onAccept) {
+            this.currentSequence = onAcceptSequenceNodes;
+            (node.onAccept.mediatorList as any).forEach((mediator: STNode) => {
+                traversNode(mediator, this);
+            });
+        }
 
-        this.currentSequence = onRejectSequenceNodes;
-        (node.onReject.mediatorList as any).forEach((mediator: STNode) => {
-            traversNode(mediator, this);
-        });
+        if (node.onReject) {
+            this.currentSequence = onRejectSequenceNodes;
+            (node.onReject.mediatorList as any).forEach((mediator: STNode) => {
+                traversNode(mediator, this);
+            });
+        }
         this.parents.pop();
 
         this.currentSequence = currentSequence;
@@ -86,7 +90,7 @@ export class NodeInitVisitor implements Visitor {
             new AdvancedMediatorNodeModel({
                 node: node,
                 name: MEDIATORS.THROTTLE,
-                description: node.id.toString(),
+                description: node.id?.toString(),
                 documentUri: this.documentUri,
                 isInOutSequence: this.isInOutSequence,
                 parentNode: this.parents[this.parents.length - 1],
