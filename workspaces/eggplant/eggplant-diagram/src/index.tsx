@@ -7,7 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import React from 'react';
 
-export { EggplantDiagram } from './Diagram';
+import { BodyWidget } from './components/layout/BodyWidget';
+import { App } from './App';
+
 export type { Model } from './types/types';
-export { DiagramCanvas } from "./DiagramCanvas";
+
+export default () => {
+	var app = new App();
+	return <BodyWidget app={app} />;
+};

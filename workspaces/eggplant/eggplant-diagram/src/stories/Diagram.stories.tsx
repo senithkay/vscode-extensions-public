@@ -9,7 +9,7 @@
 
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import { DiagramCanvas } from "../DiagramCanvas";
+import DiagramCanvas from "../index";
 
 export default {
     title: "EggplantDiagram",
@@ -27,46 +27,6 @@ Simple.args = {
             { name: "C", links: [{ name: "FunctionEnd" }] },
             { name: "FunctionStart", links: [{ name: "A" }] },
             { name: "FunctionEnd", links: [] },
-        ],
-    },
-};
-
-export const MultiPorts = Template.bind({});
-MultiPorts.args = {
-    model: {
-        nodes: [
-            { name: "A", links: [{ name: "B" }, { name: "C" }, { name: "D" }, { name: "E" }, { name: "G" }, { name: "H" }] },
-            { name: "B", links: [{ name: "FunctionEnd" }] },
-            { name: "C", links: [{ name: "FunctionEnd" }] },
-            { name: "D", links: [{ name: "FunctionEnd" }] },
-            { name: "E", links: [{ name: "FunctionEnd" }] },
-            { name: "F", links: [{ name: "FunctionEnd" }] },
-            { name: "G", links: [{ name: "FunctionEnd" }] },
-            { name: "H", links: [{ name: "FunctionEnd" }] },
-            { name: "I", links: [{ name: "K" }] },
-            { name: "L", links: [{ name: "K" }] },
-            { name: "K", links: [{ name: "FunctionEnd" }] },
-            { name: "FunctionStart", links: [{ name: "A" }, { name: "F" }, { name: "I" }, { name: "L" }] },
-            { name: "FunctionEnd", links: [] },
-        ],
-    },
-};
-
-export const Complex = Template.bind({});
-Complex.args = {
-    model: {
-        nodes: [
-            { name: "GetAppointmentFee", links: [{ name: "LogAppointmentFee" }, { name: "CreatePaymentRequest" }] },
-            { name: "FunctionStart", links: [{ name: "LogHospitalDetails" }, { name: "CreateAppointmentPayload" }] },
-            { name: "LogAppointmentFee", links: [] },
-            { name: "FunctionEnd", links: [] },
-            { name: "CreatePaymentRequest", links: [{ name: "MakePayment" }] },
-            { name: "LogHospitalDetails", links: [] },
-            { name: "CreateAppointment", links: [{ name: "GetAppointmentFee" }, { name: "LogAppointment" }] },
-            { name: "LogAppointment", links: [] },
-            { name: "MakePayment", links: [{ name: "FunctionEnd" }, { name: "LogPaymentResponse" }] },
-            { name: "LogPaymentResponse", links: [] },
-            { name: "CreateAppointmentPayload", links: [{ name: "CreateAppointment" }] },
         ],
     },
 };

@@ -7,37 +7,46 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DagreEngine } from '@projectstorm/react-diagrams-routing';
+import exp from "constants";
 
 export enum Colors {
-    DEFAULT_TEXT = '#40404B',
-    PRIMARY = '#5567D5',
-    PRIMARY_LIGHT = '#CBCEDB',
-    PRIMARY_SELECTED = '#ffaf4d',
-    PRIMARY_FOCUSED = '#d59155',
-    SECONDARY = '#F0F1FB',
-    SECONDARY_SELECTED = '#fffaf2',
-    SHADED_SELECTED = '#faead2',
-    NODE_BACKGROUND = '#F7F8FB',
-    NODE_BORDER = '#CBCEDB'
+    PRIMARY = "#5567D5",
+    ON_PRIMARY = "#FFF",
+    PRIMARY_CONTAINER = "#F0F1FB",
+
+    SECONDARY = "#ffaf4d",
+    ON_SECONDARY = "#FFF",
+    SECONDARY_CONTAINER = "#fffaf2",
+
+    SURFACE_BRIGHT = "#FFF",
+    SURFACE = "#F7F8FB",
+    SURFACE_DIM = "#CBCEDB",
+    ON_SURFACE = "#000",
+    ON_SURFACE_VARIANT = "#40404B",
+    SURFACE_CONTAINER = "#cfd1f3",
+
+    OUTLINE = "#393939",
+    OUTLINE_VARIANT = "#808080",
+
+    ERROR = "#ED2633",
 }
-
-export const dagreEngine = new DagreEngine({
-    graph: {
-        rankdir: 'LR',
-        ranksep: 160,
-        edgesep: 40,
-        nodesep: 40,
-        ranker: 'network-simplex',
-        marginx: 40,
-        marginy: 40
-    },
-    includeLinks: true
-});
-
-
-export const NO_ENTITIES_DETECTED = 'Could not detect any entities in the Persist model.';
-export const ERRONEOUS_MODEL = 'Please resolve the diagnostics to view the ER diagram.';
 
 export const START_NODE = "FunctionStart";
 export const END_NODE = "FunctionEnd";
+
+export const EVENT_TYPES = {
+    ADD_NODE: "add-node",
+    ADD_LINK: "add-link",
+    DELETE_NODE: "delete-node",
+    DELETE_LINK: "delete-link",
+    UPDATE_NODE: "update-node",
+};
+
+export const NODE_TYPE = {
+    FUNCTION: "function",
+    TRIGGER: "trigger",
+    ACTION: "action",
+    CONDITION: "condition",
+    START: "start",
+    END: "end",
+};
