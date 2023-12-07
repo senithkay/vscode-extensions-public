@@ -26,7 +26,7 @@ export enum Colors {
     SURFACE_CONTAINER = "#cfd1f3",
 
     OUTLINE = "#393939",
-    OUTLINE_VARIANT = "#808080",
+    OUTLINE_VARIANT = "#a8a8a8",
 
     ERROR = "#ED2633",
 }

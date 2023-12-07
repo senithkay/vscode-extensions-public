@@ -54,15 +54,21 @@ export function BodyWidget(props: BodyWidgetProps) {
             var node: DefaultNodeModel = null;
             switch (data.type) {
                 case NODE_TYPE.START:
-                    node = new DefaultNodeModel("Start" + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
+                    node = new DefaultNodeModel("Start " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
                     node.addOutPort("Out");
                     break;
                 case NODE_TYPE.END:
-                    node = new DefaultNodeModel("End " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
+                    node = new DefaultNodeModel("Return " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
                     node.addInPort("In");
                     break;
+                case NODE_TYPE.CONDITION:
+                    node = new DefaultNodeModel("Switch " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
+                    node.addInPort("In");
+                    node.addOutPort("OutCase1");
+                    node.addOutPort("OutCase2");
+                    break;
                 default:
-                    node = new DefaultNodeModel("Action " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
+                    node = new DefaultNodeModel("Function " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
                     node.addInPort("In");
                     node.addOutPort("Out");
             }
@@ -79,8 +85,9 @@ export function BodyWidget(props: BodyWidgetProps) {
             <S.Content>
                 <TrayWidget>
                     <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.ACTION }} name="Action" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.END }} name="End" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.END }} name="Return" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.CONDITION }} name="Switch" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.FUNCTION }} name="Function" />
                 </TrayWidget>
                 <S.Layer
                     onDrop={handleDrop}

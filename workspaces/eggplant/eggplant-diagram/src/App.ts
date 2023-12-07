@@ -39,17 +39,13 @@ export class App {
 
         var node2 = new DefaultNodeModel("Action", Colors.PRIMARY_CONTAINER);
         let port2 = node2.addInPort("In");
-        node2.addOutPort("Out");
+        node2.addOutPort("Out1");
         node2.setPosition(300, 100);
-
-        var node3 = new DefaultNodeModel("End", Colors.PRIMARY_CONTAINER);
-        node3.addInPort("In");
-        node3.setPosition(600, 100);
 
         // link the ports
         let link1 = port.link(port2);
 
-        this.activeModel.addAll(node1, node2, node3, link1);
+        this.activeModel.addAll(node1, node2, link1);
     }
 
     public getActiveDiagram(): DiagramModel {

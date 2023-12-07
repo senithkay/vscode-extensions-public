@@ -20,13 +20,14 @@ export interface TrayItemWidgetProps {
 namespace S {
     export const Tray = styled.div<{ color: string }>`
         color: ${Colors.ON_SURFACE};
-        font-family: "GilmerRegular";
-        padding: 5px;
-        margin: 0px 10px;
-        border: solid 1px ${(p) => p.color};
+        font-family: sans-serif;
+        font-size: 14px;
+        padding: 8px 12px;
+        border: solid 2px ${Colors.OUTLINE_VARIANT};;
         border-radius: 5px;
         margin-bottom: 2px;
         cursor: pointer;
+        width: max-content;
     `;
 }
 

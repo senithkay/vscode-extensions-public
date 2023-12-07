@@ -45,33 +45,23 @@ namespace S {
     `;
 
     export const Ports = styled.div`
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 8px;
-        height: 100%;
+        display: flex;        
     `;
 
     export const InPorts = styled(Ports)`
-        margin-left: -8px;
+        margin-left: -9px;
     `;
 
     export const OutPorts =  styled(Ports)`
-        margin-right: -8px;
+        margin-right: -9px;
     `;
 
     export const PortsContainer = styled.div`
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-
-        &:first-of-type {
-            margin-right: 10px;
-        }
-
-        &:only-child {
-            margin-right: 0px;
-        }
+        gap: 8px;
+        margin: 8px 0;
     `;
 }
 
