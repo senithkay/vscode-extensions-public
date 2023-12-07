@@ -10,12 +10,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ComponentLinkModel } from "./ComponentLinkModel";
-import { COMPONENT_LINK, Colors } from "../../../resources";
+import { COMPONENT_LINK, Colors, WarningIcon } from "../../../resources";
 import { Popover } from "@wso2-enterprise/ui-toolkit";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { DiagramLayer } from "../../Controls/DiagramLayers";
+import { DiagramLayer } from "../../../types";
 import { SharedLink } from "../../shared-link/shared-link";
 
 interface WidgetProps {
@@ -63,6 +63,10 @@ export function ComponentLinkWidget(props: WidgetProps) {
     const hasObservabilityLayer = hasLayer(DiagramLayer.OBSERVABILITY);
     const hasDiffLayer = hasLayer(DiagramLayer.DIFF);
 
+    const hideLink =
+        (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) ||
+        (hasArchitectureLayer && !hasObservabilityLayer && !hasDiffLayer && link.observationOnly);
+
     useEffect(() => {
         const listener = link.registerListener({
             SELECT: selectPath,
@@ -71,9 +75,12 @@ export function ComponentLinkWidget(props: WidgetProps) {
         return () => {
             link.deregisterListener(listener);
         };
-    }, [link]);
+    }, [link, hideLink]);
 
     const selectPath = () => {
+        if (hideLink) {
+            return;
+        }
         setIsSelected(true);
         link.selectLinkedNodes();
     };
@@ -85,6 +92,9 @@ export function ComponentLinkWidget(props: WidgetProps) {
 
     const handleMouseOver = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
         event.stopPropagation();
+        if (hideLink) {
+            return;
+        }
         selectPath();
         setAnchorEl(event.currentTarget);
     };
@@ -117,7 +127,7 @@ export function ComponentLinkWidget(props: WidgetProps) {
         if (hasObservabilityLayer && link.observations?.length > 0) {
             return Colors.PRIMARY;
         }
-        if (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) {
+        if (hideLink) {
             return "transparent";
         }
 
@@ -150,23 +160,18 @@ export function ComponentLinkWidget(props: WidgetProps) {
                         <polygon points="0,6 0,0 5,3" fill={strokeColor()}></polygon>
                     </marker>
                 </defs>
-                <path d={link.getCurvePath()} cursor={"pointer"} fill={"none"} stroke={"transparent"} strokeWidth={40} />
+                <path d={link.getCurvePath()} fill={"none"} stroke={"transparent"} strokeWidth={40} />
                 <SharedLink.Path
                     selected={hasObservabilityLayer && isSelected}
                     id={link.getID()}
                     d={link.getCurvePath()}
-                    cursor={"pointer"}
                     fill={"none"}
                     stroke={strokeColor()}
                     strokeWidth={strokeWidth()}
                     strokeDasharray={strokeDash()}
                     markerEnd={!hasObservabilityLayer ? "url(#" + link.getLinkArrowId() + ")" : ""}
                 />
-                {hasDiffLayer && link.observationOnly && (
-                    <text x={midPoint.x} y={midPoint.y} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: "20px" }}>
-                        !!
-                    </text>
-                )}
+                {hasDiffLayer && link.observationOnly && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
             </g>
             {(hasObservabilityLayer || link.tooltip) && (
                 <Popover

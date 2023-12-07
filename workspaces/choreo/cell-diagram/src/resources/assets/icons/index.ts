@@ -19,6 +19,7 @@ export { LayersIcon } from "./LayersIcon";
 export { ObservationIcon } from "./ObservationIcon";
 export { DiffIcon } from "./DiffIcon";
 export { DiagramIcon } from "./DiagramIcon";
+export { InfoIcon } from "./InfoIcon";
 
 // Cell icons
 export { GatewayIcon } from "./GatewayIcon";

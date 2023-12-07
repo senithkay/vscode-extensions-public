@@ -12,6 +12,9 @@ import styled from "@emotion/styled";
 import gsap from "gsap";
 import { useDiagramContext } from "../DiagramContext/DiagramContext";
 import { Colors, DiagramIcon, DiffIcon, LayersIcon, ObservationIcon } from "../../resources";
+import { DiagramLayer } from "../../types";
+import { CanvasControlButton } from "./ControlButtons/ControlButton";
+import { LayerButton } from "./LayerButton";
 
 export const DiagramLayersPanel: React.FC<any> = styled.div`
     display: flex;
@@ -54,32 +57,6 @@ export const MainButton: React.FC<any> = styled.div`
     }
 `;
 
-export const LayerButton: React.FC<any> = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 12px;
-    cursor: ${(props) => (props.clickable ? "pointer" : "not-allowed")};
-    color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.ON_SURFACE_VARIANT)};
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    div {
-        border: 1px solid ${(props) => (props.selected ? Colors.PRIMARY : Colors.SURFACE_DIM)};
-        background-color: ${Colors.SURFACE};
-        color: ${(props) => (props.selected ? Colors.PRIMARY : Colors.OUTLINE_VARIANT)};
-    }
-    &:hover {
-        color: ${Colors.PRIMARY};
-    }
-    &:hover div {
-        border: 1px solid ${Colors.PRIMARY};
-        color: ${Colors.PRIMARY};
-    }
-`;
-
 export const LayerIcon: React.FC<any> = styled.div`
     width: 40px;
     height: 40px;
@@ -91,12 +68,6 @@ export const LayerIcon: React.FC<any> = styled.div`
     box-sizing: border-box;
     padding: 4px;
 `;
-
-export enum DiagramLayer {
-    ARCHITECTURE = "architecture",
-    OBSERVABILITY = "observability",
-    DIFF = "diff",
-}
 
 interface DiagramLayersProps {
     animation?: boolean;
@@ -156,17 +127,19 @@ export function DiagramLayers(props: DiagramLayersProps) {
 
     return (
         <DiagramLayersPanel ref={controlPanelRef}>
-            <div onClick={toggleDiagramLayerPanel}>
-                <MainButton selected={hasLayer(DiagramLayer.OBSERVABILITY) || hasLayer(DiagramLayer.DIFF)}>
-                    <LayersIcon styles={{ width: 24, height: 24 }} />
-                </MainButton>
-            </div>
+            <CanvasControlButton onClick={toggleDiagramLayerPanel} tooltipTitle={!hover ? "Toggle architecture layers" : ""}>
+                <LayersIcon />
+            </CanvasControlButton>
             {hover && (
                 <LayersPanel>
                     <LayerButton
                         onClick={toggleArchitectureLayer}
                         selected={hasLayer(DiagramLayer.ARCHITECTURE)}
                         clickable={hasLayer(DiagramLayer.ARCHITECTURE) ? canRemoveLayer : true}
+                        tooltipTitle={"Toggle static architecture layer"}
+                        tooltipDescription={
+                            "Visualize the static architecture defined in the component-config.yaml file. This layer represents the intended architecture of the system and shows the connections between components as specified by the user."
+                        }
                     >
                         <LayerIcon>
                             <DiagramIcon styles={{ width: 24, height: 24 }} />
@@ -177,21 +150,29 @@ export function DiagramLayers(props: DiagramLayersProps) {
                         onClick={toggleObservabilityLayer}
                         selected={hasLayer(DiagramLayer.OBSERVABILITY)}
                         clickable={hasLayer(DiagramLayer.OBSERVABILITY) ? canRemoveLayer : true}
+                        tooltipTitle={"Toggle runtime architecture layer"}
+                        tooltipDescription={
+                            "Visualize the runtime architecture of the system. This layer represents the actual runtime architecture of the system and shows the connections between components based on observability data."
+                        }
                     >
                         <LayerIcon>
                             <ObservationIcon styles={{ width: 24, height: 24 }} />
                         </LayerIcon>
-                        Obs
+                        Runtime
                     </LayerButton>
                     <LayerButton
                         onClick={toggleDiffLayer}
                         selected={hasLayer(DiagramLayer.DIFF)}
                         clickable={hasLayer(DiagramLayer.DIFF) ? canRemoveLayer : true}
+                        tooltipTitle={"Toggle architectural drift layer"}
+                        tooltipDescription={
+                            "Detect architectural drift by comparing the static and runtime architecture layers. This layer highlights the differences between the static and runtime architecture layers, allowing you to identify architectural drift."
+                        }
                     >
                         <LayerIcon>
                             <DiffIcon styles={{ width: 24, height: 24 }} />
                         </LayerIcon>
-                        Drift
+                        Diff
                     </LayerButton>
                 </LayersPanel>
             )}
