@@ -21,6 +21,7 @@ interface SimpleMediatorNodeModelProps {
     documentUri: string;
     isInOutSequence: boolean;
     parentNode?: STNode;
+    dropSequence?: boolean
 }
 export class SimpleMediatorNodeModel extends BaseNodeModel {
     readonly id: string;
@@ -28,9 +29,9 @@ export class SimpleMediatorNodeModel extends BaseNodeModel {
     readonly mediatorDescription: string;
 
     constructor(props: SimpleMediatorNodeModelProps) {
-        const { node, documentUri, isInOutSequence, parentNode } = props;
+        const { node, documentUri, isInOutSequence, parentNode, dropSequence } = props;
         const id = `${node.tag}${node.range.start.line}.${node.range.start.character}:${node.range.end.line}.${node.range.end.character}`;
-        super(SIMPLE_NODE, id, documentUri, isInOutSequence, node, parentNode);
+        super(SIMPLE_NODE, id, documentUri, isInOutSequence, node, parentNode, dropSequence);
 
         this.id = id;
         this.mediatorName = props.name;

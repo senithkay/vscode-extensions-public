@@ -22,9 +22,10 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     private readonly node?: STNode;
     private readonly documentUri: string;
     private readonly isInOutSequence: boolean;
+    private readonly dropSequence: boolean;
     private nodeRange: Range;
 
-    constructor(type: string, id: string, documentUri: string, isInOutSequence: boolean, node?: STNode, parentNode?: STNode) {
+    constructor(type: string, id: string, documentUri: string, isInOutSequence: boolean, node?: STNode, parentNode?: STNode, dropSequence?: boolean) {
         super({
             type: type,
             id: id
@@ -33,6 +34,7 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
         this.isInOutSequence = isInOutSequence;
         this.parentNode = parentNode;
         this.documentUri = documentUri;
+        this.dropSequence = dropSequence;
 
         if (node) {
             this.node = node;
@@ -88,6 +90,10 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
 
     isInOutSequenceNode(): boolean {
         return this.isInOutSequence;
+    }
+
+    isDropSequence(): boolean {
+        return this.dropSequence;
     }
 
     getDocumentUri(): string {
