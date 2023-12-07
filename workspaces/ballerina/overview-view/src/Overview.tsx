@@ -14,9 +14,6 @@ import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
 
 import { ComponentListView } from './ComponentListView';
-import { ConstructorPanel } from './components/ConstructorPanel';
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import styled from '@emotion/styled';
 import { TitleBar } from './components/TitleBar';
 
 export function Overview() {
@@ -33,7 +30,7 @@ export function Overview() {
 
     const fetchData = async () => {
         try {
-            const res = await ballerinaRpcClient.getOverviewClient().getBallerinaProjectComponents(undefined);
+            const res = await ballerinaRpcClient.getVisualizerRpcClient().getBallerinaProjectComponents(undefined);
             setCurrentComponents(res);
         } catch (error) {
             console.error('Error fetching data:', error);

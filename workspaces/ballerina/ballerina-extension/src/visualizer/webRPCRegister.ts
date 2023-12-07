@@ -9,7 +9,7 @@ import { registerVisualizerRpcHandlers } from "../rpc-managers/visualizer/rpc-ha
  */
 
 import { error } from 'console';
-import { ExtensionContext, WebviewPanel } from 'vscode';
+import { ExtensionContext, WebviewPanel, workspace } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { NotificationType } from "vscode-messenger-common";
 import { BallerinaExtension } from '../core';
@@ -17,9 +17,11 @@ import { registerOverviewRpcHandlers } from "../rpc-managers/overview/rpc-handle
 import {
     getService
 } from './activator';
+import { registerDataMapperRpcHandlers } from "../rpc-managers/data-mapper/rpc-handler";
 
 
 const stateChanged: NotificationType<any> = { method: 'stateChanged' };
+const fileContentChanged: NotificationType<any> = { method: 'fileContentChanged' };
 
 export class RPCLayer {
     private _messenger: Messenger = new Messenger();
@@ -35,6 +37,7 @@ export class RPCLayer {
 
         registerOverviewRpcHandlers(this._messenger);
         registerVisualizerRpcHandlers(this._messenger);
+        registerDataMapperRpcHandlers(this._messenger);
 
         // Register state change notification
         getService().onTransition((state) => {
@@ -43,6 +46,23 @@ export class RPCLayer {
                 viewContext: state.context
             };
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, snapshot);
+        });
+
+        // Register file change notification
+        const snapshot: any =  new Promise(async (resolve) => {
+            const snapshot = getService().getSnapshot();
+            resolve(snapshot.context);
+        });
+        const fileWatcher = workspace.createFileSystemWatcher(snapshot.viewContext.location.fileName);
+        fileWatcher.onDidChange(async (uri) => {
+            try {
+                const fileContent = await workspace.fs.readFile(uri);
+                const contentString = new TextDecoder().decode(fileContent);
+        
+                this._messenger.sendNotification(fileContentChanged, { type: 'webview', webviewType: 'visualizer' }, contentString);
+            } catch (error) {
+                console.error(`Error reading file: ${uri}`, error);
+            }
         });
 
     }

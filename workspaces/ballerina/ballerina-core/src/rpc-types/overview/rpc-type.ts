@@ -8,11 +8,10 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { BallerinaFunctionSTRequest, BallerinaProjectComponents, ExecutorPositionsResponse, GetBallerinaPackagesParams, GetBallerinaProjectParams } from "../../lang-server-interfaces/project-overview-types";
+import { BallerinaFunctionSTRequest, ExecutorPositionsResponse, GetBallerinaProjectParams } from "../../lang-server-interfaces/project-overview-types";
 import { BallerinaSTModifyResponse } from "../../lang-server-interfaces/extended-lang-server-types";
 import { RequestType } from "vscode-messenger-common";
 
 const _preFix = "overview";
-export const getBallerinaProjectComponents: RequestType<GetBallerinaPackagesParams, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };
 export const getSTForFunction: RequestType<BallerinaFunctionSTRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/getSTForFunction` };
 export const getExecutorPositions: RequestType<GetBallerinaProjectParams, ExecutorPositionsResponse> = { method: `${_preFix}/getExecutorPositions` };

@@ -12,9 +12,10 @@
  *  associated services.
  */
 
-import { Diagnostic, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Type } from "./data-mapper";
 import { LinePosition } from "./common-types";
+import { Diagnostic } from "vscode-languageserver-types";
 
 export interface BallerinaSTModifyResponse {
     source: string;
@@ -69,6 +70,7 @@ export interface CompletionResponse {
     additionalTextEdits?: TextEdit[];
     documentation?: string;
     sortText?: string;
+    filterText?: string;
 }
 
 export interface TextEdit {
@@ -201,4 +203,8 @@ export interface TypesFromFnDefinitionRequest {
     };
     fnPosition: LinePosition;
     returnTypeDescPosition: LinePosition;
+}
+
+export interface NOT_SUPPORTED_TYPE {
+
 }

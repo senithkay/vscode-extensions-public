@@ -9,10 +9,34 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaFunctionSTRequest,
+    BallerinaProjectParams,
+    CodeActionParams,
+    CompletionParams,
+    DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams,
+    GetBallerinaPackagesParams,
+    GetSyntaxTreeParams,
+    JsonToRecordRequest,
+    RenameParams,
+    TextDocumentPositionParams,
     VisualizerLocationContext,
+    codeAction,
+    convert,
+    didChange,
+    didClose,
+    didOpen,
+    getBallerinaProjectComponents,
+    getCompletion,
+    getDefinitionPosition,
+    getDiagnostics,
+    getST,
+    getSTByRange,
     getSyntaxTree,
     getVisualizerState,
     openVisualizerView,
+    rename
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
@@ -22,4 +46,16 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
     messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
     messenger.onRequest(getSyntaxTree, () => rpcManger.getSyntaxTree());
+    messenger.onRequest(getST, (args: GetSyntaxTreeParams) => rpcManger.getST(args));
+    messenger.onRequest(getSTByRange, (args: BallerinaFunctionSTRequest) => rpcManger.getSTByRange(args));
+    messenger.onRequest(getBallerinaProjectComponents, (args: GetBallerinaPackagesParams) => rpcManger.getBallerinaProjectComponents(args));
+    messenger.onRequest(getCompletion, (args: CompletionParams) => rpcManger.getCompletion(args));
+    messenger.onRequest(getDiagnostics, (args: BallerinaProjectParams) => rpcManger.getDiagnostics(args));
+    messenger.onRequest(codeAction, (args: CodeActionParams) => rpcManger.codeAction(args));
+    messenger.onRequest(rename, (args: RenameParams) => rpcManger.rename(args));
+    messenger.onRequest(getDefinitionPosition, (args: TextDocumentPositionParams) => rpcManger.getDefinitionPosition(args));
+    messenger.onRequest(convert, (args: JsonToRecordRequest) => rpcManger.convert(args));
+    messenger.onRequest(didOpen, (args: DidOpenTextDocumentParams) => rpcManger.didOpen(args));
+    messenger.onRequest(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));
+    messenger.onRequest(didClose, (args: DidCloseTextDocumentParams) => rpcManger.didClose(args));
 }
