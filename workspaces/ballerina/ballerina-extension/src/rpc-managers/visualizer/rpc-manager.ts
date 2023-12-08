@@ -11,6 +11,7 @@
 import {
     BallerinaProjectComponents,
     BallerinaProjectParams,
+    BallerinaSTModifyRequest,
     BallerinaSTModifyResponse,
     CodeActionParams,
     CompletionParams,
@@ -148,5 +149,9 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     async getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
         return await this._langClient.getSTByRange(params) as BallerinaSTModifyResponse;
+    }
+
+    async stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
+        return await this._langClient.stModify(params) as BallerinaSTModifyResponse;
     }
 }

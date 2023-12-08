@@ -36,6 +36,7 @@ import {
     rename,
     getDefinitionPosition,
     convert,
+    stModify,
     didOpen,
     didChange,
     didClose,
@@ -43,7 +44,8 @@ import {
     GetSyntaxTreeResponse,
     getST,
     getSTByRange,
-    BallerinaFunctionSTRequest
+    BallerinaFunctionSTRequest,
+    BallerinaSTModifyRequest
 } from "@wso2-enterprise/ballerina-core";
 import { WorkspaceEdit } from "vscode-languageserver-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -104,6 +106,10 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse> {
         return this._messenger.sendRequest(convert, HOST_EXTENSION, params);
+    }
+
+    stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
+        return this._messenger.sendRequest(stModify, HOST_EXTENSION, params);
     }
 
     didOpen(params: DidOpenTextDocumentParams): Promise<void> {

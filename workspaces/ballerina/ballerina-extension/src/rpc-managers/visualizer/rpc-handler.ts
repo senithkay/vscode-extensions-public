@@ -11,6 +11,7 @@
 import {
     BallerinaFunctionSTRequest,
     BallerinaProjectParams,
+    BallerinaSTModifyRequest,
     CodeActionParams,
     CompletionParams,
     DidChangeTextDocumentParams,
@@ -36,7 +37,8 @@ import {
     getSyntaxTree,
     getVisualizerState,
     openVisualizerView,
-    rename
+    rename,
+    stModify
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
@@ -55,6 +57,7 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(rename, (args: RenameParams) => rpcManger.rename(args));
     messenger.onRequest(getDefinitionPosition, (args: TextDocumentPositionParams) => rpcManger.getDefinitionPosition(args));
     messenger.onRequest(convert, (args: JsonToRecordRequest) => rpcManger.convert(args));
+    messenger.onRequest(stModify, (args: BallerinaSTModifyRequest) => rpcManger.stModify(args));
     messenger.onRequest(didOpen, (args: DidOpenTextDocumentParams) => rpcManger.didOpen(args));
     messenger.onRequest(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));
     messenger.onRequest(didClose, (args: DidCloseTextDocumentParams) => rpcManger.didClose(args));

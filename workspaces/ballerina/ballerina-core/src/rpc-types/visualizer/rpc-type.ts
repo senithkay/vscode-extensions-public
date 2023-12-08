@@ -28,7 +28,8 @@ import {
     NOT_SUPPORTED_TYPE,
     GetSyntaxTreeResponse,
     GetSyntaxTreeParams,
-    BallerinaFunctionSTRequest
+    BallerinaFunctionSTRequest,
+    BallerinaSTModifyRequest
 } from "../..";
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -47,6 +48,7 @@ export const codeAction: RequestType<CodeActionParams, CodeAction[]> = { method:
 export const rename: RequestType<RenameParams, WorkspaceEdit> = { method: `${_preFix}/rename` };
 export const getDefinitionPosition: RequestType<TextDocumentPositionParams, BallerinaSTModifyResponse> = { method: `${_preFix}/getDefinitionPosition` };
 export const convert: RequestType<JsonToRecordRequest, JsonToRecordResponse> = { method: `${_preFix}/convert` };
+export const stModify: RequestType<BallerinaSTModifyRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/stModify` };
 export const didOpen: RequestType<DidOpenTextDocumentParams, void> = { method: `${_preFix}/didOpen` };
 export const didChange: RequestType<DidChangeTextDocumentParams, void> = { method: `${_preFix}/didChange` };
 export const didClose: RequestType<DidCloseTextDocumentParams, void> = { method: `${_preFix}/didClose` };
