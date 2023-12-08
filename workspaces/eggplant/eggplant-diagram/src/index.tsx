@@ -7,14 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-
-import { BodyWidget } from './components/layout/BodyWidget';
-import { App } from './App';
-
-export type { Model } from './types/types';
-
-export default () => {
-	var app = new App();
-	return <BodyWidget app={app} />;
-};
+export { EggplantApp } from "./App";
+export type { Flow } from "./types/types";

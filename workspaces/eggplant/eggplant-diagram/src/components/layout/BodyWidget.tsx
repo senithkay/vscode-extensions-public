@@ -10,16 +10,16 @@
 import React, { useCallback, useReducer } from "react";
 import * as _ from "lodash";
 import { TrayWidget } from "./TrayWidget";
-import { App } from "../../App";
 import { TrayItemWidget } from "./TrayItemWidget";
 import { DefaultNodeModel } from "../default";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DiagramCanvasWidget } from "./DiagramCanvasWidget";
 import styled from "@emotion/styled";
 import { Colors, EVENT_TYPES, NODE_TYPE } from "../../resources";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
 
 export interface BodyWidgetProps {
-    app: App;
+    engine: DiagramEngine;
 }
 
 namespace S {
@@ -42,14 +42,14 @@ namespace S {
 }
 
 export function BodyWidget(props: BodyWidgetProps) {
-    const { app } = props;
+    const { engine } = props;
 
     const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             var data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
-            var nodesCount = _.keys(app.getDiagramEngine().getModel().getNodes()).length;
+            var nodesCount = _.keys(engine.getModel().getNodes()).length;
 
             var node: DefaultNodeModel = null;
             switch (data.type) {
@@ -72,12 +72,12 @@ export function BodyWidget(props: BodyWidgetProps) {
                     node.addInPort("In");
                     node.addOutPort("Out");
             }
-            var point = app.getDiagramEngine().getRelativeMousePoint(event);
+            var point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
-            app.getDiagramEngine().getModel().addNode(node);
+            engine.getModel().addNode(node);
             forceUpdate(); // TODO: trigger code mutation
         },
-        [app]
+        [engine]
     );
 
     return (
@@ -96,7 +96,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                     }}
                 >
                     <DiagramCanvasWidget>
-                        <CanvasWidget engine={app.getDiagramEngine()} />
+                        <CanvasWidget engine={engine} />
                     </DiagramCanvasWidget>
                 </S.Layer>
             </S.Content>
