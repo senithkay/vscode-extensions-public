@@ -48,7 +48,7 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
-import { useSyntaxTreeFromRange } from "../Hooks";
+import { useProjectComponents, useSyntaxTreeFromRange } from "../Hooks";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
@@ -196,7 +196,7 @@ export function DataMapperC() {
             }
         }
     } = visualizerContext;
-    const projectComponents: BallerinaProjectComponents = {packages: []};
+    const { projectComponents } = useProjectComponents();
     const currentFile = {
         content: "",
         path: filePath,
