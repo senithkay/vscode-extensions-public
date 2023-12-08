@@ -1651,10 +1651,12 @@ importers:
       webpack: ^5.56.0
       webpack-cli: ^4.10.0
       webpack-permissions-plugin: ^1.0.9
+      xstate: ^4.38.3
     dependencies:
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/eggplant-webview': link:../webview
       vscode-messenger: 0.4.5
+      xstate: 4.38.3
     devDependencies:
       '@types/mocha': 10.0.4
       '@types/node': 18.18.10

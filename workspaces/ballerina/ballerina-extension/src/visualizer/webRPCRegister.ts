@@ -21,7 +21,6 @@ import { registerDataMapperRpcHandlers } from "../rpc-managers/data-mapper/rpc-h
 
 
 const stateChanged: NotificationType<any> = { method: 'stateChanged' };
-const fileContentChanged: NotificationType<any> = { method: 'fileContentChanged' };
 
 export class RPCLayer {
     private _messenger: Messenger = new Messenger();
@@ -47,24 +46,6 @@ export class RPCLayer {
             };
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, snapshot);
         });
-
-        // Register file change notification
-        const snapshot: any =  new Promise(async (resolve) => {
-            const snapshot = getService().getSnapshot();
-            resolve(snapshot.context);
-        });
-        const fileWatcher = workspace.createFileSystemWatcher(snapshot.viewContext.location.fileName);
-        fileWatcher.onDidChange(async (uri) => {
-            try {
-                const fileContent = await workspace.fs.readFile(uri);
-                const contentString = new TextDecoder().decode(fileContent);
-        
-                this._messenger.sendNotification(fileContentChanged, { type: 'webview', webviewType: 'visualizer' }, contentString);
-            } catch (error) {
-                console.error(`Error reading file: ${uri}`, error);
-            }
-        });
-
     }
 
     static create(webViewPanel: WebviewPanel, balExt: BallerinaExtension) {

@@ -46,8 +46,4 @@ export class BallerinaRpcClient {
         this.messenger.onNotification({ method: 'stateChanged' }, callback);
     }
 
-    onFileContentChanged(callback: (state: any) => void) {
-        this.messenger.onNotification({ method: 'fileContentChanged' }, callback);
-    }
-
 }
