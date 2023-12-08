@@ -140,13 +140,13 @@ function getComposerURI(webView: Webview): string {
         'jslibs'), webView);
 }
 
-// function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView: Webview): string[] {
-//     const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs', 'themes', 'ballerina-default.min.css');
-//     return [
-//         (isDevMode && !disableComDebug) ? join(devHost, 'themes', 'ballerina-default.min.css')
-//             : webView.asWebviewUri(Uri.file(filePath)).toString()
-//     ];
-// }
+function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView: Webview): string[] {
+    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs', 'themes', 'ballerina-default.min.css');
+    return [
+        (isDevMode && !disableComDebug) ? join(devHost, 'themes', 'ballerina-default.min.css')
+            : webView.asWebviewUri(Uri.file(filePath)).toString()
+    ];
+}
 
 function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string, webView: Webview): string[] {
     const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + sep + componentName + '.js'; 
@@ -159,7 +159,7 @@ function getComposerJSFiles(componentName: string, disableComDebug: boolean, dev
 
 export function getComposerWebViewOptions(componentName: string, webView: Webview, { disableComDebug = false, devHost = process.env.WEB_VIEW_DEV_HOST as string } = {}): Partial<WebViewOptions> {
     return {
-        // cssFiles: getComposerCSSFiles(disableComDebug, devHost, webView),
+        cssFiles: getComposerCSSFiles(disableComDebug, devHost, webView),
         jsFiles: getComposerJSFiles(componentName, disableComDebug, devHost, webView)
     };
 }
