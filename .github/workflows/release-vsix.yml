@@ -46,6 +46,7 @@ jobs:
       enableCache: false
       ballerina: ${{ inputs.ballerina }}
       choreo: ${{ inputs.choreo }}
+      api-chat: ${{ inputs.api-chat }}
       apk: ${{ inputs.apk }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
