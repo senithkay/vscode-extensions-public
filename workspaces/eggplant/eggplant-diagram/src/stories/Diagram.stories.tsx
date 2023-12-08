@@ -18,6 +18,18 @@ export default {
 
 const Template: Story = (args: any) => <EggplantApp {...args} />;
 
+export const Blank = Template.bind({});
+Blank.args = {
+    flowModel: {
+        id: "1",
+        name: "flow1",
+        fileName: "path",
+        nodes: [
+
+        ],
+    },
+};
+
 export const Simple = Template.bind({});
 Simple.args = {
     flowModel: {
