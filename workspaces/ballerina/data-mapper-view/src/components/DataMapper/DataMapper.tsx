@@ -197,6 +197,11 @@ export function DataMapperC() {
         }
     } = visualizerContext;
     const projectComponents: BallerinaProjectComponents = {packages: []};
+    const currentFile = {
+        content: "",
+        path: filePath,
+        size: 1
+    };
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
@@ -222,11 +227,6 @@ export function DataMapperC() {
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
     const [currentReferences, setCurrentReferences] = useState<string[]>([]);
-    const [currentFile, setCurrentFile] = useState<CurrentFile>({
-        content: "",
-        path: filePath,
-        size: 1
-    });
 
     // const { projectComponents } = useProjectComponents(filePath, "currentFile.content");
 
@@ -326,17 +326,6 @@ export function DataMapperC() {
             enumDecls: enums,
         }
     }, [projectComponents]);
-
-    useEffect(() => {
-        visualizerContext.ballerinaRpcClient.onFileContentChanged((content: string ) => {
-            setCurrentFile({
-                content,
-                path: filePath,
-                size: 1
-            });
-        });
-    }, []);
-
 
     useEffect(() => {
         if (fnST) {
@@ -562,10 +551,12 @@ export function DataMapperC() {
                                 </div> */}
                             </>
                         )}
-                        <DataMapperDiagram
-                            nodes={dmNodes}
-                            onError={handleErrors}
-                        />
+                        {dmNodes.length > 0 && (
+                            <DataMapperDiagram
+                                nodes={dmNodes}
+                                onError={handleErrors}
+                            />
+                        )}
                         {/* {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />} */}
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
