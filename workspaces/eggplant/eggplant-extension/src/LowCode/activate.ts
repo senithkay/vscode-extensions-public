@@ -17,7 +17,7 @@ let currentPanel: LowCode;
 
 export function activateLowCodeWebViews(context: vscode.ExtensionContext) {
     if (!currentPanel) {
-        LowCode.currentPanel = new LowCode();
+        currentPanel = new LowCode();
     }
 
     context.subscriptions.push(

@@ -12,17 +12,17 @@
 import React, { useEffect } from "react";
 import LowCode from './LowCode'
 import Overview from './Overview'
-import { EggplantRpcClient } from "@wso2-enterprise/eggplant-rpc-client";
+// import { EggplantRpcClient } from "@wso2-enterprise/eggplant-rpc-client";
 
 export function Webview({ mode }: { mode: string }) {
     // const { viewLocation, setViewLocation, eggplantRpcClient } = useVisualizerContext();
 
-    useEffect(() => {
-        const rpc = new EggplantRpcClient();
-        rpc.getWebviewRpcClient().getHelloWorld().then(res => {
-            console.log(res);
-        });
-    }, []);
+    // useEffect(() => {
+        // const rpc = new EggplantRpcClient();
+        // rpc.getWebviewRpcClient().getVisualizerState().then(res => {
+        //     console.log(res);
+        // });
+    // }, []);
 
 
     // const setViewLocationState = async () => {

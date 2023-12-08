@@ -1,10 +1,11 @@
+import { LangClientInterface, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-interface Context {
-    langServer: any;
+interface Context extends VisualizerLocation {
+    langServer: LangClientInterface | null;
     errorCode: string | null;
 }
 
@@ -57,7 +58,15 @@ const stateMachine = createMachine<Context>({
             }
         },
         ready: {
-            // define what should happen when LS is ready
+            on: {
+                OPEN_VIEW: {
+                    target: "ready",
+                    actions: assign({
+                        view: (context, event) => event.viewLocation.view,
+                        location: (context, event) => event.viewLocation.location
+                    })
+                }
+            }
         },
         disabled: {
             // define what should happen when the project is not detected
@@ -100,7 +109,7 @@ const stateMachine = createMachine<Context>({
 
 
 // Create a service to interpret the machine
-const stateService = interpret(stateMachine).start();
+export const stateService = interpret(stateMachine).start();
 
 // Define your API as functions
 export const api = {
@@ -111,6 +120,9 @@ export const api = {
     disabled: () => stateService.send('disabled'),
 };
 
+export function openView(viewLocation: VisualizerLocation) {
+    stateService.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
+}
 
 async function checkIfEggplantProject() {
     let isEggplant = false;

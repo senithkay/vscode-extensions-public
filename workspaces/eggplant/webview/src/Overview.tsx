@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import { Overview as OverviewPanel } from "@wso2-enterprise/eggplant-overview";
 
 const Item = styled.div({
     padding: '5px',
@@ -37,12 +38,13 @@ const Path = styled.div({
 const Overview = () => {
     return (
         <div>
-            <h4>Services</h4>
+            {/* <h4>Services</h4>
             <Item>/helthcare</Item>
             <Item>
                 <Method>POST</Method>
                 <Path> /categories/[string doctorCategory]/reserve</Path>
-            </Item>
+            </Item> */}
+            <OverviewPanel />
         </div>
     );
 };

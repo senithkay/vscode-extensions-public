@@ -2,12 +2,12 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner" | "DataMapper";
 
-export interface VisualizerLocation {
+export interface NodeLocation {
     fileName: string;
     position: NodePosition;
 }
 
-export interface VisualizerLocationContext {
+export interface VisualizerLocation {
     view?: Views;
-    location?: VisualizerLocation;
+    location?: NodeLocation;
 }

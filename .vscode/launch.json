@@ -22,7 +22,7 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/eggplant/eggplant-extension/out/**/*.js"
             ],
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: watch-eggplant"
         },
         {
             "name": "Ballerina Extension",
