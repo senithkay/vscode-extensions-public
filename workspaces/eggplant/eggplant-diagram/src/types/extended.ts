@@ -7,5 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export { EggplantApp } from "./App";
-export type { Flow } from "./types/flow";
+import { DefaultPortModel } from "../components/default";
+import { InputPort, OutputPort } from "./flow";
+
+export type ExtendedPort = InputPort &
+    OutputPort & {
+        parent: string;
+        in: boolean;
+        model: DefaultPortModel;
+    };

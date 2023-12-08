@@ -8,34 +8,34 @@
  */
 import React from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import styled from "@emotion/styled";
 
 import { OverlayLayerModel } from "./OverlayLayerModel";
 import { Colors } from "../../resources";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface NodeLayerWidgetProps {
     layer: OverlayLayerModel;
     engine: DiagramEngine;
 }
 
-const background = require("../../resources/assets/PatternBg.svg") as string;
-
 const Container = styled.div`
     align-items: center;
-    background-image: url(${background});
     display: flex;
     flex-direction: row;
-    height: 100%;
     justify-content: center;
+    height: 100%;
     width: 100%;
+    background-image: radial-gradient(${Colors.SURFACE_CONTAINER} 10%, transparent 0px);
+    background-size: 16px 16px;
+    background-color: ${Colors.SURFACE_BRIGHT};
 `;
 
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
     render() {
         return (
             <Container>
-                <CircularProgress sx={{ color: Colors.PRIMARY }} />
+                <ProgressRing />
             </Container>
         );
     }

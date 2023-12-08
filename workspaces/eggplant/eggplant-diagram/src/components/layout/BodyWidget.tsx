@@ -27,7 +27,7 @@ namespace S {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        min-height: 100%;
+        height: 100%;
     `;
 
     export const Content = styled.div`
@@ -48,10 +48,10 @@ export function BodyWidget(props: BodyWidgetProps) {
 
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
-            var data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
-            var nodesCount = _.keys(engine.getModel().getNodes()).length;
+            let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
+            let nodesCount = _.keys(engine.getModel().getNodes()).length;
 
-            var node: DefaultNodeModel = null;
+            let node: DefaultNodeModel = null;
             switch (data.type) {
                 case NODE_TYPE.START:
                     node = new DefaultNodeModel("Start " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
@@ -72,7 +72,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                     node.addInPort("In");
                     node.addOutPort("Out");
             }
-            var point = engine.getRelativeMousePoint(event);
+            let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
             engine.getModel().addNode(node);
             forceUpdate(); // TODO: trigger code mutation

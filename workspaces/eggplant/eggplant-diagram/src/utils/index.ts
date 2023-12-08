@@ -8,3 +8,4 @@
  */
 
 export * from './diagram';
+export * from './generator';

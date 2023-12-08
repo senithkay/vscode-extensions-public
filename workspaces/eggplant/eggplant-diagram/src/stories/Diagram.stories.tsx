@@ -9,7 +9,7 @@
 
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import {EggplantApp} from "../index";
+import { EggplantApp } from "../index";
 
 export default {
     title: "EggplantDiagram",
@@ -20,66 +20,141 @@ const Template: Story = (args: any) => <EggplantApp {...args} />;
 
 export const Simple = Template.bind({});
 Simple.args = {
-    model: {
-        id: "SwitchBasedOnAge",
-        templateId: "SwitchNode",
-        inputPorts: [
+    flowModel: {
+        id: "1",
+        name: "flow1",
+        fileName: "path",
+        nodes: [
             {
-                id: "input1",
-                type: "json",
-                name: "payload",
-                sender: "TransformPayload",
+                name: "A",
+                templateKind: "TRANSFORMER",
+                codeLocation: {
+                    start: {
+                        line: 4,
+                        offset: 4,
+                    },
+                    end: {
+                        line: 8,
+                        offset: 5,
+                    },
+                },
+                canvasPosition: {
+                    x: 0,
+                    y: 0,
+                },
+                inputPorts: [],
+                outputPorts: [
+                    {
+                        id: "ao2",
+                        type: "INT",
+                        receiver: "C",
+                    },
+                    {
+                        id: "ao1",
+                        type: "INT",
+                        receiver: "B",
+                    },
+                ],
             },
             {
-                id: "input2",
-                type: "int",
-                name: "baseAge",
-                sender: "DerriveAgeFromDB",
+                name: "B",
+                templateKind: "TRANSFORMER",
+                codeLocation: {
+                    start: {
+                        line: 10,
+                        offset: 4,
+                    },
+                    end: {
+                        line: 16,
+                        offset: 5,
+                    },
+                },
+                canvasPosition: {
+                    x: 0,
+                    y: 0,
+                },
+                inputPorts: [
+                    {
+                        id: "bi1",
+                        type: "INT",
+                        name: "x1",
+                        sender: "A",
+                    },
+                ],
+                outputPorts: [
+                    {
+                        id: "bo1",
+                        type: "INT",
+                        receiver: "C",
+                    },
+                ],
+            },
+            {
+                name: "C",
+                templateKind: "TRANSFORMER",
+                codeLocation: {
+                    start: {
+                        line: 18,
+                        offset: 4,
+                    },
+                    end: {
+                        line: 21,
+                        offset: 5,
+                    },
+                },
+                canvasPosition: {
+                    x: 0,
+                    y: 0,
+                },
+                inputPorts: [
+                    {
+                        id: "ci1",
+                        type: "INT",
+                        name: "x2",
+                        sender: "A",
+                    },
+                    {
+                        id: "ci2",
+                        type: "INT",
+                        name: "x3",
+                        sender: "B",
+                    },
+                ],
+                outputPorts: [
+                    {
+                        id: "co2",
+                        type: "INT",
+                        receiver: "D",
+                    },
+                ],
+            },
+            {
+                name: "D",
+                templateKind: "TRANSFORMER",
+                codeLocation: {
+                    start: {
+                        line: 10,
+                        offset: 4,
+                    },
+                    end: {
+                        line: 16,
+                        offset: 5,
+                    },
+                },
+                canvasPosition: {
+                    x: 0,
+                    y: 0,
+                },
+                inputPorts: [
+                    {
+                        id: "di1",
+                        type: "INT",
+                        name: "x1",
+                        sender: "C",
+                    },
+                ],
+                outputPorts: [],
             },
         ],
-        outputPorts: [
-            {
-                id: "output1",
-                type: "json",
-                receiver: "ProcessSeniorCitizen",
-            },
-            {
-                id: "output2",
-                type: "json",
-                receiver: "ProcessYoungCitizen",
-            },
-            {
-                id: "outputDefault",
-                type: "json",
-                receiver: "ProcessDefaultCitizen",
-            },
-        ],
-        location: {
-            startLine: {
-                line: 10,
-                column: 5,
-            },
-            endLine: {
-                line: 15,
-                column: 5,
-            },
-        },
-        properties: {
-            templateId: "SwitchNode",
-            name: "SwitchBasedOnAge",
-            cases: [
-                {
-                    expression: "check payload.age > baseAge",
-                    nodes: ["output1"],
-                },
-                {
-                    expression: "check payload.age < baseAge",
-                    nodes: ["output2"],
-                },
-            ],
-            defaultCase: {
-                nodes: ["outputDefault"],
-            },
-        },
     },
 };

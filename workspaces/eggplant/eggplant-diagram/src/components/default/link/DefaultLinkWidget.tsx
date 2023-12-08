@@ -113,8 +113,8 @@ export class DefaultLinkWidget extends React.Component<DefaultLinkProps, Default
 
     render() {
         //ensure id is present for all points on the path
-        var points = this.props.link.getPoints();
-        var paths = [];
+        let points = this.props.link.getPoints();
+        let paths = [];
         this.refPaths = [];
 
         if (points.length === 2) {

@@ -16,6 +16,7 @@ export type Flow = {
 
 export type Node = {
     id: string;
+    name: string;
     templateId: string;
     inputPorts: InputPort[];
     outputPorts: OutputPort[];
@@ -27,14 +28,14 @@ export type Node = {
 export type InputPort = {
     id: string;
     type: string;
-    name: string;
-    sender: string;
+    name?: string;
+    sender?: string;
 };
 
 export type OutputPort = {
     id: string;
     type: string;
-    receiver: string;
+    receiver?: string;
 };
 
 export type CodeLocation = {

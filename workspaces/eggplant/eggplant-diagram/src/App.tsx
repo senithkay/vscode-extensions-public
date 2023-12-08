@@ -9,53 +9,41 @@
 
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { DefaultNodeModel } from "./components/default";
-import { Colors } from "./resources";
 import { BodyWidget } from "./components/layout/BodyWidget";
-import { Flow } from "./types/types";
-import { generateEngine } from "./utils";
-import { OverlayLayerModel } from "./components/OverlayLoader";
+import { Flow } from "./types";
+import { generateDiagramModelFromFlowModel, generateEngine, removeOverlay } from "./utils";
+import { OverlayLayerModel } from "./components/overlay";
 
 interface EggplantAppProps {
-    flow: Flow;
+    flowModel: Flow;
 }
 
 export function EggplantApp(props: EggplantAppProps) {
-    const { flow } = props;
+    const { flowModel } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
     useEffect(() => {
-        console.log("diagramEngine", diagramEngine);
+        if (diagramEngine) {
+            drawDiagram();
+        }
+    }, [diagramEngine]);
+
+    const drawDiagram = () => {
         const model = new DiagramModel();
         model.addLayer(new OverlayLayerModel());
-        console.log("model", model);
+
+        generateDiagramModelFromFlowModel(model, flowModel);
         diagramEngine.setModel(model);
         setDiagramModel(model);
-        console.log("diagramModel", diagramModel);
 
-        refreshDiagram();
-    }, []);
-
-    const refreshDiagram = () => {
-        console.log("refreshDiagram", flow);
-
-        var node1 = new DefaultNodeModel("Start", Colors.PRIMARY_CONTAINER);
-        let port = node1.addOutPort("Out");
-        node1.setPosition(100, 100);
-
-        var node2 = new DefaultNodeModel("Action", Colors.PRIMARY_CONTAINER);
-        let port2 = node2.addInPort("In");
-        node2.addOutPort("Out1");
-        node2.setPosition(300, 100);
-
-        // link the ports
-        let link1 = port.link(port2);
-
-        diagramModel.addAll(node1, node2, link1);
+        setTimeout(() => {
+            removeOverlay(diagramEngine);
+        }, 1000);
     };
 
-    return <div>{diagramEngine && <BodyWidget engine={diagramEngine} />}</div>;
+    return <>{diagramEngine && diagramModel && <BodyWidget engine={diagramEngine} />};</>;
 }
 
 export default EggplantApp;
+

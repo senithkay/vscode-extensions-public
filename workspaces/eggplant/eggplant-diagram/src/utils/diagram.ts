@@ -7,8 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
-import { DefaultNodeFactory, DefaultPortFactory, DefaultLabelFactory, DefaultLinkFactory } from "../components/default";
+import createEngine, { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DefaultNodeFactory, DefaultPortFactory, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeModel } from "../components/default";
+import { OverlayLayerFactory, OverlayLayerModel } from "../components/overlay";
+import { Colors } from "../resources";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine();
@@ -17,6 +19,23 @@ export function generateEngine(): DiagramEngine {
     engine.getPortFactories().registerFactory(new DefaultPortFactory());
     engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
     engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
+    engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
     return engine;
+}
+
+export function removeOverlay(diagramEngine: DiagramEngine) {
+    // center diagram
+    if (diagramEngine.getCanvas().getBoundingClientRect) {
+        diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
+    }
+    // remove preloader overlay layer
+    const overlayLayer = diagramEngine
+        .getModel()
+        .getLayers()
+        .find((layer) => layer instanceof OverlayLayerModel);
+    if (overlayLayer) {
+        diagramEngine.getModel().removeLayer(overlayLayer);
+    }
+    diagramEngine.repaintCanvas();
 }
