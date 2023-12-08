@@ -14,17 +14,22 @@ import { DefaultNodeModel } from "./DefaultNodeModel";
 import { DefaultPortLabel } from "../port/DefaultPortLabelWidget";
 import styled from "@emotion/styled";
 import { Colors } from "../../../resources";
+import { DefaultPortModel } from "../port/DefaultPortModel";
 
 namespace S {
-    export const Node = styled.div<{ background: string; selected: boolean }>`
-        /* background-color: ${(p) => p.background}; TODO: Fix this after creating Node types */
-        background-color: ${(p) => (p.selected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
+    type NodeStyleProp = {
+        background: string;
+        selected: boolean;
+    };
+
+    export const Node = styled.div<NodeStyleProp>`
+        background-color: ${(p: NodeStyleProp) => (p.selected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
         border-radius: 5px;
         font-family: sans-serif;
         border: solid 2px black;
         overflow: visible;
         font-size: 14px;
-        border: solid 2px ${(p) => (p.selected ? Colors.SECONDARY : Colors.OUTLINE_VARIANT)};
+        border: solid 2px ${(p: NodeStyleProp) => (p.selected ? Colors.SECONDARY : Colors.OUTLINE_VARIANT)};
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -45,14 +50,14 @@ namespace S {
     `;
 
     export const Ports = styled.div`
-        display: flex;        
+        display: flex;
     `;
 
     export const InPorts = styled(Ports)`
         margin-left: -9px;
     `;
 
-    export const OutPorts =  styled(Ports)`
+    export const OutPorts = styled(Ports)`
         margin-right: -9px;
     `;
 
@@ -75,7 +80,7 @@ export interface DefaultNodeProps {
  * for both all the input ports on the left, and the output ports on the right.
  */
 export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
-    generatePort = (port) => {
+    generatePort = (port: DefaultPortModel) => {
         return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
     };
 

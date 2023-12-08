@@ -22,13 +22,13 @@ namespace S {
     export const Port = styled.div`
         width: 12px;
         height: 12px;
-		border: 2px solid ${Colors.PRIMARY};
-		border-radius: 50%;
-		background: ${Colors.PRIMARY_CONTAINER};
-		
+        border: 2px solid ${Colors.PRIMARY};
+        border-radius: 50%;
+        background: ${Colors.PRIMARY_CONTAINER};
+
         &:hover {
             background: ${Colors.SECONDARY_CONTAINER};
-			border-color: ${Colors.SECONDARY};
+            border-color: ${Colors.SECONDARY};
         }
     `;
 }

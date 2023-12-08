@@ -7,18 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DefaultPortModel } from './DefaultPortModel';
-import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
-import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import { DefaultPortModel } from "./DefaultPortModel";
+import { AbstractModelFactory } from "@projectstorm/react-canvas-core";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 
 export class DefaultPortFactory extends AbstractModelFactory<DefaultPortModel, DiagramEngine> {
-	constructor() {
-		super('default');
-	}
+    constructor() {
+        super("default");
+    }
 
-	generateModel(): DefaultPortModel {
-		return new DefaultPortModel({
-			name: 'unknown'
-		});
-	}
+    generateModel(): DefaultPortModel {
+        return new DefaultPortModel({
+            name: "unknown",
+        });
+    }
 }

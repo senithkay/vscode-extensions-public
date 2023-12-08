@@ -7,22 +7,22 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as React from 'react';
-import { DefaultNodeModel } from './DefaultNodeModel';
-import { DefaultNodeWidget } from './DefaultNodeWidget';
-import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
-import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import * as React from "react";
+import { DefaultNodeModel } from "./DefaultNodeModel";
+import { DefaultNodeWidget } from "./DefaultNodeWidget";
+import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 
 export class DefaultNodeFactory extends AbstractReactFactory<DefaultNodeModel, DiagramEngine> {
-	constructor() {
-		super('default');
-	}
+    constructor() {
+        super("default");
+    }
 
-	generateReactWidget(event): JSX.Element {
-		return <DefaultNodeWidget engine={this.engine} node={event.model} />;
-	}
+    generateReactWidget(event: { model: DefaultNodeModel; }): JSX.Element {
+        return <DefaultNodeWidget engine={this.engine} node={event.model} />;
+    }
 
-	generateModel(event): DefaultNodeModel {
-		return new DefaultNodeModel();
-	}
+    generateModel(): DefaultNodeModel {
+        return new DefaultNodeModel();
+    }
 }

@@ -7,29 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as React from 'react';
-import { DefaultLabelModel } from './DefaultLabelModel';
-import styled from '@emotion/styled';
-import { Colors } from '../../../resources';
+import * as React from "react";
+import { DefaultLabelModel } from "./DefaultLabelModel";
+import styled from "@emotion/styled";
+import { Colors } from "../../../resources";
 
 export interface DefaultLabelWidgetProps {
-	model: DefaultLabelModel;
+    model: DefaultLabelModel;
 }
 
 namespace S {
-	export const Label = styled.div`
-		background: ${Colors.SURFACE_DIM};
-		border-radius: 5px;
-		color: ${Colors.ON_SURFACE};
-		font-size: 12px;
-		padding: 4px 8px;
-		font-family: sans-serif;
-		user-select: none;
-	`;
+    export const Label = styled.div`
+        background: ${Colors.SURFACE_DIM};
+        border-radius: 5px;
+        color: ${Colors.ON_SURFACE};
+        font-size: 12px;
+        padding: 4px 8px;
+        font-family: sans-serif;
+        user-select: none;
+    `;
 }
 
 export class DefaultLabelWidget extends React.Component<DefaultLabelWidgetProps> {
-	render() {
-		return <S.Label>{this.props.model.getOptions().label}</S.Label>;
-	}
+    render() {
+        return <S.Label>{this.props.model.getOptions().label}</S.Label>;
+    }
 }

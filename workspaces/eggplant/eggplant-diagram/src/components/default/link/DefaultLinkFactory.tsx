@@ -7,16 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as React from 'react';
-import { DefaultLinkModel } from './DefaultLinkModel';
-import { DefaultLinkWidget } from './DefaultLinkWidget';
-import styled from '@emotion/styled';
-import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
-import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { css, keyframes } from '@emotion/react';
+import * as React from "react";
+import { DefaultLinkModel } from "./DefaultLinkModel";
+import { DefaultLinkWidget } from "./DefaultLinkWidget";
+import styled from "@emotion/styled";
+import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { css, keyframes } from "@emotion/react";
 
 namespace S {
-	export const Keyframes = keyframes`
+    export const Keyframes = keyframes`
 		from {
 			stroke-dashoffset: 24;
 		}
@@ -25,42 +25,43 @@ namespace S {
 		}
 	`;
 
-	const selected = css`
-		stroke-dasharray: 10, 2;
-		animation: ${Keyframes} 1s linear infinite;
-	`;
+    const selected = css`
+        stroke-dasharray: 10, 2;
+        animation: ${Keyframes} 1s linear infinite;
+    `;
 
-	export const Path = styled.path<{ selected: boolean }>`
-		${(p) => p.selected && selected};
-		fill: none;
-		pointer-events: auto;
-	`;
+    type PathStyleProp = {
+        selected: boolean;
+    };
+
+    export const Path = styled.path<PathStyleProp>`
+        ${(p: PathStyleProp) => p.selected && selected};
+        fill: none;
+        pointer-events: auto;
+    `;
 }
 
-export class DefaultLinkFactory<Link extends DefaultLinkModel = DefaultLinkModel> extends AbstractReactFactory<
-	Link,
-	DiagramEngine
-> {
-	constructor(type = 'default') {
-		super(type);
-	}
+export class DefaultLinkFactory<Link extends DefaultLinkModel = DefaultLinkModel> extends AbstractReactFactory<Link, DiagramEngine> {
+    constructor(type = "default") {
+        super(type);
+    }
 
-	generateReactWidget(event): JSX.Element {
-		return <DefaultLinkWidget link={event.model} diagramEngine={this.engine} />;
-	}
+    generateReactWidget(event: { model: DefaultLinkModel }): JSX.Element {
+        return <DefaultLinkWidget link={event.model} diagramEngine={this.engine} />;
+    }
 
-	generateModel(event): Link {
-		return new DefaultLinkModel() as Link;
-	}
+    generateModel(): Link {
+        return new DefaultLinkModel() as Link;
+    }
 
-	generateLinkSegment(model: Link, selected: boolean, path: string) {
-		return (
-			<S.Path
-				selected={selected}
-				stroke={selected ? model.getOptions().selectedColor : model.getOptions().color}
-				strokeWidth={model.getOptions().width}
-				d={path}
-			/>
-		);
-	}
+    generateLinkSegment(model: Link, selected: boolean, path: string) {
+        return (
+            <S.Path
+                selected={selected}
+                stroke={selected ? model.getOptions().selectedColor : model.getOptions().color}
+                strokeWidth={model.getOptions().width}
+                d={path}
+            />
+        );
+    }
 }
