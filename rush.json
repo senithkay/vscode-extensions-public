@@ -523,6 +523,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/data-mapper-view",
+      "projectFolder": "workspaces/ballerina/data-mapper-view",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/ballerina-low-code-edtior-commons",
       "projectFolder": "workspaces/ballerina/low-code-editor-commons",
       "versionPolicyName": "ballerina-extension"
@@ -600,6 +605,16 @@
     {
       "packageName": "@wso2-enterprise/eggplant-diagram",
       "projectFolder": "workspaces/eggplant/eggplant-diagram",
+      "versionPolicyName": "eggplant-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/eggplant-core",
+      "projectFolder": "workspaces/eggplant/eggplant-core",
+      "versionPolicyName": "eggplant-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/eggplant-rpc-client",
+      "projectFolder": "workspaces/eggplant/eggplant-rpc-client",
       "versionPolicyName": "eggplant-extension"
     }
   ]

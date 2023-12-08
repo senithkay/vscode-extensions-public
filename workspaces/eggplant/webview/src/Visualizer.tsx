@@ -12,20 +12,21 @@
 import React, { useEffect } from "react";
 import LowCode from './LowCode'
 import Overview from './Overview'
-// import { ViewLocation, useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { EggplantRpcClient } from "@wso2-enterprise/eggplant-rpc-client";
 
 export function Webview({ mode }: { mode: string }) {
-    // const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
+    // const { viewLocation, setViewLocation, eggplantRpcClient } = useVisualizerContext();
 
-    // useEffect(() => {
-    //     setViewLocationState();
-    //     ballerinaRpcClient.onStateChanged((state: { viewContext: ViewLocation }) => {
-    //         setViewLocation(state.viewContext);
-    //     });
-    // }, []);
+    useEffect(() => {
+        const rpc = new EggplantRpcClient();
+        rpc.getWebviewRpcClient().getHelloWorld().then(res => {
+            console.log(res);
+        });
+    }, []);
+
 
     // const setViewLocationState = async () => {
-    //     const state = await ballerinaRpcClient.getVisualizerClient().getVisualizerState();
+    //     const state = await eggplantRpcClient.getVisualizerClient().getVisualizerState();
     //     if (state) {
     //         setViewLocation(state);
     //     }

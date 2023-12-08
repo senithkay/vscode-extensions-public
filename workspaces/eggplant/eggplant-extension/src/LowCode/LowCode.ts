@@ -15,6 +15,7 @@ import { ExtensionContext } from "vscode";
 // import { WebViewViewRPC } from "../rpc/WebviewRPC";
 import { getUri } from '../utils';
 import { ext } from '../eggplantExtentionContext';
+import { RPCLayer } from '../webRPCRegister';
 // import { ext } from '../../../extensionVariables';
 // import { choreoEnvConfig } from '../../../auth/auth';
 // import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
@@ -31,6 +32,7 @@ export class LowCode {
         this._panel = LowCode.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
+        RPCLayer.create(this._panel);
         //this._rpcHandler = new WebViewPanelRpc(this._panel);
     }
 

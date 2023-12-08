@@ -18,6 +18,7 @@ export * from "./lang-server-interfaces/graphql-diagram-types";
 export * from "./lang-server-interfaces/http-service-desginer-types";
 export * from "./lang-server-interfaces/trigger-wizard-types";
 export * from "./lang-server-interfaces/extended-lang-server-types";
+export * from "./lang-server-interfaces/vscode-langserver-types";
 
 export * from "./extension-interfaces/extension-types";
 export * from "./extension-interfaces/state-machine-types";
@@ -32,3 +33,5 @@ export * from "./rpc-types/trigger-wizard";
 export * from "./rpc-types/visualizer";
 export * from "./rpc-types/overview/rpc-type";
 export * from "./rpc-types/visualizer/rpc-type";
+export * from "./rpc-types/data-mapper";
+export * from "./rpc-types/data-mapper/rpc-type";
