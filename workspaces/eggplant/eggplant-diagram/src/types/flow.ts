@@ -39,8 +39,8 @@ export type OutputPort = {
 };
 
 export type CodeLocation = {
-    startLine: LinePosition;
-    endLine: LinePosition;
+    start: LinePosition;
+    end: LinePosition;
 };
 
 export type CanvasPosition = {
@@ -50,7 +50,7 @@ export type CanvasPosition = {
 
 export type LinePosition = {
     line: number;
-    column: number;
+    offset: number;
 };
 
 export type NodeProperties = {

@@ -25,13 +25,13 @@ const model: Flow = {
             name: "A",
             templateId: "TRANSFORMER",
             codeLocation: {
-                startLine: {
+                start: {
                     line: 4,
-                    column: 4,
+                    offset: 4,
                 },
-                endLine: {
+                end: {
                     line: 8,
-                    column: 5,
+                    offset: 5,
                 },
             },
             canvasPosition: {
@@ -51,13 +51,13 @@ const model: Flow = {
             name: "B",
             templateId: "TRANSFORMER",
             codeLocation: {
-                startLine: {
+                start: {
                     line: 10,
-                    column: 4,
+                    offset: 4,
                 },
-                endLine: {
+                end: {
                     line: 16,
-                    column: 5,
+                    offset: 5,
                 },
             },
             canvasPosition: {

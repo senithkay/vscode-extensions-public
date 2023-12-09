@@ -37,13 +37,13 @@ const simpleModel: Flow = {
             name: "A",
             templateId: "TRANSFORMER",
             codeLocation: {
-                startLine: {
+                start: {
                     line: 4,
-                    column: 4,
+                    offset: 4,
                 },
-                endLine: {
+                end: {
                     line: 8,
-                    column: 5,
+                    offset: 5,
                 },
             },
             canvasPosition: {
@@ -68,13 +68,13 @@ const simpleModel: Flow = {
             name: "B",
             templateId: "TRANSFORMER",
             codeLocation: {
-                startLine: {
+                start: {
                     line: 10,
-                    column: 4,
+                    offset: 4,
                 },
-                endLine: {
+                end: {
                     line: 16,
-                    column: 5,
+                    offset: 5,
                 },
             },
             canvasPosition: {
@@ -101,13 +101,13 @@ const simpleModel: Flow = {
             name: "C",
             templateId: "TRANSFORMER",
             codeLocation: {
-                startLine: {
+                start: {
                     line: 18,
-                    column: 4,
+                    offset: 4,
                 },
-                endLine: {
+                end: {
                     line: 21,
-                    column: 5,
+                    offset: 5,
                 },
             },
             canvasPosition: {
@@ -140,13 +140,13 @@ const simpleModel: Flow = {
             name: "D",
             templateId: "TRANSFORMER",
             codeLocation: {
-                startLine: {
+                start: {
                     line: 10,
-                    column: 4,
+                    offset: 4,
                 },
-                endLine: {
+                end: {
                     line: 16,
-                    column: 5,
+                    offset: 5,
                 },
             },
             canvasPosition: {
