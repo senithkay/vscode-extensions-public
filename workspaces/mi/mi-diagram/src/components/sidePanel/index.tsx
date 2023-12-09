@@ -14,6 +14,20 @@ import { MIWebViewAPI } from '../../utils/WebViewRpc';
 import { GetConnectorsResponse } from '@wso2-enterprise/mi-core';
 import AddConnector from './Pages/AddConnector';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import LogForm from './Pages/mediators/core/log';
+import SendForm from './Pages/mediators/core/send';
+import CallTemplateForm from './Pages/mediators/core/call-template';
+import CallForm from './Pages/mediators/core/call';
+import CalloutForm from './Pages/mediators/core/callout';
+import DropForm from './Pages/mediators/core/drop';
+import HeaderForm from './Pages/mediators/core/header';
+import LoopbackForm from './Pages/mediators/core/loopback';
+import PropertyForm from './Pages/mediators/core/property';
+import PropertyGroupForm from './Pages/mediators/core/propertyGroup';
+import RespondForm from './Pages/mediators/core/respond';
+import SequenceForm from './Pages/mediators/core/sequence';
+import StoreForm from './Pages/mediators/core/store';
+import ValidateForm from './Pages/mediators/core/validate';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -26,6 +40,7 @@ export interface SidePanelListProps {
 }
 
 const SidePanelList = (props: SidePanelListProps) => {
+    console.log(props.nodePosition);
     const [isLoading, setLoading] = useState<boolean>(true);
     const [connectorList, setConnectorList] = useState<GetConnectorsResponse[]>([]);
     const [actions, setActions] = useState<any[]>([]);
@@ -33,9 +48,74 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [mediatorForm, setMediatorForm] = useState<any>();
     const mediators = [
         {
-            title: "Throttle Mediator",
-            operationName: "throttle",
-            // form: <Form nodePosition={props.nodePosition} documentUri={props.documentUri}></Form>,
+            title: "Call Mediator",
+            operationName: "call",
+            form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
+        },
+        {
+            title: "Call Template Mediator",
+            operationName: "call-template",
+            form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
+        },
+        {
+            title: "Callout Mediator",
+            operationName: "callout",
+            form: <CalloutForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CalloutForm>,
+        },
+        {
+            title: "Drop Mediator",
+            operationName: "drop",
+            form: <DropForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DropForm>,
+        },
+        {
+            title: "Header Mediator",
+            operationName: "header",
+            form: <HeaderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HeaderForm>,
+        },
+        {
+            title: "Log Mediator",
+            operationName: "log",
+            form: <LogForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LogForm>,
+        },
+        {
+            title: "Loopback Mediator",
+            operationName: "loopback",
+            form: <LoopbackForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoopbackForm>,
+        },
+        {
+            title: "Property Mediator",
+            operationName: "property",
+            form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
+        },
+        {
+            title: "Property Group Mediator",
+            operationName: "propertygroup",
+            form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
+        },
+        {
+            title: "Respond Mediator",
+            operationName: "respond",
+            form: <RespondForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RespondForm>,
+        },
+        {
+            title: "Send Mediator",
+            operationName: "send",
+            form: <SendForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SendForm>,
+        },
+        {
+            title: "Sequence Mediator",
+            operationName: "sequence",
+            form: <SequenceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SequenceForm>,
+        },
+        {
+            title: "Store Mediator",
+            operationName: "store",
+            form: <StoreForm nodePosition={props.nodePosition} documentUri={props.documentUri}></StoreForm>,
+        },
+        {
+            title: "Validate Mediator",
+            operationName: "validate",
+            form: <ValidateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ValidateForm>,
         }
     ];
 
@@ -106,7 +186,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     return (
         isLoading ? <h1>Loading...</h1> :
             <div>
-                {mediators.length > 0 && !mediatorForm && !connectorForm && <MediatorList />}
+                {mediators.length > 0 && !mediatorForm && !connectorForm  && actions.length == 0 && <MediatorList />}
                 {connectorList && !mediatorForm && actions.length == 0 && <ConnectorList />}
 
                 {mediatorForm && <>{mediatorForm}</>}

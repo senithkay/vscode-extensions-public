@@ -12,7 +12,7 @@
           {
             "type": "attribute",
             "value": {
-              "name": "logCategory",
+              "name": "category",
               "displayName": "Log Category",
               "inputType": "combo",
               "defaultValue": "INFO",
@@ -31,7 +31,7 @@
           {
             "type": "attribute",
             "value": {
-              "name": "logLevel",
+              "name": "level",
               "displayName": "Log Level",
               "inputType": "combo",
               "defaultValue": "SIMPLE",
@@ -48,7 +48,7 @@
           {
             "type": "attribute",
             "value": {
-              "name": "logSeparator",
+              "name": "separator",
               "displayName": "Log Separator",
               "inputType": "string",
               "defaultValue": "",
