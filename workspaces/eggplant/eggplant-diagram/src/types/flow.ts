@@ -15,14 +15,14 @@ export type Flow = {
 };
 
 export type Node = {
-    id: string;
+    id?: string;
     name: string;
     templateId: string;
     inputPorts: InputPort[];
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition: CanvasPosition;
-    properties: NodeProperties;
+    properties?: NodeProperties;
 };
 
 export type InputPort = {

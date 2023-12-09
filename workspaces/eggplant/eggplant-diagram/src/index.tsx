@@ -8,4 +8,4 @@
  */
 
 export { EggplantApp } from "./App";
-export type { Flow } from "./types/flow";
+export * from "./types/flow";

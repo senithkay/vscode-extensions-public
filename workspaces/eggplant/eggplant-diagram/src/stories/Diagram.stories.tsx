@@ -9,7 +9,7 @@
 
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import { EggplantApp } from "../index";
+import { EggplantApp, Flow } from "../index";
 
 export default {
     title: "EggplantDiagram",
@@ -23,150 +23,149 @@ Blank.args = {
     flowModel: {
         id: "1",
         name: "flow1",
-        fileName: "path",
-        nodes: [
-
-        ],
+        balFilename: "path",
+        nodes: [],
     },
 };
 
+const simpleModel: Flow = {
+    id: "1",
+    name: "flow1",
+    balFilename: "path",
+    nodes: [
+        {
+            name: "A",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                startLine: {
+                    line: 4,
+                    column: 4,
+                },
+                endLine: {
+                    line: 8,
+                    column: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [],
+            outputPorts: [
+                {
+                    id: "ao2",
+                    type: "INT",
+                    receiver: "C",
+                },
+                {
+                    id: "ao1",
+                    type: "INT",
+                    receiver: "B",
+                },
+            ],
+        },
+        {
+            name: "B",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                startLine: {
+                    line: 10,
+                    column: 4,
+                },
+                endLine: {
+                    line: 16,
+                    column: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [
+                {
+                    id: "bi1",
+                    type: "INT",
+                    name: "x1",
+                    sender: "A",
+                },
+            ],
+            outputPorts: [
+                {
+                    id: "bo1",
+                    type: "INT",
+                    receiver: "C",
+                },
+            ],
+        },
+        {
+            name: "C",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                startLine: {
+                    line: 18,
+                    column: 4,
+                },
+                endLine: {
+                    line: 21,
+                    column: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [
+                {
+                    id: "ci1",
+                    type: "INT",
+                    name: "x2",
+                    sender: "A",
+                },
+                {
+                    id: "ci2",
+                    type: "INT",
+                    name: "x3",
+                    sender: "B",
+                },
+            ],
+            outputPorts: [
+                {
+                    id: "co2",
+                    type: "INT",
+                    receiver: "D",
+                },
+            ],
+        },
+        {
+            name: "D",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                startLine: {
+                    line: 10,
+                    column: 4,
+                },
+                endLine: {
+                    line: 16,
+                    column: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [
+                {
+                    id: "di1",
+                    type: "INT",
+                    name: "x1",
+                    sender: "C",
+                },
+            ],
+            outputPorts: [],
+        },
+    ],
+};
 export const Simple = Template.bind({});
 Simple.args = {
-    flowModel: {
-        id: "1",
-        name: "flow1",
-        fileName: "path",
-        nodes: [
-            {
-                name: "A",
-                templateKind: "TRANSFORMER",
-                codeLocation: {
-                    start: {
-                        line: 4,
-                        offset: 4,
-                    },
-                    end: {
-                        line: 8,
-                        offset: 5,
-                    },
-                },
-                canvasPosition: {
-                    x: 0,
-                    y: 0,
-                },
-                inputPorts: [],
-                outputPorts: [
-                    {
-                        id: "ao2",
-                        type: "INT",
-                        receiver: "C",
-                    },
-                    {
-                        id: "ao1",
-                        type: "INT",
-                        receiver: "B",
-                    },
-                ],
-            },
-            {
-                name: "B",
-                templateKind: "TRANSFORMER",
-                codeLocation: {
-                    start: {
-                        line: 10,
-                        offset: 4,
-                    },
-                    end: {
-                        line: 16,
-                        offset: 5,
-                    },
-                },
-                canvasPosition: {
-                    x: 0,
-                    y: 0,
-                },
-                inputPorts: [
-                    {
-                        id: "bi1",
-                        type: "INT",
-                        name: "x1",
-                        sender: "A",
-                    },
-                ],
-                outputPorts: [
-                    {
-                        id: "bo1",
-                        type: "INT",
-                        receiver: "C",
-                    },
-                ],
-            },
-            {
-                name: "C",
-                templateKind: "TRANSFORMER",
-                codeLocation: {
-                    start: {
-                        line: 18,
-                        offset: 4,
-                    },
-                    end: {
-                        line: 21,
-                        offset: 5,
-                    },
-                },
-                canvasPosition: {
-                    x: 0,
-                    y: 0,
-                },
-                inputPorts: [
-                    {
-                        id: "ci1",
-                        type: "INT",
-                        name: "x2",
-                        sender: "A",
-                    },
-                    {
-                        id: "ci2",
-                        type: "INT",
-                        name: "x3",
-                        sender: "B",
-                    },
-                ],
-                outputPorts: [
-                    {
-                        id: "co2",
-                        type: "INT",
-                        receiver: "D",
-                    },
-                ],
-            },
-            {
-                name: "D",
-                templateKind: "TRANSFORMER",
-                codeLocation: {
-                    start: {
-                        line: 10,
-                        offset: 4,
-                    },
-                    end: {
-                        line: 16,
-                        offset: 5,
-                    },
-                },
-                canvasPosition: {
-                    x: 0,
-                    y: 0,
-                },
-                inputPorts: [
-                    {
-                        id: "di1",
-                        type: "INT",
-                        name: "x1",
-                        sender: "C",
-                    },
-                ],
-                outputPorts: [],
-            },
-        ],
-    },
+    flowModel: simpleModel,
 };
