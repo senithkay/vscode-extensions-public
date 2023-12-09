@@ -9,6 +9,12 @@
 
 import React from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
+import styled from "@emotion/styled";
+
+const Container = styled.div`
+    width: 100%;
+    height: 100svh;
+`;
 
 const model: Flow = {
     id: "1",
@@ -73,9 +79,9 @@ const model: Flow = {
 
 const LowCode = () => {
     return (
-        <div>
+        <Container>
             <EggplantApp flowModel={model} />
-        </div>
+        </Container>
     );
 };
 

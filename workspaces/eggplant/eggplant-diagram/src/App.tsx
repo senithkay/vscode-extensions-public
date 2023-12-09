@@ -42,7 +42,7 @@ export function EggplantApp(props: EggplantAppProps) {
         }, 1000);
     };
 
-    return <>{diagramEngine && diagramModel && <BodyWidget engine={diagramEngine} />};</>;
+    return <>{diagramEngine && diagramModel && <BodyWidget engine={diagramEngine} />}</>;
 }
 
 export default EggplantApp;
