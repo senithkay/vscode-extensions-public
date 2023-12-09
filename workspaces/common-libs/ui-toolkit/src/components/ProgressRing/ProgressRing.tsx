@@ -6,6 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import React from "react";
+import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
-export { EggplantApp } from "./App";
-export * from "./types/flow";
+export const ProgressRing: React.FC = () => <VSCodeProgressRing />;
+
+export default ProgressRing;

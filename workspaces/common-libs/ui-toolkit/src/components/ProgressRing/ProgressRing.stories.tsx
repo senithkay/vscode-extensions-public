@@ -6,6 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import React from "react";
+import { Meta, Story } from "@storybook/react";
+import { ProgressRing } from "./ProgressRing";
 
-export { EggplantApp } from "./App";
-export * from "./types/flow";
+export default { title: "ProgressRing", component: ProgressRing } as Meta;
+
+const Template: Story = (args: any) => <ProgressRing {...args} />;
+
+export const Default = Template.bind({});
+
