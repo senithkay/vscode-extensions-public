@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
+import { DiagramModel, DiagramModelGenerics, LinkModel, LinkModelGenerics } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { Colors } from "../resources";
 import { CodeLocation, ExtendedPort, Flow, InputPort, Node, OutputPort } from "../types";
@@ -161,5 +161,87 @@ export function getUpdatedModelForLinks(flowModel: Flow, link: LinkModel): Flow 
     targetPortFromNode.sender = sourcePortNode?.name;
     return model;
 }
+
+export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel: DiagramModel<DiagramModelGenerics>): Flow {
+    const model: Flow = {
+        id: flowModel.id,
+        name: flowModel.name,
+        nodes: [],
+        balFilename: flowModel.balFilename
+    };
+    // update the flowModel with data retrieved from the diagramModel
+    const flowModelNodes = model.nodes;
+    const serilzed = diagramModel.serialize();
+    // update the canvasPosition of each node
+    diagramModel.getNodes().forEach((node) => {
+        const inports: InputPort[] = [];
+        const outports: OutputPort[] = [];
+        const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
+        defaultNode.getInPorts().forEach((port) => {
+            Object.values(port.getLinks()).forEach((link) => {
+                const sourcePortID =  link.getSourcePort()?.getID();
+                diagramModel.getNodes().forEach((node) => {
+                    //get the matching node for portID
+                    const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
+                    defaultNode.getOutPorts().forEach((port) => {
+                        if(port.getID() === sourcePortID){
+                            inports.push({
+                                id: port.getID(),
+                                type: port.getType(),
+                                name: port.getName(),
+                                sender: defaultNode.getName()
+                            });
+                        }
+                    });
+            });
+        });
+        });
+        defaultNode.getOutPorts().forEach((port) => {
+            Object.values(port.getLinks()).forEach((link) => {
+                const targetPortID =  link.getTargetPort()?.getID();
+                diagramModel.getNodes().forEach((node) => {
+                    //get the matching node for portID
+                    const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
+                    defaultNode.getInPorts().forEach((port) => {
+                        if(port.getID() === targetPortID){
+                            outports.push({
+                                id: port.getID(),
+                                type: port.getType(),
+                                receiver: defaultNode.getName()
+                            });
+                        }
+                    });
+                });
+            });
+        });
+
+        // TODO: get the codeLocation from the node
+        const codePosition: CodeLocation = {
+            start: {
+                line: 0,
+                offset: 0
+            },
+            end: {
+                line: 0,
+                offset: 0
+            }
+        }
+
+        var newNode: Node = {
+            id: node.getID(),
+            name: defaultNode.getName(),
+            templateId: node.getType(),
+            inputPorts: inports,
+            outputPorts: outports,
+            codeLocation: codePosition,
+            canvasPosition: node.getPosition()
+        };
+
+        flowModelNodes?.push(newNode);
+    });
+    return model;
+}
+
+
 
 

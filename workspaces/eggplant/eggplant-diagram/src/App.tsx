@@ -8,10 +8,10 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { DiagramEngine, DiagramModel, LinkModel, LinkModelGenerics, PortModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, LinkModel, LinkModelGenerics, NodeModel, PortModel } from "@projectstorm/react-diagrams";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
-import { generateDiagramModelFromFlowModel, generateEngine, getUpdatedModelForLinks, removeOverlay } from "./utils";
+import { generateDiagramModelFromFlowModel, generateEngine, getUpdatedModelForLinks, removeOverlay, generateFlowModelFromDiagramModel } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { set } from "lodash";
 import { BaseEntityEvent, BaseEvent } from "@projectstorm/react-canvas-core";
@@ -46,11 +46,11 @@ export function EggplantApp(props: EggplantAppProps) {
                 (event.link as LinkModel).registerListener({
                     targetPortChanged(event: any) {
                         const newLink: LinkModel = (event.entity as LinkModel);
-                        const portUpdatedModel: Flow = getUpdatedModelForLinks(flowModel, newLink);
+                        const portUpdatedModel: Flow = generateFlowModelFromDiagramModel(flowModel, diagramEngine.getModel());
                         onModelChange(portUpdatedModel);
                     },
                 });
-            }
+            },
         });
         setDiagramModel(model);
 
