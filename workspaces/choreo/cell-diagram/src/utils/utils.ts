@@ -215,7 +215,6 @@ export function animateDiagram() {
     safeAnimate(
         `g[data-linkid^="${EXTERNAL_LINK}|"]`,
         {
-            scale: 0,
             opacity: 0,
             duration: 0.5,
         },
@@ -509,8 +508,7 @@ function getObservationSummary(project: Project): ObservationSummary {
             });
         }
     });
-
-    return { requestCount: { max: maxRequestCount, min: minRequestCount === Infinity ? 0 : minRequestCount } };
+    return { requestCount: { max: maxRequestCount, min: 0 } };
 }
 
 // Links generation utils
