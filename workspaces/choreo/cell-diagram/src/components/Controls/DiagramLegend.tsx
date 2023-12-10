@@ -60,8 +60,6 @@ export function DiagramLegend(props: DiagramLegendProps) {
     const hasObservabilityLayer = hasLayer(DiagramLayer.OBSERVABILITY);
     const hasDiffLayer = hasLayer(DiagramLayer.DIFF);
 
-    console.log("{first}", { hasArchitectureLayer, hasObservabilityLayer, hasDiffLayer });
-
     useEffect(() => {
         if (animation) {
             gsap.fromTo(
