@@ -28,30 +28,24 @@ const extensionConfig = {
   },
   externals: {
     keytar: "commonjs keytar",
-    vscode: 'commonjs vscode'
+    vscode: 'commonjs vscode',
+    bufferutil: 'commonjs bufferutil',
+    'utf-8-validate': 'commonjs utf-8-validate'
   },
   resolve: {
     extensions: ['.ts', '.js']
   },
   module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'ts-loader'
-          }
-        ]
-      },
-      {
-        test: /\.m?js$/,
-        type: "javascript/auto",
-        resolve: {
-          fullySpecified: false
-        },
-      },
-    ]
+    rules: [{
+      test: /\.ts$/,
+      exclude: /node_modules/,
+      use: [{
+        loader: 'ts-loader',
+        options: {
+          logLevel: "info"
+        }
+      }]
+    }]
   },
   devtool: 'source-map',
   infrastructureLogging: {
@@ -74,15 +68,12 @@ const extensionConfig = {
     ]
   },
   plugins: [
-    new CopyPlugin({
-      patterns: [
-        { from: "src/git/*.sh", to: "[name][ext]" },
-      ],
-    }),
     new PermissionsOutputPlugin({
-      buildFolders: [
-        path.resolve(__dirname, 'dist/')
-      ]
+      buildFolders: [{
+        path: path.resolve(__dirname, 'out/'), // Everything under resources/ gets these modes
+        fileMode: '755',
+        dirMode: '755'
+      } ]
     })
   ],
 

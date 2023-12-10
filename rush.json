@@ -608,6 +608,11 @@
       "versionPolicyName": "eggplant-extension"
     },
     {
+      "packageName": "@wso2-enterprise/eggplant-overview",
+      "projectFolder": "workspaces/eggplant/eggplant-overview",
+      "versionPolicyName": "eggplant-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/eggplant-core",
       "projectFolder": "workspaces/eggplant/eggplant-core",
       "versionPolicyName": "eggplant-extension"

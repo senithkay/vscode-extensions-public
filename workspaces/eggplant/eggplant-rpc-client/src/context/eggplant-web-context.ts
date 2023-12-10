@@ -9,13 +9,13 @@
 
 import { createContext, useContext } from "react";
 import { EggplantRpcClient } from "../EggplantRpcClient";
-import { VisualizerLocationContext } from "@wso2-enterprise/eggplant-core";
+import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
 
 
 export interface VisualizerContext {
-    viewLocation: VisualizerLocationContext,
+    viewLocation: VisualizerLocation,
     eggplantRpcClient?: EggplantRpcClient
-    setViewLocation?: (view: VisualizerLocationContext) => void
+    setViewLocation?: (view: VisualizerLocation) => void
 }
 
 /**

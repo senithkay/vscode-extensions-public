@@ -9,22 +9,53 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
-    VisualizerLocationContext,
+    LangClientInterface,
+    VisualizerLocation,
     WebviewAPI,
 } from "@wso2-enterprise/eggplant-core";
+import { openView, stateService } from "../../stateMachine";
+import { handleVisualizerView } from "../../utils/navigation";
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+import { workspace } from "vscode";
 
 export class WebviewRpcManager implements WebviewAPI {
-    async getHelloWorld(): Promise<string> {
-        return Promise.resolve("Hello World!");
+
+    async getVisualizerState(): Promise<VisualizerLocation> {
+        const snapshot = stateService.getSnapshot();
+        snapshot.context.langServer = null;
+        return new Promise((resolve) => {
+            resolve(snapshot.context);
+        });
     }
 
-    async getVisualizerState(): Promise<VisualizerLocationContext> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    openVisualizerView(params: VisualizerLocation): void {
+        if (params.location) {
+            handleVisualizerView(params.location);
+        } else {
+            openView(params);
+        }
     }
 
-    async openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async getBallerinaProjectComponents(): Promise<BallerinaProjectComponents> {
+        const snapshot = stateService.getSnapshot();
+        // Check if there is at least one workspace folder
+        if (workspace.workspaceFolders?.length) {
+            const workspaceUri: { uri: string }[] = [];
+            workspace.workspaceFolders.forEach(folder => {
+                workspaceUri.push(
+                    {
+                        uri: folder.uri.toString(),
+                    }
+                );
+            });
+            const context =  snapshot.context;
+            const langClient = context.langServer as LangClientInterface;
+            return langClient.getBallerinaProjectComponents({
+                documentIdentifiers: workspaceUri
+            });
+        } else {
+            // Handle the case where there are no workspace folders
+            throw new Error("No workspace folders are open");
+        }
     }
 }

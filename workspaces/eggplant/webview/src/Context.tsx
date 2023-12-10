@@ -9,12 +9,12 @@
 
 import React, { ReactNode, useState } from "react";
 import { EggplantRpcClient, VisualizerContext, Context, } from "@wso2-enterprise/eggplant-rpc-client";
-import { VisualizerLocationContext } from "@wso2-enterprise/eggplant-core";
+import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
 
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
 
-  const setView = (view: VisualizerLocationContext) => {
+  const setView = (view: VisualizerLocation) => {
     setVisualizerState((prevState: VisualizerContext) => ({
       ...prevState,
       viewLocation: view,

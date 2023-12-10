@@ -588,8 +588,9 @@ function handleManagerClassMethod(classDeclaration, value, sourceFile) {
 
 function handleTypeMethodConstants(prefix, value, sourceFile) {
     // Define the constant
-    const messageType = value.return.promiseType === 'void' || value.return.eventType ? 'NotificationType' : 'RequestType';
-    const paramType = value.return.promiseType === 'void' || value.return.eventType ? `${value.return.eventType || value.return.promiseType}` : `${value.params.type || 'void'}, ${value.return.promiseType}`;
+    const isVoid = value.return.promiseType === 'void' || value.return.promiseType === '';
+    const messageType = isVoid || value.return.eventType ? 'NotificationType' : 'RequestType';
+    const paramType = isVoid || value.return.eventType ? `${value.return.eventType || value.params.type || 'void'}` : `${value.params.type || 'void'}, ${value.return.promiseType}`;
     const methodValue = "`" + prefix + "/" + value.name + "`";
     const constant = `export const ${value.name}: ${messageType}<${paramType}> = { method: ${methodValue} };`;
     // Insert the constant at a specific index, for example at the end of the file
@@ -608,7 +609,8 @@ function handleMessengerTypes(handlerFunction, value, sourceFile) {
         handleImportStatment(sourceFile, 'vscode-messenger-common', 'BROADCAST');
     } else {
         // Define the message definitions
-        const messageType = value.return.promiseType === 'void' ? 'onNotification' : 'onRequest';
+        const isVoid = value.return.promiseType === 'void' || value.return.promiseType === '';
+        const messageType = isVoid ? 'onNotification' : 'onRequest';
         const paramType = value.params.type ? `(args: ${value.params.type})` : `()`;
         const paramTypeArgs = value.params.type ? `(args)` : `()`;
 
@@ -664,8 +666,12 @@ function handleClientClassMethod(classDeclaration, value, sourceFile) {
 
     let statement = '';
     let returnType = '';
-    if (value.return.promiseType === 'void') {
-        statement = `return this._messenger.sendNotification(${value.name}, HOST_EXTENSION);`;
+    const isVoid = value.return.promiseType === 'void' || value.return.promiseType === '';
+    if (isVoid) {
+        statement = `return this._messenger.sendNotification(${value.name}, HOST_EXTENSION, params);`;
+        if (!value.params.type) {
+            statement = `return this._messenger.sendNotification(${value.name}, HOST_EXTENSION);`;
+        }
         returnType = 'void';
     } else {
         statement = `return this._messenger.sendRequest(${value.name}, HOST_EXTENSION, params);`;
