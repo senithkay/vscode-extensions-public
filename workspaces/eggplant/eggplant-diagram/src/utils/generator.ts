@@ -7,10 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagramModel, LinkModel } from "@projectstorm/react-diagrams";
+import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { Colors } from "../resources";
-import { ExtendedPort, Flow, Node } from "../types";
+import { CodeLocation, ExtendedPort, Flow, InputPort, Node, OutputPort } from "../types";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
     let flowPorts: ExtendedPort[] = [];
@@ -91,3 +91,75 @@ function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boo
         (port) => port.parent === parent && port.in === inPort && ((inPort && port.sender === linkNodeId) || (!inPort && port.receiver === linkNodeId))
     );
 }
+
+export function getUpdatedModel(diagramModel: DiagramModel<DiagramModelGenerics>, node: DefaultNodeModel, flowModel: Flow): Flow {
+    // var nodeModel = node.serialize();
+    const model: Flow = flowModel;
+    const flowModelNodes = model.nodes;
+    // create newNode of type Node wit the data of node recieved as input to the function
+    const inports: InputPort[] = [];
+    const outports: OutputPort[] = [];
+    node.getInPorts().forEach((port) => {
+        inports.push({
+            id: port.getID(),
+            type: port.getType(),
+            name: port.getName()
+        });
+    });
+    node.getOutPorts().forEach((port) => {
+        outports.push({
+            id: port.getID(),
+            type: port.getType()
+        });
+    });
+
+    const codePosition: CodeLocation = {
+        start: {
+            line: 0,
+            offset: 0
+        },
+        end: {
+            line: 0,
+            offset: 0
+        }
+    }
+
+    var newNode: Node = {
+        id: node.getID(),
+        name: node.getName(),
+        templateId: node.getType(),
+        inputPorts: inports,
+        outputPorts: outports,
+        codeLocation: codePosition,
+        canvasPosition: node.getPosition()
+    };
+
+    // update the flowModelNodes with the newNode
+    flowModelNodes?.push(newNode);
+    return model;
+}
+
+
+export function getUpdatedModelForLinks(flowModel: Flow, link: LinkModel): Flow {
+
+    const model: Flow = flowModel;
+    const flowModelNodes: Node[] = model.nodes;
+
+    var sourcePort = link.getSourcePort();
+    var targetPort = link.getTargetPort();
+    // find the sourcePort from the flowModelNodes
+    var sourcePortNode = flowModelNodes?.find((node) => node.id === sourcePort?.getParent()?.getID());
+    // find the targetPort from the flowModelNodes
+    var targetPortNode = flowModelNodes?.find((node) => node.id === targetPort?.getParent()?.getID());
+    // find the port from the sourcePortNode
+    const sourcePortFromNode: OutputPort = sourcePortNode?.outputPorts?.find((port) => port.id === sourcePort?.getID());
+    // update the details of sourcePortFromNode with the detials of sourcePort
+    sourcePortFromNode.receiver = targetPortNode?.name;
+    // find the port from the targetPortNode
+    const targetPortFromNode: InputPort = targetPortNode?.inputPorts?.find((port) => port.id === targetPort?.getID());
+    // update the details of targetPortFromNode with the detials of targetPort
+    targetPortFromNode.sender = sourcePortNode?.name;
+    return model;
+}
+
+

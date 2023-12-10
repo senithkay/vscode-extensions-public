@@ -8,18 +8,21 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, LinkModel, LinkModelGenerics, PortModel } from "@projectstorm/react-diagrams";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
-import { generateDiagramModelFromFlowModel, generateEngine, removeOverlay } from "./utils";
+import { generateDiagramModelFromFlowModel, generateEngine, getUpdatedModelForLinks, removeOverlay } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
+import { set } from "lodash";
+import { BaseEntityEvent, BaseEvent } from "@projectstorm/react-canvas-core";
 
 interface EggplantAppProps {
     flowModel: Flow;
+    onModelChange: (flowModel: Flow) => void;
 }
 
 export function EggplantApp(props: EggplantAppProps) {
-    const { flowModel } = props;
+    const { flowModel, onModelChange } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
@@ -34,7 +37,21 @@ export function EggplantApp(props: EggplantAppProps) {
         model.addLayer(new OverlayLayerModel());
 
         generateDiagramModelFromFlowModel(model, flowModel);
+
+
         diagramEngine.setModel(model);
+
+        diagramEngine.getModel().registerListener({
+            linksUpdated: (event: any) => {
+                (event.link as LinkModel).registerListener({
+                    targetPortChanged(event: any) {
+                        const newLink: LinkModel = (event.entity as LinkModel);
+                        const portUpdatedModel: Flow = getUpdatedModelForLinks(flowModel, newLink);
+                        onModelChange(portUpdatedModel);
+                    },
+                });
+            }
+        });
         setDiagramModel(model);
 
         setTimeout(() => {
@@ -42,7 +59,7 @@ export function EggplantApp(props: EggplantAppProps) {
         }, 1000);
     };
 
-    return <>{diagramEngine && diagramModel && <BodyWidget engine={diagramEngine} />}</>;
+    return <>{diagramEngine && diagramModel && <BodyWidget engine={diagramEngine} flowModel={flowModel} onModelChange={onModelChange} />}</>;
 }
 
 export default EggplantApp;
