@@ -501,12 +501,12 @@ function getObservationSummary(project: Project): ObservationSummary {
                 const service = component.services[serviceId];
                 calculateRequestCount(service.deploymentMetadata?.gateways.internet.observations);
                 calculateRequestCount(service.deploymentMetadata?.gateways.intranet.observations);
-                if (component.connections.length > 0) {
-                    component.connections.forEach((connection) => {
-                        calculateRequestCount(connection.observations);
-                    });
-                }
             }
+        }
+        if (component.connections.length > 0) {
+            component.connections.forEach((connection) => {
+                calculateRequestCount(connection.observations);
+            });
         }
     });
 
@@ -605,7 +605,6 @@ function generateConnectionLinks(emptyNodes: Map<string, EmptyModel>, connection
         }
         const sourcePort: CellPortModel | null = eastboundEmptyNode.getPort(getNodePortId(eastboundEmptyNode.getID(), PortModelAlignment.RIGHT));
         const targetPort: ConnectionPortModel | null = connectionNode.getPort(`left-${connectionNode.getID()}`);
-        console.log("targetPort", targetPort);
 
         if (sourcePort && targetPort) {
             const linkId = getExternalLinkName(sourcePort.getID(), targetPort.getID());
