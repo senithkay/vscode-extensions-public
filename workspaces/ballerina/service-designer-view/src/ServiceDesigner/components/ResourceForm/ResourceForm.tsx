@@ -73,7 +73,7 @@ export function ResourceForm(props: ResourceFormProps) {
 			const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
 			paramString = paramString + `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
 		});
-		const payloadType = `${parameters.length > 0 ? ", ": ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}${parameters.length > 0 ? ", ": ""}`;
+		const payloadType = `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
 		paramString = paramString + payloadType;
 
 		advancedParams.forEach((param: ParameterConfig) => {
@@ -85,8 +85,8 @@ export function ResourceForm(props: ResourceFormProps) {
 		response.map((resp: ResponseConfig, index: number) => {
 			responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
 		});
-		
-		const genSource = generateResourceFunction({METHOD: method, PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString});
+
+		const genSource = generateResourceFunction({ METHOD: method, PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 		console.log(genSource);
 	};
 
@@ -103,7 +103,7 @@ export function ResourceForm(props: ResourceFormProps) {
 				</SidePanelTitleContainer>
 
 				<SidePanelBody>
-					<ResourcePath method={method} path={path} onChange={onPathChange}/>
+					<ResourcePath method={method} path={path} onChange={onPathChange} />
 
 					<Divider />
 
