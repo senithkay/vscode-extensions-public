@@ -17,9 +17,13 @@ import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
 import styled from '@emotion/styled';
+import { ResourcesList } from './ResourcesList';
+import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { Typography } from '@wso2-enterprise/ui-toolkit';
 
 export function Overview() {
     const [currentComponents, setCurrentComponents] = useState<any>();
+    const [selectedComponent, setSelectedComponent] = useState<ServiceDeclaration>();
     const [loading, setLoading] = useState(true);
     const { eggplantRpcClient } = useVisualizerContext();
 
@@ -73,11 +77,22 @@ export function Overview() {
         return <Loader />;
     }
 
+    const handleClear = () => {
+        setSelectedComponent(null);
+    }
+
     return (
         <>
-            {/* <TitleBar /> */}
+            <TitleBar clearSelection={handleClear} />
             {currentComponents ? (
-                <ComponentListView currentComponents={currentComponents} />
+                selectedComponent ? (
+                    <>
+                        <Typography variant="h3">{selectedComponent.absoluteResourcePath.map(res => res.value)}</Typography>
+                        <ResourcesList components={selectedComponent.members} />
+                    </>
+                ) : (
+                    <ComponentListView currentComponents={currentComponents} setSelectedComponent={setSelectedComponent} />
+                )
             ) : (
                 <div>No data available</div>
             )}

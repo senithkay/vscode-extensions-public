@@ -14,6 +14,7 @@
 import { VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { EggplantModel } from "./types";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export interface WebviewAPI {
     getState: () => Promise<string>;
@@ -22,4 +23,5 @@ export interface WebviewAPI {
     getBallerinaProjectComponents: () => Promise<BallerinaProjectComponents>;
     getEggplantModel: () => Promise<EggplantModel>;
     executeCommand: (params: string) => void;
+    getSTNodeFromLocation: (params: VisualizerLocation) => Promise<STNode>;
 }
