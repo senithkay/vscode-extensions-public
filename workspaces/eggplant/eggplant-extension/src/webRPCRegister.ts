@@ -28,6 +28,7 @@ export class RPCLayer {
         // Register state change notification
         StateMachine.getService().onTransition((state) => {
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'lowcode' }, stateString(state.value));
+            this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'eggplant.activity.overview' }, stateString(state.value));
         });
 
         registerWebviewRpcHandlers(this._messenger);

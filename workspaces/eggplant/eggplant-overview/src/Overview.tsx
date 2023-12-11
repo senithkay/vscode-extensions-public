@@ -12,9 +12,11 @@
 import React, { useEffect, useState } from 'react';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
+import styled from '@emotion/styled';
 
 export function Overview() {
     const [currentComponents, setCurrentComponents] = useState<any>();
@@ -43,9 +45,32 @@ export function Overview() {
         fetchData();
     }, []);
 
+
+    const LoaderContainer = styled.div({
+        width: "100%",
+        overflow: "hidden",
+        height: "90vh",
+        display: "grid"
+    });
+
+    const LoaderContent = styled.div({
+        margin: "auto",
+    });
+
+    const Loader = () => {
+        return (
+            <LoaderContainer>
+                <LoaderContent>
+                    <VSCodeProgressRing style={{ height: 24, margin: 'auto' }} />
+                    Fetching components...
+                </LoaderContent>
+            </LoaderContainer>
+        )
+    }
+
     if (loading) {
         // Render a loading indicator
-        return <div>Loading...</div>;
+        return <Loader />;
     }
 
     return (

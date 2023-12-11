@@ -11,7 +11,7 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { ExtensionContext } from "vscode";
+import { ExtensionContext, Uri } from "vscode";
 // import { WebViewViewRPC } from "../rpc/WebviewRPC";
 import { getUri } from '../utils';
 import { ext } from '../eggplantExtentionContext';
@@ -58,6 +58,8 @@ export class LowCode {
             "Visualizer.js"
         ]);
 
+        const codiconUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
+        const fontsUri = webview.asWebviewUri(Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
         return /*html*/ `
         <!DOCTYPE html>
@@ -67,6 +69,8 @@ export class LowCode {
           <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
           <meta name="theme-color" content="#000000">
           <title>Eggplant Overview</title>
+          <link rel="stylesheet" href="${codiconUri}">
+          <link rel="stylesheet" href="${fontsUri}">
           <script src="${scriptUri}"></script>
         </head>
         <body>

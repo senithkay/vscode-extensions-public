@@ -15,15 +15,14 @@ import {
     VisualizerLocation,
     WebviewAPI
 } from "@wso2-enterprise/eggplant-core";
-import { workspace } from "vscode";
-import { openView, stateService, getState } from "../../stateMachine";
+import { workspace, commands } from "vscode";
+import { getState, openView, stateService } from "../../stateMachine";
 import { handleVisualizerView } from "../../utils/navigation";
 
 export class WebviewRpcManager implements WebviewAPI {
 
     async getVisualizerState(): Promise<VisualizerLocation> {
         const snapshot = stateService.getSnapshot();
-        snapshot.context.langServer = null;
         return new Promise((resolve) => {
             resolve(snapshot.context);
         });
@@ -130,6 +129,10 @@ export class WebviewRpcManager implements WebviewAPI {
         const snapshot = stateService.getSnapshot();
         return new Promise((resolve) => {
             resolve(getState());
-        })
+        });
+    }
+
+    executeCommand(params: string): void {
+        commands.executeCommand(params);
     }
 }

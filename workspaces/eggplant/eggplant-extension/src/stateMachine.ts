@@ -3,6 +3,7 @@ import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { window } from 'vscode';
 
 interface Context extends VisualizerLocation {
     langServer: LangClientInterface | null;
@@ -135,6 +136,9 @@ async function checkIfEggplantProject() {
         }
     } catch (err) {
         console.error(err);
+    }
+    if (!isEggplant) {
+        await window.showInformationMessage("Not an Eggplant Project.");
     }
     return isEggplant;
 }

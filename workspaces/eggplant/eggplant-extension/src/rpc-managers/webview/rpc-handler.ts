@@ -10,11 +10,12 @@
  */
 import {
     VisualizerLocation,
+    executeCommand,
     getBallerinaProjectComponents,
     getEggplantModel,
     getState,
     getVisualizerState,
-    openVisualizerView,
+    openVisualizerView
 } from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { WebviewRpcManager } from "./rpc-manager";
@@ -26,4 +27,5 @@ export function registerWebviewRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openVisualizerView, (args: VisualizerLocation) => rpcManger.openVisualizerView(args));
     messenger.onRequest(getBallerinaProjectComponents, () => rpcManger.getBallerinaProjectComponents());
     messenger.onRequest(getEggplantModel, () => rpcManger.getEggplantModel());
+    messenger.onNotification(executeCommand, (args: string) => rpcManger.executeCommand(args));
 }
