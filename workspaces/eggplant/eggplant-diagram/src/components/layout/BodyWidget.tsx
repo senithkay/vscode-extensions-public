@@ -15,14 +15,18 @@ import { DefaultNodeModel } from "../default";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DiagramCanvasWidget } from "./DiagramCanvasWidget";
 import styled from "@emotion/styled";
-import { Colors, EVENT_TYPES, NODE_TYPE } from "../../resources";
-import { DiagramEngine, DiagramModel, DiagramModelGenerics } from "@projectstorm/react-diagrams";
-import { getUpdatedModel } from "../../utils/generator";
+import { EVENT_TYPES, NODE_TYPE } from "../../resources";
+import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { generateFlowModelFromDiagramModel } from "../../utils/generator";
 import { Flow } from "../../types";
+import { OptionWidget } from "./OptionWidget";
+import { addNodeListener } from "../../utils";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
     flowModel: Flow;
+    selectedNode: DefaultNodeModel | null;
+    setSelectedNode: (node: DefaultNodeModel) => void;
     onModelChange?: (flowModel: Flow) => void;
 }
 
@@ -46,7 +50,7 @@ namespace S {
 }
 
 export function BodyWidget(props: BodyWidgetProps) {
-    const { engine, flowModel, onModelChange } = props;
+    const { engine, flowModel, selectedNode, setSelectedNode, onModelChange } = props;
 
     const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -58,29 +62,34 @@ export function BodyWidget(props: BodyWidgetProps) {
             let node: DefaultNodeModel = null;
             switch (data.type) {
                 case NODE_TYPE.START:
-                    node = new DefaultNodeModel("Start " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
+                    node = new DefaultNodeModel({ name: "Start " + (nodesCount + 1), kind: NODE_TYPE.START });
                     node.addOutPort("Out");
                     break;
                 case NODE_TYPE.END:
-                    node = new DefaultNodeModel("Return " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
+                    node = new DefaultNodeModel({ name: "Return " + (nodesCount + 1), kind: NODE_TYPE.END });
                     node.addInPort("In");
                     break;
-                case NODE_TYPE.CONDITION:
-                    node = new DefaultNodeModel("Switch " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
+                case NODE_TYPE.CODE_BLOCK:
+                    node = new DefaultNodeModel({ name: "Code Block " + (nodesCount + 1), kind: NODE_TYPE.CODE_BLOCK });
+                    node.addInPort("In");
+                    node.addOutPort("Out");
+                    break;
+                case NODE_TYPE.SWITCH:
+                    node = new DefaultNodeModel({ name: "Switch " + (nodesCount + 1), kind: NODE_TYPE.SWITCH });
                     node.addInPort("In");
                     node.addOutPort("OutCase1");
                     node.addOutPort("OutCase2");
                     break;
                 default:
-                    node = new DefaultNodeModel("Function " + (nodesCount + 1), Colors.PRIMARY_CONTAINER);
-                    node.addInPort("In");
-                    node.addOutPort("Out");
+                    break;
             }
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
+            addNodeListener(node, setSelectedNode);
             engine.getModel().addNode(node);
-            forceUpdate(); // TODO: trigger code mutation
-            const updatedFlow: Flow = getUpdatedModel(engine.getModel(), node, flowModel);
+            // forceUpdate();
+            const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
+            // const updatedFlow: Flow = getUpdatedModel(engine.getModel(), node, flowModel);
             onModelChange(updatedFlow);
         },
         [engine]
@@ -91,9 +100,8 @@ export function BodyWidget(props: BodyWidgetProps) {
             <S.Content>
                 <TrayWidget>
                     <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.END }} name="Return" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.CONDITION }} name="Switch" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.FUNCTION }} name="Function" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.CODE_BLOCK }} name="Code Block" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.SWITCH }} name="Switch" />
                 </TrayWidget>
                 <S.Layer
                     onDrop={handleDrop}
@@ -105,6 +113,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                         <CanvasWidget engine={engine} />
                     </DiagramCanvasWidget>
                 </S.Layer>
+                {selectedNode && <OptionWidget selectedNode={selectedNode} />}
             </S.Content>
         </S.Body>
     );

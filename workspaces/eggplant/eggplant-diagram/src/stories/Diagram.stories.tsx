@@ -10,25 +10,22 @@
 import React, { useState } from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { EggplantApp, Flow } from "../index";
+import { action } from "@storybook/addon-actions";
 
 export default {
     title: "EggplantDiagram",
     component: EggplantApp,
 } as Meta;
 
-
-
-const Template: Story = (args: {flowModel: Flow}) => {
-    
-
+const Template: Story = (args: { flowModel: Flow }) => {
     const [flowModel, setModel] = useState(args.flowModel);
 
     const onModelChange = (model: Flow) => {
-      setModel(model);
+        action("on model change")(model);
+        setModel(model);
     };
-    
+
     return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
-           
 };
 
 export const Blank = Template.bind({});
@@ -178,7 +175,82 @@ const simpleModel: Flow = {
         },
     ],
 };
+
 export const Simple = Template.bind({});
 Simple.args = {
     flowModel: simpleModel,
+};
+
+const SampleModel: Flow = {
+    id: "2",
+    name: "main/function",
+    fileName: "code_block.bal",
+    nodes: [
+        {
+            name: "A",
+            templateId: "block",
+            codeLocation: {
+                start: {
+                    line: 7,
+                    offset: 4,
+                },
+                end: {
+                    line: 15,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 11,
+                y: 32,
+            },
+            inputPorts: [],
+            outputPorts: [
+                {
+                    id: "1",
+                    type: "INT",
+                    receiver: "B",
+                },
+            ],
+            codeBlock: "",
+        },
+        {
+            name: "B",
+            templateId: "block",
+            codeLocation: {
+                start: {
+                    line: 17,
+                    offset: 4,
+                },
+                end: {
+                    line: 28,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 32,
+                y: 63,
+            },
+            inputPorts: [
+                {
+                    id: "1",
+                    type: "INT",
+                    name: "x",
+                    sender: "A",
+                },
+            ],
+            outputPorts: [
+                {
+                    id: "2",
+                    type: "INT",
+                    name: "b",
+                    receiver: "function",
+                },
+            ],
+            codeBlock: "        int a = 32 + x;\n        int b = a % 12;\n",
+        },
+    ],
+};
+export const Sample = Template.bind({});
+Sample.args = {
+    flowModel: SampleModel,
 };

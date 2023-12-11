@@ -11,7 +11,7 @@ export type Flow = {
     id: string;
     name: string;
     nodes: Node[];
-    balFilename: string;
+    fileName: string;
 };
 
 export type Node = {
@@ -23,6 +23,7 @@ export type Node = {
     codeLocation: CodeLocation;
     canvasPosition: CanvasPosition;
     properties?: NodeProperties;
+    codeBlock?: string;
 };
 
 export type InputPort = {
@@ -35,6 +36,7 @@ export type InputPort = {
 export type OutputPort = {
     id: string;
     type: string;
+    name?: string;
     receiver?: string;
 };
 

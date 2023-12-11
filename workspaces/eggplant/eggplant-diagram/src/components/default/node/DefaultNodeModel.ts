@@ -8,13 +8,17 @@
  */
 
 import * as _ from "lodash";
-import { NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams-core";
+import { NodeModel, NodeModelGenerics, NodeModelListener, PortModelAlignment } from "@projectstorm/react-diagrams-core";
 import { DefaultPortModel } from "../port/DefaultPortModel";
-import { BasePositionModelOptions, DeserializeEvent } from "@projectstorm/react-canvas-core";
+import { BasePositionModelOptions, DeserializeEvent, ListenerHandle } from "@projectstorm/react-canvas-core";
+import { Colors } from "../../../resources";
+import { Node, NodePort } from "../../../types";
 
 export interface DefaultNodeModelOptions extends BasePositionModelOptions {
     name?: string;
     color?: string;
+    node?: Node;
+    kind?: string;
 }
 
 export interface DefaultNodeModelGenerics extends NodeModelGenerics {
@@ -28,6 +32,19 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
     constructor(name: string, color: string);
     constructor(options?: DefaultNodeModelOptions);
     constructor(options: any = {}, color?: string) {
+        if (options?.kind || options?.node) {
+            console.log("options", options);
+            super({
+                type: "default",
+                name: options.node?.name || options.name,
+                color: Colors.PRIMARY_CONTAINER,
+                kind: options.node?.templateId || options.kind,
+                ...options,
+            });
+            this.portsIn = [];
+            this.portsOut = [];
+            return;
+        }
         if (typeof options === "string") {
             options = {
                 name: options,
@@ -73,12 +90,13 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return port;
     }
 
-    addInPort(label: string, after = true): DefaultPortModel {
+    addInPort(label: string, nodePort?: NodePort, after = true): DefaultPortModel {
         const p = new DefaultPortModel({
             in: true,
             name: label,
             label: label,
             alignment: PortModelAlignment.LEFT,
+            port: nodePort,
         });
         if (!after) {
             this.portsIn.splice(0, 0, p);
@@ -86,12 +104,13 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return this.addPort(p);
     }
 
-    addOutPort(label: string, after = true): DefaultPortModel {
+    addOutPort(label: string, nodePort?: NodePort, after = true): DefaultPortModel {
         const p = new DefaultPortModel({
             in: false,
             name: label,
             label: label,
             alignment: PortModelAlignment.RIGHT,
+            port: nodePort,
         });
         if (!after) {
             this.portsOut.splice(0, 0, p);
@@ -135,5 +154,13 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
 
     getName(): string {
         return this.options.name;
+    }
+
+    getNode(): Node {
+        return this.options.node;
+    }
+
+    getKind(): string {
+        return this.options.kind;
     }
 }

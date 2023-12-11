@@ -39,3 +39,16 @@ export function removeOverlay(diagramEngine: DiagramEngine) {
     }
     diagramEngine.repaintCanvas();
 }
+
+export function addNodeListener(node: DefaultNodeModel, callback: (node: DefaultNodeModel|null) => void) {
+    node.registerListener({
+        selectionChanged: (event: any) => {
+            // TODO: Fix type
+            if (event.isSelected) {
+                callback(event.entity as DefaultNodeModel);
+            } else {
+                callback(null);
+            }
+        },
+    });
+}

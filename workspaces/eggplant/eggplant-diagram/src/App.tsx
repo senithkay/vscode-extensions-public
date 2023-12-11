@@ -8,13 +8,12 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { DiagramEngine, DiagramModel, LinkModel, LinkModelGenerics, NodeModel, PortModel } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, LinkModel } from "@projectstorm/react-diagrams";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
-import { generateDiagramModelFromFlowModel, generateEngine, removeOverlay, generateFlowModelFromDiagramModel } from "./utils";
+import { generateDiagramModelFromFlowModel, generateEngine, removeOverlay, generateFlowModelFromDiagramModel, addNodeListener } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
-import { set } from "lodash";
-import { BaseEntityEvent, BaseEvent } from "@projectstorm/react-canvas-core";
+import { DefaultNodeModel } from "./components/default";
 
 interface EggplantAppProps {
     flowModel: Flow;
@@ -25,6 +24,7 @@ export function EggplantApp(props: EggplantAppProps) {
     const { flowModel, onModelChange } = props;
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
+    const [selectedNode, setSelectedNode] = useState<DefaultNodeModel | null>(null);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -44,13 +44,21 @@ export function EggplantApp(props: EggplantAppProps) {
             linksUpdated: (event: any) => {
                 (event.link as LinkModel).registerListener({
                     targetPortChanged(event: any) {
-                        const newLink: LinkModel = (event.entity as LinkModel);
+                        const newLink: LinkModel = event.entity as LinkModel;
                         const portUpdatedModel: Flow = generateFlowModelFromDiagramModel(flowModel, diagramEngine.getModel());
                         onModelChange(portUpdatedModel);
                     },
                 });
             },
         });
+
+        diagramEngine
+            .getModel()
+            .getNodes()
+            .forEach((node) => {
+                addNodeListener(node as DefaultNodeModel, setSelectedNode);
+            });
+
         setDiagramModel(model);
 
         setTimeout(() => {
@@ -58,8 +66,19 @@ export function EggplantApp(props: EggplantAppProps) {
         }, 1000);
     };
 
-    return <>{diagramEngine && diagramModel && <BodyWidget engine={diagramEngine} flowModel={flowModel} onModelChange={onModelChange} />}</>;
+    return (
+        <>
+            {diagramEngine && diagramModel && (
+                <BodyWidget
+                    engine={diagramEngine}
+                    flowModel={flowModel}
+                    onModelChange={onModelChange}
+                    selectedNode={selectedNode}
+                    setSelectedNode={setSelectedNode}
+                />
+            )}
+        </>
+    );
 }
 
 export default EggplantApp;
-
