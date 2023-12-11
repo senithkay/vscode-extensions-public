@@ -1,11 +1,8 @@
-
-
-
 export type EggplantModel = {
     id: string;
     name: string;
     nodes: Node[];
-    balFilename: string;
+    fileName: string;
 };
 
 export type Node = {
@@ -16,7 +13,7 @@ export type Node = {
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition: CanvasPosition;
-    properties?: NodeProperties;
+    properties?: SwitchNodeProperties; // Need to update with other node types
 };
 export type InputPort = {
     id: string;
@@ -45,7 +42,18 @@ export type NodeProperties = {
     templateId: string;
     name: string;
 };
+export type SwitchNodeProperties = NodeProperties & {
+    cases: SwitchCaseBlock[];
+    defaultCase?: DefaultCaseBlock;
+};
+export type SwitchCaseBlock = {
+    expression: string | BalExpression;
+    nodes: string[];
+};
 export type BalExpression = {
     expression: string;
     location: CodeLocation;
+};
+export type DefaultCaseBlock = {
+    nodes: string[];
 };

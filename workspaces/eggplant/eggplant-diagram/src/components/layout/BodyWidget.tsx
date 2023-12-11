@@ -20,7 +20,8 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
 import { Flow, Node } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { addNodeSelectChangeListener, getNodeModel } from "../../utils";
+import { addNodePositionChangeListener, addNodeSelectChangeListener, getNodeModel } from "../../utils";
+import { debounce } from "lodash";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
@@ -52,6 +53,8 @@ namespace S {
 export function BodyWidget(props: BodyWidgetProps) {
     const { engine, flowModel, selectedNode, setSelectedNode, onModelChange } = props;
 
+    const debouncedOnModelChange = debounce(onModelChange, 300);
+
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
@@ -61,6 +64,7 @@ export function BodyWidget(props: BodyWidgetProps) {
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
             addNodeSelectChangeListener(node, setSelectedNode);
+            addNodePositionChangeListener(node, updateFlowModel);
             engine.getModel().addNode(node);
 
             const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
@@ -69,9 +73,9 @@ export function BodyWidget(props: BodyWidgetProps) {
         [engine]
     );
 
-    const updateFlowModel = (node: Node) => {        
+    const updateFlowModel = () => {        
         const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
-        onModelChange(updatedFlow);
+        debouncedOnModelChange(updatedFlow);
     };
 
     return (
