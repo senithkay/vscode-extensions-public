@@ -16,10 +16,14 @@ import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DiagramCanvasWidget } from "./DiagramCanvasWidget";
 import styled from "@emotion/styled";
 import { Colors, EVENT_TYPES, NODE_TYPE } from "../../resources";
-import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { DiagramEngine, DiagramModel, DiagramModelGenerics } from "@projectstorm/react-diagrams";
+import { getUpdatedModel } from "../../utils/generator";
+import { Flow } from "../../types";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
+    flowModel: Flow;
+    onModelChange?: (flowModel: Flow) => void;
 }
 
 namespace S {
@@ -42,7 +46,7 @@ namespace S {
 }
 
 export function BodyWidget(props: BodyWidgetProps) {
-    const { engine } = props;
+    const { engine, flowModel, onModelChange } = props;
 
     const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -76,6 +80,8 @@ export function BodyWidget(props: BodyWidgetProps) {
             node.setPosition(point);
             engine.getModel().addNode(node);
             forceUpdate(); // TODO: trigger code mutation
+            const updatedFlow: Flow = getUpdatedModel(engine.getModel(), node, flowModel);
+            onModelChange(updatedFlow);
         },
         [engine]
     );

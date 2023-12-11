@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
 
@@ -78,9 +78,15 @@ const model: Flow = {
 };
 
 const LowCode = () => {
+    const [flowModel, setModel] = useState<Flow>(model);
+
+    const onModelChange = (model: Flow) => {
+        setModel(model);
+    }
+
     return (
         <Container>
-            <EggplantApp flowModel={model} />
+            <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />
         </Container>
     );
 };
