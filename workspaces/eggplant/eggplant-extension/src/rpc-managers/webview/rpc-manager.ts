@@ -13,7 +13,8 @@ import {
     EggplantModel,
     LangClientInterface,
     VisualizerLocation,
-    WebviewAPI
+    WebviewAPI,
+    EggplantModelRequest
 } from "@wso2-enterprise/eggplant-core";
 import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { Uri, commands, workspace } from "vscode";
@@ -30,11 +31,7 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     openVisualizerView(params: VisualizerLocation): void {
-        if (params.location) {
-            handleVisualizerView(params.location);
-        } else {
-            openView(params);
-        }
+        openView(params);
     }
 
     async getBallerinaProjectComponents(): Promise<BallerinaProjectComponents> {
@@ -61,69 +58,30 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async getEggplantModel(): Promise<EggplantModel> {
-        return new Promise((resolve) => {
-            let model = {
-                id: "1",
-                name: "flow1",
-                balFilename: "path",
-                nodes: [
-                    {
-                        name: "A",
-                        templateId: "TRANSFORMER",
-                        codeLocation: {
-                            start: {
-                                line: 4,
-                                offset: 4,
-                            },
-                            end: {
-                                line: 8,
-                                offset: 5,
-                            },
-                        },
-                        canvasPosition: {
-                            x: 0,
-                            y: 0,
-                        },
-                        inputPorts: [],
-                        outputPorts: [
-                            {
-                                id: "ao1",
-                                type: "INT",
-                                receiver: "B",
-                            },
-                        ],
-                    },
-                    {
-                        name: "B",
-                        templateId: "TRANSFORMER",
-                        codeLocation: {
-                            start: {
-                                line: 10,
-                                offset: 4,
-                            },
-                            end: {
-                                line: 16,
-                                offset: 5,
-                            },
-                        },
-                        canvasPosition: {
-                            x: 100,
-                            y: 0,
-                        },
-                        inputPorts: [
-                            {
-                                id: "bi1",
-                                type: "INT",
-                                name: "x1",
-                                sender: "A",
-                            },
-                        ],
-                        outputPorts: [],
-                    },
-                ],
-            };
-            resolve(model);
-        })
+        const snapshot = stateService.getSnapshot();
+        const context = snapshot.context;
+        const langClient = context.langServer as LangClientInterface;
+        if (!context.location) {
+            throw new Error("Context location is undefined");
+        }
+        const params: EggplantModelRequest = {
+            filePath: context.location.fileName,
+            startLine: {
+                line: context.location.position.startLine ?? 0,
+                offset: context.location.position.startColumn ?? 0
+            },
+            endLine: {
+                line: context.location.position.endLine ?? 0,
+                offset: context.location.position.endColumn ?? 0
+            }
+
+        }
+        return langClient.getEggplantModel(params).then((model) => {
+            //@ts-ignore
+            return model.workerDesignModel;
+        }).catch((error) => {
+            throw new Error(error);
+        });
     }
 
     async getState(): Promise<string> {
