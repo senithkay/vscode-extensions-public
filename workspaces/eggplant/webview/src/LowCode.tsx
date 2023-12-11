@@ -11,6 +11,7 @@
 import React, { useEffect, useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
+import { action } from "@storybook/addon-actions";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 
 
@@ -24,6 +25,7 @@ const LowCode = () => {
     const [flowModel, setModel] = useState<Flow>(undefined);
 
     const onModelChange = (model: Flow) => {
+        action("on model change")(model)
         setModel(model);
     }
 

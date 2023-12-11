@@ -10,11 +10,13 @@
 import { LinkModel, PortModel, PortModelAlignment, PortModelGenerics, PortModelOptions } from "@projectstorm/react-diagrams-core";
 import { DefaultLinkModel } from "../link/DefaultLinkModel";
 import { AbstractModelFactory, DeserializeEvent } from "@projectstorm/react-canvas-core";
+import { NodePort } from "../../../types";
 
 export interface DefaultPortModelOptions extends PortModelOptions {
     label?: string;
     in?: boolean;
     type?: string;
+    port?: NodePort;
 }
 
 export interface DefaultPortModelGenerics extends PortModelGenerics {

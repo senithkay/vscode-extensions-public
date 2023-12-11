@@ -43,10 +43,8 @@ export const EVENT_TYPES = {
 };
 
 export const NODE_TYPE = {
-    FUNCTION: "function",
-    TRIGGER: "trigger",
-    ACTION: "action",
-    CONDITION: "condition",
     START: "start",
     END: "end",
+    CODE_BLOCK: "block",
+    SWITCH: "switch",
 };
