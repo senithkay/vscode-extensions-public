@@ -12,7 +12,8 @@ export function workerCodeGen(model: Flow): string {
 
         node.inputPorts?.forEach(port => {
             // int x1 = <- A;
-            inputPorts += `${port.type} ${port.name} = <- ${port?.sender};\n`;
+
+            inputPorts += `${sanitizeType(port.type)} ${port.name} = <- ${port?.sender};\n`;
         });
 
         node.outputPorts?.forEach(port => {
@@ -111,4 +112,10 @@ export function workerCodeGen(model: Flow): string {
     };`
 
     return ballerinaFunction;
+}
+
+
+function sanitizeType(type: string): string {
+    const typeParts = type.split(":");
+    return typeParts[typeParts.length - 1];
 }

@@ -17,12 +17,12 @@ import {
     VisualizerLocation,
     WebviewAPI
 } from "@wso2-enterprise/eggplant-core";
-import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Uri, commands, workspace } from "vscode";
-import { getState, openView, stateService } from "../../stateMachine";
-import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as vscode from "vscode";
+import { Uri, commands, workspace } from "vscode";
 import { workerCodeGen } from "../../LowCode/codeGenerator";
+import { getState, openView, stateService } from "../../stateMachine";
+import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 
 export class WebviewRpcManager implements WebviewAPI {
 
@@ -124,8 +124,32 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async updateSource(params: Flow): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        console.log("updateSource", params);
-        console.log(workerCodeGen(params));
+        const snapshot = stateService.getSnapshot();
+        const context = snapshot.context;
+        const code = workerCodeGen(params);
+        const edit = new vscode.WorkspaceEdit();
+
+        const newLinesInCode = (code.match(/\n/g) || []).length;
+        const newEndLine = (context.location?.position.startLine ?? 0) + newLinesInCode;
+
+        const newRange = new vscode.Range(
+            new vscode.Position(context.location?.position.startLine ?? 0, context.location?.position.startColumn ?? 0),
+            new vscode.Position(newEndLine, context.location?.position.endColumn ?? 0)
+        );
+        edit.replace(vscode.Uri.parse(params.fileName), newRange, code);
+
+        vscode.workspace.applyEdit(edit).then((data) => {
+            openView({
+                location: {
+                    fileName: params.fileName,
+                    position: {
+                        startLine: context.location?.position.startLine ?? 0,
+                        startColumn: context.location?.position.startColumn ?? 0,
+                        endLine: newEndLine,
+                        endColumn: context.location?.position.endColumn ?? 0
+                    }
+                }
+            });
+        });
     }
 }

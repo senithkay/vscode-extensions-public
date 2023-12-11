@@ -11,6 +11,7 @@
 import {
     BallerinaProjectComponents,
     Flow,
+    STNode,
     VisualizerLocation,
     WebviewAPI,
     executeCommand,
@@ -22,7 +23,6 @@ import {
     openVisualizerView,
     updateSource
 } from "@wso2-enterprise/eggplant-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 

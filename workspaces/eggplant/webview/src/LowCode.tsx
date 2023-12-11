@@ -19,12 +19,23 @@ const Container = styled.div`
     height: 100svh;
 `;
 
+const MessageContainer = styled.div({
+    width: "100%",
+    overflow: "hidden",
+    height: "100vh",
+    display: "grid"
+});
+
+const MessageContent = styled.div({
+    margin: "auto"
+});
+
+
 const LowCode = () => {
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
 
     const onModelChange = (model: Flow) => {
-        console.log(model)
         setModel(model);
         if (eggplantRpcClient) {
             eggplantRpcClient.getWebviewRpcClient().updateSource(model);
@@ -34,7 +45,6 @@ const LowCode = () => {
     useEffect(() => {
         if (eggplantRpcClient) {
             eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
-                //@ts-ignore
                 setModel(model);
             })
         }
@@ -42,7 +52,11 @@ const LowCode = () => {
 
     return (
         <Container>
-            {flowModel ? <EggplantApp flowModel={flowModel} onModelChange={onModelChange} /> : <p>Loading ...</p>}
+            {flowModel ? <EggplantApp flowModel={flowModel} onModelChange={onModelChange} /> :
+                <MessageContainer>
+                    <MessageContent>Select Construct from Overview</MessageContent>
+                </MessageContainer>
+            }
         </Container>
     );
 };
