@@ -93,8 +93,7 @@ function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boo
 }
 
 export function getUpdatedModel(diagramModel: DiagramModel<DiagramModelGenerics>, node: DefaultNodeModel, flowModel: Flow): Flow {
-    // var nodeModel = node.serialize();
-    const model: Flow = flowModel;
+    const model: Flow  = JSON.parse(JSON.stringify(flowModel));
     const flowModelNodes = model.nodes;
     // create newNode of type Node wit the data of node recieved as input to the function
     const inports: InputPort[] = [];
@@ -241,7 +240,3 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
     });
     return model;
 }
-
-
-
-
