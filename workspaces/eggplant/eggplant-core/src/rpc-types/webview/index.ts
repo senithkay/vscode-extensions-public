@@ -13,7 +13,6 @@
 
 import { VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { EggplantModel } from "./types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Flow } from "./types";
 

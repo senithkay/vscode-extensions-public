@@ -22,7 +22,7 @@ export type Node = {
     inputPorts: InputPort[];
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
-    canvasPosition: CanvasPosition;
+    canvasPosition?: CanvasPosition;
     properties?: SwitchNodeProperties; // Need to update with other node types
     codeBlock?: string;
 };
