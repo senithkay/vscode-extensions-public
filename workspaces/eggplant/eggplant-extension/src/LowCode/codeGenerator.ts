@@ -1,7 +1,7 @@
 
 import { BalExpression, Flow, SwitchCaseBlock, SwitchNodeProperties } from "@wso2-enterprise/eggplant-diagram";
 
-export function workerCodeGen(model: Flow) {
+export function workerCodeGen(model: Flow): string {
     const NODE = "Node";
 
     let workerBlocks: string = "";
@@ -27,7 +27,7 @@ export function workerCodeGen(model: Flow) {
             // define the switch case block
             let switchCaseBlock: string = "";
             const switchProperties: SwitchNodeProperties = node.properties as SwitchNodeProperties;
-            switchProperties.cases.forEach((switchCase : SwitchCaseBlock) => {
+            switchProperties.cases.forEach((switchCase: SwitchCaseBlock) => {
                 let outputPort: string = "";
                 // check the index of switchCase node
                 const index = switchProperties.cases.indexOf(switchCase);
@@ -40,13 +40,13 @@ export function workerCodeGen(model: Flow) {
 
                 // check if the switchcase.expression is a string or a bal expression
                 let expression: string;
-                if (typeof switchCase.expression === 'string' ) {
+                if (typeof switchCase.expression === 'string') {
                     expression = switchCase.expression;
                 } else {
                     expression = (switchCase.expression as BalExpression).expression;
                 }
 
-                if(index === 0) {
+                if (index === 0) {
                     switchCaseBlock += `
                     if(${expression}) {
                         ${outputPort}

@@ -9,6 +9,7 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    Flow,
     VisualizerLocation,
     executeCommand,
     getBallerinaProjectComponents,
@@ -16,7 +17,8 @@ import {
     getSTNodeFromLocation,
     getState,
     getVisualizerState,
-    openVisualizerView
+    openVisualizerView,
+    updateSource
 } from "@wso2-enterprise/eggplant-core";
 import { Messenger } from "vscode-messenger";
 import { WebviewRpcManager } from "./rpc-manager";
@@ -30,4 +32,5 @@ export function registerWebviewRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getEggplantModel, () => rpcManger.getEggplantModel());
     messenger.onNotification(executeCommand, (args: string) => rpcManger.executeCommand(args));
     messenger.onRequest(getSTNodeFromLocation, (args: VisualizerLocation) => rpcManger.getSTNodeFromLocation(args));
+    messenger.onNotification(updateSource, (args: Flow) => rpcManger.updateSource(args));
 }

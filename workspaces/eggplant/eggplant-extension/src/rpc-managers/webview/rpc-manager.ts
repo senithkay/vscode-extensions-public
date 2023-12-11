@@ -8,24 +8,21 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-<<<<<<< HEAD
 import { BallerinaFunctionSTRequest, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-=======
 
-import * as vscode from "vscode";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
->>>>>>> Update api
 import {
-    EggplantModel,
+    EggplantModelRequest,
+    Flow,
     LangClientInterface,
     VisualizerLocation,
-    WebviewAPI,
-    EggplantModelRequest
+    WebviewAPI
 } from "@wso2-enterprise/eggplant-core";
 import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { Uri, commands, workspace } from "vscode";
 import { getState, openView, stateService } from "../../stateMachine";
 import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
+import * as vscode from "vscode";
+import { workerCodeGen } from "../../LowCode/codeGenerator";
 
 export class WebviewRpcManager implements WebviewAPI {
 
@@ -65,7 +62,7 @@ export class WebviewRpcManager implements WebviewAPI {
         }
     }
 
-    async getEggplantModel(): Promise<EggplantModel> {
+    async getEggplantModel(): Promise<Flow> {
         const snapshot = stateService.getSnapshot();
         const context = snapshot.context;
         const langClient = context.langServer as LangClientInterface;
@@ -85,6 +82,7 @@ export class WebviewRpcManager implements WebviewAPI {
 
         }
         return langClient.getEggplantModel(params).then((model) => {
+            //@ts-ignore
             return model.workerDesignModel;
         }).catch((error) => {
             throw new Error(error);
@@ -125,4 +123,9 @@ export class WebviewRpcManager implements WebviewAPI {
         });
     }
 
+    async updateSource(params: Flow): Promise<void> {
+        // ADD YOUR IMPLEMENTATION HERE
+        console.log("updateSource", params);
+        console.log(workerCodeGen(params));
+    }
 }
