@@ -1,15 +1,14 @@
-import React, { useReducer } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { Colors, NODE_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
 import { TextField, Button, TextArea, Icon } from "@wso2-enterprise/ui-toolkit";
-import { Flow, Node, SwitchCaseBlock } from "../../types";
+import { Node, SwitchCaseBlock } from "../../types";
 
 export interface OptionWidgetProps {
     selectedNode: DefaultNodeModel;
     children?: React.ReactNode;
     setSelectedNode?: (node: DefaultNodeModel) => void;
-    forceUpdate?: () => void;
     updateFlowModel?: (node: Node) => void;
 }
 

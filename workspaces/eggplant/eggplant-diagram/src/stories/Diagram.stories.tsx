@@ -479,6 +479,8 @@ Switch.args = {
 };
 
 const SampleModel: Flow = {
+    id: "1",
+    name: "main/function",
     fileName: "/home/jo/workspace/eggplant/demo_sample/main.bal",
     nodes: [
         {
