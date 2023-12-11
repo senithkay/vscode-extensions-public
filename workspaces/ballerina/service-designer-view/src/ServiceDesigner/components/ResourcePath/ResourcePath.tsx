@@ -51,25 +51,26 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
-export function ResourcePath() {
-	const [selectedMethod, setSelectedMethod] = useState("GET");
-	const [path, setPath] = useState("");
-	const [pathParams, setPathParams] = useState<PathParam[]>([]);
+export interface ResourcePathProps {
+	path: string;
+	method: string;
+	onChange?: (method: string, path: string) => void;
+}
 
-	const handleMethodChange = (input: string) => {
-		setSelectedMethod(input);
-	};
+export function ResourcePath(props: ResourcePathProps) {
+	const { method, path, onChange } = props;
 
 	const handlePathChange = (input: string) => {
-		setPath(input);
+		onChange && onChange(method, input);
 	};
 
 	const handlePathAdd = () => {
-		const param: PathParam = { type: "string", name: "param" };
-		const updatedParameters = [...pathParams];
-		updatedParameters.push(param)
-		setPathParams(updatedParameters);
-		setPath(`${path}/[${param.type} ${param.name}]`);
+		const newPath = `${path}/[string param]`;
+		onChange && onChange(method, newPath);
+	};
+
+	const handleMethodChange = (method: string) => {
+		onChange && onChange(method, path);
 	};
 
 	return (
@@ -88,7 +89,7 @@ export function ResourcePath() {
 						items={verbs}
 						label="HTTP Method"
 						onChange={handleMethodChange}
-						value={selectedMethod}
+						value={method}
 					/>
 				</div>
 				<TextField

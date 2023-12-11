@@ -16,6 +16,7 @@ import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions'
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
+import { generateResourceFunction } from '../../utils/utils';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -29,9 +30,13 @@ export interface ResourceFormProps {
 
 export function ResourceForm(props: ResourceFormProps) {
 	const { isOpen, onClose } = props;
+
+	const [method, setMethod] = useState<string>("GET");
+	const [path, setPath] = useState<string>("");
+
 	const [parameters, setParameters] = useState<ParameterConfig[]>([{ id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true }]);
 	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map([
-		[PARAM_TYPES.HEADER, { id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.HEADER }]
+		[PARAM_TYPES.HEADER, { id: 0, name: "PARAM10", type: "http:Headers", option: PARAM_TYPES.HEADER }]
 	]));
 	const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedParams.size > 0);
 	const [payload, setPayload] = useState<ParameterConfig>({ id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.PAYLOAD });
@@ -57,6 +62,34 @@ export function ResourceForm(props: ResourceFormProps) {
 		setPayload(params);
 	};
 
+	const onPathChange = (method: string, path: string) => {
+		setMethod(method);
+		setPath(path);
+	}
+
+	const onSave = () => {
+		let paramString = "";
+		parameters.map((param: ParameterConfig, index: number) => {
+			const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
+			paramString = paramString + `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
+		});
+		const payloadType = `${parameters.length > 0 ? ", ": ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}${parameters.length > 0 ? ", ": ""}`;
+		paramString = paramString + payloadType;
+
+		advancedParams.forEach((param: ParameterConfig) => {
+			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}` : param.type;
+			paramString = paramString + `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}`;
+		});
+
+		let responseString = "";
+		response.map((resp: ResponseConfig, index: number) => {
+			responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
+		});
+		
+		const genSource = generateResourceFunction({METHOD: method, PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString});
+		console.log(genSource);
+	};
+
 	return (
 		<>
 			<SidePanel
@@ -70,7 +103,7 @@ export function ResourceForm(props: ResourceFormProps) {
 				</SidePanelTitleContainer>
 
 				<SidePanelBody>
-					<ResourcePath />
+					<ResourcePath method={method} path={path} onChange={onPathChange}/>
 
 					<Divider />
 
@@ -88,7 +121,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Response response={response} onChange={handleResponseChange} />
 
 					<ActionButtons
-						primaryButton={{ text: "Save", onClick: () => console.log("Save Button Clicked"), tooltip: "Save" }}
+						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}
 						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 						sx={{ justifyContent: "flex-end" }}
 					/>

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
+// tslint:disable: no-explicit-any
 import { css, cx } from "@emotion/css";
 import { CSSObject } from "@emotion/react";
 import styled from "@emotion/styled";
@@ -75,6 +75,7 @@ export const IconTextWrapper = styled.div`
     border-bottom-left-radius: 5px;
 `;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const headerLabelStyles = cx(css`
     display: flex;
     align-items: center;
@@ -90,6 +91,7 @@ export const OptionLabel = styled.div`
     margin-left: 5px;
 `;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const disabledHeaderLabel = cx(css`
     display: flex;
     align-items: center;
