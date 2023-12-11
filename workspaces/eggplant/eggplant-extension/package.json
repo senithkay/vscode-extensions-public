@@ -66,6 +66,7 @@
         "@wso2-enterprise/eggplant-webview": "workspace:*",
         "@wso2-enterprise/eggplant-core": "workspace:*",
         "vscode-messenger": "^0.4.5",
+        "vscode-messenger-common": "^0.4.5",
         "xstate": "^4.38.3"
     },
     "devDependencies": {

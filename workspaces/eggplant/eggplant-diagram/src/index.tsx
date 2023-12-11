@@ -7,6 +7,5 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-
-export { EggplantDiagram } from './Diagram';
-export type { Model } from './types/types';
+export { EggplantApp } from "./App";
+export * from "./types/flow";

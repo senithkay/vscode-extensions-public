@@ -7,31 +7,38 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { EggplantDiagram } from "@wso2-enterprise/eggplant-diagram";
 
-const model = {
-    nodes: [
-        { name: "GetAppointmentFee", links: [{ name: "LogAppointmentFee" }, { name: "CreatePaymentRequest" }] },
-        { name: "FunctionStart", links: [{ name: "LogHospitalDetails" }, { name: "CreateAppointmentPayload" }] },
-        { name: "LogAppointmentFee", links: [] },
-        { name: "FunctionEnd", links: [] },
-        { name: "CreatePaymentRequest", links: [{ name: "MakePayment" }] },
-        { name: "LogHospitalDetails", links: [] },
-        { name: "CreateAppointment", links: [{ name: "GetAppointmentFee" }, { name: "LogAppointment" }] },
-        { name: "LogAppointment", links: [] },
-        { name: "MakePayment", links: [{ name: "FunctionEnd" }, { name: "LogPaymentResponse" }] },
-        { name: "LogPaymentResponse", links: [] },
-        { name: "CreateAppointmentPayload", links: [{ name: "CreateAppointment" }] },
-    ],
-};
+import React, { useEffect, useState } from "react";
+import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
+import styled from "@emotion/styled";
+import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 
+
+const Container = styled.div`
+    width: 100%;
+    height: 100svh;
+`;
 
 const LowCode = () => {
+    const { eggplantRpcClient } = useVisualizerContext();
+    const [flowModel, setModel] = useState<Flow>(undefined);
+
+    const onModelChange = (model: Flow) => {
+        setModel(model);
+    }
+
+    useEffect(() => {
+        if (eggplantRpcClient) {
+            eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
+                setModel(model);
+            })
+        }
+    }, [eggplantRpcClient]);
+
     return (
-        <div>
-            <EggplantDiagram model={model} />
-        </div>
+        <Container>
+            {flowModel ? <EggplantApp flowModel={flowModel} onModelChange={onModelChange} /> : <p>Loading ...</p>}
+        </Container>
     );
 };
 

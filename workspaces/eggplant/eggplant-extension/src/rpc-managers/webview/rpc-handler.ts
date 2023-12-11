@@ -11,6 +11,8 @@
 import {
     VisualizerLocation,
     getBallerinaProjectComponents,
+    getEggplantModel,
+    getState,
     getVisualizerState,
     openVisualizerView,
 } from "@wso2-enterprise/eggplant-core";
@@ -19,7 +21,9 @@ import { WebviewRpcManager } from "./rpc-manager";
 
 export function registerWebviewRpcHandlers(messenger: Messenger) {
     const rpcManger = new WebviewRpcManager();
+    messenger.onRequest(getState, () => rpcManger.getState());
     messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
     messenger.onNotification(openVisualizerView, (args: VisualizerLocation) => rpcManger.openVisualizerView(args));
     messenger.onRequest(getBallerinaProjectComponents, () => rpcManger.getBallerinaProjectComponents());
+    messenger.onRequest(getEggplantModel, () => rpcManger.getEggplantModel());
 }
