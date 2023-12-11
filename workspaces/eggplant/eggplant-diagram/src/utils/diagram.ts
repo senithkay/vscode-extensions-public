@@ -7,19 +7,22 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import createEngine, { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
 import { DefaultNodeFactory, DefaultPortFactory, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeModel } from "../components/default";
 import { OverlayLayerFactory, OverlayLayerModel } from "../components/overlay";
-import { Colors } from "../resources";
+import { DeleteItemsAction } from "@projectstorm/react-canvas-core";
 
 export function generateEngine(): DiagramEngine {
-    const engine = createEngine();
+    const engine = createEngine({ registerDefaultDeleteItemsAction: false });
     // register default factories
     engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
     engine.getPortFactories().registerFactory(new DefaultPortFactory());
     engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
     engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
+
+    // register an DeleteItemsAction with only delete key
+    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [46] }));
 
     return engine;
 }
@@ -40,7 +43,7 @@ export function removeOverlay(diagramEngine: DiagramEngine) {
     diagramEngine.repaintCanvas();
 }
 
-export function addNodeListener(node: DefaultNodeModel, callback: (node: DefaultNodeModel|null) => void) {
+export function addNodeListener(node: DefaultNodeModel, callback: (node: DefaultNodeModel | null) => void) {
     node.registerListener({
         selectionChanged: (event: any) => {
             // TODO: Fix type

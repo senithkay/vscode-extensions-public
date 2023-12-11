@@ -33,7 +33,6 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
     constructor(options?: DefaultNodeModelOptions);
     constructor(options: any = {}, color?: string) {
         if (options?.kind || options?.node) {
-            console.log("options", options);
             super({
                 type: "default",
                 name: options.node?.name || options.name,
@@ -158,6 +157,11 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
 
     getNode(): Node {
         return this.options.node;
+    }
+
+    setNode(node: Node): void {
+        this.options.node = node;
+        this.options.name = node.name;
     }
 
     getKind(): string {

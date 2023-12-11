@@ -45,6 +45,6 @@ export const EVENT_TYPES = {
 export const NODE_TYPE = {
     START: "start",
     END: "end",
-    CODE_BLOCK: "code-block",
+    CODE_BLOCK: "block",
     SWITCH: "switch",
 };

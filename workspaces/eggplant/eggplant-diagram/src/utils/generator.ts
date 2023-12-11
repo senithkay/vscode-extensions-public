@@ -45,14 +45,19 @@ function getNodeModel(node: Node): GenNodeModel {
     let ports: ExtendedPort[] = [];
     let nodeId = getNodeIdentifier(node);
     let nodeModel = new DefaultNodeModel({ node }); // TODO: Write a factory to get node based on kind (templateId)
-    nodeModel.setPosition(node.canvasPosition.x, node.canvasPosition.y);
+    if (node.canvasPosition) {
+        nodeModel.setPosition(node.canvasPosition.x, node.canvasPosition.y);
+    }
     // add node ports
+    let portCount = 1;
     node.inputPorts?.forEach((inputPort) => {
-        let port = nodeModel.addInPort(inputPort.id, inputPort);
+        const portId = inputPort.id || `in-${portCount++}`;
+        let port = nodeModel.addInPort(portId , inputPort);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
     node.outputPorts?.forEach((outputPort) => {
-        let port = nodeModel.addOutPort(outputPort.id, outputPort);
+        const portId = outputPort.id || `out-${portCount++}`;
+        let port = nodeModel.addOutPort(portId, outputPort);
         ports.push({ ...outputPort, parent: nodeId, in: false, model: port });
     });
 
@@ -91,90 +96,23 @@ function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boo
     );
 }
 
-// export function getUpdatedModel(diagramModel: DiagramModel<DiagramModelGenerics>, node: DefaultNodeModel, flowModel: Flow): Flow {
-//     const model: Flow = JSON.parse(JSON.stringify(flowModel));
-//     // const flowModelNodes = model.nodes;
-//     // create newNode of type Node wit the data of node recieved as input to the function
-//     const inports: InputPort[] = [];
-//     const outports: OutputPort[] = [];
-//     node.getInPorts().forEach((port) => {
-//         inports.push({
-//             id: port.getID(),
-//             type: port.getType(),
-//             name: port.getName(),
-//         });
-//     });
-//     node.getOutPorts().forEach((port) => {
-//         outports.push({
-//             id: port.getID(),
-//             type: port.getType(),
-//         });
-//     });
-
-//     const codePosition: CodeLocation = {
-//         start: {
-//             line: 0,
-//             offset: 0,
-//         },
-//         end: {
-//             line: 0,
-//             offset: 0,
-//         },
-//     };
-
-//     var newNode: Node = {
-//         id: node.getID(),
-//         name: node.getName(),
-//         templateId: node.getType(),
-//         inputPorts: inports,
-//         outputPorts: outports,
-//         codeLocation: codePosition,
-//         canvasPosition: node.getPosition(),
-//     };
-
-//     // update the flowModelNodes with the newNode
-//     model.nodes?.push(newNode);
-//     return model;
-// }
-
-export function getUpdatedModelForLinks(flowModel: Flow, link: LinkModel): Flow {
-    const model: Flow = flowModel;
-    const flowModelNodes: Node[] = model.nodes;
-
-    var sourcePort = link.getSourcePort();
-    var targetPort = link.getTargetPort();
-    // find the sourcePort from the flowModelNodes
-    var sourcePortNode = flowModelNodes?.find((node) => node.id === sourcePort?.getParent()?.getID());
-    // find the targetPort from the flowModelNodes
-    var targetPortNode = flowModelNodes?.find((node) => node.id === targetPort?.getParent()?.getID());
-    // find the port from the sourcePortNode
-    const sourcePortFromNode: OutputPort = sourcePortNode?.outputPorts?.find((port) => port.id === sourcePort?.getID());
-    // update the details of sourcePortFromNode with the detials of sourcePort
-    sourcePortFromNode.receiver = targetPortNode?.name;
-    // find the port from the targetPortNode
-    const targetPortFromNode: InputPort = targetPortNode?.inputPorts?.find((port) => port.id === targetPort?.getID());
-    // update the details of targetPortFromNode with the detials of targetPort
-    targetPortFromNode.sender = sourcePortNode?.name;
-    return model;
-}
-
 export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel: DiagramModel<DiagramModelGenerics>): Flow {
     const defaultMsgType = "any"; // TODO: Get the type from the user
     const model: Flow = {
         id: flowModel.id,
         name: flowModel.name,
         nodes: [],
-        balFilename: flowModel.balFilename,
+        fileName: flowModel.fileName,
     };
     // update the flowModel with data retrieved from the diagramModel
     const flowModelNodes = model.nodes;
-    console.log(diagramModel.serialize());
     // update the canvasPosition of each node
     diagramModel.getNodes().forEach((node) => {
+        const defaultNode = node as DefaultNodeModel;
+        const nodeModel = defaultNode.getNode();
+        // get input and output ports
         const inPorts: InputPort[] = [];
         const outPorts: OutputPort[] = [];
-        const defaultNode = node as DefaultNodeModel;
-        defaultNode.getOptions().node;
         defaultNode.getInPorts().forEach((port) => {
             Object.values(port.getLinks()).forEach((link) => {
                 const sourcePortID = link.getSourcePort()?.getID();
@@ -215,8 +153,8 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
                 });
             });
         });
-
-        let codePosition = defaultNode.getNode()?.codeLocation;
+        // get codeLocation
+        let codePosition = nodeModel?.codeLocation;
         if (!codePosition) {
             codePosition = {
                 start: {
@@ -229,17 +167,20 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
                 },
             };
         }
-
-        var newNode: Node = {
-            // id: node.getID(),
+        // create node
+        let newNode: Node = {
             name: defaultNode.getName(),
             templateId: defaultNode.getKind(),
             codeLocation: codePosition,
             canvasPosition: node.getPosition(),
             inputPorts: inPorts,
             outputPorts: outPorts,
+            codeBlock: nodeModel?.codeBlock || "",
         };
-
+        // add properties if any
+        if(nodeModel.properties){
+            newNode.properties = nodeModel.properties;
+        }
         flowModelNodes?.push(newNode);
     });
     return model;

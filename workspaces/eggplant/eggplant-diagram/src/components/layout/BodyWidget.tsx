@@ -18,9 +18,9 @@ import styled from "@emotion/styled";
 import { EVENT_TYPES, NODE_TYPE } from "../../resources";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
-import { Flow } from "../../types";
+import { Flow, Node } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { addNodeListener } from "../../utils";
+import { addNodeListener, getNode } from "../../utils";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
@@ -59,41 +59,23 @@ export function BodyWidget(props: BodyWidgetProps) {
             let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
             let nodesCount = _.keys(engine.getModel().getNodes()).length;
 
-            let node: DefaultNodeModel = null;
-            switch (data.type) {
-                case NODE_TYPE.START:
-                    node = new DefaultNodeModel({ name: "Start " + (nodesCount + 1), kind: NODE_TYPE.START });
-                    node.addOutPort("Out");
-                    break;
-                case NODE_TYPE.END:
-                    node = new DefaultNodeModel({ name: "Return " + (nodesCount + 1), kind: NODE_TYPE.END });
-                    node.addInPort("In");
-                    break;
-                case NODE_TYPE.CODE_BLOCK:
-                    node = new DefaultNodeModel({ name: "Code Block " + (nodesCount + 1), kind: NODE_TYPE.CODE_BLOCK });
-                    node.addInPort("In");
-                    node.addOutPort("Out");
-                    break;
-                case NODE_TYPE.SWITCH:
-                    node = new DefaultNodeModel({ name: "Switch " + (nodesCount + 1), kind: NODE_TYPE.SWITCH });
-                    node.addInPort("In");
-                    node.addOutPort("OutCase1");
-                    node.addOutPort("OutCase2");
-                    break;
-                default:
-                    break;
-            }
+            let node: DefaultNodeModel = getNode(data.type, (nodesCount++).toString());
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
             addNodeListener(node, setSelectedNode);
             engine.getModel().addNode(node);
+
             // forceUpdate();
             const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
-            // const updatedFlow: Flow = getUpdatedModel(engine.getModel(), node, flowModel);
             onModelChange(updatedFlow);
         },
         [engine]
     );
+
+    const updateFlowModel = (node: Node) => {        
+        const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
+        onModelChange(updatedFlow);
+    };
 
     return (
         <S.Body>
@@ -113,7 +95,9 @@ export function BodyWidget(props: BodyWidgetProps) {
                         <CanvasWidget engine={engine} />
                     </DiagramCanvasWidget>
                 </S.Layer>
-                {selectedNode && <OptionWidget selectedNode={selectedNode} />}
+                {selectedNode && (
+                    <OptionWidget selectedNode={selectedNode} setSelectedNode={setSelectedNode} forceUpdate={forceUpdate} updateFlowModel={updateFlowModel} />
+                )}
             </S.Content>
         </S.Body>
     );

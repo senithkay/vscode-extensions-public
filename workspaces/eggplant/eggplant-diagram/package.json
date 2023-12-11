@@ -40,7 +40,8 @@
         "typescript": "^4.9.4",
         "@wso2-enterprise/ui-toolkit": "workspace:*",
         "@wso2-enterprise/font-wso2-vscode": "workspace:*",
-        "@wso2-enterprise/eggplant-rpc-client": "workspace:*"
+        "@wso2-enterprise/eggplant-rpc-client": "workspace:*",
+        "@vscode/codicons": "~0.0.35"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.9.1",
