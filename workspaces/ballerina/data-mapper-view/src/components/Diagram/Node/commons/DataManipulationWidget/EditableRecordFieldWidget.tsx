@@ -53,6 +53,8 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { applyModifications } from "../../../utils/ls-utils";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -83,8 +85,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const {
         enableStatementEditor,
         handleCollapse,
-        applyModifications
+        filePath
     } = context;
+    const { ballerinaRpcClient } = useVisualizerContext();
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -122,7 +125,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.typeName);
-            await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
+            await createSourceForUserInput(field, mappingConstruct, defaultValue, filePath, ballerinaRpcClient);
         } finally {
             setIsLoading(false);
         }
@@ -223,10 +226,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     const targetPosition = getTargetPositionForWrapWithTypeCast();
                     modification.push(getModification(`<${name}>`, targetPosition));
                 }
-                await applyModifications(modification);
+                await applyModifications(filePath, modification, ballerinaRpcClient);
             } else {
                 const defaultValue = `<${name}>${getDefaultValue(type.typeName)}`;
-                await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
+                await createSourceForUserInput(field, mappingConstruct, defaultValue, filePath, ballerinaRpcClient);
             }
         } finally {
             setIsAddingTypeCast(false);
@@ -338,7 +341,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(typeNameStr);
-            await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, applyModifications);
+            await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, filePath, ballerinaRpcClient);
         } finally {
             setIsLoading(false);
         }
@@ -439,7 +442,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const addNewField = async (newFieldNameStr: string) => {
         const modification = getNewFieldAdditionModification(field.value, newFieldNameStr);
         if (modification) {
-            await context.applyModifications(modification);
+            await applyModifications(filePath, modification, ballerinaRpcClient);
         }
     }
 

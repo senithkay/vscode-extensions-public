@@ -48,6 +48,7 @@ import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
 import { RequiredParamNode } from "../RequiredParam";
 import { UnionTypeNode } from "../UnionType";
+import { applyModifications } from "../../utils/ls-utils";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -323,7 +324,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public updatePosition() {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
-            this.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, position.y - 5.5)
+            this.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, position.y - 8.5)
         }
     }
 
@@ -353,6 +354,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             }
         }
 
-        void this.context.applyModifications(modifications);
+        void applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 }

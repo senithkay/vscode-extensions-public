@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 // import {
 //     ComponentViewInfo,
 //     FileListEntry,
@@ -30,7 +29,6 @@ export interface IDataMapperContext {
     };
     moduleVariables: any;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
-    applyModifications: (modifications: any[]) => Promise<void>;
     goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
     diagnostics: Diagnostic[];
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
@@ -62,7 +60,6 @@ export class DataMapperContext implements IDataMapperContext {
         },
         public moduleVariables: any,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
-        public applyModifications: (modifications: any[]) => Promise<void>,
         public goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void,
         public diagnostics: Diagnostic[],
         public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,

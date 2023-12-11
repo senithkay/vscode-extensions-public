@@ -37,7 +37,7 @@ import {
     getTypeName,
     isArrayOrRecord
 } from "../../utils/dm-utils";
-import { filterDiagnostics } from "../../utils/ls-utils";
+import { applyModifications, filterDiagnostics } from "../../utils/ls-utils";
 import { getEnrichedRecordType } from "../../utils/type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -177,7 +177,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 ...field.position
             }];
 
-        await this.context.applyModifications(modifications);
+        await applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 
     public updatePosition() {

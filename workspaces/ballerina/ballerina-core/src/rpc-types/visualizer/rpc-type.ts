@@ -29,7 +29,8 @@ import {
     GetSyntaxTreeResponse,
     GetSyntaxTreeParams,
     BallerinaFunctionSTRequest,
-    BallerinaSTModifyRequest
+    BallerinaSTModifyRequest,
+    UpdateFileContentRequest
 } from "../..";
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -38,6 +39,7 @@ import { RequestType } from "vscode-messenger-common";
 const _preFix = "visualizer";
 export const getVisualizerState: RequestType<void, VisualizerLocationContext> = { method: `${_preFix}/getVisualizerState` };
 export const openVisualizerView: RequestType<VisualizerLocationContext, VisualizerLocationContext> = { method: `${_preFix}/openVisualizerView` };
+export const updateVisualizerView: RequestType<VisualizerLocationContext, VisualizerLocationContext> = { method: `${_preFix}/updateVisualizerView` };
 export const getSyntaxTree: RequestType<void, STNode> = { method: `${_preFix}/getSyntaxTree` };
 export const getST: RequestType<GetSyntaxTreeParams, GetSyntaxTreeResponse> = { method: `${_preFix}/getST` };
 export const getSTByRange: RequestType<BallerinaFunctionSTRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/getSTByRange` };
@@ -49,6 +51,7 @@ export const rename: RequestType<RenameParams, WorkspaceEdit> = { method: `${_pr
 export const getDefinitionPosition: RequestType<TextDocumentPositionParams, BallerinaSTModifyResponse> = { method: `${_preFix}/getDefinitionPosition` };
 export const convert: RequestType<JsonToRecordRequest, JsonToRecordResponse> = { method: `${_preFix}/convert` };
 export const stModify: RequestType<BallerinaSTModifyRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/stModify` };
+export const updateFileContent: RequestType<UpdateFileContentRequest, boolean> = { method: `${_preFix}/updateFileContent` };
 export const didOpen: RequestType<DidOpenTextDocumentParams, void> = { method: `${_preFix}/didOpen` };
 export const didChange: RequestType<DidChangeTextDocumentParams, void> = { method: `${_preFix}/didChange` };
 export const didClose: RequestType<DidCloseTextDocumentParams, void> = { method: `${_preFix}/didClose` };

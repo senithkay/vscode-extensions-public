@@ -18,6 +18,8 @@ import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-t
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { applyModifications } from "../../../utils/ls-utils";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
@@ -27,6 +29,7 @@ export interface ExpandedMappingHeaderWidgetProps {
 
 export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
     const { context, queryExprNode, addIndex } = props;
+    const { ballerinaRpcClient } = useVisualizerContext();
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGSVGElement>(null);
@@ -64,13 +67,14 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         setLoading(true);
         try {
             const addPosition = getAddFieldPosition();
-            await context.applyModifications([
+            const modifications = [
                 {
                     type: "INSERT",
                     config: { STATEMENT: statement },
                     ...addPosition,
                 },
-            ]);
+            ];
+            await applyModifications(context.filePath, modifications, ballerinaRpcClient);
         } finally {
             setLoading(false);
         }

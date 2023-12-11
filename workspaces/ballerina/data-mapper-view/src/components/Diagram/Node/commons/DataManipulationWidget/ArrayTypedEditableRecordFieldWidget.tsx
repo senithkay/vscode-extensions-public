@@ -53,6 +53,8 @@ import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableEle
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { applyModifications } from "../../../utils/ls-utils";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -82,7 +84,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         isReturnTypeDesc,
         hasHoveredParent
     } = props;
-    const { applyModifications, handleCollapse } = context;
+    const { handleCollapse, filePath } = context;
+    const { ballerinaRpcClient } = useVisualizerContext();
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
@@ -345,7 +348,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const handleArrayInitialization = async () => {
         setLoading(true);
         try {
-            await createSourceForUserInput(field, parentMappingConstruct, '[]', applyModifications);
+            await createSourceForUserInput(field, parentMappingConstruct, '[]', filePath, ballerinaRpcClient);
         } finally {
             setLoading(false);
         }
@@ -387,7 +390,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 startLine: targetPosition.endLine,
                 startColumn: targetPosition.endColumn
             })];
-            await applyModifications(modification);
+            await applyModifications(context.filePath, modification, ballerinaRpcClient);
         } finally {
             setIsAddingElement(false);
         }
@@ -416,7 +419,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 };
             }
             const modification = [getModification(`<${type}>`, targetPosition)];
-            await applyModifications(modification);
+            await applyModifications(context.filePath, modification, ballerinaRpcClient);
         } finally {
             setIsAddingTypeCast(false);
         }

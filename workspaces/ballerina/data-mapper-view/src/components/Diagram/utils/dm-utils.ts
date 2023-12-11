@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
 	keywords,
 	LinePosition,
@@ -44,7 +43,6 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
-import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DMNode } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
@@ -91,6 +89,8 @@ import {
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
+import { applyModifications } from "./ls-utils";
+import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -130,8 +130,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const sourcePort = link.getSourcePort() as RecordFieldPortModel;
 	const targetPort = link.getTargetPort() as RecordFieldPortModel;
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
-	const applyModifications = targetNode.context.applyModifications;
+	const balRpcClient = targetNode.context.visualizerContext.ballerinaRpcClient;
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
+	const filePath = targetNode.context.filePath;
 
 	rhs = sourcePort.fieldFQN;
 
@@ -153,16 +154,16 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		const valuePosition = targetExpr.position as NodePosition;
 		const isValueEmpty = isEmptyValue(valuePosition);
 		if (!isValueEmpty) {
-			return updateValueExprSource(rhs, valuePosition, applyModifications);
+			return updateValueExprSource(rhs, valuePosition, balRpcClient, filePath);
 		}
 	} else if (isMappedToSelectClauseExprConstructor(targetPort)) {
 		const queryExpr = targetPort.editableRecordField.value as QueryExpression;
 		const selectClause = queryExpr?.selectClause || queryExpr?.resultClause;
 		const exprPosition = selectClause.expression.position as NodePosition;
-		return updateValueExprSource(rhs, exprPosition, applyModifications);
+		return updateValueExprSource(rhs, exprPosition, balRpcClient, filePath);
 	} else if (isMappedToRootUnionType(targetPort)) {
 		const exprPosition = (targetPort.getParent() as UnionTypeNode).innermostExpr.position as NodePosition;
-		return updateValueExprSource(rhs, exprPosition, applyModifications);
+		return updateValueExprSource(rhs, exprPosition, balRpcClient, filePath);
 	}
 
 	const targetFieldName = getFieldNameFromOutputPort(targetPort);
@@ -226,7 +227,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 				if (!valueExpr.source) {
 					return createValueExprSource(lhs, rhs, fieldNames, i, specificField.colon.position as NodePosition,
-												applyModifications);
+												balRpcClient, filePath);
 				}
 
 				const innerExpr = getInnermostExpressionBody(valueExpr);
@@ -254,7 +255,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			const specificField = getSpecificField(targetMappingConstruct, lhs);
 			if (specificField && !specificField.valueExpr.source) {
 				return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition,
-											applyModifications);
+					balRpcClient, filePath);
 			}
 			source = `${lhs}: ${rhs}`;
 		}
@@ -262,7 +263,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		const specificField = getSpecificField(targetMappingConstruct, lhs);
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition,
-										applyModifications);
+										balRpcClient, filePath);
 		}
 		source = `${lhs}: ${rhs}`;
 	}
@@ -291,7 +292,19 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	modifications.push(getModification(source, targetPosition));
-	void applyModifications(modifications);
+	await applyModifications(filePath, modifications, balRpcClient);
+	// const { parseSuccess, source: newSource } = await visualizerRPCClient.stModify({
+	// 	astModifications: modifications,
+	// 	documentIdentifier: {
+	// 		uri: URI.file(filePath).toString()
+	// 	}
+	// });
+	// if (parseSuccess) {
+	// 	await visualizerRPCClient.updateFileContent({
+	// 		content: newSource,
+	// 		fileUri: filePath
+	// 	});
+	// }
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 0
@@ -312,9 +325,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	return `${lhs} = ${rhs}`;
 }
 
-export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
-												                                   newValue: string,
-												                                   applyModifications: (modifications: STModification[]) => Promise<void>) {
+export async function createSourceForUserInput(
+	field: EditableRecordField,
+	mappingConstruct: MappingConstructor,
+	newValue: string,
+	filePath: string,
+	balRpcClient: BallerinaRpcClient
+) {
 
 	let source;
 	let targetMappingConstructor: STNode = mappingConstruct;
@@ -334,7 +351,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 			if (!rootField.valueExpr.source) {
 				return createValueExprSource(fieldName, newValue, parentFields.reverse(), 0,
-					rootField.colon.position as NodePosition, applyModifications);
+					rootField.colon.position as NodePosition, balRpcClient, filePath);
 			}
 
 			const rootInnerExpr = getInnermostExpressionBody(rootField.valueExpr);
@@ -342,7 +359,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 				const specificField = getSpecificField(rootInnerExpr, fieldName);
 				if (specificField && !specificField.valueExpr.source) {
 					return createValueExprSource(fieldName, newValue, parentFields, 1,
-						specificField.colon.position as NodePosition, applyModifications);
+						specificField.colon.position as NodePosition, balRpcClient, filePath);
 				}
 				source = createSpecificField(parentFields.reverse());
 				targetMappingConstructor = rootInnerExpr;
@@ -354,7 +371,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 						const specificField = getSpecificField(expr, fieldName);
 						if (specificField && !specificField.valueExpr.source) {
 							return createValueExprSource(fieldName, newValue, parentFields, 1,
-								specificField.colon.position as NodePosition, applyModifications);
+								specificField.colon.position as NodePosition, balRpcClient, filePath);
 						}
 						source = createSpecificField(parentFields.reverse());
 						targetMappingConstructor = expr;
@@ -372,7 +389,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 			&& getSpecificField(targetMappingConstructor, getFieldName(field));
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(field.originalType.name, newValue, parentFields, 1,
-				specificField.colon.position as NodePosition, applyModifications);
+				specificField.colon.position as NodePosition, balRpcClient, filePath);
 		}
 		source = createSpecificField(parentFields.reverse());
 	}
@@ -402,7 +419,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 	}
 
 	modifications.push(getModification(source, targetPosition));
-	await applyModifications(modifications);
+	await applyModifications(filePath, modifications, balRpcClient);
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 1
@@ -466,7 +483,9 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 					startLine: targetPos.endLine
 				});
 
-				void (targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+				const { context } = targetNode as DataMapperNodeModel;
+				const { filePath } = context;
+				void applyModifications(filePath, modifications, context.visualizerContext.ballerinaRpcClient);
 			}
 		}
 	}
@@ -500,7 +519,9 @@ export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
 				...targetPosition
 			});
 
-			void (targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+			const { context } = targetNode as DataMapperNodeModel;
+			const { filePath } = context;
+			void applyModifications(filePath, modifications, context.visualizerContext.ballerinaRpcClient);
 		}
 	}
 }
@@ -1173,10 +1194,15 @@ function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): 
 	});
 }
 
-async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
-									                            fieldIndex: number,
-									                            targetPosition: NodePosition,
-									                            applyModifications: (modifications: STModification[]) => Promise<void>) {
+async function createValueExprSource(
+	lhs: string,
+	rhs: string,
+	fieldNames: string[],
+	fieldIndex: number,
+	targetPosition: NodePosition,
+	balRpcClient: BallerinaRpcClient,
+	filePath: string
+) {
 	let source = "";
 
 	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
@@ -1186,11 +1212,12 @@ async function createValueExprSource(lhs: string, rhs: string, fieldNames: strin
 		source = rhs;
 	}
 
-	await applyModifications([getModification(source, {
+	const modifications = [getModification(source, {
 		...targetPosition,
 		startLine: targetPosition.endLine,
 		startColumn: targetPosition.endColumn
-	})]);
+	})];
+	await applyModifications(filePath, modifications, balRpcClient);
 
 	function createValueExpr(missingFields: string[], isRoot?: boolean): string {
 		return missingFields.length
@@ -1215,11 +1242,13 @@ function isTypeMatch(type: Type, typeInfo: NonPrimitiveBal): boolean {
 	);
 }
 
-function updateValueExprSource(value: string, targetPosition: NodePosition,
-								                       applyModifications: (modifications: STModification[]) => void) {
-	applyModifications([getModification(value, {
-		...targetPosition
-	})]);
+function updateValueExprSource(
+	value: string,
+	targetPosition: NodePosition,
+	balRpcClient: BallerinaRpcClient,
+	filePath: string
+) {
+	applyModifications(filePath, [getModification(value, {...targetPosition})], balRpcClient);
 
 	return value;
 }

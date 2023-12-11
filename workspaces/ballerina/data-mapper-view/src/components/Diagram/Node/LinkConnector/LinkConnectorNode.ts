@@ -35,7 +35,7 @@ import {
     getTargetPortPrefix
 } from "../../utils/dm-utils";
 import { FnDefInfo } from "../../utils/fn-definition-store";
-import { filterDiagnostics } from "../../utils/ls-utils";
+import { applyModifications, filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ListConstructorNode } from "../ListConstructor";
@@ -228,7 +228,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 ...targetPosition
             }
         ];
-        void this.context.applyModifications(modifications);
+        void applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 
     public updatePosition() {
@@ -277,6 +277,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             }];
         }
 
-        void this.context.applyModifications(modifications);
+        void applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 }

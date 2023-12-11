@@ -13,7 +13,7 @@ export const Container = styled.div`
 	// background: #E6E8F0;
 	background-image: url('${background}');
 	background-repeat: repeat;
-	display: ${(props: { hidden: any; }) => (props.hidden ? 'none' : 'flex')};
+	display: ${props => (props.hidden ? 'none' : 'flex')};
 	font-family: 'GilmerRegular';
 	> * {
 		height: 100%;
@@ -31,14 +31,13 @@ export const Expand = css`
 `;
 
 
-export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanvas: boolean, children: React.ReactNode }> {
+export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanvas: boolean }> {
 	render() {
-		const { hideCanvas, children } = this.props;
 		return (
 			<>
 				<Global styles={Expand} />
-				<Container className='dotted-background' hidden={hideCanvas}>
-					{children}
+				<Container className='dotted-background' hidden={this.props.hideCanvas}>
+					{this.props.children}
 				</Container>
 			</>
 		);

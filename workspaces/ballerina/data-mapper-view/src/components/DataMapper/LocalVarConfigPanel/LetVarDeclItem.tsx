@@ -12,27 +12,27 @@ import React, { ReactNode, useMemo, useState } from "react";
 // import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 // tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { IBallerinaLangClient, STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { getRenameEdits } from "../../Diagram/utils/ls-utils";
+import { applyModifications, getRenameEdits } from "../../Diagram/utils/ls-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+
 
 interface LetVarDeclItemProps {
     index: number;
     letVarDeclModel: LetVarDeclModel;
     handleOnCheck: () => void;
     onEditClick: (letVarDecl: LetVarDecl) => void;
-    applyModifications: (modifications: STModification[]) => Promise<void>;
     filePath: string;
 }
 
 export function LetVarDeclItem(props: LetVarDeclItemProps) {
-    const {index, letVarDeclModel, handleOnCheck, onEditClick, applyModifications, filePath} = props;
+    const {index, letVarDeclModel, handleOnCheck, onEditClick, filePath} = props;
     const overlayClasses = useStyles();
     const { ballerinaRpcClient } = useVisualizerContext();
     const varNameNode = (letVarDeclModel.letVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern)
@@ -88,7 +88,7 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                 });
 
                 modifications.sort((a, b) => a.startLine - b.startLine);
-                await applyModifications(modifications);
+                await applyModifications(filePath, modifications, ballerinaRpcClient);
             } finally {
                 setLoading(false);
             }

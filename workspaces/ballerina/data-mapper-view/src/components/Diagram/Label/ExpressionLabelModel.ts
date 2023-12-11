@@ -4,6 +4,7 @@ import { NodePosition, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from '../../../utils/DataMapperContext/DataMapperContext';
 import { DataMapperLinkModel } from '../Link';
+import { applyModifications } from '../utils/ls-utils';
 
 export interface ExpressionLabelOptions extends BaseModelOptions {
 	value?: string;
@@ -65,6 +66,6 @@ export class ExpressionLabelModel extends LabelModel {
 				startLine: valueNodePosition.startLine
 			}
 		];
-		void this.context.applyModifications(modifications);
+		void applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
 	}
 }

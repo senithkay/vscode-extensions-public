@@ -30,6 +30,7 @@ import {
     getSyntaxTree,
     getVisualizerState,
     openVisualizerView,
+    updateVisualizerView,
     getCompletion,
     getDiagnostics,
     codeAction,
@@ -45,7 +46,9 @@ import {
     getST,
     getSTByRange,
     BallerinaFunctionSTRequest,
-    BallerinaSTModifyRequest
+    BallerinaSTModifyRequest,
+    UpdateFileContentRequest,
+    updateFileContent
 } from "@wso2-enterprise/ballerina-core";
 import { WorkspaceEdit } from "vscode-languageserver-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -66,6 +69,10 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     openVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
         return this._messenger.sendRequest(openVisualizerView, HOST_EXTENSION, params);
+    }
+
+    updateVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
+        return this._messenger.sendRequest(updateVisualizerView, HOST_EXTENSION, params);
     }
 
     getSyntaxTree(): Promise<STNode> {
@@ -110,6 +117,10 @@ export class VisualizerRpcClient implements VisualizerAPI {
 
     stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
         return this._messenger.sendRequest(stModify, HOST_EXTENSION, params);
+    }
+
+    updateFileContent(params: UpdateFileContentRequest): Promise<boolean> {
+        return this._messenger.sendRequest(updateFileContent, HOST_EXTENSION, params);
     }
 
     didOpen(params: DidOpenTextDocumentParams): Promise<void> {

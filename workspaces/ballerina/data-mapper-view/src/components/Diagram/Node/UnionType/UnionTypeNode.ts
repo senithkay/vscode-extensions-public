@@ -49,11 +49,12 @@ import {
     getTypeOfValue,
     isArrayOrRecord
 } from "../../utils/dm-utils";
-import { filterDiagnostics } from "../../utils/ls-utils";
+import { applyModifications, filterDiagnostics } from "../../utils/ls-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { getResolvedType, getSupportedUnionTypes, getUnionTypes } from "../../utils/union-type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
+import { URI } from "vscode-uri";
 
 export const UNION_TYPE_NODE_TYPE = "data-mapper-node-union-type";
 
@@ -413,7 +414,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             }];
         }
 
-        await this.context.applyModifications(modifications);
+        await applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 
     async deleteLinkForListConstructor(field: STNode, keepDefault?: boolean) {
@@ -437,7 +438,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             }]
         }
 
-        await this.context.applyModifications(modifications);
+        await applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 
     async deleteLinkForPrimitiveType(field: STNode) {
@@ -452,7 +453,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             ...field.position
         }];
 
-        await this.context.applyModifications(modifications);
+        await applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 
     async deleteLinkForUnionType(field: STNode) {
@@ -464,7 +465,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             ...field.position
         }];
 
-        await this.context.applyModifications(modifications);
+        await applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
     }
 
     public updatePosition() {

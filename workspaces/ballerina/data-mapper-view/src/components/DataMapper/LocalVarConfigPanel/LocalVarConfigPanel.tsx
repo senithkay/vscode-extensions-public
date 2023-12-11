@@ -12,7 +12,6 @@ import React, { ReactNode, useEffect, useMemo, useState } from "react";
 
 import { Link } from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl/FormControl";
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DeleteButton,
     STModification
@@ -40,6 +39,8 @@ import {
 } from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { applyModifications } from "../../Diagram/utils/ls-utils";
 
 export interface LetVarDeclModel {
     letVarDecl: LetVarDecl;
@@ -48,7 +49,6 @@ export interface LetVarDeclModel {
 }
 
 export interface LocalVarConfigPanelProps {
-    applyModifications: (modifications: STModification[]) => Promise<void>;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
@@ -58,7 +58,6 @@ export interface LocalVarConfigPanelProps {
 export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     const {
         handleLocalVarConfigPanel,
-        applyModifications,
         fnDef,
         enableStatementEditor,
         filePath
@@ -66,6 +65,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     // const intl = useIntl();
 
+    const { ballerinaRpcClient } = useVisualizerContext();
     const letExpression = getLetExpression(fnDef);
     const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>([]);
     const hasSelectedLetVarDecl = letVarDecls.some(decl => decl.checked);
@@ -92,7 +92,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const onAddNewVar = async (index?: number) => {
         const addModification = getLetExprAddModification(index, fnDef, letExpression, letVarDecls);
-        await applyModifications([addModification]);
+        await applyModifications(filePath, [addModification], ballerinaRpcClient);
     };
 
     const handleOnCheck = () => {
@@ -124,7 +124,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         });
         const updatedVarList = letVarDecls.filter(decl => !decl.checked);
         setLetVarDecls(updatedVarList);
-        await applyModifications(modifications);
+        await applyModifications(filePath, modifications, ballerinaRpcClient);
     };
 
     // const overviewSelectAll = intl.formatMessage({
@@ -151,7 +151,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     letVarDeclModel={decl}
                                     handleOnCheck={handleOnCheck}
                                     onEditClick={onEditClick}
-                                    applyModifications={applyModifications}
                                     filePath={filePath}
                                 />
                             </>

@@ -161,7 +161,6 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 export function DataMapperC() {
     const ballerinaVersion: string = '2201.7.2 (swan lake update 7)';
     const openedViaPlus: boolean = false;
-    const applyModifications: (modifications: STModification[]) => Promise<void> = undefined;
     const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const library: {
@@ -176,7 +175,9 @@ export function DataMapperC() {
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
+    const { projectComponents } = useProjectComponents();
     const { data } = useSyntaxTreeFromRange();
+
     const fnST = data?.syntaxTree as FunctionDefinition;
     const targetPosition = fnST ? {
         ...fnST.position,
@@ -190,13 +191,14 @@ export function DataMapperC() {
     };
 
     const visualizerContext = useVisualizerContext();
-    const { viewLocation: {
+    const {
+        viewLocation: {
             location: {
                 fileName: filePath
             }
-        }
+        },
+        ballerinaRpcClient
     } = visualizerContext;
-    const { projectComponents } = useProjectComponents();
     const currentFile = {
         content: "",
         path: filePath,
@@ -227,8 +229,6 @@ export function DataMapperC() {
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
     const [currentReferences, setCurrentReferences] = useState<string[]>([]);
-
-    // const { projectComponents } = useProjectComponents(filePath, "currentFile.content");
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -384,7 +384,6 @@ export function DataMapperC() {
                     currentFile,
                     moduleVariables,
                     handleSelectedST,
-                    applyModifications,
                     goToSource,
                     diagnostics,
                     enableStatementEditor,
@@ -512,7 +511,7 @@ export function DataMapperC() {
         ballerinaVersion,
         onSave: onConfigSave,
         onClose: onConfigClose,
-        applyModifications,
+        ballerinaRpcClient,
         recordPanel
     }
 
@@ -562,7 +561,7 @@ export function DataMapperC() {
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
                                 langClientPromise={undefined}
-                                applyModifications={applyModifications}
+                                applyModifications={undefined}
                                 updateFileContent={updateFileContent}
                                 currentFile={currentFile}
                                 library={library}
@@ -575,7 +574,6 @@ export function DataMapperC() {
                         {showLocalVarConfigPanel && (
                             <LocalVarConfigPanel
                                 handleLocalVarConfigPanel={handleLocalVarConfigPanel}
-                                applyModifications={applyModifications}
                                 enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
                                 filePath={filePath}

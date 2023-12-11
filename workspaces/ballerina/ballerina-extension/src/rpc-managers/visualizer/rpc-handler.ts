@@ -22,6 +22,7 @@ import {
     JsonToRecordRequest,
     RenameParams,
     TextDocumentPositionParams,
+    UpdateFileContentRequest,
     VisualizerLocationContext,
     codeAction,
     convert,
@@ -37,8 +38,10 @@ import {
     getSyntaxTree,
     getVisualizerState,
     openVisualizerView,
+    updateVisualizerView,
     rename,
-    stModify
+    stModify,
+    updateFileContent
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { VisualizerRpcManager } from "./rpc-manager";
@@ -47,6 +50,7 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
     messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
     messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
+    messenger.onRequest(updateVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
     messenger.onRequest(getSyntaxTree, () => rpcManger.getSyntaxTree());
     messenger.onRequest(getST, (args: GetSyntaxTreeParams) => rpcManger.getST(args));
     messenger.onRequest(getSTByRange, (args: BallerinaFunctionSTRequest) => rpcManger.getSTByRange(args));
@@ -58,6 +62,7 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getDefinitionPosition, (args: TextDocumentPositionParams) => rpcManger.getDefinitionPosition(args));
     messenger.onRequest(convert, (args: JsonToRecordRequest) => rpcManger.convert(args));
     messenger.onRequest(stModify, (args: BallerinaSTModifyRequest) => rpcManger.stModify(args));
+    messenger.onRequest(updateFileContent, (args: UpdateFileContentRequest) => rpcManger.updateFileContent(args));
     messenger.onRequest(didOpen, (args: DidOpenTextDocumentParams) => rpcManger.didOpen(args));
     messenger.onRequest(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));
     messenger.onRequest(didClose, (args: DidCloseTextDocumentParams) => rpcManger.didClose(args));

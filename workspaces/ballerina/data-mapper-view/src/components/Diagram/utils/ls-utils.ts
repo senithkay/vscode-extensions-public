@@ -6,16 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { ExpressionRange, IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { ExpressionRange } from "@wso2-enterprise/ballerina-languageclient";
 import {
     addToTargetPosition,
     BallerinaSTModifyResponse,
     CompletionParams,
     LinePosition,
     PublishDiagnosticsParams,
-    ResolvedTypeForExpression
+    ResolvedTypeForExpression,
+    STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { CodeAction, CompletionItemKind, Diagnostic, WorkspaceEdit } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
 
@@ -236,4 +237,39 @@ export async function getDefinitionPosition(fileURI: string,
     )
 
     return definitionPosition;
+}
+
+export async function applyModifications(
+    filePath: string,
+    modifications: STModification[],
+    ballerinaRpcClient: BallerinaRpcClient
+): Promise<boolean> {
+    const visualizerRPCClient = ballerinaRpcClient.getVisualizerRpcClient();
+	const { parseSuccess, source: newSource , syntaxTree } = await visualizerRPCClient.stModify({
+		astModifications: modifications,
+		documentIdentifier: {
+			uri: URI.file(filePath).toString()
+		}
+	});
+	if (parseSuccess) {
+		await visualizerRPCClient.updateFileContent({
+			content: newSource,
+			fileUri: filePath
+		});
+
+        const modPart = syntaxTree as ModulePart;
+        const fns = modPart.members.filter((mem) =>
+            STKindChecker.isFunctionDefinition(mem)
+        ) as FunctionDefinition[];
+        const st = fns.find((mem) => mem.functionName.value === 'transform');
+        visualizerRPCClient.updateVisualizerView({
+            view: "DataMapper",
+            location: {
+                fileName: filePath,
+                position: st.position
+            }
+        });
+        return true;
+	}
+    return false;
 }

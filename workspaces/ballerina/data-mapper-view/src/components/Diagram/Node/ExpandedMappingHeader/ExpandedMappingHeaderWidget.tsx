@@ -27,6 +27,8 @@ import { LimitClauseItem } from "./LimitClauseItem";
 import { OrderByClauseItem } from "./OrderClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
+import { applyModifications } from "../../utils/ls-utils";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
@@ -38,6 +40,8 @@ export interface ExpandedMappingHeaderWidgetProps {
 
 export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
     const { node, engine, port } = props;
+    const { context: { filePath }} = node;
+    const { ballerinaRpcClient } = useVisualizerContext();
     const classes = useStyles();
 
     const onClickEdit = (value: string, valuePosition: NodePosition, label: string) => {
@@ -45,7 +49,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
     };
 
     const deleteClause = async (clauseItem: STNode) => {
-        await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position }]);
+        await applyModifications(filePath, [{ type: "DELETE", ...clauseItem.position }], ballerinaRpcClient);
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;

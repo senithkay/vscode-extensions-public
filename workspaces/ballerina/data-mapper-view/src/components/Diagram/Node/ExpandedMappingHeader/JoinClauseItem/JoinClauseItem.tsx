@@ -17,12 +17,11 @@ import {
     JoinClause,
     NodePosition,
     QueryExpression,
-    SimpleNameReference,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { getRenameEdits } from "../../../utils/ls-utils";
+import { applyModifications, getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
@@ -83,7 +82,7 @@ export function JoinClauseItem(props: {
                 });
 
                 modifications.sort((a, b) => a.startLine - b.startLine);
-                await context.applyModifications(modifications);
+                await applyModifications(context.filePath, modifications, ballerinaRpcClient);
             } finally {
                 setLoading(false);
             }
