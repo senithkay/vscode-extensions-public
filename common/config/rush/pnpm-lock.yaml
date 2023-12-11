@@ -1570,6 +1570,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       babel-loader: ^8.2.5
       closest: ^0.0.1
@@ -1596,6 +1597,7 @@ importers:
       '@types/lodash': 4.14.201
       '@types/node': 18.18.10
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       closest: 0.0.1
       dagre: 0.8.5
