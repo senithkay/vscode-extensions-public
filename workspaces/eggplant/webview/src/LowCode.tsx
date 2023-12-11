@@ -7,31 +7,81 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
-import { EggplantDiagram } from "@wso2-enterprise/eggplant-diagram";
+import React from "react";
+import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
+import styled from "@emotion/styled";
 
-const model = {
+const Container = styled.div`
+    width: 100%;
+    height: 100svh;
+`;
+
+const model: Flow = {
+    id: "1",
+    name: "flow1",
+    balFilename: "path",
     nodes: [
-        { name: "GetAppointmentFee", links: [{ name: "LogAppointmentFee" }, { name: "CreatePaymentRequest" }] },
-        { name: "FunctionStart", links: [{ name: "LogHospitalDetails" }, { name: "CreateAppointmentPayload" }] },
-        { name: "LogAppointmentFee", links: [] },
-        { name: "FunctionEnd", links: [] },
-        { name: "CreatePaymentRequest", links: [{ name: "MakePayment" }] },
-        { name: "LogHospitalDetails", links: [] },
-        { name: "CreateAppointment", links: [{ name: "GetAppointmentFee" }, { name: "LogAppointment" }] },
-        { name: "LogAppointment", links: [] },
-        { name: "MakePayment", links: [{ name: "FunctionEnd" }, { name: "LogPaymentResponse" }] },
-        { name: "LogPaymentResponse", links: [] },
-        { name: "CreateAppointmentPayload", links: [{ name: "CreateAppointment" }] },
+        {
+            name: "A",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                start: {
+                    line: 4,
+                    offset: 4,
+                },
+                end: {
+                    line: 8,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [],
+            outputPorts: [
+                {
+                    id: "ao1",
+                    type: "INT",
+                    receiver: "B",
+                },
+            ],
+        },
+        {
+            name: "B",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                start: {
+                    line: 10,
+                    offset: 4,
+                },
+                end: {
+                    line: 16,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 100,
+                y: 0,
+            },
+            inputPorts: [
+                {
+                    id: "bi1",
+                    type: "INT",
+                    name: "x1",
+                    sender: "A",
+                },
+            ],
+            outputPorts: [],
+        },
     ],
 };
 
-
 const LowCode = () => {
     return (
-        <div>
-            <EggplantDiagram model={model} />
-        </div>
+        <Container>
+            <EggplantApp flowModel={model} />
+        </Container>
     );
 };
 

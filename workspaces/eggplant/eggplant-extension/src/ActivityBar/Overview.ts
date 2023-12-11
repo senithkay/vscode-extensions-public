@@ -15,6 +15,7 @@ import { ExtensionContext } from "vscode";
 // import { WebViewViewRPC } from "../rpc/WebviewRPC";
 import { getUri } from '../utils';
 import { ext } from '../eggplantExtentionContext';
+import { RPCLayer } from '../webRPCRegister';
 // import { ext } from '../../../extensionVariables';
 // import { choreoEnvConfig } from '../../../auth/auth';
 // import { FREE_COMPONENT_LIMIT } from '../../../auth/config';
@@ -45,6 +46,7 @@ export class Overview implements vscode.WebviewViewProvider {
             ]
         };
         webviewView.webview.html = this.getWebviewContent(webviewView.webview);
+        RPCLayer.create(webviewView);
         // this._rpc = new WebViewViewRPC(webviewView);
     }
 

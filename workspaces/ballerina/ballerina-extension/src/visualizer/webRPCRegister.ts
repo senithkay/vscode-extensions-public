@@ -9,7 +9,7 @@ import { registerVisualizerRpcHandlers } from "../rpc-managers/visualizer/rpc-ha
  */
 
 import { error } from 'console';
-import { ExtensionContext, WebviewPanel } from 'vscode';
+import { ExtensionContext, WebviewPanel, workspace } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { NotificationType } from "vscode-messenger-common";
 import { BallerinaExtension } from '../core';
@@ -17,6 +17,7 @@ import { registerOverviewRpcHandlers } from "../rpc-managers/overview/rpc-handle
 import {
     getService
 } from './activator';
+import { registerDataMapperRpcHandlers } from "../rpc-managers/data-mapper/rpc-handler";
 
 
 const stateChanged: NotificationType<any> = { method: 'stateChanged' };
@@ -35,6 +36,7 @@ export class RPCLayer {
 
         registerOverviewRpcHandlers(this._messenger);
         registerVisualizerRpcHandlers(this._messenger);
+        registerDataMapperRpcHandlers(this._messenger);
 
         // Register state change notification
         getService().onTransition((state) => {
@@ -44,7 +46,6 @@ export class RPCLayer {
             };
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, snapshot);
         });
-
     }
 
     static create(webViewPanel: WebviewPanel, balExt: BallerinaExtension) {

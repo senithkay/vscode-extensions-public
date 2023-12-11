@@ -10,13 +10,10 @@
  */
 import {
     BallerinaFunctionSTRequest,
-    BallerinaProjectComponents,
     BallerinaSTModifyResponse,
     ExecutorPositionsResponse,
-    GetBallerinaPackagesParams,
     GetBallerinaProjectParams,
     OverviewAPI,
-    getBallerinaProjectComponents,
     getExecutorPositions,
     getSTForFunction
 } from "@wso2-enterprise/ballerina-core";
@@ -28,10 +25,6 @@ export class OverviewRpcClient implements OverviewAPI {
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
-    }
-
-    getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
-        return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION, params);
     }
 
     getSTForFunction(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {

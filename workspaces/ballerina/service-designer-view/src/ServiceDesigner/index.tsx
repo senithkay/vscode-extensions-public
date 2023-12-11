@@ -22,7 +22,7 @@ export function ServiceDesigner() {
 
     return (
         <div data-testid="service-design-view">
-           <h2 onClick={handleOnClick}>Hello Service Designer - bbbb</h2>
+           <h2 onClick={handleOnClick}>Hello Service Designer</h2>
            {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} onClose={handleOnClose} />}
         </div>
     )

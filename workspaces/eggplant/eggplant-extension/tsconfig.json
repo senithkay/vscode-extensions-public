@@ -8,6 +8,7 @@
 			"ES5"
 		],
 		"sourceMap": true,
+		"noEmit": false,
 		"noImplicitAny": false,
 		"paths": {},
         "jsx": "react",

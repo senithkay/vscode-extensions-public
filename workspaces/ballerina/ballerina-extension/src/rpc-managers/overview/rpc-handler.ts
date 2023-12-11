@@ -10,9 +10,7 @@
  */
 import {
     BallerinaFunctionSTRequest,
-    GetBallerinaPackagesParams,
     GetBallerinaProjectParams,
-    getBallerinaProjectComponents,
     getExecutorPositions,
     getSTForFunction
 } from "@wso2-enterprise/ballerina-core";
@@ -21,7 +19,6 @@ import { OverviewRpcManager } from "./rpc-manager";
 
 export function registerOverviewRpcHandlers(messenger: Messenger) {
     const rpcManger = new OverviewRpcManager();
-    messenger.onRequest(getBallerinaProjectComponents, (args: GetBallerinaPackagesParams) => rpcManger.getBallerinaProjectComponents(args));
     messenger.onRequest(getSTForFunction, (args: BallerinaFunctionSTRequest) => rpcManger.getSTForFunction(args));
     messenger.onRequest(getExecutorPositions, (args: GetBallerinaProjectParams) => rpcManger.getExecutorPositions(args));
 }

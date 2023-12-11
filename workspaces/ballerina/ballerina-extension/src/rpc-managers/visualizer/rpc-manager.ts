@@ -9,17 +9,37 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaProjectComponents,
+    BallerinaProjectParams,
+    BallerinaSTModifyResponse,
+    CodeActionParams,
+    CompletionParams,
+    CompletionResponse,
+    DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams,
+    GetBallerinaPackagesParams,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse,
+    JsonToRecordRequest,
+    JsonToRecordResponse,
+    NOT_SUPPORTED_TYPE,
+    PublishDiagnosticsParams,
+    RenameParams,
+    TextDocumentPositionParams,
     VisualizerAPI,
-    VisualizerLocationContext,
+    VisualizerLocationContext
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
-import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
-import { getService, openView } from "../../visualizer/activator";
-import { TextDocumentPositionParams } from "vscode-languageclient";
-import { Uri } from "vscode";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { Uri, workspace } from "vscode";
+import { CodeAction, WorkspaceEdit } from "vscode-languageserver-types";
+import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
+import { getLangClient, getService, openView } from "../../visualizer/activator";
 
 export class VisualizerRpcManager implements VisualizerAPI {
+
+    private _langClient = getLangClient();
 
     async getVisualizerState(): Promise<VisualizerLocationContext> {
         const snapshot = getService().getSnapshot();
@@ -63,5 +83,70 @@ export class VisualizerRpcManager implements VisualizerAPI {
                 resolve(undefined);
             }
         });
+    }
+
+    async getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
+        // Check if there is at least one workspace folder
+        if (workspace.workspaceFolders?.length) {
+            const workspaceUri = [];
+            workspace.workspaceFolders.forEach(folder => {
+                workspaceUri.push(
+                    {
+                        uri: folder.uri.toString(),
+                    }
+                );
+            });
+
+            return this._langClient.getBallerinaProjectComponents({
+                documentIdentifiers: workspaceUri
+            });
+        } else {
+            // Handle the case where there are no workspace folders
+            throw new Error("No workspace folders are open");
+        }
+    }
+
+    async getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
+        return this._langClient.getCompletion(params);
+    }
+
+    async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[]|NOT_SUPPORTED_TYPE> {
+        return this._langClient.getDiagnostics(params);
+    }
+
+    async codeAction(params: CodeActionParams): Promise<CodeAction[]> {
+        return this._langClient.codeAction(params);
+    }
+
+    async rename(params: RenameParams): Promise<WorkspaceEdit> {
+        return this._langClient.rename(params);
+    }
+
+    async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse|NOT_SUPPORTED_TYPE> {
+        return this._langClient.getDefinitionPosition(params);
+    }
+
+    async convert(params: JsonToRecordRequest): Promise<JsonToRecordResponse|NOT_SUPPORTED_TYPE> {
+        return this._langClient.convertJsonToRecord(params);
+    }
+
+    async didOpen(params: DidOpenTextDocumentParams): Promise<void> {
+        return this._langClient.didOpen(params);
+    }
+
+    async didChange(params: DidChangeTextDocumentParams): Promise<void> {
+        return this._langClient.didChange(params);
+    }
+
+    async didClose(params: DidCloseTextDocumentParams): Promise<void> {
+        return this._langClient.didClose(params);
+    }
+
+    async getST(params: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
+        return await this._langClient.getSyntaxTree(params) as GetSyntaxTreeResponse;
+    }
+
+    async getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
+        return await this._langClient.getSTByRange(params) as BallerinaSTModifyResponse;
     }
 }

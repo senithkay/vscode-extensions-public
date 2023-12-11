@@ -9,64 +9,163 @@
 
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
-import { EggplantDiagram } from "../Diagram";
+import { EggplantApp, Flow } from "../index";
 
 export default {
     title: "EggplantDiagram",
-    component: EggplantDiagram,
+    component: EggplantApp,
 } as Meta;
 
-const Template: Story = (args: any) => <EggplantDiagram {...args} />;
+const Template: Story = (args: any) => <EggplantApp {...args} />;
 
+export const Blank = Template.bind({});
+Blank.args = {
+    flowModel: {
+        id: "1",
+        name: "flow1",
+        balFilename: "path",
+        nodes: [],
+    },
+};
+
+const simpleModel: Flow = {
+    id: "1",
+    name: "flow1",
+    balFilename: "path",
+    nodes: [
+        {
+            name: "A",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                start: {
+                    line: 4,
+                    offset: 4,
+                },
+                end: {
+                    line: 8,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [],
+            outputPorts: [
+                {
+                    id: "ao2",
+                    type: "INT",
+                    receiver: "C",
+                },
+                {
+                    id: "ao1",
+                    type: "INT",
+                    receiver: "B",
+                },
+            ],
+        },
+        {
+            name: "B",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                start: {
+                    line: 10,
+                    offset: 4,
+                },
+                end: {
+                    line: 16,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [
+                {
+                    id: "bi1",
+                    type: "INT",
+                    name: "x1",
+                    sender: "A",
+                },
+            ],
+            outputPorts: [
+                {
+                    id: "bo1",
+                    type: "INT",
+                    receiver: "C",
+                },
+            ],
+        },
+        {
+            name: "C",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                start: {
+                    line: 18,
+                    offset: 4,
+                },
+                end: {
+                    line: 21,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [
+                {
+                    id: "ci1",
+                    type: "INT",
+                    name: "x2",
+                    sender: "A",
+                },
+                {
+                    id: "ci2",
+                    type: "INT",
+                    name: "x3",
+                    sender: "B",
+                },
+            ],
+            outputPorts: [
+                {
+                    id: "co2",
+                    type: "INT",
+                    receiver: "D",
+                },
+            ],
+        },
+        {
+            name: "D",
+            templateId: "TRANSFORMER",
+            codeLocation: {
+                start: {
+                    line: 10,
+                    offset: 4,
+                },
+                end: {
+                    line: 16,
+                    offset: 5,
+                },
+            },
+            canvasPosition: {
+                x: 0,
+                y: 0,
+            },
+            inputPorts: [
+                {
+                    id: "di1",
+                    type: "INT",
+                    name: "x1",
+                    sender: "C",
+                },
+            ],
+            outputPorts: [],
+        },
+    ],
+};
 export const Simple = Template.bind({});
 Simple.args = {
-    model: {
-        nodes: [
-            { name: "A", links: [{ name: "B" }, { name: "C" }] },
-            { name: "B", links: [{ name: "FunctionEnd" }] },
-            { name: "C", links: [{ name: "FunctionEnd" }] },
-            { name: "FunctionStart", links: [{ name: "A" }] },
-            { name: "FunctionEnd", links: [] },
-        ],
-    },
-};
-
-export const MultiPorts = Template.bind({});
-MultiPorts.args = {
-    model: {
-        nodes: [
-            { name: "A", links: [{ name: "B" }, { name: "C" }, { name: "D" }, { name: "E" }, { name: "G" }, { name: "H" }] },
-            { name: "B", links: [{ name: "FunctionEnd" }] },
-            { name: "C", links: [{ name: "FunctionEnd" }] },
-            { name: "D", links: [{ name: "FunctionEnd" }] },
-            { name: "E", links: [{ name: "FunctionEnd" }] },
-            { name: "F", links: [{ name: "FunctionEnd" }] },
-            { name: "G", links: [{ name: "FunctionEnd" }] },
-            { name: "H", links: [{ name: "FunctionEnd" }] },
-            { name: "I", links: [{ name: "K" }] },
-            { name: "L", links: [{ name: "K" }] },
-            { name: "K", links: [{ name: "FunctionEnd" }] },
-            { name: "FunctionStart", links: [{ name: "A" }, { name: "F" }, { name: "I" }, { name: "L" }] },
-            { name: "FunctionEnd", links: [] },
-        ],
-    },
-};
-
-export const Complex = Template.bind({});
-Complex.args = {
-    model: {
-        nodes: [
-            { name: "GetAppointmentFee", links: [{ name: "LogAppointmentFee" }, { name: "CreatePaymentRequest" }] },
-            { name: "FunctionStart", links: [{ name: "LogHospitalDetails" }, { name: "CreateAppointmentPayload" }] },
-            { name: "LogAppointmentFee", links: [] },
-            { name: "FunctionEnd", links: [] },
-            { name: "CreatePaymentRequest", links: [{ name: "MakePayment" }] },
-            { name: "LogHospitalDetails", links: [] },
-            { name: "CreateAppointment", links: [{ name: "GetAppointmentFee" }, { name: "LogAppointment" }] },
-            { name: "LogAppointment", links: [] },
-            { name: "MakePayment", links: [{ name: "FunctionEnd" }, { name: "LogPaymentResponse" }] },
-            { name: "LogPaymentResponse", links: [] },
-            { name: "CreateAppointmentPayload", links: [{ name: "CreateAppointment" }] },
-        ],
-    },
+    flowModel: simpleModel,
 };
