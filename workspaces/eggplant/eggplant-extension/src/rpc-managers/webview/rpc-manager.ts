@@ -8,15 +8,16 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import {
+    EggplantModel,
     LangClientInterface,
     VisualizerLocation,
-    WebviewAPI,
+    WebviewAPI
 } from "@wso2-enterprise/eggplant-core";
-import { openView, stateService } from "../../stateMachine";
-import { handleVisualizerView } from "../../utils/navigation";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { workspace } from "vscode";
+import { openView, stateService, getState } from "../../stateMachine";
+import { handleVisualizerView } from "../../utils/navigation";
 
 export class WebviewRpcManager implements WebviewAPI {
 
@@ -48,7 +49,7 @@ export class WebviewRpcManager implements WebviewAPI {
                     }
                 );
             });
-            const context =  snapshot.context;
+            const context = snapshot.context;
             const langClient = context.langServer as LangClientInterface;
             return langClient.getBallerinaProjectComponents({
                 documentIdentifiers: workspaceUri
@@ -57,5 +58,78 @@ export class WebviewRpcManager implements WebviewAPI {
             // Handle the case where there are no workspace folders
             throw new Error("No workspace folders are open");
         }
+    }
+
+    async getEggplantModel(): Promise<EggplantModel> {
+        return new Promise((resolve) => {
+            let model = {
+                id: "1",
+                name: "flow1",
+                balFilename: "path",
+                nodes: [
+                    {
+                        name: "A",
+                        templateId: "TRANSFORMER",
+                        codeLocation: {
+                            start: {
+                                line: 4,
+                                offset: 4,
+                            },
+                            end: {
+                                line: 8,
+                                offset: 5,
+                            },
+                        },
+                        canvasPosition: {
+                            x: 0,
+                            y: 0,
+                        },
+                        inputPorts: [],
+                        outputPorts: [
+                            {
+                                id: "ao1",
+                                type: "INT",
+                                receiver: "B",
+                            },
+                        ],
+                    },
+                    {
+                        name: "B",
+                        templateId: "TRANSFORMER",
+                        codeLocation: {
+                            start: {
+                                line: 10,
+                                offset: 4,
+                            },
+                            end: {
+                                line: 16,
+                                offset: 5,
+                            },
+                        },
+                        canvasPosition: {
+                            x: 100,
+                            y: 0,
+                        },
+                        inputPorts: [
+                            {
+                                id: "bi1",
+                                type: "INT",
+                                name: "x1",
+                                sender: "A",
+                            },
+                        ],
+                        outputPorts: [],
+                    },
+                ],
+            };
+            resolve(model);
+        })
+    }
+
+    async getState(): Promise<string> {
+        const snapshot = stateService.getSnapshot();
+        return new Promise((resolve) => {
+            resolve(getState());
+        })
     }
 }
