@@ -26,7 +26,7 @@ export function workerCodeGen(model: Flow) {
         // Define the workerNode
         let workerNode: string;
 
-        if (node.templateId === "Switch") {
+        if (node.templateId === "switch") {
             // define the switch case block
             let switchCaseBlock: string = "";
             const switchBlockProper: SwitchNodeProperties = node.properties as SwitchNodeProperties;
