@@ -9,9 +9,17 @@
 
 import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel, LinkModel } from "@projectstorm/react-diagrams";
+import { debounce } from 'lodash';
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
-import { generateDiagramModelFromFlowModel, generateEngine, removeOverlay, generateFlowModelFromDiagramModel, addNodeListener } from "./utils";
+import {
+    generateDiagramModelFromFlowModel,
+    generateEngine,
+    removeOverlay,
+    generateFlowModelFromDiagramModel,
+    addNodeSelectChangeListener,
+    addNodePositionChangeListener,
+} from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultNodeModel } from "./components/default";
 
@@ -32,6 +40,8 @@ export function EggplantApp(props: EggplantAppProps) {
         }
     }, [diagramEngine]);
 
+    const debouncedOnModelChange = debounce(onModelChange, 300);
+
     const drawDiagram = () => {
         const model = new DiagramModel();
         model.addLayer(new OverlayLayerModel());
@@ -39,12 +49,11 @@ export function EggplantApp(props: EggplantAppProps) {
         generateDiagramModelFromFlowModel(model, flowModel);
 
         diagramEngine.setModel(model);
-
+        // TODO: deregister listeners
         diagramEngine.getModel().registerListener({
             linksUpdated: (event: any) => {
                 (event.link as LinkModel).registerListener({
                     targetPortChanged(event: any) {
-                        const newLink: LinkModel = event.entity as LinkModel;
                         const portUpdatedModel: Flow = generateFlowModelFromDiagramModel(flowModel, diagramEngine.getModel());
                         onModelChange(portUpdatedModel);
                     },
@@ -56,7 +65,11 @@ export function EggplantApp(props: EggplantAppProps) {
             .getModel()
             .getNodes()
             .forEach((node) => {
-                addNodeListener(node as DefaultNodeModel, setSelectedNode);
+                addNodeSelectChangeListener(node as DefaultNodeModel, setSelectedNode);
+                addNodePositionChangeListener(node as DefaultNodeModel, () => {
+                    const portUpdatedModel: Flow = generateFlowModelFromDiagramModel(flowModel, diagramEngine.getModel());
+                    debouncedOnModelChange(portUpdatedModel);
+                });
             });
 
         setDiagramModel(model);

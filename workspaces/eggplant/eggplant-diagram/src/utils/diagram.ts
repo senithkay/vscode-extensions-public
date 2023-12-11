@@ -43,7 +43,7 @@ export function removeOverlay(diagramEngine: DiagramEngine) {
     diagramEngine.repaintCanvas();
 }
 
-export function addNodeListener(node: DefaultNodeModel, callback: (node: DefaultNodeModel | null) => void) {
+export function addNodeSelectChangeListener(node: DefaultNodeModel, callback: (node: DefaultNodeModel | null) => void) {
     node.registerListener({
         selectionChanged: (event: any) => {
             // TODO: Fix type
@@ -52,6 +52,14 @@ export function addNodeListener(node: DefaultNodeModel, callback: (node: Default
             } else {
                 callback(null);
             }
+        },
+    });
+}
+
+export function addNodePositionChangeListener(node: DefaultNodeModel, callback: () => void) {
+    node.registerListener({
+        positionChanged: (event: any) => {
+            callback();
         },
     });
 }

@@ -497,12 +497,11 @@ const SampleModel: Flow = {
             outputPorts: [
                 {
                     id: "1",
-                    type: "TYPE_REFERENCE",
+                    type: "jo/demo_sample:0.1.0:Person",
                     name: "p",
                     receiver: "Log",
                 },
             ],
-            codeBlock: '        Person p = {name: "John", age: 30};\n',
         },
         {
             name: "Log",
@@ -519,13 +518,12 @@ const SampleModel: Flow = {
             inputPorts: [
                 {
                     id: "1",
-                    type: "TYPE_REFERENCE",
+                    type: "jo/demo_sample:0.1.0:Person",
                     name: "p",
                     sender: "CreatePerson",
                 },
             ],
             outputPorts: [],
-            codeBlock: "        io:println(p);\n",
         },
     ],
 };

@@ -20,7 +20,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
 import { Flow, Node } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { addNodeListener, getNodeModel } from "../../utils";
+import { addNodeSelectChangeListener, getNodeModel } from "../../utils";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
@@ -62,7 +62,7 @@ export function BodyWidget(props: BodyWidgetProps) {
             let node: DefaultNodeModel = getNodeModel(data.type, (nodesCount++).toString());
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
-            addNodeListener(node, setSelectedNode);
+            addNodeSelectChangeListener(node, setSelectedNode);
             engine.getModel().addNode(node);
 
             // forceUpdate();
