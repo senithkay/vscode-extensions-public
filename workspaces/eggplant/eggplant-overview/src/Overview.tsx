@@ -49,7 +49,7 @@ export function Overview() {
     const LoaderContainer = styled.div({
         width: "100%",
         overflow: "hidden",
-        height: "100vh",
+        height: "90vh",
         display: "grid"
     });
 
@@ -61,7 +61,7 @@ export function Overview() {
         return (
             <LoaderContainer>
                 <LoaderContent>
-                    <VSCodeProgressRing />
+                    <VSCodeProgressRing style={{ height: 24, margin: 'auto' }} />
                     Fetching components...
                 </LoaderContent>
             </LoaderContainer>

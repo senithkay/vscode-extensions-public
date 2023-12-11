@@ -47,7 +47,7 @@ export function Webview({ mode }: { mode: string }) {
         return (
             <LoaderContainer>
                 <LoaderContent>
-                    <VSCodeProgressRing />
+                    <VSCodeProgressRing style={{ height: 24 }} />
                 </LoaderContent>
             </LoaderContainer>
         )
