@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useCallback, useReducer } from "react";
+import React, { useCallback } from "react";
 import * as _ from "lodash";
 import { TrayWidget } from "./TrayWidget";
 import { TrayItemWidget } from "./TrayItemWidget";
@@ -52,8 +52,6 @@ namespace S {
 export function BodyWidget(props: BodyWidgetProps) {
     const { engine, flowModel, selectedNode, setSelectedNode, onModelChange } = props;
 
-    const [, forceUpdate] = useReducer((x) => x + 1, 0);
-
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
@@ -65,7 +63,6 @@ export function BodyWidget(props: BodyWidgetProps) {
             addNodeSelectChangeListener(node, setSelectedNode);
             engine.getModel().addNode(node);
 
-            // forceUpdate();
             const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
             onModelChange(updatedFlow);
         },
@@ -96,7 +93,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                     </DiagramCanvasWidget>
                 </S.Layer>
                 {selectedNode && (
-                    <OptionWidget selectedNode={selectedNode} setSelectedNode={setSelectedNode} forceUpdate={forceUpdate} updateFlowModel={updateFlowModel} />
+                    <OptionWidget selectedNode={selectedNode} setSelectedNode={setSelectedNode} updateFlowModel={updateFlowModel} />
                 )}
             </S.Content>
         </S.Body>
