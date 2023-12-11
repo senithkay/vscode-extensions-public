@@ -23,6 +23,7 @@ export type Node = {
     codeLocation: CodeLocation;
     canvasPosition: CanvasPosition;
     properties?: NodeProperties;
+    codeBlock?: string;
 };
 
 export type InputPort = {
@@ -35,6 +36,7 @@ export type InputPort = {
 export type OutputPort = {
     id: string;
     type: string;
+    name?: string;
     receiver?: string;
 };
 
@@ -54,11 +56,25 @@ export type LinePosition = {
 };
 
 export type NodeProperties = {
-    templateId: string;
-    name: string;
+    templateId?: string;
+    name?: string;
 };
 
 export type BalExpression = {
     expression: string;
     location: CodeLocation;
+};
+
+export type SwitchNodeProperties = NodeProperties & {
+    cases: SwitchCaseBlock[];
+    defaultCase?: DefaultCaseBlock;
+};
+
+export type SwitchCaseBlock = {
+    expression: BalExpression;
+    nodeIds: string[];
+};
+
+export type DefaultCaseBlock = {
+    nodeIds: string[];
 };
