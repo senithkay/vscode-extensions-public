@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "workspaces/eggplant/eggplant-rpc-client"
+		},
+		{
+			"path": "workspaces/eggplant/eggplant-overview"
 		}
 	],
 	"settings": {

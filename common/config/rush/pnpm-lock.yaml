@@ -1646,6 +1646,7 @@ importers:
       ts-loader: ^9.4.1
       typescript: ^5.2.2
       vscode-messenger: ^0.4.5
+      vscode-messenger-common: ^0.4.5
       webpack: ^5.56.0
       webpack-cli: ^4.10.0
       webpack-permissions-plugin: ^1.0.9
@@ -1656,6 +1657,7 @@ importers:
       '@wso2-enterprise/eggplant-webview': link:../webview
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
       vscode-messenger: 0.4.5
+      vscode-messenger-common: 0.4.5
       xstate: 4.38.3
     devDependencies:
       '@types/mocha': 10.0.4

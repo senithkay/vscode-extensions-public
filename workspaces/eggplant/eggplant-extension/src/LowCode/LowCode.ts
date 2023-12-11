@@ -39,7 +39,7 @@ export class LowCode {
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
             'lowcode',
-            'Low Code Editor',
+            'Eggplant View',
             vscode.ViewColumn.One,
             { enableScripts: true }
         );

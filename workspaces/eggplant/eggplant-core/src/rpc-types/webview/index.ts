@@ -16,6 +16,7 @@ import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { EggplantModel } from "./types";
 
 export interface WebviewAPI {
+    getState: () => Promise<string>;
     getVisualizerState: () => Promise<VisualizerLocation>;
     openVisualizerView: (params: VisualizerLocation) => void;
     getBallerinaProjectComponents: () => Promise<BallerinaProjectComponents>;

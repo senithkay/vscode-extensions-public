@@ -15,6 +15,7 @@ import {
     WebviewAPI,
     getBallerinaProjectComponents,
     getEggplantModel,
+    getState,
     getVisualizerState,
     openVisualizerView
 } from "@wso2-enterprise/eggplant-core";
@@ -26,6 +27,10 @@ export class WebviewRpcClient implements WebviewAPI {
 
     constructor(messenger: Messenger) {
         this._messenger = messenger;
+    }
+
+    getState(): Promise<string> {
+        return this._messenger.sendRequest(getState, HOST_EXTENSION);
     }
 
     getVisualizerState(): Promise<VisualizerLocation> {

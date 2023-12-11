@@ -12,29 +12,33 @@
 import React, { useEffect } from "react";
 import LowCode from './LowCode'
 import Overview from './Overview'
-// import { EggplantRpcClient } from "@wso2-enterprise/eggplant-rpc-client";
+import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
+
 
 export function Webview({ mode }: { mode: string }) {
-    // const { viewLocation, setViewLocation, eggplantRpcClient } = useVisualizerContext();
+    const { eggplantRpcClient } = useVisualizerContext();
+    const [state, setState] = React.useState('Loading');
 
-    // useEffect(() => {
-        // const rpc = new EggplantRpcClient();
-        // rpc.getWebviewRpcClient().getVisualizerState().then(res => {
-        //     console.log(res);
-        // });
-    // }, []);
+    eggplantRpcClient?.onStateChanged((newState: string) => {
+        setState(newState);
+    });
 
+    useEffect(() => {
+        if (eggplantRpcClient) {
+            eggplantRpcClient.getWebviewRpcClient().getState().then(initialState => {
+                setState(initialState);
+            });
+        }
+    }, [eggplantRpcClient]);
 
-    // const setViewLocationState = async () => {
-    //     const state = await eggplantRpcClient.getVisualizerClient().getVisualizerState();
-    //     if (state) {
-    //         setViewLocation(state);
-    //     }
-    // }
     return (
         <>
             {mode === "overview" && <Overview />}
-            {mode === "lowcode" && <LowCode />}
+            {mode === "lowcode" &&
+                <>
+                    {state === 'ready' ? <LowCode /> : <p>Loading...</p>}
+                </>
+            }
         </>
     );
 };
