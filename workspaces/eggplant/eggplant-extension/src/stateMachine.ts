@@ -3,6 +3,7 @@ import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { window } from 'vscode';
 
 interface Context extends VisualizerLocation {
     langServer: LangClientInterface | null;
@@ -10,7 +11,7 @@ interface Context extends VisualizerLocation {
 }
 
 const stateMachine = createMachine<Context>({
-    /** @xstate-layout N4IgpgJg5mDOIC5RilADgGwIYDsAuAdAJY5F5FYZEBeYAxANoAMAuoqGgPaxlGc7sQAD0QBGAGwBmAgE45cgCwAmcQA4mS9UoA0IAJ5iJBJSdEB2BWZlnJZs01UBfR7pTps+YqXKUa9BqJsSCBcPOT8giIIEtLyiipaWroGCEoArKoE6mlplpLpTAqqkgrOrqiYuIRoAE6cAFZgAMZ4ACJgeM2dEIysgqG8EcFR4rkEaUyTGkq2THaqyYZpBJZKoqqqSmaiCjKqRWXgFR6EADIAygCS3nQQ-GBeAG6cANYPbpWeF9dkCCTPTSw4RwzBYoP63EGAmGiBkygIklUaUkalEOw2qhkiwQmwIEnEUnEaKkyNU4kOHxOBG+NzANTqNQIlTwADNODUALYESlValXbx-HAAoF8EGscHBAbAyKw+GI5Go9EbLH6MRKGQEAkE0QyNQKSQ7NLOFwgHCcCBwQQ8-AQsKimUIAC04mxjuWcQ9HskFOOvJIvF8tFtUIdymxBU1iJkczh+wUEycJut1TqjRa7U6LUgwelMIQszxWtye0NZhy2JkojxiPUZa2tbS5KTvq+-LIOfteYsGoykny63E20xaQrVdENaRqnMTEkczMPvcvJqYCwEBSHEhudAUTR48L2tMxVGLtVOLHWoUl6U+qYuXnzcXnggRFgWAARhhs5LN53t4Y9-iRKHiijbhrsWS3mkFhEmku73s4QA */
+    /** @xstate-layout N4IgpgJg5mDOIC5RilADgGwIYDsAuAdAJY5F5FYZEBeYAxBAPY5jE4BujA1qwMYAWYXlwAKAJ0YArIXgDaABgC6iUGkawyRZipAAPRAGZ5AVgIBGAEzGANCACeiC-PkEjxgCwB2AJwWAHPKeBp5WAL6htijo2PhsmpQ09GBiEmIEmFh4AGaMYgC2BAJCohLSvHJKOmoa5NpIeoYm5la2DghW3gQBHj7+gcFhEeCoGbFopTIAImB4MpB0Csr11Zp1oPoIAGweBMbOzhYWwYGefq2IZmamXhZmfn4Wnmbu3n7ufuGRIzGEADIAygBJUh4BjMVgkTg8AhRUZ-IEghCQxi8TJaHCLRZVdSrHA6DbedwWVx+YwGTZ+S7ve7ec4IB7mTZM8mXTYGMl+TafYbRXDw4FkOjJVLpbDZXIFWE-AgAgV4JEcFFo5iYyrLHG1PH1AlEklkilU+5+Wn2C4WTpMplmbwU9wGZ7GblSvkEMRgLAQOx0ADyIgAogA5AD6ADVAX6AOpY9U1dE6NqUxlM9wpix2kxeWwbMz2lwvbyEgKFozucJDHCMCBwHTO-DY2NrBoIAC0mzprYI+3k7mMj3kFk28hzHyGtcIJHiVFo9dx+MQRLpVhcbONgULKb2I6+vLGE3K01m5UgM81c4QxyT2xelJ7nmMNlNCG8ZnMBnugV7pw-XNH3xdspBE8421RBPBeXY-AMAxbk5J5jQfNpn1fI1jEpTx5CMTxPCdP9YjdD02lUDVgPWC5LgMS9LBg8ljDbR9EzMS0UyJdMehwndCAgIhYCwAAjDBjxjWcQIQS4c0ow47houi2jTTpumMMDNiuMTsLLIA */
     id: 'eggplant',
     initial: 'initialize',
     context: { // Add this
@@ -112,12 +113,13 @@ const stateMachine = createMachine<Context>({
 export const stateService = interpret(stateMachine).start();
 
 // Define your API as functions
-export const api = {
+export const StateMachine = {
     initialize: () => stateService.send(''),
     projectDetected: () => stateService.send('projectDetected'),
     LSInit: () => stateService.send('LSInit'),
     ready: () => stateService.send('ready'),
     disabled: () => stateService.send('disabled'),
+    getService: () => { return stateService }
 };
 
 export function openView(viewLocation: VisualizerLocation) {
@@ -135,5 +137,31 @@ async function checkIfEggplantProject() {
     } catch (err) {
         console.error(err);
     }
+    if (!isEggplant) {
+        await window.showInformationMessage("Not an Eggplant Project.");
+    }
     return isEggplant;
+}
+
+
+export function getState(): string {
+    return stateString(stateService.getSnapshot().value);
+
+}
+
+// If the state is an object we flaten it to a string
+// This is a hack need to handle state passing properly
+export function stateString(state: any): string {
+    if (typeof state === 'string') {
+        return state;
+    } else if (typeof state === 'object') {
+        const stateString = Object.entries(state).map(([key, value]) => `${key}.${value}`).at(0);
+        if (stateString === undefined) {
+            throw Error("Undefined state");
+        } else {
+            return stateString;
+        }
+    } else {
+        throw Error("Undefined state");
+    }
 }

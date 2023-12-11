@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -26,8 +26,8 @@ export class EggplantRpcClient {
     getWebviewRpcClient(): WebviewRpcClient {
         return this._overview;
     }
-   
-    onStateChanged(callback: (state: any) => void) {
+
+    onStateChanged(callback: (state: string) => void) {
         this.messenger.onNotification({ method: 'stateChanged' }, callback);
     }
 

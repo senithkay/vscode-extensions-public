@@ -4,7 +4,7 @@ import * as path from 'path';
 import { activateActivityBarWebViews } from './ActivityBar/activate';
 import { ext } from './eggplantExtentionContext';
 import { activateLowCodeWebViews } from './LowCode/activate';
-import { api as stateMachineApi } from './stateMachine';
+import { StateMachine } from './stateMachine';
 
 
 
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 	activateActivityBarWebViews(context);
 	activateLowCodeWebViews(context);
 
-	stateMachineApi.initialize();
+	StateMachine.initialize();
 }
 
 

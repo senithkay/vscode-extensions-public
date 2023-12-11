@@ -89,29 +89,34 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         Object.keys(currentComponents)
             .filter((key) => currentComponents[key].length)
             .forEach((key) => {
-                const filteredComponents = currentComponents[key];
+                if (key === "functions" || key === "services") {
+                    const filteredComponents = currentComponents[key];
 
-                const components = filteredComponents.map((comp: ComponentViewInfo, compIndex: number) => {
-                    return (
-                        <ComponentView
-                            key={key + compIndex}
-                            info={comp}
-                            updateSelection={handleComponentSelection}
-                            type={key}
-                        />
-                    )
-                });
+                    const components = filteredComponents.map((comp: ComponentViewInfo, compIndex: number) => {
+                        if (comp.name === "main" || key === "services") {
+                            return (
+                                <ComponentView
+                                    key={key + compIndex}
+                                    info={comp}
+                                    updateSelection={handleComponentSelection}
+                                    type={key}
+                                />
+                            )
+                        }
+                    });
 
-                if (components.length === 0) return;
+                    if (components.length === 0) return;
 
-                categories.push(
-                    <CategoryContainer>
-                        <Typography variant="h2">
-                            <Capitalize>{key}</Capitalize>
-                        </Typography>
-                        <ComponentContainer>{components}</ComponentContainer>
-                    </CategoryContainer>
-                );
+                    key = key === "functions" ? "Main Function" : "Services";
+                    categories.push(
+                        <CategoryContainer>
+                            <Typography variant="h4">
+                                <Capitalize>{key}</Capitalize>
+                            </Typography>
+                            <ComponentContainer>{components}</ComponentContainer>
+                        </CategoryContainer>
+                    );
+                }
             });
     }
 

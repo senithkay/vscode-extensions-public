@@ -1,49 +1,43 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Overview as OverviewPanel } from "@wso2-enterprise/eggplant-overview";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from '@wso2-enterprise/eggplant-rpc-client';
 
-const Item = styled.div({
-    padding: '5px',
-    overflow: 'hidden',
-    '&:hover': {
-        backgroundColor: "var(--list-hover-background)"
-    },
-
-});
-
-const Method = styled.div({
-    backgroundColor: 'seagreen',
-    padding: '5px',
-    width: "35px",
-    display: "inline-block",
-    fontWeight: "bolder",
+const Header = styled.div({
+    width: "100%",
     overflow: "hidden",
-    wordWrap: "none",
-    marginTop: "5px",
-    curser: "pointer"
+
 });
 
-const Path = styled.div({
-    padding: '5px',
-    display: "inline-block",
-    fontWeight: "bolder",
-    overflow: "hidden",
-    wordWrap: "none",
-    marginTop: "5px",
-    curser: "pointer"
+const HeaderData = styled.div({
+    display: "flex",
+    justifyContent: "flex-end"
 });
-
-
 
 const Overview = () => {
+    const { eggplantRpcClient } = useVisualizerContext();
+    const handleDiagramView = () => {
+        eggplantRpcClient.getWebviewRpcClient().executeCommand('eggplant.openLowCode');
+    }
+
+    const handleHomeView = () => {
+        console.log("Home");
+    }
+
     return (
         <div>
-            {/* <h4>Services</h4>
-            <Item>/helthcare</Item>
-            <Item>
-                <Method>POST</Method>
-                <Path> /categories/[string doctorCategory]/reserve</Path>
-            </Item> */}
+            <Header>
+                <HeaderData>
+                    <VSCodeButton appearance="icon" title="Home" onClick={handleHomeView}>
+                        <Codicon name="home" />
+                    </VSCodeButton>
+                    <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleDiagramView}>
+                        <Codicon name="circuit-board" />
+                    </VSCodeButton>
+                </HeaderData>
+            </Header>
             <OverviewPanel />
         </div>
     );

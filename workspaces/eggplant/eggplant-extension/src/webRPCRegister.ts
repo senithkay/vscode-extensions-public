@@ -10,6 +10,10 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { registerWebviewRpcHandlers } from './rpc-managers/webview/rpc-handler';
+import { StateMachine } from './stateMachine';
+import { NotificationType } from "vscode-messenger-common";
+
+const stateChanged: NotificationType<any> = { method: 'stateChanged' };
 
 export class RPCLayer {
     private _messenger: Messenger = new Messenger();
@@ -20,6 +24,12 @@ export class RPCLayer {
         } else {
             this._messenger.registerWebviewView(webViewPanel as WebviewView);
         }
+
+        // Register state change notification
+        StateMachine.getService().onTransition((state) => {
+            this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'lowcode' }, stateString(state.value));
+            this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'eggplant.activity.overview' }, stateString(state.value));
+        });
 
         registerWebviewRpcHandlers(this._messenger);
     }
@@ -33,4 +43,20 @@ function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     const title = webview.title;
     const panelTitle = 'Low Code Editor';
     return title === panelTitle;
+}
+
+// If the state is an object we flaten it to a string
+function stateString(state: any): string {
+    if (typeof state === 'string') {
+        return state;
+    } else if (typeof state === 'object') {
+        const stateString = Object.entries(state).map(([key, value]) => `${key}.${value}`).at(0);
+        if (stateString === undefined) {
+            throw Error("Undefined state");
+        } else {
+            return stateString;
+        }
+    } else {
+        throw Error("Undefined state");
+    }
 }

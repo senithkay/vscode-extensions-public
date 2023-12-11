@@ -12,29 +12,59 @@
 import React, { useEffect } from "react";
 import LowCode from './LowCode'
 import Overview from './Overview'
-// import { EggplantRpcClient } from "@wso2-enterprise/eggplant-rpc-client";
+import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
+import styled from "@emotion/styled";
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react"
 
 export function Webview({ mode }: { mode: string }) {
-    // const { viewLocation, setViewLocation, eggplantRpcClient } = useVisualizerContext();
+    const { eggplantRpcClient } = useVisualizerContext();
+    const [state, setState] = React.useState('Loading');
 
-    // useEffect(() => {
-        // const rpc = new EggplantRpcClient();
-        // rpc.getWebviewRpcClient().getVisualizerState().then(res => {
-        //     console.log(res);
-        // });
-    // }, []);
+    eggplantRpcClient?.onStateChanged((newState: string) => {
+        setState(newState);
+    });
 
+    useEffect(() => {
+        if (eggplantRpcClient) {
+            eggplantRpcClient.getWebviewRpcClient().getState().then(initialState => {
+                setState(initialState);
+            });
+        }
+    }, [eggplantRpcClient]);
 
-    // const setViewLocationState = async () => {
-    //     const state = await eggplantRpcClient.getVisualizerClient().getVisualizerState();
-    //     if (state) {
-    //         setViewLocation(state);
-    //     }
-    // }
+    const LoaderContainer = styled.div({
+        width: "100%",
+        overflow: "hidden",
+        height: "100vh",
+        display: "grid"
+    });
+
+    const LoaderContent = styled.div({
+        margin: "auto"
+    });
+
+    const Loader = () => {
+        return (
+            <LoaderContainer>
+                <LoaderContent>
+                    <VSCodeProgressRing style={{ height: 24 }} />
+                </LoaderContent>
+            </LoaderContainer>
+        )
+    }
+
     return (
         <>
-            {mode === "overview" && <Overview />}
-            {mode === "lowcode" && <LowCode />}
+            {mode === "overview" &&
+                <>
+                    {state === 'ready' ? <Overview /> : <Loader />}
+                </>
+            }
+            {mode === "lowcode" &&
+                <>
+                    {state === 'ready' ? <LowCode /> : <Loader />}
+                </>
+            }
         </>
     );
 };
