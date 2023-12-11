@@ -6,73 +6,45 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useState } from 'react';
-import { Button, Codicon, TextField, Dropdown } from '@wso2-enterprise/ui-toolkit';
+import React from 'react';
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { ConstructorPanel } from '../ConstructorPanel';
+import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { useVisualizerContext } from '@wso2-enterprise/eggplant-rpc-client';
 
-export function TitleBar() {
+export function TitleBar(props: { clearSelection: () => void }) {
+    const { eggplantRpcClient } = useVisualizerContext();
 
-    const [isPanelOpen, setPanelOpen] = useState(false);
+    const TitleBar = styled.div({
+        width: "100%",
+        overflow: "hidden",
 
-    const openPanel = () => {
-        setPanelOpen(!isPanelOpen);
-    };
+    });
 
-    const TitleBar = styled.div`
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 56px;
-        box-shadow: inset 0 -1px 0 0 var(--vscode-panel-border);
-    `;
+    const HeaderData = styled.div({
+        display: "flex",
+        justifyContent: "flex-end"
+    });
 
-    const InputContainer = styled.div`
-        display: flex;
-        width: 48%;
-    `;
+    const handleDiagramView = () => {
+        eggplantRpcClient.getWebviewRpcClient().executeCommand('eggplant.openLowCode');
+    }
 
-    const ComponentButton = styled.div`
-        margin-right: 20px;
-    `;
+    const handleHomeView = () => {
+        props.clearSelection();
+    }
 
     return (
         <TitleBar>
-            <InputContainer>
-                <div
-                    style={{
-                        minWidth: 100,
-                        marginRight: 20
-                    }}
-                >
-                    <Dropdown
-                        id="file-select"
-                        items={[{ value: "All" }, { value: "main.bal" }, { value: "test.bal" }]}
-                        label="File"
-                        onChange={() => { }}
-                        value="All"
-                        sx={{ width: 200 }}
-                    />
-                </div>
-
-                <TextField
-                    icon={{
-                        iconComponent: <Codicon name="search" sx={{ cursor: 'auto' }} />,
-                        position: 'end'
-                    }}
-                    onChange={null}
-                    placeholder="Search Component"
-                    label="Search Component"
-                    value=""
-                />
-            </InputContainer>
-
-            <ComponentButton>
-                <Button onClick={openPanel} appearance="primary" tooltip='Add Construct'>
-                    <Codicon name="add" sx={{ marginRight: 5 }} /> Component
-                </Button>
-            </ComponentButton>
-            {isPanelOpen && <ConstructorPanel isPanelOpen={isPanelOpen} setPanelOpen={setPanelOpen} />}
+            <HeaderData>
+                <VSCodeButton appearance="icon" title="Home" onClick={handleHomeView} style={{ "margin-right": "5px" }}>
+                    <Codicon name="home" />
+                </VSCodeButton>
+                <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleDiagramView}>
+                    <Codicon name="circuit-board" />
+                </VSCodeButton>
+            </HeaderData>
+            <VSCodeDivider />
         </TitleBar>
     );
 }

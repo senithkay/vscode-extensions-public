@@ -13,6 +13,7 @@ import {
     executeCommand,
     getBallerinaProjectComponents,
     getEggplantModel,
+    getSTNodeFromLocation,
     getState,
     getVisualizerState,
     openVisualizerView
@@ -28,4 +29,5 @@ export function registerWebviewRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getBallerinaProjectComponents, () => rpcManger.getBallerinaProjectComponents());
     messenger.onRequest(getEggplantModel, () => rpcManger.getEggplantModel());
     messenger.onNotification(executeCommand, (args: string) => rpcManger.executeCommand(args));
+    messenger.onRequest(getSTNodeFromLocation, (args: VisualizerLocation) => rpcManger.getSTNodeFromLocation(args));
 }

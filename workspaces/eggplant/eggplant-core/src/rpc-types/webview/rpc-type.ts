@@ -11,6 +11,7 @@
 import { VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { EggplantModel } from "./types";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "webview";
@@ -20,3 +21,4 @@ export const openVisualizerView: NotificationType<VisualizerLocation> = { method
 export const getBallerinaProjectComponents: RequestType<void, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };
 export const getEggplantModel: RequestType<void, EggplantModel> = { method: `${_preFix}/getEggplantModel` };
 export const executeCommand: NotificationType<string> = { method: `${_preFix}/executeCommand` };
+export const getSTNodeFromLocation: RequestType<VisualizerLocation, STNode> = { method: `${_preFix}/getSTNodeFromLocation` };

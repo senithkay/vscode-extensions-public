@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@types/vscode-webview": "^1.57.3",
+    "@wso2-enterprise/syntax-tree": "workspace:*",
     "@wso2-enterprise/eggplant-core": "workspace:*",
     "@wso2-enterprise/ballerina-core": "workspace:*",
     "react": "^18.2.0",

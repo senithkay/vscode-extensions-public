@@ -15,7 +15,7 @@ import { Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 
 export interface ComponentViewInfo {
@@ -45,7 +45,7 @@ export type ComponentCollection = {
 // shows a view that includes document/project symbols(functions, records, etc.)
 // you can switch between files in the project and view the symbols in eachfile
 // when you select a symbol, it will show the symbol's visualization in the diagram view
-export function ComponentListView(props: { currentComponents: ComponentCollection | any }) {
+export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<any> }) {
 
     const { eggplantRpcClient } = useVisualizerContext();
     const categories: React.ReactElement[] = [];
@@ -82,7 +82,10 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                 position: info.position
             }
         }
-        await eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
+        const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
+        if (STKindChecker.isServiceDeclaration(serviceST)) {
+            props.setSelectedComponent(serviceST);
+        }
     }
 
     if (currentComponents) {

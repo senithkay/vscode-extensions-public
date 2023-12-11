@@ -8,16 +8,17 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+import { BallerinaFunctionSTRequest, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import {
     EggplantModel,
     LangClientInterface,
     VisualizerLocation,
     WebviewAPI
 } from "@wso2-enterprise/eggplant-core";
-import { workspace, commands } from "vscode";
+import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Uri, commands, workspace } from "vscode";
 import { getState, openView, stateService } from "../../stateMachine";
-import { handleVisualizerView } from "../../utils/navigation";
+import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
 
 export class WebviewRpcManager implements WebviewAPI {
 
@@ -135,4 +136,28 @@ export class WebviewRpcManager implements WebviewAPI {
     executeCommand(params: string): void {
         commands.executeCommand(params);
     }
+
+    async getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
+        const location = params.location;
+        const req: BallerinaFunctionSTRequest = {
+            documentIdentifier: { uri: Uri.file(location!.fileName).toString() },
+            lineRange: {
+                start: {
+                    line: location?.position.startLine as number,
+                    character: location?.position.startColumn as number
+                },
+                end: {
+                    line: location?.position.endLine as number,
+                    character: location?.position.endColumn as number
+                }
+            }
+        };
+        const node = await getSyntaxTreeFromPosition(req);
+        return new Promise((resolve) => {
+            if (node.parseSuccess) {
+                resolve(node.syntaxTree);
+            }
+        });
+    }
+
 }
