@@ -9,16 +9,15 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import {
+    BallerinaProjectComponents,
+    EggplantModel,
     VisualizerLocation,
     WebviewAPI,
-    getVisualizerState,
-    openVisualizerView,
-    getBallerinaProjectComponents
-    EggplantModel,
+    getBallerinaProjectComponents,
     getEggplantModel,
-    getHelloWorld
+    getVisualizerState,
+    openVisualizerView
 } from "@wso2-enterprise/eggplant-core";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -41,5 +40,7 @@ export class WebviewRpcClient implements WebviewAPI {
         return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION);
     }
 
-
+    getEggplantModel(): Promise<EggplantModel> {
+        return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
+    }
 }

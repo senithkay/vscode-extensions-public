@@ -8,15 +8,16 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import {
     LangClientInterface,
     VisualizerLocation,
     WebviewAPI,
+    EggplantModel
 } from "@wso2-enterprise/eggplant-core";
+import { workspace } from "vscode";
 import { openView, stateService } from "../../stateMachine";
 import { handleVisualizerView } from "../../utils/navigation";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { workspace } from "vscode";
 
 export class WebviewRpcManager implements WebviewAPI {
 
