@@ -8,7 +8,13 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+<<<<<<< HEAD
 import { BallerinaFunctionSTRequest, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+=======
+
+import * as vscode from "vscode";
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+>>>>>>> Update api
 import {
     EggplantModel,
     LangClientInterface,
@@ -31,6 +37,8 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     openVisualizerView(params: VisualizerLocation): void {
+        // trigger eggplant.openLowCode command
+        vscode.commands.executeCommand("eggplant.openLowCode");
         openView(params);
     }
 
@@ -77,7 +85,6 @@ export class WebviewRpcManager implements WebviewAPI {
 
         }
         return langClient.getEggplantModel(params).then((model) => {
-            //@ts-ignore
             return model.workerDesignModel;
         }).catch((error) => {
             throw new Error(error);
