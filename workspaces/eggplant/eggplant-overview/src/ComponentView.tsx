@@ -76,13 +76,13 @@ export function ComponentView(props: ComponentViewProps) {
                 borderRadius: 5,
                 cursor: isComponentAllowed() ? 'cursor' : 'not-allowed',
                 display: 'flex',
-                height: 25,
+                height: 15,
                 justifyContent: 'space-between',
                 marginBottom: 16,
                 marginRight: 16,
                 padding: 10,
                 transition: '0.3s',
-                width: 200
+                width: "100%"
             }}
         >
             <Icon name={iconNameTranslator(type)} />

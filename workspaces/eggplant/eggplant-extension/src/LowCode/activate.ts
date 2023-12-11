@@ -13,16 +13,17 @@
 import * as vscode from 'vscode';
 import { LowCode } from './LowCode';
 
-let currentPanel: LowCode;
-
 export function activateLowCodeWebViews(context: vscode.ExtensionContext) {
-    if (!currentPanel) {
-        currentPanel = new LowCode();
+    if (!LowCode.currentPanel) {
+        LowCode.currentPanel = new LowCode();
     }
 
     context.subscriptions.push(
         vscode.commands.registerCommand('eggplant.openLowCode', () => {
-            currentPanel.getWebview()?.reveal();
+            if (!LowCode.currentPanel) {
+                LowCode.currentPanel = new LowCode();
+            }
+            LowCode.currentPanel!.getWebview()?.reveal();
         })
     );
 }

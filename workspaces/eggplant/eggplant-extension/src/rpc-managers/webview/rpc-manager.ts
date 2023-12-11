@@ -22,7 +22,6 @@ export class WebviewRpcManager implements WebviewAPI {
 
     async getVisualizerState(): Promise<VisualizerLocation> {
         const snapshot = stateService.getSnapshot();
-        snapshot.context.langServer = null;
         return new Promise((resolve) => {
             resolve(snapshot.context);
         });

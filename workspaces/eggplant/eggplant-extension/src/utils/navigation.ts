@@ -5,19 +5,21 @@ import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "vscode";
 
 
-export async function getSyntaxTreeFromPosition(position: BallerinaFunctionSTRequest){
-   return await stateService.getSnapshot().context.langServer!.getSTByRange(position) as BallerinaSTModifyResponse;
+export async function getSyntaxTreeFromPosition(position: BallerinaFunctionSTRequest) {
+    const context = stateService.getSnapshot();
+    const langServer = context.context.langServer!;
+    return await langServer.getSTByRange(position) as BallerinaSTModifyResponse;
 }
 
 export async function handleVisualizerView(location: NodeLocation) {
     const req: BallerinaFunctionSTRequest = {
         documentIdentifier: { uri: Uri.file(location.fileName).toString() },
         lineRange: {
-            start : {
+            start: {
                 line: location.position.startLine as number,
                 character: location.position.startColumn as number
             },
-            end : {
+            end: {
                 line: location.position.endLine as number,
                 character: location.position.endColumn as number
             }
