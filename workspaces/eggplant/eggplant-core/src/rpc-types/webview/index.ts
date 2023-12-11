@@ -21,4 +21,5 @@ export interface WebviewAPI {
     openVisualizerView: (params: VisualizerLocation) => void;
     getBallerinaProjectComponents: () => Promise<BallerinaProjectComponents>;
     getEggplantModel: () => Promise<EggplantModel>;
+    executeCommand: (params: string) => void;
 }

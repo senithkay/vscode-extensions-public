@@ -19,3 +19,4 @@ export const getVisualizerState: RequestType<void, VisualizerLocation> = { metho
 export const openVisualizerView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openVisualizerView` };
 export const getBallerinaProjectComponents: RequestType<void, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };
 export const getEggplantModel: RequestType<void, EggplantModel> = { method: `${_preFix}/getEggplantModel` };
+export const executeCommand: NotificationType<string> = { method: `${_preFix}/executeCommand` };

@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Overview as OverviewPanel } from "@wso2-enterprise/eggplant-overview";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from '@wso2-enterprise/eggplant-rpc-client';
 
 const Header = styled.div({
     width: "100%",
@@ -16,9 +17,9 @@ const HeaderData = styled.div({
 });
 
 const Overview = () => {
-
+    const { eggplantRpcClient } = useVisualizerContext();
     const handleDiagramView = () => {
-        console.log("BACK");
+        eggplantRpcClient.getWebviewRpcClient().executeCommand('eggplant.openLowCode');
     }
 
     const handleHomeView = () => {

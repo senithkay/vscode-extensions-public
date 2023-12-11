@@ -13,6 +13,7 @@ import {
     EggplantModel,
     VisualizerLocation,
     WebviewAPI,
+    executeCommand,
     getBallerinaProjectComponents,
     getEggplantModel,
     getState,
@@ -47,5 +48,9 @@ export class WebviewRpcClient implements WebviewAPI {
 
     getEggplantModel(): Promise<EggplantModel> {
         return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
+    }
+
+    executeCommand(params: string): void {
+        return this._messenger.sendNotification(executeCommand, HOST_EXTENSION, params);
     }
 }
