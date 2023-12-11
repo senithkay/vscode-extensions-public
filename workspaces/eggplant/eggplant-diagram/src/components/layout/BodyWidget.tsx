@@ -47,7 +47,6 @@ namespace S {
 
 export function BodyWidget(props: BodyWidgetProps) {
     const { engine, flowModel, onModelChange } = props;
-    console.log("bodyWidgetFlowModel", flowModel);
 
     const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
@@ -100,7 +99,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                     onDrop={handleDrop}
                     onDragOver={(event) => {
                         event.preventDefault();
-                    }} 
+                    }}
                 >
                     <DiagramCanvasWidget>
                         <CanvasWidget engine={engine} />

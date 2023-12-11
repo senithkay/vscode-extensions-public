@@ -77,7 +77,6 @@ const model: Flow = {
     ],
 };
 
-
 const LowCode = () => {
     const [flowModel, setModel] = useState<Flow>(model);
 

@@ -11,7 +11,7 @@ import React, { useState, useEffect } from "react";
 import { DiagramEngine, DiagramModel, LinkModel, LinkModelGenerics, NodeModel, PortModel } from "@projectstorm/react-diagrams";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
-import { generateDiagramModelFromFlowModel, generateEngine, getUpdatedModelForLinks, removeOverlay, generateFlowModelFromDiagramModel } from "./utils";
+import { generateDiagramModelFromFlowModel, generateEngine, removeOverlay, generateFlowModelFromDiagramModel } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { set } from "lodash";
 import { BaseEntityEvent, BaseEvent } from "@projectstorm/react-canvas-core";
@@ -37,7 +37,6 @@ export function EggplantApp(props: EggplantAppProps) {
         model.addLayer(new OverlayLayerModel());
 
         generateDiagramModelFromFlowModel(model, flowModel);
-
 
         diagramEngine.setModel(model);
 
