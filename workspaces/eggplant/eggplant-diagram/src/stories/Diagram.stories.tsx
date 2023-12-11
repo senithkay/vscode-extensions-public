@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { EggplantApp, Flow } from "../index";
 
@@ -16,7 +16,20 @@ export default {
     component: EggplantApp,
 } as Meta;
 
-const Template: Story = (args: any) => <EggplantApp {...args} />;
+
+
+const Template: Story = (args: {flowModel: Flow}) => {
+    
+
+    const [flowModel, setModel] = useState(args.flowModel);
+
+    const onModelChange = (model: Flow) => {
+      setModel(model);
+    };
+    
+    return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
+           
+};
 
 export const Blank = Template.bind({});
 Blank.args = {
