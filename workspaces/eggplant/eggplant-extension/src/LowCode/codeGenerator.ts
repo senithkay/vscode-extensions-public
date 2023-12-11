@@ -1,8 +1,5 @@
 
-import { STModification } from "@wso2-enterprise/ballerina-core";
-import { LangClientInterface } from "@wso2-enterprise/eggplant-core";
-import { Flow, SwitchNodeProperties } from "@wso2-enterprise/eggplant-diagram";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { BalExpression, Flow, SwitchCaseBlock, SwitchNodeProperties } from "@wso2-enterprise/eggplant-diagram";
 
 export function workerCodeGen(model: Flow) {
     const NODE = "Node";
@@ -29,35 +26,43 @@ export function workerCodeGen(model: Flow) {
         if (node.templateId === "switch") {
             // define the switch case block
             let switchCaseBlock: string = "";
-            const switchBlockProper: SwitchNodeProperties = node.properties as SwitchNodeProperties;
-            switchBlockProper.cases.forEach(switchCase => {
+            const switchProperties: SwitchNodeProperties = node.properties as SwitchNodeProperties;
+            switchProperties.cases.forEach((switchCase : SwitchCaseBlock) => {
                 let outputPort: string = "";
                 // check the index of switchCase node
-                const index = switchBlockProper.cases.indexOf(switchCase);
-                switchCase.nodeIds.forEach(nodeId => {
+                const index = switchProperties.cases.indexOf(switchCase);
+                switchCase.nodes.forEach(nodeId => {
                     // find the port matching the nodeId from outputPorts
                     const port = node.outputPorts.find(port => port.id === nodeId);
                     // x1 -> B;
                     outputPort += `${port?.name} -> ${port?.receiver};\n`;
                 });
 
+                // check if the switchcase.expression is a string or a bal expression
+                let expression: string;
+                if (typeof switchCase.expression === 'string' ) {
+                    expression = switchCase.expression;
+                } else {
+                    expression = (switchCase.expression as BalExpression).expression;
+                }
+
                 if(index === 0) {
                     switchCaseBlock += `
-                    if(${switchCase.expression.expression}) {
-                        ${outputPort};
+                    if(${expression}) {
+                        ${outputPort}
                     }\n
                 `;
                 } else {
                     switchCaseBlock += `
-                    else if(${switchCase.expression.expression}) {
-                        ${outputPort};
+                    else if(${expression}) {
+                        ${outputPort}
                     }\n
                 `;
                 }
 
             });
 
-            switchBlockProper.defaultCase?.nodeIds.forEach(nodeId => {
+            switchProperties.defaultCase?.nodes.forEach(nodeId => {
                 // find the port matching the nodeId from outputPorts
                 const port = node.outputPorts.find(port => port.id === nodeId);
                 // x1 -> B;
@@ -72,8 +77,8 @@ export function workerCodeGen(model: Flow) {
                 @display {
                     label: "${NODE}",
                     templateId: "${node.templateId}",
-                    xCord: ${node.canvasPosition.x},
-                    yCord: ${node.canvasPosition.y}
+                    xCord: ${node.canvasPosition?.x},
+                    yCord: ${node.canvasPosition?.y}
                 }
                 worker ${node.name} {
                     ${inputPorts}
@@ -86,8 +91,8 @@ export function workerCodeGen(model: Flow) {
             @display {
                 label: "${NODE}",
                 templateId: "${node.templateId}",
-                xCord: ${node.canvasPosition.x},
-                yCord: ${node.canvasPosition.y}
+                xCord: ${node.canvasPosition?.x},
+                yCord: ${node.canvasPosition?.y}
             }
             worker ${node.name} {
                 ${inputPorts}
