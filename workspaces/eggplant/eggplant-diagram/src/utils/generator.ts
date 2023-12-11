@@ -114,18 +114,19 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
         const inPorts: InputPort[] = [];
         const outPorts: OutputPort[] = [];
         defaultNode.getInPorts().forEach((port) => {
+            const receiverPortModel = port.getOptions().port;
             Object.values(port.getLinks()).forEach((link) => {
                 const sourcePortID = link.getSourcePort()?.getID();
                 diagramModel.getNodes().forEach((node) => {
                     //get the matching node for portID
-                    const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
+                    const defaultNode = node as DefaultNodeModel;
                     defaultNode.getOutPorts().forEach((port) => {
-                        const nodePort = port.getOptions().port;
+                        const senderPortModel = port.getOptions().port;
                         if (port.getID() === sourcePortID) {
                             inPorts.push({
-                                id: nodePort?.id || port.getID(),
-                                type: nodePort?.type || defaultMsgType,
-                                name: nodePort?.name || port.getName(),
+                                id: receiverPortModel?.id || port.getID(),
+                                type: senderPortModel?.type || defaultMsgType,
+                                name: senderPortModel?.name || port.getName(),
                                 sender: defaultNode.getName(),
                             });
                         }
@@ -134,18 +135,19 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
             });
         });
         defaultNode.getOutPorts().forEach((port) => {
+            const senderPortModel = port.getOptions().port;
             Object.values(port.getLinks()).forEach((link) => {
                 const targetPortID = link.getTargetPort()?.getID();
                 diagramModel.getNodes().forEach((node) => {
                     //get the matching node for portID
-                    const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
+                    const defaultNode = node as DefaultNodeModel;
                     defaultNode.getInPorts().forEach((port) => {
-                        const nodePort = port.getOptions().port;
+                        const receiverPortMode = port.getOptions().port;
                         if (port.getID() === targetPortID) {
                             outPorts.push({
-                                id: port.getID(),
-                                type: nodePort?.type || defaultMsgType,
-                                name: nodePort?.name || port.getName(),
+                                id: senderPortModel?.id || port.getID(),
+                                type: receiverPortMode?.type || defaultMsgType,
+                                name: receiverPortMode?.name || port.getName(),
                                 receiver: defaultNode.getName(),
                             });
                         }

@@ -17,12 +17,12 @@ export type Flow = {
 export type Node = {
     id?: string;
     name: string;
-    templateId: string;
+    templateId?: string;
     inputPorts: InputPort[];
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
-    canvasPosition: CanvasPosition;
-    properties?: NodeProperties;
+    canvasPosition?: CanvasPosition;
+    properties?: SwitchNodeProperties;
     codeBlock?: string;
 };
 
@@ -60,21 +60,21 @@ export type NodeProperties = {
     name?: string;
 };
 
-export type BalExpression = {
-    expression: string;
-    location: CodeLocation;
-};
-
 export type SwitchNodeProperties = NodeProperties & {
     cases: SwitchCaseBlock[];
     defaultCase?: DefaultCaseBlock;
 };
 
 export type SwitchCaseBlock = {
-    expression: BalExpression;
-    nodeIds: string[];
+    expression: string | BalExpression;
+    nodes: string[];
+};
+
+export type BalExpression = {
+    expression: string;
+    location: CodeLocation;
 };
 
 export type DefaultCaseBlock = {
-    nodeIds: string[];
+    nodes: string[];
 };

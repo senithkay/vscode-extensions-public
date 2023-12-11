@@ -12,7 +12,7 @@ import { NODE_TYPE } from "../resources/constants";
 import { Node } from "../types";
 
 // get custom default node factory
-export function getNode(type: string, suffix?: string) {
+export function getNodeModel(type: string, suffix?: string) {
     const name = type + "_" + suffix;
     let nodeModel = new DefaultNodeModel({ name: name, kind: type });
 
@@ -48,10 +48,30 @@ export function getNode(type: string, suffix?: string) {
             emptyNode.templateId = NODE_TYPE.END;
             break;
         case NODE_TYPE.SWITCH:
-            nodeModel.addInPort("in");
-            nodeModel.addOutPort("out-1");
-            nodeModel.addOutPort("out-2");
+            nodeModel.addInPort("in", {
+                id: "in",
+                type: "any",
+            });
+            nodeModel.addOutPort("out-1", {
+                id: "out-1",
+                type: "any",
+            });
+            nodeModel.addOutPort("out-2", {
+                id: "out-2",
+                type: "any",
+            });
             emptyNode.templateId = NODE_TYPE.SWITCH;
+            emptyNode.properties = {
+                cases: [
+                    {
+                        expression: "true",
+                        nodes: ["out-1"],
+                    },
+                ],
+                defaultCase: {
+                    nodes: ["out-2"],
+                },
+            };
             break;
         default:
             nodeModel.addInPort("in");

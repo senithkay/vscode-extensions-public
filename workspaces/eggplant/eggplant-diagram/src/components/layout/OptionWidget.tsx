@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Colors, NODE_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
 import { TextField, Button, TextArea, Icon } from "@wso2-enterprise/ui-toolkit";
-import { Flow, Node } from "../../types";
+import { Flow, Node, SwitchCaseBlock } from "../../types";
 
 export interface OptionWidgetProps {
     selectedNode: DefaultNodeModel;
@@ -48,12 +48,12 @@ namespace S {
 export function OptionWidget(props: OptionWidgetProps) {
     const { selectedNode, children, setSelectedNode, updateFlowModel } = props;
     // clone the node
-    let node = JSON.parse(JSON.stringify(selectedNode.getOptions().node as Node));
+    let node = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
 
     return (
         <S.Tray>
             <S.TitleContainer>
-                <S.Title>Configure</S.Title>
+                <S.Title>Configuration</S.Title>
                 <Icon
                     name="close"
                     onClick={() => {
@@ -82,6 +82,24 @@ export function OptionWidget(props: OptionWidgetProps) {
                     }}
                 />
             )}
+            {selectedNode.getKind() === NODE_TYPE.SWITCH &&
+                node.properties?.cases?.map((caseBlock: SwitchCaseBlock, index: number) => {
+                    return (
+                        <div key={index}>
+                            <TextArea
+                                label={`Case ${index + 1}`}
+                                value={caseBlock.expression.toString() || ""}
+                                rows={2}
+                                resize="vertical"
+                                onChange={(value: string) => {
+                                    if (node) {
+                                        node.properties.cases[index].expression = value;
+                                    }
+                                }}
+                            />
+                        </div>
+                    );
+                })}
             <Button
                 onClick={() => {
                     selectedNode.setNode(node);
