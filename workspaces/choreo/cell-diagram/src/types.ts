@@ -150,3 +150,13 @@ export enum DiagramLayer {
     OBSERVABILITY = "observability",
     DIFF = "diff",
 }
+
+export interface CustomTooltips {
+    diagramLayers: DiagramLayerTooltips;
+}
+
+export interface DiagramLayerTooltips {
+    staticLayer?: string;
+    runtimeLayer?: string;
+    diffLayer?: string;
+}

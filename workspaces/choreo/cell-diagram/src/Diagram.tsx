@@ -23,7 +23,7 @@ import { DiagramControls, OverlayLayerModel, CellDiagramContext, PromptScreen, C
 import { Colors, DIAGRAM_END, MAIN_CELL, NO_CELL_NODE } from "./resources";
 import { Container, DiagramContainer, useStyles } from "./utils/CanvasStyles";
 import { NavigationWrapperCanvasWidget } from "@wso2-enterprise/ui-toolkit";
-import { DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "./types";
+import { CustomTooltips, DiagramLayer, MoreVertMenuItem, ObservationSummary, Project } from "./types";
 import { CellModel } from "./components/Cell/CellNode/CellModel";
 import { DiagramLayers } from "./components/Controls/DiagramLayers";
 import { DiagramLegend } from "./components/Controls/DiagramLegend";
@@ -38,11 +38,12 @@ export interface CellDiagramProps {
     showControls?: boolean;
     animation?: boolean;
     defaultDiagramLayer?: DiagramLayer;
+    customTooltips?: CustomTooltips;
     onComponentDoubleClick?: (componentId: string) => void;
 }
 
 export function CellDiagram(props: CellDiagramProps) {
-    const { project, componentMenu, showControls = true, animation = true, defaultDiagramLayer = DiagramLayer.ARCHITECTURE, onComponentDoubleClick } = props;
+    const { project, componentMenu, showControls = true, animation = true, defaultDiagramLayer = DiagramLayer.ARCHITECTURE, customTooltips, onComponentDoubleClick } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
@@ -233,7 +234,7 @@ export function CellDiagram(props: CellDiagramProps) {
                                 focusedNode={diagramEngine?.getModel()?.getNode(focusedNodeId)}
                             />
                             {showControls && <DiagramControls engine={diagramEngine} animation={animation} />}
-                            {showDiagramLayers && <DiagramLayers animation={animation} />}
+                            {showDiagramLayers && <DiagramLayers animation={animation} tooltips={customTooltips?.diagramLayers} />}
                             {showDiagramLayers && <DiagramLegend animation={animation} />}
                         </>
                     ) : userMessage ? (

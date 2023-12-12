@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import gsap from "gsap";
 import { useDiagramContext } from "../DiagramContext/DiagramContext";
 import { Colors, DiagramIcon, DiffIcon, LayersIcon, ObservationIcon } from "../../resources";
-import { DiagramLayer } from "../../types";
+import { DiagramLayer, DiagramLayerTooltips } from "../../types";
 import { CanvasControlButton } from "./ControlButtons/ControlButton";
 import { LayerButton } from "./LayerButton";
 
@@ -71,10 +71,11 @@ export const LayerIcon: React.FC<any> = styled.div`
 
 interface DiagramLayersProps {
     animation?: boolean;
+    tooltips?: DiagramLayerTooltips;
 }
 
 export function DiagramLayers(props: DiagramLayersProps) {
-    const { animation = true } = props;
+    const { animation = true, tooltips } = props;
     const {
         diagramLayers: { addLayer, removeLayer, hasLayer, activeLayers },
     } = useDiagramContext();
@@ -138,6 +139,7 @@ export function DiagramLayers(props: DiagramLayersProps) {
                         clickable={hasLayer(DiagramLayer.ARCHITECTURE) ? canRemoveLayer : true}
                         tooltipTitle={"Toggle static architecture layer"}
                         tooltipDescription={
+                            tooltips?.staticLayer ||
                             "Visualize the static architecture defined in the component-config.yaml file. This layer represents the intended architecture of the system and shows the connections between components as specified by the user."
                         }
                     >
@@ -152,6 +154,7 @@ export function DiagramLayers(props: DiagramLayersProps) {
                         clickable={hasLayer(DiagramLayer.OBSERVABILITY) ? canRemoveLayer : true}
                         tooltipTitle={"Toggle runtime architecture layer"}
                         tooltipDescription={
+                            tooltips?.runtimeLayer ||
                             "Visualize the runtime architecture of the system. This layer represents the actual runtime architecture of the system and shows the connections between components based on observability data."
                         }
                     >
@@ -166,6 +169,7 @@ export function DiagramLayers(props: DiagramLayersProps) {
                         clickable={hasLayer(DiagramLayer.DIFF) ? canRemoveLayer : true}
                         tooltipTitle={"Toggle architectural drift layer"}
                         tooltipDescription={
+                            tooltips?.diffLayer ||
                             "Detect architectural drift by comparing the static and runtime architecture layers. This layer highlights the differences between the static and runtime architecture layers, allowing you to identify architectural drift."
                         }
                     >

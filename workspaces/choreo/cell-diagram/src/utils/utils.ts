@@ -215,7 +215,6 @@ export function animateDiagram() {
     safeAnimate(
         `g[data-linkid^="${EXTERNAL_LINK}|"]`,
         {
-            scale: 0,
             opacity: 0,
             duration: 0.5,
         },
@@ -501,16 +500,15 @@ function getObservationSummary(project: Project): ObservationSummary {
                 const service = component.services[serviceId];
                 calculateRequestCount(service.deploymentMetadata?.gateways.internet.observations);
                 calculateRequestCount(service.deploymentMetadata?.gateways.intranet.observations);
-                if (component.connections.length > 0) {
-                    component.connections.forEach((connection) => {
-                        calculateRequestCount(connection.observations);
-                    });
-                }
             }
         }
+        if (component.connections.length > 0) {
+            component.connections.forEach((connection) => {
+                calculateRequestCount(connection.observations);
+            });
+        }
     });
-
-    return { requestCount: { max: maxRequestCount, min: minRequestCount === Infinity ? 0 : minRequestCount } };
+    return { requestCount: { max: maxRequestCount, min: 0 } };
 }
 
 // Links generation utils
@@ -605,7 +603,6 @@ function generateConnectionLinks(emptyNodes: Map<string, EmptyModel>, connection
         }
         const sourcePort: CellPortModel | null = eastboundEmptyNode.getPort(getNodePortId(eastboundEmptyNode.getID(), PortModelAlignment.RIGHT));
         const targetPort: ConnectionPortModel | null = connectionNode.getPort(`left-${connectionNode.getID()}`);
-        console.log("targetPort", targetPort);
 
         if (sourcePort && targetPort) {
             const linkId = getExternalLinkName(sourcePort.getID(), targetPort.getID());

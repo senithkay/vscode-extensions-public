@@ -434,3 +434,161 @@ ObservationsNDiff.args = {
         modelVersion: "0.4.0",
     },
 };
+
+export const Sample: Story = (args: CellDiagramProps) => (
+    <Container>
+        <CellDiagram {...args} />
+    </Container>
+);
+
+Sample.args = {
+    defaultDiagramLayer: "diff",
+    customTooltips: {
+        diagramLayers: {
+            diffLayer: "Diff Layer description",
+        }
+    },
+    project: {
+        id: "owto",
+        name: "TaskNest",
+        components: [
+            {
+                id: "kcqhen",
+                label: "status-checker",
+                version: "",
+                type: "scheduled-task",
+                buildPack: "other",
+                services: {},
+                connections: [
+                    {
+                        id: "kanushkagayan:owto:rkpusf:1756e",
+                        onPlatform: true,
+                        observations: [
+                            {
+                                componentVersion: "v1.0",
+                                avgLatency: 3277272,
+                                destinationNodeId: 1,
+                                errorCount: 2,
+                                p50Latency: 1733466,
+                                p90Latency: 4660686,
+                                p99Latency: 37304208,
+                                requestCount: 376,
+                                sourceNodeId: 2,
+                            },
+                        ],
+                    },
+                    {
+                        id: "kanushkagayan:owto:nkgkqe:ENDPOINT_HASH",
+                        type: "http",
+                        observations: [
+                            {
+                                componentVersion: "v1.0",
+                                avgLatency: 1077694,
+                                destinationNodeId: 3,
+                                errorCount: 0,
+                                p50Latency: 778138,
+                                p90Latency: 1550248,
+                                p99Latency: 6553767,
+                                requestCount: 230,
+                                sourceNodeId: 2,
+                            },
+                        ],
+                        observationOnly: true,
+                    },
+                ],
+            },
+            {
+                id: "rkpusf",
+                label: "todo-service",
+                version: "v1.0",
+                type: "service",
+                buildPack: "other",
+                services: {
+                    "Kanushka Gayan:owto:rkpusf:Todo Service": {
+                        id: "Kanushka Gayan:owto:rkpusf:Todo Service",
+                        label: "",
+                        type: "HTTP",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: true,
+                                    observations: [
+                                        {
+                                            componentVersion: "v1.0",
+                                            avgLatency: 2747368,
+                                            destinationNodeId: 1,
+                                            errorCount: 0,
+                                            p50Latency: 1676125,
+                                            p90Latency: 3430738,
+                                            p99Latency: 27453751,
+                                            requestCount: 373,
+                                            sourceNodeId: 0,
+                                        },
+                                    ],
+                                },
+                                intranet: {
+                                    isExposed: false,
+                                },
+                            },
+                        },
+                    },
+                },
+                connections: [],
+            },
+            {
+                id: "nkgkqe",
+                label: "notification-service",
+                version: "v1.0",
+                type: "service",
+                buildPack: "other",
+                services: {
+                    "Kanushka Gayan:owto:nkgkqe:Notification Service": {
+                        id: "Kanushka Gayan:owto:nkgkqe:Notification Service",
+                        label: "",
+                        type: "HTTP",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: false,
+                                },
+                                intranet: {
+                                    isExposed: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                connections: [],
+            },
+            {
+                id: "cmottt",
+                label: "user-service",
+                version: "v1.0",
+                type: "service",
+                buildPack: "other",
+                services: {
+                    "Kanushka Gayan:owto:cmottt:User Service": {
+                        id: "Kanushka Gayan:owto:cmottt:User Service",
+                        label: "",
+                        type: "HTTP",
+                        dependencyIds: [],
+                        deploymentMetadata: {
+                            gateways: {
+                                internet: {
+                                    isExposed: true,
+                                },
+                                intranet: {
+                                    isExposed: false,
+                                },
+                            },
+                        },
+                    },
+                },
+                connections: [],
+            },
+        ],
+        modelVersion: "0.4.0",
+    },
+};
