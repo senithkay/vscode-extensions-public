@@ -32,7 +32,7 @@ describe('Swagger view UI Tests', () => {
         driver = browser.driver;
     });
 
-    it.skip('Test tryit button', async () => { // TODO: Fix this test #2266
+    it('Test tryit button', async () => { // TODO: Fix this test #2266
         await driver.wait(until.elementLocated(By.className("codelens-decoration")), 360000);
         await clickOnActivity(EXPLORER_ACTIVITY);
         // Click on `Run` code lens to run service
