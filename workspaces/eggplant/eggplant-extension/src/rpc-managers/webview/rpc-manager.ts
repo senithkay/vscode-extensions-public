@@ -62,10 +62,10 @@ export class WebviewRpcManager implements WebviewAPI {
 
     async getEggplantModel(): Promise<EggplantModel> {
         return new Promise((resolve) => {
-            let model = {
+            let model: EggplantModel = {
                 id: "1",
                 name: "flow1",
-                balFilename: "path",
+                fileName: "path",
                 nodes: [
                     {
                         name: "A",
@@ -123,7 +123,7 @@ export class WebviewRpcManager implements WebviewAPI {
                 ],
             };
             resolve(model);
-        })
+        });
     }
 
     async getState(): Promise<string> {
