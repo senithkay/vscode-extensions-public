@@ -40,4 +40,7 @@ export const MEDIATORS = {
     CALLTEMPLATE: "CallTemplate",
     SEND: "Send",
     SEQUENCE: "Sequence",
+    CALLOUT: "Callout",
+    HEADER: "Header",
+    VALIDATE: "Validate",
 }
