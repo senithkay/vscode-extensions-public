@@ -13,8 +13,25 @@ import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NavigationBar } from "./components/NavigationBar";
+/** @jsx jsx */
+import { jsx, Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
 import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
+
+const globalStyles = css`
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+`;
+
+const GlobalStyles = () => <Global styles={globalStyles} />;
+
+const VisualizerContainer = styled.div`
+    width: 100%;
+    height: 100%;
+`;
 
 export function Webview() {
     const { viewLocation, setViewLocation, ballerinaRpcClient } = useVisualizerContext();
@@ -33,22 +50,20 @@ export function Webview() {
         }
     }
 
-    const VisualizerContainer = styled.div`
-        width: 100%;
-        height: 100%;
-    `;
-
     const OrgLabel = styled.span`
         color: var(--vscode-descriptionForeground);
     `;
 
     return (
-        <VisualizerContainer>
-            <NavigationBar />
-            {viewLocation.view === "Overview" && <Overview />}
-            {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
-            {viewLocation.view === "DataMapper" && <DataMapperView />}
-            {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
-        </VisualizerContainer>
+        <>
+            <GlobalStyles />
+            <VisualizerContainer>
+                <NavigationBar />
+                {viewLocation.view === "Overview" && <Overview />}
+                {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
+                {viewLocation.view === "DataMapper" && <DataMapperView />}
+                {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
+            </VisualizerContainer>
+        </>
     );
 };
