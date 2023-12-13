@@ -36,6 +36,7 @@ export class WebviewRpcManager implements WebviewAPI {
     openVisualizerView(params: VisualizerLocation): void {
         // trigger eggplant.openLowCode command
         vscode.commands.executeCommand("eggplant.openLowCode");
+
         openView(params);
     }
 
@@ -67,7 +68,12 @@ export class WebviewRpcManager implements WebviewAPI {
         const context = snapshot.context;
         const langClient = context.langServer as LangClientInterface;
         if (!context.location) {
-            throw new Error("Context location is undefined");
+            // demo hack
+            //@ts-ignore
+            return new Promise((resolve) => {
+                //@ts-ignore
+                resolve(undefined);
+            });
         }
         const params: EggplantModelRequest = {
             filePath: context.location.fileName,
@@ -85,7 +91,12 @@ export class WebviewRpcManager implements WebviewAPI {
             //@ts-ignore
             return model.workerDesignModel;
         }).catch((error) => {
-            throw new Error(error);
+            // demo hack
+            //@ts-ignore
+            return new Promise((resolve) => {
+                //@ts-ignore
+                resolve(undefined);
+            });
         });
     }
 

@@ -20,3 +20,4 @@ export * from "./rpc-types/webview";
 export * from "./rpc-types/webview/rpc-type";
 export * from "./rpc-types/webview/types";
 export type { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+export type { STNode } from "@wso2-enterprise/syntax-tree";

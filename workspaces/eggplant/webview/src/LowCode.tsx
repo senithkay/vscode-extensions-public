@@ -44,9 +44,13 @@ const LowCode = () => {
 
     useEffect(() => {
         if (eggplantRpcClient) {
-            eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
-                setModel(model);
-            })
+            try {
+                eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
+                    setModel(model);
+                });
+            } catch (error) {
+                setModel(undefined);
+            }
         }
     }, [eggplantRpcClient]);
 
