@@ -9,7 +9,9 @@
 
 import { BallerinaFunctionSTRequest, BallerinaProjectComponents, BallerinaSTModifyResponse, GetBallerinaPackagesParams } from "@wso2-enterprise/ballerina-core";
 import { EggplantModel } from "../rpc-types/webview/types";
-export interface LangClientInterface {
+import { LanguageClient } from "vscode-languageclient/node";
+
+export interface LangClientInterface extends LanguageClient {
     getBallerinaProjectComponents: (params: GetBallerinaPackagesParams) => Promise<BallerinaProjectComponents>;
     getSTByRange: (params: BallerinaFunctionSTRequest) => Promise<BallerinaSTModifyResponse>;
     getEggplantModel: (params: string) => Promise<EggplantModel>;
