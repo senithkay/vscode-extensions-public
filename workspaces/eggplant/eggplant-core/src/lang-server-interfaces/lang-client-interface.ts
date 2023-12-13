@@ -8,11 +8,15 @@
  */
 
 import { BallerinaFunctionSTRequest, BallerinaProjectComponents, BallerinaSTModifyResponse, GetBallerinaPackagesParams } from "@wso2-enterprise/ballerina-core";
-import { EggplantModel } from "../rpc-types/webview/types";
-import { LanguageClient } from "vscode-languageclient/node";
+import { Flow, LinePosition } from "../rpc-types/webview/types";
 
-export interface LangClientInterface extends LanguageClient {
+export interface EggplantModelRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+export interface LangClientInterface {
     getBallerinaProjectComponents: (params: GetBallerinaPackagesParams) => Promise<BallerinaProjectComponents>;
     getSTByRange: (params: BallerinaFunctionSTRequest) => Promise<BallerinaSTModifyResponse>;
-    getEggplantModel: (params: string) => Promise<EggplantModel>;
+    getEggplantModel: (params: EggplantModelRequest) => Promise<Flow>;
 }

@@ -10,7 +10,8 @@
  */
 import {
     BallerinaProjectComponents,
-    EggplantModel,
+    Flow,
+    STNode,
     VisualizerLocation,
     WebviewAPI,
     executeCommand,
@@ -19,9 +20,9 @@ import {
     getSTNodeFromLocation,
     getState,
     getVisualizerState,
-    openVisualizerView
+    openVisualizerView,
+    updateSource
 } from "@wso2-enterprise/eggplant-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 
@@ -48,7 +49,7 @@ export class WebviewRpcClient implements WebviewAPI {
         return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION);
     }
 
-    getEggplantModel(): Promise<EggplantModel> {
+    getEggplantModel(): Promise<Flow> {
         return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
     }
 
@@ -58,5 +59,9 @@ export class WebviewRpcClient implements WebviewAPI {
 
     getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
         return this._messenger.sendRequest(getSTNodeFromLocation, HOST_EXTENSION, params);
+    }
+
+    updateSource(params: Flow): void {
+        return this._messenger.sendNotification(updateSource, HOST_EXTENSION, params);
     }
 }

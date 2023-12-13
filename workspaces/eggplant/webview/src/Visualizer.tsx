@@ -10,11 +10,11 @@
 // import { Overview } from "@wso2-enterprise/overview-view";
 // import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
-import LowCode from './LowCode'
-import Overview from './Overview'
-import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
-import styled from "@emotion/styled";
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react"
+import LowCode from './LowCode';
+import Overview from './Overview';
+import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
+import { Loader } from "./Loader";
+
 
 export function Webview({ mode }: { mode: string }) {
     const { eggplantRpcClient } = useVisualizerContext();
@@ -31,27 +31,6 @@ export function Webview({ mode }: { mode: string }) {
             });
         }
     }, [eggplantRpcClient]);
-
-    const LoaderContainer = styled.div({
-        width: "100%",
-        overflow: "hidden",
-        height: "100vh",
-        display: "grid"
-    });
-
-    const LoaderContent = styled.div({
-        margin: "auto"
-    });
-
-    const Loader = () => {
-        return (
-            <LoaderContainer>
-                <LoaderContent>
-                    <VSCodeProgressRing style={{ height: 24 }} />
-                </LoaderContent>
-            </LoaderContainer>
-        )
-    }
 
     return (
         <>

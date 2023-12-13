@@ -9,16 +9,20 @@
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
 import { BallerinaFunctionSTRequest, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+
 import {
-    EggplantModel,
+    EggplantModelRequest,
+    Flow,
     LangClientInterface,
     VisualizerLocation,
     WebviewAPI
 } from "@wso2-enterprise/eggplant-core";
-import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
+import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
+import { workerCodeGen } from "../../LowCode/codeGenerator";
 import { getState, openView, stateService } from "../../stateMachine";
-import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
+import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 
 export class WebviewRpcManager implements WebviewAPI {
 
@@ -30,11 +34,10 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     openVisualizerView(params: VisualizerLocation): void {
-        if (params.location) {
-            handleVisualizerView(params.location);
-        } else {
-            openView(params);
-        }
+        // trigger eggplant.openLowCode command
+        vscode.commands.executeCommand("eggplant.openLowCode");
+
+        openView(params);
     }
 
     async getBallerinaProjectComponents(): Promise<BallerinaProjectComponents> {
@@ -60,69 +63,40 @@ export class WebviewRpcManager implements WebviewAPI {
         }
     }
 
-    async getEggplantModel(): Promise<EggplantModel> {
-        return new Promise((resolve) => {
-            let model: EggplantModel = {
-                id: "1",
-                name: "flow1",
-                fileName: "path",
-                nodes: [
-                    {
-                        name: "A",
-                        templateId: "TRANSFORMER",
-                        codeLocation: {
-                            start: {
-                                line: 4,
-                                offset: 4,
-                            },
-                            end: {
-                                line: 8,
-                                offset: 5,
-                            },
-                        },
-                        canvasPosition: {
-                            x: 0,
-                            y: 0,
-                        },
-                        inputPorts: [],
-                        outputPorts: [
-                            {
-                                id: "ao1",
-                                type: "INT",
-                                receiver: "B",
-                            },
-                        ],
-                    },
-                    {
-                        name: "B",
-                        templateId: "TRANSFORMER",
-                        codeLocation: {
-                            start: {
-                                line: 10,
-                                offset: 4,
-                            },
-                            end: {
-                                line: 16,
-                                offset: 5,
-                            },
-                        },
-                        canvasPosition: {
-                            x: 100,
-                            y: 0,
-                        },
-                        inputPorts: [
-                            {
-                                id: "bi1",
-                                type: "INT",
-                                name: "x1",
-                                sender: "A",
-                            },
-                        ],
-                        outputPorts: [],
-                    },
-                ],
-            };
-            resolve(model);
+    async getEggplantModel(): Promise<Flow> {
+        const snapshot = stateService.getSnapshot();
+        const context = snapshot.context;
+        const langClient = context.langServer as LangClientInterface;
+        if (!context.location) {
+            // demo hack
+            //@ts-ignore
+            return new Promise((resolve) => {
+                //@ts-ignore
+                resolve(undefined);
+            });
+        }
+        const params: EggplantModelRequest = {
+            filePath: context.location.fileName,
+            startLine: {
+                line: context.location.position.startLine ?? 0,
+                offset: context.location.position.startColumn ?? 0
+            },
+            endLine: {
+                line: context.location.position.endLine ?? 0,
+                offset: context.location.position.endColumn ?? 0
+            }
+
+        }
+        return langClient.getEggplantModel(params).then((model) => {
+            //@ts-ignore
+            return model.workerDesignModel;
+        }).catch((error) => {
+            // demo hack
+            //@ts-ignore
+            return new Promise((resolve) => {
+                //@ts-ignore
+                resolve(undefined);
+            });
         });
     }
 
@@ -160,4 +134,33 @@ export class WebviewRpcManager implements WebviewAPI {
         });
     }
 
+    async updateSource(params: Flow): Promise<void> {
+        const snapshot = stateService.getSnapshot();
+        const context = snapshot.context;
+        const code = workerCodeGen(params);
+        const edit = new vscode.WorkspaceEdit();
+
+        const newLinesInCode = (code.match(/\n/g) || []).length;
+        const newEndLine = (context.location?.position.startLine ?? 0) + newLinesInCode;
+
+        const newRange = new vscode.Range(
+            new vscode.Position(context.location?.position.startLine ?? 0, context.location?.position.startColumn ?? 0),
+            new vscode.Position(newEndLine, context.location?.position.endColumn ?? 0)
+        );
+        edit.replace(vscode.Uri.parse(params.fileName), newRange, code);
+
+        vscode.workspace.applyEdit(edit).then((data) => {
+            openView({
+                location: {
+                    fileName: params.fileName,
+                    position: {
+                        startLine: context.location?.position.startLine ?? 0,
+                        startColumn: context.location?.position.startColumn ?? 0,
+                        endLine: newEndLine,
+                        endColumn: context.location?.position.endColumn ?? 0
+                    }
+                }
+            });
+        });
+    }
 }
