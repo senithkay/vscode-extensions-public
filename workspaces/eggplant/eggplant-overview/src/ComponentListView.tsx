@@ -85,6 +85,8 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
         if (STKindChecker.isServiceDeclaration(serviceST)) {
             props.setSelectedComponent(serviceST);
+        } else {
+            eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
         }
     }
 
