@@ -679,7 +679,7 @@
         "copyVSIXToRoot": "copyfiles -f ./vsix/*.vsix ../../..",
         "build": "pnpm run compile && pnpm run lint && pnpm run postbuild",
         "rebuild": "pnpm run clean && pnpm run compile && pnpm run postbuild",
-        "postbuild": "pnpm -r run postbuild && pnpm run copyFonts && pnpm run package && pnpm run copyVSIX"
+        "postbuild": "pnpm run copyFonts && pnpm run package && pnpm run copyVSIX"
     },
     "dependencies": {
         "@types/lodash": "^4.14.200",
@@ -755,5 +755,9 @@
     },
     "extensionPack": [
         "be5invis.toml"
-    ]
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+    }
 }

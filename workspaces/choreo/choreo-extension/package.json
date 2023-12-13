@@ -341,5 +341,9 @@
     "vscode-messenger": "^0.4.4",
     "vscode-messenger-common": "^0.4.3",
     "which": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
   }
 }
