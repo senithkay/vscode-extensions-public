@@ -8,7 +8,7 @@
  */
 
 import { Button } from '@wso2-enterprise/ui-toolkit';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../utils/WebViewRpc';
 import { GetConnectorsResponse } from '@wso2-enterprise/mi-core';
@@ -28,6 +28,7 @@ import RespondForm from './Pages/mediators/core/respond';
 import SequenceForm from './Pages/mediators/core/sequence';
 import StoreForm from './Pages/mediators/core/store';
 import ValidateForm from './Pages/mediators/core/validate';
+import SidePanelContext from './SidePanelContexProvider';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -40,12 +41,14 @@ export interface SidePanelListProps {
 }
 
 const SidePanelList = (props: SidePanelListProps) => {
-    console.log(props.nodePosition);
+    const sidePanelContext = React.useContext(SidePanelContext);
     const [isLoading, setLoading] = useState<boolean>(true);
     const [connectorList, setConnectorList] = useState<GetConnectorsResponse[]>([]);
     const [actions, setActions] = useState<any[]>([]);
     const [connectorForm, setForm] = useState<any>();
     const [mediatorForm, setMediatorForm] = useState<any>();
+    const goBackRef = useRef(0);
+
     const mediators = [
         {
             title: "Call Mediator",
@@ -120,6 +123,21 @@ const SidePanelList = (props: SidePanelListProps) => {
     ];
 
     useEffect(() => {
+        if (sidePanelContext.backBtn > goBackRef.current) {
+            if (connectorForm) {
+                sidePanelContext.showBackBtn(false);
+                setForm(undefined);
+            } else if (mediatorForm) {
+                sidePanelContext.showBackBtn(false);
+                setMediatorForm(undefined);
+            } else if (actions.length > 0) {
+                setActions([]);
+            }
+        }
+        goBackRef.current = sidePanelContext.backBtn;
+    }, [sidePanelContext.backBtn]);
+
+    useEffect(() => {
         setLoading(true);
 
         (async () => {
@@ -130,15 +148,18 @@ const SidePanelList = (props: SidePanelListProps) => {
     }, []);
 
     const showConnectorActions = async (connectorPath: string) => {
+        sidePanelContext.showBackBtn(true);
         const actions = await MIWebViewAPI.getInstance().getConnector(connectorPath);
         setActions(actions.map((action: any) => JSON.parse(action)));
     };
 
     const showConnectorForm = async (connectorSchema: any) => {
+        sidePanelContext.showBackBtn(true);
         setForm(connectorSchema);
     };
 
     const showMediatorForm = async (mediator: any) => {
+        sidePanelContext.showBackBtn(true);
         setMediatorForm(mediator.form);
     };
 
@@ -186,7 +207,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     return (
         isLoading ? <h1>Loading...</h1> :
             <div>
-                {mediators.length > 0 && !mediatorForm && !connectorForm  && actions.length == 0 && <MediatorList />}
+                {mediators.length > 0 && !mediatorForm && !connectorForm && actions.length == 0 && <MediatorList />}
                 {connectorList && !mediatorForm && actions.length == 0 && <ConnectorList />}
 
                 {mediatorForm && <>{mediatorForm}</>}

@@ -13,11 +13,15 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 interface SidePanelontext {
     setIsOpen: Dispatch<SetStateAction<boolean>>;
     setNodePosition: Dispatch<SetStateAction<Range>>;
+    showBackBtn: Dispatch<SetStateAction<boolean>>;
+    backBtn: number;
 }
 
 const SidePanelContext = React.createContext<SidePanelontext>({
     setIsOpen: () => { },
     setNodePosition: () => { },
+    showBackBtn: () => { },
+    backBtn: 0,
 })
 export const SidePanelProvider = SidePanelContext.Provider
 export default SidePanelContext

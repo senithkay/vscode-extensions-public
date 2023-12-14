@@ -28,10 +28,16 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [stNode, setSTNode] = useState<number>(0);
 	const [isSidePanelOpen, setSidePanelOpen] = useState<boolean>(false);
 	const [nodeRange, setSidePanelNodeRange] = useState<Range>();
+	const [showBackBtn, setShowBackBtn] = useState<boolean>(false);
+	const [count, setCount] = useState(0);
 
 	MIWebViewAPI.getInstance().getMessenger().onNotification(Refresh, () => {
 		setLastUpdated(Date.now());
 	});
+
+	const incrementCount = () => {
+		setCount(count + 1);
+	};
 
 	useEffect(() => {
 		setLoading(true);
@@ -54,12 +60,17 @@ export function MIDiagram(props: MIDiagramProps) {
 	} else {
 		canvas = stNode &&
 			<div>
-				<SidePanelProvider value={{ setIsOpen: setSidePanelOpen, setNodePosition: setSidePanelNodeRange }}>
+				<SidePanelProvider value={{ setIsOpen: setSidePanelOpen, setNodePosition: setSidePanelNodeRange, showBackBtn: setShowBackBtn, backBtn: count }}>
 					{isSidePanelOpen && <SidePanel
 						isOpen={isSidePanelOpen}
 						alignmanet="right"
 					>
 						<SidePanelTitleContainer>
+							<div style={{ minWidth: "20px" }}>
+								{
+									showBackBtn && <Button onClick={incrementCount} appearance="icon">{"<"}</Button>
+								}
+							</div>
 							<div>Add Mediator</div>
 							<Button onClick={closePanel} appearance="icon">X</Button>
 						</SidePanelTitleContainer>
