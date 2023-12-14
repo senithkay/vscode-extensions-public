@@ -25,7 +25,12 @@ inputs:
     description: Update APK extension version
     type: boolean
     required: false
-    default: false       
+    default: false 
+  eggplant:
+    description: Update EggPlant extension version
+    type: boolean
+    required: false
+    default: false           
   version:
     default: 'N/A'
     type: string
@@ -101,6 +106,14 @@ runs:
       uses: ./.github/actions/updateVersion
       with:
         path: 'apk/apk-extension'
+        isPreRelease: ${{ inputs.isPreRelease }}
+        version: ${{ inputs.version }}
+    
+    - name: Update version - EggPlant
+      if: ${{ inputs.eggplant == 'true' }}
+      uses: ./.github/actions/updateVersion
+      with:
+        path: 'eggplant/egglant-extension'
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
