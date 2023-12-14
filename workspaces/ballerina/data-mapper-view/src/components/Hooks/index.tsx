@@ -19,22 +19,23 @@ export const useSyntaxTreeFromRange = ():{
     refetch: any;
 } => {
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+    const { location: { position, fileName } } = viewLocation;
     const getST = async () => {
         if (viewLocation?.location) {
             try {
                 const response = await ballerinaRpcClient?.getVisualizerRpcClient().getSTByRange({
                     lineRange: {
                         start: {
-                            line: viewLocation.location.position.startLine,
-                            character: viewLocation.location.position.startColumn
+                            line: position.startLine,
+                            character: position.startColumn
                         },
                         end: {
-                            line: viewLocation.location.position.endLine,
-                            character: viewLocation.location.position.endColumn
+                            line: position.endLine,
+                            character: position.endColumn
                         }
                     },
                     documentIdentifier: {
-                        uri: URI.file(viewLocation.location.fileName).toString()
+                        uri: URI.file(fileName).toString()
                     }
                 });
                 return response;
@@ -44,12 +45,12 @@ export const useSyntaxTreeFromRange = ():{
         }    
     }
 
-    const { data, isFetching, isError, refetch } = useQuery({
-        queryKey: ['getST'],
-        queryFn: () => getST(),
-        refetchOnWindowFocus: false,
-        enabled: !!viewLocation.location 
-      });
+    const {
+        data,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['getST', {position}], () => getST(), {});
 
     return { data, isFetching, isError, refetch };
 };

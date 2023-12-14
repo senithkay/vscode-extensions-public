@@ -158,7 +158,14 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
     }
 };
 
-export function DataMapperC() {
+export interface DMProps {
+    fnST: FunctionDefinition;
+}
+
+export function DataMapperC(props: DMProps) {
+    const {
+        fnST
+    } = props;
     const ballerinaVersion: string = '2201.7.2 (swan lake update 7)';
     const openedViaPlus: boolean = false;
     const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
@@ -176,9 +183,9 @@ export function DataMapperC() {
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
     const { projectComponents } = useProjectComponents();
-    const { data } = useSyntaxTreeFromRange();
+    // const { data } = useSyntaxTreeFromRange();
 
-    const fnST = data?.syntaxTree as FunctionDefinition;
+    // const fnST = data?.syntaxTree as FunctionDefinition;
     const targetPosition = fnST ? {
         ...fnST.position,
         startColumn: 0,

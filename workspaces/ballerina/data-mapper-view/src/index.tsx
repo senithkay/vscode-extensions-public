@@ -9,7 +9,7 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DataMapper } from "./components/DataMapper/DataMapper";
+import { DataMapperWrapper } from "./components/DataMapper/DataMapperWrapper";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -25,7 +25,7 @@ const queryClient = new QueryClient({
 export function DataMapperView() {
     return (
         <QueryClientProvider client={queryClient}>
-            <DataMapper />
+            <DataMapperWrapper />
         </QueryClientProvider>
     );
 }
