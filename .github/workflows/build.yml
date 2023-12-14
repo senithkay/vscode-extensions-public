@@ -60,9 +60,17 @@ jobs:
       runEggplantExtTests: ${{ steps.testMatrix.outputs.runEggplantExtTests }}
     steps:
       - uses: actions/checkout@v2
+        if: ${{ !inputs.eggplant }}
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
+
+      - uses: actions/checkout@v2
+        if: ${{ inputs.eggplant }}
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2    
+          ref: rewrite
 
       - name: Analyze diff
         shell: bash
