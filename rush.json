@@ -245,7 +245,8 @@
     "postRushBuild": [
       "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot", 
-      "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/eggplant/eggplant-extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
