@@ -7,30 +7,81 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { BaseNodeProps } from '../../../base/base-node/base-node';
 import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { SimpleMediatorNodeModel } from './SimpleMediatorModel';
 import { getSVGIcon } from '../Icons';
+import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import styled from '@emotion/styled';
+import { Codicon } from '@wso2-enterprise/ui-toolkit'
+
+const ButtonComponent = styled.div`
+    flex-direction: row;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    gap: 5px;
+    position: absolute;
+`
+
+const DeleteButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    color: red;
+    padding: 2px;
+`
+
+const EditButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    padding: 2px;
+`
 
 export interface SimpleMediatorWidgetProps extends BaseNodeProps {
     name: string;
     description: string;
+    documentUri: string;
+    nodePosition: Range;
 }
 
 export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     const node: SimpleMediatorNodeModel = props.node as SimpleMediatorNodeModel;
 
     const nodePosition = node.getPosition();
-
     const leftPort = node.getPortByAllignment('left');
     const rightPort = node.getPortByAllignment('right');
     leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
+    const [isHovered, setIsHovered] = useState(false);
+
+    const handleMouseOver = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseOut = () => {
+        setIsHovered(false);
+    };
+
+    const deleteNode = async () => {
+        MIWebViewAPI.getInstance().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: ""
+        });
+    }
 
     return (
-        <>
+        <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} style={{ width: node.width, height: node.height}}>
             {getSVGIcon(props.name, props.description, node.width, node.height)}
+            <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
+                <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
+                <EditButton> <Codicon name="edit" /> </EditButton>
+            </ButtonComponent>
             <MediatorPortWidget
                 port={leftPort}
                 engine={props.diagramEngine}
@@ -41,7 +92,7 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
                 engine={props.diagramEngine}
                 node={props.node}
             />
-        </>
+        </div>
     );
 }
 

@@ -15,13 +15,47 @@ import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
 import { getSVGIcon } from '../Icons';
+import styled from '@emotion/styled';
+import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Codicon } from '@wso2-enterprise/ui-toolkit'
+
+const ButtonComponent = styled.div`
+    flex-direction: row;
+    top: 50%;
+    left: 47px;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    gap: 5px;
+    position: absolute;
+`
+
+const DeleteButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    color: red;
+    padding: 2px;
+`
+
+const EditButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    padding: 2px;
+`
 
 export interface AdvancedMediatorWidgetProps extends BaseNodeProps {
     name: string;
     description: string;
+    documentUri: string;
+    nodePosition: Range;
 }
 
 export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
+    const [isHovered, setIsHovered] = useState(false);
     const node: AdvancedMediatorNodeModel = props.node as AdvancedMediatorNodeModel;
     const subSequences = node.subSequences;
     const nodePosition = node.getPosition();
@@ -72,7 +106,22 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
         setSubSequencesWidth(subSequencesWidth);
     }, [node.height, node.width, subSequencesHeight, subSequencesWidth]);
 
+    const handleMouseOver = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseOut = () => {
+        setIsHovered(false);
+    };
+
+    const deleteNode = async () => {
+        MIWebViewAPI.getInstance().applyEdit({
+            documentUri: props.documentUri, range: props.nodePosition, text: ""
+        });
+    }
+
     node.fireEvent({}, "updateDimensions");
+    
     return (
         <>
             <div style={{
@@ -89,8 +138,17 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                     padding: "10px",
                     alignItems: "center",
                     display: "flex",
-                }}>
+                    width: 70,
+                    height: node.height
+                    }}
+                    onMouseOver={handleMouseOver}
+                    onMouseOut={handleMouseOut}
+                >
                     {getSVGIcon(props.name, props.description, 70, node.height)}
+                    <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
+                        <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
+                        <EditButton> <Codicon name="edit" /> </EditButton>
+                    </ButtonComponent>
                 </div>
                 <div
                     style={{

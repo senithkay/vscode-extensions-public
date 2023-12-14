@@ -29,6 +29,8 @@ export class AdvancedMediatorNodeFactory extends AbstractReactFactory<AdvancedMe
             node={event.model}
             name={event.model.mediatorName}
             description={event.model.mediatorDescription}
+            documentUri={event.model.getDocumentUri()}
+            nodePosition={event.model.getNodeRange()}
         />;
     }
 

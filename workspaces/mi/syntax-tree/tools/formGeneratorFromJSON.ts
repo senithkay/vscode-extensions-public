@@ -242,7 +242,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
             
             await MIWebViewAPI.getInstance().applyEdit({
-                documentUri: props.documentUri, position: props.nodePosition.start as Position, text: modifiedXml
+                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
             });
             sidePanelContext.setIsOpen(false);
         }

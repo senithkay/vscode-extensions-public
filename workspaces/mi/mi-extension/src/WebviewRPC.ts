@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { commands, WebviewPanel, window, WebviewView, workspace, Range, WorkspaceEdit, Position, Uri } from "vscode";
+import { commands, WebviewPanel, window, WebviewView, workspace, Range, WorkspaceEdit, Uri, Position } from "vscode";
 import { Messenger } from "vscode-messenger";
 import {
     ApplyEdit,
@@ -97,13 +97,18 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             document = await workspace.openTextDocument(Uri.parse(params.documentUri));
         }
 
-        const position = params.position;
-        const currentLine = document.lineAt(position.line).text;
+        const range = new Range(new Position(params.range.start.line, params.range.start.character),
+            new Position(params.range.end.line, params.range.end.character));
+        const currentLine = document.lineAt(range.start.line).text;
         const currentLineIndentation = currentLine.match(/^\s*/);
         const indentation = currentLineIndentation ? currentLineIndentation[0] : "";
-        const textBefore = currentLine.substring(0, position.character).trim();
-        const text = `${textBefore.length > 0 ? "\n" + indentation : ""}${params.text.replace(/\n/g, "\n" + indentation)}${textBefore.length > 0 ? "" : "\n" + indentation}`;
-        edit.insert(Uri.parse(params.documentUri), position, text);
+        const textEmpty = params.text.trim().length === 0;
+        const textBefore = currentLine.substring(0, range.start.character).trim();
+        let text = params.text;
+        if (!textEmpty) {
+            text = `${textBefore.length > 0 ? "\n" + indentation : ""}${params.text.replace(/\n/g, "\n" + indentation)}${textBefore.length > 0 ? "" : "\n" + indentation}`;
+        }
+        edit.replace(Uri.parse(params.documentUri), range, text);
         await workspace.applyEdit(edit);
     });
 }

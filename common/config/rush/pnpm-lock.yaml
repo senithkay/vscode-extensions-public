@@ -3197,12 +3197,16 @@ importers:
     specifiers:
       '@typescript-eslint/eslint-plugin': ~5.48.2
       '@typescript-eslint/parser': ~5.48.2
+      '@wso2-enterprise/mi-syntax-tree': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       eslint: ^8.32.0
       typescript: ^4.9.4
       vscode: ~1.1.37
       vscode-messenger: ~0.4.5
       vscode-messenger-common: ^0.4.5
     dependencies:
+      '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       vscode: 1.1.37
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
@@ -3310,6 +3314,7 @@ importers:
       '@vscode/test-electron': ^2.3.4
       '@vscode/vsce': ~2.21.0
       '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
       axios: ~1.5.1
       copyfiles: ^2.4.1
@@ -3335,6 +3340,7 @@ importers:
       '@types/xml2js': 0.4.14
       '@vscode/vsce': 2.21.1
       '@wso2-enterprise/mi-core': link:../mi-core
+      '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       axios: 1.5.1
       copyfiles: 2.4.1
@@ -25669,6 +25675,7 @@ packages:
 
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
 
   /file-uri-to-path/2.0.0:
     resolution: {integrity: sha512-hjPFI8oE/2iQPVe4gbrJ73Pp+Xfub2+WI2LlXDbsaJBwT5wuMh35WNWVYYTpnz895shtwfyutMFLFywpQAFdLg==}
