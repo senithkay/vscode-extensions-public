@@ -26,6 +26,10 @@ export function render(data: any, webView: Webview)
             margin: auto;
             margin-top: 38%;
         }
+        .swagger-container {
+            height: 100vh;
+            overflow: scroll;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }

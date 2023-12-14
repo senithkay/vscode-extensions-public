@@ -13,6 +13,7 @@ extractedDistribution
 .npmrc
 test-resources
 **/resources/font-wso2-vscode
+.env
 
 # gradle
 .gradle
@@ -66,3 +67,5 @@ common/autoinstallers/*/.npmrc
 
 # Playwright
 playwright-report/
+# ignore storybook build
+**/.out/

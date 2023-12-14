@@ -85,7 +85,11 @@ export class SelectedSTFindingVisitor implements Visitor {
         const itemIdentifierName = item && item.stNode && this.getIdentifier(item.stNode)?.value;
         const nodeIdentifierName = node && this.getIdentifier(node)?.value;
 
-        if (itemIdentifierName && nodeIdentifierName && nodeIdentifierName === itemIdentifierName) {
+        if (itemIdentifierName
+            && nodeIdentifierName
+            && nodeIdentifierName === itemIdentifierName
+            && this.areValExprKindsEqual(item.stNode, node))
+        {
             this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }];
             this.pathSegmentIndex = 1;
             const expr = STKindChecker.isSpecificField(node)
@@ -141,6 +145,13 @@ export class SelectedSTFindingVisitor implements Visitor {
             identifierName = node.fieldName as IdentifierToken;
         }
         return identifierName;
+    }
+
+    areValExprKindsEqual(expr1: STNode, expr2: STNode): boolean {
+        if (STKindChecker.isSpecificField(expr1) && STKindChecker.isSpecificField(expr2)) {
+            return expr1.valueExpr.kind === expr2.valueExpr.kind;
+        }
+        return expr1.kind === expr2.kind;
     }
 
     getST() {

@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/cell-diagram",
-    "version": "1.1.2",
+    "version": "2.0.1",
     "description": "Generate the cell diagram for Choreo projects.",
     "files": [
         "lib"
@@ -14,7 +14,8 @@
         "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
         "deploy": "npm publish",
         "storybook": "start-storybook -p 6006",
-        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../choreo-extension/resources/jslibs"
+        "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../choreo-extension/resources/jslibs",
+        "build-storybook": "build-storybook -o .out"
     },
     "keywords": [],
     "dependencies": {

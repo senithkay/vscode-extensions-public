@@ -19,10 +19,11 @@ interface StyleProps {
     isCollapsed?: boolean;
     isFocused?: boolean;
     borderWidth?: number;
+    hasComponentKind?: boolean;
 }
 
 export const ComponentNode: React.FC<any> = styled.div`
-    color: ${Colors.DEFAULT_TEXT};
+    color: ${Colors.ON_SURFACE_VARIANT};
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -37,13 +38,12 @@ export const ComponentNode: React.FC<any> = styled.div`
 `;
 
 export const ComponentHead: React.FC<any> = styled.div`
-    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_SELECTED : Colors.NODE_BACKGROUND_PRIMARY)};
+    background-color: ${(props: StyleProps) => (props.isSelected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
     border: ${(props: StyleProps) =>
-        `${props.borderWidth}px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY}`};
+        `${props.borderWidth}px solid ${props.isSelected ? Colors.SECONDARY : props.isFocused ? Colors.SECONDARY : Colors.PRIMARY}`};
     border-radius: 50%;
     height: ${COMPONENT_CIRCLE_WIDTH}px;
     width: ${COMPONENT_CIRCLE_WIDTH}px;
-    line-height: 28px;
 
     display: flex;
     flex-direction: column;
@@ -55,7 +55,7 @@ export const ComponentHead: React.FC<any> = styled.div`
 `;
 
 export const ComponentKind: React.FC<any> = styled.div`
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
+    background-color: ${Colors.SURFACE};
     border-radius: 50%;
 
     height: ${COMPONENT_CIRCLE_WIDTH / 3}px;
@@ -94,11 +94,11 @@ export const IconWrapper: React.FC<any> = styled.div`
     height: 100%;
     width: 100%;
 
-    color: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
+    color: ${(props: StyleProps) => (props.isFocused ? Colors.SECONDARY : Colors.PRIMARY)};
     font-size: 32px;
 
     svg {
-        fill: ${(props: StyleProps) => (props.isFocused ? Colors.PRIMARY_FOCUSED : Colors.PRIMARY)};
+        fill: ${(props: StyleProps) => (props.isFocused ? Colors.SECONDARY : Colors.PRIMARY)};
         height: 32px;
         width: 32px;
     }

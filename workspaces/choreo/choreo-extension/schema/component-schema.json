@@ -17,13 +17,13 @@
             "type": "string",
             "description": "Name of the component that this configuration belongs to.",
             "minLength": 1,
-            "const": ""
+            "default": ""
         },
         "projectName": {
             "type": "string",
             "description": "Project name of the component that this component belongs to. Cannot be changed after creation.",
             "minLength": 1,
-            "const": ""
+            "default": ""
         },
         "branch": {
             "type": "string",
@@ -50,6 +50,16 @@
                             },
                             "projectName": {
                                 "$ref": "#/definitions/projectName"
+                            },
+                            "annotations": {
+                                "type": "object",
+                                "description": "List of arbitrary key, value pairs.",
+                                "properties": {
+                                    "componentType": {
+                                        "type": "string",
+                                        "enum": ["service", "web-app", "scheduled-task", "manual-task", "web-hook"]
+                                    }
+                                }    
                             }
                         },
                         "required": ["name", "projectName"]
@@ -159,12 +169,6 @@
                                                     "minLength": 1,
                                                     "default": "config"
                                                 },
-                                                "connectionType": {
-                                                    "type": "string",
-                                                    "description": "Metadata field to store connection type.",
-                                                    "minLength": 1,
-                                                    "default": "service"
-                                                },
                                                 "env": {
                                                     "type": "array",
                                                     "items": {
@@ -187,7 +191,7 @@
                                                     }
                                                 }
                                             },
-                                            "required": ["name", "connectionConfig", "connectionType"]
+                                            "required": ["name", "connectionConfig"]
                                         }
                                     }
                                 }

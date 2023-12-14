@@ -7,16 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { CSSProperties } from 'react';
+import { CSSProperties } from "react";
 
 export const sidePortStyles: CSSProperties = {
-    height: '0.5px',
-    position: 'absolute',
-    width: '8px'
-}
+    position: "absolute",
+    height: "16px",
+    width: "2px",
+};
 
 export const inclusionPortStyles: CSSProperties = {
-    height: '2px',
-    position: 'absolute',
-    width: '2px'
-}
+    position: "absolute",
+    height: "2px",
+    width: "2px",
+};

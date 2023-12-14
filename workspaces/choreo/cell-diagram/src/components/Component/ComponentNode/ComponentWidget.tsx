@@ -26,7 +26,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
     const { selectedNodeId, focusedNodeId, componentMenu, onComponentDoubleClick } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<ComponentLinkModel>(undefined);
     const [isHovered, setIsHovered] = useState<boolean>(false);
-    const [showMenu, setShowMenu] = useState<boolean>(false);
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.component.label || node.component.id;
@@ -67,21 +66,19 @@ export function ComponentWidget(props: ComponentWidgetProps) {
 
     const handleMouseLeave = () => {
         setIsHovered(false);
-        setShowMenu(false);
         handleOnHover("UNSELECT");
     };
 
     const handleOnContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
         event.preventDefault();
         event.stopPropagation();
-        setShowMenu(true);
     };
 
     return (
         <ComponentNode
             isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
             isFocused={node.getID() === focusedNodeId}
-            onMouseEnter={handleMouseEnter}
+            onMouseOver={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onDoubleClick={handleOnWidgetDoubleClick}
             onContextMenu={handleOnContextMenu}
@@ -92,8 +89,6 @@ export function ComponentWidget(props: ComponentWidgetProps) {
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 isFocused={node.getID() === focusedNodeId || isHovered}
                 menuItems={componentMenu}
-                showMenu={showMenu}
-                setShowMenu={setShowMenu}
             />
             <ComponentName>{displayName}</ComponentName>
             <PortsContainer>

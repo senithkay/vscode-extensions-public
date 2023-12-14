@@ -40,10 +40,12 @@ import {
     ConnectionMetadata,
     ConnectionType,
     ConnectorMetadata,
-    NodesAndLinks,
+    DiagramData,
     Project,
     ComponentMetadata,
     Observations,
+    Gateways,
+    ObservationSummary,
 } from "../types";
 import { CellBounds } from "../components/Cell/CellNode/CellModel";
 import { getNodePortId, getCellPortMetadata, getCellLinkName } from "../components/Cell/cell-util";
@@ -58,6 +60,7 @@ import {
     DIAGRAM_END,
     DOT_WIDTH,
     EXTERNAL_LINK,
+    LINE_MIN_WIDTH,
     MAIN_CELL,
     MAIN_CELL_DEFAULT_HEIGHT,
     dagreEngine,
@@ -95,18 +98,20 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-export function getNodesNLinks(project: Project): NodesAndLinks {
+export function getDiagramDataFromProject(project: Project): DiagramData {
     const componentNodes: Map<string, CommonModel> = generateComponentNodes(project);
     const connectorNodes: Map<string, ConnectionModel> = generateConnectorNodes(project);
     const connectionNodes: Map<string, ConnectionModel> = generateConnectionNodes(project);
     const externalNodes: Map<string, ExternalModel> = generateExternalNodes();
     const emptyNodes: Map<string, EmptyModel> = generateEmptyNodes(project.name, [...connectionNodes.values(), ...connectorNodes.values()]);
+    const gateways = getCellGateways(project);
+    const observationSummary = getObservationSummary(project);
 
     const componentLinks: Map<string, ComponentLinkModel> = generateComponentLinks(project, componentNodes);
     const cellLinks: Map<string, ComponentLinkModel> = generateCellLinks(project, emptyNodes, componentNodes);
     const connectorLinks: Map<string, ExternalLinkModel> = generateConnectorLinks(emptyNodes, connectorNodes);
     const connectionLinks: Map<string, ExternalLinkModel> = generateConnectionLinks(emptyNodes, connectionNodes);
-    const externalLinks: Map<string, ExternalLinkModel> = generateExternalLinks(emptyNodes, externalNodes);
+    const externalLinks: Map<string, ExternalLinkModel> = generateExternalLinks(emptyNodes, externalNodes, gateways);
 
     return {
         nodes: {
@@ -123,12 +128,14 @@ export function getNodesNLinks(project: Project): NodesAndLinks {
             connectionLinks,
             externalLinks,
         },
+        gateways,
+        observationSummary,
     };
 }
 
 // Cell utils
 
-export function getComponentDiagramWidth(models: NodesAndLinks): number {
+export function getComponentDiagramWidth(models: DiagramData): number {
     const tempModel = new DiagramModel();
     tempModel.addAll(
         ...models.nodes.componentNodes.values(),
@@ -194,44 +201,57 @@ export function manualDistribute(model: DiagramModel): DiagramModel {
 // reveal diagram with animation
 export function animateDiagram() {
     const tl = gsap.timeline();
-    // animate cell and external links
-    tl.from(`div[data-nodeid="${MAIN_CELL}"]`, {
-        scale: 0,
-        opacity: 0,
-        duration: 0.5,
-    }).from(`g[data-linkid^="${EXTERNAL_LINK}|"]`, {
+    const safeAnimate = (selector, animation, label?) => {
+        const elements = gsap.utils.toArray(selector);
+        if (elements.length > 0) {
+            tl.from(elements, animation, label);
+        }
+    };
+    safeAnimate(`div[data-nodeid="${MAIN_CELL}"]`, {
         scale: 0,
         opacity: 0,
         duration: 0.5,
     });
-    // animate component nodes and links
-    tl.from(
+    safeAnimate(
+        `g[data-linkid^="${EXTERNAL_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    safeAnimate(
         `div[data-nodeid^="${COMPONENT_NODE}|"]`,
         {
             opacity: 0,
             duration: 0.5,
-            stagger: 0.05,
         },
         "showNodeTime"
-    )
-        .from(
-            `div[data-nodeid^="${CONNECTION_NODE}|"]`,
-            {
-                opacity: 0,
-                duration: 0.5,
-                stagger: 0, 
-            },
-            "showNodeTime"
-        )
-        .from(`g[data-linkid^="${COMPONENT_LINK}|"]`, {
-            opacity: 0,
-            duration: 0.2,
-        })
-        .from(`g[data-linkid^="${CELL_LINK}|"]`, {
+    );
+    safeAnimate(
+        `div[data-nodeid^="${CONNECTION_NODE}|"]`,
+        {
             opacity: 0,
             duration: 0.5,
-            stagger: 0.05,
-        });
+        },
+        "showNodeTime"
+    );
+    safeAnimate(
+        `g[data-linkid^="${COMPONENT_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
+    safeAnimate(
+        `g[data-linkid^="${CELL_LINK}|"]`,
+        {
+            opacity: 0,
+            duration: 0.5,
+        },
+        "showNodeTime"
+    );
 }
 
 export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>, model: DiagramModel) {
@@ -277,7 +297,7 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
                 const connectionNode = model.getNode(getConnectionNameById(connectionId));
                 if (connectionNode) {
                     portPosition.x = portPosition.x + externalLinkOffset;
-                    portPosition.y = portPosition.y - connectionNode.height / 2;
+                    portPosition.y = portPosition.y - connectionNode.height / 2 + 7.5;
                     connectionNode.setPosition(portPosition);
                 }
             }
@@ -288,17 +308,23 @@ export function updateBoundNodePositions(cellNode: NodeModel<NodeModelGenerics>,
             }
             // change west bound external link position
             if (bound === CellBounds.WestBound && align === PortModelAlignment.LEFT) {
+                // change west bound empty node position
+                const nodePosition = port.getPosition().clone();
+                nodePosition.x = nodePosition.x - LINE_MIN_WIDTH * 2;
+                model.getNode(getEmptyNodeName(CellBounds.WestBound)).setPosition(nodePosition);
+                // change west bound external link position
                 const portPosition = port.getPosition().clone();
-                model.getNode(getEmptyNodeName(CellBounds.WestBound)).setPosition(portPosition.clone());
                 portPosition.x = portPosition.x - externalLinkOffset;
                 model.getNode(getExternalNodeName(bound))?.setPosition(portPosition);
             }
             // change north bound positions
             if (bound === CellBounds.NorthBound && align === PortModelAlignment.TOP) {
-                const portPosition = port.getPosition().clone();
                 // change north bound empty node position
-                model.getNode(getEmptyNodeName(CellBounds.NorthBound)).setPosition(portPosition.clone());
+                const nodePosition = port.getPosition().clone();
+                nodePosition.y = nodePosition.y - LINE_MIN_WIDTH * 2;
+                model.getNode(getEmptyNodeName(CellBounds.NorthBound)).setPosition(nodePosition);
                 // change north bound external link position
+                const portPosition = port.getPosition().clone();
                 portPosition.y = portPosition.y - externalLinkOffset;
                 model.getNode(getExternalNodeName(bound))?.setPosition(portPosition);
             }
@@ -397,11 +423,11 @@ function generateExternalNodes(): Map<string, ExternalModel> {
 function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[]): Map<string, EmptyModel> {
     const nodes: Map<string, EmptyModel> = new Map<string, EmptyModel>();
 
-    const northBoundEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH);
+    const northBoundEmptyNode = new EmptyModel(CellBounds.NorthBound, CIRCLE_WIDTH + LINE_MIN_WIDTH * 4);
     northBoundEmptyNode.setPosition(0, DIAGRAM_END * -1);
     nodes.set(northBoundEmptyNode.getID(), northBoundEmptyNode);
 
-    const westBoundEmptyNode = new EmptyModel(CellBounds.WestBound, CIRCLE_WIDTH);
+    const westBoundEmptyNode = new EmptyModel(CellBounds.WestBound, CIRCLE_WIDTH + LINE_MIN_WIDTH * 4);
     westBoundEmptyNode.setPosition(DIAGRAM_END * -1, 0);
     nodes.set(westBoundEmptyNode.getID(), westBoundEmptyNode);
 
@@ -428,6 +454,63 @@ function generateEmptyNodes(projectId: string, connectionNodes: ConnectionModel[
     return nodes;
 }
 
+function getCellGateways(project: Project): Gateways {
+    const gateways = {
+        internet: false,
+        intranet: false,
+    };
+
+    project.components?.forEach((component, _key) => {
+        for (const serviceId in component.services) {
+            if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
+                const service = component.services[serviceId];
+                // add platform connections
+                if (service.deploymentMetadata?.gateways.internet.isExposed) {
+                    gateways.internet = true;
+                }
+                if (service.deploymentMetadata?.gateways.intranet.isExposed) {
+                    gateways.intranet = true;
+                }
+            }
+        }
+    });
+
+    return gateways;
+}
+
+function getObservationSummary(project: Project): ObservationSummary {
+    let maxRequestCount = 0;
+    let minRequestCount = Infinity;
+
+    const calculateRequestCount = (observations: any[]) => {
+        if (observations?.length > 0) {
+            const requestCount = observations.reduce((acc, obs) => acc + obs.requestCount, 0);
+            if (requestCount > maxRequestCount) {
+                maxRequestCount = requestCount;
+            }
+            if (requestCount < minRequestCount) {
+                minRequestCount = requestCount;
+            }
+        }
+    };
+
+    project.components?.forEach((component, _key) => {
+        for (const serviceId in component.services) {
+            if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
+                const service = component.services[serviceId];
+                calculateRequestCount(service.deploymentMetadata?.gateways.internet.observations);
+                calculateRequestCount(service.deploymentMetadata?.gateways.intranet.observations);
+            }
+        }
+        if (component.connections.length > 0) {
+            component.connections.forEach((connection) => {
+                calculateRequestCount(connection.observations);
+            });
+        }
+    });
+    return { requestCount: { max: maxRequestCount, min: 0 } };
+}
+
 // Links generation utils
 
 function generateComponentLinks(project: Project, nodes: Map<string, CommonModel>): Map<string, ComponentLinkModel> {
@@ -452,7 +535,10 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -470,7 +556,10 @@ function generateComponentLinks(project: Project, nodes: Map<string, CommonModel
                         link.setSourceNode(callingComponent.getID());
                         link.setTargetNode(associatedComponent.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -536,7 +625,9 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
         // internet/public exposed services links
         if (targetComponent) {
             let isExposed = false;
+            let tooltip = "";
             const observations: Observations[] = [];
+            let observationOnly = false;
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
                     const service = component.services[serviceId];
@@ -551,7 +642,9 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                                 return obs;
                             })
                         );
+                        observationOnly = observationOnly || service.deploymentMetadata?.gateways.internet.observationOnly;
                     }
+                    tooltip = service.deploymentMetadata?.gateways.internet.tooltip;
                 }
             }
             const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.NorthBound));
@@ -565,7 +658,10 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     link.setSourceNode(northBoundEmptyNode.getID());
                     link.setTargetNode(targetComponent.getID());
                     if (observations?.length > 0) {
-                        link.setObservations(observations);
+                        link.setObservations(observations, observationOnly);
+                    }
+                    if (tooltip) {
+                        link.setTooltip(tooltip);
                     }
                 }
             }
@@ -573,7 +669,9 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
         // intranet/org exposed services links
         if (targetComponent) {
             let isExposed = false;
+            let tooltip = "";
             const observations: Observations[] = [];
+            let observationOnly = false;
             for (const serviceId in component.services) {
                 if (Object.prototype.hasOwnProperty.call(component.services, serviceId)) {
                     const service = component.services[serviceId];
@@ -582,6 +680,8 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     if (service.deploymentMetadata?.gateways.intranet.observations?.length > 0) {
                         observations.push(...service.deploymentMetadata?.gateways.intranet.observations);
                     }
+                    observationOnly = observationOnly || service.deploymentMetadata?.gateways.intranet.observationOnly;
+                    tooltip = service.deploymentMetadata?.gateways.intranet.tooltip;
                 }
             }
             const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.WestBound));
@@ -595,7 +695,10 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                     link.setSourceNode(northBoundEmptyNode.getID());
                     link.setTargetNode(targetComponent.getID());
                     if (observations.length > 0) {
-                        link.setObservations(observations);
+                        link.setObservations(observations, observationOnly);
+                    }
+                    if (tooltip) {
+                        link.setTooltip(tooltip);
                     }
                 }
             }
@@ -615,7 +718,10 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(southBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -632,7 +738,10 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
                         link.setSourceNode(targetComponent.getID());
                         link.setTargetNode(eastBoundEmptyNode.getID());
                         if (connection.observations?.length > 0) {
-                            link.setObservations(connection.observations);
+                            link.setObservations(connection.observations, connection.observationOnly);
+                        }
+                        if (connection.tooltip) {
+                            link.setTooltip(connection.tooltip);
                         }
                     }
                 }
@@ -643,7 +752,11 @@ function generateCellLinks(project: Project, emptyNodes: Map<string, EmptyModel>
     return links;
 }
 
-function generateExternalLinks(emptyNodes: Map<string, EmptyModel>, externalNodes: Map<string, ExternalModel>): Map<string, ExternalLinkModel> {
+function generateExternalLinks(
+    emptyNodes: Map<string, EmptyModel>,
+    externalNodes: Map<string, ExternalModel>,
+    gateways: Gateways
+): Map<string, ExternalLinkModel> {
     const links: Map<string, ExternalLinkModel> = new Map();
     // East bound external node link
     const eastBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.EastBound));
@@ -655,7 +768,7 @@ function generateExternalLinks(emptyNodes: Map<string, EmptyModel>, externalNode
     }
     // North bound external node link
     const northBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.NorthBound));
-    if (northBoundEmptyNode) {
+    if (northBoundEmptyNode && gateways.internet) {
         const northBoundLink = createExternalLink(northBoundEmptyNode, externalNodes, CellBounds.NorthBound, PortModelAlignment.TOP, true);
         if (northBoundLink) {
             links.set(northBoundLink.getID(), northBoundLink);
@@ -663,7 +776,7 @@ function generateExternalLinks(emptyNodes: Map<string, EmptyModel>, externalNode
     }
     // West bound external node link
     const westBoundEmptyNode = emptyNodes.get(getEmptyNodeName(CellBounds.WestBound));
-    if (westBoundEmptyNode) {
+    if (westBoundEmptyNode && gateways.intranet) {
         const westBoundLink = createExternalLink(westBoundEmptyNode, externalNodes, CellBounds.WestBound, PortModelAlignment.LEFT, true);
         if (westBoundLink) {
             links.set(westBoundLink.getID(), westBoundLink);

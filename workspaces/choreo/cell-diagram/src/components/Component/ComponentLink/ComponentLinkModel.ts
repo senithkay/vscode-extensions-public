@@ -7,12 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { COMPONENT_LINK } from '../../../resources';
-import { SharedLinkModel } from '../../shared-link/shared-link';
+import { COMPONENT_LINK } from "../../../resources";
+import { SharedLinkModel } from "../../shared-link/shared-link";
 
 interface LinkOrigins {
-	nodeId: string;
-	attributeId: string;
+    nodeId: string;
 }
 
 export class ComponentLinkModel extends SharedLinkModel {
@@ -23,11 +22,11 @@ export class ComponentLinkModel extends SharedLinkModel {
         super(id, COMPONENT_LINK);
     }
 
-    setSourceNode(nodeId: string, attributeId = '') {
-        this.sourceNode = { nodeId, attributeId };
+    setSourceNode(nodeId: string) {
+        this.sourceNode = { nodeId };
     }
-	
-    setTargetNode(nodeId: string, attributeId = '') {
-        this.targetNode = { nodeId, attributeId };
+
+    setTargetNode(nodeId: string) {
+        this.targetNode = { nodeId };
     }
 }

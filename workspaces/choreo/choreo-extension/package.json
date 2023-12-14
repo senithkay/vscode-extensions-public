@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.5.623110317",
+  "version": "1.6.3",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -217,7 +217,7 @@
           {
             "id": "createComponent",
             "title": "Create a component",
-            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n **Create from existing** \nCreate new components from existing. implementations by simply providing the source directory or the docker file. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)\n **Create from scratch** \nCreate new components from default templates available for Choreo users. \n[Create Now](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromScratch%27%20%7D%22)",
+            "description": "Effortlessly create, sync, and push new components to Choreo from the VSCode extension. \n[Create New Component](command:wso2.choreo.component.create?%22%7B%20mode%3A%20%27fromExisting%27%20%7D%22)",
             "media": {
               "markdown": "resources/walkthrough/createComponent.md"
             }
@@ -235,7 +235,7 @@
             "title": "Publish your project",
             "description": "To leverage the capabilities of Choreo, sync your local changes with Choreo.",
             "media": {
-              "markdown": "resources/walkthrough/PushToChoreo.md"
+              "markdown": "resources/walkthrough/pushToChoreo.md"
             }
           }
         ]

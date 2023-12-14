@@ -23,7 +23,12 @@ on:
         description: Update API Chat extension version
         type: boolean
         required: false
-        default: false              
+        default: true   
+      apk:
+        description: Update APK extension version
+        type: boolean
+        required: false
+        default: true            
       version:
         default: 'N/A'
         type: string
@@ -47,6 +52,7 @@ jobs:
       runChoreoExtTests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}
       runMIExtTests: ${{ steps.testMatrix.outputs.runMIExtTests }}
       runAPIChatExtTests: ${{ steps.testMatrix.outputs.runAPIChatExtTests }}
+      runAPKExtTests: ${{ steps.testMatrix.outputs.runAPKExtTests }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -84,12 +90,18 @@ jobs:
           if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/mi" ]]; then
               echo "runMIExtTests=true" >> $GITHUB_OUTPUT
           fi
+          
+          # APK ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/apk" ]]; then
+            echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
+          fi
 
           # Common
           if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ "^/*.yaml" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
             echo "hasBalDiff=true" >> $GITHUB_OUTPUT
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
+            echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Set test matrix
@@ -101,6 +113,7 @@ jobs:
           echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
           echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
+          echo "runAPKExtTests=${{ steps.diff.outputs.hasAPKDiff }}" >> $GITHUB_OUTPUT
 
       - name: Build
         uses: ./.github/actions/build
@@ -110,7 +123,9 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           api-chat: ${{ inputs.api-chat }}
+          apk: ${{ inputs.apk }}
           version: ${{ inputs.version }}
+          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
