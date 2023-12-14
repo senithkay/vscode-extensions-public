@@ -18,11 +18,12 @@ import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Codicon } from '@wso2-enterprise/ui-toolkit'
 
 const ButtonComponent = styled.div`
     flex-direction: row;
     top: 50%;
-    left: 45px;
+    left: 47px;
     transform: translate(-50%, -50%);
     z-index: 1000;
     gap: 5px;
@@ -30,14 +31,20 @@ const ButtonComponent = styled.div`
 `
 
 const DeleteButton = styled.button`
-    display: block;
-    margin: 0 auto;
-`
-
-const EditButton = styled.button`
+    height: 23px;
+    width: 23px;
     display: block;
     margin: 0 auto;
     color: red;
+    padding: 2px;
+`
+
+const EditButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    padding: 2px;
 `
 
 export interface AdvancedMediatorWidgetProps extends BaseNodeProps {
@@ -139,8 +146,8 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 >
                     {getSVGIcon(props.name, props.description, 70, node.height)}
                     <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
-                        <DeleteButton onClick={deleteNode}> x </DeleteButton>
-                        <EditButton> e </EditButton>
+                        <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
+                        <EditButton> <Codicon name="edit" /> </EditButton>
                     </ButtonComponent>
                 </div>
                 <div

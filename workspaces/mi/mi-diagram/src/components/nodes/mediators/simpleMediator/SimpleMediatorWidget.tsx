@@ -15,6 +15,7 @@ import { getSVGIcon } from '../Icons';
 import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import styled from '@emotion/styled';
+import { Codicon } from '@wso2-enterprise/ui-toolkit'
 
 const ButtonComponent = styled.div`
     flex-direction: row;
@@ -27,14 +28,20 @@ const ButtonComponent = styled.div`
 `
 
 const DeleteButton = styled.button`
-    display: block;
-    margin: 0 auto;
-`
-
-const EditButton = styled.button`
+    height: 23px;
+    width: 23px;
     display: block;
     margin: 0 auto;
     color: red;
+    padding: 2px;
+`
+
+const EditButton = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    padding: 2px;
 `
 
 export interface SimpleMediatorWidgetProps extends BaseNodeProps {
@@ -72,8 +79,8 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
         <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} style={{ width: node.width, height: node.height}}>
             {getSVGIcon(props.name, props.description, node.width, node.height)}
             <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
-                <DeleteButton onClick={deleteNode}> x </DeleteButton>
-                <EditButton> e </EditButton>
+                <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
+                <EditButton> <Codicon name="edit" /> </EditButton>
             </ButtonComponent>
             <MediatorPortWidget
                 port={leftPort}
