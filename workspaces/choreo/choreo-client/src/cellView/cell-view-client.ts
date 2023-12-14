@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { IChoreoCellViewClient } from "./types";
 import { CMService, ComponentType } from "@wso2-enterprise/ballerina-languageclient";
@@ -16,12 +12,11 @@ import { workspace } from "vscode";
 import { existsSync, readFileSync } from "fs";
 import {
     ComponentDisplayType,
-    ComponentMetadata,
-    Inbound,
+    ComponentYamlContent,
     Organization,
-    Outbound,
     Project,
-    ServiceTypes
+    ServiceTypes,
+    WorkspaceItem
 } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
 import { dirname } from "path";
@@ -30,9 +25,7 @@ import * as yaml from 'js-yaml';
 import {
     CHOREO_CONFIG_DIR,
     CHOREO_PROJECT_ROOT,
-    COMPONENTS_CONFIG_FILE,
-    ENDPOINTS_FILE,
-    getBuildPackFromChoreo,
+    COMPONENT_CONFIG_FILE,
     getBuildPackFromFs,
     getComponentDirPath,
     getConnectionModels,
@@ -40,6 +33,7 @@ import {
     getDefaultProjectModel,
     getDefaultServiceModel,
     getGeneralizedComponentType,
+    getImplementedLangOrFramework,
     getServiceModels
 } from "./utils";
 
@@ -66,7 +60,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
         }
 
         const workspaceContent = JSON.parse(readFileSync(workspaceFileLocation, "utf8"));
-        const folders = workspaceContent.folders;
+        const folders: WorkspaceItem[] = workspaceContent.folders;
 
         const project = (await this.getProjects(orgId, orgHandle)).find(project => project.id === projectId);
         if (!project) {
@@ -82,20 +76,19 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
             const componentPath = path.join(dirname(workspaceFileLocation), folder.path);
             const choreoDirPath = path.join(componentPath, CHOREO_CONFIG_DIR);
-            const componentYamlPath = path.join(choreoDirPath, COMPONENTS_CONFIG_FILE);
-            const componentName = folder.path.split(path.sep).pop();
+            const componentYamlPath = path.join(choreoDirPath, COMPONENT_CONFIG_FILE);
             
             if (existsSync(componentYamlPath)) {
-                const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8"));
-                const componentMetadata: ComponentMetadata = (componentYamlContent as any)?.metadata;
-                const componentTypeAnnotation = componentMetadata.annotations?.componentType;
+                const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as ComponentYamlContent;
+                const componentName = componentYamlContent.metadata.name;
+                const componentTypeAnnotation = componentYamlContent.metadata.annotations?.componentType;
                 const componentType = componentTypeAnnotation ? componentTypeAnnotation as ComponentType : ComponentType.SERVICE;
                 const buildPack = getBuildPackFromFs(componentPath);
                 const defaultComponentModel = getDefaultComponentModel(orgName, componentName, componentType, buildPack);
 
                 if (componentType === ComponentType.SERVICE) {
-                    const endpoints: Inbound[] = (componentYamlContent as any).spec.inbound;
-                    const connections: Outbound = (componentYamlContent as any).spec.outbound;
+                    const endpoints = componentYamlContent.spec.inbound || []
+                    const connections = componentYamlContent.spec.outbound;
 
                     const serviceModels = getServiceModels(endpoints, orgName, projectId, componentName,
                         folder.path, componentYamlPath);
@@ -108,7 +101,9 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                     const projectNameToIdMap = await this.getProjectHandlerToIdMap(orgId, orgHandle);
                     const compHandlerToNameMap = await this.getComponentHandlerToNameMap(orgId, projectId, orgHandle, orgUuid);
-                    defaultComponentModel.connections = getConnectionModels(connections, projectNameToIdMap, compHandlerToNameMap);
+                    defaultComponentModel.connections = connections
+                        ? getConnectionModels(connections, projectNameToIdMap, compHandlerToNameMap)
+                        : [];
                 } else if (componentType === ComponentType.WEB_APP) {
                     const service: CMService = {
                         ...getDefaultServiceModel(),
@@ -136,7 +131,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                 projectModel.components.push(defaultComponentModel);
             } else {
-                console.warn(`component.yaml not found in ${choreoDirPath}`);
+                console.warn(`${COMPONENT_CONFIG_FILE} not found in ${choreoDirPath}`);
             }
             
         }
@@ -170,7 +165,7 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
         for (const component of choreoComponents) {
             const displayType = component.displayType as ComponentDisplayType;
-            const buildPack = getBuildPackFromChoreo(displayType);
+            const buildPack = getImplementedLangOrFramework(component);
             const componentType = getGeneralizedComponentType(displayType);
             const defaultComponentModel = getDefaultComponentModel(orgName, component.name,
                 componentType, buildPack, component.version);
@@ -181,16 +176,15 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
             }
 
             if (componentType === ComponentType.SERVICE) {
-                const yamlPath = path.join(componentPath, CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE)
-                    || path.join(componentPath, CHOREO_CONFIG_DIR, ENDPOINTS_FILE);
+                const componentYamlPath = path.join(componentPath, CHOREO_CONFIG_DIR, COMPONENT_CONFIG_FILE);
 
-                if (existsSync(yamlPath)) {
-                    const endpointsContent = yaml.load(readFileSync(yamlPath, "utf8"));
-                    const endpoints: Inbound[] = (endpointsContent as any).spec.inbound;
-                    const connections: Outbound = (endpointsContent as any).spec.outbound;
+                if (existsSync(componentYamlPath)) {
+                    const componentYamlContent = yaml.load(readFileSync(componentYamlPath, "utf8")) as ComponentYamlContent;
+                    const endpoints = componentYamlContent.spec.inbound || []
+                    const connections = componentYamlContent.spec.outbound;
 
                     const serviceModels = getServiceModels(endpoints, orgName, projectId, component.name,
-                        componentPath, yamlPath);
+                        componentPath, componentYamlPath);
                     const servicesRecord: Record<string, CMService> = {};
                     serviceModels.forEach(service => {
                         servicesRecord[service.id] = service;
@@ -200,7 +194,9 @@ export class ChoreoCellViewClient implements IChoreoCellViewClient {
 
                     const projectNameToIdMap = await this.getProjectHandlerToIdMap(orgId, orgHandle);
                     const compHandlerToNameMap = await this.getComponentHandlerToNameMap(orgId, projectId, orgHandle, orgUuid);
-                    defaultComponentModel.connections = getConnectionModels(connections, projectNameToIdMap, compHandlerToNameMap);
+                    defaultComponentModel.connections = connections
+                        ? getConnectionModels(connections, projectNameToIdMap, compHandlerToNameMap)
+                        : [];
                 }
             } else if (componentType === ComponentType.WEB_APP) {
                 const service: CMService = {

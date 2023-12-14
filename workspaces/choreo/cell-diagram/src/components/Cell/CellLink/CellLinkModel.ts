@@ -15,7 +15,6 @@ import { getEmptyNodeName } from "../cell-util";
 
 interface LinkOrigins {
     nodeId: string;
-    attributeId: string;
 }
 
 export class CellLinkModel extends SharedLinkModel {
@@ -26,36 +25,44 @@ export class CellLinkModel extends SharedLinkModel {
         super(id, "cellLink");
     }
 
-    setSourceNode(nodeId: string, attributeId = "") {
-        this.sourceNode = { nodeId, attributeId };
+    setSourceNode(nodeId: string) {
+        this.sourceNode = { nodeId };
     }
 
-    setTargetNode(nodeId: string, attributeId = "") {
-        this.targetNode = { nodeId, attributeId };
+    setTargetNode(nodeId: string) {
+        this.targetNode = { nodeId };
     }
 
-    getArrowHeadPoints = (): string => {
+    getArrowHeadPoints = (scale = 1): string => {
         let points: string;
+        const sizeMultiplier = Math.max(Math.min(scale / 9, 4), 1);
         const targetPort: Point = this.getTargetPort().getPosition();
 
-        if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP && getEmptyNodeName(CellBounds.NorthBound) === this.sourceNode.nodeId) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10} ${targetPort.y - 15},
-					${targetPort.x - 10} ${targetPort.y - 15}`;
-        }
         if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT && getEmptyNodeName(CellBounds.WestBound) === this.sourceNode.nodeId) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14} ${targetPort.y + 10},
-                    ${targetPort.x - 14} ${targetPort.y - 10}`;
+            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14 * sizeMultiplier} ${targetPort.y + 10 * sizeMultiplier},
+                ${targetPort.x - 14 * sizeMultiplier} ${targetPort.y - 10 * sizeMultiplier}`;
+        } else if (
+            this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP &&
+            getEmptyNodeName(CellBounds.NorthBound) === this.sourceNode.nodeId
+        ) {
+            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10 * sizeMultiplier} ${targetPort.y - 15 * sizeMultiplier},
+                ${targetPort.x - 10 * sizeMultiplier} ${targetPort.y - 15 * sizeMultiplier}`;
         }
         return points;
     };
 
-    getStraightPath = (): string => {
-        let path: string;
-        if (this.getSourcePort() && this.getTargetPort()) {
-            const sourcePoint: Point = this.getSourcePort().getPosition().clone();
-            const targetPoint: Point = this.getTargetPort().getPosition().clone();
-            path = `M ${sourcePoint.x} ${sourcePoint.y} L ${targetPoint.x} ${targetPoint.y}`;
+    showArrowHead = (): boolean => {
+        const targetPortAlignment = this.getTargetPort().getOptions().alignment;
+        const sourceNodeId = this.sourceNode.nodeId;
+    
+        if (targetPortAlignment === PortModelAlignment.LEFT && getEmptyNodeName(CellBounds.WestBound) === sourceNodeId) {
+            return true;
         }
-        return path;
+    
+        if (targetPortAlignment === PortModelAlignment.TOP && getEmptyNodeName(CellBounds.NorthBound) === sourceNodeId) {
+            return true;
+        }
+    
+        return false;
     };
 }

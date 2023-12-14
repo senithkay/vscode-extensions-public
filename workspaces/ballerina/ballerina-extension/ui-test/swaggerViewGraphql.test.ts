@@ -41,6 +41,7 @@ describe('GraphQL UI Tests', () => {
         await verifyTerminalText(RUN_OUTPUT);
 
         // Click on `Try it` code lens to open up swagger
+        await wait(3000);
         const lens = await editorView.getCodeLens("Try it");
         await lens.click();
 

@@ -23,10 +23,20 @@ inputs:
     description: 'Is Ballerina'    
     type: boolean
     default: false
+  apk:
+    description: 'Is APK'
+    type: boolean
+    default: false
+  apiChat:
+    description: 'Is API Chat'    
+    type: boolean
+    default: false 
   commonLibs:
     description: 'Is Common Lib'    
     type: boolean
     default: false    
+    required: true
+  
 runs:
   using: "composite"
   steps:
@@ -46,10 +56,20 @@ runs:
         shell: bash
         run: git add workspaces/choreo/*/*.json
 
+      - name: Add APK git changes
+        if: ${{ inputs.apk == 'true' }}
+        shell: bash
+        run: git add workspaces/apk/*/*.json
+
       - name: Add common lib git changes
         if: ${{ inputs.commonLibs == 'true' }}
         shell: bash
         run: git add workspaces/common-libs/*/*.json
+        
+      - name: Add Api Chat git changes
+        if: ${{ inputs.apiChat == 'true' }}
+        shell: bash
+        run: git add workspaces/api-chat/*/*.json
 
       - name: Commit version
         shell: bash

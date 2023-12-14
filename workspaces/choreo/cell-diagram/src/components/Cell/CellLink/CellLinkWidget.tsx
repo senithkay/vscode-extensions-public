@@ -1,18 +1,62 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { CellLinkModel } from "./CellLinkModel";
-import { CELL_LINK, Colors } from "../../../resources";
+import { CELL_LINK, Colors, WarningIcon } from "../../../resources";
 import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
+import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
+import { Popover } from "@wso2-enterprise/ui-toolkit";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { DiagramLayer } from "../../../types";
+import { SharedLink } from "../../shared-link/shared-link";
 
 interface WidgetProps {
     engine: DiagramEngine;
     link: CellLinkModel;
 }
 
+const tooltipPopOverStyle = {
+    backgroundColor: Colors.SURFACE,
+    border: `1px solid ${Colors.SECONDARY}`,
+    padding: "10px",
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "280px",
+    gap: "8px",
+    pointerEvents: "none",
+};
+
+const observabilityPopOverStyle = {
+    backgroundColor: Colors.SURFACE,
+    border: `1px solid ${Colors.SECONDARY}`,
+    padding: "10px",
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "column",
+    pointerEvents: "none",
+};
+
 export function CellLinkWidget(props: WidgetProps) {
     const { link } = props;
 
+    const {
+        diagramLayers: { hasLayer },
+        observationSummary: {
+            requestCount: { min, max },
+        },
+    } = useContext(DiagramContext);
+
     const [isSelected, setIsSelected] = useState<boolean>(false);
+    const [anchorEl, setAnchorEl] = React.useState<null | SVGGElement>(null);
+
+    const open = (link.tooltip || link.observations?.length > 0) && Boolean(anchorEl);
+    const hasArchitectureLayer = hasLayer(DiagramLayer.ARCHITECTURE);
+    const hasObservabilityLayer = hasLayer(DiagramLayer.OBSERVABILITY);
+    const hasDiffLayer = hasLayer(DiagramLayer.DIFF);
+
+    const hideLink =
+        (hasObservabilityLayer && (!link.observations || link.observations?.length === 0) && !hasArchitectureLayer && !hasDiffLayer) ||
+        (hasArchitectureLayer && !hasObservabilityLayer && !hasDiffLayer && link.observationOnly);
 
     useEffect(() => {
         const listener = link.registerListener({
@@ -22,9 +66,12 @@ export function CellLinkWidget(props: WidgetProps) {
         return () => {
             link.deregisterListener(listener);
         };
-    }, [link]);
+    }, [link, hideLink]);
 
     const selectPath = () => {
+        if (hideLink) {
+            return;
+        }
         setIsSelected(true);
         link.selectLinkedNodes();
     };
@@ -34,32 +81,100 @@ export function CellLinkWidget(props: WidgetProps) {
         link.resetLinkedNodes();
     };
 
-    const handleMouseOver = () => {
+    const handleMouseOver = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
+        event.stopPropagation();
+        if (hideLink) {
+            return;
+        }
         selectPath();
+        setAnchorEl(event.currentTarget);
     };
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = (event: React.MouseEvent<SVGGElement, MouseEvent>) => {
+        event.stopPropagation();
         unselectPath();
+        setAnchorEl(null);
     };
 
-    const middlePosition = link.getTooltipPosition();
+    const getRequestCount = () => {
+        if (!hasObservabilityLayer || !link.observations || link.observations.length === 0) {
+            return 0;
+        }
+        return link.observations?.reduce((acc, obs) => acc + obs.requestCount, 0);
+    };
+
+    const strokeWidth = () => {
+        const requestCount = getRequestCount();
+        return requestCount ? link.scaleValueToLinkWidth(requestCount, min, max) : 2;
+    };
+
+    const strokeColor = () => {
+        if (isSelected && (hasArchitectureLayer || hasDiffLayer)) {
+            return Colors.SECONDARY;
+        }
+        if (hasDiffLayer && link.observationOnly) {
+            return Colors.ERROR;
+        }
+        if (hasObservabilityLayer && link.observations?.length > 0) {
+            return Colors.PRIMARY;
+        }
+        if (hideLink) {
+            return "transparent";
+        }
+
+        return Colors.ON_SURFACE_VARIANT;
+    };
+
+    const strokeDash = () => {
+        if (hasDiffLayer && !(link.observations?.length > 0)) {
+            return "8,8";
+        }
+        return "";
+    };
+
+    const midPoint = link.getMidPoint();
 
     return (
-        <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={CELL_LINK}>
-            <polygon points={link.getArrowHeadPoints()} fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT} />
-            <path
-                id={link.getID()}
-                d={link.getCurvePath()}
-                cursor={"pointer"}
-                fill={"none"}
-                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
-                strokeWidth={2}
-            />
-            {isSelected && link.observations?.length > 0 && (
-                <foreignObject x={middlePosition.x} y={middlePosition.y} width="240" height="240">
-                    <ObservationLabel observations={link.observations} />
-                </foreignObject>
+        <>
+            <g onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave} pointerEvents={"all"} className={CELL_LINK}>
+                <defs>
+                    <marker
+                        id={link.getLinkArrowId()}
+                        markerWidth="8"
+                        markerHeight="8"
+                        markerUnits="strokeWidth"
+                        refX="4"
+                        refY="3"
+                        viewBox="0 0 6 6"
+                        orient="auto"
+                    >
+                        <polygon points="0,6 0,0 5,3" fill={strokeColor()}></polygon>
+                    </marker>
+                </defs>
+                <path d={link.getCurvePath()} fill={"none"} stroke={"transparent"} strokeWidth={40} />
+                <SharedLink.Path
+                    selected={hasObservabilityLayer && isSelected}
+                    id={link.getID()}
+                    d={link.getCurvePath()}
+                    fill={"none"}
+                    stroke={strokeColor()}
+                    strokeWidth={strokeWidth()}
+                    strokeDasharray={strokeDash()}
+                    markerEnd={link.showArrowHead() && !hasObservabilityLayer ? "url(#" + link.getLinkArrowId() + ")" : ""}
+                />
+                {hasDiffLayer && link.observationOnly && <WarningIcon x={midPoint.x - 10} y={midPoint.y - 10} width="20" height="20" />}
+            </g>
+            {(hasObservabilityLayer || link.tooltip) && (
+                <Popover
+                    id={link.getID()}
+                    open={open}
+                    anchorEl={anchorEl}
+                    sx={link.observations?.length > 0 && !link.tooltip ? observabilityPopOverStyle : tooltipPopOverStyle}
+                >
+                    {link.tooltip && <TooltipLabel tooltip={link.tooltip} />}
+                    {link.observations?.length > 0 && !link.tooltip && <ObservationLabel observations={link.observations} />}
+                </Popover>
             )}
-        </g>
+        </>
     );
 }

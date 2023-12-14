@@ -7,133 +7,83 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { Colors } from "../../resources";
 import { Observations } from "../../types";
 
-const Container = styled.div`
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
-    border: 1px solid ${Colors.PRIMARY_SELECTED};
-    padding: 10px;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+const Table = styled.table`
+    width: 100%;
 `;
 
-const Section = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-`;
+const TableRow = styled.tr``;
 
-const Row = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-`;
-
-const TitleRow = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-`;
-
-const DotRow = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-`;
-
-const Dot = styled.div`
-    height: 12px;
-    width: 12px;
-    background-color: ${Colors.PRIMARY_LIGHT};
-    border-radius: 50%;
-    display: inline-block;
-    transition: background-color 0.6s ease;
-    cursor: pointer;
-`;
-
-const Title = styled.div`
+const TableHeader = styled.td`
+    padding: 2px 2px;
+    text-align: left;
     font-family: "GilmerMedium";
-    margin-bottom: 4px;
-    max-width: 160px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 160px;
 `;
 
-const Value = styled.div`
+const TopTableHeader = styled(TableHeader)`
+    text-align: right;
+    max-width: 120px;
+`;
+
+const TableData = styled.td`
+    padding: 2px 2px 2px 8px;
     color: ${Colors.PRIMARY};
+    text-align: right;
+    font-family: "GilmerRegular";
 `;
 
-const ActiveDot = styled(Dot)`
-    background-color: ${Colors.NODE_BORDER};
-`;
+const convertToMs = (value: number) => (value / 1000 / 1000).toFixed(value / 1000 / 1000 > 100 ? 1 : 2);
 
 interface ObservationLabelProps {
     observations: Observations[];
 }
 
-export function ObservationLabel(props: ObservationLabelProps) {
-    const [activeIndex, setActiveIndex] = useState(0); // Add state to keep track of the active section
-    const observationsArray = props.observations;
+export function ObservationLabel({ observations }: ObservationLabelProps) {
+    // Slice the observations array to include only up to the first 5 elements
+    // TODO: Add a "View All" button to view all observations
+    const displayedObservations = observations.slice(0, 5);
 
-    const convertToMs = (value: number) => (value / 1000 / 1000).toFixed(value / 1000 / 1000 > 100 ? 1 : 2);
+    const metrics = [
+        { name: "Request Count", valueFn: (obs: Observations) => obs.requestCount },
+        { name: "Error Percentage", valueFn: (obs: Observations) => ((obs.errorCount * 100) / obs.requestCount).toFixed(2) + "%" },
+        { name: "Average Latency", valueFn: (obs: Observations) => convertToMs(obs.avgLatency) + " ms" },
+        { name: "99% Latency", valueFn: (obs: Observations) => convertToMs(obs.p99Latency) + " ms" },
+        { name: "90% Latency", valueFn: (obs: Observations) => convertToMs(obs.p90Latency) + " ms" },
+        { name: "50% Latency", valueFn: (obs: Observations) => convertToMs(obs.p50Latency) + " ms" },
+    ];
 
-    const handleDotClick = (index: number) => {
-        setActiveIndex(index);
-    };
-
-    const observations = observationsArray[activeIndex]; // Get the active observation
+    function formatNumberWithCommas(x: string): string {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 
     return (
-        <Container>
-            <Section>
-                {observationsArray.length > 1 && (
-                    <TitleRow>
-                        {observations.label && <Title>{observations.label}</Title>}
-                        <Title>{observations.componentVersion}</Title>
-                    </TitleRow>
-                )}
-                <Row>
-                    <div>Request Count</div>
-                    <Value>{observations.requestCount}</Value>
-                </Row>
-                <Row>
-                    <div>Error Percentage</div>
-                    <Value>{((observations.errorCount * 100) / observations.requestCount).toFixed(2)}%</Value>
-                </Row>
-                <Row>
-                    <div>Average Latency</div>
-                    <Value>{convertToMs(observations.avgLatency)} ms</Value>
-                </Row>
-                <Row>
-                    <div>99% Latency</div>
-                    <Value>{convertToMs(observations.p99Latency)} ms</Value>
-                </Row>
-                <Row>
-                    <div>90% Latency</div>
-                    <Value>{convertToMs(observations.p90Latency)} ms</Value>
-                </Row>
-                <Row>
-                    <div>50% Latency</div>
-                    <Value>{convertToMs(observations.p50Latency)} ms</Value>
-                </Row>
-            </Section>
-            {observationsArray.length > 1 && (
-                <DotRow>
-                    {observationsArray.map((_, index) =>
-                        index === activeIndex ? <ActiveDot key={index} onClick={() => handleDotClick(index)} /> : <Dot onClick={() => handleDotClick(index)} />
-                    )}
-                </DotRow>
-            )}
-        </Container>
+        <Table>
+            <thead>
+                <TableRow>
+                    <TableHeader></TableHeader>
+                    {displayedObservations.map((obs, index) => (
+                        <TopTableHeader key={index}>{obs.label || obs.componentVersion || ""}</TopTableHeader>
+                    ))}
+                </TableRow>
+            </thead>
+            <tbody>
+                {metrics.map((metric) => (
+                    <TableRow key={metric.name}>
+                        <TableHeader>{metric.name}</TableHeader>
+                        {displayedObservations.map((obs, index) => (
+                            <TableData key={index}>{formatNumberWithCommas(metric.valueFn(obs).toString())}</TableData>
+                        ))}
+                    </TableRow>
+                ))}
+            </tbody>
+        </Table>
     );
 }

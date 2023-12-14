@@ -1,25 +1,16 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-import { useContext } from "react";
-import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
-import { ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
-import { useQuery } from "@tanstack/react-query";
 import { cx } from "@emotion/css";
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { ErrorBanner, ErrorIcon } from "@wso2-enterprise/ui-toolkit";
 import debounce from "lodash.debounce";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
@@ -41,21 +32,7 @@ export interface RepoStructureConfigProps {
 
 export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
 
-    const { repository, implementationType } = props.formData;
-    const { choreoProject } = useContext(ChoreoWebViewContext);
-    const [folderNameError, setFolderNameError] = useState("");
-
-    const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
-        ["getLocalComponentDirMetaData", choreoProject, repository],
-        () =>
-            ChoreoWebViewAPI.getInstance().getLocalComponentDirMetaData({
-                orgName: repository?.org ?? "",
-                repoName: repository?.repo ?? "",
-                projectId: choreoProject?.id ?? "",
-                subPath: repository?.subPath ?? "",
-            }),
-        { refetchOnWindowFocus: false }
-    );
+    const { repository } = props.formData;   
 
     const setFolderName = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -67,35 +44,12 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
         }));
     };
 
-    useEffect(() => {
-        const updateFolderError = () => {
-            let folderError = "";
-            if (localDirectorMetaData) {
-                if (repository?.subPath) {
-                    if (!localDirectorMetaData?.isSubPathValid) {
-                        folderError = 'Sub path does not exist';
-                    }
-                    if (localDirectorMetaData?.isSubPathEmpty) {
-                        folderError = "Please provide a path that is not empty"
-                    }
-                    if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInPath) {
-                        folderError = "Please provide a path that contains a Ballerina project."
-                    }
-                } else if (implementationType === ChoreoImplementationType.Ballerina && !localDirectorMetaData?.hasBallerinaTomlInRoot) {
-                    folderError = "Repository root does not contain a valid Ballerina project"
-                }
-            }
-
-            setFolderNameError(folderError);
-        };
-
-        updateFolderError();
-    }, [repository?.subPath, localDirectorMetaData]);
-
-    useEffect(() => {
-        const isDirectoryValid = !folderNameError;
-        props.onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isDirectoryValid } }));
-    }, [folderNameError]);
+    const onCreateNewDirChange = () => {
+        props.onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            repository: { ...prevFormData.repository, createNewDir: !!!prevFormData.repository.createNewDir}
+        }));
+    };
     
     const updateSubFolderName = debounce(setFolderName, 500);
 
@@ -109,7 +63,7 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
                     id="directory-select-input"
                 >
                     Directory <RequiredFormInput />
-                    {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                    {repository.directoryPathError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     <RepoFileOpenDialogInput
                         label="Browse"
                         repo={`${repository?.org}/${repository?.repo}`}
@@ -122,9 +76,13 @@ export const BalSubPathConfig = (props: RepoStructureConfigProps) => {
                         filters={{}}
                     />
                 </VSCodeTextField>
+                {repository.directoryPathError && <ErrorBanner errorMsg={repository.directoryPathError} />}
+                {repository?.subPath && !repository.selectedDirectoryMetadata?.isSubPathValid && (
+                    <VSCodeCheckbox checked={repository.createNewDir} onChange={onCreateNewDirChange} id="init-component-dir">
+                        Initialize <b>{repository?.subPath}</b> as a new directory
+                    </VSCodeCheckbox>
+                )}
             </StepContainer>
-            {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
-            {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
         </div>
     );
 };

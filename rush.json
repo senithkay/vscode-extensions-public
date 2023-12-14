@@ -243,9 +243,10 @@
      * The list of shell commands to run after the Rush build command finishes
      */
     "postRushBuild": [
-      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot", 
+      "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot",
       "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/mi/mi-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/api-chat/extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
@@ -573,6 +574,21 @@
     {
       "packageName": "@wso2-enterprise/mi-syntax-tree",
       "projectFolder": "workspaces/mi/syntax-tree"
+    },
+    {
+      "packageName": "api-chat",
+      "projectFolder": "workspaces/api-chat/extension",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/api-chat-vscode-webviews",
+      "projectFolder": "workspaces/api-chat/webviews",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "apk-config-language-support",
+      "projectFolder": "workspaces/apk/apk-extension",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }

@@ -15,9 +15,16 @@ export { RemoveIcon } from "./RemoveIcon";
 export { WarningIcon } from "./WarningIcon";
 export { RefreshIcon } from "./RefreshIcon";
 export { MoreVertIcon } from "./MoreVertIcon";
+export { LayersIcon } from "./LayersIcon";
+export { ObservationIcon } from "./ObservationIcon";
+export { DiffIcon } from "./DiffIcon";
+export { DiagramIcon } from "./DiagramIcon";
+export { InfoIcon } from "./InfoIcon";
+
 // Cell icons
 export { GatewayIcon } from "./GatewayIcon";
 export { ConnectionIcon } from "./ConnectionIcon";
+
 // Component type icons
 export { ServiceIcon } from "./ServiceIcon";
 export { WebAppIcon } from "./WebAppIcon";
@@ -28,14 +35,16 @@ export { ScheduledTaskIcon } from "./ScheduledTaskIcon";
 export { AddCheckIcon } from "./AddCheckIcon";
 export { WebhookIcon } from "./WebhookIcon";
 export { DatabaseIcon } from "./DatabaseIcon";
+
 // Language icons
-export { CodeIcon } from "./CodeIcon";
-export { BallerinaIcon } from "./lang/BallerinaIcon";
-export { JavaIcon } from "./lang/JavaIcon";
-export { GoIcon } from "./lang/GoIcon";
-export { NodeJsIcon } from "./lang/NodeJsIcon";
-export { PythonIcon } from "./lang/PythonIcon";
-export { RubyIcon } from "./lang/RubyIcon";
-export { RustIcon } from "./lang/RustIcon";
-export { PhpIcon } from "./lang/PhpIcon";
-export { DockerIcon } from "./lang/DockerIcon";
+export { CodeIcon as codeIcon } from "./CodeIcon";
+export { JavaIcon as javaIcon } from "./lang/JavaIcon";
+export { PythonIcon as pythonIcon } from "./lang/PythonIcon";
+export { NodeJsIcon as  nodejsIcon} from "./lang/NodeJsIcon";
+export { GoIcon as goIcon } from "./lang/GoIcon";
+export { PhpIcon as phpIcon } from "./lang/PhpIcon";
+export { RubyIcon as rubyIcon } from "./lang/RubyIcon";
+export { BallerinaIcon as ballerinaIcon } from "./lang/BallerinaIcon";
+export { DockerIcon as dockerIcon } from "./lang/DockerIcon";
+export { MIIcon as microintegratorIcon } from "./lang/MIIcon";
+export { RustIcon as rustIcon } from "./lang/RustIcon";

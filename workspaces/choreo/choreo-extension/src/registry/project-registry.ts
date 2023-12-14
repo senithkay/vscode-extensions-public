@@ -1,14 +1,10 @@
 /*
- *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
- *  This software is the property of WSO2 LLC. and its suppliers, if any.
- *  Dissemination of any information or reproduction of any material contained
- *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
- *  the WSO2 Commercial License available at http://wso2.com/licenses.
- *  For specific language governing the permissions and limitations under
- *  this license, please see the license as well as any agreement you’ve
- *  entered into with WSO2 governing the purchase of this software and any
- *  associated services.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
 import { choreoEnvConfig, getConsoleUrl } from "../auth/auth";
@@ -18,7 +14,7 @@ import {
     Component,
     ComponentCount,
     Environment,
-    getLocalComponentDirMetaDataRes,
+    LocalComponentDirMetaDataRes,
     getLocalComponentDirMetaDataRequest,
     Organization,
     Project,
@@ -30,18 +26,18 @@ import {
     GitRepo,
     GitProvider,
     Endpoint,
-    getEndpointsForVersion,
     EndpointData,
     WorkspaceConfig,
     Buildpack,
     GoogleProviderBuildPackNames,
     ComponentYamlContent,
     Inbound,
-    getGeneralizedCellComponentType
+    getGeneralizedCellComponentType,
+    ChoreoBuildPackNames
 } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
+import { CHOREO_CONFIG_DIR, COMPONENT_CONFIG_FILE, CreateBuildpackComponentParams, CreateByocComponentParams, CreateComponentParams, CreateMiComponentParams, GetBuildpackParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
@@ -135,6 +131,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 this.addDockerFile(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
@@ -174,7 +171,11 @@ export class ProjectRegistry {
 
             const project = await this.getProject(args.projectId, args.org.id, args.org.handle);
 
-            const subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+            let subPath = dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext || args.webAppConfig?.webAppOutputDirectory;
+
+            if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess && args.webAppConfig?.webAppType === ChoreoBuildPackNames.StaticFiles) {
+                subPath = args.webAppConfig?.webAppOutputDirectory;
+            }
 
             if (subPath) {
                 basePath = join(basePath, subPath);
@@ -182,7 +183,7 @@ export class ProjectRegistry {
             const schemaFilePath = openApiFilePath && subPath
                     ? relative(subPath, openApiFilePath)
                     : openApiFilePath || "openapi.yaml";
-            const componentYamlPath = join(basePath, CHOREO_CONFIG_DIR, COMPONENTS_CONFIG_FILE);
+            const componentYamlPath = join(basePath, CHOREO_CONFIG_DIR, COMPONENT_CONFIG_FILE);
 
             if (existsSync(componentYamlPath)) {
                 rmSync(componentYamlPath);
@@ -192,7 +193,7 @@ export class ProjectRegistry {
                 apiVersion:'core.choreo.dev/v1alpha1',
                 kind:'ComponentConfig',
                 metadata: {
-                    name: args.name,
+                    name: makeURLSafe(args.name),
                     projectName: project?.name!,
                     annotations: { componentType: getGeneralizedCellComponentType(args.displayType) },
                 },
@@ -205,6 +206,7 @@ export class ProjectRegistry {
                     name: args.name,
                     port: args.port ?? 3000,
                     type: args.serviceType ?? "REST",
+                    visibility: args.networkVisibility ?? 'Project'
                 };
     
                 if (args.serviceType && [ChoreoServiceType.RestApi, ChoreoServiceType.GraphQL].includes(args.serviceType)) {
@@ -242,6 +244,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
@@ -259,6 +262,7 @@ export class ProjectRegistry {
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
+                this.initializeDirectory(args);
                 const addComponentYamlResp = await this.addComponentYaml(args);
                 await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
                 this.showComponentCreateSuccessMessage(addComponentYamlResp?.configPath, addComponentYamlResp?.openApiPath);
@@ -1026,7 +1030,7 @@ export class ProjectRegistry {
         vscode.commands.executeCommand('vscode.open', billingLink);
     }
 
-    public getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): getLocalComponentDirMetaDataRes {
+    public getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): LocalComponentDirMetaDataRes {
         // instead of calling getRepoMetadata api and checking remote directory is valid
         // this will check those values from local directory
 
@@ -1066,9 +1070,9 @@ export class ProjectRegistry {
         let hasBallerinaTomlInRoot = existsSync(join(repoPath, 'Ballerina.toml'));
 
         let hasComponentYaml = false;
-        let componentYamlPath = join(repoPath, '.choreo', COMPONENTS_CONFIG_FILE);
+        let componentYamlPath = join(repoPath, '.choreo', COMPONENT_CONFIG_FILE);
         if(dockerContextPath || subPath){
-            componentYamlPath = join(repoPath, dockerContextPath || subPath, '.choreo', COMPONENTS_CONFIG_FILE);
+            componentYamlPath = join(repoPath, dockerContextPath || subPath, '.choreo', COMPONENT_CONFIG_FILE);
         }
         hasComponentYaml = existsSync(componentYamlPath);
 
@@ -1240,6 +1244,33 @@ export class ProjectRegistry {
             });
         } else {
             window.showInformationMessage('Component configured successfully');
+        }
+    }
+
+    private initializeDirectory(args: ChoreoComponentCreationParams) {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        const { org, repo } = args.repositoryInfo as BYOCRepositoryDetails;
+            
+
+        if (args.initializeNewDirectory && projectLocation) {
+            const projectDir = dirname(projectLocation);
+            let basePath = join(projectDir, "repos", org, repo);
+            let folderPath = (args.repositoryInfo as BYOCRepositoryDetails)?.dockerContext || args.repositoryInfo?.subPath || args.webAppConfig?.dockerContext;
+
+            if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess && args.webAppConfig?.webAppType === ChoreoBuildPackNames.StaticFiles) {
+                folderPath = args.webAppConfig?.webAppOutputDirectory;
+            }
+    
+            if (folderPath) {
+                const subDirFullPath = join(basePath, folderPath);
+                if (existsSync(subDirFullPath)) {
+                    // If the folder already exists, delete it
+                    rmdirSync(subDirFullPath, { recursive: true });
+                }
+                
+                // Create the folder
+                mkdirSync(subDirFullPath);
+            }
         }
     }
 }

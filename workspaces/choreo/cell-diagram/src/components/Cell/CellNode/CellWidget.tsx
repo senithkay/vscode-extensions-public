@@ -59,7 +59,7 @@ export function CellWidget(props: CellWidgetProps) {
         <CellNode height={cellHeight} borderWidth={strokeWidth}>
             {generateRoundedOctagonSVG(cellHeight)}
 
-            <TopPortCircle>
+            <TopPortCircle show={node.gateways.internet}>
                 <TopIconWrapper>
                     <GatewayIcon />
                 </TopIconWrapper>
@@ -67,7 +67,7 @@ export function CellWidget(props: CellWidgetProps) {
                 <CellPortWidget port={node.getPort(getCellPortId(node.getID(), CellBounds.NorthBound, PortModelAlignment.BOTTOM))} engine={engine} />
             </TopPortCircle>
 
-            <LeftPortCircle>
+            <LeftPortCircle show={node.gateways.intranet}>
                 <IconWrapper>
                     <GatewayIcon />
                 </IconWrapper>

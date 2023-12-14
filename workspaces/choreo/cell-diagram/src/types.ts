@@ -55,7 +55,9 @@ export interface Connection {
     label?: string;
     type?: ConnectionType;
     onPlatform?: boolean;
+    tooltip?: string;
     observations?: Observations[];
+    observationOnly?: boolean;
 }
 
 export enum ConnectionType {
@@ -85,11 +87,15 @@ export interface DeploymentMetadata {
     gateways: {
         internet: {
             isExposed: boolean;
+            tooltip?: string;
             observations?: Observations[];
+            observationOnly?: boolean;
         };
         intranet: {
             isExposed: boolean;
+            tooltip?: string;
             observations?: Observations[];
+            observationOnly?: boolean;
         };
     };
 }
@@ -110,9 +116,20 @@ export interface Observations {
 // Util function types
 
 export type CommonModel = ComponentModel | ConnectionModel | ExternalModel | EmptyModel;
-export interface NodesAndLinks {
+export interface DiagramData {
     nodes: Nodes;
     links: Links;
+    gateways: Gateways;
+    observationSummary: ObservationSummary;
+}
+
+export interface Gateways {
+    internet: boolean;
+    intranet: boolean;
+}
+
+export interface ObservationSummary {
+    requestCount: { min: number; max: number };
 }
 
 export interface Nodes {
@@ -121,4 +138,25 @@ export interface Nodes {
 
 export interface Links {
     [key: string]: Map<string, ComponentLinkModel | ExternalLinkModel | CellLinkModel>;
+}
+
+export interface MoreVertMenuItem {
+    label: string;
+    callback: (id: string, version?: string) => void;
+}
+
+export enum DiagramLayer {
+    ARCHITECTURE = "architecture",
+    OBSERVABILITY = "observability",
+    DIFF = "diff",
+}
+
+export interface CustomTooltips {
+    diagramLayers: DiagramLayerTooltips;
+}
+
+export interface DiagramLayerTooltips {
+    staticLayer?: string;
+    runtimeLayer?: string;
+    diffLayer?: string;
 }
