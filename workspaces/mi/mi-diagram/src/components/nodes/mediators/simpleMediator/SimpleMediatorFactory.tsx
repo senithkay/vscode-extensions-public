@@ -29,6 +29,8 @@ export class SimpleMediatorNodeFactory extends AbstractReactFactory<SimpleMediat
             node={event.model}
             name={event.model.mediatorName}
             description={event.model.mediatorDescription}
+            documentUri={event.model.getDocumentUri()}
+            nodePosition={event.model.getNodeRange()}
         />;
     }
 

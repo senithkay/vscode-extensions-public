@@ -15,7 +15,6 @@ import { MIWebViewAPI } from '../../../utils/WebViewRpc';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { Position } from 'vscode';
 
 const cardStyle = {
     display: "block",
@@ -96,7 +95,7 @@ const AddConnector = (props: AddConnectorProps) => {
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
             
             MIWebViewAPI.getInstance().applyEdit({
-                documentUri: props.documentUri, position: props.nodePosition.start as Position, text: modifiedXml
+                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
             });
             sidePanelContext.setIsOpen(false);
         }

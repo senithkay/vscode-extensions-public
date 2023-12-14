@@ -20,7 +20,9 @@
   "dependencies": {
     "vscode-messenger-common": "^0.4.5",
     "vscode-messenger": "~0.4.5",
-    "vscode": "~1.1.37"
+    "vscode": "~1.1.37",
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
+    "@wso2-enterprise/ui-toolkit": "workspace:*"
   },
   "repository": {
     "type": "git",

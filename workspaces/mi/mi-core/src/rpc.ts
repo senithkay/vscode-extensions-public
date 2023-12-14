@@ -8,12 +8,12 @@
  */
 
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Position } from 'vscode';
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface ApplyEditParams {
-   position: Position;
    text: string;
    documentUri: string;
+   range: Range;
 }
 
 export interface GetConnectorsResponse {
