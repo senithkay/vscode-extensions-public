@@ -21,9 +21,14 @@ import { ResourcesList } from './ResourcesList';
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import { Typography } from '@wso2-enterprise/ui-toolkit';
 
+export interface SelectedComponent {
+    fileName: string;
+    serviceST: ServiceDeclaration
+}
+
 export function Overview() {
     const [currentComponents, setCurrentComponents] = useState<any>();
-    const [selectedComponent, setSelectedComponent] = useState<ServiceDeclaration>();
+    const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>();
     const [loading, setLoading] = useState(true);
     const { eggplantRpcClient } = useVisualizerContext();
 
@@ -87,8 +92,8 @@ export function Overview() {
             {currentComponents ? (
                 selectedComponent ? (
                     <>
-                        <Typography variant="h3">{selectedComponent.absoluteResourcePath.map(res => res.value)}</Typography>
-                        <ResourcesList components={selectedComponent.members} />
+                        <Typography variant="h3">{selectedComponent.serviceST.absoluteResourcePath.map(res => res.value)}</Typography>
+                        <ResourcesList component={selectedComponent} />
                     </>
                 ) : (
                     <ComponentListView currentComponents={currentComponents} setSelectedComponent={setSelectedComponent} />

@@ -46,7 +46,7 @@ const stateMachine = createMachine<Context>({
             invoke: {
                 src: 'waitForLS',
                 onDone: {
-                    target: 'ready',
+                    target: 'loading',
                     actions: assign({
                         langServer: (context, event) => event.data
                     })
@@ -59,10 +59,18 @@ const stateMachine = createMachine<Context>({
                 }
             }
         },
+        loading: {
+            invoke: {
+                src: 'waitForloading',
+                onDone: {
+                    target: 'ready'
+                },
+            }
+        },
         ready: {
             on: {
                 OPEN_VIEW: {
-                    target: "ready",
+                    target: "loading",
                     actions: assign({
                         view: (context, event) => event.viewLocation.view,
                         location: (context, event) => event.viewLocation.location
@@ -104,6 +112,12 @@ const stateMachine = createMachine<Context>({
                         resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
                     }
                 }
+            });
+        },
+        waitForloading: (context, event) => {
+            // replace this with actual promise that waits for LS to be ready
+            return new Promise((resolve, reject) => {
+                resolve(undefined);
             });
         }
     }

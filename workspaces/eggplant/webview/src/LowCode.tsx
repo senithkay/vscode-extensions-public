@@ -31,7 +31,7 @@ const MessageContent = styled.div({
 });
 
 
-const LowCode = () => {
+const LowCode = (props: { state: string }) => {
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
 
@@ -52,7 +52,7 @@ const LowCode = () => {
                 setModel(undefined);
             }
         }
-    }, [eggplantRpcClient]);
+    }, [props.state]);
 
     return (
         <Container>

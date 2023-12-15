@@ -41,7 +41,7 @@ export function Webview({ mode }: { mode: string }) {
             }
             {mode === "lowcode" &&
                 <>
-                    {state === 'ready' ? <LowCode /> : <Loader />}
+                    {state === 'ready' ? <LowCode state={state}/> : <Loader />}
                 </>
             }
         </>
