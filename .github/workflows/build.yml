@@ -23,7 +23,7 @@ on:
         description: Update API Chat extension version
         type: boolean
         required: false
-        default: true   
+        default: false   
       apk:
         description: Update APK extension version
         type: boolean
