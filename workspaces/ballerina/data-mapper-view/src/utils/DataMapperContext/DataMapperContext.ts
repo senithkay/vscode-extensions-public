@@ -16,6 +16,7 @@ import { Diagnostic } from "vscode-languageserver-types";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
 import { VisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
@@ -38,6 +39,7 @@ export interface IDataMapperContext {
     handleOverlay: (showOverlay: boolean) => void;
     ballerinaVersion: string;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
     updateActiveFile?: (currentFile: any) => void;
     updateSelectedComponent?: (info: any) => void;
     referenceManager?: {
@@ -69,6 +71,7 @@ export class DataMapperContext implements IDataMapperContext {
         public handleOverlay: (showOverlay: boolean) => void,
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
+        public applyModifications: (modifications: STModification[]) => Promise<void>,
         public updateActiveFile?: (currentFile: any) => void,
         public updateSelectedComponent?: (info: any) => void,
         public referenceManager?: {

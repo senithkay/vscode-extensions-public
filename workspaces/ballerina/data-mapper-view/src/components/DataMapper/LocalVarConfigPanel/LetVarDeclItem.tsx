@@ -16,7 +16,7 @@ import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { applyModifications, getRenameEdits } from "../../Diagram/utils/ls-utils";
+import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
@@ -28,11 +28,12 @@ interface LetVarDeclItemProps {
     letVarDeclModel: LetVarDeclModel;
     handleOnCheck: () => void;
     onEditClick: (letVarDecl: LetVarDecl) => void;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
     filePath: string;
 }
 
 export function LetVarDeclItem(props: LetVarDeclItemProps) {
-    const {index, letVarDeclModel, handleOnCheck, onEditClick, filePath} = props;
+    const {index, letVarDeclModel, handleOnCheck, onEditClick, applyModifications, filePath} = props;
     const overlayClasses = useStyles();
     const { ballerinaRpcClient } = useVisualizerContext();
     const varNameNode = (letVarDeclModel.letVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern)
@@ -88,7 +89,7 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                 });
 
                 modifications.sort((a, b) => a.startLine - b.startLine);
-                await applyModifications(filePath, modifications, ballerinaRpcClient);
+                await applyModifications(modifications);
             } finally {
                 setLoading(false);
             }

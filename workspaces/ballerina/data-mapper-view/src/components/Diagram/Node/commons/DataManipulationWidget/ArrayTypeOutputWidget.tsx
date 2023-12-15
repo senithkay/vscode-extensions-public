@@ -44,7 +44,6 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { applyModifications } from "../../../utils/ls-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -155,7 +154,6 @@ export interface ArrayTypeOutputWidgetProps {
 
 export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeInfo } = props;
-	const {	ballerinaRpcClient } = useVisualizerContext();
 	const classes = useStyles();
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
@@ -279,7 +277,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 				const targetPosition = getTargetPositionForWrapWithTypeCast();
 				modification.push(getModification(`<${name}>`, targetPosition));
 			}
-			await applyModifications(context.filePath, modification, ballerinaRpcClient);
+			await context.applyModifications(modification);
 		} finally {
 			setIsModifyingTypeCast(false);
 		}

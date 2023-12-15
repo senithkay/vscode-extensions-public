@@ -48,7 +48,6 @@ import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
 import { RequiredParamNode } from "../RequiredParam";
 import { UnionTypeNode } from "../UnionType";
-import { applyModifications } from "../../utils/ls-utils";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -354,6 +353,6 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             }
         }
 
-        void applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
+        this.context.applyModifications(modifications);
     }
 }

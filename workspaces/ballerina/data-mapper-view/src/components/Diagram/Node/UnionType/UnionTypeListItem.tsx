@@ -22,8 +22,6 @@ import { IDataMapperContext} from "../../../../utils/DataMapperContext/DataMappe
 import { getModification } from "../../utils/modifications";
 
 import { useStyles } from "./style";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { applyModifications } from "../../utils/ls-utils";
 
 export interface UnionTypeListItemProps {
     key: number;
@@ -36,7 +34,6 @@ export interface UnionTypeListItemProps {
 
 export function UnionTypeListItem(props: UnionTypeListItemProps) {
     const { key, context, type, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
-    const { ballerinaRpcClient } = useVisualizerContext();
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const classes = useStyles();
 
@@ -60,7 +57,7 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
                 };
             }
             const modification = [getModification(`<${type}>`, targetPosition)];
-            await applyModifications(context.filePath, modification, ballerinaRpcClient);
+            await context.applyModifications(modification);
         } finally {
             setIsAddingTypeCast(false);
         }

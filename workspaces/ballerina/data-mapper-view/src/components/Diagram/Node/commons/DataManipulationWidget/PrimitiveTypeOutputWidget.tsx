@@ -42,9 +42,7 @@ import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { URI } from 'vscode-uri';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { applyModifications } from '../../../utils/ls-utils';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -134,7 +132,6 @@ export interface PrimitiveTypeOutputWidgetProps {
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeInfo } = props;
-	const {	ballerinaRpcClient } = useVisualizerContext();
 	const classes = useStyles();
 
 	const [isModifyingTypeCast, setIsModifyingTypeCast] = useState(false);
@@ -231,7 +228,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 				const targetPosition = getTargetPositionForWrapWithTypeCast();
 				modification.push(getModification(`<${name}>`, targetPosition));
 			}
-			await applyModifications(context.filePath, modification, ballerinaRpcClient);
+			await context.applyModifications(modification);
 		} finally {
 			setIsModifyingTypeCast(false);
 		}

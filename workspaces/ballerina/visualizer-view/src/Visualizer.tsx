@@ -9,7 +9,6 @@
 
 import { Overview } from "@wso2-enterprise/overview-view";
 import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NavigationBar } from "./components/NavigationBar";
@@ -17,6 +16,7 @@ import { NavigationBar } from "./components/NavigationBar";
 import { jsx, Global, css } from '@emotion/react';
 import styled from "@emotion/styled";
 import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
+import { DataMapperOverlay } from "./components/DataMapperOverlay"
 
 const globalStyles = css`
   *,
@@ -61,7 +61,7 @@ export function Webview() {
                 <NavigationBar />
                 {viewLocation.view === "Overview" && <Overview />}
                 {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
-                {viewLocation.view === "DataMapper" && <DataMapperView />}
+                {viewLocation.view === "DataMapper" && <DataMapperOverlay />}
                 {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
             </VisualizerContainer>
         </>

@@ -12,7 +12,6 @@ import React from "react";
 import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import {
-    LetVarDecl,
     NodePosition,
     STKindChecker,
     STNode,
@@ -27,8 +26,6 @@ import { LimitClauseItem } from "./LimitClauseItem";
 import { OrderByClauseItem } from "./OrderClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
-import { applyModifications } from "../../utils/ls-utils";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface ExpandedMappingHeaderWidgetProps {
     node: ExpandedMappingHeaderNode;
@@ -40,8 +37,7 @@ export interface ExpandedMappingHeaderWidgetProps {
 
 export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
     const { node, engine, port } = props;
-    const { context: { filePath }} = node;
-    const { ballerinaRpcClient } = useVisualizerContext();
+    const { context: { applyModifications }} = node;
     const classes = useStyles();
 
     const onClickEdit = (value: string, valuePosition: NodePosition, label: string) => {
@@ -49,7 +45,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
     };
 
     const deleteClause = async (clauseItem: STNode) => {
-        await applyModifications(filePath, [{ type: "DELETE", ...clauseItem.position }], ballerinaRpcClient);
+        await applyModifications([{ type: "DELETE", ...clauseItem.position }]);
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;

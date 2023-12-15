@@ -40,7 +40,6 @@ import {
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { applyModifications } from "../../Diagram/utils/ls-utils";
 
 export interface LetVarDeclModel {
     letVarDecl: LetVarDecl;
@@ -52,6 +51,7 @@ export interface LocalVarConfigPanelProps {
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
     filePath: string;
 }
 
@@ -60,12 +60,12 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         handleLocalVarConfigPanel,
         fnDef,
         enableStatementEditor,
+        applyModifications,
         filePath
     } = props;
 
     // const intl = useIntl();
 
-    const { ballerinaRpcClient } = useVisualizerContext();
     const letExpression = getLetExpression(fnDef);
     const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>([]);
     const hasSelectedLetVarDecl = letVarDecls.some(decl => decl.checked);
@@ -92,7 +92,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const onAddNewVar = async (index?: number) => {
         const addModification = getLetExprAddModification(index, fnDef, letExpression, letVarDecls);
-        await applyModifications(filePath, [addModification], ballerinaRpcClient);
+        await applyModifications([addModification]);
     };
 
     const handleOnCheck = () => {
@@ -124,7 +124,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         });
         const updatedVarList = letVarDecls.filter(decl => !decl.checked);
         setLetVarDecls(updatedVarList);
-        await applyModifications(filePath, modifications, ballerinaRpcClient);
+        await applyModifications(modifications);
     };
 
     // const overviewSelectAll = intl.formatMessage({
@@ -151,6 +151,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     letVarDeclModel={decl}
                                     handleOnCheck={handleOnCheck}
                                     onEditClick={onEditClick}
+                                    applyModifications={applyModifications}
                                     filePath={filePath}
                                 />
                             </>

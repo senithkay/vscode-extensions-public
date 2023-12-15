@@ -49,6 +49,7 @@ import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeade
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
 import { useProjectComponents, useSyntaxTreeFromRange } from "../Hooks";
+import { DataMapperViewProps } from "../..";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
@@ -158,13 +159,10 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
     }
 };
 
-export interface DMProps {
-    fnST: FunctionDefinition;
-}
-
-export function DataMapperC(props: DMProps) {
+export function DataMapperC(props: DataMapperViewProps) {
     const {
-        fnST
+        fnST,
+        applyModifications
     } = props;
     const ballerinaVersion: string = '2201.7.2 (swan lake update 7)';
     const openedViaPlus: boolean = false;
@@ -400,6 +398,7 @@ export function DataMapperC(props: DMProps) {
                     handleOverlay,
                     ballerinaVersion,
                     handleLocalVarConfigPanel,
+                    applyModifications,
                     updateActiveFile,
                     updateSelectedComponent,
                     referenceManager
@@ -583,6 +582,7 @@ export function DataMapperC(props: DMProps) {
                                 handleLocalVarConfigPanel={handleLocalVarConfigPanel}
                                 enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
+                                applyModifications={applyModifications}
                                 filePath={filePath}
                             />
                         )}

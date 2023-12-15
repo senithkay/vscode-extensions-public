@@ -30,7 +30,7 @@ import {
     getFilteredUnionOutputTypes,
     getLocalVariableNames
 } from '../utils/dm-utils';
-import { applyModifications, handleCodeActions } from "../utils/ls-utils";
+import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
@@ -176,7 +176,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     startColumn: position.startColumn,
                     startLine: position.startLine
                 }];
-                void applyModifications(context.filePath, modifications, ballerinaRpcClient);
+                void context.applyModifications(modifications);
         }
     };
 

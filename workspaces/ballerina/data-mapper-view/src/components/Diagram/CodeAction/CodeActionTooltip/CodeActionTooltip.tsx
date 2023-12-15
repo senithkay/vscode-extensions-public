@@ -16,7 +16,6 @@ import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-ty
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { tooltipBaseStyles, useStyles } from "../style";
-import { applyModifications } from "../../utils/ls-utils";
 
 interface Props extends TooltipProps {
     codeActions: CodeAction[];
@@ -59,7 +58,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
             }
         );
         modifications.sort((a, b) => a.startLine - b.startLine);
-        void applyModifications(context.filePath, modifications, context.visualizerContext.ballerinaRpcClient);
+        void context.applyModifications(modifications);
     };
 
     if (additionalActions && additionalActions.length > 0) {

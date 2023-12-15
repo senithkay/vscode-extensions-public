@@ -18,8 +18,6 @@ import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-t
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { applyModifications } from "../../../utils/ls-utils";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
@@ -29,7 +27,6 @@ export interface ExpandedMappingHeaderWidgetProps {
 
 export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
     const { context, queryExprNode, addIndex } = props;
-    const { ballerinaRpcClient } = useVisualizerContext();
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | SVGSVGElement>(null);
@@ -74,7 +71,7 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
                     ...addPosition,
                 },
             ];
-            await applyModifications(context.filePath, modifications, ballerinaRpcClient);
+            await context.applyModifications(modifications);
         } finally {
             setLoading(false);
         }

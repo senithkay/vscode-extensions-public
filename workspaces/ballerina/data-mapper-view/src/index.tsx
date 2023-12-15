@@ -9,7 +9,9 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DataMapperWrapper } from "./components/DataMapper/DataMapperWrapper";
+import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons/lib/types/lang-client-extended";
+import { DataMapper } from "./components/DataMapper/DataMapper";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -22,10 +24,16 @@ const queryClient = new QueryClient({
     },
   });
 
-export function DataMapperView() {
+export interface DataMapperViewProps {
+  fnST: FunctionDefinition;
+  applyModifications: (modifications: STModification[]) => Promise<void>;
+}
+
+export function DataMapperView(props: DataMapperViewProps) {
+    const { fnST, applyModifications: applyModifications } = props;
     return (
         <QueryClientProvider client={queryClient}>
-            <DataMapperWrapper />
+            <DataMapper fnST={fnST} applyModifications={applyModifications} />
         </QueryClientProvider>
     );
 }

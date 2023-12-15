@@ -18,8 +18,6 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { applyModifications } from "../../../utils/ls-utils";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function OrderByClauseItem(props: {
     intermediateNode: OrderByClause;
@@ -29,9 +27,7 @@ export function OrderByClauseItem(props: {
     queryExprNode: QueryExpression;
     itemIndex: number;
 }) {
-    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } =
-        props;
-    const { ballerinaRpcClient } = useVisualizerContext();
+    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } = props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
 
@@ -54,7 +50,7 @@ export function OrderByClauseItem(props: {
                     ...currentKey.orderDirection.position
                 }
             ];
-            await applyModifications(context.filePath, modifications, ballerinaRpcClient);
+            await context.applyModifications(modifications);
         } finally {
             setLoading(false);
         }
@@ -74,7 +70,7 @@ export function OrderByClauseItem(props: {
                     endColumn: lastOrderKey.position.endColumn,
                 }
             ];
-            await applyModifications(context.filePath, modifications, ballerinaRpcClient);
+            await context.applyModifications(modifications);
         } finally {
             setLoading(false);
         }
@@ -95,7 +91,7 @@ export function OrderByClauseItem(props: {
                         endColumn: CommaTokenPosition?.endColumn || orderKeyPosition.endColumn,
                     }
                 ];
-                await applyModifications(context.filePath, modifications, ballerinaRpcClient);
+                await context.applyModifications(modifications);
             } else {
                 const CommaTokenPosition: NodePosition = (intermediateNode.orderKey[index - 1] as CommaToken)?.position;
                 const modifications = [
@@ -107,7 +103,7 @@ export function OrderByClauseItem(props: {
                         endColumn: orderKeyPosition.endColumn,
                     }
                 ];
-                await applyModifications(context.filePath, modifications, ballerinaRpcClient);
+                await context.applyModifications(modifications);
             }
         } finally {
             setLoading(false);

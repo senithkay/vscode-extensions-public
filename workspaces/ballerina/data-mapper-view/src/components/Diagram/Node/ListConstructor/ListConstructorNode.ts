@@ -42,7 +42,7 @@ import {
     getTypeOfValue,
     hasNoMatchFound
 } from "../../utils/dm-utils";
-import { applyModifications, filterDiagnostics } from "../../utils/ls-utils";
+import { filterDiagnostics } from "../../utils/ls-utils";
 import { enrichAndProcessType } from "../../utils/type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
@@ -211,7 +211,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             }]
         }
 
-        await applyModifications(this.context.filePath, modifications, this.context.visualizerContext.ballerinaRpcClient);
+        await this.context.applyModifications(modifications);
     }
 
     public updatePosition() {

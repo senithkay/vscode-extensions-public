@@ -42,8 +42,6 @@ import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { useStyles } from "./style";
 import { UnionTypeSelector } from "./UnionTypeSelector";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
-import { applyModifications } from "../../utils/ls-utils";
 
 export interface UnionTypeTreeWidgetProps {
     id: string;
@@ -76,7 +74,6 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         getPort
     } = props;
     const { typeNames, resolvedTypeName } = unionTypeInfo;
-    const {	ballerinaRpcClient } = useVisualizerContext();
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -172,7 +169,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                 const targetPosition = getTargetPositionForWrapWithTypeCast();
                 modification.push(getModification(`<${name}>`, targetPosition));
             }
-            await applyModifications(context.filePath, modification, ballerinaRpcClient);
+            await context.applyModifications(modification);
         } finally {
             setIsModifyingTypeCast(false);
         }

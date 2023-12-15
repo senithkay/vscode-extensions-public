@@ -22,7 +22,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
-import { applyModifications, getRenameEdits } from "../../../utils/ls-utils";
+import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
@@ -93,7 +93,7 @@ export function LetClauseItem(props: {
                 });
 
                 modifications.sort((a, b) => a.startLine - b.startLine);
-                await applyModifications(context.filePath, modifications, ballerinaRpcClient);
+                await context.applyModifications(modifications);
             } finally {
                 setLoading(false);
             }

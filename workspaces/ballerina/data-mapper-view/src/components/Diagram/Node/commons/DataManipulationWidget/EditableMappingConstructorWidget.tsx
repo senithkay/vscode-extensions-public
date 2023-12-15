@@ -45,7 +45,6 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
-import { applyModifications } from '../../../utils/ls-utils';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -148,7 +147,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		originalTypeName,
 		unionTypeInfo
 	} = props;
-	const {	ballerinaRpcClient } = useVisualizerContext();
 	const classes = useStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -226,7 +224,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const addNewField = async (newFieldName: string) => {
 		const modification = getNewFieldAdditionModification(value, newFieldName);
 		if (modification) {
-			await applyModifications(context.filePath, modification, ballerinaRpcClient);
+			await context.applyModifications(modification);
 		}
 	}
 
@@ -287,7 +285,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				const targetPosition = getTargetPositionForWrapWithTypeCast();
 				modification.push(getModification(`<${name}>`, targetPosition));
 			}
-			await applyModifications(context.filePath, modification, ballerinaRpcClient);
+			await context.applyModifications(modification);
 		} finally {
 			setIsModifyingTypeCast(false);
 		}
