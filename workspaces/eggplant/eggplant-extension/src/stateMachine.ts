@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { window } from 'vscode';
+import { registerNewLSMethods } from './utils/lang-client';
 
 interface Context extends VisualizerLocation {
     langServer: LangClientInterface | null;
@@ -95,12 +96,12 @@ const stateMachine = createMachine<Context>({
                     // Activate Ballerina extension if not activated
                     if (!ballerinaExt.isActive) {
                         ballerinaExt.activate().then(() => {
-                            resolve(ballerinaExt.exports.langClient);
+                            resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
                         }, error => {
                             reject('BE_ACTIVATION_FAILED');
                         });
                     } else {
-                        resolve(ballerinaExt.exports.langClient);
+                        resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
                     }
                 }
             });
