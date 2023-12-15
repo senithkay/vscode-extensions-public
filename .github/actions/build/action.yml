@@ -113,7 +113,7 @@ runs:
       if: ${{ inputs.eggplant == 'true' }}
       uses: ./.github/actions/updateVersion
       with:
-        path: 'eggplant/egglant-extension'
+        path: 'eggplant/eggplant-extension'
         isPreRelease: ${{ inputs.isPreRelease }}
         version: ${{ inputs.version }}
 
