@@ -18,7 +18,7 @@ on:
         description: Update Choreo extension version
         type: boolean
         required: false
-        default: true   
+        default: false   
       api-chat:
         description: Update API Chat extension version
         type: boolean
