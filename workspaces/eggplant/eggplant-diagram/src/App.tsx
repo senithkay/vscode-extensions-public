@@ -38,7 +38,7 @@ export function EggplantApp(props: EggplantAppProps) {
         if (diagramEngine) {
             drawDiagram();
         }
-    }, [diagramEngine]);
+    }, [diagramEngine, flowModel]);
 
     const debouncedOnModelChange = debounce(onModelChange, 300);
 
