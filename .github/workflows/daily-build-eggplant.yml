@@ -8,7 +8,7 @@ jobs:
     secrets: inherit
     with:
        eggplant: true
-       isReleaseBuild: true
+       isReleaseBuild: false
 
   Release:
     name: Release VSIX
