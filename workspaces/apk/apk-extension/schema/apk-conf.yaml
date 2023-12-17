@@ -37,6 +37,9 @@ properties:
   defaultVersion:
     type: boolean
     description: Is this the default version of the API
+  subscriptionValidation:
+    type: boolean
+    description: Is subscription validation enabled for the API
   endpointConfigurations:
     "$ref": "#/schemas/EndpointConfigurations"
     description: Configuration for different endpoints of the API.
@@ -54,7 +57,9 @@ properties:
   authentication:
     type: array
     items:
-      "$ref": "#/schemas/Authentication"
+      oneOf:
+        - $ref: "#/schemas/OAuth2Authentication"
+        - $ref: "#/schemas/MTLSAuthentication"
   additionalProperties:
     type: array
     description: Map of custom properties of API
@@ -70,12 +75,12 @@ properties:
     description: Cross-Origin Resource Sharing (CORS) configuration for the API.
 additionalProperties: false
 schemas:
-  Authentication:
+  OAuth2Authentication:
     type: object
     properties:
       authType:
         type: string
-        example: OAuth2
+        enum: [OAuth2]
         description: The type of authentication to be used, e.g., OAuth2, etc.
       sendTokenToUpstream:
         type: boolean
@@ -106,9 +111,36 @@ schemas:
           header.
       queryParamEnable:
         type: boolean
-        description:
-          Specifies whether the authentication token can be sent as a query
-          parameter.
+        description: Specifies whether the authentication token can be sent as a query parameter.
+    additionalProperties: false
+  MTLSAuthentication:
+    type: object
+    properties:
+      authType:
+        type: string
+        example: mTLS
+        enum: [mTLS]
+        description: The type of authentication to be used, e.g., mTLS, etc.
+      enabled:
+        type: boolean
+        example: true
+        description: Specifies whether mTLS authentication is enabled for the API.
+      required:
+        type: string
+        enum:
+          - mandatory
+          - optional
+        description: Specifies whether mTLS is mandatory or optional
+      certificates:
+        type: array
+        description: The names and keys of the secrets containing the mTLS certificates of that API
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            key:
+              type: string
     additionalProperties: false
   CORSConfiguration:
     type: object
@@ -432,4 +464,3 @@ required:
   - basePath
   - type
   - operations
-  
