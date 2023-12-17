@@ -1,0 +1,56 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+export default {
+    ASYNC_SEND_ACTION : `{{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
+    `,
+    ASYNC_RECEIVE_ACTION : `{{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
+    `,
+    CODE_BLOCK_NODE :
+    `worker {{{NODE_NAME}}} {
+        {{#if INPUT_PORTS}}
+        {{{INPUT_PORTS}}}
+        {{/if}}
+        {{#if CODE_BLOCK}}
+        {{{CODE_BLOCK}}}
+        {{/if}}
+        {{#if OUTPUT_PORTS}}
+        {{{OUTPUT_PORTS}}}
+        {{/if}}
+    }`,
+    ANNOTATION:
+    `@display {
+        label: "{{{NODE}}}",
+        templateId: "{{{TEMPLATE_ID}}}",
+        xCord: {{{X_CODE}}},
+        yCord: {{{Y_CODE}}}
+    }`,
+    SWITCH_NODE : 
+    `worker {{{NODE_NAME}}} {
+        {{#if INPUT_PORTS}}
+        {{{INPUT_PORTS}}}
+        {{/if}}
+        {{#if CODE_BLOCK}}
+        {{{CODE_BLOCK}}}
+        {{/if}}
+        {{{SWITCH_BLOCK}}}
+    }`,
+    IF_BLOCK : `
+    if ({{{CONDITION}}}) {
+        {{{OUTPORTS}}}
+    } `,
+    ELSE_BLOCK : 
+    `else {
+        {{{OUTPORTS}}}
+    } `,
+    ELSEIF_BLOCK : 
+    `else if ({{{CONDITION}}}) {
+        {{{OUTPORTS}}}
+    } `,
+}
