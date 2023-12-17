@@ -208,11 +208,12 @@ const CodeBlockModel: Flow = {
             outputPorts: [
                 {
                     id: "1",
-                    type: "INT",
+                    type: "int",
+                    name: "b",
                     receiver: "B",
                 },
             ],
-            codeBlock: "",
+            codeBlock: "int b = 32;\n",
         },
         {
             name: "B",
@@ -234,7 +235,7 @@ const CodeBlockModel: Flow = {
             inputPorts: [
                 {
                     id: "1",
-                    type: "INT",
+                    type: "int",
                     name: "x",
                     sender: "A",
                 },
@@ -242,7 +243,7 @@ const CodeBlockModel: Flow = {
             outputPorts: [
                 {
                     id: "2",
-                    type: "INT",
+                    type: "int",
                     name: "b",
                     receiver: "function",
                 },

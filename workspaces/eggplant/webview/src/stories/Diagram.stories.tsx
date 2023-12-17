@@ -22,7 +22,7 @@ const Container = styled.div`
 const simpleModel: Flow = {
     id: "1",
     name: "flow1",
-    balFilename: "path",
+    fileName: "path",
     nodes: []
 };
 
