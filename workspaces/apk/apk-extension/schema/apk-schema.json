@@ -104,26 +104,33 @@
                     "type": "string",
                     "enum": [
                         "OAuth2"
-                    ]
+                    ],
+                    "description": "The type of authentication to be used, e.g., OAuth2, etc."
                 },
                 "sendTokenToUpstream": {
                     "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "description": "Specifies whether to send the authentication token to the upstream service."
                 },
                 "enabled": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Specifies whether authentication is enabled for the API."
                 },
                 "headerName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The name of the header field used to send the authentication token."
                 },
                 "queryParamName": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "The name of the query parameter used to send the authentication token."
                 },
                 "headerEnable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Specifies whether the authentication token can be sent in the header."
                 },
                 "queryParamEnable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Specifies whether the authentication token can be sent as a query parameter."
                 }
             },
             "additionalProperties": false
@@ -135,17 +142,20 @@
                     "type": "string",
                     "enum": [
                         "mTLS"
-                    ]
+                    ],
+                    "description": "The type of authentication to be used, e.g., mTLS, etc."
                 },
                 "required": {
                     "type": "string",
                     "enum": [
                         "mandatory",
                         "optional"
-                    ]
+                    ],
+                    "description": "Specifies whether mTLS is mandatory or optional"
                 },
                 "enabled": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Specifies whether mTLS authentication is enabled for the API."
                 },
                 "certificates": {
                     "type": "array",
@@ -153,13 +163,16 @@
                         "type": "object",
                         "properties": {
                             "name": {
-                                "type": "string"
+                                "type": "string",
+                                "description": "Name of the config map containing the certificate"
                             },
                             "key": {
-                                "type": "string"
+                                "type": "string",
+                                "description": "The key of the certificate value"
                             }
                         }
-                    }
+                    },
+                    "description": "The list of certificates used for mTLS"
                 }
             },
             "additionalProperties": false
