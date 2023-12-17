@@ -15,12 +15,12 @@ import {
     Flow,
     LangClientInterface,
     VisualizerLocation,
-    WebviewAPI
+    WebviewAPI,
+    workerCodeGen
 } from "@wso2-enterprise/eggplant-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
-import { workerCodeGen } from "../../LowCode/codeGenerator";
 import { getState, openView, stateService } from "../../stateMachine";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 
