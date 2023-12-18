@@ -14,6 +14,7 @@ import {
     EggplantModelRequest,
     Flow,
     LangClientInterface,
+    MachineStateValue,
     VisualizerLocation,
     WebviewAPI
 } from "@wso2-enterprise/eggplant-core";
@@ -100,7 +101,7 @@ export class WebviewRpcManager implements WebviewAPI {
         });
     }
 
-    async getState(): Promise<string> {
+    async getState(): Promise<MachineStateValue> {
         const snapshot = stateService.getSnapshot();
         return new Promise((resolve) => {
             resolve(getState());

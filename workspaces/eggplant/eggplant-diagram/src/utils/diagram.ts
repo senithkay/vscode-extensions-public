@@ -29,7 +29,7 @@ export function generateEngine(): DiagramEngine {
 
 export function removeOverlay(diagramEngine: DiagramEngine) {
     // center diagram
-    if (diagramEngine.getCanvas().getBoundingClientRect) {
+    if (diagramEngine.getCanvas()?.getBoundingClientRect) {
         diagramEngine.zoomToFitNodes({ margin: 40, maxZoom: 1 });
     }
     // remove preloader overlay layer

@@ -11,7 +11,8 @@
 import React, { useEffect, useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
-import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
+import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
+import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
 
 
 const Container = styled.div`
@@ -31,7 +32,7 @@ const MessageContent = styled.div({
 });
 
 
-const LowCode = (props: { state: string }) => {
+const LowCode = (props: { state: MachineStateValue }) => {
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
 
@@ -43,7 +44,7 @@ const LowCode = (props: { state: string }) => {
     }
 
     useEffect(() => {
-        if (eggplantRpcClient) {
+        if (typeof props.state === 'object' && props.state.ready === 'viewReady') {
             try {
                 eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
                     setModel(model);
