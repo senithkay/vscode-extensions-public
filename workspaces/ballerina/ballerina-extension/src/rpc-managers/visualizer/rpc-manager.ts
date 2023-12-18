@@ -11,6 +11,7 @@
 import {
     BallerinaProjectComponents,
     BallerinaProjectParams,
+    BallerinaSTModifyRequest,
     BallerinaSTModifyResponse,
     CodeActionParams,
     CompletionParams,
@@ -27,15 +28,20 @@ import {
     PublishDiagnosticsParams,
     RenameParams,
     TextDocumentPositionParams,
+    UpdateFileContentRequest,
     VisualizerAPI,
     VisualizerLocationContext
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Uri, workspace } from "vscode";
-import { CodeAction, WorkspaceEdit } from "vscode-languageserver-types";
+import { writeFileSync } from 'fs';
+import { normalize } from "path";
+import { Position, Range, WorkspaceEdit, workspace } from "vscode";
+import { CodeAction, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
+import { URI } from "vscode-uri";
+import { InsertorDelete } from "../../utils/modification-utils";
 import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
-import { getLangClient, getService, openView } from "../../visualizer/activator";
+import { getLangClient, getService, openView, updateView } from "../../visualizer/activator";
 
 export class VisualizerRpcManager implements VisualizerAPI {
 
@@ -60,11 +66,19 @@ export class VisualizerRpcManager implements VisualizerAPI {
         });
     }
 
+    async updateVisualizerView(params: VisualizerLocationContext): Promise<VisualizerLocationContext> {
+        return new Promise(async (resolve) => {
+            updateView(params);
+            const snapshot = getService().getSnapshot();
+            resolve(snapshot.context);
+        });
+    }
+
     async getSyntaxTree(): Promise<STNode> {
         return new Promise(async (resolve) => {
             const context = getService().getSnapshot().context;
             const req: BallerinaFunctionSTRequest = {
-                documentIdentifier: { uri: Uri.file(context.location.fileName).toString() },
+                documentIdentifier: { uri: URI.file(context.location.fileName).toString() },
                 lineRange: {
                     start : {
                         line: context.location.position.startLine,
@@ -118,7 +132,7 @@ export class VisualizerRpcManager implements VisualizerAPI {
         return this._langClient.codeAction(params);
     }
 
-    async rename(params: RenameParams): Promise<WorkspaceEdit> {
+    async rename(params: RenameParams): Promise<WorkspaceEditType> {
         return this._langClient.rename(params);
     }
 
@@ -148,5 +162,44 @@ export class VisualizerRpcManager implements VisualizerAPI {
 
     async getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
         return await this._langClient.getSTByRange(params) as BallerinaSTModifyResponse;
+    }
+
+    async stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
+        return await this._langClient.stModify({
+            astModifications: await InsertorDelete(params.astModifications),
+            documentIdentifier: params.documentIdentifier,
+        }) as BallerinaSTModifyResponse;
+    }
+
+    async updateFileContent(params: UpdateFileContentRequest): Promise<boolean> {
+        const { fileUri, content, skipForceSave } = params;
+        const normalizedFilePath = normalize(fileUri);
+        const doc = workspace.textDocuments.find((doc) => normalize(doc.fileName) === normalizedFilePath);
+        if (doc) {
+            const edit = new WorkspaceEdit();
+            edit.replace(URI.file(normalizedFilePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), content);
+            await workspace.applyEdit(edit);
+            this._langClient.updateStatusBar();
+            if (skipForceSave) {
+                // Skip saving document and keep in dirty mode
+                return true;
+            }
+            return doc.save();
+        } else {
+            this._langClient.didChange({
+                contentChanges: [
+                    {
+                        text: content
+                    }
+                ],
+                textDocument: {
+                    uri: URI.file(normalizedFilePath).toString(),
+                    version: 1
+                }
+            });
+            writeFileSync(normalizedFilePath, content);
+            this._langClient.updateStatusBar();
+        }
+        return false;
     }
 }

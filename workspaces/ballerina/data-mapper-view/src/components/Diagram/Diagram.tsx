@@ -190,10 +190,10 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			}
 			newModel.setLocked(true);
 			engine.setModel(newModel);
-			if (newModel.getLinks().length > 0) {
-				dagreEngine.redistribute(newModel);
-				await engine.repaintCanvas(true);
-			}
+			// if (newModel.getLinks().length > 0) {
+			// 	dagreEngine.redistribute(newModel);
+			// 	await engine.repaintCanvas(true);
+			// }
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;

@@ -48,7 +48,8 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
-import { useSyntaxTreeFromRange } from "../Hooks";
+import { useProjectComponents, useSyntaxTreeFromRange } from "../Hooks";
+import { DataMapperViewProps } from "../..";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
@@ -156,10 +157,13 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
     }
 };
 
-export function DataMapperC() {
+export function DataMapperC(props: DataMapperViewProps) {
+    const {
+        fnST,
+        applyModifications
+    } = props;
     const ballerinaVersion = '2201.7.2 (swan lake update 7)';
     const openedViaPlus = false;
-    const applyModifications: (modifications: STModification[]) => Promise<void> = undefined;
     const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const library: {
@@ -174,8 +178,10 @@ export function DataMapperC() {
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
-    const { data } = useSyntaxTreeFromRange();
-    const fnST = data?.syntaxTree as FunctionDefinition;
+    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents();
+    // const { data } = useSyntaxTreeFromRange();
+
+    // const fnST = data?.syntaxTree as FunctionDefinition;
     const targetPosition = fnST ? {
         ...fnST.position,
         startColumn: 0,
@@ -188,13 +194,14 @@ export function DataMapperC() {
     };
 
     const visualizerContext = useVisualizerContext();
-    const { viewLocation: {
+    const {
+        viewLocation: {
             location: {
                 fileName: filePath
             }
-        }
+        },
+        ballerinaRpcClient
     } = visualizerContext;
-    const projectComponents: BallerinaProjectComponents = {packages: []};
     const currentFile = {
         content: "",
         path: filePath,
@@ -225,8 +232,6 @@ export function DataMapperC() {
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
     const [isSelectionComplete, setIsSelectionComplete] = useState(false);
     const [currentReferences, setCurrentReferences] = useState<string[]>([]);
-
-    // const { projectComponents } = useProjectComponents(filePath, "currentFile.content");
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -320,8 +325,8 @@ export function DataMapperC() {
             moduleVarDecls: moduleVars,
             constDecls: consts,
             enumDecls: enums,
-        }
-    }, [projectComponents]);
+        };
+    }, [projectComponents, isFetchingComponents]);
 
     useEffect(() => {
         if (fnST) {
@@ -369,7 +374,7 @@ export function DataMapperC() {
     useEffect(() => {
         setIsSelectionComplete(false)
         void (async () => {
-            if (selection.selectedST.stNode) {
+            if (selection.selectedST.stNode && !isFetchingComponents) {
                 const diagnostics = await handleDiagnostics(filePath, visualizerContext.ballerinaRpcClient);
 
                 const context = new DataMapperContext(
@@ -380,7 +385,6 @@ export function DataMapperC() {
                     currentFile,
                     moduleVariables,
                     handleSelectedST,
-                    applyModifications,
                     goToSource,
                     diagnostics,
                     enableStatementEditor,
@@ -390,6 +394,7 @@ export function DataMapperC() {
                     handleOverlay,
                     ballerinaVersion,
                     handleLocalVarConfigPanel,
+                    applyModifications,
                     updateActiveFile,
                     updateSelectedComponent,
                     referenceManager
@@ -406,7 +411,7 @@ export function DataMapperC() {
             }
         })();
         setIsSelectionComplete(true)
-    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled]);
+    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, isFetchingComponents]);
 
     useEffect(() => {
         if (isSelectionComplete && dmContext && selection?.selectedST?.stNode) {
@@ -508,7 +513,7 @@ export function DataMapperC() {
         ballerinaVersion,
         onSave: onConfigSave,
         onClose: onConfigClose,
-        applyModifications,
+        ballerinaRpcClient,
         recordPanel
     }
 
@@ -558,7 +563,7 @@ export function DataMapperC() {
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
                                 langClientPromise={undefined}
-                                applyModifications={applyModifications}
+                                applyModifications={undefined}
                                 updateFileContent={updateFileContent}
                                 currentFile={currentFile}
                                 library={library}
@@ -571,9 +576,9 @@ export function DataMapperC() {
                         {showLocalVarConfigPanel && (
                             <LocalVarConfigPanel
                                 handleLocalVarConfigPanel={handleLocalVarConfigPanel}
-                                applyModifications={applyModifications}
                                 enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
+                                applyModifications={applyModifications}
                                 filePath={filePath}
                             />
                         )}

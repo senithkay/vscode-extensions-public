@@ -11,7 +11,6 @@
 import React, { useEffect, useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
-import { action } from "@storybook/addon-actions";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 
 
@@ -20,26 +19,48 @@ const Container = styled.div`
     height: 100svh;
 `;
 
-const LowCode = () => {
+const MessageContainer = styled.div({
+    width: "100%",
+    overflow: "hidden",
+    height: "100vh",
+    display: "grid"
+});
+
+const MessageContent = styled.div({
+    margin: "auto"
+});
+
+
+const LowCode = (props: { state: string }) => {
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
 
     const onModelChange = (model: Flow) => {
-        action("on model change")(model)
         setModel(model);
+        if (eggplantRpcClient) {
+            eggplantRpcClient.getWebviewRpcClient().updateSource(model);
+        }
     }
 
     useEffect(() => {
         if (eggplantRpcClient) {
-            eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
-                setModel(model);
-            })
+            try {
+                eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
+                    setModel(model);
+                });
+            } catch (error) {
+                setModel(undefined);
+            }
         }
-    }, [eggplantRpcClient]);
+    }, [props.state]);
 
     return (
         <Container>
-            {flowModel ? <EggplantApp flowModel={flowModel} onModelChange={onModelChange} /> : <p>Loading ...</p>}
+            {flowModel ? <EggplantApp flowModel={flowModel} onModelChange={onModelChange} /> :
+                <MessageContainer>
+                    <MessageContent>Select Construct from Overview</MessageContent>
+                </MessageContainer>
+            }
         </Container>
     );
 };

@@ -166,8 +166,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 const querySrc = generateQueryExpression(linkModel.value.source, targetRecord, isOptionalSource,
                     [...localVariables]);
                 const position = linkModel.value.position as NodePosition;
-                const applyModification = context.applyModifications;
-                void applyModification([{
+                const modifications = [{
                     type: "INSERT",
                     config: {
                         "STATEMENT": querySrc,
@@ -176,7 +175,8 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                     endLine: position.endLine,
                     startColumn: position.startColumn,
                     startLine: position.startLine
-                }]);
+                }];
+                void context.applyModifications(modifications);
         }
     };
 

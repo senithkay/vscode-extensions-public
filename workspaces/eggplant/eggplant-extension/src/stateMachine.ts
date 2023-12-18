@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { window } from 'vscode';
+import { registerNewLSMethods } from './utils/lang-client';
 
 interface Context extends VisualizerLocation {
     langServer: LangClientInterface | null;
@@ -11,7 +12,7 @@ interface Context extends VisualizerLocation {
 }
 
 const stateMachine = createMachine<Context>({
-    /** @xstate-layout N4IgpgJg5mDOIC5RilADgGwIYDsAuAdAJY5F5FYZEBeYAxBAPY5jE4BujA1qwMYAWYXlwAKAJ0YArIXgDaABgC6iUGkawyRZipAAPRAGZ5AVgIBGAEzGANCACeiC-PkEjxgCwB2AJwWAHPKeBp5WAL6htijo2PhsmpQ09GBiEmIEmFh4AGaMYgC2BAJCohLSvHJKOmoa5NpIeoYm5la2DghW3gQBHj7+gcFhEeCoGbFopTIAImB4MpB0Csr11Zp1oPoIAGweBMbOzhYWwYGefq2IZmamXhZmfn4Wnmbu3n7ufuGRIzGEADIAygBJUh4BjMVgkTg8AhRUZ-IEghCQxi8TJaHCLRZVdSrHA6DbedwWVx+YwGTZ+S7ve7ec4IB7mTZM8mXTYGMl+TafYbRXDw4FkOjJVLpbDZXIFWE-AgAgV4JEcFFo5iYyrLHG1PH1AlEklkilU+5+Wn2C4WTpMplmbwU9wGZ7GblSvkEMRgLAQOx0ADyIgAogA5AD6ADVAX6AOpY9U1dE6NqUxlM9wpix2kxeWwbMz2lwvbyEgKFozucJDHCMCBwHTO-DY2NrBoIAC0mzprYI+3k7mMj3kFk28hzHyGtcIJHiVFo9dx+MQRLpVhcbONgULKb2I6+vLGE3K01m5UgM81c4QxyT2xelJ7nmMNlNCG8ZnMBnugV7pw-XNH3xdspBE8421RBPBeXY-AMAxbk5J5jQfNpn1fI1jEpTx5CMTxPCdP9YjdD02lUDVgPWC5LgMS9LBg8ljDbR9EzMS0UyJdMehwndCAgIhYCwAAjDBjxjWcQIQS4c0ow47houi2jTTpumMMDNiuMTsLLIA */
+    /** @xstate-layout N4IgpgJg5mDOIC5RilADgGwIYDsAuAdAJY5F5FYZEBeYAxBAPY5jE4BujA1qwMYAWYXlwAKAJ0YArIXgDaABgC6iUGkawyRZipAAPRACZ5ANgLyArABZjADgDMNmwYDsBp3YA0IAJ6IAjBYEAJwhQTZ+xs7GbpE2AL5xXijo2PhsmpQ09GBiEmIEmFh4AGaMYgC2BAJCohLSvHJKOmoa5NpIeoZB8gTGls5+lpaDfnZDds5evggG5s4EdvKjfn4h5qsmlglJqIVpaHUyACJgeDKQdArKHS2a7aD6COYGU4gD893RQQHOzmFW23Au1ShAAMgBlACSpDwDGYrBInB4BGSezBUJhCERjF4RS0OCuV2a6juOB0jzsdiCBBs3QGFgm5lpg1eCGMEQI-WMTMWziWQQMxkBqJBBAh0LIdByeQK2BKZUqItw6IleCxHBxeOYhKaNxJbTJHQpVJpdIC5kZzMsrL51MsBiCAzsfSCdis5mFwOVBDEYCwEG8BHYRDAAHcAEp+gN0ADyIgAogA5AD6ADVIfGAOpEvWtfHkxA2cx2ynOZ3mKwRe2s8x9AiDB1+WnyWkDLaJIEpb2+-2B4NhgCqaAgRXoTBYbCRrCVaR7AaDIdDQ5HZ3VnFxBp111U+vzRsLBj8BGcTICDtdxnk1p8iH6dgIbnkjMsdgMlMsV4SHZwjAgcB0M54MSeb3J0CAALR+PMizrMYQSWI6fLOI4rKQSsD7yM4L4vrMfizPIBiel2aQkBkVC0MBpIFggYymqMtK0valLwayER2jY8jwXMlaCtyRFogUhwNCcZwNJAlEGtRiy9PB9gWARDqHi8N4QW+x6YS+rjyJh2m2B6HaAWKGJkBJe4PP4-RmEWQRwRWd4WsYrJwfeH7RMhxhuieQT6TsxGEHO0w7iBhrmWyZYPosl6eX4cycayDjmMeHEOBMdijJYjj8aKAULmGka9qZoGPK4R5viYT5zDFto1n8D42Oy7KrK43xZd2UZ9ouy6joVIVgeadrctpzrGB5ArKdMFY9JYzz2OYnFNnBzitWkEBELAWAAEYYOJuZUfuTzfMe3lFtNtYEUE8UGJYGGRNYHkce6X5xEAA */
     id: 'eggplant',
     initial: 'initialize',
     context: { // Add this
@@ -59,13 +60,26 @@ const stateMachine = createMachine<Context>({
             }
         },
         ready: {
-            on: {
-                OPEN_VIEW: {
-                    target: "ready",
-                    actions: assign({
-                        view: (context, event) => event.viewLocation.view,
-                        location: (context, event) => event.viewLocation.location
-                    })
+            initial: 'viewReady',
+            states: {
+                viewReady: {
+                    on: {
+                        OPEN_VIEW: {
+                            target: "viewUpdate",
+                            actions: assign({
+                                view: (context, event) => event.viewLocation.view,
+                                location: (context, event) => event.viewLocation.location
+                            })
+                        }
+                    }
+                },
+                viewUpdate: {
+                    invoke: {
+                        src: 'waitForloading',
+                        onDone: {
+                            target: 'viewReady'
+                        }
+                    }
                 }
             }
         },
@@ -95,14 +109,20 @@ const stateMachine = createMachine<Context>({
                     // Activate Ballerina extension if not activated
                     if (!ballerinaExt.isActive) {
                         ballerinaExt.activate().then(() => {
-                            resolve(ballerinaExt.exports.langClient);
+                            resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
                         }, error => {
                             reject('BE_ACTIVATION_FAILED');
                         });
                     } else {
-                        resolve(ballerinaExt.exports.langClient);
+                        resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
                     }
                 }
+            });
+        },
+        waitForloading: (context, event) => {
+            // replace this with actual promise that waits for LS to be ready
+            return new Promise((resolve, reject) => {
+                resolve(undefined);
             });
         }
     }
@@ -119,7 +139,7 @@ export const StateMachine = {
     LSInit: () => stateService.send('LSInit'),
     ready: () => stateService.send('ready'),
     disabled: () => stateService.send('disabled'),
-    getService: () => { return stateService }
+    getService: () => { return stateService; }
 };
 
 export function openView(viewLocation: VisualizerLocation) {

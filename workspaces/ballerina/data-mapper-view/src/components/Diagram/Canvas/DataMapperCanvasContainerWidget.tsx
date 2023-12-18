@@ -36,14 +36,13 @@ export const Expand = css`
 `;
 
 
-export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanvas: boolean, children: React.ReactNode }> {
+export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanvas: boolean }> {
 	render() {
-		const { hideCanvas, children } = this.props;
 		return (
 			<>
 				<Global styles={Expand} />
-				<Container className='dotted-background' hidden={hideCanvas}>
-					{children}
+				<Container hidden={this.props.hideCanvas}>
+					{this.props.children}
 				</Container>
 			</>
 		);

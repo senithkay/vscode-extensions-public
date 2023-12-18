@@ -32,7 +32,8 @@ type Event =
         type: "CLOSE"
     }
     | {
-        type: "FILE_CHANGED"
+        type: "FILE_CHANGED";
+        viewLocation?: VisualizerLocationContext;
     };
 
 function activateLanguageServer(): Promise<void> {
@@ -98,13 +99,17 @@ export function openView(viewLocation: VisualizerLocationContext) {
     service.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
 }
 
+export function updateView(viewLocation: VisualizerLocationContext) {
+    service.send({ type: "FILE_CHANGED", viewLocation: viewLocation });
+}
+
 export function closeView() {
     service.send({ type: "CLOSE" });
 }
 
 
 const visualizerMachine = createMachine({
-    /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4B0AkgHaoAuAxBAPYVgmoUBuDA1i2prgWLkq1BG04BjLNVRMA2gAYAuoqWJQABwawasiupAAPRACYAjGZIKArCYUAOAMxnr1gJz23HgDQgAnqYKjiQmACxeXgBskaEA7KGRsfYAvsm+fNh4hKSUNLTERAykGjjSAGZFALYkGQLZwjRiHAxSMvLKqgZaOm36SEaI0ZEkZiZ21mY2jtbTvgEIbrEkkU4mK7Em7hZOqenomYKkAKJEhUS0AEpHACoXAJqd-d26TAbGCKNziKO7ILVZQguYCwED8tAA8gAFI4AOQA+sgyEcAOqPTTaF59UDvcLBSLTUKhBSbab40JfD6xBQkNyOeKxMzOBRuEyxFm-f6HGqoMAAdwAghIZOwwLQAMIAGXBAGUjmiQM9em9EI5IiYaSYWY57GY3GTEhTHCZ7MtVXFzMyxmZYhz9nUhGg+YLhaKobCEUjUcouhilf13pNYhT7AphsSHEMZms3NZbfwAaRHQKhagRbQAGJkCVHOFigAS-JhAHEjgAReWKvTKj4KIP+QaxYabBSTRx6rxBWNpP52hPcp0pkUkdg83m5OiMZisZo8bnxrlJ52plgjvnjpqSaR6VQV31V-2IQnDaxORw2eyJOJOCkxtwkWLWFuM0N2SInuMHeqLwcr0fj-KnEUJAlOUVRzp+DqjkuQ6rmOIgbi0W7tCo3pPHurwHh8oTGiMJ6hKMTjhI+dbzES6qhCGapjJqjiqiYH72omUE-iQvJgAARkmEoMCCkD0EwLDiNwvC9guzEuqxHFcTxECQAhrTbh0qHoj0+7YogjahCQbbWEkzJmJEFjEsG+IkI+CgWYScTxNqDF9t+ElsZxo7cbxEAAWcwGlNQFRENUnJfuJy6Sc5fKubJEDyUhFA7spCroViAwIJp2kxnpbgGUZJjBgZVgWbWkRuHExKuHZYkDhJsHhWwUC0IiKJwlc-Klg8cWVhh6k1oZJDYQyQSjOs7gmeq+UtkSMQ6aEZWBRVwUYBoEDSGASb8VOQmzgFkGzUO82LdQy2jlFvSxWoaGqR1SVHmZp7npeSSOBSDKWPloy2NMLaatNW3JhJu1LStBRASBPlgZtTHbSwf37UmR2KShp0qZi1ZXSetG3fS171gg0TBOZCjYfiRVuC2qTdhQDCyfA-Rgz652Je8AC0qoUgzD49REiwuPpCRfTkIi00jmHYRS1pNuEeoTBsNiso4vMkCcZwC36nWjGsJAhuYrh0vYUbWCLkxWOMjIssy+GxDa3ZgyQQIgvMiPK0lqrDPi1hxNqoYxEVD1Y3Y6phFEeo2B4RpTZbokzT9y5K2pSVDVj1hvve5nm-EmqhDMcsOcFsHjtHF3vMa6ozKMDjGuNCTe-MRNmfltixNM9dmKHezzhH0EsE50luXn9OIO41LajMVIJ8yjfBjYScWQZaqhhlZiZ0FMEuTJNU99WGXWNpoR0tGDhRiRiAXkXL3l5NC8Q8Oo426Ca+Yarli6hrCREvE2-DezXiqhMhW0vPYet99duJAoYHT5LfTqhczLODsPYMuoYK4UjfMEZsQcLw2F0m4c+kcl58gVkUcBSUN5bx3oVPeRoD7Y0KpPCw6cm7my8KTZIQA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QDUCWsCuBDANqgXmAE4B0AkgHaoAuAxBAPYVgmoUBuDA1i2prgWLkq1BG04BjLNVRMA2gAYAuoqWJQABwawasiupAAPRACYAjGZIKArCYUAOAMxnr1gJz23HgDQgAnqYKjiQmACxeXgBskaEA7KGRsfYAvsm+fNh4hKSUNLTERAykGjjSAGZFALYkGQLZwjRiHAxSMvLKqgZaOm36SEaI0ZEkZiZ21mY2jtbTvgEIbrEkkU4mK7Em7hZOqenomYKkAKJEhUS0AEpHACoXAJqd-d26TAbGCKNziKO7ILVZQguYCwED8tAA8gAFI4AOQA+sgyEcAOqPTTaF59UDvcLBSLTUKhBSbab40JfD6xBQkNyOeKxMzOBRuEyxFm-f6HGqoMAAdwAghIZOwwLQAMIAGXBAGUjmiQM9em9EI5IiYaSYWY57GY3GTEhTHCZ7MtVXFzMyxmZYhz9nUhGg+YLhaKobCEUjUcouhilf13saSI44rYzJ5Qjr4o5HBT7AphrZg9bpmEZpFbfwAaRHQKhagRbQAGJkCVHOFigAS-JhAHEjgAReWKvTKj4KWIUxLDTYKSaOPVeILWDMHeo5535ljsHm83J0RjMVjNHjczNc8d5kUkad8udNSTSPSqJu+lv+xCEhNORw2eyJOJOCludwkWLWXuM+N2SLWFJpP52lm3JOpuU4znO+SnEUJAlOUVSrqODozhOW47rOIj7i0h7tCo3pPKerznh8oSBi49ihKMTjhO+Hb+BexIkBGX5jJq0ZqiO9rZshoEkLyYAAEY5hKDAgpA9BMCw4jcLwgHrtxLq8QJQkiRAkCYa0R4dHh6I9Ge2KILEMRBs+STMmYkQWMSsb4iQ74KPZhJxFGf57GuY7yZOimCTOwmiRAkFnDBpTUBURDVJy7kgQpfHeXyvmqRA6nYRQx7aQqBFYgMCCGaExnWKZbjmZZJixuZVj2e2kRuHExKuBxQEbgpaHxWwUC0IiKJwlc-L1g8aXNoR+lthZjGsn2ozrO41nqhVvZEjE-bWKE9VyVFnkYBoEDSGAObiYuUkrhFSFrVuG1bdQO0zklvSpWo+G6YNWWXrZ163veSQxnR2UWOVvabCY0x-W4K2RbmClndtu0FNBsEhfBR1cSdLAQxdObXZpuF3TpmKts9v7Rm99KPl90TBHZCgkfi1VuL2qT-hQDCqfA-QIz6D2Ze8AC0iTLLYD6TBM9ibLR8yc2+tkVWYCR6vY77hCDQhzmzONESRFLWt24R6hMGw2KyjgK8cUFEMrfpDaMawkHG5iuHSstGtY6uTFY4yMiyzIUbENr-gjJBAiC8zY2bWWqsM+JLbE2rxjE1WffMdjqmEUR6jYHhGstPuyaDKFgKbelZZzuq82ESQC2GmwGl9+XWDSETU6yP6y4bwFg55aFK-dKtDca6ozKMDjGvNCRx4g1MS-ZtiR-lzgZ65iGI63W4xcpfl5497zuNS2ozFS1iRMykdmLGNivnZ5lqvGhVmM3jVtz5KmtWvHOjy4QahHSaw0-brLTePc3xu-Z8s8AJuWOovMCfJ-agifq2C2lhdTWwSESeI79f5a1pD+cyXhnA3w8qdTakMZwwKIpsXKCdL5hDjPGewFIva5R-L+Kk+9+wWG9nPTiLcc7bhnCcM4xChqFRrsGD+VUHAzB-iTKqp8PyhAmE5LwdNkhAA */
     tsTypes: {} as import("./activator.typegen").Typegen0,
     schema: {
         context: {} as VisualizerLocationContext,
@@ -186,7 +191,7 @@ const visualizerMachine = createMachine({
                     invoke: {
                         src: updateViewLocation,
                         onDone: {
-                            target: "webViewLoaded"
+                            target: "viewReady"
                         },
                         onError: {
                             target: "viewError"
@@ -206,7 +211,14 @@ const visualizerMachine = createMachine({
                         location: (context, event) =>  event.viewLocation.location
                     })
                 },
-                FILE_CHANGED: "ViewActive.updateView"
+                FILE_CHANGED: {
+                    target: "ViewActive.updateView",
+                    actions: assign({
+                        // we will set either location or view
+                        view: (context, event) => event.viewLocation.view,
+                        location: (context, event) =>  event.viewLocation.location
+                    })
+                }
             }
         }
     },

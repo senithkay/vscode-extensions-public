@@ -244,7 +244,8 @@
      */
     "postRushBuild": [
       "cd workspaces/ballerina/ballerina-extension && pnpm run copyVSIXToRoot",
-      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot"
+      "cd workspaces/choreo/choreo-extension && pnpm run copyVSIXToRoot",
+      "cd workspaces/eggplant/eggplant-extension && pnpm run copyVSIXToRoot"
     ]
   },
   /**
@@ -548,6 +549,11 @@
     //   "versionPolicyName": "ballerina-extension"
     // },
     {
+      "packageName": "@wso2-enterprise/cell-diagram",
+      "projectFolder": "workspaces/choreo/cell-diagram",
+      "versionPolicyName": "choreo-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/project-design-diagrams",
       "projectFolder": "workspaces/ballerina/project-design-diagrams",
       "versionPolicyName": "ballerina-extension"
@@ -557,11 +563,6 @@
     //   "projectFolder": "workspaces/ballerina/persist-layer-diagram",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    {
-      "packageName": "@wso2-enterprise/cell-diagram",
-      "projectFolder": "workspaces/choreo/cell-diagram",
-      "versionPolicyName": "choreo-extension"
-    },
     // {
     //   "packageName": "@wso2-enterprise/ballerina-statement-editor",
     //   "projectFolder": "workspaces/ballerina/statement-editor",
