@@ -53,6 +53,7 @@ import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableEle
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -82,7 +83,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         isReturnTypeDesc,
         hasHoveredParent
     } = props;
-    const { applyModifications, handleCollapse } = context;
+    const { handleCollapse, filePath } = context;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
@@ -345,7 +346,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const handleArrayInitialization = async () => {
         setLoading(true);
         try {
-            await createSourceForUserInput(field, parentMappingConstruct, '[]', applyModifications);
+            await createSourceForUserInput(field, parentMappingConstruct, '[]', context.applyModifications);
         } finally {
             setLoading(false);
         }
@@ -387,7 +388,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 startLine: targetPosition.endLine,
                 startColumn: targetPosition.endColumn
             })];
-            await applyModifications(modification);
+            await context.applyModifications(modification);
         } finally {
             setIsAddingElement(false);
         }
@@ -416,7 +417,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 };
             }
             const modification = [getModification(`<${type}>`, targetPosition)];
-            await applyModifications(modification);
+            await context.applyModifications(modification);
         } finally {
             setIsAddingTypeCast(false);
         }

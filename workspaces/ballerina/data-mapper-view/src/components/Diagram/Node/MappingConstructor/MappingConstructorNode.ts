@@ -222,6 +222,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             }];
         }
 
+        this.context.applyModifications(modifications);
         await this.context.applyModifications(modifications);
     }
 

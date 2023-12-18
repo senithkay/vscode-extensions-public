@@ -27,7 +27,13 @@
       "preserveSymlinks": true,
       "typeRoots": [
         "node_modules/@types"
-      ]
+      ],
+      "sourceMap": true,
+      "paths": {
+          "react": [
+              "./node_modules/@types/react"
+          ]
+      }
     },
     "include": [
       "src/index.tsx"

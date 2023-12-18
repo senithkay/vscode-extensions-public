@@ -76,7 +76,7 @@ export function ComponentView(props: ComponentViewProps) {
                 borderRadius: 5,
                 cursor: isComponentAllowed() ? 'cursor' : 'not-allowed',
                 display: 'flex',
-                height: 25,
+                height: 50,
                 justifyContent: 'space-between',
                 marginBottom: 16,
                 marginRight: 16,

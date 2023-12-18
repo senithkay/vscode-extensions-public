@@ -92,7 +92,7 @@ export function LetClauseItem(props: {
                     });
                 });
 
-                modifications.sort((a, b) => a.startLine - b.startLine)
+                modifications.sort((a, b) => a.startLine - b.startLine);
                 await context.applyModifications(modifications);
             } finally {
                 setLoading(false);

@@ -36,14 +36,18 @@ export function Webview({ mode }: { mode: string }) {
         <>
             {mode === "overview" &&
                 <>
-                    {state === 'ready' ? <Overview /> : <Loader />}
+                    {getStateValues(state)[0] === 'ready' ? <Overview /> : <Loader />}
                 </>
             }
             {mode === "lowcode" &&
                 <>
-                    {state === 'ready' ? <LowCode state={state}/> : <Loader />}
+                    {getStateValues(state)[0] === 'ready' ? <LowCode state={getStateValues(state)[1]} /> : <Loader />}
                 </>
             }
         </>
     );
 };
+
+function getStateValues(state: string) {
+    return state.split(".");
+}

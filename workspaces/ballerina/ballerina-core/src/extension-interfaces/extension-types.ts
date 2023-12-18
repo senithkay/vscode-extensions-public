@@ -20,6 +20,12 @@ export interface DiagramFocus {
     position?: NodePosition;
 }
 
+export interface UpdateFileContentRequest {
+    fileUri: string;
+    content: string;
+    skipForceSave?: boolean;
+}
+
 export interface ExtensionAPI {
     getBallerinaVersion: () => Promise<string | undefined>;
     getEnv: (name: string) => Promise<string>;
