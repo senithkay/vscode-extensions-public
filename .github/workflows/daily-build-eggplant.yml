@@ -1,7 +1,7 @@
 name: Daily Build - Eggplant
 on:
   schedule:
-    - cron:  '0 19 * * *'
+    - cron:  '30 13 * * *'
 jobs:
   Build:
     uses: ./.github/workflows/build.yml
