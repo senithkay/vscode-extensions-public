@@ -26,8 +26,6 @@ const globalStyles = css`
   }
 `;
 
-const GlobalStyles = () => <Global styles={globalStyles} />;
-
 const VisualizerContainer = styled.div`
     width: 100%;
     height: 100%;
@@ -56,7 +54,7 @@ export function Webview() {
 
     return (
         <>
-            <GlobalStyles />
+            <Global styles={globalStyles} />
             <VisualizerContainer>
                 <NavigationBar />
                 {viewLocation.view === "Overview" && <Overview />}
