@@ -303,7 +303,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         const moduleVars = [];
         const consts = [];
         const enums = [];
-        if (projectComponents) {
+        if (projectComponents && projectComponents.packages) {
             for (const pkg of projectComponents.packages) {
                 for (const mdl of pkg.modules) {
                     for (const moduleVariable of mdl.moduleVariables) {
