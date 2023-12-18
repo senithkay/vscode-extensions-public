@@ -30,7 +30,7 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
 
     function handleClick() {
-        sidePanelContext.setNodePosition(props.range);
+        sidePanelContext.setNodeRange(props.range);
         sidePanelContext.setIsOpen(true);
     }
 

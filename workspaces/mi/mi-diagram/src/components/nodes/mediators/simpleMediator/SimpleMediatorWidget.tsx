@@ -16,6 +16,8 @@ import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import styled from '@emotion/styled';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'
+import SidePanelContext from '../../../sidePanel/SidePanelContexProvider';
+import { getDataFromXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 
 const ButtonComponent = styled.div`
     flex-direction: row;
@@ -53,6 +55,7 @@ export interface SimpleMediatorWidgetProps extends BaseNodeProps {
 
 export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     const node: SimpleMediatorNodeModel = props.node as SimpleMediatorNodeModel;
+    const sidePanelContext = React.useContext(SidePanelContext);
 
     const nodePosition = node.getPosition();
     const leftPort = node.getPortByAllignment('left');
@@ -69,6 +72,17 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
         setIsHovered(false);
     };
 
+    const editNode = async () => {
+        sidePanelContext.setNodeRange(props.nodePosition);
+        sidePanelContext.setMediator(props.name.toLowerCase());
+        sidePanelContext.setIsOpen(true);
+        const formData = getDataFromXML(
+            props.name,
+            props.node.getNode()
+        );
+        sidePanelContext.setFormValues(formData);
+    }
+
     const deleteNode = async () => {
         MIWebViewAPI.getInstance().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: ""
@@ -76,11 +90,11 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     }
 
     return (
-        <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} style={{ width: node.width, height: node.height}}>
+        <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} style={{ width: node.width, height: node.height }}>
             {getSVGIcon(props.name, props.description, node.width, node.height)}
             <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
                 <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
-                <EditButton> <Codicon name="edit" /> </EditButton>
+                <EditButton onClick={editNode}> <Codicon name="edit" /> </EditButton>
             </ButtonComponent>
             <MediatorPortWidget
                 port={leftPort}

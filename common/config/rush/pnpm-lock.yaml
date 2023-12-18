@@ -3234,6 +3234,7 @@ importers:
       '@storybook/react': ~7.4.0
       '@storybook/react-webpack5': ~7.4.0
       '@types/lodash': ~4.14.198
+      '@types/mustache': ~4.2.5
       '@types/node': ~20.8.4
       '@types/react': ^17.0.37
       '@types/react-dom': ^17.0.14
@@ -3245,8 +3246,10 @@ importers:
       copyfiles: ~2.4.1
       css-loader: ~6.8.1
       lodash: ~4.17.21
+      mustache: ~4.2.0
       react: ~18.2.0
       react-dom: ~18.2.0
+      reverse-mustache: ~1.9.0
       source-map-loader: ~4.0.1
       storybook: ~7.4.0
       style-loader: ~3.3.3
@@ -3268,6 +3271,7 @@ importers:
       '@projectstorm/react-diagrams-defaults': 7.1.2_@types+react@17.0.73
       '@projectstorm/react-diagrams-routing': 7.1.2_ydklgapfglzf65aii3opgert5e
       '@storybook/react': 7.4.6_vegmnuvoswdxuttpuhvewcem44
+      '@types/mustache': 4.2.5
       '@types/node': 20.8.10
       '@types/react': 17.0.73
       '@types/react-dom': 17.0.25
@@ -3278,8 +3282,10 @@ importers:
       copyfiles: 2.4.1
       css-loader: 6.8.1_webpack@5.88.2
       lodash: 4.17.21
+      mustache: 4.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      reverse-mustache: 1.9.0
       source-map-loader: 4.0.1_webpack@5.88.2
       storybook: 7.4.6
       style-loader: 3.3.3_webpack@5.88.2
@@ -16610,6 +16616,10 @@ packages:
   /@types/mousetrap/1.6.15:
     resolution: {integrity: sha512-qL0hyIMNPow317QWW/63RvL1x5MVMV+Ru3NaY9f/CuEpCqrmb7WeuK2071ZY5hczOnm38qExWM2i2WtkXLSqFw==}
 
+  /@types/mustache/4.2.5:
+    resolution: {integrity: sha512-PLwiVvTBg59tGFL/8VpcGvqOu3L4OuveNvPi0EYbWchRdEVP++yRUXJPFl+CApKEq13017/4Nf7aQ5lTtHUNsA==}
+    dev: false
+
   /@types/nock/11.1.0:
     resolution: {integrity: sha512-jI/ewavBQ7X5178262JQR0ewicPAcJhXS/iFaNJl0VHLfyosZ/kwSrsa6VNQNSO8i9d8SqdRgOtZSOKJ/+iNMw==}
     deprecated: This is a stub types definition. nock provides its own type definitions, so you do not need this installed.
@@ -21709,6 +21719,10 @@ packages:
     resolution: {integrity: sha512-ROoL94jJH2dUVML2Y/5PEDNaSHgeOdSDicUyS7izcF63G6sTc/FTjLub4b8Il9S8S0beOfYt0TaA5qvFK+w0wA==}
     dependencies:
       mimic-response: 1.0.1
+
+  /clone/0.1.19:
+    resolution: {integrity: sha512-IO78I0y6JcSpEPHzK4obKdsL7E7oLdRVDVOLwr2Hkbjsb+Eoz0dxW6tef0WizoKu0gLC4oZSZuEF4U2K6w1WQw==}
+    dev: false
 
   /clone/1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
@@ -33599,6 +33613,17 @@ packages:
       dns-packet: 5.6.1
       thunky: 1.1.0
 
+  /mustache/2.3.2:
+    resolution: {integrity: sha512-KpMNwdQsYz3O/SBS1qJ/o3sqUJ5wSb8gb0pul8CO0S56b9Y2ALm8zCfsjPXsqGFfoNBkDwZuZIAjhsZI03gYVQ==}
+    engines: {npm: '>=1.4.0'}
+    hasBin: true
+    dev: false
+
+  /mustache/4.2.0:
+    resolution: {integrity: sha512-71ippSywq5Yb7/tVYyGbkBggbU8H3u5Rz56fH60jGFgr8uHwxs+aSKeqmluIVzM0m0kB7xQjKS6qPfd0b2ZoqQ==}
+    hasBin: true
+    dev: false
+
   /mute-stream/0.0.7:
     resolution: {integrity: sha512-r65nCZhrbXXb6dXOACihYApHw2Q6pV0M3V0PSxd74N0+D8nzAdEAITq2oAjA1jVnKI+tGvEBUpqiMh0+rW6zDQ==}
 
@@ -34967,6 +34992,10 @@ packages:
   /paths-js/0.4.11:
     resolution: {integrity: sha512-3mqcLomDBXOo7Fo+UlaenG6f71bk1ZezPQy2JCmYHy2W2k5VKpP+Jbin9H0bjXynelTbglCqdFhSEkeIkKTYUA==}
     engines: {node: '>=0.11.0'}
+
+  /pathval/0.1.1:
+    resolution: {integrity: sha512-2AJyCGXy4VsZ2wa0TmMoL93KtWshxWQAMuuAG+7/Q3kth9uRDV38cMZTaSCsrTDJEwV8QbIHad+3E673s1ZY0A==}
+    dev: false
 
   /pathval/1.1.1:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
@@ -39214,6 +39243,15 @@ packages:
     resolution: {integrity: sha512-s+87HfEKAu95TaTxnbCobn0/BkbzR23LHSwVdYvr8mn5+PPjzy+hTWyh92b5oaLgig9TKPe5d6ZcubsVBtUrZg==}
     engines: {node: '>=8'}
     dev: true
+
+  /reverse-mustache/1.9.0:
+    resolution: {integrity: sha512-kKy3v8oxqUDjnIvppPVUErQ40S9DcAnkq6M690ZUY3oJ4XpMuGZeLF18S0ae3XpV877xs/BLuDkmUFGwgrMWUw==}
+    engines: {node: '>= 4.0.0'}
+    dependencies:
+      clone: 0.1.19
+      mustache: 2.3.2
+      pathval: 0.1.1
+    dev: false
 
   /rewire/5.0.0:
     resolution: {integrity: sha512-1zfitNyp9RH5UDyGGLe9/1N0bMlPQ0WrX0Tmg11kMHBpqwPJI4gfPpP7YngFyLbFmhXh19SToAG0sKKEFcOIJA==}

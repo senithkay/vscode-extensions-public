@@ -123,12 +123,18 @@ const SidePanelList = (props: SidePanelListProps) => {
     ];
 
     useEffect(() => {
+        const form = mediators.find((mediator) => mediator.operationName === sidePanelContext.mediator);
+        if (form) {
+            setMediatorForm(form.form);
+            return;
+        }
+
         if (sidePanelContext.backBtn > goBackRef.current) {
             if (connectorForm) {
-                sidePanelContext.showBackBtn(false);
+                sidePanelContext.setShowBackBtn(false);
                 setForm(undefined);
             } else if (mediatorForm) {
-                sidePanelContext.showBackBtn(false);
+                sidePanelContext.setShowBackBtn(false);
                 setMediatorForm(undefined);
             } else if (actions.length > 0) {
                 setActions([]);
@@ -148,18 +154,18 @@ const SidePanelList = (props: SidePanelListProps) => {
     }, []);
 
     const showConnectorActions = async (connectorPath: string) => {
-        sidePanelContext.showBackBtn(true);
+        sidePanelContext.setShowBackBtn(true);
         const actions = await MIWebViewAPI.getInstance().getConnector(connectorPath);
         setActions(actions.map((action: any) => JSON.parse(action)));
     };
 
     const showConnectorForm = async (connectorSchema: any) => {
-        sidePanelContext.showBackBtn(true);
+        sidePanelContext.setShowBackBtn(true);
         setForm(connectorSchema);
     };
 
     const showMediatorForm = async (mediator: any) => {
-        sidePanelContext.showBackBtn(true);
+        sidePanelContext.setShowBackBtn(true);
         setMediatorForm(mediator.form);
     };
 

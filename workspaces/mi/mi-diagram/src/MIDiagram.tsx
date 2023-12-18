@@ -27,16 +27,18 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [lastUpdated, setLastUpdated] = useState<number>(0);
 	const [stNode, setSTNode] = useState<number>(0);
 	const [isSidePanelOpen, setSidePanelOpen] = useState<boolean>(false);
-	const [nodeRange, setSidePanelNodeRange] = useState<Range>();
-	const [showBackBtn, setShowBackBtn] = useState<boolean>(false);
-	const [count, setCount] = useState(0);
+	const [sidePanelnodeRange, setSidePanelNodeRange] = useState<Range>();
+	const [sidePanelMediator, setSidePanelMediator] = useState<string>();
+	const [sidePanelFormValues, setSidePanelFormValues] = useState<{ [key: string]: any }>();
+	const [sidePanelShowBackBtn, setSidePanelShowBackBtn] = useState<boolean>(false);
+	const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
 
 	MIWebViewAPI.getInstance().getMessenger().onNotification(Refresh, () => {
 		setLastUpdated(Date.now());
 	});
 
 	const incrementCount = () => {
-		setCount(count + 1);
+		setSidePanelBackBtn(sidePanelBackBtn + 1);
 	};
 
 	useEffect(() => {
@@ -51,6 +53,8 @@ export function MIDiagram(props: MIDiagramProps) {
 	}, [lastUpdated]);
 
 	const closePanel = () => {
+		setSidePanelNodeRange(undefined);
+		setSidePanelMediator(undefined);
 		setSidePanelOpen(false);
 	};
 
@@ -60,7 +64,20 @@ export function MIDiagram(props: MIDiagramProps) {
 	} else {
 		canvas = stNode &&
 			<div>
-				<SidePanelProvider value={{ setIsOpen: setSidePanelOpen, setNodePosition: setSidePanelNodeRange, showBackBtn: setShowBackBtn, backBtn: count }}>
+				<SidePanelProvider value={{
+					setIsOpen: setSidePanelOpen,
+					isOpen: isSidePanelOpen,
+					setNodeRange: setSidePanelNodeRange,
+					nodeRange: sidePanelnodeRange,
+					setShowBackBtn: setSidePanelShowBackBtn,
+					showBackBtn: sidePanelShowBackBtn,
+					setMediator: setSidePanelMediator,
+					mediator: sidePanelMediator,
+					setFormValues: setSidePanelFormValues,
+					formValues: sidePanelFormValues,
+					setBackBtn: setSidePanelBackBtn,
+					backBtn: sidePanelBackBtn
+				}}>
 					{isSidePanelOpen && <SidePanel
 						isOpen={isSidePanelOpen}
 						alignmanet="right"
@@ -68,13 +85,13 @@ export function MIDiagram(props: MIDiagramProps) {
 						<SidePanelTitleContainer>
 							<div style={{ minWidth: "20px" }}>
 								{
-									showBackBtn && <Button onClick={incrementCount} appearance="icon">{"<"}</Button>
+									sidePanelShowBackBtn && <Button onClick={incrementCount} appearance="icon">{"<"}</Button>
 								}
 							</div>
 							<div>Add Mediator</div>
 							<Button onClick={closePanel} appearance="icon">X</Button>
 						</SidePanelTitleContainer>
-						<SidePanelList nodePosition={nodeRange} documentUri={props.documentUri} />
+						<SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
 					</SidePanel>}
 					<APICompartment name='API'>
 						<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />

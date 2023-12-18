@@ -10,18 +10,34 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
-interface SidePanelontext {
+interface SidePanelContext {
     setIsOpen: Dispatch<SetStateAction<boolean>>;
-    setNodePosition: Dispatch<SetStateAction<Range>>;
-    showBackBtn: Dispatch<SetStateAction<boolean>>;
+    isOpen: boolean;
+    setNodeRange: Dispatch<SetStateAction<Range>>;
+    nodeRange?: Range;
+    setMediator?: Dispatch<SetStateAction<string>>;
+    mediator?: string;
+    setFormValues?: Dispatch<SetStateAction<{ [key: string]: any }>>;
+    formValues?: { [key: string]: any };
+    setShowBackBtn: Dispatch<SetStateAction<boolean>>;
+    showBackBtn: boolean;
+    setBackBtn: Dispatch<SetStateAction<number>>;
     backBtn: number;
 }
 
-const SidePanelContext = React.createContext<SidePanelontext>({
+const SidePanelContext = React.createContext<SidePanelContext>({
     setIsOpen: () => { },
-    setNodePosition: () => { },
-    showBackBtn: () => { },
-    backBtn: 0,
+    isOpen: false,
+    setNodeRange: () => { },
+    nodeRange: undefined,
+    setMediator: () => { },
+    mediator: undefined,
+    setFormValues: () => { },
+    formValues: {},
+    setShowBackBtn: () => { },
+    showBackBtn: false,
+    setBackBtn: () => { },
+    backBtn: undefined,
 })
 export const SidePanelProvider = SidePanelContext.Provider
 export default SidePanelContext
