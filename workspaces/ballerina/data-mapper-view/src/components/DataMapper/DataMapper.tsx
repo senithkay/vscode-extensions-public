@@ -180,7 +180,7 @@ export function DataMapperC(props: DataMapperViewProps) {
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
-    const { projectComponents } = useProjectComponents();
+    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents();
     // const { data } = useSyntaxTreeFromRange();
 
     // const fnST = data?.syntaxTree as FunctionDefinition;
@@ -329,8 +329,8 @@ export function DataMapperC(props: DataMapperViewProps) {
             moduleVarDecls: moduleVars,
             constDecls: consts,
             enumDecls: enums,
-        }
-    }, [projectComponents]);
+        };
+    }, [projectComponents, isFetchingComponents]);
 
     useEffect(() => {
         if (fnST) {
@@ -378,7 +378,7 @@ export function DataMapperC(props: DataMapperViewProps) {
     useEffect(() => {
         setIsSelectionComplete(false)
         void (async () => {
-            if (selection.selectedST.stNode) {
+            if (selection.selectedST.stNode && !isFetchingComponents) {
                 const diagnostics = await handleDiagnostics(filePath, visualizerContext.ballerinaRpcClient);
 
                 const context = new DataMapperContext(
@@ -415,7 +415,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             }
         })();
         setIsSelectionComplete(true)
-    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled]);
+    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, isFetchingComponents]);
 
     useEffect(() => {
         if (isSelectionComplete && dmContext && selection?.selectedST?.stNode) {

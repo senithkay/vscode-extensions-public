@@ -36,7 +36,7 @@ export class DataMapperCanvasContainerWidget extends React.Component<{ hideCanva
 		return (
 			<>
 				<Global styles={Expand} />
-				<Container className='dotted-background' hidden={this.props.hideCanvas}>
+				<Container hidden={this.props.hideCanvas}>
 					{this.props.children}
 				</Container>
 			</>
