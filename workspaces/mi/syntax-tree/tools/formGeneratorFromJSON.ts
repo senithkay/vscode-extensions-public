@@ -188,17 +188,16 @@ const generateForm = (jsonData: any): string => {
 
     componentContent +=
         fixIndentation(
-            `
-${LICENSE_HEADER}
-import React, { useState } from 'react';
+            `${LICENSE_HEADER}
+import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
-import { create } from 'xmlbuilder2';
-import { Position } from 'vscode';
+import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
+import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
     display: "block", 
@@ -222,6 +221,12 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     } as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
 
+    useEffect(() => {
+        if (sidePanelContext.formValues) {
+            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+        }
+    }, [sidePanelContext.formValues]);
+
     const onClick = async () => {
         let newErrors = {} as any;
         Object.keys(formValidators).forEach((key) => {
@@ -233,18 +238,14 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
         } else {
-            const template = create();
-            const root = template.ele("${connectorName ? connectorName : ''}${connectorName && operationName ? "." : ""}${operationName ? `${operationName}` : ''}");
-            // Fill the values
-            Object.keys(formValues).forEach((key) => {
-                root.att(key, formValues[key]);
-            });
-            const modifiedXml = template.end({ prettyPrint: true, headless: true });
-            
-            await MIWebViewAPI.getInstance().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
+            const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, formValues);
+            MIWebViewAPI.getInstance().applyEdit({
+                documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
             sidePanelContext.setIsOpen(false);
+            sidePanelContext.setFormValues(undefined);
+            sidePanelContext.setNodeRange(undefined);
+            sidePanelContext.setMediator(undefined);
         }
     };
 
