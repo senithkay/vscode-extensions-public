@@ -99,14 +99,19 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
         const range = new Range(new Position(params.range.start.line, params.range.start.character),
             new Position(params.range.end.line, params.range.end.character));
-        const currentLine = document.lineAt(range.start.line).text;
-        const currentLineIndentation = currentLine.match(/^\s*/);
-        const indentation = currentLineIndentation ? currentLineIndentation[0] : "";
+        const startLine = document.lineAt(range.start.line).text;
+        const startLineIndentation = startLine.match(/^\s*/);
+        const endLine = document.lineAt(range.end.line).text;
+        const endLineIndentation = endLine.match(/^\s*/);
+
+        const sIndentation = startLineIndentation ? startLineIndentation[0] : "";
+        const eIndentation = endLineIndentation ? endLineIndentation[0] : "";
         const textEmpty = params.text.trim().length === 0;
-        const textBefore = currentLine.substring(0, range.start.character).trim();
+        const textBefore = startLine.substring(0, range.start.character).trim();
+        const textAfter = endLine.substring(range.end.character).trim();
         let text = params.text;
         if (!textEmpty) {
-            text = `${textBefore.length > 0 ? "\n" + indentation : ""}${params.text.replace(/\n/g, "\n" + indentation)}${textBefore.length > 0 ? "" : "\n" + indentation}`;
+            text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
         }
         edit.replace(Uri.parse(params.documentUri), range, text);
         await workspace.applyEdit(edit);
