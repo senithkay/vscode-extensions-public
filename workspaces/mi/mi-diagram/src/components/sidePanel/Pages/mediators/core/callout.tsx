@@ -1,7 +1,6 @@
-
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
+ * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
@@ -9,113 +8,117 @@
 */
 
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
 import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
-import { create } from 'xmlbuilder2';
+import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
+import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
-    display: "block",
-    margin: "5px 0",
-    padding: "0 15px 15px 15px",
-    width: "auto",
-    cursor: "auto"
+   display: "block",
+   margin: "5px 0",
+   padding: "0 15px 15px 15px",
+   width: "auto",
+   cursor: "auto"
 };
 
 const Error = styled.span`
-    color: var(--vscode-errorForeground);
-    font-size: 12px;
+   color: var(--vscode-errorForeground);
+   font-size: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const CalloutForm = (props: AddMediatorProps) => {
-    const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({
-        "initAxis2ClientOptions": false,
-        "payloadType": "XPATH",
-        "resultType": "XPATH",
-        "securityType": "TRUE",
-        "policies": "TRUE",
-    } as { [key: string]: any });
-    const [errors, setErrors] = useState({} as any);
+   const sidePanelContext = React.useContext(SidePanelContext);
+   const [formValues, setFormValues] = useState({
+       "initAxis2ClientOptions": false,
+       "payloadType": "XPATH",
+       "resultType": "XPATH",
+       "securityType": "TRUE",
+       "policies": "TRUE",
+   } as { [key: string]: any });
+   const [errors, setErrors] = useState({} as any);
 
-    const onClick = async () => {
-        let newErrors = {} as any;
-        Object.keys(formValidators).forEach((key) => {
-            const error = formValidators[key]();
-            if (error) {
-                newErrors[key] = (error);
-            }
-        });
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-        } else {
-            const template = create();
-            const root = template.ele("callout");
-            // Fill the values
-            Object.keys(formValues).forEach((key) => {
-                root.att(key, formValues[key]);
-            });
-            const modifiedXml = template.end({ prettyPrint: true, headless: true });
-            
-            await MIWebViewAPI.getInstance().applyEdit({
-                documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
-            });
-            sidePanelContext.setIsOpen(false);
-        }
-    };
+   useEffect(() => {
+       if (sidePanelContext.formValues) {
+           setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       }
+   }, [sidePanelContext.formValues]);
 
-    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-        "endpointType": (e?: any) => validateField("endpointType", e, false),
-        "soapAction": (e?: any) => validateField("soapAction", e, false),
-        "pathToAxis2Repository": (e?: any) => validateField("pathToAxis2Repository", e, false),
-        "pathToAxis2xml": (e?: any) => validateField("pathToAxis2xml", e, false),
-        "initAxis2ClientOptions": (e?: any) => validateField("initAxis2ClientOptions", e, false),
-        "serviceURL": (e?: any) => validateField("serviceURL", e, false),
-        "addressEndpoint": (e?: any) => validateField("addressEndpoint", e, false),
-        "payloadType": (e?: any) => validateField("payloadType", e, false),
-        "payloadMessageXPath": (e?: any) => validateField("payloadMessageXPath", e, false),
-        "payloadProperty": (e?: any) => validateField("payloadProperty", e, false),
-        "resultType": (e?: any) => validateField("resultType", e, false),
-        "resultMessageXPath": (e?: any) => validateField("resultMessageXPath", e, false),
-        "resultContextProperty": (e?: any) => validateField("resultContextProperty", e, false),
-        "securityType": (e?: any) => validateField("securityType", e, false),
-        "policies": (e?: any) => validateField("policies", e, false),
-        "policyKey": (e?: any) => validateField("policyKey", e, false),
-        "outboundPolicyKey": (e?: any) => validateField("outboundPolicyKey", e, false),
-        "inboundPolicyKey": (e?: any) => validateField("inboundPolicyKey", e, false),
-        "description": (e?: any) => validateField("description", e, false),
+   const onClick = async () => {
+       let newErrors = {} as any;
+       Object.keys(formValidators).forEach((key) => {
+           const error = formValidators[key]();
+           if (error) {
+               newErrors[key] = (error);
+           }
+       });
+       if (Object.keys(newErrors).length > 0) {
+           setErrors(newErrors);
+       } else {
+           const xml = getXML(MEDIATORS.CALLOUT, formValues);
+           MIWebViewAPI.getInstance().applyEdit({
+               documentUri: props.documentUri, range: props.nodePosition, text: xml
+           });
+           sidePanelContext.setIsOpen(false);
+           sidePanelContext.setFormValues(undefined);
+           sidePanelContext.setNodeRange(undefined);
+           sidePanelContext.setMediator(undefined);
+           sidePanelContext.setShowBackBtn(false);
+       }
+   };
 
-    };
+   const formValidators: { [key: string]: (e?: any) => string | undefined } = {
+       "endpointType": (e?: any) => validateField("endpointType", e, false),
+       "soapAction": (e?: any) => validateField("soapAction", e, false),
+       "pathToAxis2Repository": (e?: any) => validateField("pathToAxis2Repository", e, false),
+       "pathToAxis2xml": (e?: any) => validateField("pathToAxis2xml", e, false),
+       "initAxis2ClientOptions": (e?: any) => validateField("initAxis2ClientOptions", e, false),
+       "serviceURL": (e?: any) => validateField("serviceURL", e, false),
+       "addressEndpoint": (e?: any) => validateField("addressEndpoint", e, false),
+       "payloadType": (e?: any) => validateField("payloadType", e, false),
+       "payloadMessageXPath": (e?: any) => validateField("payloadMessageXPath", e, false),
+       "payloadProperty": (e?: any) => validateField("payloadProperty", e, false),
+       "resultType": (e?: any) => validateField("resultType", e, false),
+       "resultMessageXPath": (e?: any) => validateField("resultMessageXPath", e, false),
+       "resultContextProperty": (e?: any) => validateField("resultContextProperty", e, false),
+       "securityType": (e?: any) => validateField("securityType", e, false),
+       "policies": (e?: any) => validateField("policies", e, false),
+       "policyKey": (e?: any) => validateField("policyKey", e, false),
+       "outboundPolicyKey": (e?: any) => validateField("outboundPolicyKey", e, false),
+       "inboundPolicyKey": (e?: any) => validateField("inboundPolicyKey", e, false),
+       "description": (e?: any) => validateField("description", e, false),
 
-    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
-        const value = e ?? formValues[id];
-        let newErrors = { ...errors };
-        let error;
-        if (isRequired && !value) {
-            error = "This field is required";
-        } else if (validation === "e-mail" && !value.match(emailRegex)) {
-            error = "Invalid e-mail address";
-        } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
-            error = "Invalid name";
-        } else if (validation === "custom" && !value.match(regex)) {
-            error = "Invalid input";
-        } else {
-            delete newErrors[id];
-            setErrors(newErrors);
-        }
-        setErrors({ ...errors, [id]: error });
-        return error;
-    };
+   };
 
-    return (
-        <div style={{ padding: "10px" }}>
+   const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
+       const value = e ?? formValues[id];
+       let newErrors = { ...errors };
+       let error;
+       if (isRequired && !value) {
+           error = "This field is required";
+       } else if (validation === "e-mail" && !value.match(emailRegex)) {
+           error = "Invalid e-mail address";
+       } else if (validation === "nameWithoutSpecialCharactors" && !value.match(nameWithoutSpecialCharactorsRegex)) {
+           error = "Invalid name";
+       } else if (validation === "custom" && !value.match(regex)) {
+           error = "Invalid input";
+       } else {
+           delete newErrors[id];
+           setErrors(newErrors);
+       }
+       setErrors({ ...errors, [id]: error });
+       return error;
+   };
+
+   return (
+       <div style={{ padding: "10px" }}>
 
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Service</h3>
