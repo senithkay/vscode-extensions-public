@@ -1222,6 +1222,7 @@ importers:
       '@vscode/vsce': ^2.17.0
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-languageclient': workspace:*
+      '@wso2-enterprise/cell-diagram': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/choreo-vscode-webviews': workspace:*
@@ -1270,6 +1271,7 @@ importers:
       '@vscode/iconv-lite-umd': 0.7.0
       '@vscode/webview-ui-toolkit': 1.2.2
       '@wso2-enterprise/ballerina-languageclient': link:../../ballerina/ballerina-languageclient
+      '@wso2-enterprise/cell-diagram': link:../cell-diagram
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/choreo-vscode-webviews': link:../choreo-webviews
