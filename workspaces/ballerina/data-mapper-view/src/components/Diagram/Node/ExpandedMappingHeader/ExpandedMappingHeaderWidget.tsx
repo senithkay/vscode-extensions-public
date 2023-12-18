@@ -12,7 +12,6 @@ import React from "react";
 import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import {
-    LetVarDecl,
     NodePosition,
     STKindChecker,
     STNode,
@@ -38,6 +37,7 @@ export interface ExpandedMappingHeaderWidgetProps {
 
 export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetProps) {
     const { node, engine, port } = props;
+    const { context: { applyModifications }} = node;
     const classes = useStyles();
 
     const onClickEdit = (value: string, valuePosition: NodePosition, label: string) => {
@@ -45,7 +45,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
     };
 
     const deleteClause = async (clauseItem: STNode) => {
-        await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position }]);
+        await applyModifications([{ type: "DELETE", ...clauseItem.position }]);
     };
 
     const fromClause = props.node.queryExpr.queryPipeline.fromClause;

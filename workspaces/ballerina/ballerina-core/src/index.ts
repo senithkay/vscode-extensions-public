@@ -23,6 +23,8 @@ export * from "./lang-server-interfaces/vscode-langserver-types";
 export * from "./extension-interfaces/extension-types";
 export * from "./extension-interfaces/state-machine-types";
 
+export { default as templates } from "./templates/components";
+
 export * from "./rpc-types/overview";
 export * from "./rpc-types/connector-wizard";
 export * from "./rpc-types/converter";

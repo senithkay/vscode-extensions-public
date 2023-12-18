@@ -64,13 +64,14 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         setLoading(true);
         try {
             const addPosition = getAddFieldPosition();
-            await context.applyModifications([
+            const modifications = [
                 {
                     type: "INSERT",
                     config: { STATEMENT: statement },
                     ...addPosition,
                 },
-            ]);
+            ];
+            await context.applyModifications(modifications);
         } finally {
             setLoading(false);
         }

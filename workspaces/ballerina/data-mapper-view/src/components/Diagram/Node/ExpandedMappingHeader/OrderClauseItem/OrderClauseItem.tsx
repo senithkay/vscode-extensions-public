@@ -27,8 +27,7 @@ export function OrderByClauseItem(props: {
     queryExprNode: QueryExpression;
     itemIndex: number;
 }) {
-    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } =
-        props;
+    const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } = props;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
 
@@ -44,7 +43,14 @@ export function OrderByClauseItem(props: {
     const onOrderDirectionChange = async (value: string, currentKey: OrderKey) => {
         setLoading(true);
         try {
-            await context.applyModifications([{ type: "INSERT", config: { "STATEMENT": value }, ...currentKey.orderDirection.position }]);
+            const modifications = [
+                {
+                    type: "INSERT",
+                    config: { "STATEMENT": value },
+                    ...currentKey.orderDirection.position
+                }
+            ];
+            await context.applyModifications(modifications);
         } finally {
             setLoading(false);
         }
@@ -54,14 +60,17 @@ export function OrderByClauseItem(props: {
         setLoading(true);
         try {
             const lastOrderKey = intermediateNode.orderKey[intermediateNode.orderKey.length - 1];
-            await context.applyModifications([{
-                type: "INSERT",
-                config: { "STATEMENT": ', EXPRESSION ascending' },
-                startLine: lastOrderKey.position.endLine,
-                startColumn: lastOrderKey.position.endColumn,
-                endLine: lastOrderKey.position.endLine,
-                endColumn: lastOrderKey.position.endColumn,
-            }]);
+            const modifications = [
+                {
+                    type: "INSERT",
+                    config: { "STATEMENT": ', EXPRESSION ascending' },
+                    startLine: lastOrderKey.position.endLine,
+                    startColumn: lastOrderKey.position.endColumn,
+                    endLine: lastOrderKey.position.endLine,
+                    endColumn: lastOrderKey.position.endColumn,
+                }
+            ];
+            await context.applyModifications(modifications);
         } finally {
             setLoading(false);
         }
@@ -73,22 +82,28 @@ export function OrderByClauseItem(props: {
             const orderKeyPosition: NodePosition = (intermediateNode.orderKey[index] as OrderKey)?.position;
             if (index === 0) {
                 const CommaTokenPosition: NodePosition = (intermediateNode.orderKey[index + 1] as CommaToken)?.position;
-                await context.applyModifications([{
-                    type: "DELETE",
-                    startLine: orderKeyPosition.startLine,
-                    startColumn: orderKeyPosition.startColumn,
-                    endLine: CommaTokenPosition?.endLine || orderKeyPosition.endLine,
-                    endColumn: CommaTokenPosition?.endColumn || orderKeyPosition.endColumn,
-                }]);
+                const modifications = [
+                    {
+                        type: "DELETE",
+                        startLine: orderKeyPosition.startLine,
+                        startColumn: orderKeyPosition.startColumn,
+                        endLine: CommaTokenPosition?.endLine || orderKeyPosition.endLine,
+                        endColumn: CommaTokenPosition?.endColumn || orderKeyPosition.endColumn,
+                    }
+                ];
+                await context.applyModifications(modifications);
             } else {
                 const CommaTokenPosition: NodePosition = (intermediateNode.orderKey[index - 1] as CommaToken)?.position;
-                await context.applyModifications([{
-                    type: "DELETE",
-                    startLine: CommaTokenPosition?.startLine || orderKeyPosition.startLine,
-                    startColumn: CommaTokenPosition?.startColumn || orderKeyPosition.startColumn,
-                    endLine: orderKeyPosition.endLine,
-                    endColumn: orderKeyPosition.endColumn,
-                }]);
+                const modifications = [
+                    {
+                        type: "DELETE",
+                        startLine: CommaTokenPosition?.startLine || orderKeyPosition.startLine,
+                        startColumn: CommaTokenPosition?.startColumn || orderKeyPosition.startColumn,
+                        endLine: orderKeyPosition.endLine,
+                        endColumn: orderKeyPosition.endColumn,
+                    }
+                ];
+                await context.applyModifications(modifications);
             }
         } finally {
             setLoading(false);

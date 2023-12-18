@@ -31,7 +31,9 @@ import {
     NOT_SUPPORTED_TYPE,
     GetSyntaxTreeResponse,
     GetSyntaxTreeParams,
-    BallerinaFunctionSTRequest
+    BallerinaFunctionSTRequest,
+    BallerinaSTModifyRequest,
+    UpdateFileContentRequest
 } from "../..";
 import { VisualizerLocationContext } from "../../extension-interfaces/state-machine-types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -49,6 +51,8 @@ export interface VisualizerAPI {
     rename: (params: RenameParams) => Promise<WorkspaceEdit>;
     getDefinitionPosition: (params: TextDocumentPositionParams) => Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE>;
     convert: (params: JsonToRecordRequest) => Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
+    stModify: (params: BallerinaSTModifyRequest) => Promise<BallerinaSTModifyResponse>;
+    updateFileContent: (params: UpdateFileContentRequest) => Promise<boolean>;
     didOpen: (Params: DidOpenTextDocumentParams) => void;
     didChange: (params: DidChangeTextDocumentParams) => void;
     didClose: (params: DidCloseTextDocumentParams) => void;

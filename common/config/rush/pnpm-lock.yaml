@@ -954,6 +954,8 @@ importers:
     specifiers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
+      '@tanstack/query-core': ^4.0.0-beta.1
+      '@tanstack/react-query': 4.0.10
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
       '@types/vscode-webview': ^1.57.4
@@ -985,6 +987,8 @@ importers:
     dependencies:
       '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
       '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
+      '@tanstack/query-core': 4.27.0
+      '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@types/vscode-webview': 1.57.4
       '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
@@ -14219,6 +14223,25 @@ packages:
     dependencies:
       '@tanstack/query-persist-client-core': 4.27.0
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
+    dev: false
+
+  /@tanstack/react-query/4.0.10_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Wn5QhZUE5wvr6rGClV7KeQIUsdTmYR9mgmMZen7DSRWauHW2UTynFg3Kkf6pw+XlxxOLsyLWwz/Q6q1lSpM3TQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.27.0
+      '@types/use-sync-external-store': 0.0.3
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
   /@tanstack/react-query/4.0.10_sfoxds7t5ydpegc3knd667wn6m:
