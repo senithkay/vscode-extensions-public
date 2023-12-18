@@ -6,10 +6,10 @@ export const TreeContainer = styled.div`
     align-items: flex-start;
     padding: 16px 24px 24px;
     gap: 8px;
-    background: #FFFFFF;
+    background: var(--vscode-input-background);
     box-shadow: 0px 5px 50px rgba(203, 206, 219, 0.5);
     border-radius: 12px;
-    color: #1D2028;
+    color: var(--vscode-input-foreground);
     font-family: GilmerMedium;
     font-style: normal;
     font-weight: 600;
@@ -26,13 +26,13 @@ export const TreeHeader = styled.div((
 ) => ({
     height: '40px',
     padding: '8px',
-    background: `${isDisabled ? '#F7F8FB' : isSelected ? '#DFE2FF' : '#E6E8F0'}`,
+    background: `${isDisabled ? 'var(--vscode-editorWidget-background)' : isSelected ? 'var(--vscode-inputValidation-infoBackground)' : 'var(--vscode-editorWidget-background)'}`,
     borderRadius: '3px',
     width: '100%',
     display: 'flex',
     cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
     '&:hover': {
-        backgroundColor: `${isDisabled ? '#F7F8FB' : '#F0F1FB'}`
+        backgroundColor: `${isDisabled ? 'var(--vscode-editorWidget-background)' : 'var(--vscode-tab-inactiveBackground)'}`
     }
 }));
 
@@ -42,7 +42,7 @@ export const TreeBody = styled.div`
     align-items: flex-start;
     padding: 1px;
     gap: 1px;
-    background: #E0E2E9;
+    background: var(--vscode-editorHoverWidget-statusBarBackground);
     border-radius: 3px;
     flex: none;
     flex-grow: 0;

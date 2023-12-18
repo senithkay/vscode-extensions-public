@@ -50,14 +50,14 @@ const useStyles = makeStyles((theme: Theme) =>
 		root: {
 			flexGrow: 1,
 			width: 400,
-			color: "white",
+			color: "var(--vscode-input-background)",
 			position: "relative",
-			backgroundColor: " #FFFFFF",
+			backgroundColor: "var(--vscode-input-background)",
 			padding: "20px"
 		},
 		header: {
 			color: "black",
-			backgroundColor: "#d8d8ff",
+			backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
 			display: "flex",
 			height: "40px",
 			padding: "8px"
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			marginLeft: "3px",
 			verticalAlign: "middle",
 			padding: "5px",
-			color: "#222228",
+			color: "var(--vscode-icon-foreground)",
 			fontFamily: "GilmerRegular",
 			fontSize: "13px",
 			minWidth: "100px",
@@ -79,7 +79,7 @@ const useStyles = makeStyles((theme: Theme) =>
 		valueLabel: {
 			verticalAlign: "middle",
 			padding: "5px",
-			color: "#222228",
+			color: "var(--vscode-icon-foreground)",
 			fontFamily: "GilmerMedium",
 			fontSize: "13px",
 		},
@@ -101,7 +101,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			}
 		},
 		expandIcon: {
-			color: theme.palette.common.black,
+			color: "var(--vscode-inputOption-activeForeground)",
 			height: "25px",
 			width: "25px",
 			marginLeft: "auto"

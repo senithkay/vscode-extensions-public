@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
         nodeType: {
             float: 'right',
             marginRight: 5,
-            color: theme.palette.grey[300],
+            color: "var(--vscode-pickerGroup-border)",
         }
     }),
 );

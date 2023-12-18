@@ -61,7 +61,7 @@ export function ModuleVariableTreeWidget(props: ModuleVariableTreeWidgetProps) {
 }
 
 const ModuleVarsHeader = styled.div`
-    background: #f6f7fc;
+    background: var(--vscode-editorWidget-background);
     width: 100%;
     line-height: 35px;
     display: flex;

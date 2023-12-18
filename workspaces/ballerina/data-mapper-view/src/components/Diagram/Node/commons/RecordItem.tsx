@@ -10,26 +10,24 @@
 import React from "react";
 
 import { ListItem, ListItemText, Typography } from "@material-ui/core";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { css } from "@emotion/css";
 
 import SymbolStructIcon from "../../../../assets/icons/SymbolStructIcon";
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        menuItem: {
-            fontSize: '12px',
-            height: '30px',
-            cursor: "pointer",
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
-        menuItemText: {
-            padding: '5px',
-            fontSize: '12px'
+const useStyles = () => ({
+    menuItem: css({
+        fontSize: '12px',
+        height: '30px',
+        cursor: "pointer",
+        '&:hover': {
+            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
         }
+    }),
+    menuItemText: css({
+        padding: '5px',
+        fontSize: '12px'
     })
-);
+});
 
 export interface RecordItemProps {
     recordName: string;

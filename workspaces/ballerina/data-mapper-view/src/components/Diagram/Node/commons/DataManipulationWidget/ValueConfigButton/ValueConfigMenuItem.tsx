@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
             alignSelf: 'flex-end',
         },
         warning: {
-            color: '#e85454',
+            color: 'var(--vscode-editorError-foreground)',
             fontSize: '16px',
             marginLeft: '5px'
         }
@@ -35,14 +35,14 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const tooltipStyles = {
     tooltip: {
-        color: "#8d91a3",
-        backgroundColor: "#fdfdfd",
-        border: "1px solid #e6e7ec",
+        color: "var(--vscode-input-placeholderForeground)",
+        backgroundColor: "var(--vscode-input-background)",
+        border: "1px solid var(--vscode-editorWidget-background)",
         borderRadius: 6,
         padding: "1rem"
     },
     arrow: {
-        color: "#fdfdfd"
+        color: "var(--vscode-input-background)"
     }
 };
 

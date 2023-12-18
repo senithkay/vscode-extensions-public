@@ -108,12 +108,12 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
 
 const LocalVarAddButton = styled.div`
     padding: 10px;
-    background: #FFFFFF;
+    background: var(--vscode-input-background);
     border-radius: 12px;
 `;
 
 const LocalVarsHeader = styled.div`
-    background: #f6f7fc;
+    background: var(--vscode-editorWidget-background);
     width: 100%;
     line-height: 35px;
     display: flex;

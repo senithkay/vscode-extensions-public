@@ -29,16 +29,16 @@ const useStyles = makeStyles((theme: Theme) =>
             minWidth: "100px",
             display: "flex",
             minHeight: "24px",
-            background: "#FFF",
+            background: "var(--vscode-input-background)",
             '&:hover': {
-                backgroundColor: '#F0F1FB',
+                backgroundColor: 'var(--vscode-tab-inactiveBackground)',
             }
         },
         treeLabelPortSelected: {
-            backgroundColor: '#DFE2FF',
+            backgroundColor: 'var(--vscode-editorWidget-background)',
         },
         treeLabelParentHovered: {
-            backgroundColor: '#F0F1FB',
+            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
         },
         treeLabelOutPort: {
             float: "right",
@@ -73,9 +73,9 @@ const useStyles = makeStyles((theme: Theme) =>
             paddingBottom: "5px"
         },
         content: {
-            borderTopRightRadius: theme.spacing(2),
-            borderBottomRightRadius: theme.spacing(2),
-            paddingRight: theme.spacing(1),
+            borderTopRightRadius: "16px",
+            borderBottomRightRadius: "16px",
+            paddingRight: "16px",
         },
         label: {
             width: "300px",
@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme: Theme) =>
             }
         },
         expandIcon: {
-            color: theme.palette.common.black,
+            color: "var(--vscode-inputOption-activeForeground)",
             height: "25px",
             width: "25px",
             marginLeft: "auto"

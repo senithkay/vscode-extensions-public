@@ -13,27 +13,29 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button, makeStyles, useMediaQuery } from '@material-ui/core';
+import { Button } from '@material-ui/core';
+import { css } from "@emotion/css";
 import { withStyles } from "@material-ui/core/styles";
 import TooltipBase from "@material-ui/core/Tooltip";
 
 import RoundEditIcon from "../../../assets/icons/EditIcon";
 
 import {headerStyles} from "./DataMapperHeader";
+import { useMediaQuery } from "../utils";
 
-const useStyles = makeStyles((theme) => ({
-    button: {
+const useStyles = () => ({
+    button: css({
         textTransform: 'none',
         boxSizing: 'border-box',
-        background: '#F7F8FB',
-        border: '1px solid #E0E2E9',
+        background: 'var(--vscode-editorWidget-background)',
+        border: '1px solid var(--vscode-editorHoverWidget-statusBarBackground)',
         boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
         borderRadius: '5px',
-        color: '#40404B',
+        color: 'var(--vscode-icon-foreground)',
         fontSize: '13px',
         fontWeight: 400
-    }
-}));
+    })
+});
 
 interface ConfigureButtonProps {
     onClick: () => void;

@@ -84,7 +84,7 @@ export {}
 //     background: 'white',
 //     padding: 10,
 //     borderRadius: 5,
-//     border: '1px solid #dee0e7',
+//     border: '1px solid var(--vscode-editor-inactiveSelectionBackground)',
 //     margin: '1rem 0 0.25rem',
 //     justifyContent: 'space-between',
 //     display: 'flex',

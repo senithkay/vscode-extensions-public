@@ -30,32 +30,32 @@ import { LinkConnectorNode } from './LinkConnectorNode';
 
 export const tooltipBaseStyles = {
     tooltip: {
-        color: "#8d91a3",
-        backgroundColor: "#fdfdfd",
-        border: "1px solid #e6e7ec",
+        color: "var(--vscode-input-placeholderForeground)",
+        backgroundColor: "var(--vscode-input-background)",
+        border: "1px solid var(--vscode-editorWidget-background)",
         borderRadius: 6,
         padding: "1rem"
     },
     arrow: {
-        color: "#fdfdfd"
+        color: "var(--vscode-input-background)"
     }
 };
 
 const styles = makeStyles((theme: Theme) => createStyles({
     root: {
         width: '100%',
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: "var(--vscode-input-background)",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
-        color: theme.palette.grey[400],
+        color: "var(--vscode-checkbox-border)",
         boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         borderRadius: "10px",
-		      alignItems: "center",
-		      overflow: "hidden",
+        alignItems: "center",
+        overflow: "hidden",
     },
     element: {
-        backgroundColor: theme.palette.common.white,
+        backgroundColor: "var(--vscode-input-background)",
         padding: "5px",
         cursor: "pointer",
         transitionDuration: "0.2s",
@@ -93,7 +93,7 @@ const styles = makeStyles((theme: Theme) => createStyles({
     icons: {
         padding: '8px',
         '&:hover': {
-            backgroundColor: '#F0F1FB',
+            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
         }
     },
     expandIcon: {
@@ -102,7 +102,7 @@ const styles = makeStyles((theme: Theme) => createStyles({
         marginTop: '-7px'
     },
     buttonWrapper: {
-        border: '1px solid #e6e7ec',
+        border: '1px solid var(--vscode-editorWidget-background)',
         borderRadius: '8px',
         position: "absolute",
         right: "35px"
@@ -110,10 +110,10 @@ const styles = makeStyles((theme: Theme) => createStyles({
     separator: {
         height: "22px",
         width: "1px",
-        backgroundColor: theme.palette.grey[200],
+        backgroundColor: "var(--vscode-editor-lineHighlightBorder)",
     },
     editIcon: {
-        color: theme.palette.grey[300],
+        color: "var(--vscode-pickerGroup-border)",
         padding: "5px",
         height: "32px",
         width: "32px"
@@ -122,13 +122,13 @@ const styles = makeStyles((theme: Theme) => createStyles({
         padding: "3px"
     },
     deleteIcon: {
-        color: theme.palette.error.main
+        color: "var(--vscode-editor-selectionBackground)"
     },
     loadingContainer: {
         padding: "10px"
     },
     circularProgress: {
-        color: "#CBCEDB"
+        color: "var(--vscode-input-background)"
     }
 }));
 

@@ -35,7 +35,7 @@ import { getInputOutputSearchTerms } from "./utils";
 const useStyles = makeStyles((theme) => ({
     textField: {
         width: '100%',
-        background: theme.palette.common.white,
+        background: "var(--vscode-input-background)",
         flex: 1,
         borderRadius: 5,
         boxShadow: 'inset 0 2px 2px rgba(29, 32, 40, 0.07)',
@@ -44,13 +44,13 @@ const useStyles = makeStyles((theme) => ({
         },
         '& .MuiOutlinedInput-root': {
             '& fieldset': {
-                border: `1px solid #E6E7EC`,
+                border: `1px solid var(--vscode-editorWidget-background)`,
             },
             '&:hover fieldset': {
-                border: `2px solid #E6E7EC`,
+                border: `2px solid var(--vscode-editorWidget-background)`,
             },
             '&.Mui-focused fieldset': {
-                border: `2px solid #A6B3FF`
+                border: `2px solid var(--vscode-minimap-selectionHighlight)`
             }
         },
         '& .MuiOutlinedInput-input': {
@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
             height: '5px',
             width: '5px',
             marginRight: '5px',
-            color: theme.palette.grey[300],
+            color: "var(--vscode-pickerGroup-border)",
         },
         '& .MuiListItem-gutters': {
             paddingLeft: '5px',
@@ -79,11 +79,11 @@ const useStyles = makeStyles((theme) => ({
         }
     },
     clearBtn: {
-        color: theme.palette.grey[300],
+        color: "var(--vscode-pickerGroup-border)",
         cursor: 'pointer',
         transition: "all 0.2s",
         '&:hover': {
-            color: theme.palette.grey[600],
+            color: "var(--vscode-input-placeholderForeground)",
         },
     },
     filterIcon: {

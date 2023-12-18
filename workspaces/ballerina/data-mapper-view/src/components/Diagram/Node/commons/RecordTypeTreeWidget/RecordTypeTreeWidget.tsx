@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
             }
         },
         expandIcon: {
-            color: theme.palette.common.black,
+            color: "var(--vscode-inputOption-activeForeground)",
             height: "25px",
             width: "25px",
             marginLeft: "auto"
@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme: Theme) =>
         nodeType: {
             float: 'right',
             marginRight: 5,
-            color: theme.palette.grey[300],
+            color: "var(--vscode-pickerGroup-border)",
         }
     }),
 );

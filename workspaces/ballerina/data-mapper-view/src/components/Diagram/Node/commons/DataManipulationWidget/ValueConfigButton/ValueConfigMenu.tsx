@@ -20,7 +20,7 @@ import { ValueConfigMenuItem } from "./ValueConfigMenuItem";
 const useStyles = makeStyles(() =>
     createStyles({
         tripleDotsIcon: {
-            color: "#5567D5",
+            color: "var(--vscode-editorInfo-foreground)",
             padding: "5px",
             width: 'fit-content',
             height: "25px",

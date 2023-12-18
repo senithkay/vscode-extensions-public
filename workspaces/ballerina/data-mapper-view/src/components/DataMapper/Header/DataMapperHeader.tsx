@@ -19,14 +19,14 @@ import SearchBox from "./SearchBox";
 
 export const headerStyles = {
     tooltip: {
-        color: "#8d91a3",
-        backgroundColor: "#fdfdfd",
-        border: "1px solid #e6e7ec",
+        color: "var(--vscode-input-placeholderForeground)",
+        backgroundColor: "var(--vscode-input-background)",
+        border: "1px solid var(--vscode-editorWidget-background)",
         borderRadius: 6,
         padding: "1rem"
     },
     arrow: {
-        color: "#fdfdfd"
+        color: "var(--vscode-input-background)"
     }
 };
 
@@ -65,7 +65,7 @@ const HeaderContainer = styled.div`
     height: 50px;
     display: flex;
     padding: 15px;
-    background-color: #f7f8fb;
+    background-color: var(--vscode-editorWidget-background);
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(102,103,133,0.15);

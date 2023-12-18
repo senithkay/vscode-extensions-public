@@ -12,7 +12,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import * as React from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { css } from '@emotion/css';
 import CachedIcon from '@material-ui/icons/Cached';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
@@ -64,30 +64,30 @@ import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
 import { getErrorKind } from "./utils/dm-utils";
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		buttonWrap: {
-			position: 'absolute',
-			bottom: 50,
-			right: 20
-		},
-		iconWrap: {
-			marginBottom: 10,
-			background: theme.palette.common.white,
-			height: 32,
-			width: 32,
-			borderRadius: 32,
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			cursor: 'pointer',
-			boxShadow: '0 1px 1px 0 #cbcfda;',
-			transitionDuration: '0.2s',
-			'&:hover': { opacity: 0.5 },
-		},
-		icon: { color: '#8d91a3' }
+const classes = {
+	buttonWrap: css({
+		position: 'absolute',
+		bottom: 50,
+		right: 20
 	}),
-);
+	iconWrap: css({
+		marginBottom: 10,
+		background: "var(--vscode-input-background)",
+		height: 32,
+		width: 32,
+		borderRadius: 32,
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		cursor: 'pointer',
+		boxShadow: "0 1px 1px 0 var(--vscode-inputValidation-infoBackground)",
+		transitionDuration: '0.2s',
+		'&:hover': { opacity: 0.5 },
+	}),
+	icon: css({
+		color: "var(--vscode-input-placeholderForeground)"
+	})
+};
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -148,7 +148,6 @@ function initDiagramEngine() {
 }
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
-	const classes = useStyles();
 
 	const { nodes, hideCanvas, onError } = props;
 

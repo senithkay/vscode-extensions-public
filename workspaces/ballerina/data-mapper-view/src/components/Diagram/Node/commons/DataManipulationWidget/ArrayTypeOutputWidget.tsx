@@ -49,14 +49,14 @@ const useStyles = makeStyles((theme: Theme) =>
 		root: {
 			flexGrow: 1,
 			width: 400,
-			color: "white",
+			color: "var(--vscode-input-background)",
 			position: "relative",
-			backgroundColor: " #FFFFFF",
+			backgroundColor: "var(--vscode-input-background)",
 			padding: "20px"
 		},
 		header: {
 			color: "black",
-			backgroundColor: "#d8d8ff",
+			backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
 			display: "flex",
 			height: "40px",
 			padding: "8px"
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			marginLeft: "3px",
 			verticalAlign: "middle",
 			padding: "5px",
-			color: "#222228",
+			color: "var(--vscode-icon-foreground)",
 			fontFamily: "GilmerRegular",
 			fontSize: "13px",
 			minWidth: "100px",
@@ -76,20 +76,20 @@ const useStyles = makeStyles((theme: Theme) =>
 			fontSize: "14px",
 		},
 		typeLabelDisabled: {
-			backgroundColor: "#F7F8FB",
-			color: "#40404B",
+			backgroundColor: "var(--vscode-editorWidget-background)",
+			color: "var(--vscode-icon-foreground)",
 			opacity: 0.5
 		},
 		valueLabel: {
 			verticalAlign: "middle",
 			padding: "5px",
-			color: "#222228",
+			color: "var(--vscode-icon-foreground)",
 			fontFamily: "GilmerMedium",
 			fontSize: "13px",
 		},
 		valueLabelDisabled: {
-			backgroundColor: "#F7F8FB",
-			color: "#1D2028",
+			backgroundColor: "var(--vscode-editorWidget-background)",
+			color: "var(--vscode-input-foreground)",
 			opacity: 0.5
 		},
 		treeLabelOutPort: {
@@ -115,18 +115,18 @@ const useStyles = makeStyles((theme: Theme) =>
 			}
 		},
 		expandIcon: {
-			color: theme.palette.common.black,
+			color: "var(--vscode-inputOption-activeForeground)",
 			height: "25px",
 			width: "25px",
 			marginLeft: "auto"
 		},
 		expandIconDisabled: {
-			color: "#9797a9",
+			color: "var(--vscode-editorHoverWidget-border)",
 		},
 		treeLabelDisabled: {
-			backgroundColor: "#F7F8FB",
+			backgroundColor: "var(--vscode-editorWidget-background)",
 			'&:hover': {
-				backgroundColor: '#F7F8FB',
+				backgroundColor: 'var(--vscode-editorWidget-background)',
 			},
 			cursor: 'not-allowed'
 		},
