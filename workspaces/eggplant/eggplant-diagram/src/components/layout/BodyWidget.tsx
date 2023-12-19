@@ -82,7 +82,7 @@ export function BodyWidget(props: BodyWidgetProps) {
         <S.Body>
             <S.Content>
                 <TrayWidget>
-                    <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />
+                    {/* <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" /> */}
                     <TrayItemWidget model={{ type: NODE_TYPE.CODE_BLOCK }} name="Code Block" />
                     <TrayItemWidget model={{ type: NODE_TYPE.SWITCH }} name="Switch" />
                 </TrayWidget>

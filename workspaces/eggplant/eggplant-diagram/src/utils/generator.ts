@@ -10,6 +10,7 @@
 import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { ExtendedPort, Flow, InputPort, Node, OutputPort } from "../types";
+import { NODE_TYPE } from "../resources";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
     let flowPorts: ExtendedPort[] = [];
@@ -52,14 +53,28 @@ function getNodeModel(node: Node): GenNodeModel {
     let portCount = 1;
     node.inputPorts?.forEach((inputPort) => {
         const portId = inputPort.id || `in-${portCount++}`;
-        let port = nodeModel.addInPort(portId , inputPort);
+        let port = nodeModel.addInPort(portId, inputPort);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
+    portCount = 1;
     node.outputPorts?.forEach((outputPort) => {
         const portId = outputPort.id || `out-${portCount++}`;
         let port = nodeModel.addOutPort(portId, outputPort);
         ports.push({ ...outputPort, parent: nodeId, in: false, model: port });
     });
+    // add default ports if none
+    if (node.inputPorts?.length === 0) {
+        let port = nodeModel.addInPort("in-1");
+        ports.push({ id: "in-1", type: "any", name: "in-1", parent: nodeId, in: true, model: port });
+    }
+    if (node.outputPorts?.length === 0) {
+        let port = nodeModel.addOutPort("out-1");
+        ports.push({ id: "out-1", type: "any", name: "out-1", parent: nodeId, in: false, model: port });
+        if (node.templateId === NODE_TYPE.SWITCH) {
+            port = nodeModel.addOutPort("out-2");
+            ports.push({ id: "out-2", type: "any", name: "out-2", parent: nodeId, in: false, model: port });
+        }
+    }
 
     return { model: nodeModel, ports: ports };
 }
@@ -183,7 +198,7 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
             codeBlock: nodeModel?.codeBlock || "",
         };
         // add properties if any
-        if(nodeModel.properties){
+        if (nodeModel.properties) {
             newNode.properties = nodeModel.properties;
         }
         flowModelNodes?.push(newNode);
