@@ -13,7 +13,9 @@ import { OverlayLayerFactory, OverlayLayerModel } from "../components/overlay";
 import { DeleteItemsAction } from "@projectstorm/react-canvas-core";
 
 export function generateEngine(): DiagramEngine {
-    const engine = createEngine({ registerDefaultDeleteItemsAction: false });
+    const engine = createEngine(
+        { registerDefaultDeleteItemsAction: false }
+    );
     // register default factories
     engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
     engine.getPortFactories().registerFactory(new DefaultPortFactory());
@@ -21,8 +23,8 @@ export function generateEngine(): DiagramEngine {
     engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
-    // register an DeleteItemsAction with only delete key
-    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [46] }));
+    // register an DeleteItemsAction with only ctrl + d as keyCodes
+    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [68], modifiers: { ctrlKey: true } }));
 
     return engine;
 }
