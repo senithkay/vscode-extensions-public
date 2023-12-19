@@ -74,9 +74,10 @@ export function EggplantApp(props: EggplantAppProps) {
 
         setDiagramModel(model);
 
-        setTimeout(() => {
-            removeOverlay(diagramEngine);
-        }, 1000);
+        // setTimeout(() => {
+        //     removeOverlay(diagramEngine);
+        // }, 10);
+        removeOverlay(diagramEngine);
     };
 
     return (
