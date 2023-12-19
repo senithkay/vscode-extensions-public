@@ -11,13 +11,13 @@
  *  associated services.
  */
 
-import { VisualizerLocation } from "../../extension-interfaces/state-machine-types";
+import { MachineStateValue, VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Flow } from "./types";
 
 export interface WebviewAPI {
-    getState: () => Promise<string>;
+    getState: () => Promise<MachineStateValue>;
     getVisualizerState: () => Promise<VisualizerLocation>;
     openVisualizerView: (params: VisualizerLocation) => void;
     getBallerinaProjectComponents: () => Promise<BallerinaProjectComponents>;

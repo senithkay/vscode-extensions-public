@@ -1,4 +1,4 @@
-import { LangClientInterface, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
+import { LangClientInterface, MachineStateValue, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
@@ -164,24 +164,7 @@ async function checkIfEggplantProject() {
 }
 
 
-export function getState(): string {
-    return stateString(stateService.getSnapshot().value);
-
+export function getState(): MachineStateValue {
+    return stateService.getSnapshot().value as MachineStateValue;
 }
 
-// If the state is an object we flaten it to a string
-// This is a hack need to handle state passing properly
-export function stateString(state: any): string {
-    if (typeof state === 'string') {
-        return state;
-    } else if (typeof state === 'object') {
-        const stateString = Object.entries(state).map(([key, value]) => `${key}.${value}`).at(0);
-        if (stateString === undefined) {
-            throw Error("Undefined state");
-        } else {
-            return stateString;
-        }
-    } else {
-        throw Error("Undefined state");
-    }
-}

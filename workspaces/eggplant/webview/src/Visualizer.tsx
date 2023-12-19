@@ -14,13 +14,14 @@ import LowCode from './LowCode';
 import Overview from './Overview';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { Loader } from "./Loader";
+import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
 
 
 export function Webview({ mode }: { mode: string }) {
     const { eggplantRpcClient } = useVisualizerContext();
-    const [state, setState] = React.useState('Loading');
+    const [state, setState] = React.useState<MachineStateValue>('initialize');
 
-    eggplantRpcClient?.onStateChanged((newState: string) => {
+    eggplantRpcClient?.onStateChanged((newState: MachineStateValue) => {
         setState(newState);
     });
 
@@ -36,18 +37,15 @@ export function Webview({ mode }: { mode: string }) {
         <>
             {mode === "overview" &&
                 <>
-                    {getStateValues(state)[0] === 'ready' ? <Overview /> : <Loader />}
+                    {typeof state === 'object' && 'ready' in state ? <Overview /> : <Loader />}
                 </>
             }
             {mode === "lowcode" &&
                 <>
-                    {getStateValues(state)[0] === 'ready' ? <LowCode state={getStateValues(state)[1]} /> : <Loader />}
+                    {typeof state === 'object' && 'ready' in state ? <LowCode state={state} /> : <Loader />}
                 </>
             }
         </>
     );
 };
 
-function getStateValues(state: string) {
-    return state.split(".");
-}

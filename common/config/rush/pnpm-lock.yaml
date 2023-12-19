@@ -1533,6 +1533,7 @@ importers:
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
+      handlebars: ~4.7.7
       typescript: ^5.2.2
       vscode-languageclient: ^8.1.0
       vscode-languageserver-types: ^3.17.5
@@ -1551,6 +1552,7 @@ importers:
       eslint: 8.53.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
       eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
+      handlebars: 4.7.8
       typescript: 5.2.2
 
   ../../workspaces/eggplant/eggplant-diagram:

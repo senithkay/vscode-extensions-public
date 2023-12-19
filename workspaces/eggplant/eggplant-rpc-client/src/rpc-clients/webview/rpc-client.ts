@@ -11,6 +11,7 @@
 import {
     BallerinaProjectComponents,
     Flow,
+    MachineStateValue,
     STNode,
     VisualizerLocation,
     WebviewAPI,
@@ -33,7 +34,7 @@ export class WebviewRpcClient implements WebviewAPI {
         this._messenger = messenger;
     }
 
-    getState(): Promise<string> {
+    getState(): Promise<MachineStateValue> {
         return this._messenger.sendRequest(getState, HOST_EXTENSION);
     }
 

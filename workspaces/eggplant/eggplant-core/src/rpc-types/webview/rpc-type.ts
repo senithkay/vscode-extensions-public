@@ -8,14 +8,14 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { VisualizerLocation } from "../../extension-interfaces/state-machine-types";
+import { MachineStateValue, VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Flow } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "webview";
-export const getState: RequestType<void, string> = { method: `${_preFix}/getState` };
+export const getState: RequestType<void, MachineStateValue> = { method: `${_preFix}/getState` };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: `${_preFix}/getVisualizerState` };
 export const openVisualizerView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openVisualizerView` };
 export const getBallerinaProjectComponents: RequestType<void, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };

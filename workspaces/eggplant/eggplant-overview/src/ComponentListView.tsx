@@ -94,7 +94,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
     if (currentComponents) {
         Object.keys(currentComponents)
             .filter((key) => currentComponents[key].length)
-            .forEach((key) => {
+            .forEach((key, index) => {
                 if (key === "functions" || key === "services") {
                     const filteredComponents = currentComponents[key];
 
@@ -115,7 +115,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
 
                     key = key === "functions" ? "Main Function" : "Services";
                     categories.push(
-                        <CategoryContainer>
+                        <CategoryContainer key={index}>
                             <Typography variant="h4">
                                 <Capitalize>{key}</Capitalize>
                             </Typography>
