@@ -11,6 +11,7 @@
 import { Messenger } from "vscode-messenger-webview";
 import { vscode } from "./vscode";
 import { WebviewRpcClient } from "./rpc-clients/webview/rpc-client";
+import { MachineStateValue, stateChanged } from "@wso2-enterprise/eggplant-core";
 
 export class EggplantRpcClient {
 
@@ -27,8 +28,8 @@ export class EggplantRpcClient {
         return this._overview;
     }
 
-    onStateChanged(callback: (state: string) => void) {
-        this.messenger.onNotification({ method: 'stateChanged' }, callback);
+    onStateChanged(callback: (state: MachineStateValue) => void) {
+        this.messenger.onNotification(stateChanged, callback);
     }
 
 }
