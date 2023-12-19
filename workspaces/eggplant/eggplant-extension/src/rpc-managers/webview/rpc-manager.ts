@@ -160,7 +160,7 @@ export class WebviewRpcManager implements WebviewAPI {
         });
 
         if (parseSuccess) {
-
+            writeFileSync(flowModel.fileName, source);
             langClient.didChange({
                 textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
                 contentChanges: [
@@ -169,8 +169,6 @@ export class WebviewRpcManager implements WebviewAPI {
                     }
                 ],
             });
-            writeFileSync(flowModel.fileName, source);
-
 
             // TODO: Update with notification
             openView({
