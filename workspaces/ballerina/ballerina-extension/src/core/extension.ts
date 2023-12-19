@@ -40,6 +40,7 @@ import {
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { gitStatusBarItem } from "../editor-support/git-status";
 import { checkIsPersistModelFile } from "../persist-layer-diagram/activator";
+import { RPCLayer } from "../visualizer/webRPCRegister";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -122,6 +123,8 @@ export class BallerinaExtension {
     private perfForecastContext: PerformanceForecastContext;
     private ballerinaConfigPath: string;
     private isOpenedOnce: boolean;
+    public registerNewRPCLayer?: (webview) => void;
+    
 
     constructor() {
         this.ballerinaHome = '';
@@ -246,6 +249,10 @@ export class BallerinaExtension {
                 commands.registerCommand('ballerina.stopLangServer', () => {
                     this.langClient.stop();
                 });
+
+                this.registerNewRPCLayer = (webview) => {
+                    RPCLayer.create(webview, this);
+                };
 
             }, (reason) => {
                 sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
