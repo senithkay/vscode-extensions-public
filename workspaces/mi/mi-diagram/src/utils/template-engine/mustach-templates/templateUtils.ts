@@ -9,8 +9,9 @@
 
 import Mustache from "mustache";
 import { MEDIATORS } from "../../../constants";
-import { getCallFormDataFromXMLData, getCallXml } from "./core/call";
+import { getCallXml } from "./core/call";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { getLogXml } from "./core/log";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -158,7 +159,9 @@ return `<validate {{#source}}source="{{source}}"{{/source}}
 export function getXML(name: string, data: { [key: string]: any }) {
     switch (name) {
         case MEDIATORS.CALL:
-return getCallXml(data);
+            return getCallXml(data);
+        case MEDIATORS.LOG:
+            return getLogXml(data);
         default:
 return Mustache.render(getMustacheTemplate(name), data);
     }
