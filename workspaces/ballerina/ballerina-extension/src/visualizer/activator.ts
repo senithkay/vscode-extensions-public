@@ -77,9 +77,13 @@ function updateViewLocation(): Promise<void> {
 }
 
 
-export function startMachine(context: any) {
-    vsContext = context;
-    service.start();
+export function startMachine(context: any): Promise<void> {
+    return new Promise<void>(async (resolve, reject) => {
+        vsContext = context;
+        service.start();
+        await activateLanguageServer();
+        resolve();
+    });
 }
 
 export function getService() {
