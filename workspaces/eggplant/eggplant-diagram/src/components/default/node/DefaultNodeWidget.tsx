@@ -13,7 +13,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { DefaultNodeModel } from "./DefaultNodeModel";
 import { DefaultPortLabel } from "../port/DefaultPortLabelWidget";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources";
+import { Colors, NODE_MIN_HEIGHT, NODE_MIN_WIDTH } from "../../../resources";
 import { DefaultPortModel } from "../port/DefaultPortModel";
 
 namespace S {
@@ -33,7 +33,9 @@ namespace S {
         display: flex;
         flex-direction: row;
         align-items: center;
-        min-height: 32px;
+        justify-content: space-between;
+        min-height: ${NODE_MIN_HEIGHT}px;
+        min-width: ${NODE_MIN_WIDTH}px;
     `;
 
     export const Title = styled.div`
