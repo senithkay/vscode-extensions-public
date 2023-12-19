@@ -22,6 +22,7 @@ import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
 import { getNodeModel, isFixedNode } from "../../utils";
 import { DiagramControls } from "../controls/DiagramControls";
+import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
@@ -115,6 +116,12 @@ export function BodyWidget(props: BodyWidgetProps) {
                         updateFlowModel={updateFlowModel}
                     />
                 )}
+                {/*{selectedNode && (*/}
+                {/*    <DataMapperView*/}
+                {/*        fnST={undefined}*/}
+                {/*        applyModifications={undefined}*/}
+                {/*    />*/}
+                {/*)}*/}
             </S.Content>
         </S.Body>
     );

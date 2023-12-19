@@ -1580,6 +1580,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@vscode/codicons': ~0.0.35
+      '@wso2-enterprise/data-mapper-view': workspace:*
       '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
@@ -1609,6 +1610,7 @@ importers:
       '@types/lodash': 4.14.201
       '@types/node': 18.18.10
       '@vscode/codicons': 0.0.35
+      '@wso2-enterprise/data-mapper-view': link:../../ballerina/data-mapper-view
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode

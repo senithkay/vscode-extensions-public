@@ -39,7 +39,6 @@ import {
 } from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface LetVarDeclModel {
     letVarDecl: LetVarDecl;
