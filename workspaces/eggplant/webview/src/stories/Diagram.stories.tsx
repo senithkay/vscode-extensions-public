@@ -23,7 +23,17 @@ const simpleModel: Flow = {
     id: "1",
     name: "flow1",
     fileName: "path",
-    nodes: []
+    nodes: [],
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
 };
 
 

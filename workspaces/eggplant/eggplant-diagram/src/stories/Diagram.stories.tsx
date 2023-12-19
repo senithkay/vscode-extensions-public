@@ -43,6 +43,16 @@ const simpleModel: Flow = {
     id: "1",
     name: "flow1",
     fileName: "path",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -186,6 +196,16 @@ const CodeBlockModel: Flow = {
     id: "2",
     name: "main/function",
     fileName: "code_block.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -261,6 +281,16 @@ const SwitchModel: Flow = {
     id: "1",
     name: "main/function",
     fileName: "multi_switch.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -483,6 +513,16 @@ const SampleModel: Flow = {
     id: "1",
     name: "main/function",
     fileName: "/home/jo/workspace/eggplant/demo_sample/main.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "CreatePerson",

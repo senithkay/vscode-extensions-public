@@ -21,13 +21,7 @@ export function workerCodeGen(model: Flow): string {
         }
     });
 
-    // generate ballerina function
-    const ballerinaFunction: string = `
-    public function main() returns error? {
-        ${workerBlocks}
-    };`
-
-    return ballerinaFunction;
+    return workerBlocks;
 }
 
 
