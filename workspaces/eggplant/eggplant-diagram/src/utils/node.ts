@@ -52,12 +52,12 @@ export function getNodeModel(type: string, suffix?: string) {
                 id: "in",
                 type: "any",
             });
-            nodeModel.addOutPort("out-1", {
-                id: "out-1",
+            nodeModel.addOutPort("out_1", {
+                id: "out_1",
                 type: "any",
             });
-            nodeModel.addOutPort("out-2", {
-                id: "out-2",
+            nodeModel.addOutPort("out_2", {
+                id: "out_2",
                 type: "any",
             });
             emptyNode.templateId = NODE_TYPE.SWITCH;
@@ -65,11 +65,11 @@ export function getNodeModel(type: string, suffix?: string) {
                 cases: [
                     {
                         expression: "true",
-                        nodes: ["out-1"],
+                        nodes: ["out_1"],
                     },
                 ],
                 defaultCase: {
-                    nodes: ["out-2"],
+                    nodes: ["out_2"],
                 },
             };
             break;
