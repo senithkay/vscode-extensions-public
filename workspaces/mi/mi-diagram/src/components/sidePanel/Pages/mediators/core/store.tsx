@@ -66,7 +66,6 @@ const StoreForm = (props: AddMediatorProps) => {
            sidePanelContext.setFormValues(undefined);
            sidePanelContext.setNodeRange(undefined);
            sidePanelContext.setMediator(undefined);
-           sidePanelContext.setShowBackBtn(false);
        }
    };
 
@@ -118,7 +117,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         {errors["specifyAs"] && <Error>{errors["specifyAs"]}</Error>}
                     </div>
 
-                    {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "Value" &&
+                    {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "value" &&
                         <div>
                             <label>Available Message Stores</label>
                             <AutoComplete items={["Select From Message Stores"]} selectedItem={formValues["availableMessageStores"]} onChange={(e: any) => {
@@ -129,7 +128,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         </div>
                     }
 
-                    {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "Value" &&
+                    {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "value" &&
                         <div>
                             <TextField
                                 label="Message Store"
@@ -146,7 +145,7 @@ const StoreForm = (props: AddMediatorProps) => {
                         </div>
                     }
 
-                    {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "Expression" &&
+                    {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "expression" &&
                         <div>
                             <TextField
                                 label="Expression"

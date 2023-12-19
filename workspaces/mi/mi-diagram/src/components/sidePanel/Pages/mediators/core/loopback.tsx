@@ -64,7 +64,6 @@ const LoopbackForm = (props: AddMediatorProps) => {
            sidePanelContext.setFormValues(undefined);
            sidePanelContext.setNodeRange(undefined);
            sidePanelContext.setMediator(undefined);
-           sidePanelContext.setShowBackBtn(false);
        }
    };
 

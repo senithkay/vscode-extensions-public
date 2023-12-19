@@ -70,7 +70,6 @@ const CalloutForm = (props: AddMediatorProps) => {
            sidePanelContext.setFormValues(undefined);
            sidePanelContext.setNodeRange(undefined);
            sidePanelContext.setMediator(undefined);
-           sidePanelContext.setShowBackBtn(false);
        }
    };
 
@@ -186,7 +185,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     {errors["initAxis2ClientOptions"] && <Error>{errors["initAxis2ClientOptions"]}</Error>}
                 </div>
 
-                {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "URL" &&
+                {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "url" &&
                     <div>
                         <TextField
                             label="Service URL"
@@ -203,7 +202,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </div>
                 }
 
-                {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "AddressEndpoint" &&
+                {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "addressendpoint" &&
                     <div>
                     </div>
                 }
@@ -221,12 +220,12 @@ const CalloutForm = (props: AddMediatorProps) => {
                     {errors["payloadType"] && <Error>{errors["payloadType"]}</Error>}
                 </div>
 
-                {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "XPATH" &&
+                {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "xpath" &&
                     <div>
                     </div>
                 }
 
-                {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "PROPERTY" &&
+                {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "property" &&
                     <div>
                         <TextField
                             label="Payload Property"
@@ -256,12 +255,12 @@ const CalloutForm = (props: AddMediatorProps) => {
                     {errors["resultType"] && <Error>{errors["resultType"]}</Error>}
                 </div>
 
-                {formValues["resultType"] && formValues["resultType"].toLowerCase() == "XPATH" &&
+                {formValues["resultType"] && formValues["resultType"].toLowerCase() == "xpath" &&
                     <div>
                     </div>
                 }
 
-                {formValues["resultType"] && formValues["resultType"].toLowerCase() == "PROPERTY" &&
+                {formValues["resultType"] && formValues["resultType"].toLowerCase() == "property" &&
                     <div>
                         <TextField
                             label="Result Context Property"
@@ -291,7 +290,7 @@ const CalloutForm = (props: AddMediatorProps) => {
                     {errors["securityType"] && <Error>{errors["securityType"]}</Error>}
                 </div>
 
-                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "TRUE" &&
+                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&
                     <div>
                         <label>Policies</label>
                         <AutoComplete items={["TRUE", "FALSE"]} selectedItem={formValues["policies"]} onChange={(e: any) => {
@@ -302,17 +301,17 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "A" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "TRUE" &&formValues["policies"] && formValues["policies"].toLowerCase() == "FALSE" &&
+                {formValues["0"] && formValues["0"].toLowerCase() == "a" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "false" &&
                     <div>
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "A" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "TRUE" &&formValues["policies"] && formValues["policies"].toLowerCase() == "TRUE" &&
+                {formValues["0"] && formValues["0"].toLowerCase() == "a" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
                     <div>
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "A" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "TRUE" &&formValues["policies"] && formValues["policies"].toLowerCase() == "TRUE" &&
+                {formValues["0"] && formValues["0"].toLowerCase() == "a" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
                     <div>
                     </div>
                 }

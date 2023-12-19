@@ -10,6 +10,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -38,6 +39,8 @@ const LogForm = (props: AddMediatorProps) => {
    const [formValues, setFormValues] = useState({
        "category": "INFO",
        "level": "SIMPLE",
+       "properties": [] as string[][],
+       "propertyValueType": "LITERAL",
    } as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
@@ -66,14 +69,24 @@ const LogForm = (props: AddMediatorProps) => {
            sidePanelContext.setFormValues(undefined);
            sidePanelContext.setNodeRange(undefined);
            sidePanelContext.setMediator(undefined);
-           sidePanelContext.setShowBackBtn(false);
        }
    };
+
+   const onAddClick = async () => {
+       if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+        setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined ,
+        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
+       }
+   }
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "category": (e?: any) => validateField("category", e, true),
        "level": (e?: any) => validateField("level", e, true),
        "separator": (e?: any) => validateField("separator", e, false),
+       "propertyName": (e?: any) => validateField("propertyName", e, false),
+       "propertyValueType": (e?: any) => validateField("propertyValueType", e, false),
+       "propertyValue": (e?: any) => validateField("propertyValue", e, false),
+       "propertyExpression": (e?: any) => validateField("propertyExpression", e, false),
        "description": (e?: any) => validateField("description", e, false),
 
    };
@@ -137,6 +150,92 @@ const LogForm = (props: AddMediatorProps) => {
                     {errors["separator"] && <Error>{errors["separator"]}</Error>}
                 </div>
 
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>Properties</h3>
+
+                        <div>
+                            <TextField
+                                label="Property Name"
+                                size={50}
+                                placeholder=""
+                                value={formValues["propertyName"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "propertyName": e });
+                                    formValidators["propertyName"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
+                        </div>
+
+                        <div>
+                            <label>Property Value Type</label>
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "propertyValueType": e });
+                                formValidators["propertyValueType"](e);
+                            }} />
+                            {errors["propertyValueType"] && <Error>{errors["propertyValueType"]}</Error>}
+                        </div>
+
+                        {formValues["propertyValueType"] && formValues["propertyValueType"].toLowerCase() == "literal" &&
+                            <div>
+                                <TextField
+                                    label="Property Value"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["propertyValue"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "propertyValue": e });
+                                        formValidators["propertyValue"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["propertyValue"] && <Error>{errors["propertyValue"]}</Error>}
+                            </div>
+                        }
+
+                        {formValues["propertyValueType"] && formValues["propertyValueType"].toLowerCase() == "expression" &&
+                            <div>
+                            </div>
+                        }
+
+                    <div style={{ textAlign: "right", marginTop: "10px" }}>
+                        <Button appearance="primary" onClick={onAddClick}>
+                            Add
+                        </Button>
+                    </div>
+                    </ComponentCard>
+                {formValues["properties"].length > 0 && (
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>Properties Table</h3>
+                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
+                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
+                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
+                                    Name
+                                </VSCodeDataGridCell>
+                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
+                                    Value Type
+                                </VSCodeDataGridCell>
+                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
+                                    Value
+                                </VSCodeDataGridCell>
+                            </VSCodeDataGridRow>
+                            {formValues["properties"].map((property: string, index: string) => (
+                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
+                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
+                                        {property[0]}
+                                    </VSCodeDataGridCell>
+                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
+                                        {property[1]}
+                                    </VSCodeDataGridCell>
+                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
+                                        {property[2]}
+                                    </VSCodeDataGridCell>
+                                </VSCodeDataGridRow>
+                            ))}
+                        </VSCodeDataGrid>
+                    </ComponentCard>
+                )}
                 <div>
                     <TextField
                         label="Description"

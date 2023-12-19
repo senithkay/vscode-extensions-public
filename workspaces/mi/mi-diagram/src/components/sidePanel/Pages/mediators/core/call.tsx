@@ -70,7 +70,6 @@ const CallForm = (props: AddMediatorProps) => {
            sidePanelContext.setFormValues(undefined);
            sidePanelContext.setNodeRange(undefined);
            sidePanelContext.setMediator(undefined);
-           sidePanelContext.setShowBackBtn(false);
        }
    };
 
@@ -147,12 +146,12 @@ const CallForm = (props: AddMediatorProps) => {
                         {errors["endpointType"] && <Error>{errors["endpointType"]}</Error>}
                     </div>
 
-                    {formValues["payload"] && formValues["payload"].toLowerCase() == "REGISTRYKEY" &&
+                    {formValues["payload"] && formValues["payload"].toLowerCase() == "registrykey" &&
                         <div>
                         </div>
                     }
 
-                    {formValues["payload"] && formValues["payload"].toLowerCase() == "XPATH" &&
+                    {formValues["payload"] && formValues["payload"].toLowerCase() == "xpath" &&
                         <div>
                             <TextField
                                 label="Endpoint Xpath"
@@ -196,7 +195,7 @@ const CallForm = (props: AddMediatorProps) => {
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "O" &&formValues["payload"] && formValues["payload"].toLowerCase() == "property" &&formValues["payload"] && formValues["payload"].toLowerCase() == "inline" &&formValues["payload"] && formValues["payload"].toLowerCase() == "custom" &&
+                {formValues["0"] && formValues["0"].toLowerCase() == "o" &&formValues["payload"] && formValues["payload"].toLowerCase() == "property" &&formValues["payload"] && formValues["payload"].toLowerCase() == "inline" &&formValues["payload"] && formValues["payload"].toLowerCase() == "custom" &&
                     <div>
                         <TextField
                             label="Content Type"
