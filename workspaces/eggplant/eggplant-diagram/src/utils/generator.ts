@@ -52,27 +52,27 @@ function getNodeModel(node: Node): GenNodeModel {
     // add node ports
     let portCount = 1;
     node.inputPorts?.forEach((inputPort) => {
-        const portId = inputPort.id || `in-${portCount++}`;
+        const portId = inputPort.id || `in_${portCount++}`;
         let port = nodeModel.addInPort(portId, inputPort);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
     portCount = 1;
     node.outputPorts?.forEach((outputPort) => {
-        const portId = outputPort.id || `out-${portCount++}`;
+        const portId = outputPort.id || `out_${portCount++}`;
         let port = nodeModel.addOutPort(portId, outputPort);
         ports.push({ ...outputPort, parent: nodeId, in: false, model: port });
     });
     // add default ports if none
     if (node.inputPorts?.length === 0) {
-        let port = nodeModel.addInPort("in-1");
-        ports.push({ id: "in-1", type: "any", name: "in-1", parent: nodeId, in: true, model: port });
+        let port = nodeModel.addInPort("in_1");
+        ports.push({ id: "in_1", type: "any", name: "in_1", parent: nodeId, in: true, model: port });
     }
     if (node.outputPorts?.length === 0) {
-        let port = nodeModel.addOutPort("out-1");
-        ports.push({ id: "out-1", type: "any", name: "out-1", parent: nodeId, in: false, model: port });
+        let port = nodeModel.addOutPort("out_1");
+        ports.push({ id: "out_1", type: "any", name: "out_1", parent: nodeId, in: false, model: port });
         if (node.templateId === NODE_TYPE.SWITCH) {
-            port = nodeModel.addOutPort("out-2");
-            ports.push({ id: "out-2", type: "any", name: "out-2", parent: nodeId, in: false, model: port });
+            port = nodeModel.addOutPort("out_2");
+            ports.push({ id: "out_2", type: "any", name: "out_2", parent: nodeId, in: false, model: port });
         }
     }
 
