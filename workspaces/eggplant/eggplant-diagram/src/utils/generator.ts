@@ -103,6 +103,7 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
         name: flowModel.name,
         nodes: [],
         fileName: flowModel.fileName,
+        bodyCodeLocation: flowModel.bodyCodeLocation,
     };
     // update the flowModel with data retrieved from the diagramModel
     const flowModelNodes = model.nodes;

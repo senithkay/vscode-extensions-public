@@ -8,21 +8,22 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { BallerinaFunctionSTRequest, BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
+import { BallerinaFunctionSTRequest, BallerinaProjectComponents, STModification } from "@wso2-enterprise/ballerina-core";
 
 import {
     EggplantModelRequest,
     Flow,
     LangClientInterface,
     VisualizerLocation,
-    WebviewAPI
+    WebviewAPI,
+    workerCodeGen
 } from "@wso2-enterprise/eggplant-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
-import { workerCodeGen } from "../../LowCode/codeGenerator";
 import { getState, openView, stateService } from "../../stateMachine";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
+import { writeFileSync } from "fs";
 
 export class WebviewRpcManager implements WebviewAPI {
 
@@ -134,33 +135,54 @@ export class WebviewRpcManager implements WebviewAPI {
         });
     }
 
-    async updateSource(params: Flow): Promise<void> {
+    async updateSource(flowModel: Flow): Promise<void> {
         const snapshot = stateService.getSnapshot();
         const context = snapshot.context;
-        const code = workerCodeGen(params);
-        const edit = new vscode.WorkspaceEdit();
+        const code = workerCodeGen(flowModel);
 
-        const newLinesInCode = (code.match(/\n/g) || []).length;
-        const newEndLine = (context.location?.position.startLine ?? 0) + newLinesInCode;
+        const langClient = context.langServer as LangClientInterface;
+        const modification: STModification = {
+            startLine: flowModel.bodyCodeLocation?.start.line + 1,
+            startColumn: 0,
+            endLine: flowModel.bodyCodeLocation?.end.line - 1,
+            endColumn: 0,
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": code
+            }
+        };
 
-        const newRange = new vscode.Range(
-            new vscode.Position(context.location?.position.startLine ?? 0, context.location?.position.startColumn ?? 0),
-            new vscode.Position(newEndLine, context.location?.position.endColumn ?? 0)
-        );
-        edit.replace(vscode.Uri.parse(params.fileName), newRange, code);
+        const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+            documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
+            astModifications: [modification]
+        });
 
-        vscode.workspace.applyEdit(edit).then((data) => {
+        if (parseSuccess) {
+
+            langClient.didChange({
+                textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
+                contentChanges: [
+                    {
+                        text: source
+                    }
+                ],
+            });
+            writeFileSync(flowModel.fileName, source);
+
+
+            // TODO: Update with notification
             openView({
                 location: {
-                    fileName: params.fileName,
+                    fileName: flowModel.fileName,
                     position: {
-                        startLine: context.location?.position.startLine ?? 0,
-                        startColumn: context.location?.position.startColumn ?? 0,
-                        endLine: newEndLine,
-                        endColumn: context.location?.position.endColumn ?? 0
+                        startLine: newST.position.startLine ?? 0,
+                        startColumn: newST.position.startColumn ?? 0,
+                        endLine: newST.position.endLine ?? 0,
+                        endColumn: newST.position.endColumn ?? 0
                     }
                 }
             });
-        });
+        }
     }
 }

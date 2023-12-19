@@ -13,6 +13,7 @@ export type Flow = {
     name: string;
     nodes: Node[];
     fileName: string;
+    bodyCodeLocation: CodeLocation;
 };
 
 export type Node = {
