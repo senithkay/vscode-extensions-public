@@ -8,7 +8,7 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { HorizontalIcons as IconsWrapper, IconContainerProps } from "./HorizontalIcons";
+import { HorizontalIconsWithSeparator as IconsWrapper, IconContainerProps } from "./HorizontalIconsWithSeparator";
 import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
 
 const Template: ComponentStory<typeof IconsWrapper> = (args: IconContainerProps) => <IconsWrapper {...args} />;
@@ -17,3 +17,4 @@ export const HorizontalIconsWithSeparator = Template.bind();
 HorizontalIconsWithSeparator.args = { sx: { width: `${FORM_WIDTH}px` }, leftIconName: "ballerina", rightIconName: "ellipsis", title: "Sample", description: "Sample Description" };
 
 export default { component: HorizontalIconsWithSeparator, title: "Sample Form" };
+

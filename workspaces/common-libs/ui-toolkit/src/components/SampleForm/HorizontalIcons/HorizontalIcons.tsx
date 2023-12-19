@@ -31,12 +31,13 @@ const PlusIconWrapper = styled.div`
     justify-content: center;
 `;
 
-export interface IconContainerProps {
+export interface HorizontalIconProps {
     leftIconName?: string;
     rightIconName?: string;
     title?: string;
     description?: string;
     sx?: any;
+    onClick?: () => void;
 }
 
 const CardContent = styled.div`
@@ -64,8 +65,8 @@ const BottomTextContainer = styled.div`
     color: var(--vscode-editor-foreground);
 `;
 
-const Container = styled.div<IconContainerProps>`
-	${(props: IconContainerProps) => props.sx};
+const Container = styled.div<HorizontalIconProps>`
+	${(props: HorizontalIconProps) => props.sx};
 `;
 
 const iconStyles = { 
@@ -76,11 +77,10 @@ const plusStyles = {
     display: "flex", alignItem: "center", justifyContent: "center", fontSize: 25, height: "fix-content", marginTop: -2
 };
 
-export const HorizontalIcons = (props: IconContainerProps) => {
-    const { title, leftIconName, rightIconName,  description, sx } = props;
-    console.log("sx", sx);
+export const HorizontalIcons = (props: HorizontalIconProps) => {
+    const { title, leftIconName, rightIconName,  description, sx, onClick } = props;
     return (
-        <Container sx={sx}>
+        <Container sx={sx} onClick={onClick}>
             <ComponentCard sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH }}>
                 <CardContent>
                     <ComponentIconWrapper>

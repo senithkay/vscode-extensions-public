@@ -8,12 +8,16 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Icons as IconsWrapper, IconContainerProps } from "./VericleIcons";
+import { VerticleIcons as IconsWrapper, IconContainerProps } from "./VericleIcons";
 import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
 
 const Template: ComponentStory<typeof IconsWrapper> = (args: IconContainerProps) => <IconsWrapper {...args} />;
 
+const onClick = (type: string) => {
+    console.log("Selected Type", type);
+}
+
 export const VerticleIcons = Template.bind();
-VerticleIcons.args = { sx: { width: `${FORM_WIDTH}px` } };
+VerticleIcons.args = { sx: { width: `${FORM_WIDTH}px` }, onClick: onClick };
 
 export default { component: VerticleIcons, title: "Sample Form" };

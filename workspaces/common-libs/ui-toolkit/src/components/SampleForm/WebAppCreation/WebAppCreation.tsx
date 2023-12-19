@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import styled from '@emotion/styled';
-import { Icons } from '../VerticleIcons/VericleIcons';
+import { VerticleIcons } from '../VerticleIcons/VericleIcons';
 import { Typography } from '../../Typography/Typography';
 import { VSCodeRadioGroup, VSCodeRadio, VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import { Button, TextField } from '../../..';
@@ -16,11 +16,16 @@ import { Header } from '../Header/Header';
 
 export const FORM_WIDTH = 600;
 
-const Container = styled.div`
+export interface WebAppCreationProps {
+    sx?: any;
+}
+
+const Container = styled.div<WebAppCreationProps>`
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    ${(props: WebAppCreationProps) => props.sx};
 `;
 
 const FormContent = styled.div`
@@ -46,10 +51,8 @@ const ButtonWrapper = styled.div`
     width: 50px;
 `;
 
-export interface SampleFormProps {
-}
-
-export const WebAppCreation = () => {
+export const WebAppCreation = (props: WebAppCreationProps) => {
+    const { sx } = props;
 
     const handleRadioButtonChange = (e: any) => {
         console.log(e.target.value);
@@ -60,13 +63,13 @@ export const WebAppCreation = () => {
     };
 
     return (
-        <Container>
+        <Container sx={sx}>
             <FormContent>
                 <Header/>
                 <Typography variant="h1">New Web App</Typography>
                 <Typography variant="h4" sx={{ marginTop: 0 }}>Build a web app using simple HTML/JS/CSS or the framework of your choice</Typography>
                 <BottomMarginTextWrapper>Choose a tramework</BottomMarginTextWrapper>
-                <Icons sx={{width: `${FORM_WIDTH}px`}} />
+                <VerticleIcons sx={{width: `${FORM_WIDTH}px`}} />
                 <TopMarginTextWrapper>Language</TopMarginTextWrapper>
                 <VSCodeRadioGroup value="typescript">
                     <VSCodeRadio value="javascript" onClick={handleRadioButtonChange}>Javascript</VSCodeRadio>

@@ -12,7 +12,11 @@ import { TypeSelector as AppTypeSelector, TypeSelectorProps } from "./TypeSelect
 
 const Template: ComponentStory<typeof AppTypeSelector> = (args: TypeSelectorProps) => <AppTypeSelector {...args} />;
 
+const onClick = (type: string) => {
+    console.log("Selected Type", type);
+}
+
 export const TypeSelector = Template.bind();
-TypeSelector.args = { };
+TypeSelector.args = { onTypeSelected: onClick };
 
 export default { component: TypeSelector, title: "Sample Form" };

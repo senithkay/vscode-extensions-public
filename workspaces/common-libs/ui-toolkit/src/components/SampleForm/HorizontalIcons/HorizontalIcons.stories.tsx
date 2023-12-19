@@ -8,10 +8,10 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { HorizontalIcons as IconsWrapper, IconContainerProps } from "./HorizontalIcons";
+import { HorizontalIcons as IconsWrapper, HorizontalIconProps } from "./HorizontalIcons";
 import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
 
-const Template: ComponentStory<typeof IconsWrapper> = (args: IconContainerProps) => <IconsWrapper {...args} />;
+const Template: ComponentStory<typeof IconsWrapper> = (args: HorizontalIconProps) => <IconsWrapper {...args} />;
 
 export const HorizontalIcons = Template.bind();
 HorizontalIcons.args = { sx: { width: `${FORM_WIDTH}px` }, leftIconName: "ballerina", rightIconName: "plus", title: "Sample", description: "Sample Description"  };

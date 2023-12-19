@@ -32,7 +32,7 @@ export interface IconProps {
 export const Icon: React.FC<IconProps> = (props: IconProps) => {
     const { name, sx, iconSx, onClick } = props;
     const handleComponentClick = () => {
-        onClick();
+        onClick && onClick();
     }
     const icon = (<i style={iconSx} className={`fw-${name}`} />);
     return (

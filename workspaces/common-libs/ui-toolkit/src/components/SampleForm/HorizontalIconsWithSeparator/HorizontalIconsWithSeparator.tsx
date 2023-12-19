@@ -37,6 +37,7 @@ export interface IconContainerProps {
     title?: string;
     description?: string;
     sx?: any;
+    onClick?: () => void;
 }
 
 const CardContent = styled.div`
@@ -86,11 +87,12 @@ const plusStyles = {
     display: "flex", alignItem: "center", justifyContent: "center", fontSize: 25, height: "fix-content", marginTop: -2
 };
 
-export const HorizontalIcons = (props: IconContainerProps) => {
-    const { title, leftIconName, rightIconName,  description, sx } = props;
+export const HorizontalIconsWithSeparator = (props: IconContainerProps) => {
+    const { title, leftIconName, rightIconName,  description, sx, onClick } = props;
+
     return (
         <Container sx={sx}>
-            <ComponentCard sx={{ display: "flex",  flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, cursor: "default", "&:hover, &.active": { background: "var(--vscode-background)" } }}>
+            <ComponentCard onClick={onClick} sx={{ display: "flex",  flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, cursor: "default", "&:hover, &.active": { background: "var(--vscode-background)" } }}>
                 <CardContent>
                     <ComponentIconWrapper>
                         <Icon iconSx={iconStyles} name={leftIconName} />

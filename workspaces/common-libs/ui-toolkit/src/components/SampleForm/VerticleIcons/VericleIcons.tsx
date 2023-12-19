@@ -27,36 +27,44 @@ const HorizontalCardContainer = styled.div`
 
 export interface IconContainerProps {
     sx?: any;
+    onClick?: (selecteType: string) => void;
 }
 
 const Container = styled.div<IconContainerProps>`
     ${(props: IconContainerProps) => props.sx};
 `;
 
-export const Icons = (props: IconContainerProps) => {
-    const { sx } = props;
+export const VerticleIcons = (props: IconContainerProps) => {
+    const { sx, onClick } = props;
+
+    const handleSelection = (type: string) => {
+        if (onClick) {
+            onClick(type);
+        }
+    };
+
     return (
         <Container sx={sx}>
             <HorizontalCardContainer>
-                <ComponentCard sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
+                <ComponentCard onClick={() => handleSelection("Blank")} sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
                     <IconWrapper>
                         <Icon iconSx={{display: "flex", alignItem: "center", justifyContent: "center", fontSize: 40, height: "fix-content"}} name="class-icon" />
                         <div style={{ marginTop: 30 }}>Blank</div>
                     </IconWrapper>     
                 </ComponentCard>
-                <ComponentCard sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
+                <ComponentCard onClick={() => handleSelection("Angular")}  sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
                     <IconWrapper>
                         <Icon iconSx={{display: "flex", alignItem: "center", justifyContent: "center", fontSize: 50, height: "fix-content"}} name="angular" />
                         <div style={{ marginTop: 30 }}>Angular</div>
                     </IconWrapper>     
                 </ComponentCard>
-                <ComponentCard sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
+                <ComponentCard onClick={() => handleSelection("React")} sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
                     <IconWrapper>
                         <Icon iconSx={{display: "flex", alignItem: "center", justifyContent: "center", fontSize: 50, height: "fix-content"}} name="react" />
                         <div style={{ marginTop: 30 }}>React</div>
                     </IconWrapper>     
                 </ComponentCard>
-                <ComponentCard sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
+                <ComponentCard onClick={() => handleSelection("NextJS")} sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
                     <IconWrapper>
                         <Icon iconSx={{display: "flex", alignItem: "center", justifyContent: "center", fontSize: 40, height: "fix-content"}} name="nextjs" />
                         <div style={{ marginTop: 25 }}>NextJS</div>
@@ -64,12 +72,12 @@ export const Icons = (props: IconContainerProps) => {
                 </ComponentCard>
             </HorizontalCardContainer>
             <HorizontalCardContainer>
-                <ComponentCard sx={{height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15}}>
+                <ComponentCard onClick={() => handleSelection("Vue")} sx={{height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15}}>
                     <IconWrapper>
                         <div>Vue</div>
                     </IconWrapper>     
                 </ComponentCard>
-                <ComponentCard sx={{height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15}}>
+                <ComponentCard onClick={() => handleSelection("Svelte")} sx={{height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15}}>
                     <IconWrapper>
                         <div>Svelte</div>
                     </IconWrapper>     
