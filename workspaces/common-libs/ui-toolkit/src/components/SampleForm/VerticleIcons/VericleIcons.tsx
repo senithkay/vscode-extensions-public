@@ -10,7 +10,7 @@ import React from 'react';
 import { ComponentCard } from '../../ComponentCard/ComponentCard';
 import { Icon } from '../../Icon/Icon';
 import styled from '@emotion/styled';
-import { FORM_WIDTH } from '../WebAppCreation/WebAppCration';
+import { FORM_WIDTH } from '../WebAppCreation/WebAppCreation';
 
 const IconWrapper = styled.div`
     display: flex;

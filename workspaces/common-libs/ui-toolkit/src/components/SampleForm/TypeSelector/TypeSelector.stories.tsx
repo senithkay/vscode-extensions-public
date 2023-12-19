@@ -8,12 +8,11 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Header as HeaderWrapper, HeaderContainerProps } from "./Header";
-import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
+import { TypeSelector as AppTypeSelector, TypeSelectorProps } from "./TypeSelector";
 
-const Template: ComponentStory<typeof HeaderWrapper> = (args: HeaderContainerProps) => <HeaderWrapper {...args} />;
+const Template: ComponentStory<typeof AppTypeSelector> = (args: TypeSelectorProps) => <AppTypeSelector {...args} />;
 
-export const Header = Template.bind();
-Header.args = { sx: { width: `${FORM_WIDTH}px` } };
+export const TypeSelector = Template.bind();
+TypeSelector.args = { };
 
-export default { component: Header, title: "Sample Form" };
+export default { component: TypeSelector, title: "Sample Form" };

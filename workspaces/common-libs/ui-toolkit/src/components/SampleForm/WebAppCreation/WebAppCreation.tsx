@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import styled from '@emotion/styled';
-import { Icons } from '../IconContainer/Icons';
+import { Icons } from '../VerticleIcons/VericleIcons';
 import { Typography } from '../../Typography/Typography';
 import { VSCodeRadioGroup, VSCodeRadio, VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import { Button, TextField } from '../../..';

@@ -8,12 +8,12 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { Header as HeaderWrapper, HeaderContainerProps } from "./Header";
+import { HorizontalIcons as IconsWrapper, IconContainerProps } from "./HorizontalIcons";
 import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
 
-const Template: ComponentStory<typeof HeaderWrapper> = (args: HeaderContainerProps) => <HeaderWrapper {...args} />;
+const Template: ComponentStory<typeof IconsWrapper> = (args: IconContainerProps) => <IconsWrapper {...args} />;
 
-export const Header = Template.bind();
-Header.args = { sx: { width: `${FORM_WIDTH}px` } };
+export const HorizontalIcons = Template.bind();
+HorizontalIcons.args = { sx: { width: `${FORM_WIDTH}px` }, leftIconName: "ballerina", rightIconName: "plus", title: "Sample", description: "Sample Description"  };
 
-export default { component: Header, title: "Sample Form" };
+export default { component: HorizontalIcons, title: "Sample Form" };

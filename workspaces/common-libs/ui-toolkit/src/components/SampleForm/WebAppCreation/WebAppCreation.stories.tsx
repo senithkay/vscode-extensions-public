@@ -8,11 +8,11 @@
  */
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import { WebAppCreation, SampleFormProps } from "./WebAppCration";
+import { WebAppCreation, SampleFormProps } from "./WebAppCreation";
 
 const Template: ComponentStory<typeof WebAppCreation> = (args: SampleFormProps) => <WebAppCreation {...args} />;
 
-export const Form = Template.bind();
-Form.args = { };
+export const WebAppCreationForm = Template.bind();
+WebAppCreationForm.args = { };
 
-export default { component: Form, title: "Sample Form" };
+export default { component: WebAppCreationForm, title: "Sample Form" };
