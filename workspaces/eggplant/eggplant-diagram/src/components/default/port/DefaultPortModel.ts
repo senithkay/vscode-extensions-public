@@ -39,6 +39,7 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
             label: options.label || options.name,
             alignment: options.in ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
             type: "default",
+            maximumLinks: 1,
             ...options,
         });
     }
