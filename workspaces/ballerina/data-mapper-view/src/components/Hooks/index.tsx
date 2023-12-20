@@ -8,66 +8,22 @@
  */
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI } from "vscode-uri";
-import { BallerinaProjectComponents, BallerinaSTModifyResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaProjectComponents } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 
-export const useSyntaxTreeFromRange = ():{
-    data: BallerinaSTModifyResponse;
-    isFetching: boolean;
-    isError: boolean;
-    refetch: any;
-} => {
-    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
-    const { location: { position, fileName } } = viewLocation;
-    const getST = async () => {
-        if (viewLocation?.location) {
-            try {
-                const response = await ballerinaRpcClient?.getLangServerRpcClient().getSTByRange({
-                    lineRange: {
-                        start: {
-                            line: position.startLine,
-                            character: position.startColumn
-                        },
-                        end: {
-                            line: position.endLine,
-                            character: position.endColumn
-                        }
-                    },
-                    documentIdentifier: {
-                        uri: URI.file(fileName).toString()
-                    }
-                });
-                return response;
-            } catch (networkError: any) {
-                console.error('Error while fetching syntax tree', networkError);
-            }
-        }    
-    }
-
-    const {
-        data,
-        isFetching,
-        isError,
-        refetch,
-    } = useQuery(['getST', {position}], () => getST(), {});
-
-    return { data, isFetching, isError, refetch };
-};
-
-export const useProjectComponents = (): {
+export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
-    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
     const fetchProjectComponents = async () => {
         try {
-            const componentResponse = await ballerinaRpcClient.getLangServerRpcClient().getBallerinaProjectComponents({
+            const componentResponse = await langServerRpcClient.getBallerinaProjectComponents({
                 documentIdentifiers: [
                     {
-                        uri: URI.file(viewLocation.location?.fileName).toString(),
+                        uri: URI.file(fileName).toString(),
                     }
                 ]
             })

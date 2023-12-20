@@ -37,7 +37,7 @@ import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupp
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./InputParamsPanel/types";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
@@ -240,7 +240,7 @@ export async function getDiagnosticsForFnName(name: string,
                                               targetPosition: NodePosition,
                                               currentFileContent: string,
                                               filePath: string,
-                                              ballerinaRpcClient: BallerinaRpcClient) {
+                                              langServerRpcClient: LangServerRpcClient) {
     const parametersStr = inputParams
         .map((item) => `${item.type} ${item.name}`)
         .join(",");
@@ -285,7 +285,7 @@ export async function getDiagnosticsForFnName(name: string,
     const source = getSource(stModification);
     const content = addToTargetPosition(currentFileContent, fnConfigPosition, source);
 
-    const diagnostics = await getVirtualDiagnostics(filePath, currentFileContent, content, ballerinaRpcClient);
+    const diagnostics = await getVirtualDiagnostics(filePath, currentFileContent, content, langServerRpcClient);
 
     return getSelectedDiagnostics(diagnostics, diagTargetPosition, 0, name.length);
 }
@@ -293,7 +293,7 @@ export async function getDiagnosticsForFnName(name: string,
 export async function getDefaultFnName(
     filePath: string,
     targetPosition: NodePosition,
-    ballerinaRpcClient: BallerinaRpcClient
+    langServerRpcClient: LangServerRpcClient
 ): Promise<string> {
     const completionParams: CompletionParams = {
         textDocument: {
@@ -307,7 +307,7 @@ export async function getDefaultFnName(
             triggerKind: 3
         }
     };
-    const completions = await ballerinaRpcClient.getLangServerRpcClient().getCompletion(completionParams);
+    const completions = await langServerRpcClient.getCompletion(completionParams);
     const existingFnNames = completions.map((completion) => {
         if (completion.kind === CompletionItemKind.Function) {
             return completion?.filterText;
@@ -325,9 +325,9 @@ export async function getDefaultFnName(
 async function getVirtualDiagnostics(filePath: string,
                                      currentFileContent: string,
                                      newContent: string,
-                                     ballerinaRpcClient: BallerinaRpcClient): Promise<Diagnostic[]> {
+                                     langServerRpcClient: LangServerRpcClient): Promise<Diagnostic[]> {
     const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    ballerinaRpcClient.getLangServerRpcClient().didOpen({
+    langServerRpcClient.didOpen({
         textDocument: {
             uri: docUri,
             languageId: "ballerina",
@@ -335,7 +335,7 @@ async function getVirtualDiagnostics(filePath: string,
             version: 1
         }
     });
-    ballerinaRpcClient.getLangServerRpcClient().didChange({
+    langServerRpcClient.didChange({
         contentChanges: [
             {
                 text: newContent
@@ -346,12 +346,12 @@ async function getVirtualDiagnostics(filePath: string,
             version: 1
         }
     });
-    const diagResp = await ballerinaRpcClient.getLangServerRpcClient().getDiagnostics({
+    const diagResp = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
     });
-    ballerinaRpcClient.getLangServerRpcClient().didClose({
+    langServerRpcClient.didClose({
         textDocument: {
             uri: docUri
         }

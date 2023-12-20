@@ -26,7 +26,6 @@ import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
@@ -44,8 +43,8 @@ export function LetClauseItem(props: {
         queryExprNode,
         itemIndex,
     } = props;
+    const { filePath, applyModifications, langServerRpcClient } = context;
     const classes = useStyles();
-    const { ballerinaRpcClient } = useVisualizerContext();
     const [nameEditable, setNameEditable] = useState(false);
     const letVarDeclaration = intermediateNode.letVarDeclarations[0] as LetVarDecl;
     const variableName = (
@@ -72,10 +71,10 @@ export function LetClauseItem(props: {
             setLoading(true);
             try {
                 const workspaceEdit = await getRenameEdits(
-                    context.filePath,
+                    filePath,
                     updatedName,
                     node.position as NodePosition,
-                    ballerinaRpcClient
+                    langServerRpcClient
                 );
                 const modifications: STModification[] = [];
 
@@ -93,7 +92,7 @@ export function LetClauseItem(props: {
                 });
 
                 modifications.sort((a, b) => a.startLine - b.startLine);
-                await context.applyModifications(modifications);
+                await applyModifications(modifications);
             } finally {
                 setLoading(false);
             }

@@ -20,6 +20,7 @@ export function DataMapperOverlay() {
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(rerender);
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+    const langServerRpcClient = ballerinaRpcClient.getLangServerRpcClient();
     const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
 
     useEffect(() => {
@@ -65,12 +66,14 @@ export function DataMapperOverlay() {
     };
 
     const view = useMemo(() => {
-        if (!mapperData) {
+        if (!mapperData || !viewLocation?.location) {
           return <div>DM Loading...</div>;
         }
         return (
             <DataMapperView
                 fnST={syntaxTree as FunctionDefinition}
+                filePath={viewLocation.location.fileName}
+                langServerRpcClient={langServerRpcClient}
                 applyModifications={applyModifications}
             />
         );

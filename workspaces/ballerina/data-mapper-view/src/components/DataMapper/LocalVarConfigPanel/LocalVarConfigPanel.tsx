@@ -39,6 +39,7 @@ import {
 } from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface LetVarDeclModel {
     letVarDecl: LetVarDecl;
@@ -51,6 +52,7 @@ export interface LocalVarConfigPanelProps {
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
     applyModifications: (modifications: STModification[]) => Promise<void>;
+    langServerRpcClient: LangServerRpcClient,
     filePath: string;
 }
 
@@ -60,6 +62,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         fnDef,
         enableStatementEditor,
         applyModifications,
+        langServerRpcClient,
         filePath
     } = props;
 
@@ -151,6 +154,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     handleOnCheck={handleOnCheck}
                                     onEditClick={onEditClick}
                                     applyModifications={applyModifications}
+                                    langServerRpcClient={langServerRpcClient}
                                     filePath={filePath}
                                 />
                             </>
