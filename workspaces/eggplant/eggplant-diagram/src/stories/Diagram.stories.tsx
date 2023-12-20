@@ -22,8 +22,10 @@ const Template: Story = (args: { flowModel: Flow }) => {
 
     const onModelChange = (model: Flow) => {
         action("on model change")(model);
-        console.log(model);
-        setModel(model);
+        setTimeout(() => {
+            console.log(model);
+            setModel(model);
+        }, 100);
     };
 
     return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
