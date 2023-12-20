@@ -9,23 +9,30 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { vscode } from "./vscode";
 import { WebviewRpcClient } from "./rpc-clients/webview/rpc-client";
 import { MachineStateValue, stateChanged } from "@wso2-enterprise/eggplant-core";
+import { DataMapperRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { vscode } from "@wso2-enterprise/ballerina-core";
 
 export class EggplantRpcClient {
 
     private messenger: Messenger;
     private _overview: WebviewRpcClient;
+    private _dataMapper: DataMapperRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
-        this._overview = new WebviewRpcClient(this.messenger)
+        this._overview = new WebviewRpcClient(this.messenger);
+        this._dataMapper = new DataMapperRpcClient(this.messenger);
     }
 
     getWebviewRpcClient(): WebviewRpcClient {
         return this._overview;
+    }
+
+    getDataMapperRpcClient(): DataMapperRpcClient {
+        return this._dataMapper;
     }
 
     onStateChanged(callback: (state: MachineStateValue) => void) {

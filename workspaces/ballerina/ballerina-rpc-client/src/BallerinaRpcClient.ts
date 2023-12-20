@@ -12,8 +12,8 @@
 import { Messenger } from "vscode-messenger-webview";
 import { OverviewRpcClient } from "./rpc-clients/overview/rpc-client";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { vscode } from "./vscode";
 import { DataMapperRpcClient } from "./rpc-clients/data-mapper/rpc-client";
+import { vscode } from "@wso2-enterprise/ballerina-core";
 
 export class BallerinaRpcClient {
 

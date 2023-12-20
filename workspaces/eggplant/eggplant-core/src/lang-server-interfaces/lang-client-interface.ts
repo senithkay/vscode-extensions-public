@@ -7,9 +7,37 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BallerinaFunctionSTRequest, BallerinaProjectComponents, BallerinaSTModifyRequest, BallerinaSTModifyResponse, DidChangeTextDocumentParams, GetBallerinaPackagesParams } from "@wso2-enterprise/ballerina-core";
+import {
+    BallerinaFunctionSTRequest,
+    BallerinaProjectComponents,
+    BallerinaProjectParams,
+    BallerinaSTModifyRequest,
+    BallerinaSTModifyResponse,
+    CompletionParams,
+    CompletionResponse,
+    DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams,
+    DidOpenTextDocumentParams,
+    GetBallerinaPackagesParams,
+    GetSyntaxTreeParams,
+    GetSyntaxTreeResponse,
+    JsonToRecordRequest,
+    JsonToRecordResponse,
+    PublishDiagnosticsParams,
+    RenameParams,
+    TextDocumentPositionParams,
+    TypeFromExpressionRequest,
+    TypeFromSymbolRequest,
+    TypesFromExpressionResponse,
+    TypesFromFnDefinitionRequest,
+    TypesFromSymbolResponse,
+    XMLToRecordRequest,
+    XMLToRecordResponse
+} from "@wso2-enterprise/ballerina-core";
 import { Flow, LinePosition } from "../rpc-types/webview/types";
 import { LanguageClient } from "vscode-languageclient/node";
+import { WorkspaceEdit } from "vscode";
+import { Location, LocationLink } from "vscode-languageserver-types";
 
 export interface EggplantModelRequest {
     filePath: string;
@@ -22,4 +50,16 @@ export interface LangClientInterface extends LanguageClient {
     getEggplantModel: (params: EggplantModelRequest) => Promise<Flow>;
     stModify: (params: BallerinaSTModifyRequest) => Thenable<BallerinaSTModifyResponse>;
     didChange(params: DidChangeTextDocumentParams): Promise<void>;
+    didOpen: (Params: DidOpenTextDocumentParams) => void;
+    didClose: (params: DidCloseTextDocumentParams) => void;
+    getSyntaxTree: (params: GetSyntaxTreeParams) => Thenable<GetSyntaxTreeResponse>;
+    definition: (params: TextDocumentPositionParams) => Promise<Location | Location[] | LocationLink[] | null> ;
+    getDiagnostics: (params: BallerinaProjectParams) => Thenable<PublishDiagnosticsParams[]>;
+    getCompletion: (params: CompletionParams) => Thenable<CompletionResponse[]>;
+    getTypeFromExpression: (params: TypeFromExpressionRequest) => Thenable<TypesFromExpressionResponse>;
+    getTypeFromSymbol: (params: TypeFromSymbolRequest) => Thenable<TypesFromSymbolResponse>;
+    getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Thenable<TypesFromSymbolResponse>;
+    convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
+    convertXml: (params: XMLToRecordRequest) => Thenable<XMLToRecordResponse>;
+    rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
 }

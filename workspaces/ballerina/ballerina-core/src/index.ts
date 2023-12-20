@@ -37,3 +37,4 @@ export * from "./rpc-types/overview/rpc-type";
 export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/data-mapper";
 export * from "./rpc-types/data-mapper/rpc-type";
+export * from "./vscode";

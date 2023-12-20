@@ -36,6 +36,7 @@ importers:
   ../../workspaces/ballerina/ballerina-core:
     specifiers:
       '@types/vscode': ^1.83.1
+      '@types/vscode-webview': ^1.57.3
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@wso2-enterprise/ballerina-languageclient': workspace:*
@@ -48,6 +49,7 @@ importers:
       vscode-languageserver-types: ^3.17.5
       vscode-messenger-common: ^0.4.5
     dependencies:
+      '@types/vscode-webview': 1.57.4
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       vscode-languageserver-types: 3.17.5
@@ -1665,6 +1667,7 @@ importers:
       source-map-support: ^0.5.21
       ts-loader: ^9.4.1
       typescript: ^5.2.2
+      vscode-languageserver-types: ^3.17.5
       vscode-messenger: ^0.4.5
       vscode-messenger-common: ^0.4.5
       webpack: ^5.56.0
@@ -1678,6 +1681,7 @@ importers:
       '@wso2-enterprise/eggplant-webview': link:../webview
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
+      vscode-languageserver-types: 3.17.5
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
       xstate: 4.38.3
@@ -1752,6 +1756,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       copyfiles: ^2.4.1
@@ -1766,6 +1771,7 @@ importers:
     dependencies:
       '@types/vscode-webview': 1.57.4
       '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../../ballerina/ballerina-rpc-client
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
       react: 18.2.0
