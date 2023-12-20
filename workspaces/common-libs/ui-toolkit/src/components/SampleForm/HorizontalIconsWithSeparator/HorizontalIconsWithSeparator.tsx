@@ -15,7 +15,7 @@ import { Codicon } from '../../Codicon/Codicon';
 
 const ComponentIconWrapper = styled.div`
     display: flex;
-    width: ${FORM_WIDTH / 10}px;
+    min-width: ${FORM_WIDTH / 10}px;
     height: 60px;
     flex-direction: column;
     align-items: center;
@@ -77,14 +77,12 @@ const Container = styled.div<IconContainerProps>`
 	${(props: IconContainerProps) => props.sx};
 `;
 
-// can you add styles of a vericle devide between the icons?
-
 const iconStyles = { 
     display: "flex", alignItem: "center", justifyContent: "center", fontSize: 40, height: "fix-content", marginTop: -10
 };
 
 const plusStyles = { 
-    display: "flex", alignItem: "center", justifyContent: "center", fontSize: 25, height: "fix-content", marginTop: -2
+    display: "flex", alignItem: "center", justifyContent: "center", fontSize: 25, height: "fix-content", marginTop: -2, marginLeft: -10
 };
 
 export const HorizontalIconsWithSeparator = (props: IconContainerProps) => {
@@ -92,7 +90,7 @@ export const HorizontalIconsWithSeparator = (props: IconContainerProps) => {
 
     return (
         <Container sx={sx}>
-            <ComponentCard onClick={onClick} sx={{ display: "flex",  flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, cursor: "default", "&:hover, &.active": { background: "var(--vscode-background)" } }}>
+            <ComponentCard onClick={onClick} sx={{display: "flex",  flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, padding: "10px 0", cursor: "default", "&:hover, &.active": { background: "var(--vscode-background)" } }}>
                 <CardContent>
                     <ComponentIconWrapper>
                         <Icon iconSx={iconStyles} name={leftIconName} />

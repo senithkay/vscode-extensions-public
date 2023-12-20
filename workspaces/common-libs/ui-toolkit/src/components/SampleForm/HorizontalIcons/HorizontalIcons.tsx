@@ -74,14 +74,14 @@ const iconStyles = {
 };
 
 const plusStyles = { 
-    display: "flex", alignItem: "center", justifyContent: "center", fontSize: 25, height: "fix-content", marginTop: -2
+    display: "flex", alignItem: "center", justifyContent: "center", fontSize: 25, height: "fix-content", marginTop: -2, marginLeft: -10
 };
 
 export const HorizontalIcons = (props: HorizontalIconProps) => {
     const { title, leftIconName, rightIconName,  description, sx, onClick } = props;
     return (
         <Container sx={sx} onClick={onClick}>
-            <ComponentCard sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH }}>
+            <ComponentCard sx={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, padding: "10px 0" }}>
                 <CardContent>
                     <ComponentIconWrapper>
                         <Icon iconSx={iconStyles} name={leftIconName} />

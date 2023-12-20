@@ -17,8 +17,7 @@ import {
     VSCodePanelView
 } from "@vscode/webview-ui-toolkit/react";
 import { HorizontalIconsWithSeparator } from '../HorizontalIconsWithSeparator/HorizontalIconsWithSeparator';
-
-export const FORM_WIDTH = 600;
+import { FORM_WIDTH } from '../WebAppCreation/WebAppCreation';
 
 export interface TypeSelectorProps {
     sx?: any;
@@ -36,14 +35,26 @@ const Container = styled.div<TypeSelectorProps>`
 const FormContent = styled.div`
     display: flex;
     flex-direction: column;
+    width: ${FORM_WIDTH}px;
     justify-content: flex-start;
     color: var(--vscode-editor-foreground);
     font-family: var(--font-family);
 `;
 
+export const PanelContent = styled(VSCodePanelView)`
+    color: inherit;
+    background-color: transparent;
+    border: solid calc(var(--border-width) * 1px) transparent;
+    box-sizing: border-box;
+    font-size: var(--type-ramp-base-font-size);
+    line-height: var(--type-ramp-base-line-height);
+    padding: 10px 0px 10px 3px;
+`;
+
 const PanelWrapper = styled.div`
     margin-top: 10px;
     margin-left: -6px;
+    width: ${FORM_WIDTH + 6}px;
 `;
 
 export const TypeSelector = (props: TypeSelectorProps) => {
@@ -73,12 +84,12 @@ export const TypeSelector = (props: TypeSelectorProps) => {
                         <VSCodePanelTab label="your-workspaces"> Your workspaces </VSCodePanelTab>
                         <VSCodePanelTab label="shared-workspaces"> Shared with you </VSCodePanelTab>
 
-                        <VSCodePanelView>
+                        <PanelContent>
                             <HorizontalIconsWithSeparator onClick={() => handleSelection("sample 1")} sx={{marginBottom: 5}} leftIconName='react' rightIconName='ellipsis' title='sample 1' description="sample-1 • Accessed 3 hours ago"/>
-                        </VSCodePanelView>
-                        <VSCodePanelView>
+                        </PanelContent>
+                        <PanelContent>
                             <HorizontalIconsWithSeparator onClick={() => handleSelection("sample 2")} sx={{marginBottom: 5}} leftIconName='nextjs' rightIconName='ellipsis' title='sample 2' description="sample-2 • Accessed 4 hours ago"/>
-                        </VSCodePanelView>
+                        </PanelContent>
                     </VSCodePanels>
                 </PanelWrapper>
                 
