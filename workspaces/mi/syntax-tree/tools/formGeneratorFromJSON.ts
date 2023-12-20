@@ -197,7 +197,7 @@ const generateForm = (jsonData: any): string => {
                 fields += fixIndentation(`
                         {formValues[inputName].length > 0 && (
                             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                <h3>Properties Table</h3>
+                                <h3>`${inputName} Table</h3>
                                 <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                                     <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                         <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
