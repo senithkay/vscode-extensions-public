@@ -8,7 +8,7 @@
  */
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
@@ -37,7 +37,6 @@ const LowCode = (props: { state: MachineStateValue }) => {
     const [flowModel, setModel] = useState<Flow>(undefined);
 
     const onModelChange = (model: Flow) => {
-        setModel(model);
         if (eggplantRpcClient) {
             eggplantRpcClient.getWebviewRpcClient().updateSource(model);
         }
@@ -55,9 +54,14 @@ const LowCode = (props: { state: MachineStateValue }) => {
         }
     }, [props.state]);
 
+    const eggplantDiagram = useMemo(() => {
+        return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
+    }, [flowModel]);
+
+
     return (
         <Container>
-            {flowModel ? <EggplantApp flowModel={flowModel} onModelChange={onModelChange} /> :
+            {flowModel ? eggplantDiagram :
                 <MessageContainer>
                     <MessageContent>Select Construct from Overview</MessageContent>
                 </MessageContainer>

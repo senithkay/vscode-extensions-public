@@ -142,11 +142,12 @@ export class WebviewRpcManager implements WebviewAPI {
         const code = workerCodeGen(flowModel);
 
         const langClient = context.langServer as LangClientInterface;
+        // TODO: Fix with the proper position when retrived from the BE model
         const modification: STModification = {
             startLine: flowModel.bodyCodeLocation?.start.line + 1,
             startColumn: 0,
-            endLine: flowModel.bodyCodeLocation?.end.line - 1,
-            endColumn: 0,
+            endLine: flowModel.bodyCodeLocation?.end.line,
+            endColumn: flowModel.bodyCodeLocation?.end.offset - 2,
             type: "INSERT",
             isImport: false,
             config: {
@@ -161,7 +162,7 @@ export class WebviewRpcManager implements WebviewAPI {
 
         if (parseSuccess) {
             writeFileSync(flowModel.fileName, source);
-            langClient.didChange({
+            await langClient.didChange({
                 textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
                 contentChanges: [
                     {
