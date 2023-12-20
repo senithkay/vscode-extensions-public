@@ -25,16 +25,16 @@ const HorizontalCardContainer = styled.div`
     justify-content: space-between;
 `;
 
-export interface IconContainerProps {
+export interface Props {
     sx?: any;
     onClick?: (selecteType: string) => void;
 }
 
-const Container = styled.div<IconContainerProps>`
-    ${(props: IconContainerProps) => props.sx};
+const Container = styled.div<Props>`
+    ${(props: Props) => props.sx};
 `;
 
-export const VerticleIcons = (props: IconContainerProps) => {
+export const VerticleIcons = (props: Props) => {
     const { sx, onClick } = props;
 
     const handleSelection = (type: string) => {
