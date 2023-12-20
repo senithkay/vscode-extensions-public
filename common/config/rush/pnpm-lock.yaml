@@ -3330,6 +3330,7 @@ importers:
       jsonix: ~3.0.0
       lodash: ~4.17.21
       mocha: ^10.2.0
+      rimraf: ~5.0.5
       ts-loader: ^9.4.4
       typescript: ^5.1.6
       vscode-extension-tester: ~5.9.1
@@ -3369,6 +3370,7 @@ importers:
       eslint: 8.55.0
       glob: 10.3.10
       mocha: 10.2.0
+      rimraf: 5.0.5
       ts-loader: 9.5.1_r3vaey3wsyxexjzgehluuphira
       typescript: 5.3.3
       webpack: 5.89.0_webpack-cli@5.1.4
@@ -39297,6 +39299,14 @@ packages:
     hasBin: true
     dependencies:
       glob: 7.2.3
+
+  /rimraf/5.0.5:
+    resolution: {integrity: sha512-CqDakW+hMe/Bz202FPEymy68P+G50RfMQK+Qo5YUqc9SPipvbGjCGKd0RSKEelbsfQuw3g5NZDSrlZZAJurH1A==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dependencies:
+      glob: 10.3.10
+    dev: true
 
   /ripemd160/2.0.2:
     resolution: {integrity: sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==}
