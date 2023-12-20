@@ -954,6 +954,8 @@ importers:
     specifiers:
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
+      '@tanstack/query-core': ^4.0.0-beta.1
+      '@tanstack/react-query': 4.0.10
       '@types/react': ^18.2.33
       '@types/react-dom': ^18.2.14
       '@types/vscode-webview': ^1.57.4
@@ -985,6 +987,8 @@ importers:
     dependencies:
       '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
       '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
+      '@tanstack/query-core': 4.27.0
+      '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@types/vscode-webview': 1.57.4
       '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
@@ -1218,6 +1222,7 @@ importers:
       '@vscode/vsce': ^2.17.0
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-languageclient': workspace:*
+      '@wso2-enterprise/cell-diagram': workspace:*
       '@wso2-enterprise/choreo-client': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/choreo-vscode-webviews': workspace:*
@@ -1266,6 +1271,7 @@ importers:
       '@vscode/iconv-lite-umd': 0.7.0
       '@vscode/webview-ui-toolkit': 1.2.2
       '@wso2-enterprise/ballerina-languageclient': link:../../ballerina/ballerina-languageclient
+      '@wso2-enterprise/cell-diagram': link:../cell-diagram
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/choreo-vscode-webviews': link:../choreo-webviews
@@ -1527,12 +1533,15 @@ importers:
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
+      handlebars: ~4.7.7
       typescript: ^5.2.2
+      vscode-languageclient: ^8.1.0
       vscode-languageserver-types: ^3.17.5
       vscode-messenger-common: ^0.4.5
     dependencies:
       '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
       '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
+      vscode-languageclient: 8.1.0
       vscode-languageserver-types: 3.17.5
       vscode-messenger-common: 0.4.5
     devDependencies:
@@ -1543,6 +1552,7 @@ importers:
       eslint: 8.53.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.53.0
       eslint-plugin-react-refresh: 0.4.4_eslint@8.53.0
+      handlebars: 4.7.8
       typescript: 5.2.2
 
   ../../workspaces/eggplant/eggplant-diagram:
@@ -1570,6 +1580,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@vscode/codicons': ~0.0.35
+      '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -1598,6 +1609,7 @@ importers:
       '@types/lodash': 4.14.201
       '@types/node': 18.18.10
       '@vscode/codicons': 0.0.35
+      '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
@@ -14215,6 +14227,25 @@ packages:
     dependencies:
       '@tanstack/query-persist-client-core': 4.27.0
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
+    dev: false
+
+  /@tanstack/react-query/4.0.10_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Wn5QhZUE5wvr6rGClV7KeQIUsdTmYR9mgmMZen7DSRWauHW2UTynFg3Kkf6pw+XlxxOLsyLWwz/Q6q1lSpM3TQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.27.0
+      '@types/use-sync-external-store': 0.0.3
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
   /@tanstack/react-query/4.0.10_sfoxds7t5ydpegc3knd667wn6m:

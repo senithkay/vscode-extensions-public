@@ -12,6 +12,9 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { ComponentCard } from "@wso2-enterprise/ui-toolkit";
+import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
+import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
+import { SelectedComponent } from "./Overview";
 
 const colors = {
     "GET": '#3d7eff',
@@ -49,15 +52,25 @@ const Container = styled.div({
 });
 
 
-export function ResourcesList(params: { components: any[] }) {
+export function ResourcesList(params: { component: SelectedComponent }) {
+
+    const { eggplantRpcClient } = useVisualizerContext();
+    const { component } = params;
 
     const handleResourceClick = (comp: any) => {
         console.log("Resource Node", comp);
+        const context: VisualizerLocation = {
+            location: {
+                fileName: component.fileName,
+                position: comp.position
+            }
+        }
+        eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
     };
 
     // Your code here
     const getResources = () => {
-        const components = params.components.map((comp: any, compIndex: number) => {
+        const components = component.serviceST.members.map((comp: any, compIndex: number) => {
             let path = "";
             comp.relativeResourcePath.forEach((res: any) => {
                 path += `/${res.value}`

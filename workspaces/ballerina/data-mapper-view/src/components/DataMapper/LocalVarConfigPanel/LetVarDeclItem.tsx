@@ -12,7 +12,7 @@ import React, { ReactNode, useMemo, useState } from "react";
 // import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 // tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { IBallerinaLangClient, STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -21,6 +21,7 @@ import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+
 
 interface LetVarDeclItemProps {
     index: number;

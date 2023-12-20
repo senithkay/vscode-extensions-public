@@ -8,17 +8,18 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { VisualizerLocation } from "../../extension-interfaces/state-machine-types";
+import { MachineStateValue, VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { EggplantModel } from "./types";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { Flow } from "./types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "webview";
-export const getState: RequestType<void, string> = { method: `${_preFix}/getState` };
+export const getState: RequestType<void, MachineStateValue> = { method: `${_preFix}/getState` };
 export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: `${_preFix}/getVisualizerState` };
 export const openVisualizerView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openVisualizerView` };
 export const getBallerinaProjectComponents: RequestType<void, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };
-export const getEggplantModel: RequestType<void, EggplantModel> = { method: `${_preFix}/getEggplantModel` };
+export const getEggplantModel: RequestType<void, Flow> = { method: `${_preFix}/getEggplantModel` };
 export const executeCommand: NotificationType<string> = { method: `${_preFix}/executeCommand` };
 export const getSTNodeFromLocation: RequestType<VisualizerLocation, STNode> = { method: `${_preFix}/getSTNodeFromLocation` };
+export const updateSource: NotificationType<Flow> = { method: `${_preFix}/updateSource` };

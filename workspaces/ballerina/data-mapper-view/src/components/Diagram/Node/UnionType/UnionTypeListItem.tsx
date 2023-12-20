@@ -12,9 +12,9 @@
  */
 // tslint:disable: jsx-no-multiline-js no-submodule-imports
 import React, { useState } from "react";
-import { VscSymbolStructure } from "react-icons/vsc";
+// import { VscSymbolStructure } from "react-icons/vsc";
 
-import { CircularProgress, ListItem, ListItemText, Typography } from "@material-ui/core";
+// import { CircularProgress, ListItem, ListItemText, Typography } from "@material-ui/core";
 // import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -34,7 +34,6 @@ export interface UnionTypeListItemProps {
 
 export function UnionTypeListItem(props: UnionTypeListItemProps) {
     const { key, context, type, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
-    const { applyModifications } = context;
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const classes = useStyles();
 
@@ -58,7 +57,7 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
                 };
             }
             const modification = [getModification(`<${type}>`, targetPosition)];
-            await applyModifications(modification);
+            await context.applyModifications(modification);
         } finally {
             setIsAddingTypeCast(false);
         }

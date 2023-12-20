@@ -10,7 +10,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI } from "vscode-uri";
-import { BallerinaSTModifyResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaProjectComponents, BallerinaSTModifyResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export const useSyntaxTreeFromRange = ():{
     data: BallerinaSTModifyResponse;
@@ -19,33 +19,70 @@ export const useSyntaxTreeFromRange = ():{
     refetch: any;
 } => {
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+    const { location: { position, fileName } } = viewLocation;
     const getST = async () => {
         if (viewLocation?.location) {
-            const response = await ballerinaRpcClient?.getVisualizerRpcClient().getSTByRange({
-                lineRange: {
-                    start: {
-                        line: viewLocation.location.position.startLine,
-                        character: viewLocation.location.position.startColumn
+            try {
+                const response = await ballerinaRpcClient?.getVisualizerRpcClient().getSTByRange({
+                    lineRange: {
+                        start: {
+                            line: position.startLine,
+                            character: position.startColumn
+                        },
+                        end: {
+                            line: position.endLine,
+                            character: position.endColumn
+                        }
                     },
-                    end: {
-                        line: viewLocation.location.position.endLine,
-                        character: viewLocation.location.position.endColumn
+                    documentIdentifier: {
+                        uri: URI.file(fileName).toString()
                     }
-                },
-                documentIdentifier: {
-                    uri: URI.file(viewLocation.location.fileName).toString()
-                }
-            });
-            return response;
+                });
+                return response;
+            } catch (networkError: any) {
+                console.error('Error while fetching syntax tree', networkError);
+            }
         }    
     }
 
-    const { data, isFetching, isError, refetch } = useQuery({
-        queryKey: ['getST'],
-        queryFn: () => getST(),
-        refetchOnWindowFocus: false,
-        enabled: !!viewLocation.location 
-      });
+    const {
+        data,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['getST', {position}], () => getST(), {});
 
     return { data, isFetching, isError, refetch };
-  };
+};
+
+export const useProjectComponents = (): {
+    projectComponents: BallerinaProjectComponents;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+    const fetchProjectComponents = async () => {
+        try {
+            const componentResponse = await ballerinaRpcClient.getVisualizerRpcClient().getBallerinaProjectComponents({
+                documentIdentifiers: [
+                    {
+                        uri: URI.file(viewLocation.location?.fileName).toString(),
+                    }
+                ]
+            })
+            return componentResponse;
+        } catch (networkError: any) {
+            console.error('Error while fetching project components', networkError);
+        }
+    };
+
+    const {
+        data: projectComponents,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), {});
+
+    return { projectComponents, isFetching, isError, refetch };
+};

@@ -17,7 +17,6 @@ import {
     JoinClause,
     NodePosition,
     QueryExpression,
-    SimpleNameReference,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 

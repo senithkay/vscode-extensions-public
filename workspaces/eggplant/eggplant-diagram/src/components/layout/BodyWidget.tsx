@@ -18,10 +18,10 @@ import styled from "@emotion/styled";
 import { EVENT_TYPES, NODE_TYPE } from "../../resources";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
-import { Flow, Node } from "../../types";
+import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { addNodePositionChangeListener, addNodeSelectChangeListener, getNodeModel } from "../../utils";
-import { debounce } from "lodash";
+import { getNodeModel, isFixedNode } from "../../utils";
+import { DiagramControls } from "../controls/DiagramControls";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
@@ -53,8 +53,6 @@ namespace S {
 export function BodyWidget(props: BodyWidgetProps) {
     const { engine, flowModel, selectedNode, setSelectedNode, onModelChange } = props;
 
-    const debouncedOnModelChange = debounce(onModelChange, 300);
-
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
@@ -63,28 +61,38 @@ export function BodyWidget(props: BodyWidgetProps) {
             let node: DefaultNodeModel = getNodeModel(data.type, (nodesCount++).toString());
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
-            addNodeSelectChangeListener(node, setSelectedNode);
-            addNodePositionChangeListener(node, updateFlowModel);
             engine.getModel().addNode(node);
 
             const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
             onModelChange(updatedFlow);
+            setSelectedNode(null);
         },
-        [engine]
+        [engine,flowModel]
     );
 
-    const updateFlowModel = () => {        
+    const updateFlowModel = () => {
         const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
-        debouncedOnModelChange(updatedFlow);
+        onModelChange(updatedFlow);
     };
+
+    const handleRefreshDiagram = () => {
+        // TODO: need to implement refresh flow
+        setSelectedNode(null);
+    };
+
+    // has start and return node types in flow model
+    const hasStartNode = flowModel.nodes.some((node) => node.templateId === NODE_TYPE.START);
+    const hasReturnNode = flowModel.nodes.some((node) => node.templateId === NODE_TYPE.RETURN);
 
     return (
         <S.Body>
             <S.Content>
                 <TrayWidget>
-                    <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />
+                    {!hasStartNode && <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />}
                     <TrayItemWidget model={{ type: NODE_TYPE.CODE_BLOCK }} name="Code Block" />
                     <TrayItemWidget model={{ type: NODE_TYPE.SWITCH }} name="Switch" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.HTTP_GET }} name="HTTP Request" />
+                    {!hasReturnNode && <TrayItemWidget model={{ type: NODE_TYPE.RETURN }} name="Return" />}
                 </TrayWidget>
                 <S.Layer
                     onDrop={handleDrop}
@@ -95,9 +103,14 @@ export function BodyWidget(props: BodyWidgetProps) {
                     <DiagramCanvasWidget>
                         <CanvasWidget engine={engine} />
                     </DiagramCanvasWidget>
+                    <DiagramControls engine={engine} refresh={handleRefreshDiagram} />
                 </S.Layer>
-                {selectedNode && (
-                    <OptionWidget selectedNode={selectedNode} setSelectedNode={setSelectedNode} updateFlowModel={updateFlowModel} />
+                {selectedNode && !isFixedNode(selectedNode?.getKind()) && (
+                    <OptionWidget
+                        selectedNode={selectedNode}
+                        setSelectedNode={setSelectedNode}
+                        updateFlowModel={updateFlowModel}
+                    />
                 )}
             </S.Content>
         </S.Body>

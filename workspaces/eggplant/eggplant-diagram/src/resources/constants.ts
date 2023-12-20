@@ -9,7 +9,7 @@
 
 import exp from "constants";
 
-export enum Colors {
+export enum DefaultColors {
     PRIMARY = "#5567D5",
     ON_PRIMARY = "#FFF",
     PRIMARY_CONTAINER = "#F0F1FB",
@@ -31,6 +31,55 @@ export enum Colors {
     ERROR = "#ED2633",
 }
 
+export enum VSCodeColors {
+    PRIMARY = "var(--vscode-button-background)",
+    ON_PRIMARY = "var(--vscode-button-foreground)",
+    PRIMARY_CONTAINER = "var(--vscode-sideBar-background)",
+
+    SECONDARY = "var(--vscode-editorLightBulb-foreground)",
+    ON_SECONDARY = "var(--vscode-button-foreground)",
+    SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
+
+    SURFACE_BRIGHT = "var(--vscode-editor-background)",
+    SURFACE = "var(--vscode-sideBar-background)",
+    SURFACE_DIM = "var(--vscode-activityBar-background)",
+    ON_SURFACE = "var(--vscode-foreground)",
+    ON_SURFACE_VARIANT = "var(--vscode-icon-foreground)",
+    SURFACE_CONTAINER = "var(--vscode-editor-inactiveSelectionBackground)",
+
+    OUTLINE = "var(--vscode-sideBar-border)",
+    OUTLINE_VARIANT = "var(--vscode-dropdown-border)",
+
+    ERROR = "var(--vscode-errorForeground)",
+}
+
+export const Colors = {
+    PRIMARY: VSCodeColors.PRIMARY || DefaultColors.PRIMARY,
+    ON_PRIMARY: VSCodeColors.ON_PRIMARY || DefaultColors.ON_PRIMARY,
+    PRIMARY_CONTAINER:
+        VSCodeColors.PRIMARY_CONTAINER || DefaultColors.PRIMARY_CONTAINER,
+
+    SECONDARY: VSCodeColors.SECONDARY || DefaultColors.SECONDARY,
+    ON_SECONDARY: VSCodeColors.ON_SECONDARY || DefaultColors.ON_SECONDARY,
+    SECONDARY_CONTAINER:
+        VSCodeColors.SECONDARY_CONTAINER || DefaultColors.SECONDARY_CONTAINER,
+
+    SURFACE_BRIGHT: VSCodeColors.SURFACE_BRIGHT || DefaultColors.SURFACE_BRIGHT,
+    SURFACE: VSCodeColors.SURFACE || DefaultColors.SURFACE,
+    SURFACE_DIM: VSCodeColors.SURFACE_DIM || DefaultColors.SURFACE_DIM,
+    ON_SURFACE: VSCodeColors.ON_SURFACE || DefaultColors.ON_SURFACE,
+    ON_SURFACE_VARIANT:
+        VSCodeColors.ON_SURFACE_VARIANT || DefaultColors.ON_SURFACE_VARIANT,
+    SURFACE_CONTAINER:
+        VSCodeColors.SURFACE_CONTAINER || DefaultColors.SURFACE_CONTAINER,
+
+    OUTLINE: VSCodeColors.OUTLINE || DefaultColors.OUTLINE,
+    OUTLINE_VARIANT:
+        VSCodeColors.OUTLINE_VARIANT || DefaultColors.OUTLINE_VARIANT,
+
+    ERROR: VSCodeColors.ERROR || DefaultColors.ERROR,
+};
+
 export const START_NODE = "FunctionStart";
 export const END_NODE = "FunctionEnd";
 
@@ -44,7 +93,13 @@ export const EVENT_TYPES = {
 
 export const NODE_TYPE = {
     START: "start",
-    END: "end",
+    RETURN: "return",
     CODE_BLOCK: "block",
     SWITCH: "switch",
+    HTTP_GET: "http_get",
 };
+
+export const NODE_MIN_HEIGHT = 32;
+export const NODE_MIN_WIDTH = 100;
+
+export const DEFAULT_TYPE = "json";

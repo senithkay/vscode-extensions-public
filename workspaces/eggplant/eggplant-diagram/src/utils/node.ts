@@ -8,12 +8,19 @@
  */
 
 import { DefaultNodeModel } from "../components/default";
-import { NODE_TYPE } from "../resources/constants";
+import { DEFAULT_TYPE, NODE_TYPE } from "../resources/constants";
 import { Node } from "../types";
+import { getPortId } from "./generator";
 
 // get custom default node factory
 export function getNodeModel(type: string, suffix?: string) {
-    const name = type + "_" + suffix;
+    let name = type;
+    const isSingleNode = type === NODE_TYPE.START || type === NODE_TYPE.RETURN;
+    if (suffix !== undefined && !isSingleNode) {
+        name = type + "_" + suffix;
+    } else if (suffix !== undefined && isSingleNode) {
+        name = type + "_";
+    }
     let nodeModel = new DefaultNodeModel({ name: name, kind: type });
 
     let emptyNode: Node = {
@@ -38,48 +45,56 @@ export function getNodeModel(type: string, suffix?: string) {
         codeBlock: "",
     };
 
+    const inPortId = getPortId(name, true, 1);
+    const outPortId = getPortId(name, false, 1);
+
     switch (type) {
         case NODE_TYPE.START:
-            nodeModel.addOutPort("out");
+            nodeModel.addOutPort(outPortId);
             emptyNode.templateId = NODE_TYPE.START;
             break;
-        case NODE_TYPE.END:
-            nodeModel.addInPort("in");
-            emptyNode.templateId = NODE_TYPE.END;
+        case NODE_TYPE.RETURN:
+            nodeModel.addInPort(inPortId);
+            emptyNode.templateId = NODE_TYPE.RETURN;
             break;
         case NODE_TYPE.SWITCH:
-            nodeModel.addInPort("in", {
-                id: "in",
-                type: "any",
+            nodeModel.addInPort(inPortId, {
+                id: inPortId,
+                type: DEFAULT_TYPE,
             });
-            nodeModel.addOutPort("out-1", {
-                id: "out-1",
-                type: "any",
+            nodeModel.addOutPort(outPortId, {
+                id: outPortId,
+                type: DEFAULT_TYPE,
             });
-            nodeModel.addOutPort("out-2", {
-                id: "out-2",
-                type: "any",
+            const defaultPortId = getPortId(name, false, "default");
+            nodeModel.addOutPort(defaultPortId, {
+                id: defaultPortId,
+                type: DEFAULT_TYPE,
             });
             emptyNode.templateId = NODE_TYPE.SWITCH;
             emptyNode.properties = {
                 cases: [
                     {
                         expression: "true",
-                        nodes: ["out-1"],
+                        nodes: [outPortId],
                     },
                 ],
                 defaultCase: {
-                    nodes: ["out-2"],
+                    nodes: [defaultPortId],
                 },
             };
             break;
         default:
-            nodeModel.addInPort("in");
-            nodeModel.addOutPort("out");
+            nodeModel.addInPort(inPortId);
+            nodeModel.addOutPort(outPortId);
             break;
     }
 
     nodeModel.setNode(emptyNode);
 
     return nodeModel;
+}
+
+export function isFixedNode(type: string) {
+    return type === NODE_TYPE.START || type === NODE_TYPE.RETURN;
 }

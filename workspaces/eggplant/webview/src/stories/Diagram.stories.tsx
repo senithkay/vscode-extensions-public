@@ -22,8 +22,18 @@ const Container = styled.div`
 const simpleModel: Flow = {
     id: "1",
     name: "flow1",
-    balFilename: "path",
-    nodes: []
+    fileName: "path",
+    nodes: [],
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
 };
 
 

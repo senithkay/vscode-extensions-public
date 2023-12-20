@@ -16,6 +16,7 @@ import styled from "@emotion/styled";
 import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { SelectedComponent } from "./Overview";
 
 
 export interface ComponentViewInfo {
@@ -45,7 +46,7 @@ export type ComponentCollection = {
 // shows a view that includes document/project symbols(functions, records, etc.)
 // you can switch between files in the project and view the symbols in eachfile
 // when you select a symbol, it will show the symbol's visualization in the diagram view
-export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<any> }) {
+export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<SelectedComponent> }) {
 
     const { eggplantRpcClient } = useVisualizerContext();
     const categories: React.ReactElement[] = [];
@@ -84,14 +85,16 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         }
         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
         if (STKindChecker.isServiceDeclaration(serviceST)) {
-            props.setSelectedComponent(serviceST);
+            props.setSelectedComponent({fileName: info.filePath, serviceST});
+        } else {
+            eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
         }
     }
 
     if (currentComponents) {
         Object.keys(currentComponents)
             .filter((key) => currentComponents[key].length)
-            .forEach((key) => {
+            .forEach((key, index) => {
                 if (key === "functions" || key === "services") {
                     const filteredComponents = currentComponents[key];
 
@@ -112,7 +115,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
 
                     key = key === "functions" ? "Main Function" : "Services";
                     categories.push(
-                        <CategoryContainer>
+                        <CategoryContainer key={index}>
                             <Typography variant="h4">
                                 <Capitalize>{key}</Capitalize>
                             </Typography>

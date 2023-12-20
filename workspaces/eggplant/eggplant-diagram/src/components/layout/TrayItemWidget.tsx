@@ -20,6 +20,7 @@ export interface TrayItemWidgetProps {
 namespace S {
     export const Tray = styled.div<{ color: string }>`
         color: ${Colors.ON_SURFACE};
+        background-color: ${Colors.SURFACE_BRIGHT};
         font-family: sans-serif;
         font-size: 14px;
         padding: 8px 12px;
