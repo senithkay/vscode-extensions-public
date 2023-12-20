@@ -71,7 +71,7 @@ export class TypeDescriptorStore {
         const symbolNodesPositions = visitor.getSymbolNodesPositions();
 
         const noOfTypes = this.getNoOfTypes(visitor.getNoOfParams(), expressionNodesRanges.length, symbolNodesPositions.length);
-        const fileUri = Uri.file(context.currentFile.path).toString();
+        const fileUri = URI.file(context.currentFile.path).toString();
 
         const promises = [
             await this.setTypesForFnParamsAndReturnType(fileUri, fnDefPositions, ballerinaRpcClient),
@@ -92,7 +92,7 @@ export class TypeDescriptorStore {
 
         const typesFromExpression = await ballerinaRpcClient.getDataMapperRpcClient().getTypeFromExpression({
             documentIdentifier: {
-                uri: URI.file(fileUri).toString()
+                uri: fileUri
             },
             expressionRanges: expressionNodesRanges
         });

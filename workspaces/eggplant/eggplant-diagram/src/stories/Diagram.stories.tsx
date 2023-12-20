@@ -22,8 +22,10 @@ const Template: Story = (args: { flowModel: Flow }) => {
 
     const onModelChange = (model: Flow) => {
         action("on model change")(model);
-        console.log(model);
-        setModel(model);
+        setTimeout(() => {
+            console.log(model);
+            setModel(model);
+        }, 100);
     };
 
     return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
@@ -43,6 +45,16 @@ const simpleModel: Flow = {
     id: "1",
     name: "flow1",
     fileName: "path",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -186,6 +198,16 @@ const CodeBlockModel: Flow = {
     id: "2",
     name: "main/function",
     fileName: "code_block.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -208,11 +230,12 @@ const CodeBlockModel: Flow = {
             outputPorts: [
                 {
                     id: "1",
-                    type: "INT",
+                    type: "int",
+                    name: "b",
                     receiver: "B",
                 },
             ],
-            codeBlock: "",
+            codeBlock: "int b = 32;\n",
         },
         {
             name: "B",
@@ -234,7 +257,7 @@ const CodeBlockModel: Flow = {
             inputPorts: [
                 {
                     id: "1",
-                    type: "INT",
+                    type: "int",
                     name: "x",
                     sender: "A",
                 },
@@ -242,7 +265,7 @@ const CodeBlockModel: Flow = {
             outputPorts: [
                 {
                     id: "2",
-                    type: "INT",
+                    type: "int",
                     name: "b",
                     receiver: "function",
                 },
@@ -260,6 +283,16 @@ const SwitchModel: Flow = {
     id: "1",
     name: "main/function",
     fileName: "multi_switch.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -482,6 +515,16 @@ const SampleModel: Flow = {
     id: "1",
     name: "main/function",
     fileName: "/home/jo/workspace/eggplant/demo_sample/main.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "CreatePerson",

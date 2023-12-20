@@ -177,7 +177,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 ...field.position
             }];
 
-        await this.context.applyModifications(modifications);
+        this.context.applyModifications(modifications);
     }
 
     public updatePosition() {

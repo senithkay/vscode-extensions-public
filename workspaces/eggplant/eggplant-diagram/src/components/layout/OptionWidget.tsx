@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { Colors, NODE_TYPE } from "../../resources";
+import { Colors, DEFAULT_TYPE, NODE_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
 import { TextField, Button, TextArea, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Node, SwitchCaseBlock } from "../../types";
+import { getPortId, toSnakeCase } from "../../utils";
 
 export interface OptionWidgetProps {
     selectedNode: DefaultNodeModel;
@@ -14,7 +15,7 @@ export interface OptionWidgetProps {
 
 namespace S {
     export const Tray = styled.div`
-        width: 196px;
+        width: 240px;
         background: ${Colors.SURFACE};
         padding: 16px 18px;
         display: flex;
@@ -35,12 +36,7 @@ namespace S {
     `;
 
     export const InputField = styled(TextField)`
-        & vscode-text-field {
-            width: 100%;
-            & .root {
-                width: 100%;
-            }
-        }
+        width: 100%;
     `;
 }
 
@@ -51,8 +47,9 @@ export function OptionWidget(props: OptionWidgetProps) {
 
     const handleAddCase = () => {
         const caseCount = node.properties.cases.length + 1;
-        const portId = `out-${caseCount + 1}`;
-        const defaultPortId = node.properties?.defaultCase?.nodes.length > 0 ? node.properties.defaultCase.nodes[0] : null;
+        const portId = getPortId(node.name, false, caseCount + 1);
+        const defaultPortId =
+            node.properties?.defaultCase?.nodes.length > 0 ? node.properties.defaultCase.nodes[0] : null;
         if (defaultPortId) {
             // switch the default case to the new case
             node.properties.defaultCase.nodes = [portId];
@@ -68,9 +65,10 @@ export function OptionWidget(props: OptionWidgetProps) {
         }
         selectedNode.addOutPort(portId, {
             id: portId,
-            type: "any",
+            type: DEFAULT_TYPE,
         });
         selectedNode.setNode(node);
+        console.log(">> switch node", node)
         updateFlowModel(node);
     };
 
@@ -91,14 +89,28 @@ export function OptionWidget(props: OptionWidgetProps) {
                     }}
                 />
             </S.TitleContainer>
-            <S.InputField
-                label="Name"
-                value={selectedNode.getName()}
-                required={true}
-                onChange={(value: string) => {
-                    node.name = value;
-                }}
-            />
+            {selectedNode.getKind() !== NODE_TYPE.START && selectedNode.getKind() !== NODE_TYPE.RETURN && (
+                <S.InputField
+                    label="Name"
+                    value={selectedNode.getName()}
+                    required={true}
+                    onChange={(value: string) => {
+                        node.name = toSnakeCase(value);
+                    }}
+                    size={32}
+                />
+            )}
+            {selectedNode.getKind() === NODE_TYPE.HTTP_GET && (
+                <S.InputField
+                    label="URL"
+                    value={""}
+                    required={true}
+                    onChange={(value: string) => {
+                        // TODO: set the url
+                    }}
+                    size={32}
+                />
+            )}
             {selectedNode.getKind() === NODE_TYPE.CODE_BLOCK && (
                 <TextArea
                     label="Code Block"

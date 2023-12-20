@@ -74,7 +74,6 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         getPort
     } = props;
     const { typeNames, resolvedTypeName } = unionTypeInfo;
-    const {	applyModifications } = context;
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -170,7 +169,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                 const targetPosition = getTargetPositionForWrapWithTypeCast();
                 modification.push(getModification(`<${name}>`, targetPosition));
             }
-            await applyModifications(modification);
+            await context.applyModifications(modification);
         } finally {
             setIsModifyingTypeCast(false);
         }

@@ -29,7 +29,9 @@
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "vscode-uri": "^3.0.8"
+    "vscode-uri": "^3.0.8",
+    "@tanstack/react-query": "4.0.10",
+    "@tanstack/query-core": "^4.0.0-beta.1"
   },
   "devDependencies": {
     "@types/webpack": "^4.41.26",
