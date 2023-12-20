@@ -14,7 +14,6 @@
       "isolatedModules": true,
       "jsx": "react",
       "sourceMap": true,
-      "sourceRoot": "./src",
       "declaration": true,
       "declarationDir": "./lib",
       "esModuleInterop": true,
