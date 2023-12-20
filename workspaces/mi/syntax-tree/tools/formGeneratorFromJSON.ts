@@ -195,7 +195,7 @@ const generateForm = (jsonData: any): string => {
                     "${inputName}": [] as string[][],`, 8);
                 generateFormItems(element.value.form.elements, indentation + 4, "table");
                 fields += fixIndentation(`
-                        {formValues["properties"].length > 0 && (
+                        {formValues[inputName].length > 0 && (
                             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                                 <h3>Properties Table</h3>
                                 <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
