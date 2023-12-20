@@ -166,7 +166,7 @@ function getNodeIdentifier(node: Node) {
 }
 
 export function getPortId(nodeId: string, inPort: boolean, portId: string|number) {
-    return `${nodeId}_${inPort ? "in" : "out"}_${portId.toString()}`;
+    return `${inPort ? "in" : "out"}_${portId.toString()}`;
 }
 
 function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boolean, linkNodeId: string) {

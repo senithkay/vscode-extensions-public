@@ -18,6 +18,8 @@ export function getNodeModel(type: string, suffix?: string) {
     const isSingleNode = type === NODE_TYPE.START || type === NODE_TYPE.RETURN;
     if (suffix !== undefined && !isSingleNode) {
         name = type + "_" + suffix;
+    } else if (suffix !== undefined && isSingleNode) {
+        name = type + "_";
     }
     let nodeModel = new DefaultNodeModel({ name: name, kind: type });
 

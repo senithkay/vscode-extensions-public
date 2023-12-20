@@ -90,7 +90,6 @@ function generateSwitchNode(node: Node): string {
     });
 
     // default case block
-    if (switchProperties.defaultCase) {
         let outputPorts: string = "";
         switchProperties.defaultCase?.nodes.forEach(nodeId => {
             // find the port matching the nodeId from outputPorts
@@ -106,7 +105,6 @@ function generateSwitchNode(node: Node): string {
                 OUTPORTS: outputPorts
             }
         });
-    }
 
     // generate switch node
     const switchNode: string = getComponentSource({

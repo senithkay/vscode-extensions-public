@@ -67,7 +67,7 @@ export function BodyWidget(props: BodyWidgetProps) {
             onModelChange(updatedFlow);
             setSelectedNode(null);
         },
-        [engine]
+        [engine,flowModel]
     );
 
     const updateFlowModel = () => {
