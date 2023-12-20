@@ -89,13 +89,14 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return port;
     }
 
-    addInPort(label: string, nodePort?: NodePort, after = true): DefaultPortModel {
+    addInPort(label: string, nodePort?: NodePort, multiLink = false, after = true): DefaultPortModel {
         const p = new DefaultPortModel({
             in: true,
             name: label,
             label: label,
             alignment: PortModelAlignment.LEFT,
             port: nodePort,
+            multiLink: multiLink,
         });
         if (!after) {
             this.portsIn.splice(0, 0, p);
@@ -103,13 +104,14 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return this.addPort(p);
     }
 
-    addOutPort(label: string, nodePort?: NodePort, after = true): DefaultPortModel {
+    addOutPort(label: string, nodePort?: NodePort, multiLink = false, after = true): DefaultPortModel {
         const p = new DefaultPortModel({
             in: false,
             name: label,
             label: label,
             alignment: PortModelAlignment.RIGHT,
             port: nodePort,
+            multiLink: multiLink,
         });
         if (!after) {
             this.portsOut.splice(0, 0, p);
@@ -140,6 +142,7 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
             portsOutOrder: _.map(this.portsOut, (port) => {
                 return port.getID();
             }),
+            properties: this.options.node?.properties,
         };
     }
 
