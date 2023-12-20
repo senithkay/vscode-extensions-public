@@ -254,8 +254,8 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
             templateId: defaultNode.getKind(),
             codeLocation: codePosition,
             canvasPosition: {
-                x: defaultNode.getX(),
-                y: defaultNode.getY(),
+                x: Math.floor(defaultNode.getX()),
+                y: Math.floor(defaultNode.getY()),
             },
             inputPorts: inPorts,
             outputPorts: outPorts,
