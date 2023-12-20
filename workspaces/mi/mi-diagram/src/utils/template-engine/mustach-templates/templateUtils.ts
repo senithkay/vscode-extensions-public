@@ -172,8 +172,8 @@ export function getDataFromXML(name: string, node: STNode) {
     const formData = reverseMustache(template, node);
     console.log('formData', formData);
     switch (name) {
-        case MEDIATORS.CALL:
-return getCallFormDataFromXMLData(formData);
+        // case MEDIATORS.CALL:
+// return getCallFormDataFromXMLData(formData);
         default:
 return formData;
     }

@@ -93,7 +93,6 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
        "valueExpression": (e?: any) => validateField("valueExpression", e, false),
        "valueStringPattern": (e?: any) => validateField("valueStringPattern", e, false),
        "valueStringCapturingGroup": (e?: any) => validateField("valueStringCapturingGroup", e, false),
-       "description": (e?: any) => validateField("description", e, false),
 
    };
 
