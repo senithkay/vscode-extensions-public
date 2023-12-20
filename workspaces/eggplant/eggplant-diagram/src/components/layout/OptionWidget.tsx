@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { TextField, Button, TextArea, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Colors, DEFAULT_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
-import { TextField, Button, TextArea, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Node, SwitchCaseBlock } from "../../types";
 import { getPortId, toSnakeCase } from "../../utils";
 
 export interface OptionWidgetProps {
+    engine: DiagramEngine;
     selectedNode: DefaultNodeModel;
     children?: React.ReactNode;
     setSelectedNode?: (node: DefaultNodeModel) => void;
@@ -41,34 +43,33 @@ namespace S {
 }
 
 export function OptionWidget(props: OptionWidgetProps) {
-    const { selectedNode, children, setSelectedNode, updateFlowModel } = props;
+    const { engine, selectedNode, children, setSelectedNode, updateFlowModel } = props;
+    const [, forceUpdate] = useState();
+
     // clone the node
     let node = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
 
     const handleAddCase = () => {
-        const caseCount = node.properties.cases.length + 1;
-        const portId = getPortId(node.name, false, caseCount + 1);
-        const defaultPortId =
-            node.properties?.defaultCase?.nodes.length > 0 ? node.properties.defaultCase.nodes[0] : null;
-        if (defaultPortId) {
-            // switch the default case to the new case
-            node.properties.defaultCase.nodes = [portId];
-            node.properties.cases.push({
-                expression: "true",
-                nodes: [defaultPortId],
-            });
-        } else {
-            node.properties.cases.push({
-                expression: "true",
-                nodes: [portId],
-            });
+        console.log(">>> node cases", node.properties.cases);
+        let caseCount = node.properties.cases.length;
+        let portId = getPortId(node.name, false, caseCount + 1);
+        while (selectedNode.getOutPorts().find((port) => port.getID() === portId)) {
+            caseCount++;
+            portId = getPortId(node.name, false, caseCount + 1);
         }
+        // add new case and port
+        node.properties.cases.push({
+            expression: "true",
+            nodes: [portId],
+        });
         selectedNode.addOutPort(portId, {
             id: portId,
             type: DEFAULT_TYPE,
         });
         selectedNode.setNode(node);
-        updateFlowModel(node);
+        // update the diagram
+        engine.repaintCanvas();
+        forceUpdate({});
     };
 
     const handleOnSave = () => {

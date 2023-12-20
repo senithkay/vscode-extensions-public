@@ -108,6 +108,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                 </S.Layer>
                 {selectedNode && !isFixedNode(selectedNode?.getKind()) && (
                     <OptionWidget
+                        engine={engine}
                         selectedNode={selectedNode}
                         setSelectedNode={setSelectedNode}
                         updateFlowModel={updateFlowModel}
