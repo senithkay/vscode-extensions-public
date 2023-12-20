@@ -29,10 +29,7 @@ const stateMachine = createMachine<Context>({
                     cond: (context, event) => event.data
                 },
                 onError: {
-                    target: 'disabled',
-                    actions: assign({
-                        errorCode: (context, event) => 'NOT_AN_EGGPLANT_PROJECT'
-                    })
+                    target: 'newProject'
                 }
             }
         },
@@ -85,6 +82,9 @@ const stateMachine = createMachine<Context>({
         },
         disabled: {
             // define what should happen when the project is not detected
+        },
+        newProject: {
+
         }
     }
 }, {
@@ -130,16 +130,14 @@ const stateMachine = createMachine<Context>({
 
 
 // Create a service to interpret the machine
-export const stateService = interpret(stateMachine).start();
+export const stateService = interpret(stateMachine);
 
 // Define your API as functions
 export const StateMachine = {
-    initialize: () => stateService.send(''),
-    projectDetected: () => stateService.send('projectDetected'),
-    LSInit: () => stateService.send('LSInit'),
-    ready: () => stateService.send('ready'),
-    disabled: () => stateService.send('disabled'),
-    getService: () => { return stateService; }
+    initialize: () => stateService.start(),
+    service: () => { return stateService; },
+    context: () => { return stateService.getSnapshot().context; },
+    state: () => { return stateService.getSnapshot().value as MachineStateValue; }
 };
 
 export function openView(viewLocation: VisualizerLocation) {
@@ -159,12 +157,8 @@ async function checkIfEggplantProject() {
     }
     if (!isEggplant) {
         await window.showInformationMessage("Not an Eggplant Project.");
+        throw new Error("Not an eggplant projcet");
     }
     return isEggplant;
-}
-
-
-export function getState(): MachineStateValue {
-    return stateService.getSnapshot().value as MachineStateValue;
 }
 

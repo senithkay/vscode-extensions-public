@@ -3,7 +3,7 @@ import { NotificationType } from "vscode-messenger-common";
 
 export type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner" | "DataMapper";
 
-export type MachineStateValue = 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | { ready: 'viewReady' } | { ready: 'viewUpdate' } | 'disabled';
+export type MachineStateValue = 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled' | 'newProject' | { ready: 'viewReady' } | { ready: 'viewUpdate' };
  
 export interface NodeLocation {
     fileName: string;
@@ -17,3 +17,8 @@ export interface VisualizerLocation {
 
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
+
+
+export function helloWorld() {
+    console.log("HELLO");
+}

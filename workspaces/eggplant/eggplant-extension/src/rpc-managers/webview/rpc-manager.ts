@@ -22,15 +22,15 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
 import { workerCodeGen } from "../../LowCode/codeGenerator";
-import { getState, openView, stateService } from "../../stateMachine";
+import { openView, StateMachine } from "../../stateMachine";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 
 export class WebviewRpcManager implements WebviewAPI {
 
     async getVisualizerState(): Promise<VisualizerLocation> {
-        const snapshot = stateService.getSnapshot();
+        const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve(snapshot.context);
+            resolve(context);
         });
     }
 
@@ -42,7 +42,7 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async getBallerinaProjectComponents(): Promise<BallerinaProjectComponents> {
-        const snapshot = stateService.getSnapshot();
+        const context = StateMachine.context();
         // Check if there is at least one workspace folder
         if (workspace.workspaceFolders?.length) {
             const workspaceUri: { uri: string }[] = [];
@@ -53,7 +53,6 @@ export class WebviewRpcManager implements WebviewAPI {
                     }
                 );
             });
-            const context = snapshot.context;
             const langClient = context.langServer as LangClientInterface;
             return langClient.getBallerinaProjectComponents({
                 documentIdentifiers: workspaceUri
@@ -65,8 +64,7 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async getEggplantModel(): Promise<Flow> {
-        const snapshot = stateService.getSnapshot();
-        const context = snapshot.context;
+        const context = StateMachine.context();
         const langClient = context.langServer as LangClientInterface;
         if (!context.location) {
             // demo hack
@@ -102,9 +100,8 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async getState(): Promise<MachineStateValue> {
-        const snapshot = stateService.getSnapshot();
         return new Promise((resolve) => {
-            resolve(getState());
+            resolve(StateMachine.state());
         });
     }
 
@@ -136,8 +133,7 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async updateSource(params: Flow): Promise<void> {
-        const snapshot = stateService.getSnapshot();
-        const context = snapshot.context;
+        const context = StateMachine.context();
         const code = workerCodeGen(params);
         const edit = new vscode.WorkspaceEdit();
 
