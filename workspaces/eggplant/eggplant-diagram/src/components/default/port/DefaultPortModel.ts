@@ -17,6 +17,7 @@ export interface DefaultPortModelOptions extends PortModelOptions {
     in?: boolean;
     type?: string;
     port?: NodePort;
+    multiLink?: boolean;
 }
 
 export interface DefaultPortModelGenerics extends PortModelGenerics {
@@ -39,9 +40,12 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
             label: options.label || options.name,
             alignment: options.in ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
             type: "default",
-            maximumLinks: 1,
             ...options,
         });
+
+        if (!options.multiLink) {
+            super.setMaximumLinks(1);
+        }
     }
 
     deserialize(event: DeserializeEvent<this>) {
