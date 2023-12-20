@@ -9,6 +9,7 @@
 
 import {
     commands,
+    ExtensionContext,
     IndentAction,
     LanguageConfiguration,
     languages,
@@ -45,73 +46,88 @@ export class MILanguageClient {
     private static _instance: MILanguageClient;
     public languageClient: ExtendedLanguageClient | undefined;
 
-    public static async getInstance() {
+    constructor(private context: ExtensionContext) { }
+
+    public static async getInstance(context: ExtensionContext) {
         if (!this._instance) {
-            this._instance = new MILanguageClient();
+            this._instance = new MILanguageClient(context);
             await this._instance.launch();
         }
         return this._instance;
     }
 
     private async launch() {
-        const { JAVA_HOME } = process.env;
+        try {
+            const { JAVA_HOME } = process.env;
 
-        if (JAVA_HOME) {
-            let executable: string = path.join(JAVA_HOME, 'bin', 'java');
-            let schemaPath = path.join(__dirname, "..", "synapse-schemas", "synapse_config.xsd");
-            let LSExtensionPath = path.join(__dirname, '..', 'ls', '*');
+            if (JAVA_HOME) {
+                let executable: string = path.join(JAVA_HOME, 'bin', 'java');
+                let schemaPath = this.context.asAbsolutePath(path.join("synapse-schemas", "synapse_config.xsd"));
+                let langServerCP = this.context.asAbsolutePath(path.join('ls', '*'));                
 
-            let schemaPathArg = '-DSCHEMA_PATH=' + schemaPath;
-            const args: string[] = [schemaPathArg, '-cp', LSExtensionPath];
+                let schemaPathArg = '-DSCHEMA_PATH=' + schemaPath;
+                const args: string[] = [schemaPathArg, '-cp', langServerCP];
 
-            if (process.env.LSDEBUG === "true") {
-                console.log('LSDEBUG is set to "true". Services will run on debug mode');
-                args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
-            }
-
-            let serverOptions: ServerOptions = {
-                command: executable,
-                args: [...args, main],
-                options: {}
-            };
-
-            // Options to control the language client
-            let clientOptions: LanguageClientOptions = {
-                initializationOptions: { "settings": getXMLSettings() },
-                synchronize: {
-                    //preferences starting with these will trigger didChangeConfiguration
-                    configurationSection: ['xml', '[SynapseXml]']
-                },
-                // Register the server for synapse xml documents
-                documentSelector: [{ scheme: 'file', language: 'SynapseXml' }],
-                middleware: {
-                    workspace: {
-                        didChangeConfiguration: async () => {
-                            this.languageClient!.sendNotification(DidChangeConfigurationNotification.method,
-                                { settings: getXMLSettings() });
-                            if (!ignoreAutoCloseTags) {
-                                verifyAutoClosing();
-                            }
-                            !ignoreVMArgs ? verifyVMArgs() : undefined;
-                        }
-                    }
+                if (process.env.LSDEBUG === "true") {
+                    console.log('LSDEBUG is set to "true". Services will run on debug mode');
+                    args.push('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y');
                 }
-            };
 
-            // Create the language client and start the client.
-            this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server',
-                serverOptions, clientOptions);
-            await this.languageClient.start();
+                let serverOptions: ServerOptions = {
+                    command: executable,
+                    args: [...args, main],
+                    options: {},
+                };
 
-            //Setup autoCloseTags
-            let tagProvider: (document: TextDocument, position: Position) => Thenable<AutoCloseResult> = (document: TextDocument, position: Position) => {
-                let param = this.languageClient!.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
-                return this.languageClient!.sendRequest(TagCloseRequest.method, param);
-            };
+                // Options to control the language client
+                let clientOptions: LanguageClientOptions = {
+                    initializationOptions: { "settings": getXMLSettings() },
+                    synchronize: {
+                        //preferences starting with these will trigger didChangeConfiguration
+                        configurationSection: ['xml', '[SynapseXml]']
+                    },
+                    // Register the server for synapse xml documents
+                    documentSelector: [{ scheme: 'file', language: 'SynapseXml' }],
+                    middleware: {
+                        workspace: {
+                            didChangeConfiguration: async () => {
+                                this.languageClient!.sendNotification(DidChangeConfigurationNotification.method,
+                                    { settings: getXMLSettings() });
+                                if (!ignoreAutoCloseTags) {
+                                    verifyAutoClosing();
+                                }
+                                !ignoreVMArgs ? verifyVMArgs() : undefined;
+                            }
+                        }
+                    },
+                    outputChannelName: 'Synapse Language Server',
+                    initializationFailedHandler: (error) => {
+                        console.log(error);
+                        window.showErrorMessage("Could not start the Synapse Language Server.");
+                        return false;
+                    }
+                };
 
-            activateTagClosing(tagProvider, { SynapseXml: true, xsl: true },
-                'xml.completion.autoCloseTags');
-            languages.setLanguageConfiguration('SynapseXml', getIndentationRules());
+                // Create the language client and start the client.
+                this.languageClient = new ExtendedLanguageClient('synapseXML', 'Synapse Language Server',
+                    serverOptions, clientOptions);
+                await this.languageClient.start();
+
+                //Setup autoCloseTags
+                let tagProvider: (document: TextDocument, position: Position) => Thenable<AutoCloseResult> = (document: TextDocument, position: Position) => {
+                    let param = this.languageClient!.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
+                    return this.languageClient!.sendRequest(TagCloseRequest.method, param);
+                };
+
+                activateTagClosing(tagProvider, { synapseXml: true, xsl: true },
+                    'xml.completion.autoCloseTags');
+                languages.setLanguageConfiguration('SynapseXml', getIndentationRules());
+            } else {
+                throw new Error("JAVA_HOME is not set");
+            }
+        } catch (error) {
+            console.error("Failed to launch the language client: ", error);
+            window.showErrorMessage("Failed to launch the language client. Please check the console for more details.");
         }
 
         function getXMLSettings(): JSON {
