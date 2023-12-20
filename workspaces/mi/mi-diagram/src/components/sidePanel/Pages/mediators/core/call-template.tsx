@@ -10,6 +10,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -37,6 +38,8 @@ const CallTemplateForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({
        "availableTemplates": "Select From Templates",
+       "parameterName": [] as string[][],
+       "templateParameterType": "LITERAL",
    } as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
@@ -65,12 +68,22 @@ const CallTemplateForm = (props: AddMediatorProps) => {
            sidePanelContext.setFormValues(undefined);
            sidePanelContext.setNodeRange(undefined);
            sidePanelContext.setMediator(undefined);
-           sidePanelContext.setShowBackBtn(false);
        }
    };
 
+   const onAddClick = async () => {
+       if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+        setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined ,
+        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
+       }
+   }
+
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "availableTemplates": (e?: any) => validateField("availableTemplates", e, false),
+       "parameterName": (e?: any) => validateField("parameterName", e, false),
+       "templateParameterType": (e?: any) => validateField("templateParameterType", e, false),
+       "parameterValue": (e?: any) => validateField("parameterValue", e, false),
+       "parameterExpression": (e?: any) => validateField("parameterExpression", e, false),
        "targetTemplate": (e?: any) => validateField("targetTemplate", e, false),
        "onError": (e?: any) => validateField("onError", e, false),
        "description": (e?: any) => validateField("description", e, false),
@@ -112,6 +125,92 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                     {errors["availableTemplates"] && <Error>{errors["availableTemplates"]}</Error>}
                 </div>
 
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>Properties</h3>
+
+                        <div>
+                            <TextField
+                                label="Parameter Name"
+                                size={50}
+                                placeholder=""
+                                value={formValues["parameterName"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "parameterName": e });
+                                    formValidators["parameterName"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["parameterName"] && <Error>{errors["parameterName"]}</Error>}
+                        </div>
+
+                        <div>
+                            <label>Template Parameter Type</label>
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["templateParameterType"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "templateParameterType": e });
+                                formValidators["templateParameterType"](e);
+                            }} />
+                            {errors["templateParameterType"] && <Error>{errors["templateParameterType"]}</Error>}
+                        </div>
+
+                        {formValues["templateParameterType"] && formValues["templateParameterType"].toLowerCase() == "literal" &&
+                            <div>
+                                <TextField
+                                    label="Parameter Value"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["parameterValue"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "parameterValue": e });
+                                        formValidators["parameterValue"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["parameterValue"] && <Error>{errors["parameterValue"]}</Error>}
+                            </div>
+                        }
+
+                        {formValues["templateParameterType"] && formValues["templateParameterType"].toLowerCase() == "expression" &&
+                            <div>
+                            </div>
+                        }
+
+                    <div style={{ textAlign: "right", marginTop: "10px" }}>
+                        <Button appearance="primary" onClick={onAddClick}>
+                            Add
+                        </Button>
+                    </div>
+                    </ComponentCard>
+                {formValues["properties"].length > 0 && (
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>Properties Table</h3>
+                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
+                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
+                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
+                                    Name
+                                </VSCodeDataGridCell>
+                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
+                                    Value Type
+                                </VSCodeDataGridCell>
+                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
+                                    Value
+                                </VSCodeDataGridCell>
+                            </VSCodeDataGridRow>
+                            {formValues["properties"].map((property: string, index: string) => (
+                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
+                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
+                                        {property[0]}
+                                    </VSCodeDataGridCell>
+                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
+                                        {property[1]}
+                                    </VSCodeDataGridCell>
+                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
+                                        {property[2]}
+                                    </VSCodeDataGridCell>
+                                </VSCodeDataGridRow>
+                            ))}
+                        </VSCodeDataGrid>
+                    </ComponentCard>
+                )}
                 <div>
                     <TextField
                         label="Target Template"

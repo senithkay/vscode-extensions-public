@@ -74,7 +74,7 @@ const generateForm = (jsonData: any): string => {
                             conditions += `formValues["${condition}"] == ${Boolean(value)} ${index != enableCondition.length - 1 ? conditionType : ""}`;
 
                         } else {
-                            conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
+                            conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
                         }
                     });
 
@@ -178,8 +178,54 @@ const generateForm = (jsonData: any): string => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>   
                         <h3>${element.value.groupName}</h3>\n`, indentation);
                 generateFormItems(element.value.elements, indentation + 4, `${element.value.groupName.trim().replace(/\s/g, '_')}.`);
+                if (parentName === "table") {
+                    fields += fixIndentation(`
+                    <div style={{ textAlign: "right", marginTop: "10px" }}>
+                        <Button appearance="primary" onClick={onAddClick}>
+                            Add
+                        </Button>
+                    </div>`, indentation);
+                }
                 fields += fixIndentation(`
                 </ComponentCard>`, indentation);
+            } else if (element.type === 'table') {
+                const inputName = element.value.name.trim();
+                defaultValues +=
+                        fixIndentation(`
+                    "${inputName}": [] as string[][],`, 8);
+                generateFormItems(element.value.form.elements, indentation + 4, "table");
+                fields += fixIndentation(`
+                        {formValues["${inputName}"].length > 0 && (
+                            <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                                <h3>${inputName} Table</h3>
+                                <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
+                                        <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
+                                            Name
+                                        </VSCodeDataGridCell>
+                                        <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
+                                            Value Type
+                                        </VSCodeDataGridCell>
+                                        <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
+                                            Value
+                                        </VSCodeDataGridCell>
+                                    </VSCodeDataGridRow>
+                                    {formValues["${inputName}"].map((property: string, index: string) => (
+                                        <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
+                                            <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
+                                                {property[0]}
+                                            </VSCodeDataGridCell>
+                                            <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
+                                                {property[1]}
+                                            </VSCodeDataGridCell>
+                                            <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
+                                                {property[2]}
+                                            </VSCodeDataGridCell>
+                                        </VSCodeDataGridRow>
+                                    ))}
+                                </VSCodeDataGrid>
+                            </ComponentCard>
+                        )}`, indentation);
             }
         });
     };
@@ -191,7 +237,7 @@ const generateForm = (jsonData: any): string => {
             `${LICENSE_HEADER}
 import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, colors, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -248,6 +294,13 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
             sidePanelContext.setMediator(undefined);
         }
     };
+
+    const onAddClick = async () => {
+        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+         setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined , 
+         "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
+        }
+    }
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {${fixIndentation(formValidators, 8)}
     };

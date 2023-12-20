@@ -94,7 +94,7 @@ export class NodeInitVisitor implements Visitor {
             new SimpleMediatorNodeModel({
                 node: node,
                 name: MEDIATORS.PROPERTY,
-                description: node.type.toString(),
+                description: "",
                 documentUri: this.documentUri,
                 isInOutSequence: this.isInOutSequence,
                 parentNode: this.parents[this.parents.length - 1]
