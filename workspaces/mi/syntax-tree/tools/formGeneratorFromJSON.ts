@@ -210,7 +210,7 @@ const generateForm = (jsonData: any): string => {
                                             Value
                                         </VSCodeDataGridCell>
                                     </VSCodeDataGridRow>
-                                    {formValues["properties"].map((property: string, index: string) => (
+                                    {formValues[inputName].map((property: string, index: string) => (
                                         <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                             <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                                 {property[0]}
