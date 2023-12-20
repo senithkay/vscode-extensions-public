@@ -6,6 +6,17 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export * from './DataGrid';
-export * from './SidePanel';
-export * from './Form';
+import styled from "@emotion/styled";
+
+export interface FormContainerProps {
+    sx?: any;
+    width?: number;
+}
+
+export const FormContainer = styled.div<FormContainerProps>`
+    display: flex;
+    flex-direction: column;
+    margin: auto; /* Center vertically and horizontally */
+    max-width: ${(props: FormContainerProps) => `${props.width}px}`};
+    ${(props: FormContainerProps) => props.sx};
+`;

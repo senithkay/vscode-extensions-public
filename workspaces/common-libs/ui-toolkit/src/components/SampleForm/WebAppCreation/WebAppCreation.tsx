@@ -8,33 +8,17 @@
  */
 import React from 'react';
 import styled from '@emotion/styled';
-import { VerticleIcons } from '../VerticleIcons/VericleIcons';
 import { Typography } from '../../Typography/Typography';
 import { VSCodeRadioGroup, VSCodeRadio, VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { Button, TextField } from '../../..';
+import { Button, FormContainer, TextField } from '../../..';
 import { Header } from '../Header/Header';
+import { VerticleIcons } from '../VerticleIcons/VericleIcons';
 
 export const FORM_WIDTH = 600;
 
 export interface WebAppCreationProps {
     sx?: any;
 }
-
-const Container = styled.div<WebAppCreationProps>`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    ${(props: WebAppCreationProps) => props.sx};
-`;
-
-const FormContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    color: var(--vscode-editor-foreground);
-    font-family: var(--font-family);
-`;
 
 const TopMarginTextWrapper = styled.div`
     font-size: 13px;
@@ -63,27 +47,25 @@ export const WebAppCreation = (props: WebAppCreationProps) => {
     };
 
     return (
-        <Container sx={sx}>
-            <FormContent>
-                <Header/>
-                <Typography variant="h1">New Web App</Typography>
-                <Typography variant="h4" sx={{ marginTop: 0 }}>Build a web app using simple HTML/JS/CSS or the framework of your choice</Typography>
-                <BottomMarginTextWrapper>Choose a tramework</BottomMarginTextWrapper>
-                <VerticleIcons sx={{width: `${FORM_WIDTH}px`}} />
-                <TopMarginTextWrapper>Language</TopMarginTextWrapper>
-                <VSCodeRadioGroup value="typescript">
-                    <VSCodeRadio value="javascript" onClick={handleRadioButtonChange}>Javascript</VSCodeRadio>
-                    <VSCodeRadio value="typescript" onClick={handleRadioButtonChange}>Typescript</VSCodeRadio>
-                </VSCodeRadioGroup>
-                <TextField sx={{ marginTop: 10 }} value='' label="Project Name" placeholder="Enter a project name" />
-                <TopMarginTextWrapper>Experiments</TopMarginTextWrapper>
-                <VSCodeCheckbox checked={false} onChange={handleCheckboxChange}>
-                    Enable Nix for this workspace Learn
-                </VSCodeCheckbox>
-                <ButtonWrapper>
-                    <Button appearance="primary">Create</Button>
-                </ButtonWrapper>
-            </FormContent>
-        </Container>
+        <FormContainer width={FORM_WIDTH} sx={sx}>
+            <Header/>
+            <Typography variant="h1">New Web App</Typography>
+            <Typography variant="h4" sx={{ marginTop: 0 }}>Build a web app using simple HTML/JS/CSS or the framework of your choice</Typography>
+            <BottomMarginTextWrapper>Choose a tramework</BottomMarginTextWrapper>
+            <VerticleIcons sx={{width: `${FORM_WIDTH}px`}} />
+            <TopMarginTextWrapper>Language</TopMarginTextWrapper>
+            <VSCodeRadioGroup value="typescript">
+                <VSCodeRadio value="javascript" onClick={handleRadioButtonChange}>Javascript</VSCodeRadio>
+                <VSCodeRadio value="typescript" onClick={handleRadioButtonChange}>Typescript</VSCodeRadio>
+            </VSCodeRadioGroup>
+            <TextField sx={{ marginTop: 10 }} value='' label="Project Name" placeholder="Enter a project name" />
+            <TopMarginTextWrapper>Experiments</TopMarginTextWrapper>
+            <VSCodeCheckbox checked={false} onChange={handleCheckboxChange}>
+                Enable Nix for this workspace Learn
+            </VSCodeCheckbox>
+            <ButtonWrapper>
+                <Button appearance="primary">Create</Button>
+            </ButtonWrapper>
+        </FormContainer>
     );
 };
