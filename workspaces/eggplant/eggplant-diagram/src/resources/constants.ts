@@ -36,7 +36,7 @@ export enum VSCodeColors {
     ON_PRIMARY = "var(--vscode-button-foreground)",
     PRIMARY_CONTAINER = "var(--vscode-sideBar-background)",
 
-    SECONDARY = "var(--vscode-button-background)",
+    SECONDARY = "var(--vscode-editorLightBulb-foreground)",
     ON_SECONDARY = "var(--vscode-button-foreground)",
     SECONDARY_CONTAINER = "var(--vscode-sideBar-background)",
 
@@ -93,10 +93,13 @@ export const EVENT_TYPES = {
 
 export const NODE_TYPE = {
     START: "start",
-    END: "end",
+    RETURN: "return",
     CODE_BLOCK: "block",
     SWITCH: "switch",
+    HTTP_GET: "http_get",
 };
 
 export const NODE_MIN_HEIGHT = 32;
 export const NODE_MIN_WIDTH = 100;
+
+export const DEFAULT_TYPE = "json";
