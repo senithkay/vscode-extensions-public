@@ -92,11 +92,12 @@ export const EVENT_TYPES = {
 };
 
 export const NODE_TYPE = {
-    START: "start",
-    RETURN: "return",
-    CODE_BLOCK: "block",
-    SWITCH: "switch",
-    HTTP_GET: "http_get",
+    START: "StartNode",
+    RETURN: "ReturnNode",
+    CODE_BLOCK: "CodeNode",
+    SWITCH: "SwitchNode",
+    HTTP_REQUEST: "HttpRequestNode",
+    TRANSFORM: "TransformNode",
 };
 
 export const NODE_MIN_HEIGHT = 32;

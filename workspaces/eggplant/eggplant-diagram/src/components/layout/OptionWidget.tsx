@@ -91,7 +91,7 @@ export function OptionWidget(props: OptionWidgetProps) {
             </S.TitleContainer>
             {selectedNode.getKind() !== NODE_TYPE.START && selectedNode.getKind() !== NODE_TYPE.RETURN && (
                 <S.InputField
-                    label="Name"
+                    label="Component Name"
                     value={selectedNode.getName()}
                     required={true}
                     onChange={(value: string) => {
@@ -100,7 +100,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     size={32}
                 />
             )}
-            {selectedNode.getKind() === NODE_TYPE.HTTP_GET && (
+            {selectedNode.getKind() === NODE_TYPE.HTTP_REQUEST && (
                 <S.InputField
                     label="URL"
                     value={""}

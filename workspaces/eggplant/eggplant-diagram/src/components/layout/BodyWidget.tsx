@@ -88,10 +88,11 @@ export function BodyWidget(props: BodyWidgetProps) {
         <S.Body>
             <S.Content>
                 <TrayWidget>
-                    {!hasStartNode && <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />}
+                    {!hasStartNode && false && <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />}
                     <TrayItemWidget model={{ type: NODE_TYPE.CODE_BLOCK }} name="Code Block" />
                     <TrayItemWidget model={{ type: NODE_TYPE.SWITCH }} name="Switch" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.HTTP_GET }} name="HTTP Request" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.HTTP_REQUEST }} name="HTTP Request" />
+                    <TrayItemWidget model={{ type: NODE_TYPE.TRANSFORM }} name="Transform" />
                     {!hasReturnNode && <TrayItemWidget model={{ type: NODE_TYPE.RETURN }} name="Return" />}
                 </TrayWidget>
                 <S.Layer

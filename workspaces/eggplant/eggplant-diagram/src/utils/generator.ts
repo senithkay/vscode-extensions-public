@@ -176,7 +176,6 @@ function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boo
 }
 
 export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel: DiagramModel<DiagramModelGenerics>): Flow {
-    console.log(">>> diagramModel", diagramModel.serialize())
     const model: Flow = {
         id: flowModel.id,
         name: flowModel.name,
