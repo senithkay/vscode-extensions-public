@@ -7,8 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import exp from "constants";
-
 export enum DefaultColors {
     PRIMARY = "#5567D5",
     ON_PRIMARY = "#FFF",
@@ -89,15 +87,6 @@ export const EVENT_TYPES = {
     DELETE_NODE: "delete-node",
     DELETE_LINK: "delete-link",
     UPDATE_NODE: "update-node",
-};
-
-export const NODE_TYPE = {
-    START: "StartNode",
-    RETURN: "ReturnNode",
-    CODE_BLOCK: "CodeNode",
-    SWITCH: "SwitchNode",
-    HTTP_REQUEST: "HttpRequestNode",
-    TRANSFORM: "TransformNode",
 };
 
 export const NODE_MIN_HEIGHT = 32;

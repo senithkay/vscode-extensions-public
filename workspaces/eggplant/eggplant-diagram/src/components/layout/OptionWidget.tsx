@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { Colors, DEFAULT_TYPE, NODE_TYPE } from "../../resources";
+import { Colors, DEFAULT_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
 import { TextField, Button, TextArea, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Node, SwitchCaseBlock } from "../../types";
@@ -89,7 +89,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     }}
                 />
             </S.TitleContainer>
-            {selectedNode.getKind() !== NODE_TYPE.START && selectedNode.getKind() !== NODE_TYPE.RETURN && (
+            {selectedNode.getKind() !== "StartNode" && selectedNode.getKind() !== "EndNode" && (
                 <S.InputField
                     label="Component Name"
                     value={selectedNode.getName()}
@@ -100,7 +100,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     size={32}
                 />
             )}
-            {selectedNode.getKind() === NODE_TYPE.HTTP_REQUEST && (
+            {selectedNode.getKind() === "HttpRequestNode" && (
                 <S.InputField
                     label="URL"
                     value={""}
@@ -111,7 +111,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     size={32}
                 />
             )}
-            {selectedNode.getKind() === NODE_TYPE.CODE_BLOCK && (
+            {selectedNode.getKind() === "CodeBlockNode" && (
                 <TextArea
                     label="Code Block"
                     value={node?.codeBlock || ""}
@@ -124,7 +124,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     }}
                 />
             )}
-            {selectedNode.getKind() === NODE_TYPE.SWITCH && (
+            {selectedNode.getKind() === "SwitchNode" && (
                 <>
                     {node.properties?.cases?.map((caseBlock: SwitchCaseBlock, index: number) => {
                         return (

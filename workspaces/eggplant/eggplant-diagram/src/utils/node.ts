@@ -8,24 +8,22 @@
  */
 
 import { DefaultNodeModel } from "../components/default";
-import { DEFAULT_TYPE, NODE_TYPE } from "../resources/constants";
-import { Node } from "../types";
+import { DEFAULT_TYPE } from "../resources/constants";
+import { Node, NodeKinds } from "../types";
 import { getPortId } from "./generator";
 
 // get custom default node factory
-export function getNodeModel(type: string, suffix?: string) {
-    let name = type;
-    const isSingleNode = type === NODE_TYPE.START || type === NODE_TYPE.RETURN;
+export function getNodeModel(type: NodeKinds, suffix?: string) {
+    let name = type.toString();
+    const isSingleNode = type === "StartNode" || type === "EndNode";
     if (suffix !== undefined && !isSingleNode) {
         name = type + "_" + suffix;
-    } else if (suffix !== undefined && isSingleNode) {
-        name = type + "_";
     }
     let nodeModel = new DefaultNodeModel({ name: name, kind: type });
 
     let emptyNode: Node = {
         name: name,
-        templateId: NODE_TYPE.CODE_BLOCK,
+        templateId: "CodeBlockNode",
         inputPorts: [],
         outputPorts: [],
         codeLocation: {
@@ -49,15 +47,15 @@ export function getNodeModel(type: string, suffix?: string) {
     const outPortId = getPortId(name, false, 1);
 
     switch (type) {
-        case NODE_TYPE.START:
+        case "StartNode":
             nodeModel.addOutPort(outPortId);
-            emptyNode.templateId = NODE_TYPE.START;
+            emptyNode.templateId = "StartNode";
             break;
-        case NODE_TYPE.RETURN:
+        case "EndNode":
             nodeModel.addInPort(inPortId);
-            emptyNode.templateId = NODE_TYPE.RETURN;
+            emptyNode.templateId = "EndNode";
             break;
-        case NODE_TYPE.SWITCH:
+        case "SwitchNode":
             nodeModel.addInPort(inPortId, {
                 id: inPortId,
                 type: DEFAULT_TYPE,
@@ -71,7 +69,7 @@ export function getNodeModel(type: string, suffix?: string) {
                 id: defaultPortId,
                 type: DEFAULT_TYPE,
             });
-            emptyNode.templateId = NODE_TYPE.SWITCH;
+            emptyNode.templateId = "SwitchNode";
             emptyNode.properties = {
                 cases: [
                     {
@@ -95,6 +93,6 @@ export function getNodeModel(type: string, suffix?: string) {
     return nodeModel;
 }
 
-export function isFixedNode(type: string) {
-    return type === NODE_TYPE.START || type === NODE_TYPE.RETURN;
+export function isFixedNode(type: NodeKinds) {
+    return type === "StartNode" || type === "EndNode";
 }

@@ -15,7 +15,7 @@ import { DefaultNodeModel } from "../default";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DiagramCanvasWidget } from "./DiagramCanvasWidget";
 import styled from "@emotion/styled";
-import { EVENT_TYPES, NODE_TYPE } from "../../resources";
+import { EVENT_TYPES } from "../../resources";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
 import { Flow } from "../../types";
@@ -81,19 +81,19 @@ export function BodyWidget(props: BodyWidgetProps) {
     };
 
     // has start and return node types in flow model
-    const hasStartNode = flowModel.nodes.some((node) => node.templateId === NODE_TYPE.START);
-    const hasReturnNode = flowModel.nodes.some((node) => node.templateId === NODE_TYPE.RETURN);
+    const hasStartNode = flowModel.nodes.some((node) => node.templateId === "StartNode");
+    const hasReturnNode = flowModel.nodes.some((node) => node.templateId === "EndNode");
 
     return (
         <S.Body>
             <S.Content>
                 <TrayWidget>
-                    {!hasStartNode && false && <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />}
-                    <TrayItemWidget model={{ type: NODE_TYPE.CODE_BLOCK }} name="Code Block" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.SWITCH }} name="Switch" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.HTTP_REQUEST }} name="HTTP Request" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.TRANSFORM }} name="Transform" />
-                    {!hasReturnNode && <TrayItemWidget model={{ type: NODE_TYPE.RETURN }} name="Return" />}
+                    {!hasStartNode && false && <TrayItemWidget model={{ type: "StartNode" }} name="Start" />}
+                    <TrayItemWidget model={{ type: "CodeBlockNode" }} name="Code Block" />
+                    <TrayItemWidget model={{ type: "SwitchNode" }} name="Switch" />
+                    <TrayItemWidget model={{ type: "HttpRequestNode" }} name="HTTP Request" />
+                    <TrayItemWidget model={{ type: "TransformNode" }} name="Transform" />
+                    {!hasReturnNode && <TrayItemWidget model={{ type: "EndNode" }} name="Return" />}
                 </TrayWidget>
                 <S.Layer
                     onDrop={handleDrop}

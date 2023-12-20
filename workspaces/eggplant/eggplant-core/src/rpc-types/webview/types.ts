@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -16,10 +15,18 @@ export type Flow = {
     bodyCodeLocation: CodeLocation;
 };
 
+export type NodeKinds =
+    | "StartNode"
+    | "EndNode"
+    | "CodeBlockNode"
+    | "SwitchNode"
+    | "HttpRequestNode"
+    | "TransformNode";
+
 export type Node = {
     id?: string;
     name: string;
-    templateId?: string;
+    templateId?: NodeKinds;
     inputPorts: InputPort[];
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
@@ -58,7 +65,7 @@ export type LinePosition = {
 };
 
 export type NodeProperties = {
-    templateId?: string;
+    templateId?: NodeKinds;
     name?: string;
 };
 
@@ -70,6 +77,18 @@ export type SwitchNodeProperties = NodeProperties & {
 export type SwitchCaseBlock = {
     expression: string | BalExpression;
     nodes: string[];
+};
+
+export type HttpRequestNodeProperties = NodeProperties & {
+    action: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+    basePath: string;
+    headers: HttpHeader[];
+    path: string;
+};
+
+export type HttpHeader = {
+    name: string;
+    value: string;
 };
 
 export type BalExpression = {

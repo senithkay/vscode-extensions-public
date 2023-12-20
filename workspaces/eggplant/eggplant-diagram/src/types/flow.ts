@@ -7,4 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export type { Flow, Node, OutputPort, InputPort, SwitchCaseBlock, BalExpression, SwitchNodeProperties } from '@wso2-enterprise/eggplant-core';
+export type {
+    Flow,
+    Node,
+    OutputPort,
+    InputPort,
+    SwitchCaseBlock,
+    BalExpression,
+    SwitchNodeProperties,
+    NodeKinds,
+} from "@wso2-enterprise/eggplant-core";
+

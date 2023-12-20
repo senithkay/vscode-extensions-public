@@ -14,7 +14,7 @@ export function workerCodeGen(model: Flow): string {
     let workerBlocks: string = "";
     // use the util functions and generate the workerblocks
     model?.nodes.forEach(node => {
-        if (node.templateId === "switch") {
+        if (node.templateId === "SwitchNode") {
             workerBlocks += generateSwitchNode(node);
         } else {
             workerBlocks += generateBlockNode(node);

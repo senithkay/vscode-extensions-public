@@ -10,7 +10,7 @@
 import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { ExtendedPort, Flow, InputPort, Node, OutputPort } from "../types";
-import { DEFAULT_TYPE, NODE_TYPE } from "../resources";
+import { DEFAULT_TYPE } from "../resources";
 import { isFixedNode } from "./node";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
@@ -80,21 +80,21 @@ function getNodeModel(node: Node): GenNodeModel {
 function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string, fixedNode: boolean) {
     let ports: ExtendedPort[] = [];
     switch (node.templateId) {
-        case NODE_TYPE.START:
+        case "StartNode":
             if (node.outputPorts?.length === 0) {
                 const portId = getPortId(node.name, false, 1);
                 const port = nodeModel.addOutPort(portId, undefined, fixedNode);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
-        case NODE_TYPE.RETURN:
+        case "EndNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
                 const port = nodeModel.addInPort(portId, undefined, fixedNode);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             break;
-        case NODE_TYPE.SWITCH:
+        case "SwitchNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
                 const port = nodeModel.addInPort(portId, undefined, fixedNode);

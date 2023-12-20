@@ -8,17 +8,17 @@
  */
 
 import * as _ from "lodash";
-import { NodeModel, NodeModelGenerics, NodeModelListener, PortModelAlignment } from "@projectstorm/react-diagrams-core";
+import { NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams-core";
 import { DefaultPortModel } from "../port/DefaultPortModel";
-import { BasePositionModelOptions, DeserializeEvent, ListenerHandle } from "@projectstorm/react-canvas-core";
-import { Colors, NODE_TYPE } from "../../../resources";
-import { Node, NodePort } from "../../../types";
+import { BasePositionModelOptions, DeserializeEvent } from "@projectstorm/react-canvas-core";
+import { Colors } from "../../../resources";
+import { Node, NodeKinds, NodePort } from "../../../types";
 
 export interface DefaultNodeModelOptions extends BasePositionModelOptions {
     name?: string;
     color?: string;
     node?: Node;
-    kind?: string;
+    kind?: NodeKinds;
 }
 
 export interface DefaultNodeModelGenerics extends NodeModelGenerics {
@@ -37,7 +37,7 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
                 type: "default",
                 name: options.node?.name || options.name,
                 color: Colors.PRIMARY_CONTAINER,
-                kind: options.node?.templateId || options.kind || NODE_TYPE.CODE_BLOCK,
+                kind: options.node?.templateId || options.kind || "CodeBlockNode",
                 ...options,
             });
             this.portsIn = [];
@@ -167,7 +167,7 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         this.options.name = node.name;
     }
 
-    getKind(): string {
+    getKind(): NodeKinds {
         return this.options.kind;
     }
 }
