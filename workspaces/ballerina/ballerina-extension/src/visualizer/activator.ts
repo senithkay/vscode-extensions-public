@@ -80,9 +80,11 @@ function updateViewLocation(): Promise<void> {
 export function startMachine(context: any): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         vsContext = context;
-        service.start();
-        await activateLanguageServer();
-        resolve();
+        service.start().onTransition((state) => {
+            if(state.value === "Ready") {
+                resolve();
+            }
+        });
     });
 }
 
