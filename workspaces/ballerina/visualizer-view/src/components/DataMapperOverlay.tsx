@@ -32,6 +32,7 @@ export function DataMapperOverlay() {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
+        const langServerRPCClient = ballerinaRpcClient.getLangServerRpcClient();
         const visualizerRPCClient = ballerinaRpcClient.getVisualizerRpcClient();
         const filePath = viewLocation.location.fileName;
         const { parseSuccess, source: newSource, syntaxTree } = await visualizerRPCClient?.stModify({
@@ -41,7 +42,8 @@ export function DataMapperOverlay() {
             }
         });
         if (parseSuccess) {
-            await visualizerRPCClient.updateFileContent({
+            // TODO: Handle this in extension specific code
+            await langServerRPCClient.updateFileContent({
                 content: newSource,
                 fileUri: filePath
             });

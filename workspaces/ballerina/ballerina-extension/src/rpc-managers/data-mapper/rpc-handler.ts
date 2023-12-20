@@ -23,8 +23,8 @@ import { DataMapperRpcManager } from "./rpc-manager";
 
 export function registerDataMapperRpcHandlers(messenger: Messenger) {
     const rpcManger = new DataMapperRpcManager();
-    messenger.onRequest(getTypeFromExpression, (args: TypeFromExpressionRequest) => rpcManger.getTypeFromExpression(args));
-    messenger.onRequest(getTypeFromSymbol, (args: TypeFromSymbolRequest) => rpcManger.getTypeFromSymbol(args));
-    messenger.onRequest(getTypesFromFnDefinition, (args: TypesFromFnDefinitionRequest) => rpcManger.getTypesFromFnDefinition(args));
-    messenger.onRequest(definition, (args: TextDocumentPositionParams) => rpcManger.definition(args));
+    // messenger.onRequest(getTypeFromExpression, (args: TypeFromExpressionRequest) => rpcManger.getTypeFromExpression(args));
+    // messenger.onRequest(getTypeFromSymbol, (args: TypeFromSymbolRequest) => rpcManger.getTypeFromSymbol(args));
+    // messenger.onRequest(getTypesFromFnDefinition, (args: TypesFromFnDefinitionRequest) => rpcManger.getTypesFromFnDefinition(args));
+    // messenger.onRequest(definition, (args: TextDocumentPositionParams) => rpcManger.definition(args));
 }

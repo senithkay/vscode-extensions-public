@@ -145,7 +145,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         if (formState.isLoading) {
             void (async () => {
                 const recordName = "TempName";
-                const recordResponse = await ballerinaRpcClient.getVisualizerRpcClient().convert(
+                const recordResponse = await ballerinaRpcClient.getLangServerRpcClient().convert(
                     {
                         jsonString: formState.jsonValue,
                         recordName,

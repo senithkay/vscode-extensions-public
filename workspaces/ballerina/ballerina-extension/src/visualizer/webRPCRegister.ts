@@ -18,6 +18,7 @@ import {
     getService
 } from './activator';
 import { registerDataMapperRpcHandlers } from "../rpc-managers/data-mapper/rpc-handler";
+import { registerLangServerRpcHandlers } from "../rpc-managers/lang-server/rpc-handler";
 
 
 const stateChanged: NotificationType<any> = { method: 'stateChanged' };
@@ -37,6 +38,7 @@ export class RPCLayer {
         registerOverviewRpcHandlers(this._messenger);
         registerVisualizerRpcHandlers(this._messenger);
         registerDataMapperRpcHandlers(this._messenger);
+        registerLangServerRpcHandlers(this._messenger);
 
         // Register state change notification
         getService().onTransition((state) => {

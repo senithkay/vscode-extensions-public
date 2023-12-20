@@ -23,7 +23,7 @@ export const useSyntaxTreeFromRange = ():{
     const getST = async () => {
         if (viewLocation?.location) {
             try {
-                const response = await ballerinaRpcClient?.getVisualizerRpcClient().getSTByRange({
+                const response = await ballerinaRpcClient?.getLangServerRpcClient().getSTByRange({
                     lineRange: {
                         start: {
                             line: position.startLine,
@@ -64,7 +64,7 @@ export const useProjectComponents = (): {
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
     const fetchProjectComponents = async () => {
         try {
-            const componentResponse = await ballerinaRpcClient.getVisualizerRpcClient().getBallerinaProjectComponents({
+            const componentResponse = await ballerinaRpcClient.getLangServerRpcClient().getBallerinaProjectComponents({
                 documentIdentifiers: [
                     {
                         uri: URI.file(viewLocation.location?.fileName).toString(),

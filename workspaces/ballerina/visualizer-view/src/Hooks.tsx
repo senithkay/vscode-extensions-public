@@ -18,7 +18,7 @@ export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
     const getST = async () => {
         if (position && fileName) {
             try {
-                const response = await ballerinaRpcClient?.getVisualizerRpcClient().getSTByRange({
+                const response = await ballerinaRpcClient?.getLangServerRpcClient().getSTByRange({
                     lineRange: transformNodePosition(position),
                     documentIdentifier: {
                         uri: URI.file(fileName).toString()

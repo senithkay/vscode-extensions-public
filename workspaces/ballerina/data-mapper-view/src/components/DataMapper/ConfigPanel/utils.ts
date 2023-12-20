@@ -307,7 +307,7 @@ export async function getDefaultFnName(
             triggerKind: 3
         }
     };
-    const completions = await ballerinaRpcClient.getVisualizerRpcClient().getCompletion(completionParams);
+    const completions = await ballerinaRpcClient.getLangServerRpcClient().getCompletion(completionParams);
     const existingFnNames = completions.map((completion) => {
         if (completion.kind === CompletionItemKind.Function) {
             return completion?.filterText;
@@ -327,7 +327,7 @@ async function getVirtualDiagnostics(filePath: string,
                                      newContent: string,
                                      ballerinaRpcClient: BallerinaRpcClient): Promise<Diagnostic[]> {
     const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-    ballerinaRpcClient.getVisualizerRpcClient().didOpen({
+    ballerinaRpcClient.getLangServerRpcClient().didOpen({
         textDocument: {
             uri: docUri,
             languageId: "ballerina",
@@ -335,7 +335,7 @@ async function getVirtualDiagnostics(filePath: string,
             version: 1
         }
     });
-    ballerinaRpcClient.getVisualizerRpcClient().didChange({
+    ballerinaRpcClient.getLangServerRpcClient().didChange({
         contentChanges: [
             {
                 text: newContent
@@ -346,12 +346,12 @@ async function getVirtualDiagnostics(filePath: string,
             version: 1
         }
     });
-    const diagResp = await ballerinaRpcClient.getVisualizerRpcClient().getDiagnostics({
+    const diagResp = await ballerinaRpcClient.getLangServerRpcClient().getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
     });
-    ballerinaRpcClient.getVisualizerRpcClient().didClose({
+    ballerinaRpcClient.getLangServerRpcClient().didClose({
         textDocument: {
             uri: docUri
         }

@@ -143,7 +143,7 @@ export async function getFnDefsForFnCalls(
     }
 
     for (const [key, value] of fnInfo) {
-        const stResp = await ballerinaRpcClient.getVisualizerRpcClient().getST({
+        const stResp = await ballerinaRpcClient.getLangServerRpcClient().getST({
             documentIdentifier: {
                 uri: key
             }

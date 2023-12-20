@@ -19,6 +19,6 @@ import { OverviewRpcManager } from "./rpc-manager";
 
 export function registerOverviewRpcHandlers(messenger: Messenger) {
     const rpcManger = new OverviewRpcManager();
-    messenger.onRequest(getSTForFunction, (args: BallerinaFunctionSTRequest) => rpcManger.getSTForFunction(args));
-    messenger.onRequest(getExecutorPositions, (args: GetBallerinaProjectParams) => rpcManger.getExecutorPositions(args));
+    // messenger.onRequest(getSTForFunction, (args: BallerinaFunctionSTRequest) => rpcManger.getSTForFunction(args));
+    // messenger.onRequest(getExecutorPositions, (args: GetBallerinaProjectParams) => rpcManger.getExecutorPositions(args));
 }
