@@ -94,7 +94,8 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             break;
-        case "SwitchNode":
+        case "switch":
+            console.log(">>> adding default ports for switch node", node)
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
                 const port = nodeModel.addInPort(portId, undefined, fixedNode);

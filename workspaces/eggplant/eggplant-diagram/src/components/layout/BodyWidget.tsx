@@ -90,7 +90,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                 <TrayWidget>
                     {!hasStartNode && false && <TrayItemWidget model={{ type: "StartNode" }} name="Start" />}
                     <TrayItemWidget model={{ type: "CodeBlockNode" }} name="Code Block" />
-                    <TrayItemWidget model={{ type: "SwitchNode" }} name="Switch" />
+                    <TrayItemWidget model={{ type: "switch" }} name="Switch" />
                     <TrayItemWidget model={{ type: "HttpRequestNode" }} name="HTTP Request" />
                     <TrayItemWidget model={{ type: "TransformNode" }} name="Transform" />
                     {!hasReturnNode && <TrayItemWidget model={{ type: "EndNode" }} name="Return" />}

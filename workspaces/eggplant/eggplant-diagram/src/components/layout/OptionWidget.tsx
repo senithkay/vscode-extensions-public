@@ -68,7 +68,6 @@ export function OptionWidget(props: OptionWidgetProps) {
             type: DEFAULT_TYPE,
         });
         selectedNode.setNode(node);
-        console.log(">> switch node", node)
         updateFlowModel(node);
     };
 
@@ -111,7 +110,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     size={32}
                 />
             )}
-            {selectedNode.getKind() === "CodeBlockNode" && (
+            {(selectedNode.getKind() === "CodeBlockNode" || selectedNode.getKind() === "TransformNode") && (
                 <TextArea
                     label="Code Block"
                     value={node?.codeBlock || ""}
@@ -124,7 +123,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     }}
                 />
             )}
-            {selectedNode.getKind() === "SwitchNode" && (
+            {selectedNode.getKind() === "switch" && (
                 <>
                     {node.properties?.cases?.map((caseBlock: SwitchCaseBlock, index: number) => {
                         return (

@@ -55,7 +55,7 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
             nodeModel.addInPort(inPortId);
             emptyNode.templateId = "EndNode";
             break;
-        case "SwitchNode":
+        case "switch":
             nodeModel.addInPort(inPortId, {
                 id: inPortId,
                 type: DEFAULT_TYPE,
@@ -69,7 +69,7 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
                 id: defaultPortId,
                 type: DEFAULT_TYPE,
             });
-            emptyNode.templateId = "SwitchNode";
+            emptyNode.templateId = "switch";
             emptyNode.properties = {
                 cases: [
                     {

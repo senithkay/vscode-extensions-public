@@ -323,7 +323,7 @@ const SwitchModel: Flow = {
         },
         {
             name: "B",
-            templateId: "SwitchNode",
+            templateId: "switch",
             codeLocation: {
                 start: {
                     line: 17,

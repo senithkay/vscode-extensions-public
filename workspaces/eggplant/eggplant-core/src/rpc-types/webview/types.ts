@@ -19,7 +19,7 @@ export type NodeKinds =
     | "StartNode"
     | "EndNode"
     | "CodeBlockNode"
-    | "SwitchNode"
+    | "switch" // TODO: Need to update after backend implementation support to SwitchNode
     | "HttpRequestNode"
     | "TransformNode";
 
