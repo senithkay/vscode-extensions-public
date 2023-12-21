@@ -202,34 +202,47 @@ const generateForm = (jsonData: any): string => {
                     fields += generateEnabledCondition(enableCondition, indentation);
                     indentation += 4;
                 }
-                fields += fixIndentation(`
+                if (parentName !== "table") {
+                    fields += fixIndentation(`
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>   
                         <h3>${element.value.groupName}</h3>\n`, indentation);
+                }
+                
                 generateFormItems(element.value.elements, indentation + 4, `${element.value.groupName.trim().replace(/\s/g, '_')}.`);
-                fields += fixIndentation(`
-                </ComponentCard>`, indentation);
+
+                if (parentName !== "table") {
+                    fields += fixIndentation(`
+                    </ComponentCard>`, indentation);
+                }
+                
                 indentation -= enableCondition ? 4 : 0;
                 fields +=
                     fixIndentation(`${enableCondition ? `
                 }\n` : "\n"}`, indentation);
             } else if (element.type === 'table') {
+                const inputName = element.value.name.trim();
                 fields +=
                     fixIndentation(`
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>`, indentation);
-                const inputName = element.value.name.trim();
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>${element.value.displayName}</h3>\n`, indentation);
                 defaultValues +=
                     fixIndentation(`
                     "${inputName}": [] as string[][],`, 8);
-                generateFormItems(element.value.form.elements, indentation + 4);
+                const elements = element.value.form.elements;
+                generateFormItems(elements, indentation + 4, "table");
+                
+                const name = elements[0].value.elements[0].value.name;
+                const type = elements[0].value.elements[1].value.name;
+                const value = elements[0].value.elements[2] ? elements[0].value.elements[2].value.name : "";
 
                 // Add button
                 fields += fixIndentation(`
                     <div style={{ textAlign: "right", marginTop: "10px" }}>
                         <Button appearance="primary" onClick={() => {
-                            if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                            if (!(validateField("${name}", formValues["${name}"], true) || validateField("${value}", formValues["${value}"], true))) {
                                 setFormValues({
-                                    ...formValues, "propertyName": undefined, "propertyValue": undefined,
-                                    "${inputName}": [...formValues["${inputName}"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                                    ...formValues, "${name}": undefined, "${value}": undefined,
+                                    "${inputName}": [...formValues["${inputName}"], [formValues["${name}"], formValues["${type}"], formValues["${value}"]]]
                                 });
                             }
                         }}>

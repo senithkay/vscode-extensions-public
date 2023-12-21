@@ -26,8 +26,8 @@
           {
             "type": "table",
             "value": {
-              "name": "parameterName",
-              "displayName": "Parameter Name",
+              "name": "parameterNameTable",
+              "displayName": "Parameter Name Table",
               "form": {
                 "title": "Call-Template Parameter",
                 "description": "Editing of the properties of an object CallTemplateParameter",
