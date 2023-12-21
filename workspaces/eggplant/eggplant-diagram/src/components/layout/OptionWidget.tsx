@@ -212,7 +212,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     })}
                 </>
             )}
-            {selectedNode.getKind() === "TransformNode" && (
+            {selectedNode.getKind() === "HttpRequestNode" && (
                 <>
                     <S.Divider />
                     <S.SectionTitle>Connection</S.SectionTitle>
@@ -321,6 +321,17 @@ export function OptionWidget(props: OptionWidgetProps) {
                                     }}
                                     size={32}
                                 />
+                                {selectedNode.getKind() === "CodeBlockNode" && (
+                                    <S.InputField
+                                    label="Name"
+                                    value={(node.properties as CodeNodeProperties).returnVar|| "payload"}
+                                    required={true}
+                                    onChange={(value: string) => {
+                                        (node.properties as CodeNodeProperties).returnVar = value;
+                                    }}
+                                    size={32}
+                                />
+                                )}
                             </S.Row>
                         );
                     })}

@@ -204,7 +204,8 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                     ...node.properties,
                     codeBlock: {
                         expression: "",
-                    }
+                    },
+                    returnVar: "payload",
                 };
                 node.properties = codeNodeProperties;
                 nodeModel.setNode(node);

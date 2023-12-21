@@ -72,6 +72,7 @@ export type NodeProperties = {
 
 export type CodeNodeProperties = NodeProperties & {
     codeBlock: BalExpression;
+    returnVar?: string;
 };
 
 export type SwitchNodeProperties = NodeProperties & {
