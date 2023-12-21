@@ -87,10 +87,10 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
         if (STKindChecker.isServiceDeclaration(serviceST)) {
             props.setSelectedComponent({fileName: info.filePath, serviceST});
-            props.handleIsFetching(false);
         } else {
             eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
         }
+        props.handleIsFetching(false);
     }
 
     if (currentComponents) {
