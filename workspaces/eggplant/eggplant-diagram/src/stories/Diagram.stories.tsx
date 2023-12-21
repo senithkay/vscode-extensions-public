@@ -58,7 +58,7 @@ const simpleModel: Flow = {
     nodes: [
         {
             name: "A",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 4,
@@ -89,7 +89,7 @@ const simpleModel: Flow = {
         },
         {
             name: "B",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 10,
@@ -122,7 +122,7 @@ const simpleModel: Flow = {
         },
         {
             name: "C",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 18,
@@ -161,7 +161,7 @@ const simpleModel: Flow = {
         },
         {
             name: "D",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 10,
@@ -211,7 +211,7 @@ const CodeBlockModel: Flow = {
     nodes: [
         {
             name: "A",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 7,
@@ -239,7 +239,7 @@ const CodeBlockModel: Flow = {
         },
         {
             name: "B",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 17,
@@ -296,7 +296,7 @@ const SwitchModel: Flow = {
     nodes: [
         {
             name: "A",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 7,
@@ -394,7 +394,7 @@ const SwitchModel: Flow = {
         },
         {
             name: "C",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 38,
@@ -422,7 +422,7 @@ const SwitchModel: Flow = {
         },
         {
             name: "D",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 48,
@@ -450,7 +450,7 @@ const SwitchModel: Flow = {
         },
         {
             name: "E",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 58,
@@ -478,7 +478,7 @@ const SwitchModel: Flow = {
         },
         {
             name: "F",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 68,

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -16,15 +15,23 @@ export type Flow = {
     bodyCodeLocation: CodeLocation;
 };
 
+export type NodeKinds =
+    | "StartNode"
+    | "EndNode"
+    | "CodeBlockNode"
+    | "switch" // TODO: Need to update after backend implementation support to SwitchNode
+    | "HttpRequestNode"
+    | "TransformNode";
+
 export type Node = {
     id?: string;
     name: string;
-    templateId?: string;
+    templateId?: NodeKinds;
     inputPorts: InputPort[];
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
-    properties?: SwitchNodeProperties; // Need to update with other node types
+    properties?: SwitchNodeProperties | HttpRequestNodeProperties; // Need to update with other node types
     codeBlock?: string;
 };
 
@@ -58,7 +65,7 @@ export type LinePosition = {
 };
 
 export type NodeProperties = {
-    templateId?: string;
+    templateId?: NodeKinds;
     name?: string;
 };
 
@@ -70,6 +77,20 @@ export type SwitchNodeProperties = NodeProperties & {
 export type SwitchCaseBlock = {
     expression: string | BalExpression;
     nodes: string[];
+};
+
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
+export type HttpRequestNodeProperties = NodeProperties & {
+    action: HttpMethod;
+    basePath: string;
+    headers: HttpHeader[];
+    path: string;
+};
+
+export type HttpHeader = {
+    name: string;
+    value: string;
 };
 
 export type BalExpression = {

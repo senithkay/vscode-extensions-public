@@ -10,9 +10,10 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Colors, EVENT_TYPES } from "../../resources";
+import { NodeKinds } from "../../types";
 
 export interface TrayItemWidgetProps {
-    model: any;
+    model: { type: NodeKinds };
     color?: string;
     name: string;
 }
@@ -24,7 +25,7 @@ namespace S {
         font-family: sans-serif;
         font-size: 14px;
         padding: 8px 12px;
-        border: solid 2px ${Colors.OUTLINE_VARIANT};;
+        border: solid 2px ${Colors.OUTLINE_VARIANT};
         border-radius: 5px;
         margin-bottom: 2px;
         cursor: pointer;

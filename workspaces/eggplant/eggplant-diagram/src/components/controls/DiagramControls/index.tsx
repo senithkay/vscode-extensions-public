@@ -40,14 +40,58 @@ export function DiagramControls(props: ControlProps) {
     const rearrange = () => {
         const dagreEngine = getDagreEngine();
         dagreEngine.redistribute(engine.getModel());
-        engine.repaintCanvas();
+        moveToSafeArea();
+        zoomToFit();
         refresh();
+    };
+
+    const moveToSafeArea = () => {
+        // move diagram nodes from negative coordinates to positive
+        engine
+            .getModel()
+            .getNodes()
+            .forEach((node) => {
+                node.setPosition(node.getX() + 200, node.getY() + 200);
+            });
+        engine.repaintCanvas();
+    };
+
+    const onZoom = (zoomIn: boolean) => {
+        const delta: number = zoomIn ? +5 : -5;
+        engine.getModel().setZoomLevel(engine.getModel().getZoomLevel() + delta);
+        engine.repaintCanvas();
+    };
+
+    const zoomToFit = () => {
+        if (engine.getCanvas()?.getBoundingClientRect) {
+            engine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+        }
+    };
+
+    const zoomToActualSize = () => {
+        engine.getModel().setZoomLevel(100);
+        engine.repaintCanvas();
     };
 
     return (
         <S.ControlPanel>
             <S.IconButton
-                name={"loading"}
+                name={"fullscreen"}
+                onClick={zoomToFit}
+                sx={{
+                    height: "24px",
+                    width: "28px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontSize: "20px",
+                    border: `1px solid ${Colors.OUTLINE_VARIANT}`,
+                    backgroundColor: Colors.SURFACE,
+                    padding: "8px 4px 4px 4px",
+                }}
+            />
+            <S.IconButton
+                name={"magic"}
                 onClick={rearrange}
                 sx={{
                     height: "24px",
@@ -55,6 +99,7 @@ export function DiagramControls(props: ControlProps) {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
+                    fontSize: "20px",
                     border: `1px solid ${Colors.OUTLINE_VARIANT}`,
                     backgroundColor: Colors.SURFACE,
                     padding: "8px 4px 4px 4px",

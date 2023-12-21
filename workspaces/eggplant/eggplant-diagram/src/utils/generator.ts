@@ -9,8 +9,16 @@
 
 import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
-import { ExtendedPort, Flow, InputPort, Node, OutputPort } from "../types";
-import { DEFAULT_TYPE, NODE_TYPE } from "../resources";
+import {
+    ExtendedPort,
+    Flow,
+    HttpRequestNodeProperties,
+    InputPort,
+    Node,
+    OutputPort,
+    SwitchNodeProperties,
+} from "../types";
+import { DEFAULT_TYPE } from "../resources";
 import { isFixedNode } from "./node";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
@@ -55,7 +63,7 @@ function getNodeModel(node: Node): GenNodeModel {
     let portCount = 1;
     node.inputPorts?.forEach((inputPort) => {
         const portId = inputPort.id || getPortId(node.name, true, portCount++);
-        if (ports.some(port => port.id === portId)) {
+        if (ports.some((port) => port.id === portId)) {
             return;
         }
         let port = nodeModel.addInPort(portId, inputPort, fixedNode);
@@ -64,7 +72,7 @@ function getNodeModel(node: Node): GenNodeModel {
     portCount = 1;
     node.outputPorts?.forEach((outputPort) => {
         const portId = outputPort.id || getPortId(node.name, false, portCount++);
-        if (ports.some(port => port.id === portId)) {
+        if (ports.some((port) => port.id === portId)) {
             return;
         }
         let port = nodeModel.addOutPort(portId, outputPort, fixedNode);
@@ -80,61 +88,154 @@ function getNodeModel(node: Node): GenNodeModel {
 function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string, fixedNode: boolean) {
     let ports: ExtendedPort[] = [];
     switch (node.templateId) {
-        case NODE_TYPE.START:
+        case "StartNode":
             if (node.outputPorts?.length === 0) {
                 const portId = getPortId(node.name, false, 1);
-                const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                const port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
-        case NODE_TYPE.RETURN:
+        case "EndNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
                 const port = nodeModel.addInPort(portId, undefined, fixedNode);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             break;
-        case NODE_TYPE.SWITCH:
+        case "switch":
+            const nodeProperties = node.properties as SwitchNodeProperties;
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
-                const port = nodeModel.addInPort(portId, undefined, fixedNode);
+                const port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
-            if (node.outputPorts?.length === 0 && node.properties.cases?.length > 0) {
-                node.properties.cases.forEach((caseItem, index) => {
-                    const portId = caseItem.nodes[0] || getPortId(node.name, false, index+1);
+            if (node.outputPorts?.length === 0 && nodeProperties.cases?.length > 0) {
+                nodeProperties.cases.forEach((caseItem, index) => {
+                    const portId = caseItem.nodes[0] || getPortId(node.name, false, index + 1);
                     const port = nodeModel.addOutPort(portId, undefined, fixedNode);
-                    ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+                    ports.push({
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                        parent: nodeId,
+                        in: false,
+                        model: port,
+                    });
                 });
-                const portId = node.properties.defaultCase.nodes[0] || getPortId(node.name, false, "default");
-                const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                const portId = nodeProperties.defaultCase.nodes[0] || getPortId(node.name, false, "default");
+                const port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
-            } else if (node.outputPorts?.length < node.properties.cases?.length + 1) {
-                node.properties.cases.forEach((caseItem, index) => {
-                    const portId = caseItem.nodes[0] || getPortId(node.name, false, index+1);
-                    if(node.outputPorts?.some(port => port.id === portId)) {
+            } else if (node.outputPorts?.length < nodeProperties.cases?.length + 1) {
+                nodeProperties.cases.forEach((caseItem, index) => {
+                    const portId = caseItem.nodes[0] || getPortId(node.name, false, index + 1);
+                    if (node.outputPorts?.some((port) => port.id === portId)) {
                         return;
                     }
                     const port = nodeModel.addOutPort(portId, undefined, fixedNode);
-                    ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+                    ports.push({
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                        parent: nodeId,
+                        in: false,
+                        model: port,
+                    });
                 });
-                const portId = node.properties.defaultCase.nodes[0] || getPortId(node.name, false, "default");
-                if(node.outputPorts?.some(port => port.id === portId)) {
+                const portId = nodeProperties.defaultCase.nodes[0] || getPortId(node.name, false, "default");
+                if (node.outputPorts?.some((port) => port.id === portId)) {
                     return;
                 }
                 const port = nodeModel.addOutPort(portId, undefined, fixedNode);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
-        default:
+        case "CodeBlockNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
-                let port = nodeModel.addInPort(portId, undefined, fixedNode);
+                let port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             if (node.outputPorts?.length === 0) {
                 let portId = getPortId(node.name, false, 1);
-                let port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                let port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+            }
+            break;
+        case "HttpRequestNode":
+            const httpNodeProperties: HttpRequestNodeProperties = {
+                ...node.properties,
+                basePath: "",
+                path: "",
+                action: "GET",
+                headers: [], // Add the 'headers' property here
+            };
+            node.properties = httpNodeProperties;
+            nodeModel.setNode(node);
+        default:
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                let port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
+            }
+            if (node.outputPorts?.length === 0) {
+                let portId = getPortId(node.name, false, 1);
+                let port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
@@ -165,18 +266,23 @@ function getNodeIdentifier(node: Node) {
     return node.name;
 }
 
-export function getPortId(nodeId: string, inPort: boolean, portId: string|number) {
+export function getPortId(nodeId: string, inPort: boolean, portId: string | number) {
     return `${inPort ? "in" : "out"}_${portId.toString()}`;
 }
 
 function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boolean, linkNodeId: string) {
     return ports.find(
-        (port) => port.parent === parent && port.in === inPort && ((inPort && port.sender === linkNodeId) || (!inPort && port.receiver === linkNodeId))
+        (port) =>
+            port.parent === parent &&
+            port.in === inPort &&
+            ((inPort && port.sender === linkNodeId) || (!inPort && port.receiver === linkNodeId))
     );
 }
 
-export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel: DiagramModel<DiagramModelGenerics>): Flow {
-    console.log(">>> diagramModel", diagramModel.serialize())
+export function generateFlowModelFromDiagramModel(
+    flowModel: Flow,
+    diagramModel: DiagramModel<DiagramModelGenerics>
+): Flow {
     const model: Flow = {
         id: flowModel.id,
         name: flowModel.name,
@@ -255,8 +361,8 @@ export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel:
             templateId: defaultNode.getKind(),
             codeLocation: codePosition,
             canvasPosition: {
-                x: defaultNode.getX(),
-                y: defaultNode.getY(),
+                x: Math.floor(defaultNode.getX()),
+                y: Math.floor(defaultNode.getY()),
             },
             inputPorts: inPorts,
             outputPorts: outPorts,
