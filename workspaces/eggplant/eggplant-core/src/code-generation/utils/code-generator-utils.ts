@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BalExpression, CodeNodeProperties, Flow, HttpRequestNodeProperties, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties, HttpMethod } from "../../rpc-types/webview/types";
+import { BalExpression, CodeNodeProperties, Flow, HttpRequestNodeProperties, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties } from "../../rpc-types/webview/types";
 import { getComponentSource } from "./template-utils";
 
 const defaultInput = "_ = check <- function;";
@@ -46,7 +46,7 @@ function generateBlockNode(node: Node): string {
             NODE_NAME: node.name,
             INPUT_PORTS: generateInputPorts(node),
             CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.expression : undefined,
-            OUTPUT_PORTS: generateOutputPorts(node)
+            OUTPUT_PORTS: generateOutputPorts(node, nodeProperties?.returnVar)
         }
     });
 
@@ -142,7 +142,7 @@ function generateSwitchNode(node: Node): string {
 
 function generateCallerNode(node: Node): string {
     const callerProps = node.properties as HttpRequestNodeProperties;
-    const callerEp: string =  callerProps?.name ? callerProps.name : "httpEp"; // TODO : used the value from the model
+    const callerEp: string =  callerProps?.endpointName ? callerProps.endpointName : "httpEp"; // TODO : use the value from the model
     const callerVariable: string = node.name + "_response";
     const callerAction: string = getComponentSource({
         name: 'CALLER_ACTION',
@@ -150,8 +150,8 @@ function generateCallerNode(node: Node): string {
             TYPE: callerProps?.type ? callerProps.type : "json",
             VARIABLE: callerVariable,
             CALLER: callerEp,
-            PATH: callerProps?.path, // TODO : remove optional
-            ACTION: callerProps?.action ? callerProps.action : "get", // TODO : remove optional
+            PATH: callerProps.path,
+            ACTION: callerProps.action,
             PAYLOAD: node?.inputPorts[0]?.name ? node.inputPorts[0].name : undefined
         }
     });
