@@ -224,7 +224,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     <S.SectionTitle>Connection</S.SectionTitle>
                     <S.InputField
                         label="Base URL"
-                        value={(node.properties as HttpRequestNodeProperties).basePath || ""}
+                        value={(node.properties as HttpRequestNodeProperties)?.basePath || ""}
                         required={true}
                         onChange={(value: string) => {
                             (node.properties as HttpRequestNodeProperties).basePath = value;
@@ -234,7 +234,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     <S.SectionTitle>Method</S.SectionTitle>
                     <S.Select
                         id="method"
-                        value={(node.properties as HttpRequestNodeProperties).action || "GET"}
+                        value={(node.properties as HttpRequestNodeProperties)?.action || "GET"}
                         items={[{ value: "GET" }, { value: "POST" }, { value: "PUT" }]}
                         onChange={(value: string) => {
                             (node.properties as HttpRequestNodeProperties).action = value as HttpMethod;
@@ -242,7 +242,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     />
                     <S.InputField
                         label="Path"
-                        value={(node.properties as HttpRequestNodeProperties).path || ""}
+                        value={(node.properties as HttpRequestNodeProperties)?.path || ""}
                         onChange={(value: string) => {
                             (node.properties as HttpRequestNodeProperties).path = value;
                         }}

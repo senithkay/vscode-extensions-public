@@ -9,7 +9,15 @@
 
 import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
-import { ExtendedPort, Flow, InputPort, Node, OutputPort, SwitchNodeProperties } from "../types";
+import {
+    ExtendedPort,
+    Flow,
+    HttpRequestNodeProperties,
+    InputPort,
+    Node,
+    OutputPort,
+    SwitchNodeProperties,
+} from "../types";
 import { DEFAULT_TYPE } from "../resources";
 import { isFixedNode } from "./node";
 
@@ -193,6 +201,16 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
+        case "HttpRequestNode":
+            const httpNodeProperties: HttpRequestNodeProperties = {
+                ...node.properties,
+                basePath: "",
+                path: "",
+                action: "GET",
+                headers: [], // Add the 'headers' property here
+            };
+            node.properties = httpNodeProperties;
+            nodeModel.setNode(node);
         default:
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
