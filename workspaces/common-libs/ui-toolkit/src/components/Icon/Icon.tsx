@@ -25,15 +25,16 @@ const IconContainer = styled.div<IconContainerProps>`
 export interface IconProps {
 	name: string; // Identifier for the icon
     sx?: any;
+    iconSx?: any;
     onClick?: () => void;
 }
 
 export const Icon: React.FC<IconProps> = (props: IconProps) => {
-    const { name, sx, onClick } = props;
+    const { name, sx, iconSx, onClick } = props;
     const handleComponentClick = () => {
-        onClick();
+        onClick && onClick();
     }
-    const icon = (<i className={`fw-${name}`} />);
+    const icon = (<i style={iconSx} className={`fw-${name}`} />);
     return (
         <IconContainer sx={sx} onClick={handleComponentClick}>
             {icon}
