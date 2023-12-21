@@ -64,7 +64,7 @@
                                         "helpTip": "Endpoint Registry Key",
                                         "enableCondition": [
                                             {
-                                                "payload": "REGISTRYKEY"
+                                                "endpointType": "REGISTRYKEY"
                                             }
                                         ]
                                     }
@@ -80,7 +80,7 @@
                                         "helpTip": "Endpoint Xpath",
                                         "enableCondition": [
                                             {
-                                                "payload": "XPATH"
+                                                "endpointType": "XPATH"
                                             }
                                         ]
                                     }
@@ -117,7 +117,7 @@
                             "helpTip": "Source Property",
                             "enableCondition": [
                                 {
-                                    "payload": "property"
+                                    "sourceType": "property"
                                 }
                             ]
                         }
@@ -134,13 +134,13 @@
                             "enableCondition": [
                                 "OR",
                                 {
-                                    "payload": "property"
+                                    "sourceType": "property"
                                 },
                                 {
-                                    "payload": "inline"
+                                    "sourceType": "inline"
                                 },
                                 {
-                                    "payload": "custom"
+                                    "sourceType": "custom"
                                 }
                             ]
                         }
@@ -156,7 +156,7 @@
                             "helpTip": "Source Payload",
                             "enableCondition": [
                                 {
-                                    "payload": "inline"
+                                    "sourceType": "inline"
                                 }
                             ]
                         }
@@ -198,7 +198,7 @@
                             "helpTip": "Target Property",
                             "enableCondition": [
                                 {
-                                    "payload": "property"
+                                    "targetType": "property"
                                 }
                             ]
                         }
