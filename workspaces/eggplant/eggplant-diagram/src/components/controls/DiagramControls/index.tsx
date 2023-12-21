@@ -51,7 +51,7 @@ export function DiagramControls(props: ControlProps) {
             .getModel()
             .getNodes()
             .forEach((node) => {
-                node.setPosition(node.getX() + 200, node.getY() + 200);
+                node.setPosition(node.getX() + 1000, node.getY() + 1000);
             });
         engine.repaintCanvas();
     };

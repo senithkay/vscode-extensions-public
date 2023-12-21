@@ -85,15 +85,13 @@ export type SwitchCaseBlock = {
     nodes: string[];
 };
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+export type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
 
 export type HttpRequestNodeProperties = NodeProperties & {
     action: HttpMethod;
     path: string;
-    endpointName: string;
-    type: string; // Action return type | worker return type
-    basePath? : string; // Identify new connection. LS model not provided this property. 
-    headers?: HttpHeader[];
+    endpoint: Endpoint;
+    outputType: string;
 };
 
 export type HttpHeader = {
