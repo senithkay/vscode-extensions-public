@@ -17,7 +17,7 @@ export interface TemplateStructure {
 }
 
 export type TemplateKey = 'ASYNC_SEND_ACTION' | 'ASYNC_RECEIVE_ACTION' | 'CODE_BLOCK_NODE' | 'ANNOTATION' | 'SWITCH_NODE' |
-    'IF_BLOCK' | 'ELSE_BLOCK' | 'ELSEIF_BLOCK' | 'CALLER_ACTION' | 'CALLER_BLOCK';
+    'IF_BLOCK' | 'ELSE_BLOCK' | 'ELSEIF_BLOCK' | 'CALLER_ACTION' | 'CALLER_BLOCK' | 'RESPOND';
 
 
 export function getComponentSource(template : TemplateStructure) : string {

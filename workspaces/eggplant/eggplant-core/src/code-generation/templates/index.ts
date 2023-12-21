@@ -66,6 +66,19 @@ export default {
         {{#if OUTPUT_PORTS}}
         {{{OUTPUT_PORTS}}}
         {{/if}}
-    }`
+    }`,
+    RESPOND:
+    `worker {{{NODE_NAME}}} returns error? {
+        {{#if INPUT_PORTS}}
+        {{{INPUT_PORTS}}}
+        {{{VAR_NAME}}}} -> function;
+        {{/if}}
+    }
+    
+    {{#if VAR_NAME}}
+    {{{TYPE}}} {{{VAR_NAME}}} = check <- {{{NODE_NAME}}};
+    return {{{VAR_NAME}}};
+    {{/if}}
+    `
 
 }

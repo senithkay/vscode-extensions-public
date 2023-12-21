@@ -21,6 +21,8 @@ export function workerCodeGen(model: Flow): string {
             workerBlocks += generateSwitchNode(node);
         } else if (node.templateId === "HttpRequestNode") { 
             workerBlocks += generateCallerNode(node);
+        } else if (node.templateId === "HttpResponseNode") {
+            workerBlocks += generateResponseNode(node);
         } else {
             workerBlocks += generateBlockNode(node);
         }
@@ -167,6 +169,30 @@ function generateCallerNode(node: Node): string {
             INPUT_PORTS: inputPorts,
             CALLER_ACTION: callerAction,
             OUTPUT_PORTS: outputPorts
+        }
+    });
+
+    // node with annotation
+    const completeNode = `
+    ${generateDisplayNode(node)}
+    ${workerNode}
+    `;
+    return completeNode;
+}
+
+function generateResponseNode(node: Node): string {
+    // TODO: current response only suport one inputPort
+    const inputPort = node?.inputPorts[0];
+    const varType = sanitizeType(inputPort.type);
+    const varName = inputPort.name;
+    const genInport = generateInport(inputPort);
+    const workerNode: string = getComponentSource({
+        name: 'RESPOND',
+        config: {
+            NODE_NAME: node.name,
+            INPUT_PORTS: genInport ? genInport : undefined,
+            VAR_TYPE: varType ? varType : undefined,
+            VAR_NAME: varName ? varName : undefined
         }
     });
 
