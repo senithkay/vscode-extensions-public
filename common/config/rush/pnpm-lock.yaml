@@ -2725,8 +2725,10 @@ importers:
       '@types/jest': ^29.2.5
       '@types/js-yaml': ^4.0.5
       '@types/node': ^18.18.2
+      '@types/vscode': ^1.80.0
       '@typescript-eslint/eslint-plugin': ~5.48.2
       '@typescript-eslint/parser': ~5.48.2
+      '@vscode/vsce': ~2.21.0
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
       axios: ^1.2.2
@@ -2748,6 +2750,8 @@ importers:
       vscode-messenger-webview: ^0.4.3
     dependencies:
       '@types/node': 18.19.3
+      '@types/vscode': 1.85.0
+      '@vscode/vsce': 2.21.1
       '@wso2-enterprise/ballerina-languageclient': link:../../ballerina/ballerina-languageclient
       '@wso2-enterprise/choreo-core': link:../choreo-core
       axios: 1.6.2
@@ -18010,7 +18014,6 @@ packages:
       yazl: 2.5.1
     optionalDependencies:
       keytar: 7.9.0
-    dev: true
 
   /@vscode/webview-ui-toolkit/1.2.2:
     resolution: {integrity: sha512-xIQoF4FC3Xh6d7KNKIoIezSiFWYFuf6gQMdDyKueKBFGeKwaHWEn+dY2g3makvvEsNMEDji/woEwvg9QSbuUsw==}
@@ -44077,7 +44080,7 @@ packages:
       typescript: '>=4.6.2'
     dependencies:
       '@types/selenium-webdriver': 4.1.21
-      '@vscode/vsce': 2.21.1
+      '@vscode/vsce': 2.22.0
       commander: 11.1.0
       compare-versions: 6.1.0
       fs-extra: 11.2.0
