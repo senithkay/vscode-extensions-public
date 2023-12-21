@@ -40,9 +40,20 @@ export function DiagramControls(props: ControlProps) {
     const rearrange = () => {
         const dagreEngine = getDagreEngine();
         dagreEngine.redistribute(engine.getModel());
-        engine.repaintCanvas();
+        moveToSafeArea();
         zoomToFit();
         refresh();
+    };
+
+    const moveToSafeArea = () => {
+        // move diagram nodes from negative coordinates to positive
+        engine
+            .getModel()
+            .getNodes()
+            .forEach((node) => {
+                node.setPosition(node.getX() + 200, node.getY() + 200);
+            });
+        engine.repaintCanvas();
     };
 
     const onZoom = (zoomIn: boolean) => {
