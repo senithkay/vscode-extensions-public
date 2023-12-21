@@ -16,15 +16,12 @@ import {
     addDiagramListener,
     generateDiagramModelFromFlowModel,
     generateEngine,
-    generateFlowModelFromDiagramModel,
-    getDagreEngine,
     loadDiagramZoomAndPosition,
     removeOverlay,
     saveDiagramZoomAndPosition,
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
-import { Button } from "@wso2-enterprise/ui-toolkit";
 
 interface EggplantAppProps {
     flowModel: Flow;

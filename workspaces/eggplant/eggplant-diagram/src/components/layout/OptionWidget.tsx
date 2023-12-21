@@ -25,23 +25,68 @@ namespace S {
         flex-grow: 0;
         flex-shrink: 0;
         gap: 6px;
+        max-height: calc(100vh - 20px);
+        overflow-y: auto;
     `;
 
-    export const TitleContainer = styled.div`
+    export const HeaderContainer = styled.div`
         display: flex;
         justify-content: space-between;
     `;
 
-    export const Title = styled.div`
+    export const Header = styled.h5`
+        font-family: "GilmerMedium";
+        font-family: var(--font-family);
         color: ${Colors.ON_SURFACE};
         margin-bottom: 12px;
+        margin-block-start: unset;
+        user-select: none;
+    `;
+
+    export const SectionTitle = styled.h5`
+        font-family: "GilmerMedium";
+        font-family: var(--font-family);
+        font-weight: normal;
+        color: ${Colors.ON_SURFACE};
+        margin-bottom: 4px;
+        margin-block-start: unset;
+        user-select: none;
+    `;
+
+    export const Divider = styled.div`
+        height: 1px;
+        width: 100%;
+        background: ${Colors.OUTLINE};
+        margin: 6px 0px;
+    `;
+
+    export const Row = styled.div`
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
     `;
 
     export const InputField = styled(TextField)`
         width: 100%;
     `;
-}
 
+    export const ActionButtonContainer = styled.div`
+        position: sticky;
+        bottom: 0;
+        padding-top: 16px;
+        background: ${Colors.SURFACE};
+        width: 100%;
+        & vscode-button {
+            width: 100%;
+        }
+    `;
+
+    export const ActionButton = styled(Button)`
+        width: 100%;
+    `;
+}
+// TODO: update this component with multiple form components
 export function OptionWidget(props: OptionWidgetProps) {
     const { engine, selectedNode, children, setSelectedNode, updateFlowModel } = props;
     const [, forceUpdate] = useState();
@@ -50,7 +95,6 @@ export function OptionWidget(props: OptionWidgetProps) {
     let node = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
 
     const handleAddCase = () => {
-        console.log(">>> node cases", node.properties.cases);
         let caseCount = node.properties.cases.length;
         let portId = getPortId(node.name, false, caseCount + 1);
         while (selectedNode.getOutPorts().find((port) => port.getID() === portId)) {
@@ -69,7 +113,31 @@ export function OptionWidget(props: OptionWidgetProps) {
         selectedNode.setNode(node);
         // update the diagram
         engine.repaintCanvas();
-        forceUpdate({});
+        forceUpdate({} as any);
+    };
+
+    // add input port for the node
+    const handleAddInputPort = () => {
+        const portId = getNextInputPortId();
+        selectedNode.addInPort(portId, {
+            id: portId,
+            type: DEFAULT_TYPE,
+            name: portId,
+        });
+        selectedNode.setNode(node);
+        // update the diagram
+        engine.repaintCanvas();
+        forceUpdate({} as any);
+    };
+
+    // get next input port id
+    const getNextInputPortId = () => {
+        let portCount = selectedNode.getInPorts().length;
+        let portId = getPortId(node.name, true, portCount + 1);
+        while (selectedNode.getInPorts().find((port) => port.getID() === portId)) {
+            portId = getPortId(node.name, true, portCount + 1);
+        }
+        return portId;
     };
 
     const handleOnSave = () => {
@@ -80,15 +148,15 @@ export function OptionWidget(props: OptionWidgetProps) {
 
     return (
         <S.Tray>
-            <S.TitleContainer>
-                <S.Title>Configuration</S.Title>
+            <S.HeaderContainer>
+                <S.Header>Configuration</S.Header>
                 <Icon
                     name="close"
                     onClick={() => {
                         setSelectedNode(null);
                     }}
                 />
-            </S.TitleContainer>
+            </S.HeaderContainer>
             {selectedNode.getKind() !== "StartNode" && selectedNode.getKind() !== "EndNode" && (
                 <S.InputField
                     label="Component Name"
@@ -100,32 +168,77 @@ export function OptionWidget(props: OptionWidgetProps) {
                     size={32}
                 />
             )}
+            {(selectedNode.getKind() === "CodeBlockNode" || selectedNode.getKind() === "TransformNode") && (
+                <>
+                    <S.Divider />
+                    <S.SectionTitle>Input</S.SectionTitle>
+                    {selectedNode.getInPorts()?.map((port) => {
+                        const nodePort = port.getOptions()?.port;
+                        if (!nodePort) {
+                            return null;
+                        }
+                        return (
+                            <S.Row>
+                                <S.InputField
+                                    label="Type"
+                                    value={nodePort.type}
+                                    required={true}
+                                    onChange={(value: string) => {
+                                        nodePort.type = value;
+                                    }}
+                                    size={32}
+                                />
+                                <S.InputField
+                                    label="Name"
+                                    value={nodePort.name}
+                                    required={true}
+                                    onChange={(value: string) => {
+                                        nodePort.name = value;
+                                    }}
+                                    size={32}
+                                />
+                            </S.Row>
+                        );
+                    })}
+                    <Button appearance="secondary" onClick={handleAddInputPort}>
+                        Add Input
+                    </Button>
+                </>
+            )}
             {selectedNode.getKind() === "HttpRequestNode" && (
-                <S.InputField
-                    label="URL"
-                    value={""}
-                    required={true}
-                    onChange={(value: string) => {
-                        // TODO: set the url
-                    }}
-                    size={32}
-                />
+                <>
+                    <S.Divider />
+                    <S.InputField
+                        label="URL"
+                        value={""}
+                        required={true}
+                        onChange={(value: string) => {
+                            // TODO: set the url
+                        }}
+                        size={32}
+                    />
+                </>
             )}
             {(selectedNode.getKind() === "CodeBlockNode" || selectedNode.getKind() === "TransformNode") && (
-                <TextArea
-                    label="Code Block"
-                    value={node?.codeBlock || ""}
-                    rows={20}
-                    resize="vertical"
-                    onChange={(value: string) => {
-                        if (node) {
-                            node.codeBlock = value;
-                        }
-                    }}
-                />
+                <>
+                    <S.Divider />
+                    <TextArea
+                        label="Code Block"
+                        value={node?.codeBlock || ""}
+                        rows={16}
+                        resize="vertical"
+                        onChange={(value: string) => {
+                            if (node) {
+                                node.codeBlock = value;
+                            }
+                        }}
+                    />
+                </>
             )}
             {selectedNode.getKind() === "switch" && (
                 <>
+                    <S.Divider />
+                    <S.SectionTitle>Conditions</S.SectionTitle>
                     {node.properties?.cases?.map((caseBlock: SwitchCaseBlock, index: number) => {
                         return (
                             <div key={index}>
@@ -148,7 +261,37 @@ export function OptionWidget(props: OptionWidgetProps) {
                     </Button>
                 </>
             )}
-            <Button onClick={handleOnSave}>Save</Button>
+            {selectedNode.getKind() !== "EndNode" && (
+                <>
+                    <S.Divider />
+                    {selectedNode.getOutPorts().length > 0 && <S.SectionTitle>Output</S.SectionTitle>}
+                    {selectedNode.getOutPorts()?.map((port) => {
+                        const nodePort = port.getOptions()?.port;
+                        if (!nodePort) {
+                            return null;
+                        }
+                        if(selectedNode.getKind() === "switch" && nodePort.name !== "out_default") {
+                            return null;
+                        }
+                        return (
+                            <S.Row>
+                                <S.InputField
+                                    label="Type"
+                                    value={nodePort.type}
+                                    required={true}
+                                    onChange={(value: string) => {
+                                        nodePort.type = value;
+                                    }}
+                                    size={32}
+                                />
+                            </S.Row>
+                        );
+                    })}
+                </>
+            )}
+            <S.ActionButtonContainer>
+                <S.ActionButton onClick={handleOnSave}>Save</S.ActionButton>
+            </S.ActionButtonContainer>
             {children}
         </S.Tray>
     );
