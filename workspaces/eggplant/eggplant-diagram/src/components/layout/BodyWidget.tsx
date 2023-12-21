@@ -82,7 +82,7 @@ export function BodyWidget(props: BodyWidgetProps) {
 
     // has start and return node types in flow model
     const hasStartNode = flowModel.nodes.some((node) => node.templateId === "StartNode");
-    const hasReturnNode = flowModel.nodes.some((node) => node.templateId === "EndNode");
+    const hasReturnNode = flowModel.nodes.some((node) => node.templateId === "HttpResponseNode");
 
     return (
         <S.Body>
@@ -90,10 +90,10 @@ export function BodyWidget(props: BodyWidgetProps) {
                 <TrayWidget>
                     {!hasStartNode && false && <TrayItemWidget model={{ type: "StartNode" }} name="Start" />}
                     <TrayItemWidget model={{ type: "CodeBlockNode" }} name="Code Block" />
-                    <TrayItemWidget model={{ type: "switch" }} name="Switch" />
+                    <TrayItemWidget model={{ type: "SwitchNode" }} name="Switch" />
                     <TrayItemWidget model={{ type: "HttpRequestNode" }} name="HTTP Request" />
                     <TrayItemWidget model={{ type: "TransformNode" }} name="Transform" />
-                    {!hasReturnNode && <TrayItemWidget model={{ type: "EndNode" }} name="Return" />}
+                    {!hasReturnNode && <TrayItemWidget model={{ type: "HttpResponseNode" }} name="Return" />}
                 </TrayWidget>
                 <S.Layer
                     onDrop={handleDrop}

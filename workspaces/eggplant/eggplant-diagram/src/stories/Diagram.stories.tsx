@@ -235,7 +235,11 @@ const CodeBlockModel: Flow = {
                     receiver: "B",
                 },
             ],
-            codeBlock: "int b = 32;\n",
+            properties:{
+                codeBlock: {
+                    expression: "int a = 32 + x;\n"
+                }
+            }
         },
         {
             name: "B",
@@ -270,7 +274,11 @@ const CodeBlockModel: Flow = {
                     receiver: "function",
                 },
             ],
-            codeBlock: "        int a = 32 + x;\n        int b = a % 12;\n",
+            properties:{
+                codeBlock: {
+                    expression: "int a = 32 + x;\n        int b = a % 12;\n"
+                }
+            }
         },
     ],
 };
@@ -319,11 +327,10 @@ const SwitchModel: Flow = {
                     receiver: "B",
                 },
             ],
-            codeBlock: "",
         },
         {
             name: "B",
-            templateId: "switch",
+            templateId: "SwitchNode",
             codeLocation: {
                 start: {
                     line: 17,
@@ -375,15 +382,15 @@ const SwitchModel: Flow = {
             properties: {
                 cases: [
                     {
-                        expression: "x < 10",
+                        expression: {expression: "x < 10"},
                         nodes: ["2"],
                     },
                     {
-                        expression: "x > 10 && x < 20",
+                        expression: {expression:"x > 10 && x < 20"},
                         nodes: ["3"],
                     },
                     {
-                        expression: "x > 20 && x < 40",
+                        expression: {expression:"x > 20 && x < 40"},
                         nodes: ["4"],
                     },
                 ],
@@ -418,7 +425,6 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
         {
             name: "D",
@@ -446,7 +452,6 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
         {
             name: "E",
@@ -474,7 +479,6 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
         {
             name: "F",
@@ -502,7 +506,6 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
     ],
 };

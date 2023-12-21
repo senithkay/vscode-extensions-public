@@ -10,6 +10,7 @@
 import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import {
+    CodeNodeProperties,
     ExtendedPort,
     Flow,
     HttpRequestNodeProperties,
@@ -103,14 +104,14 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
-        case "EndNode":
+        case "HttpResponseNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
                 const port = nodeModel.addInPort(portId, undefined, fixedNode);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             break;
-        case "switch":
+        case "SwitchNode":
             const nodeProperties = node.properties as SwitchNodeProperties;
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
@@ -199,6 +200,14 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                     fixedNode
                 );
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+                const codeNodeProperties: CodeNodeProperties = {
+                    ...node.properties,
+                    codeBlock: {
+                        expression: "",
+                    }
+                };
+                node.properties = codeNodeProperties;
+                nodeModel.setNode(node);
             }
             break;
         case "HttpRequestNode":
@@ -366,7 +375,6 @@ export function generateFlowModelFromDiagramModel(
             },
             inputPorts: inPorts,
             outputPorts: outPorts,
-            codeBlock: nodeModel?.codeBlock || "",
         };
         // add properties if any
         if (nodeModel.properties) {

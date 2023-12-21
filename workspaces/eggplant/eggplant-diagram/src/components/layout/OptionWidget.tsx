@@ -4,7 +4,14 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { TextField, Button, TextArea, Icon, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { Colors, DEFAULT_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
-import { HttpMethod, HttpRequestNodeProperties, Node, SwitchCaseBlock, SwitchNodeProperties } from "../../types";
+import {
+    CodeNodeProperties,
+    HttpMethod,
+    HttpRequestNodeProperties,
+    Node,
+    SwitchCaseBlock,
+    SwitchNodeProperties,
+} from "../../types";
 import { getPortId, toSnakeCase } from "../../utils";
 
 export interface OptionWidgetProps {
@@ -114,7 +121,9 @@ export function OptionWidget(props: OptionWidgetProps) {
         }
         // add new case and port
         nodeProperties.cases.push({
-            expression: "true",
+            expression: {
+                expression: "true",
+            },
             nodes: [portId],
         });
         selectedNode.addOutPort(portId, {
@@ -168,7 +177,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     }}
                 />
             </S.HeaderContainer>
-            {selectedNode.getKind() !== "StartNode" && selectedNode.getKind() !== "EndNode" && (
+            {selectedNode.getKind() !== "StartNode" && selectedNode.getKind() !== "HttpResponseNode" && (
                 <S.InputField
                     label="Component Name"
                     value={selectedNode.getName()}
@@ -255,18 +264,18 @@ export function OptionWidget(props: OptionWidgetProps) {
                     <S.Divider />
                     <TextArea
                         label="Code Block"
-                        value={node?.codeBlock || ""}
+                        value={(node?.properties as CodeNodeProperties)?.codeBlock?.expression || ""}
                         rows={16}
                         resize="vertical"
                         onChange={(value: string) => {
                             if (node) {
-                                node.codeBlock = value;
+                                (node.properties as CodeNodeProperties).codeBlock.expression = value;
                             }
                         }}
                     />
                 </>
             )}
-            {selectedNode.getKind() === "switch" && (
+            {selectedNode.getKind() === "SwitchNode" && (
                 <>
                     <S.Divider />
                     <S.SectionTitle>Conditions</S.SectionTitle>
@@ -281,8 +290,9 @@ export function OptionWidget(props: OptionWidgetProps) {
                                         resize="vertical"
                                         onChange={(value: string) => {
                                             if (node) {
-                                                (node.properties as SwitchNodeProperties).cases[index].expression =
-                                                    value;
+                                                (node.properties as SwitchNodeProperties).cases[
+                                                    index
+                                                ].expression.expression = value;
                                             }
                                         }}
                                     />
@@ -295,7 +305,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     </Button>
                 </>
             )}
-            {selectedNode.getKind() !== "EndNode" && (
+            {selectedNode.getKind() !== "HttpResponseNode" && (
                 <>
                     <S.Divider />
                     {selectedNode.getOutPorts().length > 0 && <S.SectionTitle>Output</S.SectionTitle>}
@@ -304,7 +314,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                         if (!nodePort) {
                             return null;
                         }
-                        if (selectedNode.getKind() === "switch" && nodePort.name !== "out_default") {
+                        if (selectedNode.getKind() === "SwitchNode" && nodePort.name !== "out_default") {
                             return null;
                         }
                         return (
