@@ -35,17 +35,18 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const HeaderForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "headerName": "To",
-       "headerAction": "set",
-       "scope": "default",
-       "valueType": "LITERAL",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "headerName": "To",
+       "headerAction": "set",
+       "scope": "default",
+       "valueType": "LITERAL",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -156,7 +157,7 @@ const HeaderForm = (props: AddMediatorProps) => {
                         </div>
                     }
 
-                    {formValues["0"] && formValues["0"].toLowerCase() == "o" &&formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" &&formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
+                    {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" ||formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
                         <div>
                             <TextField
                                 label="Value Literal"
@@ -173,12 +174,12 @@ const HeaderForm = (props: AddMediatorProps) => {
                         </div>
                     }
 
-                    {formValues["0"] && formValues["0"].toLowerCase() == "o" &&formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" &&formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
+                    {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" ||formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
                         <div>
                         </div>
                     }
 
-                    {formValues["0"] && formValues["0"].toLowerCase() == "o" &&formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" &&formValues["valueType"] && formValues["valueType"].toLowerCase() == "inline" &&
+                    {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" ||formValues["valueType"] && formValues["valueType"].toLowerCase() == "inline" &&
                         <div>
                             <TextField
                                 label="Value Inline"

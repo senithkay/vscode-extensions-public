@@ -36,16 +36,17 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const CallTemplateForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "availableTemplates": "Select From Templates",
-       "parameterName": [] as string[][],
-       "templateParameterType": "LITERAL",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "availableTemplates": "Select From Templates",
+       "parameterName": [] as string[][],
+       "templateParameterType": "LITERAL",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -70,13 +71,6 @@ const CallTemplateForm = (props: AddMediatorProps) => {
            sidePanelContext.setMediator(undefined);
        }
    };
-
-   const onAddClick = async () => {
-       if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
-        setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined ,
-        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
-       }
-   }
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "availableTemplates": (e?: any) => validateField("availableTemplates", e, false),
@@ -125,6 +119,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                     {errors["availableTemplates"] && <Error>{errors["availableTemplates"]}</Error>}
                 </div>
 
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
@@ -174,15 +169,22 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                             </div>
                         }
 
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={onAddClick}>
-                            Add
-                        </Button>
-                    </div>
                     </ComponentCard>
-                {formValues["properties"].length > 0 && (
+                <div style={{ textAlign: "right", marginTop: "10px" }}>
+                    <Button appearance="primary" onClick={() => {
+                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                            setFormValues({
+                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
+                                "parameterName": [...formValues["parameterName"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                            });
+                        }
+                    }}>
+                        Add
+                    </Button>
+                </div>
+                {formValues["parameterName"] && formValues["parameterName"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties Table</h3>
+                        <h3>Parameter Name Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -195,7 +197,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["properties"].map((property: string, index: string) => (
+                            {formValues["parameterName"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -211,6 +213,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         </VSCodeDataGrid>
                     </ComponentCard>
                 )}
+                </ComponentCard>
                 <div>
                     <TextField
                         label="Target Template"

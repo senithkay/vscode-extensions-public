@@ -36,19 +36,20 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const PropertyGroupForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "properties": [] as string[][],
-       "propertyDataType": "STRING",
-       "propertyAction": "set",
-       "propertyScope": "DEFAULT",
-       "valueType": "LITERAL",
-       "valueStringCapturingGroup": "0",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "properties": [] as string[][],
+       "propertyDataType": "STRING",
+       "propertyAction": "set",
+       "propertyScope": "DEFAULT",
+       "valueType": "LITERAL",
+       "valueStringCapturingGroup": "0",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -73,13 +74,6 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
            sidePanelContext.setMediator(undefined);
        }
    };
-
-   const onAddClick = async () => {
-       if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
-        setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined ,
-        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
-       }
-   }
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "description": (e?: any) => validateField("description", e, false),
@@ -137,6 +131,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                     {errors["description"] && <Error>{errors["description"]}</Error>}
                 </div>
 
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
@@ -267,13 +262,20 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             {errors["description"] && <Error>{errors["description"]}</Error>}
                         </div>
 
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={onAddClick}>
-                            Add
-                        </Button>
-                    </div>
                     </ComponentCard>
-                {formValues["properties"].length > 0 && (
+                <div style={{ textAlign: "right", marginTop: "10px" }}>
+                    <Button appearance="primary" onClick={() => {
+                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                            setFormValues({
+                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
+                                "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                            });
+                        }
+                    }}>
+                        Add
+                    </Button>
+                </div>
+                {formValues["properties"] && formValues["properties"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
@@ -304,6 +306,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                         </VSCodeDataGrid>
                     </ComponentCard>
                 )}
+                </ComponentCard>
             </ComponentCard>
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
