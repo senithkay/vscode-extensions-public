@@ -28,7 +28,7 @@ export interface OptionWidgetProps {
     selectedNode: DefaultNodeModel;
     children?: React.ReactNode;
     setSelectedNode?: (node: DefaultNodeModel) => void;
-    updateFlowModel?: (node: Node) => void;
+    updateFlowModel?: () => void;
 }
 
 namespace S {
@@ -148,11 +148,11 @@ export function OptionWidget(props: OptionWidgetProps) {
     const handleOpenDataMapper = () => {
         handleOnSave();
         console.log("open data mapper");
-    }
+    };
 
     const handleOnSave = () => {
         selectedNode.setNode(node);
-        updateFlowModel(node);
+        updateFlowModel();
         setSelectedNode(null);
     };
 
@@ -244,7 +244,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     />
                 </>
             )}
-            {(selectedNode.getKind() === "CodeBlockNode") && (
+            {selectedNode.getKind() === "CodeBlockNode" && (
                 <>
                     <S.Divider />
                     <TextArea
@@ -260,7 +260,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     />
                 </>
             )}
-            {(selectedNode.getKind() === "TransformNode") && (
+            {selectedNode.getKind() === "TransformNode" && (
                 <>
                     <S.Divider />
                     <Button appearance="secondary" onClick={handleOpenDataMapper}>
@@ -318,19 +318,22 @@ export function OptionWidget(props: OptionWidgetProps) {
                                     required={true}
                                     onChange={(value: string) => {
                                         nodePort.type = value;
+                                        if (selectedNode.getKind() === "HttpRequestNode") {
+                                            (node.properties as HttpRequestNodeProperties).type = value;
+                                        }
                                     }}
                                     size={32}
                                 />
                                 {selectedNode.getKind() === "CodeBlockNode" && (
                                     <S.InputField
-                                    label="Name"
-                                    value={(node.properties as CodeNodeProperties).returnVar|| "payload"}
-                                    required={true}
-                                    onChange={(value: string) => {
-                                        (node.properties as CodeNodeProperties).returnVar = value;
-                                    }}
-                                    size={32}
-                                />
+                                        label="Name"
+                                        value={(node.properties as CodeNodeProperties).returnVar || "payload"}
+                                        required={true}
+                                        onChange={(value: string) => {
+                                            (node.properties as CodeNodeProperties).returnVar = value;
+                                        }}
+                                        size={32}
+                                    />
                                 )}
                             </S.Row>
                         );
