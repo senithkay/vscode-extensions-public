@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
@@ -136,29 +145,10 @@ export function OptionWidget(props: OptionWidgetProps) {
         forceUpdate({} as any);
     };
 
-    // add input port for the node
-    const handleAddInputPort = () => {
-        const portId = getNextInputPortId();
-        selectedNode.addInPort(portId, {
-            id: portId,
-            type: DEFAULT_TYPE,
-            name: portId,
-        });
-        selectedNode.setNode(node);
-        // update the diagram
-        engine.repaintCanvas();
-        forceUpdate({} as any);
-    };
-
-    // get next input port id
-    const getNextInputPortId = () => {
-        let portCount = selectedNode.getInPorts().length;
-        let portId = getPortId(node.name, true, portCount + 1);
-        while (selectedNode.getInPorts().find((port) => port.getID() === portId)) {
-            portId = getPortId(node.name, true, portCount + 1);
-        }
-        return portId;
-    };
+    const handleOpenDataMapper = () => {
+        handleOnSave();
+        console.log("open data mapper");
+    }
 
     const handleOnSave = () => {
         selectedNode.setNode(node);
@@ -192,13 +182,13 @@ export function OptionWidget(props: OptionWidgetProps) {
                 <>
                     <S.Divider />
                     <S.SectionTitle>Input</S.SectionTitle>
-                    {selectedNode.getInPorts()?.map((port) => {
+                    {selectedNode.getInPorts()?.map((port, index) => {
                         const nodePort = port.getOptions()?.port;
                         if (!nodePort) {
                             return null;
                         }
                         return (
-                            <S.Row>
+                            <S.Row key={index}>
                                 <S.InputField
                                     label="Type"
                                     value={nodePort.type}
@@ -220,14 +210,9 @@ export function OptionWidget(props: OptionWidgetProps) {
                             </S.Row>
                         );
                     })}
-                    {(selectedNode.getKind() === "CodeBlockNode" || selectedNode.getKind() === "TransformNode") && (
-                        <Button appearance="secondary" onClick={handleAddInputPort}>
-                            Add Input
-                        </Button>
-                    )}
                 </>
             )}
-            {selectedNode.getKind() === "HttpRequestNode" && (
+            {selectedNode.getKind() === "TransformNode" && (
                 <>
                     <S.Divider />
                     <S.SectionTitle>Connection</S.SectionTitle>
@@ -259,7 +244,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     />
                 </>
             )}
-            {(selectedNode.getKind() === "CodeBlockNode" || selectedNode.getKind() === "TransformNode") && (
+            {(selectedNode.getKind() === "CodeBlockNode") && (
                 <>
                     <S.Divider />
                     <TextArea
@@ -273,6 +258,14 @@ export function OptionWidget(props: OptionWidgetProps) {
                             }
                         }}
                     />
+                </>
+            )}
+            {(selectedNode.getKind() === "TransformNode") && (
+                <>
+                    <S.Divider />
+                    <Button appearance="secondary" onClick={handleOpenDataMapper}>
+                        Use Data Mapper
+                    </Button>
                 </>
             )}
             {selectedNode.getKind() === "SwitchNode" && (
@@ -309,7 +302,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                 <>
                     <S.Divider />
                     {selectedNode.getOutPorts().length > 0 && <S.SectionTitle>Output</S.SectionTitle>}
-                    {selectedNode.getOutPorts()?.map((port) => {
+                    {selectedNode.getOutPorts()?.map((port, index) => {
                         const nodePort = port.getOptions()?.port;
                         if (!nodePort) {
                             return null;
@@ -318,7 +311,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                             return null;
                         }
                         return (
-                            <S.Row>
+                            <S.Row key={index}>
                                 <S.InputField
                                     label="Type"
                                     value={nodePort.type}

@@ -83,4 +83,8 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
         }
         return link || new DefaultLinkModel();
     }
+
+    hasLinks(): boolean {
+        return Object.keys(this.links).length > 0;
+    }
 }

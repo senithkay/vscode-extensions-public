@@ -210,6 +210,43 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 nodeModel.setNode(node);
             }
             break;
+        case "TransformNode":
+            const defaultInputType = "string";
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                let port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: defaultInputType,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: defaultInputType, name: portId, parent: nodeId, in: true, model: port });
+            }
+            if (node.outputPorts?.length === 0) {
+                let portId = getPortId(node.name, false, 1);
+                let port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: defaultInputType,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: defaultInputType, name: portId, parent: nodeId, in: false, model: port });
+                const codeNodeProperties: CodeNodeProperties = {
+                    ...node.properties,
+                    codeBlock: {
+                        expression: "",
+                    }
+                };
+                node.properties = codeNodeProperties;
+                nodeModel.setNode(node);
+            }
+            break;
         case "HttpRequestNode":
             const httpNodeProperties: HttpRequestNodeProperties = {
                 ...node.properties,

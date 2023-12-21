@@ -13,6 +13,7 @@ import { DefaultPortModel } from "../port/DefaultPortModel";
 import { BasePositionModelOptions, DeserializeEvent } from "@projectstorm/react-canvas-core";
 import { Colors } from "../../../resources";
 import { Node, NodeKinds, NodePort } from "../../../types";
+import { getPortId } from "../../../utils";
 
 export interface DefaultNodeModelOptions extends BasePositionModelOptions {
     name?: string;
@@ -169,5 +170,25 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
 
     getKind(): NodeKinds {
         return this.options.kind;
+    }
+
+    getAvailableInPort(): DefaultPortModel | undefined {
+        console.log("getAvailableInPort", this.portsIn);
+        for (const port of this.portsIn) {
+            if (!port.hasLinks()) {
+                return port;
+            }
+        }
+        return undefined;
+    }
+
+    getNextPortID(): string {
+        let count = this.portsIn.length;
+        let nextPortId = getPortId(this.parent.getID(), true, count++);
+        while (this.getPort(nextPortId)) {
+            count++;
+            nextPortId = getPortId(this.parent.getID(), true, count++);
+        }
+        return nextPortId;
     }
 }
