@@ -97,7 +97,7 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
                 </S.InPorts>
                 <S.Title>
                     <S.TitleName>
-                        {this.props.node.getOptions().node?.name === "EndNode"
+                        {this.props.node.getOptions().node?.name === "HttpResponseNode"
                             ? "Return"
                             : this.props.node.getOptions().node?.name || this.props.node.getOptions().name}
                     </S.TitleName>

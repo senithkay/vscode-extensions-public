@@ -15,6 +15,8 @@ import Overview from './Overview';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { Loader } from "./Loader";
 import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
+import InitProject from "./components/overview/InitProject";
+import WelcomeView from "./components/lowcode/WelcomeView";
 
 
 export function Webview({ mode }: { mode: string }) {
@@ -35,17 +37,36 @@ export function Webview({ mode }: { mode: string }) {
 
     return (
         <>
-            {mode === "overview" &&
-                <>
-                    {typeof state === 'object' && 'ready' in state ? <Overview /> : <Loader />}
-                </>
-            }
-            {mode === "lowcode" &&
-                <>
-                    {typeof state === 'object' && 'ready' in state ? <LowCode state={state} /> : <Loader />}
-                </>
-            }
+            {(() => {
+                switch (mode) {
+                    case "overview":
+                        return <OverviewComponent state={state} />;
+                    case "lowcode":
+                        return <LowCodeComponent state={state} />;
+                }
+            })()}
         </>
     );
 };
 
+const OverviewComponent = ({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state:
+            return <Overview />;
+        case typeof state === 'object' && 'newProject' in state:
+            return <InitProject />;
+        default:
+            return <Loader />;
+    }
+};
+
+const LowCodeComponent = ({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state:
+            return <LowCode state={state} />;
+        case typeof state === 'object' && 'newProject' in state:
+            return <WelcomeView state={state}/>;
+        default:
+            return <Loader />;
+    }
+};

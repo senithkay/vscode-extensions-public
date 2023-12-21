@@ -10,6 +10,7 @@
 import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import {
+    CodeNodeProperties,
     ExtendedPort,
     Flow,
     HttpRequestNodeProperties,
@@ -103,14 +104,14 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
-        case "EndNode":
+        case "HttpResponseNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
                 const port = nodeModel.addInPort(portId, undefined, fixedNode);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             break;
-        case "switch":
+        case "SwitchNode":
             const nodeProperties = node.properties as SwitchNodeProperties;
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
@@ -199,6 +200,59 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                     fixedNode
                 );
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+                const codeNodeProperties: CodeNodeProperties = {
+                    ...node.properties,
+                    codeBlock: {
+                        expression: "",
+                    },
+                    returnVar: "payload",
+                };
+                node.properties = codeNodeProperties;
+                nodeModel.setNode(node);
+            }
+            break;
+        case "TransformNode":
+            const defaultInputType = "string";
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                let port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: defaultInputType,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: defaultInputType, name: portId, parent: nodeId, in: true, model: port });
+            }
+            if (node.outputPorts?.length === 0) {
+                let portId = getPortId(node.name, false, 1);
+                let port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: defaultInputType,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({
+                    id: portId,
+                    type: defaultInputType,
+                    name: portId,
+                    parent: nodeId,
+                    in: false,
+                    model: port,
+                });
+                const codeNodeProperties: CodeNodeProperties = {
+                    ...node.properties,
+                    codeBlock: {
+                        expression: "",
+                    },
+                };
+                node.properties = codeNodeProperties;
+                nodeModel.setNode(node);
             }
             break;
         case "HttpRequestNode":
@@ -207,7 +261,9 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 basePath: "",
                 path: "",
                 action: "GET",
-                headers: [], // Add the 'headers' property here
+                headers: [],
+                endpointName: "",
+                type: "",
             };
             node.properties = httpNodeProperties;
             nodeModel.setNode(node);
@@ -366,7 +422,6 @@ export function generateFlowModelFromDiagramModel(
             },
             inputPorts: inPorts,
             outputPorts: outPorts,
-            codeBlock: nodeModel?.codeBlock || "",
         };
         // add properties if any
         if (nodeModel.properties) {

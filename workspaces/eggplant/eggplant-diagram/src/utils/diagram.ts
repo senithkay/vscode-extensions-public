@@ -14,6 +14,7 @@ import { DeleteItemsAction } from "@projectstorm/react-canvas-core";
 import { action } from "@storybook/addon-actions";
 import { Flow } from "@wso2-enterprise/eggplant-core";
 import { generateFlowModelFromDiagramModel } from "./generator";
+import { DefaultState } from "../states/DefaultState";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine(
@@ -28,6 +29,9 @@ export function generateEngine(): DiagramEngine {
 
     // register an DeleteItemsAction with only ctrl + d as keyCodes
     engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [68], modifiers: { ctrlKey: true } }));
+
+    // register custom state
+    engine.getStateMachine().pushState(new DefaultState());
 
     return engine;
 }

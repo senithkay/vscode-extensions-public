@@ -15,7 +15,7 @@ import { getPortId } from "./generator";
 // get custom default node factory
 export function getNodeModel(type: NodeKinds, suffix?: string) {
     let name = type.toString();
-    const isSingleNode = type === "StartNode" || type === "EndNode";
+    const isSingleNode = type === "StartNode" || type === "HttpResponseNode";
     if (suffix !== undefined && !isSingleNode) {
         name = type + "_" + suffix;
     }
@@ -40,7 +40,11 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
             x: 0,
             y: 0,
         },
-        codeBlock: "",
+        properties: {
+            codeBlock: {
+                expression: "",
+            },
+        },
     };
 
     const inPortId = getPortId(name, true, 1);
@@ -51,11 +55,11 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
             nodeModel.addOutPort(outPortId);
             emptyNode.templateId = "StartNode";
             break;
-        case "EndNode":
+        case "HttpResponseNode":
             nodeModel.addInPort(inPortId);
-            emptyNode.templateId = "EndNode";
+            emptyNode.templateId = "HttpResponseNode";
             break;
-        case "switch":
+        case "SwitchNode":
             nodeModel.addInPort(inPortId, {
                 id: inPortId,
                 type: DEFAULT_TYPE,
@@ -69,11 +73,11 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
                 id: defaultPortId,
                 type: DEFAULT_TYPE,
             });
-            emptyNode.templateId = "switch";
+            emptyNode.templateId = "SwitchNode";
             emptyNode.properties = {
                 cases: [
                     {
-                        expression: "true",
+                        expression: { expression: "true" },
                         nodes: [outPortId],
                     },
                 ],
@@ -94,5 +98,5 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
 }
 
 export function isFixedNode(type: NodeKinds) {
-    return type === "StartNode" || type === "EndNode";
+    return type === "StartNode" || type === "HttpResponseNode";
 }

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BalExpression, Flow, HttpRequestNodeProperties, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties, HttpMethod } from "../../rpc-types/webview/types";
+import { BalExpression, CodeNodeProperties, Flow, HttpRequestNodeProperties, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties, HttpMethod } from "../../rpc-types/webview/types";
 import { getComponentSource } from "./template-utils";
 
 const defaultInput = "_ = check <- function;";
@@ -17,7 +17,7 @@ export function workerCodeGen(model: Flow): string {
     let workerBlocks: string = "";
     // use the util functions and generate the workerblocks
     model?.nodes.forEach(node => {
-        if (node.templateId === "switch") {
+        if (node.templateId === "SwitchNode") {
             workerBlocks += generateSwitchNode(node);
         } else if (node.templateId === "HttpRequestNode") { 
             workerBlocks += generateCallerNode(node);
@@ -33,6 +33,7 @@ export function workerCodeGen(model: Flow): string {
 
 
 function generateBlockNode(node: Node): string {
+    const nodeProperties = node.properties as CodeNodeProperties;
     let inputPorts: string = generateInputPorts(node);
     const outputPorts: string = generateOutputPorts(node);
     console.log("===inputPorts", inputPorts);
@@ -43,8 +44,8 @@ function generateBlockNode(node: Node): string {
         name: 'CODE_BLOCK_NODE',
         config: {
             NODE_NAME: node.name,
-            INPUT_PORTS: inputPorts,
-            CODE_BLOCK: node?.codeBlock ? node.codeBlock : undefined,
+            INPUT_PORTS: generateInputPorts(node),
+            CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.expression : undefined,
             OUTPUT_PORTS: generateOutputPorts(node)
         }
     });
@@ -125,7 +126,6 @@ function generateSwitchNode(node: Node): string {
         config: {
             NODE_NAME: node.name,
             INPUT_PORTS: generateInputPorts(node),
-            CODE_BLOCK: node?.codeBlock ? node.codeBlock : undefined,
             SWITCH_BLOCK: switchCaseBlock
         }
     });
