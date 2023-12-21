@@ -75,7 +75,8 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 }
 
 export async function activate(context: ExtensionContext) { 
-    startMachine(context);
+    await startMachine(context);
+    return ballerinaExtInstance;
 }
 
 export async function activateBallerina(context: ExtensionContext): Promise<BallerinaExtension> {

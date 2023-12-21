@@ -24,7 +24,7 @@ export class RPCLayer {
         }
 
         // Register state change notification
-        StateMachine.getService().onTransition((state) => {
+        StateMachine.service().onTransition((state) => {
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'lowcode' }, state.value);
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'eggplant.activity.overview' }, state.value);
         });

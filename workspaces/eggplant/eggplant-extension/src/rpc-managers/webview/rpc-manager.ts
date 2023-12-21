@@ -14,24 +14,27 @@ import {
     EggplantModelRequest,
     Flow,
     LangClientInterface,
+    MachineEvent,
     MachineStateValue,
     VisualizerLocation,
+    CommandProps,
     WebviewAPI,
     workerCodeGen
 } from "@wso2-enterprise/eggplant-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { writeFileSync } from "fs";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
-import { getState, openView, stateService } from "../../stateMachine";
+import { StateMachine, openView } from "../../stateMachine";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
-import { writeFileSync } from "fs";
+import { createEggplantProject, openEggplantProject } from "../../utils/project";
 
 export class WebviewRpcManager implements WebviewAPI {
 
     async getVisualizerState(): Promise<VisualizerLocation> {
-        const snapshot = stateService.getSnapshot();
+        const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve(snapshot.context);
+            resolve(context);
         });
     }
 
@@ -43,7 +46,7 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async getBallerinaProjectComponents(): Promise<BallerinaProjectComponents> {
-        const snapshot = stateService.getSnapshot();
+        const context = StateMachine.context();
         // Check if there is at least one workspace folder
         if (workspace.workspaceFolders?.length) {
             const workspaceUri: { uri: string }[] = [];
@@ -54,7 +57,6 @@ export class WebviewRpcManager implements WebviewAPI {
                     }
                 );
             });
-            const context = snapshot.context;
             const langClient = context.langServer as LangClientInterface;
             return langClient.getBallerinaProjectComponents({
                 documentIdentifiers: workspaceUri
@@ -66,8 +68,7 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async getEggplantModel(): Promise<Flow> {
-        const snapshot = stateService.getSnapshot();
-        const context = snapshot.context;
+        const context = StateMachine.context();
         const langClient = context.langServer as LangClientInterface;
         if (!context.location) {
             // demo hack
@@ -103,14 +104,25 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async getState(): Promise<MachineStateValue> {
-        const snapshot = stateService.getSnapshot();
         return new Promise((resolve) => {
-            resolve(getState());
+            resolve(StateMachine.state());
         });
     }
 
-    executeCommand(params: string): void {
-        commands.executeCommand(params);
+    executeCommand(params: CommandProps): void {
+        switch (params.command) {
+            case "OPEN_LOW_CODE":
+                commands.executeCommand("eggplant.openLowCode");
+                break;
+            case "OPEN_PROJECT":
+                openEggplantProject();
+                break;
+            case "CREATE_PROJECT":
+                createEggplantProject(params.projectName!, params.isService!);
+                break;
+            default:
+                break;
+        }
     }
 
     async getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
@@ -137,8 +149,7 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async updateSource(flowModel: Flow): Promise<void> {
-        const snapshot = stateService.getSnapshot();
-        const context = snapshot.context;
+        const context = StateMachine.context();
         const code = workerCodeGen(flowModel);
 
         const langClient = context.langServer as LangClientInterface;
@@ -184,5 +195,9 @@ export class WebviewRpcManager implements WebviewAPI {
                 }
             });
         }
+    }
+
+    async sendMachineEvent(params: MachineEvent): Promise<void> {
+        StateMachine.sendEvent(params.type);
     }
 }
