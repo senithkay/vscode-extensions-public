@@ -14,14 +14,24 @@ import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ball
 import { useSyntaxTreeFromRange } from "./../../Hooks"
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
+import { css, Global } from '@emotion/react';
 
 interface DataMapperOverlayProps {
     filePath: string;
     fnLocation: NodePosition;
+    onClose: () => void;
 }
 
+const globalStyles = css`
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+`;
+
 export function DataMapperOverlay(props: DataMapperOverlayProps) {
-    const { filePath, fnLocation } = props;
+    const { filePath, fnLocation, onClose } = props;
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(fnLocation , filePath, rerender);
     const { eggplantRpcClient, viewLocation } = useVisualizerContext();
@@ -67,12 +77,16 @@ export function DataMapperOverlay(props: DataMapperOverlayProps) {
           return <div>DM Loading...</div>;
         }
         return (
-            <DataMapperView
-                fnST={syntaxTree}
-                filePath={"/Users/madusha/temp1124/sample1215/main.bal"}
-                langServerRpcClient={langServerRpcClient}
-                applyModifications={applyModifications}
-            />
+            <>
+                <Global styles={globalStyles} />
+                <DataMapperView
+                    fnST={syntaxTree}
+                    filePath={"/Users/madusha/temp1124/sample1215/main.bal"}
+                    langServerRpcClient={langServerRpcClient}
+                    applyModifications={applyModifications}
+                    onClose={onClose}
+                />
+            </>
         );
       }, [mapperData]);
 

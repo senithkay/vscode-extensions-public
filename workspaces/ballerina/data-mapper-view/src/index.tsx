@@ -30,10 +30,11 @@ export interface DataMapperViewProps {
   filePath: string;
   langServerRpcClient: LangServerRpcClient;
   applyModifications: (modifications: STModification[]) => Promise<void>;
+  onClose?: () => void;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
-  const { fnST, filePath, langServerRpcClient, applyModifications } = props;
+  const { fnST, filePath, langServerRpcClient, applyModifications, onClose } = props;
   return (
     <QueryClientProvider client={queryClient}>
       <DataMapper
@@ -41,6 +42,7 @@ export function DataMapperView(props: DataMapperViewProps) {
         filePath={filePath}
         langServerRpcClient={langServerRpcClient}
         applyModifications={applyModifications}
+        onClose={onClose}
       />
     </QueryClientProvider>
   );

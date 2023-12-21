@@ -163,7 +163,8 @@ export function DataMapperC(props: DataMapperViewProps) {
         fnST,
         filePath,
         langServerRpcClient,
-        applyModifications
+        applyModifications,
+        onClose
     } = props;
     const ballerinaVersion: string = '2201.7.2 (swan lake update 7)';
     const openedViaPlus: boolean = false;
@@ -174,7 +175,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     } = undefined;
-    const onClose: () => void = undefined;
     const onSave: (fnName: string) => void = undefined;
     const importStatements: string[] = [];
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
@@ -527,6 +527,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 dmSupported={dMSupported}
                                 changeSelection={handleSelectedST}
                                 onConfigOpen={onConfigOpen}
+                                onClose={onClose}
                             />
                         )}
                         {!dMSupported && (
