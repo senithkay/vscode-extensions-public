@@ -15,6 +15,8 @@ export type {
     SwitchCaseBlock,
     BalExpression,
     SwitchNodeProperties,
+    HttpRequestNodeProperties,
     NodeKinds,
+    HttpMethod
 } from "@wso2-enterprise/eggplant-core";
 

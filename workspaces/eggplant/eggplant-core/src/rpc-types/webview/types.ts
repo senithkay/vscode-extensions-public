@@ -31,7 +31,7 @@ export type Node = {
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
-    properties?: SwitchNodeProperties; // Need to update with other node types
+    properties?: SwitchNodeProperties | HttpRequestNodeProperties; // Need to update with other node types
     codeBlock?: string;
 };
 
@@ -79,8 +79,10 @@ export type SwitchCaseBlock = {
     nodes: string[];
 };
 
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
 export type HttpRequestNodeProperties = NodeProperties & {
-    action: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+    action: HttpMethod;
     basePath: string;
     headers: HttpHeader[];
     path: string;
