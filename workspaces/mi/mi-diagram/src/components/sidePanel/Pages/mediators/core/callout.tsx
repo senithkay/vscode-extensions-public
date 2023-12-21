@@ -36,18 +36,19 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const CalloutForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "initAxis2ClientOptions": false,
-       "payloadType": "XPATH",
-       "resultType": "XPATH",
-       "securityType": "TRUE",
-       "policies": "TRUE",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "initAxis2ClientOptions": false,
+       "payloadType": "XPATH",
+       "resultType": "XPATH",
+       "securityType": "TRUE",
+       "policies": "TRUE",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -204,6 +205,18 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "addressendpoint" &&
                     <div>
+                        <TextField
+                            label="Address Endpoint"
+                            size={50}
+                            placeholder=""
+                            value={formValues["addressEndpoint"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "addressEndpoint": e });
+                                formValidators["addressEndpoint"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["addressEndpoint"] && <Error>{errors["addressEndpoint"]}</Error>}
                     </div>
                 }
 
@@ -301,18 +314,54 @@ const CalloutForm = (props: AddMediatorProps) => {
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "a" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "false" &&
+                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "false" &&
                     <div>
+                        <TextField
+                            label="Policy Key"
+                            size={50}
+                            placeholder=""
+                            value={formValues["policyKey"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "policyKey": e });
+                                formValidators["policyKey"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["policyKey"] && <Error>{errors["policyKey"]}</Error>}
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "a" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
+                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
                     <div>
+                        <TextField
+                            label="Outbound Policy Key"
+                            size={50}
+                            placeholder=""
+                            value={formValues["outboundPolicyKey"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "outboundPolicyKey": e });
+                                formValidators["outboundPolicyKey"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["outboundPolicyKey"] && <Error>{errors["outboundPolicyKey"]}</Error>}
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "a" &&formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
+                {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
                     <div>
+                        <TextField
+                            label="Inbound Policy Key"
+                            size={50}
+                            placeholder=""
+                            value={formValues["inboundPolicyKey"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "inboundPolicyKey": e });
+                                formValidators["inboundPolicyKey"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["inboundPolicyKey"] && <Error>{errors["inboundPolicyKey"]}</Error>}
                     </div>
                 }
 

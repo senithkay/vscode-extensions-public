@@ -10,6 +10,7 @@
 import Mustache from "mustache";
 import { getMustacheTemplate } from "../templateUtils";
 import { MEDIATORS } from "../../../../constants";
+import { Log } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function getLogXml(data: { [key: string]: any }) {
   const properties = data.properties.map((property: string[]) => {
@@ -24,4 +25,14 @@ export function getLogXml(data: { [key: string]: any }) {
   }
 
   return Mustache.render(getMustacheTemplate(MEDIATORS.LOG), modifiedData);
+}
+
+export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log) {
+  if (node.property) {
+    data.properties = node.property.map((property) => {
+      return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value ?? property.expression];
+    });
+  }
+
+  return data;
 }

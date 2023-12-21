@@ -36,19 +36,20 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const ValidateForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "enableSchemaCaching": false,
-       "schemas": [] as string[][],
-       "validateSchemaKeyType": "Static",
-       "features": [] as string[][],
-       "featureEnabled": false,
-       "resources": [] as string[][],
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "enableSchemaCaching": false,
+       "schemas": [] as string[][],
+       "validateSchemaKeyType": "Static",
+       "features": [] as string[][],
+       "featureEnabled": false,
+       "resources": [] as string[][],});
        }
    }, [sidePanelContext.formValues]);
 
@@ -73,13 +74,6 @@ const ValidateForm = (props: AddMediatorProps) => {
            sidePanelContext.setMediator(undefined);
        }
    };
-
-   const onAddClick = async () => {
-       if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
-        setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined ,
-        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
-       }
-   }
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "source": (e?: any) => validateField("source", e, false),
@@ -145,6 +139,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                     {errors["enableSchemaCaching"] && <Error>{errors["enableSchemaCaching"]}</Error>}
                 </div>
 
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
@@ -159,6 +154,18 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                         {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "static" &&
                             <div>
+                                <TextField
+                                    label="Validate Static Schema Key"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["validateStaticSchemaKey"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "validateStaticSchemaKey": e });
+                                        formValidators["validateStaticSchemaKey"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["validateStaticSchemaKey"] && <Error>{errors["validateStaticSchemaKey"]}</Error>}
                             </div>
                         }
 
@@ -167,15 +174,22 @@ const ValidateForm = (props: AddMediatorProps) => {
                             </div>
                         }
 
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={onAddClick}>
-                            Add
-                        </Button>
-                    </div>
                     </ComponentCard>
-                {formValues["properties"].length > 0 && (
+                <div style={{ textAlign: "right", marginTop: "10px" }}>
+                    <Button appearance="primary" onClick={() => {
+                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                            setFormValues({
+                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
+                                "schemas": [...formValues["schemas"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                            });
+                        }
+                    }}>
+                        Add
+                    </Button>
+                </div>
+                {formValues["schemas"] && formValues["schemas"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties Table</h3>
+                        <h3>Schemas Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -188,7 +202,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["properties"].map((property: string, index: string) => (
+                            {formValues["schemas"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -204,6 +218,8 @@ const ValidateForm = (props: AddMediatorProps) => {
                         </VSCodeDataGrid>
                     </ComponentCard>
                 )}
+                </ComponentCard>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
@@ -231,15 +247,22 @@ const ValidateForm = (props: AddMediatorProps) => {
                             {errors["featureEnabled"] && <Error>{errors["featureEnabled"]}</Error>}
                         </div>
 
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={onAddClick}>
-                            Add
-                        </Button>
-                    </div>
                     </ComponentCard>
-                {formValues["properties"].length > 0 && (
+                <div style={{ textAlign: "right", marginTop: "10px" }}>
+                    <Button appearance="primary" onClick={() => {
+                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                            setFormValues({
+                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
+                                "features": [...formValues["features"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                            });
+                        }
+                    }}>
+                        Add
+                    </Button>
+                </div>
+                {formValues["features"] && formValues["features"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties Table</h3>
+                        <h3>Features Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -252,7 +275,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["properties"].map((property: string, index: string) => (
+                            {formValues["features"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -268,6 +291,8 @@ const ValidateForm = (props: AddMediatorProps) => {
                         </VSCodeDataGrid>
                     </ComponentCard>
                 )}
+                </ComponentCard>
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
@@ -287,17 +312,36 @@ const ValidateForm = (props: AddMediatorProps) => {
                         </div>
 
                         <div>
+                            <TextField
+                                label="Location Key"
+                                size={50}
+                                placeholder=""
+                                value={formValues["locationKey"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "locationKey": e });
+                                    formValidators["locationKey"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["locationKey"] && <Error>{errors["locationKey"]}</Error>}
                         </div>
 
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={onAddClick}>
-                            Add
-                        </Button>
-                    </div>
                     </ComponentCard>
-                {formValues["properties"].length > 0 && (
+                <div style={{ textAlign: "right", marginTop: "10px" }}>
+                    <Button appearance="primary" onClick={() => {
+                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                            setFormValues({
+                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
+                                "resources": [...formValues["resources"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                            });
+                        }
+                    }}>
+                        Add
+                    </Button>
+                </div>
+                {formValues["resources"] && formValues["resources"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties Table</h3>
+                        <h3>Resources Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -310,7 +354,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["properties"].map((property: string, index: string) => (
+                            {formValues["resources"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -326,6 +370,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                         </VSCodeDataGrid>
                     </ComponentCard>
                 )}
+                </ComponentCard>
                 <div>
                     <TextField
                         label="Description"

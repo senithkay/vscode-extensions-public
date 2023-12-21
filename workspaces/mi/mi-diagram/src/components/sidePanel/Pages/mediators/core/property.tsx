@@ -35,17 +35,18 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const PropertyForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "propertyDataType": "STRING",
-       "propertyAction": "set",
-       "propertyScope": "DEFAULT",
-       "valueStringCapturingGroup": "0",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "propertyDataType": "STRING",
+       "propertyAction": "set",
+       "propertyScope": "DEFAULT",
+       "valueStringCapturingGroup": "0",});
        }
    }, [sidePanelContext.formValues]);
 

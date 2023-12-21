@@ -9,21 +9,23 @@
 
 import Mustache from "mustache";
 import { MEDIATORS } from "../../../constants";
-import { getCallXml } from "./core/call";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { getLogXml } from "./core/log";
+import { getCallFormDataFromSTNode, getCallXml } from "./core/call";
+import { Call, Callout, Header, Log, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { getLogFormDataFromSTNode, getLogXml } from "./core/log";
+import { getCalloutFormDataFromSTNode, getCalloutXml } from "./core/callout";
+import { getHeaderFormDataFromSTNode } from "./core/header";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
         case MEDIATORS.CALLTEMPLATE:
-return `<call-template target="{{targetTemplate}}"{{#onError}} onError="{{onError}}"{{/onError}}{{#description}} description="{{description}}"{{/description}}>
+            return `<call-template target="{{targetTemplate}}"{{#onError}} onError="{{onError}}"{{/onError}}{{#description}} description="{{description}}"{{/description}}>
 {{#parameterName}}
 <with-param name="{{parameterName}}" {{#parameterValue}}value="{{parameterValue}}"{{/parameterValue}} {{#parameterExpression}}value="{{parameterExpression}}"{{/parameterExpression}}/>
 {{/parameterName}}
 </call-template>`;
         case MEDIATORS.CALL:
-return `<call blocking="{{enableBlockingCall}}">
-<endpoint />
+            return `<call blocking="{{enableBlockingCalls}}"{{#description}} description="{{description}}"{{/description}}>
+<endpoint {{#keyExpression}} key-expression="{{keyExpression}}"{{/keyExpression}}/>
     {{#bodySource}}
     <source contentType="{{contentType}}" type="{{sourceType}}"/>
     {{/bodySource}}
@@ -38,9 +40,9 @@ return `<call blocking="{{enableBlockingCall}}">
 {{/propertySource}}
 </call>`;
         case MEDIATORS.CALLOUT:
-return `<callout{{#serviceURL}} serviceURL="{{serviceURL}}"{{/serviceURL}}{{#soapAction}} action="{{soapAction}}"{{/soapAction}}{{#initAxis2ClientOptions}} initAxis2ClientOptions="{{initAxis2ClientOptions}}"{{/initAxis2ClientOptions}}{{#addressEndpoint}} endpointKey="{{addressEndpoint}}"{{/addressEndpoint}}{{#description}} description="{{description}}"{{/description}}>
+            return `<callout{{#serviceURL}} serviceURL="{{serviceURL}}"{{/serviceURL}}{{#soapAction}} action="{{soapAction}}"{{/soapAction}}{{#initAxis2ClientOptions}} initAxis2ClientOptions="{{initAxis2ClientOptions}}"{{/initAxis2ClientOptions}}{{#addressEndpoint}} endpointKey="{{addressEndpoint}}"{{/addressEndpoint}}{{#description}} description="{{description}}"{{/description}}>
   {{#configurationEnabled}}
-  <configuration axis2xml="{{pathToAxis2Xml}}" repository="{{pathToAxis2Repository}}"/>
+  <configuration axis2xml="{{pathToAxis2xml}}" repository="{{pathToAxis2Repository}}"/>
   {{/configurationEnabled}}
   {{#xpathPayload}}
   <source xpath="{{payloadMessageXPath}}"/>
@@ -67,19 +69,19 @@ return `<callout{{#serviceURL}} serviceURL="{{serviceURL}}"{{/serviceURL}}{{#soa
   {{/securityEnabled}}
 </callout>`;
         case MEDIATORS.DROP:
-return `<drop{{#description}} description="{{description}}"{{/description}}/>`;
+            return `<drop{{#description}} description="{{description}}"{{/description}}/>`;
         case MEDIATORS.HEADER:
-return `<header name="{{headerName}}" action="{{headerAction}}" scope="{{scope}}" {{#expression}}expression="{{expression}}"{{/expression}} {{#value}}value="{{value}}"{{/value}} {{#description}}description="{{description}}"{{/description}}/>`;
+            return `<header name="{{headerName}}" action="{{headerAction}}" scope="{{scope}}" {{#expression}}expression="{{expression}}"{{/expression}} {{#value}}value="{{value}}"{{/value}} {{#description}}description="{{description}}"{{/description}}/>`;
         case MEDIATORS.LOG:
-return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
+            return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
 {{#properties}}
     <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}"{{/expression}} />
 {{/properties}}
 </log>`;
         case MEDIATORS.LOOPBACK:
-return `<loopback{{#description}} description="{{description}}"{{/description}} />`;
+            return `<loopback{{#description}} description="{{description}}"{{/description}} />`;
         case MEDIATORS.PROPERTY:
-return `<property 
+            return `<property 
     name="{{propertyName}}" 
     scope="{{propertyScope}}" 
     type="{{propertyDataType}}" 
@@ -91,7 +93,7 @@ return `<property
     {{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
 />`;
         case MEDIATORS.PROPERTYGROUP:
-return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
+            return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
     {{#properties}}
         <property 
 name="{{propertyName}}" 
@@ -109,17 +111,17 @@ action="{{propertyAction}}"
     {{/properties}}
 </propertyGroup>`;
         case MEDIATORS.RESPOND:
-return `<respond{{#description}} description="{{description}}"{{/description}} />`;
+            return `<respond{{#description}} description="{{description}}"{{/description}} />`;
         case MEDIATORS.SEND:
-return `<send {{#skipSerialization}}skipSerialization="{{skipSerialization}}"{{/skipSerialization}}
+            return `<send {{#skipSerialization}}skipSerialization="{{skipSerialization}}"{{/skipSerialization}}
       {{#buildMessageBeforeSending}}buildmessage="{{buildMessageBeforeSending}}"{{/buildMessageBeforeSending}}
       {{#description}}description="{{description}}"{{/description}}>
     {{#endpoint}}<endpoint key="{{key}}" {{#inline}}inline="{{inline}}"{{/inline}}/>{{/endpoint}}
 </send>`;
         case MEDIATORS.SEQUENCE:
-return `<sequence {{#staticReferenceKey}}key="{{staticReferenceKey}}"{{/staticReferenceKey}} {{#dynamicReferenceKey}}key="{{dynamicReferenceKey}}"{{/dynamicReferenceKey}} {{#description}}description="{{description}}"{{/description}}/>`;
+            return `<sequence {{#staticReferenceKey}}key="{{staticReferenceKey}}"{{/staticReferenceKey}} {{#dynamicReferenceKey}}key="{{dynamicReferenceKey}}"{{/dynamicReferenceKey}} {{#description}}description="{{description}}"{{/description}}/>`;
         case MEDIATORS.STORE:
-return `<store messageStore="{{messageStore}}" 
+            return `<store messageStore="{{messageStore}}" 
        {{#sequence}}sequence="{{sequence}}"{{/sequence}} 
        {{#description}}description="{{description}}"{{/description}}>
     {{#parameters}}
@@ -127,7 +129,7 @@ return `<store messageStore="{{messageStore}}"
     {{/parameters}}
 </store>`;
         case MEDIATORS.VALIDATE:
-return `<validate {{#source}}source="{{source}}"{{/source}} 
+            return `<validate {{#source}}source="{{source}}"{{/source}} 
           {{#cache-schema}}cache-schema="{{cache-schema}}"{{/cache-schema}} 
           {{#description}}description="{{description}}"{{/description}}>
     {{#schema}}
@@ -162,20 +164,28 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getCallXml(data);
         case MEDIATORS.LOG:
             return getLogXml(data);
+        case MEDIATORS.CALLOUT:
+            return getCalloutXml(data);
         default:
-return Mustache.render(getMustacheTemplate(name), data);
+            return Mustache.render(getMustacheTemplate(name), data);
     }
 }
 
 export function getDataFromXML(name: string, node: STNode) {
     const template = getMustacheTemplate(name);
     const formData = reverseMustache(template, node);
-    console.log('formData', formData);
+
     switch (name) {
-        // case MEDIATORS.CALL:
-// return getCallFormDataFromXMLData(formData);
+        case MEDIATORS.CALL:
+            return getCallFormDataFromSTNode(formData, node as Call);
+        case MEDIATORS.CALLOUT:
+            return getCalloutFormDataFromSTNode(formData, node as Callout);
+        case MEDIATORS.HEADER:
+            return getHeaderFormDataFromSTNode(formData, node as Header);
+        case MEDIATORS.LOG:
+            return getLogFormDataFromSTNode(formData, node as Log);    
         default:
-return formData;
+            return formData;
     }
 
 }
@@ -186,17 +196,17 @@ function reverseMustache(template: string, node: any): { [key: string]: any } {
 
     parsedTemplate.forEach((item: any) => {
         if (item[0] !== 'text') {
-if (item[4]) {
-    const templateKey = item[4][0][1];
-    const formKey = item[4][1][1];
-    const keyRegex = new RegExp(`\\w+\\s*(?==)`); // Regex to extract the key from the tag
-    let key;
-    if ((key = keyRegex.exec(templateKey)) !== null && formKey !== null) {
-        if (node[key[0]] !== undefined) {
-foundVariables[formKey] = node[key[0]];
-        }
-    }
-}
+            if (item[4] && item[4].length > 1) {
+                const templateKey = item[4][0][1];
+                const formKey = item[4][1][1];
+                const keyRegex = new RegExp(`\\w+\\s*(?==)`); // Regex to extract the key from the tag
+                let key;
+                if ((key = keyRegex.exec(templateKey)) !== null && formKey !== null) {
+                    if (node[key[0]] !== undefined) {
+                        foundVariables[formKey] = node[key[0]];
+                    }
+                }
+            }
         }
     });
     return foundVariables;

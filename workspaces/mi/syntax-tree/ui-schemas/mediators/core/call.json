@@ -64,7 +64,7 @@
                                         "helpTip": "Endpoint Registry Key",
                                         "enableCondition": [
                                             {
-                                                "payload": "REGISTRYKEY"
+                                                "endpointType": "REGISTRYKEY"
                                             }
                                         ]
                                     }
@@ -80,7 +80,7 @@
                                         "helpTip": "Endpoint Xpath",
                                         "enableCondition": [
                                             {
-                                                "payload": "XPATH"
+                                                "endpointType": "XPATH"
                                             }
                                         ]
                                     }
@@ -117,7 +117,7 @@
                             "helpTip": "Source Property",
                             "enableCondition": [
                                 {
-                                    "payload": "property"
+                                    "endpointType": "property"
                                 }
                             ]
                         }
@@ -134,13 +134,13 @@
                             "enableCondition": [
                                 "OR",
                                 {
-                                    "payload": "property"
+                                    "endpointType": "property"
                                 },
                                 {
-                                    "payload": "inline"
+                                    "endpointType": "inline"
                                 },
                                 {
-                                    "payload": "custom"
+                                    "endpointType": "custom"
                                 }
                             ]
                         }
@@ -148,15 +148,15 @@
                     {
                         "type": "attribute",
                         "value": {
-                            "name": "sourcePayload",
-                            "displayName": "Source Payload",
+                            "name": "sourceendpointType",
+                            "displayName": "Source endpointType",
                             "inputType": "stringOrExpression",
                             "defaultValue": "",
                             "required": false,
-                            "helpTip": "Source Payload",
+                            "helpTip": "Source endpointType",
                             "enableCondition": [
                                 {
-                                    "payload": "inline"
+                                    "endpointType": "inline"
                                 }
                             ]
                         }
@@ -198,7 +198,7 @@
                             "helpTip": "Target Property",
                             "enableCondition": [
                                 {
-                                    "payload": "property"
+                                    "endpointType": "property"
                                 }
                             ]
                         }
