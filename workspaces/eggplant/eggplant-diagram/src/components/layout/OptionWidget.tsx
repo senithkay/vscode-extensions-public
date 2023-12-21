@@ -218,18 +218,18 @@ export function OptionWidget(props: OptionWidgetProps) {
                     <S.SectionTitle>Connection</S.SectionTitle>
                     <S.InputField
                         label="Base URL"
-                        value={(node.properties as HttpRequestNodeProperties)?.basePath || ""}
+                        value={(node.properties as HttpRequestNodeProperties).endpoint.baseUrl || ""}
                         required={true}
                         onChange={(value: string) => {
-                            (node.properties as HttpRequestNodeProperties).basePath = value;
+                            (node.properties as HttpRequestNodeProperties).endpoint.baseUrl = value;
                         }}
                         size={32}
                     />
                     <S.SectionTitle>Method</S.SectionTitle>
                     <S.Select
                         id="method"
-                        value={(node.properties as HttpRequestNodeProperties)?.action || "GET"}
-                        items={[{ value: "GET" }, { value: "POST" }, { value: "PUT" }]}
+                        value={(node.properties as HttpRequestNodeProperties)?.action || "get"}
+                        items={[{ value: "get" }, { value: "post" }, { value: "put" }, { value: "delete" }]}
                         onChange={(value: string) => {
                             (node.properties as HttpRequestNodeProperties).action = value as HttpMethod;
                         }}
@@ -314,12 +314,16 @@ export function OptionWidget(props: OptionWidgetProps) {
                             <S.Row key={index}>
                                 <S.InputField
                                     label="Type"
-                                    value={nodePort.type}
+                                    value={
+                                        selectedNode.getKind() === "HttpRequestNode"
+                                            ? (node.properties as HttpRequestNodeProperties).outputType
+                                            : nodePort.type
+                                    }
                                     required={true}
                                     onChange={(value: string) => {
                                         nodePort.type = value;
                                         if (selectedNode.getKind() === "HttpRequestNode") {
-                                            (node.properties as HttpRequestNodeProperties).type = value;
+                                            (node.properties as HttpRequestNodeProperties).outputType = value;
                                         }
                                     }}
                                     size={32}

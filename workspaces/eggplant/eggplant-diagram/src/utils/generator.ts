@@ -258,12 +258,13 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
         case "HttpRequestNode":
             const httpNodeProperties: HttpRequestNodeProperties = {
                 ...node.properties,
-                basePath: "",
                 path: "",
-                action: "GET",
-                headers: [],
-                endpointName: "",
-                type: "",
+                action: "get",
+                outputType: "json",
+                endpoint: {
+                    baseUrl: "",
+                    name: "httpEp",
+                }
             };
             node.properties = httpNodeProperties;
             nodeModel.setNode(node);
