@@ -15,16 +15,17 @@ import { Colors, DEFAULT_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
 import {
     CodeNodeProperties,
-    HttpMethod,
-    HttpRequestNodeProperties,
+    Flow,
     Node,
     SwitchCaseBlock,
     SwitchNodeProperties,
 } from "../../types";
 import { getPortId, toSnakeCase } from "../../utils";
+import { HttpRequestNodeForm } from "../forms/HttpRequestNode";
 
 export interface OptionWidgetProps {
     engine: DiagramEngine;
+    flowModel: Flow;
     selectedNode: DefaultNodeModel;
     children?: React.ReactNode;
     setSelectedNode?: (node: DefaultNodeModel) => void;
@@ -50,7 +51,7 @@ namespace S {
         justify-content: space-between;
     `;
 
-    export const Header = styled.h5`
+    export const Header = styled.h4`
         font-family: "GilmerMedium";
         font-family: var(--font-family);
         color: ${Colors.ON_SURFACE};
@@ -59,7 +60,7 @@ namespace S {
         user-select: none;
     `;
 
-    export const SectionTitle = styled.h5`
+    export const SectionTitle = styled.h4`
         font-family: "GilmerMedium";
         font-family: var(--font-family);
         font-weight: normal;
@@ -114,7 +115,7 @@ namespace S {
 }
 // TODO: update this component with multiple form components
 export function OptionWidget(props: OptionWidgetProps) {
-    const { engine, selectedNode, children, setSelectedNode, updateFlowModel } = props;
+    const { engine, flowModel, selectedNode, children, setSelectedNode, updateFlowModel } = props;
     const [, forceUpdate] = useState();
 
     // clone the node
@@ -155,6 +156,10 @@ export function OptionWidget(props: OptionWidgetProps) {
         updateFlowModel();
         setSelectedNode(null);
     };
+
+    if (selectedNode.getKind() === "HttpRequestNode") {
+        return <HttpRequestNodeForm {...props} />;
+    }
 
     return (
         <S.Tray>
@@ -212,38 +217,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     })}
                 </>
             )}
-            {selectedNode.getKind() === "HttpRequestNode" && (
-                <>
-                    <S.Divider />
-                    <S.SectionTitle>Connection</S.SectionTitle>
-                    <S.InputField
-                        label="Base URL"
-                        value={(node.properties as HttpRequestNodeProperties).endpoint.baseUrl || ""}
-                        required={true}
-                        onChange={(value: string) => {
-                            (node.properties as HttpRequestNodeProperties).endpoint.baseUrl = value;
-                        }}
-                        size={32}
-                    />
-                    <S.SectionTitle>Method</S.SectionTitle>
-                    <S.Select
-                        id="method"
-                        value={(node.properties as HttpRequestNodeProperties)?.action || "get"}
-                        items={[{ value: "get" }, { value: "post" }, { value: "put" }, { value: "delete" }]}
-                        onChange={(value: string) => {
-                            (node.properties as HttpRequestNodeProperties).action = value as HttpMethod;
-                        }}
-                    />
-                    <S.InputField
-                        label="Path"
-                        value={(node.properties as HttpRequestNodeProperties)?.path || ""}
-                        onChange={(value: string) => {
-                            (node.properties as HttpRequestNodeProperties).path = value;
-                        }}
-                        size={32}
-                    />
-                </>
-            )}
+
             {selectedNode.getKind() === "CodeBlockNode" && (
                 <>
                     <S.Divider />
@@ -314,17 +288,10 @@ export function OptionWidget(props: OptionWidgetProps) {
                             <S.Row key={index}>
                                 <S.InputField
                                     label="Type"
-                                    value={
-                                        selectedNode.getKind() === "HttpRequestNode"
-                                            ? (node.properties as HttpRequestNodeProperties).outputType
-                                            : nodePort.type
-                                    }
+                                    value={nodePort.type}
                                     required={true}
                                     onChange={(value: string) => {
                                         nodePort.type = value;
-                                        if (selectedNode.getKind() === "HttpRequestNode") {
-                                            (node.properties as HttpRequestNodeProperties).outputType = value;
-                                        }
                                     }}
                                     size={32}
                                 />
