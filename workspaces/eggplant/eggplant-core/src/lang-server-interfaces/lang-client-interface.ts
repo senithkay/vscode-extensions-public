@@ -13,6 +13,7 @@ import {
     BallerinaProjectParams,
     BallerinaSTModifyRequest,
     BallerinaSTModifyResponse,
+    CodeActionParams,
     CompletionParams,
     CompletionResponse,
     DidChangeTextDocumentParams,
@@ -23,6 +24,7 @@ import {
     GetSyntaxTreeResponse,
     JsonToRecordRequest,
     JsonToRecordResponse,
+    NOT_SUPPORTED_TYPE,
     PublishDiagnosticsParams,
     RenameParams,
     TextDocumentPositionParams,
@@ -36,9 +38,13 @@ import {
 } from "@wso2-enterprise/ballerina-core";
 import { Flow, LinePosition } from "../rpc-types/webview/types";
 import { LanguageClient } from "vscode-languageclient/node";
-import { WorkspaceEdit } from "vscode";
-import { Location, LocationLink } from "vscode-languageserver-types";
-
+import { Location, LocationLink, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
+import { CodeAction } from "vscode-languageserver-types";
+export interface EggplantModelRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
 export interface EggplantModelRequest {
     filePath: string;
     startLine: LinePosition;
@@ -61,5 +67,9 @@ export interface LangClientInterface extends LanguageClient {
     getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Thenable<TypesFromSymbolResponse>;
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
     convertXml: (params: XMLToRecordRequest) => Thenable<XMLToRecordResponse>;
-    rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
+    rename: (params: RenameParams) => Thenable<WorkspaceEditType>;
+    codeAction: (params: CodeActionParams) => Promise<CodeAction[]>;
+    getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE>;
+    convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
+    updateStatusBar(): void;
 }

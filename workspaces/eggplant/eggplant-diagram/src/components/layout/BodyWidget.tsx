@@ -22,7 +22,7 @@ import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
 import { getNodeModel, isFixedNode } from "../../utils";
 import { DiagramControls } from "../controls/DiagramControls";
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
+import { DataMapperOverlay } from "../data-mapper/ViewManager";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;

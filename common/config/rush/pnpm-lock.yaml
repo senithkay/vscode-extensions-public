@@ -45,6 +45,7 @@ importers:
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
+      handlebars: ~4.7.8
       typescript: ^5.2.2
       vscode-languageserver-types: ^3.17.5
       vscode-messenger-common: ^0.4.5
@@ -52,6 +53,7 @@ importers:
       '@types/vscode-webview': 1.57.4
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
+      handlebars: 4.7.8
       vscode-languageserver-types: 3.17.5
       vscode-messenger-common: 0.4.5
     devDependencies:
@@ -1575,6 +1577,8 @@ importers:
       '@storybook/builder-webpack5': ^6.5.9
       '@storybook/manager-webpack5': ^6.5.9
       '@storybook/react': ^6.5.9
+      '@tanstack/query-core': ^4.0.0-beta.1
+      '@tanstack/react-query': 4.0.10
       '@types/lodash': ^4.14.189
       '@types/node': ^18.11.19
       '@types/react': ^18.2.33
@@ -1582,10 +1586,12 @@ importers:
       '@typescript-eslint/eslint-plugin': ^6.9.1
       '@typescript-eslint/parser': ^6.9.1
       '@vscode/codicons': ~0.0.35
+      '@wso2-enterprise/ballerina-core': workspace:*
       '@wso2-enterprise/data-mapper-view': workspace:*
       '@wso2-enterprise/eggplant-core': workspace:*
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
       '@wso2-enterprise/font-wso2-vscode': workspace:*
+      '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       babel-loader: ^8.2.5
       closest: ^0.0.1
@@ -1600,6 +1606,7 @@ importers:
       react-dom: ^18.2.0
       resize-observer-polyfill: ^1.5.1
       typescript: ^4.9.4
+      vscode-uri: ^3.0.8
     dependencies:
       '@emotion/react': 11.11.1_u5zja476buyywzbvglb2fbhaii
       '@emotion/styled': 11.11.0_euzcf6iuyj3ljki2cuw32fl6cm
@@ -1609,13 +1616,17 @@ importers:
       '@projectstorm/react-diagrams-core': 6.7.4_oz4p7pxv2qopyps5f6rnc6srwu
       '@projectstorm/react-diagrams-defaults': 6.7.4_igavi5r6g7evuxcsu7z5agoohq
       '@projectstorm/react-diagrams-routing': 6.7.4_zsstxmzwz4pdmzmwdpjn3f2ppq
+      '@tanstack/query-core': 4.27.0
+      '@tanstack/react-query': 4.0.10_biqbaboplfbrettd7655fr4n2y
       '@types/lodash': 4.14.201
       '@types/node': 18.18.10
       '@vscode/codicons': 0.0.35
+      '@wso2-enterprise/ballerina-core': link:../../ballerina/ballerina-core
       '@wso2-enterprise/data-mapper-view': link:../../ballerina/data-mapper-view
       '@wso2-enterprise/eggplant-core': link:../eggplant-core
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
+      '@wso2-enterprise/syntax-tree': link:../../ballerina/syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       closest: 0.0.1
       dagre: 0.8.5
@@ -1628,6 +1639,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       resize-observer-polyfill: 1.5.1
       typescript: 4.9.5
+      vscode-uri: 3.0.8
     devDependencies:
       '@babel/core': 7.23.2
       '@storybook/addon-actions': 6.5.16_biqbaboplfbrettd7655fr4n2y
@@ -1670,6 +1682,7 @@ importers:
       vscode-languageserver-types: ^3.17.5
       vscode-messenger: ^0.4.5
       vscode-messenger-common: ^0.4.5
+      vscode-uri: ^3.0.8
       webpack: ^5.56.0
       webpack-cli: ^4.10.0
       webpack-permissions-plugin: ^1.0.9
@@ -1684,6 +1697,7 @@ importers:
       vscode-languageserver-types: 3.17.5
       vscode-messenger: 0.4.5
       vscode-messenger-common: 0.4.5
+      vscode-uri: 3.0.8
       xstate: 4.38.3
     devDependencies:
       '@types/mocha': 10.0.4

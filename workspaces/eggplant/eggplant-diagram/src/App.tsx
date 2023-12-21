@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { debounce } from "lodash";
 import { BodyWidget } from "./components/layout/BodyWidget";
@@ -22,6 +23,17 @@ import {
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 1000,
+        cacheTime: 1000,
+      },
+    },
+  });
 
 interface EggplantAppProps {
     flowModel: Flow;
@@ -63,8 +75,9 @@ export function EggplantApp(props: EggplantAppProps) {
 
     return (
         <>
-            {diagramEngine && diagramModel && (
-                <>
+            <QueryClientProvider client={queryClient}>
+                {diagramEngine && diagramModel && (
+                    <>
                     <BodyWidget
                         engine={diagramEngine}
                         flowModel={flowModel}
@@ -72,8 +85,8 @@ export function EggplantApp(props: EggplantAppProps) {
                         selectedNode={selectedNode}
                         setSelectedNode={setSelectedNode}
                     />
-                </>
-            )}
+                </>)}
+            </QueryClientProvider>
         </>
     );
 }

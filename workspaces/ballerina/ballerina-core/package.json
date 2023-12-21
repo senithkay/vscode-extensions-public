@@ -13,7 +13,8 @@
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "vscode-languageserver-types": "^3.17.5",
     "vscode-messenger-common": "^0.4.5",
-    "@types/vscode-webview": "^1.57.3"
+    "@types/vscode-webview": "^1.57.3",
+    "handlebars": "~4.7.8"
   },
   "devDependencies": {
     "@types/vscode": "^1.83.1",

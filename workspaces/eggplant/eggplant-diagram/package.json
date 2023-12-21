@@ -43,7 +43,12 @@
         "@wso2-enterprise/font-wso2-vscode": "workspace:*",
         "@wso2-enterprise/eggplant-core": "workspace:*",
         "@wso2-enterprise/eggplant-rpc-client": "workspace:*",
-        "@vscode/codicons": "~0.0.35"
+        "@wso2-enterprise/ballerina-core": "workspace:*",
+        "@wso2-enterprise/syntax-tree": "workspace:*",
+        "@vscode/codicons": "~0.0.35",
+        "@tanstack/react-query": "4.0.10",
+        "@tanstack/query-core": "^4.0.0-beta.1",
+        "vscode-uri": "^3.0.8"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.9.1",

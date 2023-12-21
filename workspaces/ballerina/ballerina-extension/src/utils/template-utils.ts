@@ -8,10 +8,10 @@
  */
 import * as hbs from "handlebars";
 
-import { Parameter, templates } from "@wso2-enterprise/ballerina-core";
+import { Parameter, templates123 } from "@wso2-enterprise/ballerina-core";
 
 export async function getInsertTemplate(insertTempName: string) {
-    return templates[insertTempName];
+    return templates123[insertTempName];
 }
 
 const hbsInstance = hbs.create();
