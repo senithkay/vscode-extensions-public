@@ -33,10 +33,15 @@ export function Overview() {
     const { eggplantRpcClient } = useVisualizerContext();
 
     const [isPanelOpen, setPanelOpen] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
 
     const openPanel = () => {
         setPanelOpen(!isPanelOpen);
     };
+
+    const handleIsFetching = (value: boolean) => {
+        setIsFetching(value);
+    }
 
 
     const fetchData = async () => {
@@ -96,11 +101,16 @@ export function Overview() {
                         <ResourcesList component={selectedComponent} />
                     </>
                 ) : (
-                    <ComponentListView currentComponents={currentComponents} setSelectedComponent={setSelectedComponent} />
+                    <ComponentListView handleIsFetching={handleIsFetching} currentComponents={currentComponents} setSelectedComponent={setSelectedComponent} />
                 )
             ) : (
                 <div>No data available</div>
             )}
+            {isFetching &&
+                <LoaderContent>
+                    <VSCodeProgressRing style={{ height: 24, margin: 'auto' }} />
+                </LoaderContent>
+            }
         </>
     );
 }
