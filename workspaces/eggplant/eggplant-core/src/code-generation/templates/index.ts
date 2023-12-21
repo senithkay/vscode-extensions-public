@@ -79,6 +79,18 @@ export default {
     {{{TYPE}}} {{{VAR_NAME}}} = check <- {{{NODE_NAME}}};
     return {{{VAR_NAME}}};
     {{/if}}
-    `
+    `,
+    TRANSFORM_NODE:
+    `worker {{{NODE_NAME}}} returns error? {
+        {{#if INPUT_PORTS}}
+        {{{INPUT_PORTS}}}
+        {{/if}}
+        {{#if TRANSFORM_FUNCTION}}
+        {{{TRANSFORM_FUNCTION}}}
+        {{/if}}
+        {{#if OUTPUT_PORTS}}
+        {{{OUTPUT_PORTS}}}
+        {{/if}}
+    }`
 
 }
