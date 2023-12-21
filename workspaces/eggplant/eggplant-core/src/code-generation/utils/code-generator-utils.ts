@@ -184,15 +184,15 @@ function generateCallerNode(node: Node): string {
 function generateResponseNode(node: Node): string {
     // TODO: current response only suport one inputPort
     const inputPort = node?.inputPorts[0];
-    const varType = inputPort?.type ? sanitizeType(inputPort?.type): undefined;
+    const varType = inputPort?.type ? sanitizeType(inputPort.type): undefined;
     const varName = inputPort?.name;
-    const genInport = generateInport(inputPort);
+    const genInport = inputPort ? generateInport(inputPort) : undefined;
     const workerNode: string = getComponentSource({
         name: 'RESPOND',
         config: {
             NODE_NAME: node.name,
             INPUT_PORTS: genInport ? genInport : undefined,
-            VAR_TYPE: varType ? varType : undefined,
+            TYPE: varType ? varType : undefined,
             VAR_NAME: varName ? varName : undefined
         }
     });

@@ -71,7 +71,7 @@ export default {
     `worker {{{NODE_NAME}}} returns error? {
         {{#if INPUT_PORTS}}
         {{{INPUT_PORTS}}}
-        {{{VAR_NAME}}}} -> function;
+        {{{VAR_NAME}}} -> function;
         {{/if}}
     }
     
