@@ -73,13 +73,7 @@ export default {
         {{{INPUT_PORTS}}}
         {{{VAR_NAME}}} -> function;
         {{/if}}
-    }
-    
-    {{#if VAR_NAME}}
-    {{{TYPE}}} {{{VAR_NAME}}} = check <- {{{NODE_NAME}}};
-    return {{{VAR_NAME}}};
-    {{/if}}
-    `,
+    }`,
     TRANSFORM_NODE:
     `worker {{{NODE_NAME}}} returns error? {
         {{#if INPUT_PORTS}}
@@ -91,6 +85,12 @@ export default {
         {{#if OUTPUT_PORTS}}
         {{{OUTPUT_PORTS}}}
         {{/if}}
-    }`
+    }`,
+    RETURN_BLOCK:`
+    {{#if VAR_NAME}}
+    {{{TYPE}}} {{{VAR_NAME}}} = check <- {{{NODE_NAME}}};
+    return {{{VAR_NAME}}};
+    {{/if}}
+    `
 
 }

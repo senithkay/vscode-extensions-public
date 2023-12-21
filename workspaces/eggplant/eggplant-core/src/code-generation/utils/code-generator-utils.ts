@@ -11,6 +11,7 @@ import { BalExpression, CodeNodeProperties, Flow, HttpRequestNodeProperties, Inp
 import { getComponentSource } from "./template-utils";
 
 const defaultInput = "_ = check <- function;";
+let returnBlock : string = "";
 
 export function workerCodeGen(model: Flow): string {
     console.log("===model", model);
@@ -28,14 +29,14 @@ export function workerCodeGen(model: Flow): string {
         }
     });
 
-    return workerBlocks;
+    return workerBlocks + returnBlock;
 }
 
 
 function generateBlockNode(node: Node): string {
     const nodeProperties = node.properties as CodeNodeProperties;
     let inputPorts: string = generateInputPorts(node);
-    const outputPorts: string = generateOutputPorts(node);
+    const outputPorts: string = generateOutputPorts(node, nodeProperties?.returnVar)
     console.log("===inputPorts", inputPorts);
     if (inputPorts === undefined && outputPorts !== undefined) {
         inputPorts =  defaultInput;
@@ -44,9 +45,9 @@ function generateBlockNode(node: Node): string {
         name: 'CODE_BLOCK_NODE',
         config: {
             NODE_NAME: node.name,
-            INPUT_PORTS: generateInputPorts(node),
+            INPUT_PORTS: inputPorts,
             CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.expression : undefined,
-            OUTPUT_PORTS: generateOutputPorts(node, nodeProperties?.returnVar)
+            OUTPUT_PORTS: outputPorts
         }
     });
 
@@ -192,6 +193,14 @@ function generateResponseNode(node: Node): string {
         config: {
             NODE_NAME: node.name,
             INPUT_PORTS: genInport ? genInport : undefined,
+            VAR_NAME: varName ? varName : undefined
+        }
+    });
+
+    returnBlock = getComponentSource({
+        name: 'RETURN_BLOCK',
+        config: {
+            NODE_NAME: node.name,
             TYPE: varType ? varType : undefined,
             VAR_NAME: varName ? varName : undefined
         }
@@ -273,6 +282,9 @@ function generateDisplayNode(node: Node): string {
 
 // TODO: remove once the backend model sends the correct type
 function sanitizeType(type: string): string {
+    if (type === "$CompilationError$") {
+        return "json";
+    }
     const typeParts = type.split(":");
     return typeParts[typeParts.length - 1];
 }
