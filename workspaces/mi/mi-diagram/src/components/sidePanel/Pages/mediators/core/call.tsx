@@ -36,18 +36,19 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const CallForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "enableBlockingCalls": false,
-       "initAxis2ClientOptions": false,
-       "endpointType": "INLINE",
-       "sourceType": "none",
-       "targetType": "body",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "enableBlockingCalls": false,
+       "initAxis2ClientOptions": false,
+       "endpointType": "INLINE",
+       "sourceType": "none",
+       "targetType": "body",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -82,7 +83,7 @@ const CallForm = (props: AddMediatorProps) => {
        "sourceType": (e?: any) => validateField("sourceType", e, false),
        "sourceProperty": (e?: any) => validateField("sourceProperty", e, false),
        "contentType": (e?: any) => validateField("contentType", e, false),
-       "sourcePayload": (e?: any) => validateField("sourcePayload", e, false),
+       "sourceendpointType": (e?: any) => validateField("sourceendpointType", e, false),
        "sourceXPath": (e?: any) => validateField("sourceXPath", e, false),
        "targetType": (e?: any) => validateField("targetType", e, false),
        "targetProperty": (e?: any) => validateField("targetProperty", e, false),
@@ -146,12 +147,24 @@ const CallForm = (props: AddMediatorProps) => {
                         {errors["endpointType"] && <Error>{errors["endpointType"]}</Error>}
                     </div>
 
-                    {formValues["payload"] && formValues["payload"].toLowerCase() == "registrykey" &&
+                    {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "registrykey" &&
                         <div>
+                            <TextField
+                                label="Endpoint Registry Key"
+                                size={50}
+                                placeholder="Endpoint Registry Key"
+                                value={formValues["endpointRegistryKey"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "endpointRegistryKey": e });
+                                    formValidators["endpointRegistryKey"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["endpointRegistryKey"] && <Error>{errors["endpointRegistryKey"]}</Error>}
                         </div>
                     }
 
-                    {formValues["payload"] && formValues["payload"].toLowerCase() == "xpath" &&
+                    {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "xpath" &&
                         <div>
                             <TextField
                                 label="Endpoint Xpath"
@@ -178,7 +191,7 @@ const CallForm = (props: AddMediatorProps) => {
                     {errors["sourceType"] && <Error>{errors["sourceType"]}</Error>}
                 </div>
 
-                {formValues["payload"] && formValues["payload"].toLowerCase() == "property" &&
+                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "property" &&
                     <div>
                         <TextField
                             label="Source Property"
@@ -195,7 +208,7 @@ const CallForm = (props: AddMediatorProps) => {
                     </div>
                 }
 
-                {formValues["0"] && formValues["0"].toLowerCase() == "o" &&formValues["payload"] && formValues["payload"].toLowerCase() == "property" &&formValues["payload"] && formValues["payload"].toLowerCase() == "inline" &&formValues["payload"] && formValues["payload"].toLowerCase() == "custom" &&
+                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "property" ||formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" ||formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "custom" &&
                     <div>
                         <TextField
                             label="Content Type"
@@ -212,20 +225,20 @@ const CallForm = (props: AddMediatorProps) => {
                     </div>
                 }
 
-                {formValues["payload"] && formValues["payload"].toLowerCase() == "inline" &&
+                {formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "inline" &&
                     <div>
                         <TextField
-                            label="Source Payload"
+                            label="Source endpointType"
                             size={50}
-                            placeholder="Source Payload"
-                            value={formValues["sourcePayload"]}
+                            placeholder="Source endpointType"
+                            value={formValues["sourceendpointType"]}
                             onChange={(e: any) => {
-                                setFormValues({ ...formValues, "sourcePayload": e });
-                                formValidators["sourcePayload"](e);
+                                setFormValues({ ...formValues, "sourceendpointType": e });
+                                formValidators["sourceendpointType"](e);
                             }}
                             required={false}
                         />
-                        {errors["sourcePayload"] && <Error>{errors["sourcePayload"]}</Error>}
+                        {errors["sourceendpointType"] && <Error>{errors["sourceendpointType"]}</Error>}
                     </div>
                 }
 
@@ -253,7 +266,7 @@ const CallForm = (props: AddMediatorProps) => {
                     {errors["targetType"] && <Error>{errors["targetType"]}</Error>}
                 </div>
 
-                {formValues["payload"] && formValues["payload"].toLowerCase() == "property" &&
+                {formValues["targetType"] && formValues["targetType"].toLowerCase() == "property" &&
                     <div>
                         <TextField
                             label="Target Property"

@@ -10,12 +10,14 @@
 import Mustache from "mustache";
 import { MEDIATORS } from "../../../../constants";
 import { getMustacheTemplate } from "../templateUtils";
+import { Call } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function getCallXml(data: { [key: string]: any }) {
   let bodySource;
   let propertySource;
   let bodyTarget;
   let propertyTarget;
+  const enableBlockingCalls = Boolean(data.enableBlockingCalls);
   if (data.sourceType === 'body') {
     bodySource = true; // Set a flag for bodySource if sourceType is 'body'
   } else {
@@ -31,8 +33,33 @@ export function getCallXml(data: { [key: string]: any }) {
     bodySource: bodySource,
     propertySource: propertySource,
     bodyTarget: bodyTarget,
-    propertyTarget: propertyTarget
+    propertyTarget: propertyTarget,
+    enableBlockingCalls: enableBlockingCalls,
   }
 
   return Mustache.render(getMustacheTemplate(MEDIATORS.CALL), modifiedData)
+}
+
+export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Call) {
+  data.enableBlockingCalls = node.blocking;
+  if (node.description) {
+    data.description = node.description;
+  }
+  if (node.source?.contentType) {
+    data.contentType = node.source.contentType;
+  }
+  if (node.source?.type) {
+    data.sourceType = node.source.type;
+  }
+  if (node.source?.content) {
+    data.sourceProperty = node.source.content;
+  }
+  if (node.target?.type) {
+    data.targetType = node.target.type;
+  }
+  if (node.target?.content) {
+    data.targetProperty = node.target.content;
+  }
+
+  return data;
 }

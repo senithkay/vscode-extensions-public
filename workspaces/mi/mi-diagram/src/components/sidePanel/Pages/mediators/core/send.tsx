@@ -36,16 +36,17 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const SendForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "skipSerialization": false,
-       "buildMessageBeforeSending": false,
-       "receivingSequenceType": "Default",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "skipSerialization": false,
+       "buildMessageBeforeSending": false,
+       "receivingSequenceType": "Default",});
        }
    }, [sidePanelContext.formValues]);
 

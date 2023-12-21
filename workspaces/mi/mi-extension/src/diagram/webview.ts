@@ -46,7 +46,7 @@ export function createDiagramWebview(context: ExtensionContext, documentUri: str
     const scripts = getComposerJSFiles(context, 'MIDiagram', panel.webview).map(jsFile =>
         '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
 
-    const rpc = new RegisterWebViewPanelRpc(panel);
+    const rpc = new RegisterWebViewPanelRpc(context, panel);
 
     const refreshDiagram = debounce(() => {
         if (diagramWebview) {

@@ -36,17 +36,18 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const LogForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
-   const [formValues, setFormValues] = useState({
-       "category": "INFO",
-       "level": "SIMPLE",
-       "properties": [] as string[][],
-       "propertyValueType": "LITERAL",
-   } as { [key: string]: any });
+   const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
 
    useEffect(() => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
+       } else {
+           setFormValues({
+       "category": "INFO",
+       "level": "SIMPLE",
+       "properties": [] as string[][],
+       "propertyValueType": "LITERAL",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -71,13 +72,6 @@ const LogForm = (props: AddMediatorProps) => {
            sidePanelContext.setMediator(undefined);
        }
    };
-
-   const onAddClick = async () => {
-       if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
-        setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined ,
-        "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
-       }
-   }
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
        "category": (e?: any) => validateField("category", e, true),
@@ -150,6 +144,7 @@ const LogForm = (props: AddMediatorProps) => {
                     {errors["separator"] && <Error>{errors["separator"]}</Error>}
                 </div>
 
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties</h3>
 
@@ -199,13 +194,20 @@ const LogForm = (props: AddMediatorProps) => {
                             </div>
                         }
 
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={onAddClick}>
-                            Add
-                        </Button>
-                    </div>
                     </ComponentCard>
-                {formValues["properties"].length > 0 && (
+                <div style={{ textAlign: "right", marginTop: "10px" }}>
+                    <Button appearance="primary" onClick={() => {
+                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                            setFormValues({
+                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
+                                "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                            });
+                        }
+                    }}>
+                        Add
+                    </Button>
+                </div>
+                {formValues["properties"] && formValues["properties"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
@@ -236,6 +238,7 @@ const LogForm = (props: AddMediatorProps) => {
                         </VSCodeDataGrid>
                     </ComponentCard>
                 )}
+                </ComponentCard>
                 <div>
                     <TextField
                         label="Description"

@@ -55,12 +55,13 @@
     ]
   },
   "scripts": {
-    "compile": "webpack",
-    "watch": "webpack --watch",
+    "clean": "rimraf ./dist",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . -w",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
-    "build": "pnpm run copyLSLibs && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
+    "build": "pnpm clean && pnpm run copyLSLibs && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
+    "compile-tests": "pnpm run compile",
+    "watch-tests": "pnpm run watch",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "pnpm run pretest && node ./out/test/runTest.js",
@@ -84,7 +85,8 @@
     "ts-loader": "^9.4.4",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
-    "@vscode/test-electron": "^2.3.4"
+    "@vscode/test-electron": "^2.3.4",
+    "rimraf": "~5.0.5"
   },
   "dependencies": {
     "copyfiles": "^2.4.1",

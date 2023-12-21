@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { commands, WebviewPanel, window, WebviewView, workspace, Range, WorkspaceEdit, Uri, Position } from "vscode";
+import { commands, WebviewPanel, window, WebviewView, workspace, Range, WorkspaceEdit, Uri, Position, ExtensionContext } from "vscode";
 import { Messenger } from "vscode-messenger";
 import {
     ApplyEdit,
@@ -27,7 +27,7 @@ const { XMLParser } = require("fast-xml-parser");
 const connectorsPath = "../resources/connectors"
 
 // Register handlers
-export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView) {
+export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView, context: ExtensionContext) {
     messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
         if (args.length >= 1) {
             const cmdArgs = args.length > 1 ? args.slice(1) : [];
@@ -37,7 +37,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(GetSyntaxTreeRequest, async (documentUri: string) => {
-        return (await MILanguageClient.getInstance()).languageClient!.getSyntaxTree({
+        return (await MILanguageClient.getInstance(context)).languageClient!.getSyntaxTree({
             documentIdentifier: {
                 uri: documentUri,
             },
@@ -122,9 +122,9 @@ export class RegisterWebViewPanelRpc {
     private _messenger = new Messenger();
     private _panel: WebviewPanel | undefined;
 
-    constructor(view: WebviewPanel) {
-        this.registerPanel(view);
-        registerWebviewRPCHandlers(this._messenger, view);
+    constructor(private context: ExtensionContext, panel: WebviewPanel) {
+        this.registerPanel(panel);
+        registerWebviewRPCHandlers(this._messenger, panel, context);
     }
 
     public get panel(): WebviewPanel | undefined {
@@ -149,9 +149,9 @@ export class RegisterWebViewViewRPC {
     private _messenger = new Messenger();
     private _view: WebviewView | undefined;
 
-    constructor(view: WebviewView) {
+    constructor( private context: ExtensionContext, view: WebviewView,) {
         this.registerView(view);
-        registerWebviewRPCHandlers(this._messenger, view);
+        registerWebviewRPCHandlers(this._messenger, view, context);
     }
 
     public get view(): WebviewView | undefined {

@@ -148,12 +148,12 @@
                     {
                         "type": "attribute",
                         "value": {
-                            "name": "sourcePayload",
-                            "displayName": "Source Payload",
+                            "name": "sourceendpointType",
+                            "displayName": "Source endpointType",
                             "inputType": "stringOrExpression",
                             "defaultValue": "",
                             "required": false,
-                            "helpTip": "Source Payload",
+                            "helpTip": "Source endpointType",
                             "enableCondition": [
                                 {
                                     "sourceType": "inline"
