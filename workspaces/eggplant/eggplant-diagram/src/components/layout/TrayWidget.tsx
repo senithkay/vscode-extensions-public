@@ -18,7 +18,7 @@ namespace S {
         gap: 6px;
     `;
 
-    export const Title = styled.h5`
+    export const Title = styled.h4`
         font-family: 'GilmerMedium';
         font-family: var(--font-family);
         color: ${Colors.ON_SURFACE};
