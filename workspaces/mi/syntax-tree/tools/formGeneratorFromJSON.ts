@@ -73,16 +73,6 @@ const generateForm = (jsonData: any): string => {
                         if (typeof value === "boolean" || value === "true" || value === "false") {
                             conditions += `formValues["${condition}"] == ${Boolean(value)} ${index != enableCondition.length - 1 ? conditionType : ""}`;
 
-                        } else if (condition === "payload") {
-                            if (inputName === "endpointRegistryKey" || inputName === "endpointXpath") {
-                                conditions += `formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
-                            } else if (inputName === "sourceProperty" || inputName === "contentType" || inputName === "sourcePayload") {
-                                conditions += `formValues["sourceType"] && formValues["sourceType"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? "||" : ""}`;
-                            } else if (inputName === "targetProperty") {
-                                conditions += `formValues["targetType"] && formValues["targetType"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
-                            } else {
-                                conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
-                            }
                         } else {
                             conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
                         }
