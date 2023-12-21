@@ -14,17 +14,20 @@ import {
     EggplantModelRequest,
     Flow,
     LangClientInterface,
+    MachineEvent,
     MachineStateValue,
     VisualizerLocation,
+    CommandProps,
     WebviewAPI,
     workerCodeGen
 } from "@wso2-enterprise/eggplant-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
+import { writeFileSync } from "fs";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
-import { openView, StateMachine } from "../../stateMachine";
+import { StateMachine, openView } from "../../stateMachine";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
-import { writeFileSync } from "fs";
+import { createEggplantProject, openEggplantProject } from "../../utils/project";
 
 export class WebviewRpcManager implements WebviewAPI {
 
@@ -106,8 +109,20 @@ export class WebviewRpcManager implements WebviewAPI {
         });
     }
 
-    executeCommand(params: string): void {
-        commands.executeCommand(params);
+    executeCommand(params: CommandProps): void {
+        switch (params.command) {
+            case "OPEN_LOW_CODE":
+                commands.executeCommand("eggplant.openLowCode");
+                break;
+            case "OPEN_PROJECT":
+                openEggplantProject();
+                break;
+            case "CREATE_PROJECT":
+                createEggplantProject(params.projectName!, params.isService!);
+                break;
+            default:
+                break;
+        }
     }
 
     async getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
@@ -180,5 +195,9 @@ export class WebviewRpcManager implements WebviewAPI {
                 }
             });
         }
+    }
+
+    async sendMachineEvent(params: MachineEvent): Promise<void> {
+        StateMachine.sendEvent(params.type);
     }
 }

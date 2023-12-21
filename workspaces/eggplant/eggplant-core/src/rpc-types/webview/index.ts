@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { MachineStateValue, VisualizerLocation } from "../../extension-interfaces/state-machine-types";
+import { MachineEvent, MachineStateValue, VisualizerLocation, CommandProps } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Flow } from "./types";
@@ -22,7 +22,8 @@ export interface WebviewAPI {
     openVisualizerView: (params: VisualizerLocation) => void;
     getBallerinaProjectComponents: () => Promise<BallerinaProjectComponents>;
     getEggplantModel: () => Promise<Flow>;
-    executeCommand: (params: string) => void;
+    executeCommand: (params: CommandProps) => void;
     getSTNodeFromLocation: (params: VisualizerLocation) => Promise<STNode>;
     updateSource: (params: Flow) => void;
+    sendMachineEvent: (params: MachineEvent) => void;
 }

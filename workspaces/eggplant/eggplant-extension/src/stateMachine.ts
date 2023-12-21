@@ -1,4 +1,4 @@
-import { LangClientInterface, MachineStateValue, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
+import { LangClientInterface, MachineStateValue, VisualizerLocation, EventType } from '@wso2-enterprise/eggplant-core';
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
@@ -84,7 +84,23 @@ const stateMachine = createMachine<Context>({
             // define what should happen when the project is not detected
         },
         newProject: {
-
+            initial: 'welcome',
+            states: {
+                welcome: {
+                    on: {
+                        GET_STARTED: {
+                            target: "create",
+                        }
+                    }
+                },
+                create: {
+                    on: {
+                        CANCEL_CREATION: {
+                            target: "welcome"
+                        }
+                    }
+                }
+            }
         }
     }
 }, {
@@ -137,7 +153,8 @@ export const StateMachine = {
     initialize: () => stateService.start(),
     service: () => { return stateService; },
     context: () => { return stateService.getSnapshot().context; },
-    state: () => { return stateService.getSnapshot().value as MachineStateValue; }
+    state: () => { return stateService.getSnapshot().value as MachineStateValue; },
+    sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
 };
 
 export function openView(viewLocation: VisualizerLocation) {
@@ -156,8 +173,8 @@ async function checkIfEggplantProject() {
         console.error(err);
     }
     if (!isEggplant) {
-        await window.showInformationMessage("Not an Eggplant Project.");
-        throw new Error("Not an eggplant projcet");
+        window.showInformationMessage("Eggplant project not found.");
+        throw new Error("Eggplant project not found");
     }
     return isEggplant;
 }
