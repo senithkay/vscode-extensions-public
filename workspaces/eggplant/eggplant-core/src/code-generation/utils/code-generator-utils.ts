@@ -142,16 +142,17 @@ function generateSwitchNode(node: Node): string {
 
 function generateCallerNode(node: Node): string {
     const callerProps = node.properties as HttpRequestNodeProperties;
-    const callerEp: string =  callerProps?.endpointName ? callerProps.endpointName : "httpEp"; // TODO : use the value from the model
+    const callerEp: string =  callerProps?.endpoint?.name ? callerProps?.endpoint?.name : "grandOakEp"; // TODO : use the value from the model
     const callerVariable: string = node.name + "_response";
+    console.log("===callerProps", callerProps);
     const callerAction: string = getComponentSource({
         name: 'CALLER_ACTION',
         config: {
-            TYPE: callerProps?.type ? callerProps.type : "json",
+            TYPE: callerProps?.outputType ? callerProps.outputType : "json",
             VARIABLE: callerVariable,
             CALLER: callerEp,
-            PATH: callerProps.path,
-            ACTION: callerProps.action,
+            PATH: callerProps?.path ? removeLeadingSlash(callerProps.path) : undefined,
+            ACTION: callerProps?.action ? callerProps.action : "get",
             PAYLOAD: node?.inputPorts[0]?.name ? node.inputPorts[0].name : undefined
         }
     });
@@ -183,8 +184,8 @@ function generateCallerNode(node: Node): string {
 function generateResponseNode(node: Node): string {
     // TODO: current response only suport one inputPort
     const inputPort = node?.inputPorts[0];
-    const varType = sanitizeType(inputPort.type);
-    const varName = inputPort.name;
+    const varType = inputPort?.type ? sanitizeType(inputPort?.type): undefined;
+    const varName = inputPort?.name;
     const genInport = generateInport(inputPort);
     const workerNode: string = getComponentSource({
         name: 'RESPOND',
@@ -274,4 +275,11 @@ function generateDisplayNode(node: Node): string {
 function sanitizeType(type: string): string {
     const typeParts = type.split(":");
     return typeParts[typeParts.length - 1];
+}
+
+function removeLeadingSlash(path: string): string {
+    if (path.startsWith('/')) {
+        return path.substring(1);
+    }
+    return path;
 }
