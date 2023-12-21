@@ -1,7 +1,7 @@
 name: Daily Build - Eggplant
 on:
   schedule:
-    - cron:  '45 09 * * *'
+    - cron:  '20 10 * * *'
 jobs:
   Build:
     uses: ./.github/workflows/build.yml
@@ -64,7 +64,7 @@ jobs:
                             "content": "v${{ steps.vsix.outputs.version }}",
                             "onClick": {
                             "openLink": {
-                                "url": "https://github.com/wso2-enterprise/vscode-extensions/actions/runs/${{ github.run_id }}"
+                                "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                             }
                             },": "https://upl
                                     oad.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
@@ -73,7 +73,7 @@ jobs:
                                 "text": "Download VSIX",
                                 "onClick": {
                                 "openLink": {
-                                    "url": "${{ steps.artifact-upload.outputs.artifact-url }}"
+                                    "url": "https://github.com/${{ github.repository }}/actions/${{ github.run_id }}/artifacts${{ steps.artifact-upload.outputs.artifact-id }}"
                                 }
                                 }
                             }
