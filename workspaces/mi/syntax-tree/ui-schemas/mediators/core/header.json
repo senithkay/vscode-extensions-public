@@ -68,12 +68,7 @@
                                             "INLINE"
                                         ],
                                         "required": false,
-                                        "helpTip": "",
-                                        "enableCondition": [
-                                            {
-                                                "headerAction": "set"
-                                            }
-                                        ]
+                                        "helpTip": ""
                                     }
                                 },
                                 {
@@ -86,10 +81,6 @@
                                         "required": false,
                                         "helpTip": "",
                                         "enableCondition": [
-                                            "OR",
-                                            {
-                                                "headerAction": "set"
-                                            },
                                             {
                                                 "valueType": "LITERAL"
                                             }
@@ -106,10 +97,6 @@
                                         "required": false,
                                         "helpTip": "",
                                         "enableCondition": [
-                                            "OR",
-                                            {
-                                                "headerAction": "set"
-                                            },
                                             {
                                                 "valueType": "EXPRESSION"
                                             }
@@ -126,15 +113,16 @@
                                         "required": false,
                                         "helpTip": "",
                                         "enableCondition": [
-                                            "OR",
-                                            {
-                                                "headerAction": "set"
-                                            },
                                             {
                                                 "valueType": "INLINE"
                                             }
                                         ]
                                     }
+                                }
+                            ],
+                            "enableCondition": [
+                                {
+                                    "headerAction": "set"
                                 }
                             ]
                         }

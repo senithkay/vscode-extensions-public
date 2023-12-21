@@ -71,7 +71,7 @@ const generateForm = (jsonData: any): string => {
                         }
 
                         if (typeof value === "boolean" || value === "true" || value === "false") {
-                            conditions += `formValues["${condition}"] == ${Boolean(value)} ${index != enableCondition.length - 1 ? conditionType : ""}`;
+                            conditions += `formValues["${condition}"] == ${value} ${index != enableCondition.length - 1 ? conditionType : ""}`;
 
                         } else {
                             conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
