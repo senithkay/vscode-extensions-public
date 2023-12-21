@@ -13,11 +13,9 @@ import { ExtensionContext, WebviewPanel, workspace } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { NotificationType } from "vscode-messenger-common";
 import { BallerinaExtension } from '../core';
-import { registerOverviewRpcHandlers } from "../rpc-managers/overview/rpc-handler";
 import {
     getService
 } from './activator';
-import { registerDataMapperRpcHandlers } from "../rpc-managers/data-mapper/rpc-handler";
 import { registerLangServerRpcHandlers } from "../rpc-managers/lang-server/rpc-handler";
 
 
@@ -35,9 +33,7 @@ export class RPCLayer {
         this._vsContext = _ballerinaContext.context;
         this._ballerinaContext = _ballerinaContext;
 
-        registerOverviewRpcHandlers(this._messenger);
         registerVisualizerRpcHandlers(this._messenger);
-        registerDataMapperRpcHandlers(this._messenger);
         registerLangServerRpcHandlers(this._messenger);
 
         // Register state change notification

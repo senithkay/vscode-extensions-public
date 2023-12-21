@@ -10,39 +10,25 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { OverviewRpcClient } from "./rpc-clients/overview/rpc-client";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
-import { DataMapperRpcClient } from "./rpc-clients/data-mapper/rpc-client";
 import { vscode } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
 
 export class BallerinaRpcClient {
 
     private messenger: Messenger;
-    private _overview: OverviewRpcClient;
     private _visualizer: VisualizerRpcClient;
-    private _dataMapper: DataMapperRpcClient;
     private _langServer: LangServerRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
-        this._overview = new OverviewRpcClient(this.messenger);
         this._visualizer = new VisualizerRpcClient(this.messenger);
-        this._dataMapper = new DataMapperRpcClient(this.messenger);
         this._langServer = new LangServerRpcClient(this.messenger);
-    }
-
-    getOverviewClient(): OverviewRpcClient {
-        return this._overview;
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
         return this._visualizer;
-    }
-
-    getDataMapperRpcClient(): DataMapperRpcClient {
-        return this._dataMapper;
     }
 
     getLangServerRpcClient(): LangServerRpcClient {
