@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { TextField, Button, TextArea, Icon } from "@wso2-enterprise/ui-toolkit";
+import { TextField, Button, TextArea, Icon, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { Colors, DEFAULT_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
-import { Node, SwitchCaseBlock } from "../../types";
+import { HttpMethod, HttpRequestNodeProperties, Node, SwitchCaseBlock, SwitchNodeProperties } from "../../types";
 import { getPortId, toSnakeCase } from "../../utils";
 
 export interface OptionWidgetProps {
@@ -85,6 +85,16 @@ namespace S {
     export const ActionButton = styled(Button)`
         width: 100%;
     `;
+
+    export const Select = styled(Dropdown)`
+        & label {
+            font-family: var(--font-family);
+            outline: none;
+            user-select: none;
+            font-size: var(--type-ramp-base-font-size);
+            line-height: var(--type-ramp-base-line-height);
+        }
+    `;
 }
 // TODO: update this component with multiple form components
 export function OptionWidget(props: OptionWidgetProps) {
@@ -95,14 +105,15 @@ export function OptionWidget(props: OptionWidgetProps) {
     let node = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
 
     const handleAddCase = () => {
-        let caseCount = node.properties.cases.length;
+        const nodeProperties = node.properties as SwitchNodeProperties;
+        let caseCount = nodeProperties.cases.length;
         let portId = getPortId(node.name, false, caseCount + 1);
         while (selectedNode.getOutPorts().find((port) => port.getID() === portId)) {
             caseCount++;
             portId = getPortId(node.name, false, caseCount + 1);
         }
         // add new case and port
-        node.properties.cases.push({
+        nodeProperties.cases.push({
             expression: "true",
             nodes: [portId],
         });
@@ -168,7 +179,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                     size={32}
                 />
             )}
-            {(selectedNode.getKind() === "CodeBlockNode" || selectedNode.getKind() === "TransformNode") && (
+            {selectedNode.getInPorts().length > 0 && (
                 <>
                     <S.Divider />
                     <S.SectionTitle>Input</S.SectionTitle>
@@ -200,20 +211,40 @@ export function OptionWidget(props: OptionWidgetProps) {
                             </S.Row>
                         );
                     })}
-                    <Button appearance="secondary" onClick={handleAddInputPort}>
-                        Add Input
-                    </Button>
+                    {(selectedNode.getKind() === "CodeBlockNode" || selectedNode.getKind() === "TransformNode") && (
+                        <Button appearance="secondary" onClick={handleAddInputPort}>
+                            Add Input
+                        </Button>
+                    )}
                 </>
             )}
             {selectedNode.getKind() === "HttpRequestNode" && (
                 <>
                     <S.Divider />
+                    <S.SectionTitle>Connection</S.SectionTitle>
                     <S.InputField
-                        label="URL"
-                        value={""}
+                        label="Base URL"
+                        value={(node.properties as HttpRequestNodeProperties).basePath || ""}
                         required={true}
                         onChange={(value: string) => {
-                            // TODO: set the url
+                            (node.properties as HttpRequestNodeProperties).basePath = value;
+                        }}
+                        size={32}
+                    />
+                    <S.SectionTitle>Method</S.SectionTitle>
+                    <S.Select
+                        id="method"
+                        value={(node.properties as HttpRequestNodeProperties).action || "GET"}
+                        items={[{ value: "GET" }, { value: "POST" }, { value: "PUT" }]}
+                        onChange={(value: string) => {
+                            (node.properties as HttpRequestNodeProperties).action = value as HttpMethod;
+                        }}
+                    />
+                    <S.InputField
+                        label="Path"
+                        value={(node.properties as HttpRequestNodeProperties).path || ""}
+                        onChange={(value: string) => {
+                            (node.properties as HttpRequestNodeProperties).path = value;
                         }}
                         size={32}
                     />
@@ -239,23 +270,26 @@ export function OptionWidget(props: OptionWidgetProps) {
                 <>
                     <S.Divider />
                     <S.SectionTitle>Conditions</S.SectionTitle>
-                    {node.properties?.cases?.map((caseBlock: SwitchCaseBlock, index: number) => {
-                        return (
-                            <div key={index}>
-                                <TextArea
-                                    label={`Case ${index + 1}`}
-                                    value={caseBlock.expression.toString() || ""}
-                                    rows={2}
-                                    resize="vertical"
-                                    onChange={(value: string) => {
-                                        if (node) {
-                                            node.properties.cases[index].expression = value;
-                                        }
-                                    }}
-                                />
-                            </div>
-                        );
-                    })}
+                    {(node.properties as SwitchNodeProperties)?.cases?.map(
+                        (caseBlock: SwitchCaseBlock, index: number) => {
+                            return (
+                                <div key={index}>
+                                    <TextArea
+                                        label={`Case ${index + 1}`}
+                                        value={caseBlock.expression.toString() || ""}
+                                        rows={2}
+                                        resize="vertical"
+                                        onChange={(value: string) => {
+                                            if (node) {
+                                                (node.properties as SwitchNodeProperties).cases[index].expression =
+                                                    value;
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            );
+                        }
+                    )}
                     <Button appearance="secondary" onClick={handleAddCase}>
                         Add Case
                     </Button>
@@ -270,7 +304,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                         if (!nodePort) {
                             return null;
                         }
-                        if(selectedNode.getKind() === "switch" && nodePort.name !== "out_default") {
+                        if (selectedNode.getKind() === "switch" && nodePort.name !== "out_default") {
                             return null;
                         }
                         return (
