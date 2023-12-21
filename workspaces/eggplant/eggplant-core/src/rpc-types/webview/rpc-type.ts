@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { MachineStateValue, VisualizerLocation } from "../../extension-interfaces/state-machine-types";
+import { CommandProps, MachineEvent, MachineStateValue, VisualizerLocation } from "../../extension-interfaces/state-machine-types";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Flow } from "./types";
@@ -20,6 +20,7 @@ export const getVisualizerState: RequestType<void, VisualizerLocation> = { metho
 export const openVisualizerView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openVisualizerView` };
 export const getBallerinaProjectComponents: RequestType<void, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };
 export const getEggplantModel: RequestType<void, Flow> = { method: `${_preFix}/getEggplantModel` };
-export const executeCommand: NotificationType<string> = { method: `${_preFix}/executeCommand` };
+export const executeCommand: NotificationType<CommandProps> = { method: `${_preFix}/executeCommand` };
 export const getSTNodeFromLocation: RequestType<VisualizerLocation, STNode> = { method: `${_preFix}/getSTNodeFromLocation` };
 export const updateSource: NotificationType<Flow> = { method: `${_preFix}/updateSource` };
+export const sendMachineEvent: NotificationType<MachineEvent> = { method: `${_preFix}/sendMachineEvent` };

@@ -89,9 +89,9 @@ export type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
 
 export type HttpRequestNodeProperties = NodeProperties & {
     action: HttpMethod;
+    path: string;
     endpoint: Endpoint;
     outputType: string;
-    path: string;
 };
 
 export type HttpHeader = {

@@ -46,7 +46,7 @@ export type ComponentCollection = {
 // shows a view that includes document/project symbols(functions, records, etc.)
 // you can switch between files in the project and view the symbols in eachfile
 // when you select a symbol, it will show the symbol's visualization in the diagram view
-export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<SelectedComponent> }) {
+export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<SelectedComponent>, handleIsFetching: (value: boolean) => void }) {
 
     const { eggplantRpcClient } = useVisualizerContext();
     const categories: React.ReactElement[] = [];
@@ -73,6 +73,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
     `;
 
     const handleComponentSelection = async (info: ComponentViewInfo) => {
+        props.handleIsFetching(true);
         console.log({
             file: info.filePath,
             position: info.position
@@ -86,6 +87,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
         if (STKindChecker.isServiceDeclaration(serviceST)) {
             props.setSelectedComponent({fileName: info.filePath, serviceST});
+            props.handleIsFetching(false);
         } else {
             eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
         }
@@ -97,10 +99,10 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
             .forEach((key, index) => {
                 if (key === "functions" || key === "services") {
                     const filteredComponents = currentComponents[key];
-
-                    const components = filteredComponents.map((comp: ComponentViewInfo, compIndex: number) => {
+                    const components: any = [];
+                    filteredComponents.forEach((comp: ComponentViewInfo, compIndex: number) => {
                         if (comp.name === "main" || key === "services") {
-                            return (
+                            components.push(
                                 <ComponentView
                                     key={key + compIndex}
                                     info={comp}

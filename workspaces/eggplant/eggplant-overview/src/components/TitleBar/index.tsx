@@ -27,7 +27,7 @@ export function TitleBar(props: { clearSelection: () => void }) {
     });
 
     const handleDiagramView = () => {
-        eggplantRpcClient.getWebviewRpcClient().executeCommand('eggplant.openLowCode');
+        eggplantRpcClient.getWebviewRpcClient().executeCommand({ command: "OPEN_LOW_CODE" });
     }
 
     const handleHomeView = () => {

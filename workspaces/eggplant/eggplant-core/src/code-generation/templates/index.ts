@@ -10,10 +10,10 @@
 export default {
     ASYNC_SEND_ACTION : `{{{EXPRESSION}}} -> {{{TARGET_WORKER}}};
     `,
-    ASYNC_RECEIVE_ACTION : `{{{TYPE}}} {{{VAR_NAME}}} = <- {{{SENDER_WORKER}}};
+    ASYNC_RECEIVE_ACTION : `{{{TYPE}}} {{{VAR_NAME}}} = check <- {{{SENDER_WORKER}}};
     `,
     CODE_BLOCK_NODE :
-    `worker {{{NODE_NAME}}} {
+    `worker {{{NODE_NAME}}} returns error? {
         {{#if INPUT_PORTS}}
         {{{INPUT_PORTS}}}
         {{/if}}
@@ -32,7 +32,7 @@ export default {
         yCord: {{{Y_CODE}}}
     }`,
     SWITCH_NODE : 
-    `worker {{{NODE_NAME}}} {
+    `worker {{{NODE_NAME}}} returns error? {
         {{#if INPUT_PORTS}}
         {{{INPUT_PORTS}}}
         {{/if}}
@@ -53,4 +53,44 @@ export default {
     `else if ({{{CONDITION}}}) {
         {{{OUTPORTS}}}
     } `,
+    CALLER_ACTION : `{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}->/{{{ PATH }}}.{{{ACTION}}}({{{PAYLOAD}}});
+    `,
+    CALLER_BLOCK: 
+    `worker {{{NODE_NAME}}} returns error? {
+        {{#if INPUT_PORTS}}
+        {{{INPUT_PORTS}}}
+        {{/if}}
+        {{#if CALLER_ACTION}}
+        {{{CALLER_ACTION}}}
+        {{/if}}
+        {{#if OUTPUT_PORTS}}
+        {{{OUTPUT_PORTS}}}
+        {{/if}}
+    }`,
+    RESPOND:
+    `worker {{{NODE_NAME}}} returns error? {
+        {{#if INPUT_PORTS}}
+        {{{INPUT_PORTS}}}
+        {{{VAR_NAME}}}} -> function;
+        {{/if}}
+    }
+    
+    {{#if VAR_NAME}}
+    {{{TYPE}}} {{{VAR_NAME}}} = check <- {{{NODE_NAME}}};
+    return {{{VAR_NAME}}};
+    {{/if}}
+    `,
+    TRANSFORM_NODE:
+    `worker {{{NODE_NAME}}} returns error? {
+        {{#if INPUT_PORTS}}
+        {{{INPUT_PORTS}}}
+        {{/if}}
+        {{#if TRANSFORM_FUNCTION}}
+        {{{TRANSFORM_FUNCTION}}}
+        {{/if}}
+        {{#if OUTPUT_PORTS}}
+        {{{OUTPUT_PORTS}}}
+        {{/if}}
+    }`
+
 }

@@ -1,4 +1,4 @@
-import { LangClientInterface, MachineStateValue, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
+import { LangClientInterface, MachineStateValue, VisualizerLocation, EventType } from '@wso2-enterprise/eggplant-core';
 import { createMachine, assign, interpret } from 'xstate';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
@@ -29,10 +29,7 @@ const stateMachine = createMachine<Context>({
                     cond: (context, event) => event.data
                 },
                 onError: {
-                    target: 'disabled',
-                    actions: assign({
-                        errorCode: (context, event) => 'NOT_AN_EGGPLANT_PROJECT'
-                    })
+                    target: 'newProject'
                 }
             }
         },
@@ -85,6 +82,25 @@ const stateMachine = createMachine<Context>({
         },
         disabled: {
             // define what should happen when the project is not detected
+        },
+        newProject: {
+            initial: 'welcome',
+            states: {
+                welcome: {
+                    on: {
+                        GET_STARTED: {
+                            target: "create",
+                        }
+                    }
+                },
+                create: {
+                    on: {
+                        CANCEL_CREATION: {
+                            target: "welcome"
+                        }
+                    }
+                }
+            }
         }
     }
 }, {
@@ -130,16 +146,15 @@ const stateMachine = createMachine<Context>({
 
 
 // Create a service to interpret the machine
-export const stateService = interpret(stateMachine).start();
+export const stateService = interpret(stateMachine);
 
 // Define your API as functions
 export const StateMachine = {
-    initialize: () => stateService.send(''),
-    projectDetected: () => stateService.send('projectDetected'),
-    LSInit: () => stateService.send('LSInit'),
-    ready: () => stateService.send('ready'),
-    disabled: () => stateService.send('disabled'),
-    getService: () => { return stateService; }
+    initialize: () => stateService.start(),
+    service: () => { return stateService; },
+    context: () => { return stateService.getSnapshot().context; },
+    state: () => { return stateService.getSnapshot().value as MachineStateValue; },
+    sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
 };
 
 export function openView(viewLocation: VisualizerLocation) {
@@ -158,13 +173,9 @@ async function checkIfEggplantProject() {
         console.error(err);
     }
     if (!isEggplant) {
-        await window.showInformationMessage("Not an Eggplant Project.");
+        window.showInformationMessage("Eggplant project not found.");
+        throw new Error("Eggplant project not found");
     }
     return isEggplant;
-}
-
-
-export function getState(): MachineStateValue {
-    return stateService.getSnapshot().value as MachineStateValue;
 }
 

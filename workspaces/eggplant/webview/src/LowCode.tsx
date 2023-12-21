@@ -33,6 +33,7 @@ const MessageContent = styled.div({
 
 
 const LowCode = (props: { state: MachineStateValue }) => {
+    const { state } = props;
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
 
@@ -43,7 +44,7 @@ const LowCode = (props: { state: MachineStateValue }) => {
     }
 
     useEffect(() => {
-        if (typeof props.state === 'object' && props.state.ready === 'viewReady') {
+        if (typeof state === 'object' && 'ready' in state && state.ready === 'viewReady') {
             try {
                 eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
                     setModel(model);
@@ -52,7 +53,7 @@ const LowCode = (props: { state: MachineStateValue }) => {
                 setModel(undefined);
             }
         }
-    }, [props.state]);
+    }, [state]);
 
     const eggplantDiagram = useMemo(() => {
         return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
