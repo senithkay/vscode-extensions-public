@@ -59,36 +59,55 @@ const generateForm = (jsonData: any): string => {
                     let conditionType = "&&";
                     let conditions = "";
 
-                    enableCondition.forEach((conditionElement: any, index: number) => {
-                        const condition = Object.keys(conditionElement)[0];
-                        const value = conditionElement[condition];
+                    if (enableCondition.length > 1) {
+                        const condition = enableCondition[0];
                         if (condition === "OR") {
                             conditionType = "||";
-                            return;
                         } else if (condition === "NOT") {
                             conditionType = "!";
-                            return;
                         }
+                        for (let i = 1; i < enableCondition.length; i++) {
+                            const conditionElement = enableCondition[i];
+                            const condition = Object.keys(conditionElement)[0];
+                            const value = conditionElement[condition];
+
+                            if (typeof value === "boolean" || value === "true" || value === "false") {
+                                conditions += `formValues["${condition}"] == ${Boolean(value)} ${i != enableCondition.length - 1 ? conditionType : ""}`;
+
+                            } else {
+                                conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}" ${i != enableCondition.length - 1 ? conditionType : ""}`;
+                            }
+
+                        }
+
+                        fields +=
+                            fixIndentation(`
+                        {${conditions}&&`, indentation);
+                        indentation += 4;
+                    } else {
+                        const conditionElement = enableCondition[0];
+                        const condition = Object.keys(conditionElement)[0];
+                        const value = conditionElement[condition];
 
                         if (typeof value === "boolean" || value === "true" || value === "false") {
-                            conditions += `formValues["${condition}"] == ${Boolean(value)} ${index != enableCondition.length - 1 ? conditionType : ""}`;
+                            conditions += `formValues["${condition}"] == ${Boolean(value)}`;
 
                         } else {
-                            conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}" ${index != enableCondition.length - 1 ? conditionType : ""}`;
+                            conditions += `formValues["${condition}"] && formValues["${condition}"].toLowerCase() == "${value.toLowerCase()}"`;
                         }
-                    });
 
-                    fields +=
-                        fixIndentation(`
-                        {${conditions}&&`, indentation);
-                    indentation += 4;
+                        fields +=
+                            fixIndentation(`
+                        {${conditions} &&`, indentation);
+                        indentation += 4;
+                    }
                 }
 
                 fields +=
                     fixIndentation(`
                     <div>`, indentation);
                 indentation += 4;
-                if (inputType === 'stringOrExpression' || inputType === 'string') {
+                if (inputType === 'stringOrExpression' || inputType === 'string' || inputType === 'registry') {
 
                     fields +=
                         fixIndentation(`
@@ -178,26 +197,37 @@ const generateForm = (jsonData: any): string => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>   
                         <h3>${element.value.groupName}</h3>\n`, indentation);
                 generateFormItems(element.value.elements, indentation + 4, `${element.value.groupName.trim().replace(/\s/g, '_')}.`);
-                if (parentName === "table") {
-                    fields += fixIndentation(`
-                    <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={onAddClick}>
-                            Add
-                        </Button>
-                    </div>`, indentation);
-                }
                 fields += fixIndentation(`
                 </ComponentCard>`, indentation);
             } else if (element.type === 'table') {
+                fields +=
+                    fixIndentation(`
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>`, indentation);
                 const inputName = element.value.name.trim();
                 defaultValues +=
-                        fixIndentation(`
+                    fixIndentation(`
                     "${inputName}": [] as string[][],`, 8);
-                generateFormItems(element.value.form.elements, indentation + 4, "table");
+                generateFormItems(element.value.form.elements, indentation + 4);
+
+                // Add button
                 fields += fixIndentation(`
-                        {formValues["${inputName}"].length > 0 && (
+                    <div style={{ textAlign: "right", marginTop: "10px" }}>
+                        <Button appearance="primary" onClick={() => {
+                            if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                                setFormValues({
+                                    ...formValues, "propertyName": undefined, "propertyValue": undefined,
+                                    "${inputName}": [...formValues["${inputName}"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                                });
+                            }
+                        }}>
+                            Add
+                        </Button>
+                    </div>`, indentation);
+
+                fields += fixIndentation(`
+                        {formValues["${inputName}"] && formValues["${inputName}"].length > 0 && (
                             <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                                <h3>${inputName} Table</h3>
+                                <h3>${element.value.displayName} Table</h3>
                                 <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                                     <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                         <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -226,6 +256,9 @@ const generateForm = (jsonData: any): string => {
                                 </VSCodeDataGrid>
                             </ComponentCard>
                         )}`, indentation);
+
+                fields += fixIndentation(`
+                </ComponentCard>`, indentation);
             }
         });
     };
@@ -263,13 +296,14 @@ const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
-    const [formValues, setFormValues] = useState({${defaultValues}
-    } as { [key: string]: any });
+    const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
 
     useEffect(() => {
         if (sidePanelContext.formValues) {
             setFormValues({ ...formValues, ...sidePanelContext.formValues });
+        } else {
+            setFormValues({${defaultValues}});
         }
     }, [sidePanelContext.formValues]);
 
@@ -294,13 +328,6 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
             sidePanelContext.setMediator(undefined);
         }
     };
-
-    const onAddClick = async () => {
-        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
-         setFormValues({ ...formValues, "propertyName": undefined, "propertyValue": undefined , 
-         "properties": [...formValues["properties"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]});
-        }
-    }
 
     const formValidators: { [key: string]: (e?: any) => string | undefined } = {${fixIndentation(formValidators, 8)}
     };
