@@ -11,17 +11,19 @@ export type Flow = {
     id: string;
     name: string;
     nodes: Node[];
+    endpoints?: Endpoint[];
     fileName: string;
     bodyCodeLocation: CodeLocation;
 };
 
 export type NodeKinds =
     | "StartNode"
-    | "EndNode"
+    | "HttpResponseNode"
     | "CodeBlockNode"
-    | "switch" // TODO: Need to update after backend implementation support to SwitchNode
+    | "SwitchNode"
     | "HttpRequestNode"
-    | "TransformNode";
+    | "TransformNode"
+    | "DefaultNode";
 
 export type Node = {
     id?: string;
@@ -31,8 +33,7 @@ export type Node = {
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
-    properties?: SwitchNodeProperties | HttpRequestNodeProperties; // Need to update with other node types
-    codeBlock?: string;
+    properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties;
 };
 
 export type InputPort = {
@@ -69,13 +70,18 @@ export type NodeProperties = {
     name?: string;
 };
 
+export type CodeNodeProperties = NodeProperties & {
+    codeBlock: BalExpression;
+    returnVar?: string;
+};
+
 export type SwitchNodeProperties = NodeProperties & {
     cases: SwitchCaseBlock[];
     defaultCase?: DefaultCaseBlock;
 };
 
 export type SwitchCaseBlock = {
-    expression: string | BalExpression;
+    expression: BalExpression;
     nodes: string[];
 };
 
@@ -83,9 +89,11 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 export type HttpRequestNodeProperties = NodeProperties & {
     action: HttpMethod;
-    basePath: string;
-    headers: HttpHeader[];
     path: string;
+    endpointName: string;
+    type: string; // Action return type | worker return type
+    basePath? : string; // Identify new connection. LS model not provided this property. 
+    headers?: HttpHeader[];
 };
 
 export type HttpHeader = {
@@ -93,9 +101,14 @@ export type HttpHeader = {
     value: string;
 };
 
+export type Endpoint = {
+    name: string;
+    baseUrl: string;
+};
+
 export type BalExpression = {
     expression: string;
-    location: CodeLocation;
+    location?: CodeLocation;
 };
 
 export type DefaultCaseBlock = {

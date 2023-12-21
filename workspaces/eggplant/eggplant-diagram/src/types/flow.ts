@@ -14,9 +14,11 @@ export type {
     InputPort,
     SwitchCaseBlock,
     BalExpression,
+    CodeNodeProperties,
     SwitchNodeProperties,
     HttpRequestNodeProperties,
     NodeKinds,
-    HttpMethod
+    HttpMethod,
+    Endpoint,
 } from "@wso2-enterprise/eggplant-core";
 

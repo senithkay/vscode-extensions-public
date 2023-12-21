@@ -7,14 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BalExpression, Flow, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties } from "../../rpc-types/webview/types";
+import { BalExpression, CodeNodeProperties, Flow, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties } from "../../rpc-types/webview/types";
 import { getComponentSource } from "./template-utils";
 
 export function workerCodeGen(model: Flow): string {
     let workerBlocks: string = "";
     // use the util functions and generate the workerblocks
     model?.nodes.forEach(node => {
-        if (node.templateId === "switch") {
+        if (node.templateId === "SwitchNode") {
             workerBlocks += generateSwitchNode(node);
         } else {
             workerBlocks += generateBlockNode(node);
@@ -26,12 +26,13 @@ export function workerCodeGen(model: Flow): string {
 
 
 function generateBlockNode(node: Node): string {
+    const nodeProperties = node.properties as CodeNodeProperties;
     const workerNode: string = getComponentSource({
         name: 'CODE_BLOCK_NODE',
         config: {
             NODE_NAME: node.name,
             INPUT_PORTS: generateInputPorts(node),
-            CODE_BLOCK: node?.codeBlock ? node.codeBlock : undefined,
+            CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.expression : undefined,
             OUTPUT_PORTS: generateOutputPorts(node)
         }
     });
@@ -112,7 +113,6 @@ function generateSwitchNode(node: Node): string {
         config: {
             NODE_NAME: node.name,
             INPUT_PORTS: generateInputPorts(node),
-            CODE_BLOCK: node?.codeBlock ? node.codeBlock : undefined,
             SWITCH_BLOCK: switchCaseBlock
         }
     });
