@@ -237,12 +237,19 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                     },
                     fixedNode
                 );
-                ports.push({ id: portId, type: defaultInputType, name: portId, parent: nodeId, in: false, model: port });
+                ports.push({
+                    id: portId,
+                    type: defaultInputType,
+                    name: portId,
+                    parent: nodeId,
+                    in: false,
+                    model: port,
+                });
                 const codeNodeProperties: CodeNodeProperties = {
                     ...node.properties,
                     codeBlock: {
                         expression: "",
-                    }
+                    },
                 };
                 node.properties = codeNodeProperties;
                 nodeModel.setNode(node);
@@ -254,7 +261,9 @@ function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 basePath: "",
                 path: "",
                 action: "GET",
-                headers: [], // Add the 'headers' property here
+                headers: [],
+                endpointName: "",
+                type: "",
             };
             node.properties = httpNodeProperties;
             nodeModel.setNode(node);
