@@ -77,7 +77,9 @@
         "@wso2-enterprise/eggplant-diagram": "workspace:*",
         "vscode-messenger": "^0.4.5",
         "vscode-messenger-common": "^0.4.5",
-        "xstate": "^4.38.3"
+        "xstate": "^4.38.3",
+        "vscode-languageserver-types": "^3.17.5",
+        "vscode-uri": "^3.0.8"
     },
     "devDependencies": {
         "@vscode/vsce": "^2.22.0",

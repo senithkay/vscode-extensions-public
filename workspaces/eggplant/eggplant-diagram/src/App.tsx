@@ -8,8 +8,9 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
 import {
@@ -22,6 +23,20 @@ import {
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
+import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
+import { DataMapperOverlay } from "./components/data-mapper/ViewManager";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 1000,
+        cacheTime: 1000,
+      },
+    },
+  });
 
 interface EggplantAppProps {
     flowModel: Flow;
@@ -34,6 +49,7 @@ export function EggplantApp(props: EggplantAppProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [selectedNode, setSelectedNode] = useState<DefaultNodeModel | null>(null);
     const [_selectedLink, setSelectedLink] = useState<DefaultLinkModel | null>(null);
+    const [tnfFnPosition, setTnfFnPosition] = useState<NodePosition | null>(null);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -44,6 +60,14 @@ export function EggplantApp(props: EggplantAppProps) {
     const handleDiagramChange = (model: Flow) => {
         onModelChange(model);
         saveDiagramZoomAndPosition(diagramEngine.getModel());
+    };
+
+    const openDataMapper = (position: NodePosition) => {
+        setTnfFnPosition(position);
+    };
+
+    const closeDataMapper = () => {
+        setTnfFnPosition(null);
     };
 
     const debouncedHandleDiagramChange = debounce(handleDiagramChange, 300);
@@ -63,17 +87,29 @@ export function EggplantApp(props: EggplantAppProps) {
 
     return (
         <>
-            {diagramEngine && diagramModel && (
-                <>
-                    <BodyWidget
-                        engine={diagramEngine}
-                        flowModel={flowModel}
-                        onModelChange={handleDiagramChange}
-                        selectedNode={selectedNode}
-                        setSelectedNode={setSelectedNode}
-                    />
-                </>
-            )}
+            <QueryClientProvider client={queryClient}>
+                {diagramEngine && diagramModel && (
+                    <>
+                        {!tnfFnPosition && (
+                            <BodyWidget
+                                engine={diagramEngine}
+                                flowModel={flowModel}
+                                onModelChange={handleDiagramChange}
+                                selectedNode={selectedNode}
+                                setSelectedNode={setSelectedNode}
+                                openDataMapper={openDataMapper}
+                            />     
+                        )}
+                        {tnfFnPosition && (
+                            <DataMapperOverlay
+                                filePath={flowModel.fileName}
+                                fnLocation={tnfFnPosition}
+                                onClose={closeDataMapper}
+                            />
+                        )}
+                    </>               
+                )}
+            </QueryClientProvider>
         </>
     );
 }

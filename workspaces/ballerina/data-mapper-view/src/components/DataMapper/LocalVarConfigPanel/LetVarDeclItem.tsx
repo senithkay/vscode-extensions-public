@@ -20,7 +20,7 @@ import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 
 interface LetVarDeclItemProps {
@@ -29,13 +29,13 @@ interface LetVarDeclItemProps {
     handleOnCheck: () => void;
     onEditClick: (letVarDecl: LetVarDecl) => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
+    langServerRpcClient: LangServerRpcClient;
     filePath: string;
 }
 
 export function LetVarDeclItem(props: LetVarDeclItemProps) {
-    const {index, letVarDeclModel, handleOnCheck, onEditClick, applyModifications, filePath} = props;
+    const {index, letVarDeclModel, handleOnCheck, onEditClick, applyModifications, langServerRpcClient, filePath} = props;
     const overlayClasses = useStyles();
-    const { ballerinaRpcClient } = useVisualizerContext();
     const varNameNode = (letVarDeclModel.letVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern)
         .variableName;
     const exprSource = letVarDeclModel.letVarDecl.expression.source.trim();
@@ -72,7 +72,7 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
         if (key === "Enter") {
             setLoading(true);
             try {
-                const workspaceEdit = await getRenameEdits(filePath, updatedName, node.position as NodePosition, ballerinaRpcClient);
+                const workspaceEdit = await getRenameEdits(filePath, updatedName, node.position as NodePosition, langServerRpcClient);
                 const modifications: STModification[] = [];
 
                 Object.values(workspaceEdit?.changes).forEach((edits) => {

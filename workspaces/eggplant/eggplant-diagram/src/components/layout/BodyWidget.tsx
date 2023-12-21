@@ -22,12 +22,15 @@ import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
 import { getNodeModel, isFixedNode } from "../../utils";
 import { DiagramControls } from "../controls/DiagramControls";
+import { DataMapperOverlay } from "../data-mapper/ViewManager";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
     flowModel: Flow;
     selectedNode: DefaultNodeModel | null;
     setSelectedNode: (node: DefaultNodeModel) => void;
+    openDataMapper: (position: NodePosition) => void;
     onModelChange?: (flowModel: Flow) => void;
 }
 
@@ -51,7 +54,7 @@ namespace S {
 }
 
 export function BodyWidget(props: BodyWidgetProps) {
-    const { engine, flowModel, selectedNode, setSelectedNode, onModelChange } = props;
+    const { engine, flowModel, selectedNode, setSelectedNode, openDataMapper, onModelChange } = props;
 
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
@@ -112,6 +115,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                         flowModel={flowModel}
                         selectedNode={selectedNode}
                         setSelectedNode={setSelectedNode}
+                        openDataMapper={openDataMapper}
                         updateFlowModel={updateFlowModel}
                     />
                 )}

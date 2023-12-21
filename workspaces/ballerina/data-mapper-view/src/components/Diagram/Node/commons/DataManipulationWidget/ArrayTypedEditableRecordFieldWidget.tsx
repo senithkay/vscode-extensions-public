@@ -53,7 +53,6 @@ import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableEle
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;

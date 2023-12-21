@@ -16,6 +16,8 @@ import { SelectionState, ViewOption } from "../DataMapper";
 import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import SearchBox from "./SearchBox";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 export const headerStyles = {
     tooltip: {
@@ -35,10 +37,11 @@ export interface DataMapperHeaderProps {
     dmSupported: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
+    onClose?: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, dmSupported, changeSelection, onConfigOpen } = props;
+    const { selection, dmSupported, changeSelection, onConfigOpen, onClose } = props;
 
     return (
         <HeaderContainer>
@@ -56,6 +59,15 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     </FilterBar>
                     <ConfigureButton onClick={onConfigOpen}/>
                 </>
+            )}
+            {onClose && (
+                <VSCodeButton 
+                    appearance="icon"
+                    onClick={onClose}
+                    style={{ marginLeft: "15px" }}
+                >
+                    <Codicon name="chrome-close" />
+                </VSCodeButton>
             )}
         </HeaderContainer>
     );

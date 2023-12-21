@@ -42,7 +42,6 @@ import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

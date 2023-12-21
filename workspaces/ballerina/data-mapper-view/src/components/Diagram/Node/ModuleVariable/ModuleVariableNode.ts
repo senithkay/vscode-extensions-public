@@ -84,7 +84,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
                 }
             };
         });
-        const types = await getTypesForExpressions(this.context.filePath, exprRanges, this.context.visualizerContext.ballerinaRpcClient);
+        const types = await getTypesForExpressions(this.context.filePath, exprRanges, this.context.langServerRpcClient);
         const allModuleVarDecls = [...this.value].map(([varName, item]) => {
             return {
                 varName,
