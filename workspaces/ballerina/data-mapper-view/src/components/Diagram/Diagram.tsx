@@ -154,6 +154,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
 	const [model, setModel] = React.useState(new DiagramModel(defaultModelOptions));
+	const [count, setCount] = React.useState(0);
 
 	const dagreEngine = new DagreEngine({
 		graph: {
@@ -167,6 +168,10 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			fit: true
 		},
 	});
+
+	React.useEffect(() => {
+		setCount(0);
+	}, [nodes]);
 
 	React.useEffect(() => {
 		async function genModel() {
@@ -183,7 +188,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					node.setModel(newModel);
 					await node.initPorts();
 					node.initLinks();
-					engine.repaintCanvas();
 				} catch (e) {
 					const errorNodeKind = getErrorKind(node);
 					onError(errorNodeKind);
@@ -191,10 +195,9 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			}
 			newModel.setLocked(true);
 			engine.setModel(newModel);
-			// if (newModel.getLinks().length > 0) {
-			// 	dagreEngine.redistribute(newModel);
-			// 	await engine.repaintCanvas(true);
-			// }
+			if (newModel.getLinks().length > 0) {
+				await engine.repaintCanvas(true);
+			}
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;
@@ -240,9 +243,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			});
 			newModel.addLayer(new OverlayLayerModel());
 			setModel(newModel);
+			setCount(prevCount => prevCount + 1);
 		}
-		void genModel();
-	}, [nodes]);
+		if (count < 2) {
+			void genModel();
+		}
+	}, [count]);
 
 	const resetZoomAndOffset = () => {
 		const currentModel = engine.getModel();
