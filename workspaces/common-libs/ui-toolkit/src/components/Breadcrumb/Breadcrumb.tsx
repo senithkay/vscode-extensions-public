@@ -11,41 +11,55 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
 
-export const ActiveSelection = styled.div`
-    cursor: default;
-    color: var(--vscode-list-inactiveSelectionBackground);
-    line-height: unset;
-`;
-
-export const LinkSelection = styled.div`
-    cursor: pointer;
-    color: var(--vscode-textLink-foreground);
-
-    & .codicon-ellipsis {
-        margin-top: 4px;
-    }
-`;
-
-export const BreadcrumbContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    line-height: unset;
-`;
-
-export const Separator = styled.div`
-    margin: 2px;
-    color: var(--vscode-foreground);
-`;
+export interface BreadcrumbContainerInterface {
+    className?: string;
+    sx?: React.CSSProperties;
+}
 
 export interface BreadcrumbProps {
     children: React.ReactNode;
     className?: string;
     maxItems?: number;
     separator?: string | React.ReactNode;
+    sx?: React.CSSProperties;
 }
 
-export default function Breadcrumbs(props: BreadcrumbProps) {
-    const { children, className, maxItems = 8, separator = "/" } = props;
+export const ActiveSelection = styled.div`
+    cursor: default;
+    color: var(--vscode-icon-foreground);
+    line-height: unset;
+    font-size: var(--vscode-font-size);
+`;
+
+export const LinkSelection = styled.div`
+    cursor: pointer;
+    color: var(--vscode-breadcrumb-foreground);
+    font-size: var(--vscode-font-size);
+    &:hover {
+        color: var(--vscode-breadcrumb-focusForeground);
+    }
+
+    & .codicon-ellipsis {
+        margin-top: 4px;
+    }
+`;
+
+export const Separator = styled.div`
+    margin: 0 2px;
+    color: var(--vscode-foreground);
+`;
+
+export const BreadcrumbContainer = styled.div<BreadcrumbContainerInterface>`
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    line-height: unset;
+    font-size: "inherit";
+    ${(props: { sx?: React.CSSProperties }) => props.sx};
+`;
+
+export function Breadcrumbs(props: BreadcrumbProps) {
+    const { children, className, maxItems = 8, separator = "/", sx } = props;
     const [isOverflowing, setIsOverflowing] = React.useState(false);
 
     const [items, activeItem] = React.useMemo(() => {
@@ -85,7 +99,7 @@ export default function Breadcrumbs(props: BreadcrumbProps) {
     }, [children, maxItems, separator, isOverflowing]);
 
     return (
-        <BreadcrumbContainer className={className ? className : ""}>
+        <BreadcrumbContainer className={className} sx={sx}>
             {items}
             {activeItem}
         </BreadcrumbContainer>
