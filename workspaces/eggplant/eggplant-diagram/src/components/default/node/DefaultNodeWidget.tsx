@@ -13,12 +13,12 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { DefaultNodeModel } from "./DefaultNodeModel";
 import { DefaultPortLabel } from "../port/DefaultPortLabelWidget";
 import styled from "@emotion/styled";
-import { Colors } from "../../../resources";
+import { Colors, NODE_MIN_HEIGHT, NODE_MIN_WIDTH } from "../../../resources";
 import { DefaultPortModel } from "../port/DefaultPortModel";
 
 namespace S {
     type NodeStyleProp = {
-        background: string;
+        background?: string;
         selected: boolean;
     };
 
@@ -33,7 +33,9 @@ namespace S {
         display: flex;
         flex-direction: row;
         align-items: center;
-        min-height: 32px;
+        justify-content: space-between;
+        min-height: ${NODE_MIN_HEIGHT}px;
+        min-width: ${NODE_MIN_WIDTH}px;
     `;
 
     export const Title = styled.div`
@@ -83,7 +85,6 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
     generatePort = (port: DefaultPortModel) => {
         return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
     };
-
     render() {
         return (
             <S.Node
@@ -95,7 +96,11 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
                     <S.PortsContainer>{_.map(this.props.node.getInPorts(), this.generatePort)}</S.PortsContainer>
                 </S.InPorts>
                 <S.Title>
-                    <S.TitleName>{this.props.node.getOptions().name}</S.TitleName>
+                    <S.TitleName>
+                        {this.props.node.getOptions().node?.name === "HttpResponseNode"
+                            ? "Return"
+                            : this.props.node.getOptions().node?.name || this.props.node.getOptions().name}
+                    </S.TitleName>
                 </S.Title>
                 <S.OutPorts>
                     <S.PortsContainer>{_.map(this.props.node.getOutPorts(), this.generatePort)}</S.PortsContainer>

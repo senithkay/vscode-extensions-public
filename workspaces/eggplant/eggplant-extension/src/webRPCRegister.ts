@@ -10,6 +10,9 @@
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
 import { registerWebviewRpcHandlers } from './rpc-managers/webview/rpc-handler';
+import { StateMachine } from './stateMachine';
+import { stateChanged } from '@wso2-enterprise/eggplant-core';
+import { registerLangServerRpcHandlers } from './rpc-managers/langServer/rpc-handler';
 
 export class RPCLayer {
     private _messenger: Messenger = new Messenger();
@@ -21,7 +24,14 @@ export class RPCLayer {
             this._messenger.registerWebviewView(webViewPanel as WebviewView);
         }
 
+        // Register state change notification
+        StateMachine.service().onTransition((state) => {
+            this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'lowcode' }, state.value);
+            this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'eggplant.activity.overview' }, state.value);
+        });
+
         registerWebviewRpcHandlers(this._messenger);
+        registerLangServerRpcHandlers(this._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {

@@ -146,7 +146,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		originalTypeName,
 		unionTypeInfo
 	} = props;
-	const {	applyModifications } = context;
 	const classes = useStyles();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -285,7 +284,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				const targetPosition = getTargetPositionForWrapWithTypeCast();
 				modification.push(getModification(`<${name}>`, targetPosition));
 			}
-			await applyModifications(modification);
+			await context.applyModifications(modification);
 		} finally {
 			setIsModifyingTypeCast(false);
 		}

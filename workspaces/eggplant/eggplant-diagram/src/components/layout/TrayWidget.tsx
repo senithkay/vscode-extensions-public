@@ -18,9 +18,13 @@ namespace S {
         gap: 6px;
     `;
 
-    export const Title = styled.div`
+    export const Title = styled.h4`
+        font-family: 'GilmerMedium';
+        font-family: var(--font-family);
         color: ${Colors.ON_SURFACE};
         margin-bottom: 12px;
+        margin-block-start: unset;
+        user-select: none;
     `;
 }
 

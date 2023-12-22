@@ -30,7 +30,7 @@ export function Overview() {
 
     const fetchData = async () => {
         try {
-            const res = await ballerinaRpcClient.getVisualizerRpcClient().getBallerinaProjectComponents(undefined);
+            const res = await ballerinaRpcClient.getLangServerRpcClient().getBallerinaProjectComponents(undefined);
             setCurrentComponents(res);
         } catch (error) {
             console.error('Error fetching data:', error);

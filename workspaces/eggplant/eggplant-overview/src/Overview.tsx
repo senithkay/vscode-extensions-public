@@ -12,20 +12,36 @@
 import React, { useEffect, useState } from 'react';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
+import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
+import styled from '@emotion/styled';
+import { ResourcesList } from './ResourcesList';
+import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { Typography } from '@wso2-enterprise/ui-toolkit';
+
+export interface SelectedComponent {
+    fileName: string;
+    serviceST: ServiceDeclaration
+}
 
 export function Overview() {
     const [currentComponents, setCurrentComponents] = useState<any>();
+    const [selectedComponent, setSelectedComponent] = useState<SelectedComponent>();
     const [loading, setLoading] = useState(true);
     const { eggplantRpcClient } = useVisualizerContext();
 
     const [isPanelOpen, setPanelOpen] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
 
     const openPanel = () => {
         setPanelOpen(!isPanelOpen);
     };
+
+    const handleIsFetching = (value: boolean) => {
+        setIsFetching(value);
+    }
 
 
     const fetchData = async () => {
@@ -43,19 +59,58 @@ export function Overview() {
         fetchData();
     }, []);
 
+
+    const LoaderContainer = styled.div({
+        width: "100%",
+        overflow: "hidden",
+        height: "90vh",
+        display: "grid"
+    });
+
+    const LoaderContent = styled.div({
+        margin: "auto",
+    });
+
+    const Loader = () => {
+        return (
+            <LoaderContainer>
+                <LoaderContent>
+                    <VSCodeProgressRing style={{ height: 24, margin: 'auto' }} />
+                    Fetching components...
+                </LoaderContent>
+            </LoaderContainer>
+        )
+    }
+
     if (loading) {
         // Render a loading indicator
-        return <div>Loading...</div>;
+        return <Loader />;
+    }
+
+    const handleClear = () => {
+        setSelectedComponent(null);
     }
 
     return (
         <>
-            {/* <TitleBar /> */}
+            <TitleBar clearSelection={handleClear} />
             {currentComponents ? (
-                <ComponentListView currentComponents={currentComponents} />
+                selectedComponent ? (
+                    <>
+                        <Typography variant="h3">{selectedComponent.serviceST.absoluteResourcePath.map(res => res.value)}</Typography>
+                        <ResourcesList component={selectedComponent} />
+                    </>
+                ) : (
+                    <ComponentListView handleIsFetching={handleIsFetching} currentComponents={currentComponents} setSelectedComponent={setSelectedComponent} />
+                )
             ) : (
                 <div>No data available</div>
             )}
+            {isFetching &&
+                <LoaderContent>
+                    <VSCodeProgressRing style={{ height: 24, margin: 'auto' }} />
+                </LoaderContent>
+            }
         </>
     );
 }

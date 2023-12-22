@@ -10,11 +10,14 @@
 import { LinkModel, PortModel, PortModelAlignment, PortModelGenerics, PortModelOptions } from "@projectstorm/react-diagrams-core";
 import { DefaultLinkModel } from "../link/DefaultLinkModel";
 import { AbstractModelFactory, DeserializeEvent } from "@projectstorm/react-canvas-core";
+import { NodePort } from "../../../types";
 
 export interface DefaultPortModelOptions extends PortModelOptions {
     label?: string;
     in?: boolean;
     type?: string;
+    port?: NodePort;
+    multiLink?: boolean;
 }
 
 export interface DefaultPortModelGenerics extends PortModelGenerics {
@@ -39,6 +42,10 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
             type: "default",
             ...options,
         });
+
+        if (!options.multiLink) {
+            super.setMaximumLinks(1);
+        }
     }
 
     deserialize(event: DeserializeEvent<this>) {
@@ -75,5 +82,9 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
             return factory.generateModel({});
         }
         return link || new DefaultLinkModel();
+    }
+
+    hasLinks(): boolean {
+        return Object.keys(this.links).length > 0;
     }
 }

@@ -15,7 +15,8 @@ import { Typography } from "@wso2-enterprise/ui-toolkit";
 import styled from "@emotion/styled";
 import { VisualizerLocation } from "@wso2-enterprise/eggplant-core";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { SelectedComponent } from "./Overview";
 
 
 export interface ComponentViewInfo {
@@ -45,7 +46,7 @@ export type ComponentCollection = {
 // shows a view that includes document/project symbols(functions, records, etc.)
 // you can switch between files in the project and view the symbols in eachfile
 // when you select a symbol, it will show the symbol's visualization in the diagram view
-export function ComponentListView(props: { currentComponents: ComponentCollection | any }) {
+export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<SelectedComponent>, handleIsFetching: (value: boolean) => void }) {
 
     const { eggplantRpcClient } = useVisualizerContext();
     const categories: React.ReactElement[] = [];
@@ -72,6 +73,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
     `;
 
     const handleComponentSelection = async (info: ComponentViewInfo) => {
+        props.handleIsFetching(true);
         console.log({
             file: info.filePath,
             position: info.position
@@ -82,36 +84,47 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                 position: info.position
             }
         }
-        await eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
+        const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
+        if (STKindChecker.isServiceDeclaration(serviceST)) {
+            props.setSelectedComponent({fileName: info.filePath, serviceST});
+        } else {
+            eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
+        }
+        props.handleIsFetching(false);
     }
 
     if (currentComponents) {
         Object.keys(currentComponents)
             .filter((key) => currentComponents[key].length)
-            .forEach((key) => {
-                const filteredComponents = currentComponents[key];
+            .forEach((key, index) => {
+                if (key === "functions" || key === "services") {
+                    const filteredComponents = currentComponents[key];
+                    const components: any = [];
+                    filteredComponents.forEach((comp: ComponentViewInfo, compIndex: number) => {
+                        if (comp.name === "main" || key === "services") {
+                            components.push(
+                                <ComponentView
+                                    key={key + compIndex}
+                                    info={comp}
+                                    updateSelection={handleComponentSelection}
+                                    type={key}
+                                />
+                            )
+                        }
+                    });
 
-                const components = filteredComponents.map((comp: ComponentViewInfo, compIndex: number) => {
-                    return (
-                        <ComponentView
-                            key={key + compIndex}
-                            info={comp}
-                            updateSelection={handleComponentSelection}
-                            type={key}
-                        />
-                    )
-                });
+                    if (components.length === 0) return;
 
-                if (components.length === 0) return;
-
-                categories.push(
-                    <CategoryContainer>
-                        <Typography variant="h2">
-                            <Capitalize>{key}</Capitalize>
-                        </Typography>
-                        <ComponentContainer>{components}</ComponentContainer>
-                    </CategoryContainer>
-                );
+                    key = key === "functions" ? "Main Function" : "Services";
+                    categories.push(
+                        <CategoryContainer key={index}>
+                            <Typography variant="h4">
+                                <Capitalize>{key}</Capitalize>
+                            </Typography>
+                            <ComponentContainer>{components}</ComponentContainer>
+                        </CategoryContainer>
+                    );
+                }
             });
     }
 

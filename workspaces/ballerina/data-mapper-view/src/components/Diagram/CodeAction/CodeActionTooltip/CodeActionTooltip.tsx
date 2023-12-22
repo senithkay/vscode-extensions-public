@@ -57,7 +57,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
                 });
             }
         );
-        modifications.sort((a, b) => a.startLine - b.startLine)
+        modifications.sort((a, b) => a.startLine - b.startLine);
         void context.applyModifications(modifications);
     };
 

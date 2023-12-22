@@ -9,3 +9,5 @@
 
 export * from './diagram';
 export * from './generator';
+export * from './node';
+export * from './commons';

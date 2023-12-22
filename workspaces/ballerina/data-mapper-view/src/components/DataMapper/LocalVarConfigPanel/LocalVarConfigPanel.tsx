@@ -12,7 +12,6 @@ import React, { ReactNode, useEffect, useMemo, useState } from "react";
 
 import { Link } from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl/FormControl";
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DeleteButton,
     STModification
@@ -40,6 +39,7 @@ import {
 } from "./local-var-mgt-utils";
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface LetVarDeclModel {
     letVarDecl: LetVarDecl;
@@ -48,19 +48,21 @@ export interface LetVarDeclModel {
 }
 
 export interface LocalVarConfigPanelProps {
-    applyModifications: (modifications: STModification[]) => Promise<void>;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
     fnDef: STNode;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
+    langServerRpcClient: LangServerRpcClient,
     filePath: string;
 }
 
 export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     const {
         handleLocalVarConfigPanel,
-        applyModifications,
         fnDef,
         enableStatementEditor,
+        applyModifications,
+        langServerRpcClient,
         filePath
     } = props;
 
@@ -152,6 +154,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                     handleOnCheck={handleOnCheck}
                                     onEditClick={onEditClick}
                                     applyModifications={applyModifications}
+                                    langServerRpcClient={langServerRpcClient}
                                     filePath={filePath}
                                 />
                             </>

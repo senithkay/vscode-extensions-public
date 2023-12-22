@@ -8,36 +8,45 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { BallerinaFunctionSTRequest, BallerinaProjectComponents, STModification } from "@wso2-enterprise/ballerina-core";
+
 import {
+    EggplantModelRequest,
+    Flow,
     LangClientInterface,
+    MachineEvent,
+    MachineStateValue,
     VisualizerLocation,
+    CommandProps,
     WebviewAPI,
+    workerCodeGen
 } from "@wso2-enterprise/eggplant-core";
-import { openView, stateService } from "../../stateMachine";
-import { handleVisualizerView } from "../../utils/navigation";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
-import { workspace } from "vscode";
+import { STNode } from "@wso2-enterprise/syntax-tree";
+import { writeFileSync } from "fs";
+import * as vscode from "vscode";
+import { Uri, commands, workspace } from "vscode";
+import { StateMachine, openView } from "../../stateMachine";
+import { getSyntaxTreeFromPosition } from "../../utils/navigation";
+import { createEggplantProject, openEggplantProject } from "../../utils/project";
 
 export class WebviewRpcManager implements WebviewAPI {
 
     async getVisualizerState(): Promise<VisualizerLocation> {
-        const snapshot = stateService.getSnapshot();
-        snapshot.context.langServer = null;
+        const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve(snapshot.context);
+            resolve(context);
         });
     }
 
     openVisualizerView(params: VisualizerLocation): void {
-        if (params.location) {
-            handleVisualizerView(params.location);
-        } else {
-            openView(params);
-        }
+        // trigger eggplant.openLowCode command
+        vscode.commands.executeCommand("eggplant.openLowCode");
+
+        openView(params);
     }
 
     async getBallerinaProjectComponents(): Promise<BallerinaProjectComponents> {
-        const snapshot = stateService.getSnapshot();
+        const context = StateMachine.context();
         // Check if there is at least one workspace folder
         if (workspace.workspaceFolders?.length) {
             const workspaceUri: { uri: string }[] = [];
@@ -48,7 +57,6 @@ export class WebviewRpcManager implements WebviewAPI {
                     }
                 );
             });
-            const context =  snapshot.context;
             const langClient = context.langServer as LangClientInterface;
             return langClient.getBallerinaProjectComponents({
                 documentIdentifiers: workspaceUri
@@ -57,5 +65,139 @@ export class WebviewRpcManager implements WebviewAPI {
             // Handle the case where there are no workspace folders
             throw new Error("No workspace folders are open");
         }
+    }
+
+    async getEggplantModel(): Promise<Flow> {
+        const context = StateMachine.context();
+        const langClient = context.langServer as LangClientInterface;
+        if (!context.location) {
+            // demo hack
+            //@ts-ignore
+            return new Promise((resolve) => {
+                //@ts-ignore
+                resolve(undefined);
+            });
+        }
+        const params: EggplantModelRequest = {
+            filePath: context.location.fileName,
+            startLine: {
+                line: context.location.position.startLine ?? 0,
+                offset: context.location.position.startColumn ?? 0
+            },
+            endLine: {
+                line: context.location.position.endLine ?? 0,
+                offset: context.location.position.endColumn ?? 0
+            }
+
+        }
+        return langClient.getEggplantModel(params).then((model) => {
+            //@ts-ignore
+            return model.workerDesignModel;
+        }).catch((error) => {
+            // demo hack
+            //@ts-ignore
+            return new Promise((resolve) => {
+                //@ts-ignore
+                resolve(undefined);
+            });
+        });
+    }
+
+    async getState(): Promise<MachineStateValue> {
+        return new Promise((resolve) => {
+            resolve(StateMachine.state());
+        });
+    }
+
+    executeCommand(params: CommandProps): void {
+        switch (params.command) {
+            case "OPEN_LOW_CODE":
+                commands.executeCommand("eggplant.openLowCode");
+                break;
+            case "OPEN_PROJECT":
+                openEggplantProject();
+                break;
+            case "CREATE_PROJECT":
+                createEggplantProject(params.projectName!, params.isService!);
+                break;
+            default:
+                break;
+        }
+    }
+
+    async getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
+        const location = params.location;
+        const req: BallerinaFunctionSTRequest = {
+            documentIdentifier: { uri: Uri.file(location!.fileName).toString() },
+            lineRange: {
+                start: {
+                    line: location?.position.startLine as number,
+                    character: location?.position.startColumn as number
+                },
+                end: {
+                    line: location?.position.endLine as number,
+                    character: location?.position.endColumn as number
+                }
+            }
+        };
+        const node = await getSyntaxTreeFromPosition(req);
+        return new Promise((resolve) => {
+            if (node.parseSuccess) {
+                resolve(node.syntaxTree);
+            }
+        });
+    }
+
+    async updateSource(flowModel: Flow): Promise<void> {
+        const context = StateMachine.context();
+        const code = workerCodeGen(flowModel);
+
+        const langClient = context.langServer as LangClientInterface;
+        // TODO: Fix with the proper position when retrived from the BE model
+        const modification: STModification = {
+            startLine: flowModel.bodyCodeLocation?.start.line + 1,
+            startColumn: 0,
+            endLine: flowModel.bodyCodeLocation?.end.line,
+            endColumn: flowModel.bodyCodeLocation?.end.offset - 2,
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": code
+            }
+        };
+
+        const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+            documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
+            astModifications: [modification]
+        });
+
+        if (parseSuccess) {
+            writeFileSync(flowModel.fileName, source);
+            await langClient.didChange({
+                textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
+                contentChanges: [
+                    {
+                        text: source
+                    }
+                ],
+            });
+
+            // TODO: Update with notification
+            openView({
+                location: {
+                    fileName: flowModel.fileName,
+                    position: {
+                        startLine: newST.position.startLine ?? 0,
+                        startColumn: newST.position.startColumn ?? 0,
+                        endLine: newST.position.endLine ?? 0,
+                        endColumn: newST.position.endColumn ?? 0
+                    }
+                }
+            });
+        }
+    }
+
+    async sendMachineEvent(params: MachineEvent): Promise<void> {
+        StateMachine.sendEvent(params.type);
     }
 }

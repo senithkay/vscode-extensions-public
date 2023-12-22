@@ -9,23 +9,41 @@
 
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons/lib/types/lang-client-extended";
 import { DataMapper } from "./components/DataMapper/DataMapper";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-        staleTime: 1000,
-        cacheTime: 1000,
-      },
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 1000,
+      cacheTime: 1000,
     },
-  });
+  },
+});
 
-export function DataMapperView() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <DataMapper />
-        </QueryClientProvider>
-    );
+export interface DataMapperViewProps {
+  fnST: FunctionDefinition;
+  filePath: string;
+  langServerRpcClient: LangServerRpcClient;
+  applyModifications: (modifications: STModification[]) => Promise<void>;
+  onClose?: () => void;
+}
+
+export function DataMapperView(props: DataMapperViewProps) {
+  const { fnST, filePath, langServerRpcClient, applyModifications, onClose } = props;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DataMapper
+        fnST={fnST}
+        filePath={filePath}
+        langServerRpcClient={langServerRpcClient}
+        applyModifications={applyModifications}
+        onClose={onClose}
+      />
+    </QueryClientProvider>
+  );
 }

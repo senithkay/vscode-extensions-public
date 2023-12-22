@@ -131,7 +131,6 @@ export interface PrimitiveTypeOutputWidgetProps {
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeInfo } = props;
-	const {	applyModifications } = context;
 	const classes = useStyles();
 
 	const [isModifyingTypeCast, setIsModifyingTypeCast] = useState(false);
@@ -228,7 +227,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 				const targetPosition = getTargetPositionForWrapWithTypeCast();
 				modification.push(getModification(`<${name}>`, targetPosition));
 			}
-			await applyModifications(modification);
+			await context.applyModifications(modification);
 		} finally {
 			setIsModifyingTypeCast(false);
 		}

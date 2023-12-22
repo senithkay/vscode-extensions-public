@@ -10,6 +10,8 @@
 import { DefaultPortModel } from "../components/default";
 import { InputPort, OutputPort } from "./flow";
 
+export type NodePort = InputPort & OutputPort;
+
 export type ExtendedPort = InputPort &
     OutputPort & {
         parent: string;

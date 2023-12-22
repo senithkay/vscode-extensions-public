@@ -7,10 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagramModel, DiagramModelGenerics, LinkModel, LinkModelGenerics } from "@projectstorm/react-diagrams";
+import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
-import { Colors } from "../resources";
-import { CodeLocation, ExtendedPort, Flow, InputPort, Node, OutputPort } from "../types";
+import {
+    CodeNodeProperties,
+    ExtendedPort,
+    Flow,
+    HttpRequestNodeProperties,
+    InputPort,
+    Node,
+    OutputPort,
+    SwitchNodeProperties,
+} from "../types";
+import { DEFAULT_TYPE } from "../resources";
+import { isFixedNode } from "./node";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
     let flowPorts: ExtendedPort[] = [];
@@ -45,19 +55,250 @@ interface GenNodeModel {
 function getNodeModel(node: Node): GenNodeModel {
     let ports: ExtendedPort[] = [];
     let nodeId = getNodeIdentifier(node);
-    let nodeModel = new DefaultNodeModel(nodeId, Colors.PRIMARY_CONTAINER); // TODO: Write a factory to get node based on kind (templateId)
-    nodeModel.setPosition(node.canvasPosition.x, node.canvasPosition.y);
+    let nodeModel = new DefaultNodeModel({ node }); // TODO: Write a factory to get node based on kind (templateId)
+    if (node.canvasPosition) {
+        nodeModel.setPosition(node.canvasPosition.x, node.canvasPosition.y);
+    }
+    const fixedNode = isFixedNode(node.templateId);
     // add node ports
+    let portCount = 1;
     node.inputPorts?.forEach((inputPort) => {
-        let port = nodeModel.addInPort(inputPort.id);
+        const portId = inputPort.id || getPortId(node.name, true, portCount++);
+        if (ports.some((port) => port.id === portId)) {
+            return;
+        }
+        let port = nodeModel.addInPort(portId, inputPort, fixedNode);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
+    portCount = 1;
     node.outputPorts?.forEach((outputPort) => {
-        let port = nodeModel.addOutPort(outputPort.id);
+        const portId = outputPort.id || getPortId(node.name, false, portCount++);
+        if (ports.some((port) => port.id === portId)) {
+            return;
+        }
+        let port = nodeModel.addOutPort(portId, outputPort, fixedNode);
         ports.push({ ...outputPort, parent: nodeId, in: false, model: port });
     });
+    // add default ports if none
+    const defaultPorts = addDefaultNodes(node, nodeModel, nodeId, fixedNode);
+    ports.push(...defaultPorts);
 
     return { model: nodeModel, ports: ports };
+}
+
+function addDefaultNodes(node: Node, nodeModel: DefaultNodeModel, nodeId: string, fixedNode: boolean) {
+    let ports: ExtendedPort[] = [];
+    switch (node.templateId) {
+        case "StartNode":
+            if (node.outputPorts?.length === 0) {
+                const portId = getPortId(node.name, false, 1);
+                const port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+            }
+            break;
+        case "HttpResponseNode":
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                const port = nodeModel.addInPort(portId, undefined, fixedNode);
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
+            }
+            break;
+        case "SwitchNode":
+            const nodeProperties = node.properties as SwitchNodeProperties;
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                const port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
+            }
+            if (node.outputPorts?.length === 0 && nodeProperties.cases?.length > 0) {
+                nodeProperties.cases.forEach((caseItem, index) => {
+                    const portId = caseItem.nodes[0] || getPortId(node.name, false, index + 1);
+                    const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                    ports.push({
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                        parent: nodeId,
+                        in: false,
+                        model: port,
+                    });
+                });
+                const portId = nodeProperties.defaultCase.nodes[0] || getPortId(node.name, false, "default");
+                const port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+            } else if (node.outputPorts?.length < nodeProperties.cases?.length + 1) {
+                nodeProperties.cases.forEach((caseItem, index) => {
+                    const portId = caseItem.nodes[0] || getPortId(node.name, false, index + 1);
+                    if (node.outputPorts?.some((port) => port.id === portId)) {
+                        return;
+                    }
+                    const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                    ports.push({
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                        parent: nodeId,
+                        in: false,
+                        model: port,
+                    });
+                });
+                const portId = nodeProperties.defaultCase.nodes[0] || getPortId(node.name, false, "default");
+                if (node.outputPorts?.some((port) => port.id === portId)) {
+                    return;
+                }
+                const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+            }
+            break;
+        case "CodeBlockNode":
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                let port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
+            }
+            if (node.outputPorts?.length === 0) {
+                let portId = getPortId(node.name, false, 1);
+                let port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+                const codeNodeProperties: CodeNodeProperties = {
+                    ...node.properties,
+                    codeBlock: {
+                        expression: "",
+                    },
+                    returnVar: "payload",
+                };
+                node.properties = codeNodeProperties;
+                nodeModel.setNode(node);
+            }
+            break;
+        case "TransformNode":
+            const defaultInputType = "string";
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                let port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: defaultInputType,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: defaultInputType, name: portId, parent: nodeId, in: true, model: port });
+            }
+            if (node.outputPorts?.length === 0) {
+                let portId = getPortId(node.name, false, 1);
+                let port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: defaultInputType,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({
+                    id: portId,
+                    type: defaultInputType,
+                    name: portId,
+                    parent: nodeId,
+                    in: false,
+                    model: port,
+                });
+                const codeNodeProperties: CodeNodeProperties = {
+                    ...node.properties,
+                    codeBlock: {
+                        expression: "",
+                    },
+                };
+                node.properties = codeNodeProperties;
+                nodeModel.setNode(node);
+            }
+            break;
+        case "HttpRequestNode":
+            const httpNodeProperties: HttpRequestNodeProperties = {
+                ...node.properties,
+                path: "",
+                action: "get",
+                outputType: "json",
+                endpoint: {
+                    baseUrl: "",
+                    name: "httpEp",
+                }
+            };
+            node.properties = httpNodeProperties;
+            nodeModel.setNode(node);
+        default:
+            if (node.inputPorts?.length === 0) {
+                const portId = getPortId(node.name, true, 1);
+                let port = nodeModel.addInPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
+            }
+            if (node.outputPorts?.length === 0) {
+                let portId = getPortId(node.name, false, 1);
+                let port = nodeModel.addOutPort(
+                    portId,
+                    {
+                        id: portId,
+                        type: DEFAULT_TYPE,
+                        name: portId,
+                    },
+                    fixedNode
+                );
+                ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
+            }
+            break;
+    }
+
+    return ports;
 }
 
 function getLinkModels(node: Node, ports: ExtendedPort[]) {
@@ -82,160 +323,111 @@ function getNodeIdentifier(node: Node) {
     return node.name;
 }
 
-function getPortIdentifier(nodeId: string, inPort: boolean, portId: string, linkNodeId?: string) {
-    return `${nodeId}:${inPort ? "in" : "out"}:${portId}:${linkNodeId}`;
+export function getPortId(nodeId: string, inPort: boolean, portId: string | number) {
+    return `${inPort ? "in" : "out"}_${portId.toString()}`;
 }
 
 function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boolean, linkNodeId: string) {
     return ports.find(
-        (port) => port.parent === parent && port.in === inPort && ((inPort && port.sender === linkNodeId) || (!inPort && port.receiver === linkNodeId))
+        (port) =>
+            port.parent === parent &&
+            port.in === inPort &&
+            ((inPort && port.sender === linkNodeId) || (!inPort && port.receiver === linkNodeId))
     );
 }
 
-export function getUpdatedModel(diagramModel: DiagramModel<DiagramModelGenerics>, node: DefaultNodeModel, flowModel: Flow): Flow {
-    const model: Flow  = JSON.parse(JSON.stringify(flowModel));
-    const flowModelNodes = model.nodes;
-    // create newNode of type Node wit the data of node recieved as input to the function
-    const inports: InputPort[] = [];
-    const outports: OutputPort[] = [];
-    node.getInPorts().forEach((port) => {
-        inports.push({
-            id: port.getID(),
-            type: port.getType(),
-            name: port.getName()
-        });
-    });
-    node.getOutPorts().forEach((port) => {
-        outports.push({
-            id: port.getID(),
-            type: port.getType()
-        });
-    });
-
-    const codePosition: CodeLocation = {
-        start: {
-            line: 0,
-            offset: 0
-        },
-        end: {
-            line: 0,
-            offset: 0
-        }
-    }
-
-    var newNode: Node = {
-        id: node.getID(),
-        name: node.getName(),
-        templateId: node.getType(),
-        inputPorts: inports,
-        outputPorts: outports,
-        codeLocation: codePosition,
-        canvasPosition: node.getPosition()
-    };
-
-    // update the flowModelNodes with the newNode
-    flowModelNodes?.push(newNode);
-    return model;
-}
-
-
-export function getUpdatedModelForLinks(flowModel: Flow, link: LinkModel): Flow {
-
-    const model: Flow = flowModel;
-    const flowModelNodes: Node[] = model.nodes;
-
-    var sourcePort = link.getSourcePort();
-    var targetPort = link.getTargetPort();
-    // find the sourcePort from the flowModelNodes
-    var sourcePortNode = flowModelNodes?.find((node) => node.id === sourcePort?.getParent()?.getID());
-    // find the targetPort from the flowModelNodes
-    var targetPortNode = flowModelNodes?.find((node) => node.id === targetPort?.getParent()?.getID());
-    // find the port from the sourcePortNode
-    const sourcePortFromNode: OutputPort = sourcePortNode?.outputPorts?.find((port) => port.id === sourcePort?.getID());
-    // update the details of sourcePortFromNode with the detials of sourcePort
-    sourcePortFromNode.receiver = targetPortNode?.name;
-    // find the port from the targetPortNode
-    const targetPortFromNode: InputPort = targetPortNode?.inputPorts?.find((port) => port.id === targetPort?.getID());
-    // update the details of targetPortFromNode with the detials of targetPort
-    targetPortFromNode.sender = sourcePortNode?.name;
-    return model;
-}
-
-export function generateFlowModelFromDiagramModel(flowModel: Flow, diagramModel: DiagramModel<DiagramModelGenerics>): Flow {
+export function generateFlowModelFromDiagramModel(
+    flowModel: Flow,
+    diagramModel: DiagramModel<DiagramModelGenerics>
+): Flow {
     const model: Flow = {
         id: flowModel.id,
         name: flowModel.name,
         nodes: [],
-        balFilename: flowModel.balFilename
+        fileName: flowModel.fileName,
+        bodyCodeLocation: flowModel.bodyCodeLocation,
     };
     // update the flowModel with data retrieved from the diagramModel
     const flowModelNodes = model.nodes;
-    const serilzed = diagramModel.serialize();
     // update the canvasPosition of each node
     diagramModel.getNodes().forEach((node) => {
-        const inports: InputPort[] = [];
-        const outports: OutputPort[] = [];
-        const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
-        defaultNode.getInPorts().forEach((port) => {
-            Object.values(port.getLinks()).forEach((link) => {
-                const sourcePortID =  link.getSourcePort()?.getID();
+        const defaultNode = node as DefaultNodeModel;
+        const nodeModel = defaultNode.getNode();
+        // get input and output ports
+        const inPorts: InputPort[] = [];
+        const outPorts: OutputPort[] = [];
+        defaultNode.getInPorts().forEach((inPort) => {
+            const receiverPortModel = inPort.getOptions().port;
+            Object.values(inPort.getLinks()).forEach((link) => {
+                const sourcePortID = link.getSourcePort()?.getID();
                 diagramModel.getNodes().forEach((node) => {
                     //get the matching node for portID
-                    const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
-                    defaultNode.getOutPorts().forEach((port) => {
-                        if(port.getID() === sourcePortID){
-                            inports.push({
-                                id: port.getID(),
-                                type: port.getType(),
-                                name: port.getName(),
-                                sender: defaultNode.getName()
-                            });
-                        }
-                    });
-            });
-        });
-        });
-        defaultNode.getOutPorts().forEach((port) => {
-            Object.values(port.getLinks()).forEach((link) => {
-                const targetPortID =  link.getTargetPort()?.getID();
-                diagramModel.getNodes().forEach((node) => {
-                    //get the matching node for portID
-                    const defaultNode: DefaultNodeModel = node as DefaultNodeModel;
-                    defaultNode.getInPorts().forEach((port) => {
-                        if(port.getID() === targetPortID){
-                            outports.push({
-                                id: port.getID(),
-                                type: port.getType(),
-                                receiver: defaultNode.getName()
+                    const defaultNode = node as DefaultNodeModel;
+                    defaultNode.getOutPorts().forEach((outPort) => {
+                        const senderPortModel = outPort.getOptions().port;
+                        if (outPort.getID() === sourcePortID) {
+                            inPorts.push({
+                                id: receiverPortModel?.id || inPort.getName() || inPort.getID(),
+                                type: senderPortModel?.type || DEFAULT_TYPE,
+                                name: senderPortModel?.name || outPort.getName(),
+                                sender: defaultNode.getName(),
                             });
                         }
                     });
                 });
             });
         });
-
-        // TODO: get the codeLocation from the node
-        const codePosition: CodeLocation = {
-            start: {
-                line: 0,
-                offset: 0
-            },
-            end: {
-                line: 0,
-                offset: 0
-            }
+        defaultNode.getOutPorts().forEach((outPort) => {
+            const senderPortModel = outPort.getOptions().port;
+            Object.values(outPort.getLinks()).forEach((link) => {
+                const targetPortID = link.getTargetPort()?.getID();
+                diagramModel.getNodes().forEach((node) => {
+                    //get the matching node for portID
+                    const defaultNode = node as DefaultNodeModel;
+                    defaultNode.getInPorts().forEach((inPort) => {
+                        const receiverPortMode = inPort.getOptions().port;
+                        if (inPort.getID() === targetPortID) {
+                            outPorts.push({
+                                id: senderPortModel?.id || outPort.getName() || outPort.getID(),
+                                type: receiverPortMode?.type || DEFAULT_TYPE,
+                                name: receiverPortMode?.name || inPort.getName(),
+                                receiver: defaultNode.getName(),
+                            });
+                        }
+                    });
+                });
+            });
+        });
+        // get codeLocation
+        let codePosition = nodeModel?.codeLocation;
+        if (!codePosition) {
+            codePosition = {
+                start: {
+                    line: 0,
+                    offset: 0,
+                },
+                end: {
+                    line: 0,
+                    offset: 0,
+                },
+            };
         }
-
-        var newNode: Node = {
-            id: node.getID(),
+        // create node
+        let newNode: Node = {
             name: defaultNode.getName(),
-            templateId: node.getType(),
-            inputPorts: inports,
-            outputPorts: outports,
+            templateId: defaultNode.getKind(),
             codeLocation: codePosition,
-            canvasPosition: node.getPosition()
+            canvasPosition: {
+                x: Math.floor(defaultNode.getX()),
+                y: Math.floor(defaultNode.getY()),
+            },
+            inputPorts: inPorts,
+            outputPorts: outPorts,
         };
-
+        // add properties if any
+        if (nodeModel.properties) {
+            newNode.properties = nodeModel.properties;
+        }
         flowModelNodes?.push(newNode);
     });
     return model;

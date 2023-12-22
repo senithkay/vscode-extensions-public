@@ -7,7 +7,6 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodeModel } from "@projectstorm/react-diagrams";
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
 	keywords,
 	LinePosition,
@@ -44,7 +43,6 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
-import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DMNode } from "../../DataMapper/DataMapper";
 import { ErrorNodeKind } from "../../DataMapper/Error/DataMapperError";
@@ -130,8 +128,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	const sourcePort = link.getSourcePort() as RecordFieldPortModel;
 	const targetPort = link.getTargetPort() as RecordFieldPortModel;
 	const targetNode = targetPort.getNode() as DataMapperNodeModel;
-	const applyModifications = targetNode.context.applyModifications;
 	const fieldIndexes = targetPort && getFieldIndexes(targetPort);
+	const { applyModifications } = targetNode.context;
 
 	rhs = sourcePort.fieldFQN;
 
@@ -153,16 +151,16 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		const valuePosition = targetExpr.position as NodePosition;
 		const isValueEmpty = isEmptyValue(valuePosition);
 		if (!isValueEmpty) {
-			return updateValueExprSource(rhs, valuePosition, applyModifications);
+			return await updateValueExprSource(rhs, valuePosition, applyModifications);
 		}
 	} else if (isMappedToSelectClauseExprConstructor(targetPort)) {
 		const queryExpr = targetPort.editableRecordField.value as QueryExpression;
 		const selectClause = queryExpr?.selectClause || queryExpr?.resultClause;
 		const exprPosition = selectClause.expression.position as NodePosition;
-		return updateValueExprSource(rhs, exprPosition, applyModifications);
+		return await updateValueExprSource(rhs, exprPosition, applyModifications);
 	} else if (isMappedToRootUnionType(targetPort)) {
 		const exprPosition = (targetPort.getParent() as UnionTypeNode).innermostExpr.position as NodePosition;
-		return updateValueExprSource(rhs, exprPosition, applyModifications);
+		return await updateValueExprSource(rhs, exprPosition, applyModifications);
 	}
 
 	const targetFieldName = getFieldNameFromOutputPort(targetPort);
@@ -225,8 +223,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				const valueExpr = specificField.valueExpr;
 
 				if (!valueExpr.source) {
-					return createValueExprSource(lhs, rhs, fieldNames, i, specificField.colon.position as NodePosition,
-												applyModifications);
+					return await createValueExprSource(lhs, rhs, fieldNames, i, specificField.colon.position as NodePosition,
+						applyModifications);
 				}
 
 				const innerExpr = getInnermostExpressionBody(valueExpr);
@@ -253,16 +251,15 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		} else {
 			const specificField = getSpecificField(targetMappingConstruct, lhs);
 			if (specificField && !specificField.valueExpr.source) {
-				return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition,
-											applyModifications);
+				return await createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition,
+					applyModifications);
 			}
 			source = `${lhs}: ${rhs}`;
 		}
 	} else {
 		const specificField = getSpecificField(targetMappingConstruct, lhs);
 		if (specificField && !specificField.valueExpr.source) {
-			return createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition,
-										applyModifications);
+			return await createValueExprSource(lhs, rhs, [], 0, specificField.colon.position as NodePosition, applyModifications);
 		}
 		source = `${lhs}: ${rhs}`;
 	}
@@ -291,7 +288,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	modifications.push(getModification(source, targetPosition));
-	void applyModifications(modifications);
+	await applyModifications(modifications);
 
 	function createSpecificField(missingFields: string[]): string {
 		return missingFields.length > 0
@@ -312,9 +309,12 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	return `${lhs} = ${rhs}`;
 }
 
-export async function createSourceForUserInput(field: EditableRecordField, mappingConstruct: MappingConstructor,
-												                                   newValue: string,
-												                                   applyModifications: (modifications: STModification[]) => Promise<void>) {
+export async function createSourceForUserInput(
+	field: EditableRecordField,
+	mappingConstruct: MappingConstructor,
+	newValue: string,
+	applyModifications: (modifications: STModification[]) => Promise<void>
+) {
 
 	let source;
 	let targetMappingConstructor: STNode = mappingConstruct;
@@ -333,7 +333,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 			const rootField: SpecificField = nextField.parentType.value;
 
 			if (!rootField.valueExpr.source) {
-				return createValueExprSource(fieldName, newValue, parentFields.reverse(), 0,
+				return await createValueExprSource(fieldName, newValue, parentFields.reverse(), 0,
 					rootField.colon.position as NodePosition, applyModifications);
 			}
 
@@ -341,7 +341,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 			if (STKindChecker.isMappingConstructor(rootInnerExpr)) {
 				const specificField = getSpecificField(rootInnerExpr, fieldName);
 				if (specificField && !specificField.valueExpr.source) {
-					return createValueExprSource(fieldName, newValue, parentFields, 1,
+					return await createValueExprSource(fieldName, newValue, parentFields, 1,
 						specificField.colon.position as NodePosition, applyModifications);
 				}
 				source = createSpecificField(parentFields.reverse());
@@ -353,7 +353,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 						&& isPositionsEquals(expr.position as NodePosition, mappingConstruct.position as NodePosition)) {
 						const specificField = getSpecificField(expr, fieldName);
 						if (specificField && !specificField.valueExpr.source) {
-							return createValueExprSource(fieldName, newValue, parentFields, 1,
+							return await createValueExprSource(fieldName, newValue, parentFields, 1,
 								specificField.colon.position as NodePosition, applyModifications);
 						}
 						source = createSpecificField(parentFields.reverse());
@@ -371,7 +371,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 		const specificField = STKindChecker.isMappingConstructor(targetMappingConstructor)
 			&& getSpecificField(targetMappingConstructor, getFieldName(field));
 		if (specificField && !specificField.valueExpr.source) {
-			return createValueExprSource(field.originalType.name, newValue, parentFields, 1,
+			return await createValueExprSource(field.originalType.name, newValue, parentFields, 1,
 				specificField.colon.position as NodePosition, applyModifications);
 		}
 		source = createSpecificField(parentFields.reverse());
@@ -466,7 +466,8 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 					startLine: targetPos.endLine
 				});
 
-				void (targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+				const { context } = targetNode as DataMapperNodeModel;
+				void context.applyModifications(modifications);
 			}
 		}
 	}
@@ -500,7 +501,8 @@ export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
 				...targetPosition
 			});
 
-			void (targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+			const { context } = targetNode as DataMapperNodeModel;
+			void context.applyModifications(modifications);
 		}
 	}
 }
@@ -1173,10 +1175,14 @@ function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): 
 	});
 }
 
-async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
-									                            fieldIndex: number,
-									                            targetPosition: NodePosition,
-									                            applyModifications: (modifications: STModification[]) => Promise<void>) {
+async function createValueExprSource(
+	lhs: string,
+	rhs: string,
+	fieldNames: string[],
+	fieldIndex: number,
+	targetPosition: NodePosition,
+	applyModifications: (modifications: STModification[]) => Promise<void>
+) {
 	let source = "";
 
 	if (fieldIndex >= 0 && fieldIndex <= fieldNames.length) {
@@ -1186,11 +1192,12 @@ async function createValueExprSource(lhs: string, rhs: string, fieldNames: strin
 		source = rhs;
 	}
 
-	await applyModifications([getModification(source, {
+	const modifications = [getModification(source, {
 		...targetPosition,
 		startLine: targetPosition.endLine,
 		startColumn: targetPosition.endColumn
-	})]);
+	})];
+	await applyModifications(modifications);
 
 	function createValueExpr(missingFields: string[], isRoot?: boolean): string {
 		return missingFields.length
@@ -1215,11 +1222,12 @@ function isTypeMatch(type: Type, typeInfo: NonPrimitiveBal): boolean {
 	);
 }
 
-function updateValueExprSource(value: string, targetPosition: NodePosition,
-								                       applyModifications: (modifications: STModification[]) => void) {
-	applyModifications([getModification(value, {
-		...targetPosition
-	})]);
+async function updateValueExprSource(
+	value: string,
+	targetPosition: NodePosition,
+	applyModifications: (modifications: STModification[]) => Promise<void>
+) {
+	void await applyModifications([getModification(value, {...targetPosition})]);
 
 	return value;
 }

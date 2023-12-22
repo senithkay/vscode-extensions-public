@@ -82,8 +82,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     } = props;
     const {
         enableStatementEditor,
-        handleCollapse,
-        applyModifications
+        handleCollapse
     } = context;
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
@@ -122,7 +121,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(field.type.typeName);
-            await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
+            await createSourceForUserInput(field, mappingConstruct, defaultValue, context.applyModifications);
         } finally {
             setIsLoading(false);
         }
@@ -223,10 +222,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     const targetPosition = getTargetPositionForWrapWithTypeCast();
                     modification.push(getModification(`<${name}>`, targetPosition));
                 }
-                await applyModifications(modification);
+                await context.applyModifications(modification);
             } else {
                 const defaultValue = `<${name}>${getDefaultValue(type.typeName)}`;
-                await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
+                await createSourceForUserInput(field, mappingConstruct, defaultValue, context.applyModifications);
             }
         } finally {
             setIsAddingTypeCast(false);
@@ -338,7 +337,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsLoading(true);
         try {
             const defaultValue = getDefaultValue(typeNameStr);
-            await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, applyModifications);
+            await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, context.applyModifications);
         } finally {
             setIsLoading(false);
         }

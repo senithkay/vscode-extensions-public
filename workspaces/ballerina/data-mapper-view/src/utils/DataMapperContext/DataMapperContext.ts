@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 // import {
 //     ComponentViewInfo,
 //     FileListEntry,
@@ -16,12 +15,13 @@ import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
-import { VisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
     selection: SelectionState;
-    visualizerContext: VisualizerContext;
+    langServerRpcClient: LangServerRpcClient;
     filePath: string;
     currentFile?: {
         content: string,
@@ -30,7 +30,6 @@ export interface IDataMapperContext {
     };
     moduleVariables: any;
     changeSelection: (mode: ViewOption, selection?: SelectionState) => void;
-    applyModifications: (modifications: any[]) => Promise<void>;
     goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
     diagnostics: Diagnostic[];
     enableStatementEditor: (expressionInfo: ExpressionInfo) => void;
@@ -40,6 +39,7 @@ export interface IDataMapperContext {
     handleOverlay: (showOverlay: boolean) => void;
     ballerinaVersion: string;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
+    applyModifications: (modifications: STModification[]) => Promise<void>;
     updateActiveFile?: (currentFile: any) => void;
     updateSelectedComponent?: (info: any) => void;
     referenceManager?: {
@@ -54,7 +54,7 @@ export class DataMapperContext implements IDataMapperContext {
         public filePath: string,
         private _functionST: FunctionDefinition,
         private _selection: SelectionState,
-        public visualizerContext: VisualizerContext,
+        public langServerRpcClient: LangServerRpcClient,
         public currentFile: {
             content: string,
             path: string,
@@ -62,7 +62,6 @@ export class DataMapperContext implements IDataMapperContext {
         },
         public moduleVariables: any,
         public changeSelection: (mode: ViewOption, selection?: SelectionState) => void,
-        public applyModifications: (modifications: any[]) => Promise<void>,
         public goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void,
         public diagnostics: Diagnostic[],
         public enableStatementEditor: (expressionInfo: ExpressionInfo) => void,
@@ -72,6 +71,7 @@ export class DataMapperContext implements IDataMapperContext {
         public handleOverlay: (showOverlay: boolean) => void,
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
+        public applyModifications: (modifications: STModification[]) => Promise<void>,
         public updateActiveFile?: (currentFile: any) => void,
         public updateSelectedComponent?: (info: any) => void,
         public referenceManager?: {

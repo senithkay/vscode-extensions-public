@@ -11,10 +11,15 @@ import * as _ from "lodash";
 import { NodeModel, NodeModelGenerics, PortModelAlignment } from "@projectstorm/react-diagrams-core";
 import { DefaultPortModel } from "../port/DefaultPortModel";
 import { BasePositionModelOptions, DeserializeEvent } from "@projectstorm/react-canvas-core";
+import { Colors } from "../../../resources";
+import { Node, NodeKinds, NodePort } from "../../../types";
+import { getPortId } from "../../../utils";
 
 export interface DefaultNodeModelOptions extends BasePositionModelOptions {
     name?: string;
     color?: string;
+    node?: Node;
+    kind?: NodeKinds;
 }
 
 export interface DefaultNodeModelGenerics extends NodeModelGenerics {
@@ -28,6 +33,18 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
     constructor(name: string, color: string);
     constructor(options?: DefaultNodeModelOptions);
     constructor(options: any = {}, color?: string) {
+        if (options?.kind || options?.node) {
+            super({
+                type: "default",
+                name: options.node?.name || options.name,
+                color: Colors.PRIMARY_CONTAINER,
+                kind: options.node?.templateId || options.kind || "CodeBlockNode",
+                ...options,
+            });
+            this.portsIn = [];
+            this.portsOut = [];
+            return;
+        }
         if (typeof options === "string") {
             options = {
                 name: options,
@@ -73,12 +90,14 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return port;
     }
 
-    addInPort(label: string, after = true): DefaultPortModel {
+    addInPort(label: string, nodePort?: NodePort, multiLink = false, after = true): DefaultPortModel {
         const p = new DefaultPortModel({
             in: true,
             name: label,
             label: label,
             alignment: PortModelAlignment.LEFT,
+            port: nodePort,
+            multiLink: multiLink,
         });
         if (!after) {
             this.portsIn.splice(0, 0, p);
@@ -86,12 +105,14 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return this.addPort(p);
     }
 
-    addOutPort(label: string, after = true): DefaultPortModel {
+    addOutPort(label: string, nodePort?: NodePort, multiLink = false, after = true): DefaultPortModel {
         const p = new DefaultPortModel({
             in: false,
             name: label,
             label: label,
             alignment: PortModelAlignment.RIGHT,
+            port: nodePort,
+            multiLink: multiLink,
         });
         if (!after) {
             this.portsOut.splice(0, 0, p);
@@ -122,6 +143,7 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
             portsOutOrder: _.map(this.portsOut, (port) => {
                 return port.getID();
             }),
+            properties: this.options.node?.properties,
         };
     }
 
@@ -135,5 +157,38 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
 
     getName(): string {
         return this.options.name;
+    }
+
+    getNode(): Node {
+        return this.options.node;
+    }
+
+    setNode(node: Node): void {
+        this.options.node = node;
+        this.options.name = node.name;
+    }
+
+    getKind(): NodeKinds {
+        return this.options.kind;
+    }
+
+    getAvailableInPort(): DefaultPortModel | undefined {
+        console.log("getAvailableInPort", this.portsIn);
+        for (const port of this.portsIn) {
+            if (!port.hasLinks()) {
+                return port;
+            }
+        }
+        return undefined;
+    }
+
+    getNextPortID(): string {
+        let count = this.portsIn.length;
+        let nextPortId = getPortId(this.parent.getID(), true, count++);
+        while (this.getPort(nextPortId)) {
+            count++;
+            nextPortId = getPortId(this.parent.getID(), true, count++);
+        }
+        return nextPortId;
     }
 }

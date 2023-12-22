@@ -31,6 +31,13 @@ export * from './components/Dropdown/Dropdown';
 export * from './components/LinkButton/LinkButton';
 export * from './components/ProgressRing/ProgressRing';
 
+export * from './components/SampleForm/Header/Header';
+export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
+export * from './components/SampleForm/HorizontalIconsWithSeparator/HorizontalIconsWithSeparator';
+export * from './components/SampleForm/TypeSelector/TypeSelector';
+export * from './components/SampleForm/VerticleIcons/VerticleIcons';
+export * from './components/SampleForm/WebAppCreation/WebAppCreation';
+
 export * from './components/Commons/ErrorBanner';
 
 export * from './styles';

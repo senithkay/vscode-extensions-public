@@ -8,44 +8,37 @@
  */
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI } from "vscode-uri";
-import { BallerinaSTModifyResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaProjectComponents } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 
-export const useSyntaxTreeFromRange = ():{
-    data: BallerinaSTModifyResponse;
+export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
+    projectComponents: BallerinaProjectComponents;
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
-    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
-    const getST = async () => {
-        if (viewLocation?.location) {
-            const response = await ballerinaRpcClient?.getVisualizerRpcClient().getSTByRange({
-                lineRange: {
-                    start: {
-                        line: viewLocation.location.position.startLine,
-                        character: viewLocation.location.position.startColumn
-                    },
-                    end: {
-                        line: viewLocation.location.position.endLine,
-                        character: viewLocation.location.position.endColumn
+    const fetchProjectComponents = async () => {
+        try {
+            const componentResponse = await langServerRpcClient.getBallerinaProjectComponents({
+                documentIdentifiers: [
+                    {
+                        uri: URI.file(fileName).toString(),
                     }
-                },
-                documentIdentifier: {
-                    uri: URI.file(viewLocation.location.fileName).toString()
-                }
-            });
-            return response;
-        }    
-    }
+                ]
+            })
+            return componentResponse;
+        } catch (networkError: any) {
+            console.error('Error while fetching project components', networkError);
+        }
+    };
 
-    const { data, isFetching, isError, refetch } = useQuery({
-        queryKey: ['getST'],
-        queryFn: () => getST(),
-        refetchOnWindowFocus: false,
-        enabled: !!viewLocation.location 
-      });
+    const {
+        data: projectComponents,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), {});
 
-    return { data, isFetching, isError, refetch };
-  };
+    return { projectComponents, isFetching, isError, refetch };
+};
