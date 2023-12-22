@@ -41,6 +41,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 
 const useStyles = () => ({
 	root: css({

@@ -17,6 +17,7 @@ import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumbWrapper from "./HeaderBreadcrumbWrapper";
 import SearchBoxWrapper from "./SearchBoxWrapper";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
