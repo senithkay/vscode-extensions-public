@@ -1,7 +1,7 @@
 name: Daily Build - Eggplant
 on:
   schedule:
-    - cron:  '20 10 * * *'
+    - cron:  '20 04 * * *'
 jobs:
   Build:
     uses: ./.github/workflows/build.yml
@@ -66,14 +66,14 @@ jobs:
                             "openLink": {
                                 "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                             }
-                            },": "https://upl
-                                    oad.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
+                            },
+                            "iconUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
                             "button": {
                             "textButton": {
                                 "text": "Download VSIX",
                                 "onClick": {
                                 "openLink": {
-                                    "url": "https://github.com/${{ github.repository }}/actions/${{ github.run_id }}/artifacts${{ steps.artifact-upload.outputs.artifact-id }}"
+                                    "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.artifact-upload.outputs.artifact-id }}"
                                 }
                                 }
                             }
