@@ -1,7 +1,7 @@
 name: Daily Build - Eggplant
 on:
   schedule:
-    - cron:  '20 04 * * *'
+    - cron:  '30 13 * * *'
 jobs:
   Build:
     uses: ./.github/workflows/build.yml
@@ -32,7 +32,7 @@ jobs:
         run: |
             file=$(ls eggplant*.vsix)
             fileName=${file##*-}
-            version=$version+eggplant-${fileName%.*}  
+            version=${fileName%.*}  
 
             echo $version
             echo "version=$version" >> $GITHUB_OUTPUT
@@ -91,5 +91,5 @@ jobs:
             curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAAf3Fb5uM/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=_fJy_LdAUcLrK-4ooNSUi8s3V-D50xVtgwsXh46fBJ8" \
+            "https://chat.googleapis.com/v1/spaces/AAAApvQDm3o/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kX2amBnx58zmdZZjgbA-JZpi3OtM8CJaOv7WOKOihwM" \
             -d "$body"
