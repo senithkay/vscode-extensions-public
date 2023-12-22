@@ -13,19 +13,15 @@
 import React from "react";
 import { ChoreoWebViewAPI } from "../../../utilities/WebViewRpc";
 import { OPEN_CELL_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
-import { useChoreoWebViewContext } from "../../../context/choreo-web-view-ctx";
 import { CellViewIcon } from "../../../icons";
 import { Button, IconLabel } from "@wso2-enterprise/ui-toolkit";
 
 export const CellViewButton = () => {
-    const { currentProjectOrg, choreoProject } = useChoreoWebViewContext();
-
     const handleClick = async () => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: OPEN_CELL_DIAGRAM_EVENT,
         });
-        const project = await ChoreoWebViewAPI.getInstance().getChoreoCellView().getProjectModelFromFs(currentProjectOrg, choreoProject?.id);
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view", project);
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view");
     };
 
     return (

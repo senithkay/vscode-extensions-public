@@ -12,6 +12,9 @@ import { render } from 'react-dom';
 import { CellDiagram } from './Diagram';
 import { Project } from './types';
 
+export { CellDiagram } from "./Diagram";
+export * from "./types";
+
 export function renderDiagram(
     projectModel: string,
     target: HTMLDivElement

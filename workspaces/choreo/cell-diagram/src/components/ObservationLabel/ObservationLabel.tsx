@@ -12,15 +12,6 @@ import styled from "@emotion/styled";
 import { Colors } from "../../resources";
 import { Observations } from "../../types";
 
-const Container = styled.div`
-    background-color: ${Colors.NODE_BACKGROUND_PRIMARY};
-    border: 1px solid ${Colors.PRIMARY_SELECTED};
-    padding: 10px;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-`;
-
 const Table = styled.table`
     width: 100%;
 `;
@@ -69,28 +60,30 @@ export function ObservationLabel({ observations }: ObservationLabelProps) {
         { name: "50% Latency", valueFn: (obs: Observations) => convertToMs(obs.p50Latency) + " ms" },
     ];
 
+    function formatNumberWithCommas(x: string): string {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     return (
-        <Container>
-            <Table>
-                <thead>
-                    <TableRow>
-                        <TableHeader></TableHeader>
+        <Table>
+            <thead>
+                <TableRow>
+                    <TableHeader></TableHeader>
+                    {displayedObservations.map((obs, index) => (
+                        <TopTableHeader key={index}>{obs.label || obs.componentVersion || ""}</TopTableHeader>
+                    ))}
+                </TableRow>
+            </thead>
+            <tbody>
+                {metrics.map((metric) => (
+                    <TableRow key={metric.name}>
+                        <TableHeader>{metric.name}</TableHeader>
                         {displayedObservations.map((obs, index) => (
-                            <TopTableHeader key={index}>{obs.label || obs.componentVersion || ""}</TopTableHeader>
+                            <TableData key={index}>{formatNumberWithCommas(metric.valueFn(obs).toString())}</TableData>
                         ))}
                     </TableRow>
-                </thead>
-                <tbody>
-                    {metrics.map((metric) => (
-                        <TableRow key={metric.name}>
-                            <TableHeader>{metric.name}</TableHeader>
-                            {displayedObservations.map((obs, index) => (
-                                <TableData key={index}>{metric.valueFn(obs)}</TableData>
-                            ))}
-                        </TableRow>
-                    ))}
-                </tbody>
-            </Table>
-        </Container>
+                ))}
+            </tbody>
+        </Table>
     );
 }

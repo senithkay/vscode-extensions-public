@@ -24,7 +24,8 @@ import {
     WebhookIcon,
 } from "../../../../resources/assets/icons";
 import * as icons from "../../../../resources/assets/icons"; // import all icon SVGs as an object
-import { MenuItem, MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
+import { MoreVertMenu } from "../../../MoreVertMenu/MoreVertMenu";
+import { MoreVertMenuItem } from "../../../../types";
 import { DiagramContext } from "../../../DiagramContext/DiagramContext";
 import { COMPONENT_LINE_MIN_WIDTH } from "../../../../resources";
 
@@ -33,7 +34,7 @@ interface ServiceHeadProps {
     node: ComponentModel;
     isSelected: boolean;
     isFocused: boolean;
-    menuItems: MenuItem[];
+    menuItems: MoreVertMenuItem[];
 }
 
 export function ComponentHeadWidget(props: ServiceHeadProps) {
@@ -79,7 +80,11 @@ export function ComponentHeadWidget(props: ServiceHeadProps) {
                 <ComponentKind>{getComponentBuildIcon(node.component.buildPack)}</ComponentKind>
             )}
             {isFocused && menuItems?.length > 0 && (
-                <MoreVertMenu component={node.component} menuItems={menuItems} />
+                <MoreVertMenu
+                    component={node.component}
+                    menuItems={menuItems}
+                    hasComponentKind={node.component.buildPack && node.component.buildPack.toLowerCase() !== "other"}
+                />
             )}
         </ComponentHead>
     );

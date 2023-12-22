@@ -13,17 +13,27 @@ on:
         description: Update Ballerina extension version
         type: boolean
         required: false
-        default: true
+        default: false
       choreo:
         description: Update Choreo extension version
         type: boolean
         required: false
-        default: true   
+        default: false   
       api-chat:
         description: Update API Chat extension version
         type: boolean
         required: false
-        default: false              
+        default: false   
+      apk:
+        description: Update APK extension version
+        type: boolean
+        required: false
+        default: false  
+      eggplant:
+        description: Update EggPlant extension version
+        type: boolean
+        required: false
+        default: false                    
       version:
         default: 'N/A'
         type: string
@@ -46,11 +56,21 @@ jobs:
       runBalExtTests: ${{ steps.testMatrix.outputs.runBalExtTests }}
       runChoreoExtTests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}
       runAPIChatExtTests: ${{ steps.testMatrix.outputs.runAPIChatExtTests }}
+      runAPKExtTests: ${{ steps.testMatrix.outputs.runAPKExtTests }}
+      runEggplantExtTests: ${{ steps.testMatrix.outputs.runEggplantExtTests }}
     steps:
       - uses: actions/checkout@v2
+        if: ${{ !inputs.eggplant }}
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
+
+      - uses: actions/checkout@v2
+        if: ${{ inputs.eggplant }}
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2    
+          ref: rewrite
 
       - name: Analyze diff
         shell: bash
@@ -83,12 +103,24 @@ jobs:
           if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/api-chat" ]]; then
             echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
           fi
+          
+          # APK ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/apk" ]]; then
+            echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Eggplant ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/eggplant" ]]; then
+            echo "hasEggplantDiff=true" >> $GITHUB_OUTPUT
+          fi
 
           # Common
           if  [[ "${CHANGED_DIRS[@]}" =~ "workspaces/common-libs" || "${CHANGED_DIRS[@]}" =~ "common" || "${CHANGED_DIRS[@]}" =~ "^/*.yaml" || "${CHANGED_DIRS[@]}" =~ "^/*.json" ]]; then
             echo "hasBalDiff=true" >> $GITHUB_OUTPUT
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
             echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
+            echo "hasAPKDiff=true" >> $GITHUB_OUTPUT
+            echo "hasEggplantDiff=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Set test matrix
@@ -100,6 +132,8 @@ jobs:
           echo "runBalExtTests=${{ steps.diff.outputs.hasBalDiff }}" >> $GITHUB_OUTPUT
           echo "runChoreoExtTests=${{ steps.diff.outputs.hasChoreoDiff }}" >> $GITHUB_OUTPUT
           echo "runAPIChatExtTests=${{ steps.diff.outputs.hasAPIChatDiff }}" >> $GITHUB_OUTPUT
+          echo "runAPKExtTests=${{ steps.diff.outputs.hasAPKDiff }}" >> $GITHUB_OUTPUT
+          echo "runEggplantExtTests=${{ steps.diff.outputs.hasEggplantDiff }}" >> $GITHUB_OUTPUT
 
       - name: Build
         uses: ./.github/actions/build
@@ -109,7 +143,10 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           api-chat: ${{ inputs.api-chat }}
+          apk: ${{ inputs.apk }}
+          eggplant: ${{ inputs.eggplant }}
           version: ${{ inputs.version }}
+          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
   ExtTest_Ballerina:
     name: Run Ballerina extension tests
