@@ -10,10 +10,11 @@
 import Mustache from "mustache";
 import { MEDIATORS } from "../../../constants";
 import { getCallFormDataFromSTNode, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode } from "./core/header";
+import { getCallTemplateFormDataFromSTNode, getCallTemplateXml } from "./core/call-template";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -166,6 +167,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getLogXml(data);
         case MEDIATORS.CALLOUT:
             return getCalloutXml(data);
+        case MEDIATORS.CALLTEMPLATE:
+            return getCallTemplateXml(data) 
         default:
             return Mustache.render(getMustacheTemplate(name), data);
     }
@@ -183,7 +186,9 @@ export function getDataFromXML(name: string, node: STNode) {
         case MEDIATORS.HEADER:
             return getHeaderFormDataFromSTNode(formData, node as Header);
         case MEDIATORS.LOG:
-            return getLogFormDataFromSTNode(formData, node as Log);    
+            return getLogFormDataFromSTNode(formData, node as Log);
+        case MEDIATORS.CALLTEMPLATE:
+            return getCallTemplateFormDataFromSTNode(formData, node as CallTemplate);
         default:
             return formData;
     }

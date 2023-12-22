@@ -31,7 +31,7 @@
                             "helpTip": "",
                             "enableCondition": [
                                 {
-                                    "skipSerialization": "true"
+                                    "skipSerialization": false
                                 }
                             ]
                         }
@@ -88,6 +88,11 @@
                                             }
                                         ]
                                     }
+                                }
+                            ],
+                            "enableCondition": [
+                                {
+                                    "skipSerialization": "false"
                                 }
                             ]
                         }
