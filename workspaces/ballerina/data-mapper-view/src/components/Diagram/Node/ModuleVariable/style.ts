@@ -51,7 +51,8 @@ export const useStyles = () => ({
         width: "300px",
         whiteSpace: "nowrap",
         overflow: "hidden",
-        display: "inline-block",
+        display: "flex",
+        alignItems: "center",
         textOverflow: "ellipsis",
         "&:hover": {
             overflow: "visible"

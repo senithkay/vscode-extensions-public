@@ -12,16 +12,12 @@ export const useStyles = () => ({
     treeLabel: css({
         verticalAlign: "middle",
         padding: "5px",
-        color: "var(--vscode-icon-foreground)",
-        fontFamily: "GilmerMedium",
-        fontSize: "13px",
         minWidth: "100px",
-        backgroundColor: "var(--vscode-input-background)",
         display: "flex",
         minHeight: "24px",
         width: "100%",
         '&:hover': {
-            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+            backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)',
         }
     }),
     treeLabelPortSelected: css({
@@ -64,9 +60,6 @@ export const useStyles = () => ({
         width: "inherit",
         padding: "10px 12px",
         margin: "10px",
-        background: "var(--vscode-editorWidget-background)",
-        border: "1px var(--vscode-editor-selectionBackground) solid",
-        borderRadius: "4px",
         flex: "none",
         order: 1,
         flexGrow: 0
@@ -89,7 +82,6 @@ export const useStyles = () => ({
         marginLeft: "3px",
         verticalAlign: "middle",
         padding: "5px",
-        color: "var(--vscode-icon-foreground)",
         fontFamily: "GilmerRegular",
         fontSize: "13px",
         minWidth: "100px",
@@ -136,9 +128,9 @@ export const useStyles = () => ({
     valueLabel: css({
         verticalAlign: "middle",
         padding: "5px",
-        color: "var(--vscode-icon-foreground)",
         fontFamily: "GilmerMedium",
         fontSize: "13px",
+        color: "inherit"
     }),
     valueLabelDisabled: css({
         backgroundColor: "var(--vscode-editorWidget-background)",
@@ -176,6 +168,9 @@ export const useStyles = () => ({
         overflow: "hidden",
         textOverflow: "ellipsis",
         pointerEvents: "none",
+        display: "flex",
+        alignItems: "center",
+        color: "var(--vscode-foreground)",
         "&:hover": {
             overflow: "visible"
         }

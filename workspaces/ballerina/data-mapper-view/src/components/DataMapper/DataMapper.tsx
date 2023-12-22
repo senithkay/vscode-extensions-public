@@ -57,7 +57,7 @@ const classes = {
     root: css({
         flexGrow: 1,
         height: "100%",
-        overflow: "hidden"
+        overflow: "hidden",
     }),
     gridContainer: css({
         height: "100%",

@@ -14,21 +14,8 @@ import styled from "@emotion/styled";
 import { SelectionState, ViewOption } from "../DataMapper";
 
 import ConfigureButton from "./ConfigureButton";
-import HeaderBreadcrumb from "./HeaderBreadcrumb";
-import SearchBox from "./SearchBox";
-
-export const headerStyles = {
-    tooltip: {
-        color: "var(--vscode-input-placeholderForeground)",
-        backgroundColor: "var(--vscode-input-background)",
-        border: "1px solid var(--vscode-editorWidget-background)",
-        borderRadius: 6,
-        padding: "1rem"
-    },
-    arrow: {
-        color: "var(--vscode-input-background)"
-    }
-};
+import HeaderBreadcrumbWrapper from "./HeaderBreadcrumbWrapper";
+import SearchBoxWrapper from "./SearchBoxWrapper";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
@@ -43,8 +30,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
     return (
         <HeaderContainer>
             <BreadCrumb>
-                <Title> Data Mapper: </Title>
-                <HeaderBreadcrumb
+                <Title> DATA MAPPER: </Title>
+                <HeaderBreadcrumbWrapper
                     selection={selection}
                     changeSelection={changeSelection}
                 />
@@ -52,7 +39,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
             {dmSupported && (
                 <>
                     <FilterBar>
-                        <SearchBox selection={selection} />
+                        <SearchBoxWrapper selection={selection} />
                     </FilterBar>
                     <ConfigureButton onClick={onConfigOpen}/>
                 </>
@@ -71,9 +58,10 @@ const HeaderContainer = styled.div`
     border-bottom: 1px solid rgba(102,103,133,0.15);
 `;
 
-const Title = styled.div`
-    font-weight: 600;
-    margin-right: 10px;
+const Title = styled.h3`
+    margin: 0 10px 0 0;
+    color: var(--vscode-sideBarSectionHeader-foreground);
+    font-size: var(--vscode-font-size);
 `;
 
 const BreadCrumb = styled.div`

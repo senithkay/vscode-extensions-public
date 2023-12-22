@@ -25,13 +25,11 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         typeLabel: {
             marginLeft: "3px",
-            verticalAlign: "middle",
             padding: "5px",
             minWidth: "100px",
             marginRight: "24px",
         },
         valueLabel: {
-            verticalAlign: "middle",
             padding: "5px",
         },
         treeLabelOutPort: {

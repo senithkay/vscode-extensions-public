@@ -46,7 +46,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             alignItems: "center",
             overflow: "hidden",
-            boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+            boxShadow: "0px 5px 50px var(--vscode-checkbox-border)",
         },
         containerHidden: {
             visibility: "hidden",

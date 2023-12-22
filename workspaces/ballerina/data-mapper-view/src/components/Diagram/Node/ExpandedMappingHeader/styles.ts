@@ -52,7 +52,7 @@ export const useStyles = () => ({
         border: "1px solid var(--vscode-pickergroup-border)"
     }),
     clauseWrap: css({
-        background: "white",
+        background: "var(--vscode-input-background)",
         borderRadius: "8px",
         height: "40px",
         marginLeft: "25px",
