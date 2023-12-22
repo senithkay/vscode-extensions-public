@@ -30,6 +30,10 @@ export * from './components/Menu/MenuItem';
 export * from './components/Dropdown/Dropdown';
 export * from './components/LinkButton/LinkButton';
 export * from './components/ProgressRing/ProgressRing';
+export * from './components/Tooltip/Tooltip';
+export * from './components/Breadcrumb/Breadcrumb';
+export * from './components/Grid/Grid';
+export * from './components/SeachBox/SearchBox';
 
 export * from './components/Commons/ErrorBanner';
 
