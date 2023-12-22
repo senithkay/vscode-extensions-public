@@ -9,10 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { IconButton } from '@material-ui/core';
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { css } from "@emotion/css";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
@@ -24,57 +22,54 @@ import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        typeLabel: {
-            marginLeft: "3px",
-            verticalAlign: "middle",
-            padding: "5px",
-            minWidth: "100px",
-            marginRight: "24px"
-        },
-        valueLabel: {
-            verticalAlign: "middle",
-            padding: "5px",
-        },
-        treeLabelOutPort: {
-            float: "right",
-            width: 'fit-content',
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center"
-        },
-        label: {
-            width: "300px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            display: "inline-block",
-            textOverflow: "ellipsis",
-            "&:hover": {
-                overflow: "visible"
-            }
-        },
-        expandIcon: {
-            color: "var(--vscode-inputOption-activeForeground)",
-            height: "25px",
-            width: "25px",
-            marginLeft: "auto"
-        },
-        queryPortWrap: {
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: 'center'
-        },
-        nodeType: {
-            float: 'right',
-            marginRight: 5,
-            color: "var(--vscode-pickerGroup-border)",
-        }
+const useStyles = () => ({
+    typeLabel: css({
+        marginLeft: "3px",
+        padding: "5px",
+        minWidth: "100px",
+        marginRight: "24px",
     }),
-);
+    valueLabel: css({
+        padding: "5px",
+    }),
+    treeLabelOutPort: css({
+        float: "right",
+        width: 'fit-content',
+        marginLeft: "auto",
+        display: "flex",
+        alignItems: "center"
+    }),
+    label: css({
+        display: "flex",
+        alignItems: "center",
+        width: "300px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        "&:hover": {
+            overflow: "visible"
+        },
+    }),
+    expandIcon: css({
+        color: "var(--vscode-inputOption-activeForeground)",
+        height: "25px",
+        width: "25px",
+        marginLeft: "auto"
+    }),
+    queryPortWrap: css({
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center'
+    }),
+    nodeType: css({
+        float: 'right',
+        marginRight: 5,
+        color: "var(--vscode-pickerGroup-border)",
+    })
+});
 
 export interface RecordTypeTreeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
@@ -152,14 +147,14 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
             >
                 <span className={classes.label}>
                     {hasFields && (
-                        <IconButton
-                            id={"button-wrapper-" + id}
-                            className={classes.expandIcon}
+                        <Button
+                            appearance="icon"
+                            tooltip="Expand/Collapse"
                             onClick={handleExpand}
                             data-testid={`${id}-expand-icon-record-source-node`}
                         >
-                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                        </IconButton>
+                            {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                        </Button>
                     )}
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>

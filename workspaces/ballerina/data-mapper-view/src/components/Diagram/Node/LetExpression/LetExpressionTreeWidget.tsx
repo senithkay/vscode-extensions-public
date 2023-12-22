@@ -10,12 +10,10 @@
 import React, { ReactNode, useMemo } from 'react';
 
 import styled from "@emotion/styled";
-import { Button, IconButton } from "@material-ui/core";
-import { default as AddIcon } from "@material-ui/icons/Add";
+import { Button, Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { CaptureBindingPattern, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import SquareEditIcon from "../../../../assets/icons/SquareEditIcon";
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RecordFieldPortModel } from '../../Port';
@@ -77,13 +75,15 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                     <LocalVarsHeader>
                         <HeaderText>Local Variables</HeaderText>
                         {!isWithinQuery && (
-                            <IconButton
-                                id={"edit-local-variables"}
+                            <Button
+                                appearance="icon"
+                                tooltip="Edit"
                                 onClick={onClick}
                                 data-testid={"edit-local-variables-btn"}
+                                sx={{ paddingRight: "8px" }}
                             >
-                                <SquareEditIcon color={"#3d3b3b"} />
-                            </IconButton>
+                                <Icon name="editIcon" />
+                            </Button>
                         )}
                     </LocalVarsHeader>
                     {letVarDeclItems}
@@ -91,13 +91,12 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
             ) : !isWithinQuery && !searchValue && (
                 <LocalVarAddButton>
                     <Button
-                        id={"add-local-variable"}
+                        appearance='icon'
                         aria-label="add"
-                        className={classes.addIcon}
                         onClick={onClick}
-                        startIcon={<AddIcon />}
                         data-testid={"add-local-variable-btn"}
                     >
+                        <Codicon name="add" />
                         Add Local Variable
                     </Button>
                 </LocalVarAddButton>
@@ -127,4 +126,5 @@ const HeaderText = styled.span`
     font-size: 13px;
     font-weight: 600;
     font-family: "Gilmer",sans-serif;
+    color: var(--vscode-inputOption-activeForeground)
 `;

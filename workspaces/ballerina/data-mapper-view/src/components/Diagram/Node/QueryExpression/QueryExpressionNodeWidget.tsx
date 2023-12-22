@@ -11,11 +11,6 @@ import * as React from 'react';
 
 import { css } from "@emotion/css";
 import { CircularProgress } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import TooltipBase from '@material-ui/core/Tooltip';
-import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
-import ExitToApp from "@material-ui/icons/ExitToApp";
-import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExpressionFunctionBody, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
@@ -29,30 +24,18 @@ import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisi
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
-
-export const tooltipBaseStyles = {
-    tooltip: {
-        color: "var(--vscode-input-placeholderForeground)",
-        backgroundColor: "var(--vscode-input-background)",
-        border: "1px solid var(--vscode-editorWidget-background)",
-        borderRadius: 6,
-        padding: "1rem"
-    },
-    arrow: {
-        color: "var(--vscode-input-background)"
-    }
-};
+import { Button, Codicon, Icon, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 export const useStyles = () => ({
     root: css({
         width: '100%',
-        backgroundColor: "var(--vscode-input-background)",
+        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        padding: "2px",
+        borderRadius: "6px",
         display: "flex",
         flexDirection: "column",
         gap: "5px",
         color: "var(--vscode-checkbox-border)",
-        boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
-        borderRadius: "10px",
         alignItems: "center",
         overflow: "hidden",
     }),
@@ -163,8 +146,6 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
         await node.deleteLink();
     }
 
-    const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
-
     const loadingScreen = (
         <CircularProgress
             size={22}
@@ -179,26 +160,33 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                 <div className={classes.root} >
                     <div className={classes.header}>
                         <DataMapperPortWidget engine={engine} port={node.inPort} />
-                        <TooltipComponent interactive={false} arrow={true} title={"Query Expression"}>
-                            <span className={classes.openQueryIcon} >
-                                <QueryIcon  />
-                            </span>
-                        </TooltipComponent>
-                        <div className={classes.element} onClick={onClickOnExpand} data-testid={`expand-query-${node?.targetFieldFQN}`}>
-                            <div className={classes.iconWrapper}>
-                                <ExitToApp className={classnames(classes.editIcon)}/>
-                            </div>
-                        </div>
+                        <Tooltip content={"Query Expression"}>
+                            <Button
+                                appearance="icon"
+                            >
+                                <Codicon name="list-unordered" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                            </Button>
+                        </Tooltip>
+                        <Button
+                            appearance="icon"
+                            tooltip="Edit"
+                            onClick={onClickOnExpand}
+                            data-testid={`expand-query-${node?.targetFieldFQN}`}
+                        >
+                            <Icon name="sign-out" sx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                        </Button>
                         {deleteInProgress ? (
                             <div className={classnames(classes.element, classes.loadingContainer)}>
                                 {loadingScreen}
                             </div>
                         ) : (
-                            <div className={classes.element} onClick={deleteQueryLink} data-testid={`delete-query-${node?.targetFieldFQN}`}>
-                                <div className={classes.iconWrapper}>
-                                    <DeleteIcon className={classnames(classes.deleteIcon)}/>
-                                </div>
-                            </div>
+                            <Button
+                                appearance="icon"
+                                tooltip="Delete"
+                                onClick={deleteQueryLink} data-testid={`delete-query-${node?.targetFieldFQN}`}
+                            >
+                                <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                            </Button>
                         )}
                         <DataMapperPortWidget engine={engine} port={node.outPort} />
                     </div>

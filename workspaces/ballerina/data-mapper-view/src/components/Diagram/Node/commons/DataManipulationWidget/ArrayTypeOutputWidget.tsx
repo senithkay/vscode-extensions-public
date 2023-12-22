@@ -9,11 +9,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { css } from "@emotion/css";
 import { CircularProgress } from "@material-ui/core";
-import IconButton from '@material-ui/core/IconButton';
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -43,102 +41,97 @@ import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		root: {
-			flexGrow: 1,
-			width: 400,
-			color: "var(--vscode-input-background)",
-			position: "relative",
-			backgroundColor: "var(--vscode-input-background)",
-			padding: "20px"
-		},
-		header: {
-			color: "black",
-			backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
-			display: "flex",
-			height: "40px",
-			padding: "8px"
-		},
-		typeLabel: {
-			marginLeft: "3px",
-			verticalAlign: "middle",
-			padding: "5px",
-			color: "var(--vscode-icon-foreground)",
-			fontFamily: "GilmerRegular",
-			fontSize: "13px",
-			minWidth: "100px",
-			marginRight: "24px"
-		},
-		boldedTypeLabel: {
-			fontFamily: "GilmerBold",
-			fontSize: "14px",
-		},
-		typeLabelDisabled: {
-			backgroundColor: "var(--vscode-editorWidget-background)",
-			color: "var(--vscode-icon-foreground)",
-			opacity: 0.5
-		},
-		valueLabel: {
-			verticalAlign: "middle",
-			padding: "5px",
-			color: "var(--vscode-icon-foreground)",
-			fontFamily: "GilmerMedium",
-			fontSize: "13px",
-		},
-		valueLabelDisabled: {
-			backgroundColor: "var(--vscode-editorWidget-background)",
-			color: "var(--vscode-input-foreground)",
-			opacity: 0.5
-		},
-		treeLabelOutPort: {
-			float: "right",
-			width: 'fit-content',
-			marginLeft: "auto",
-		},
-		treeLabelInPort: {
-			float: "left",
-			marginRight: "5px",
-			width: 'fit-content',
-			display: "flex",
-			alignItems: "center"
-		},
-		label: {
-			width: "300px",
-			whiteSpace: "nowrap",
-			overflow: "hidden",
-			display: "inline-block",
-			textOverflow: "ellipsis",
-			"&:hover": {
-				overflow: "visible"
-			}
-		},
-		expandIcon: {
-			color: "var(--vscode-inputOption-activeForeground)",
-			height: "25px",
-			width: "25px",
-			marginLeft: "auto"
-		},
-		expandIconDisabled: {
-			color: "var(--vscode-editorHoverWidget-border)",
-		},
-		treeLabelDisabled: {
-			backgroundColor: "var(--vscode-editorWidget-background)",
-			'&:hover': {
-				backgroundColor: 'var(--vscode-editorWidget-background)',
-			},
-			cursor: 'not-allowed'
-		},
-		loader: {
-			float: "right",
-			marginLeft: "auto",
-			marginRight: '3px',
-			alignSelf: 'center'
-		},
+const useStyles = () => ({
+	root: css({
+		flexGrow: 1,
+		width: 400,
+		color: "var(--vscode-input-background)",
+		position: "relative",
+		backgroundColor: "var(--vscode-input-background)",
+		padding: "20px"
 	}),
-);
+	header: css({
+		color: "black",
+		backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
+		display: "flex",
+		height: "40px",
+		padding: "8px"
+	}),
+	typeLabel: css({
+		marginLeft: "3px",
+		padding: "5px",
+		color: "var(--vscode-icon-foreground)",
+		fontFamily: "GilmerRegular",
+		fontSize: "13px",
+		minWidth: "100px",
+		marginRight: "24px"
+	}),
+	boldedTypeLabel: css({
+		fontFamily: "GilmerBold",
+		fontSize: "14px",
+	}),
+	typeLabelDisabled: css({
+		backgroundColor: "var(--vscode-editorWidget-background)",
+		color: "var(--vscode-icon-foreground)",
+		opacity: 0.5
+	}),
+	valueLabel: css({
+		padding: "5px",
+		color: "var(--vscode-icon-foreground)",
+		fontFamily: "GilmerMedium",
+		fontSize: "13px",
+	}),
+	valueLabelDisabled: css({
+		backgroundColor: "var(--vscode-editorWidget-background)",
+		color: "var(--vscode-input-foreground)",
+		opacity: 0.5
+	}),
+	treeLabelOutPort: css({
+		float: "right",
+		width: 'fit-content',
+		marginLeft: "auto",
+	}),
+	treeLabelInPort: css({
+		float: "left",
+		marginRight: "5px",
+		width: 'fit-content',
+		display: "flex",
+		alignItems: "center"
+	}),
+	label: css({
+		width: "300px",
+		whiteSpace: "nowrap",
+		overflow: "hidden",
+		display: "inline-block",
+		textOverflow: "ellipsis",
+		"&:hover": {
+			overflow: "visible"
+		}
+	}),
+	expandIcon: css({
+		color: "var(--vscode-inputOption-activeForeground)",
+		height: "25px",
+		width: "25px",
+		marginLeft: "auto"
+	}),
+	expandIconDisabled: css({
+		color: "var(--vscode-editorHoverWidget-border)",
+	}),
+	treeLabelDisabled: css({
+		backgroundColor: "var(--vscode-editorWidget-background)",
+		'&:hover': {
+			backgroundColor: 'var(--vscode-editorWidget-background)',
+		},
+		cursor: 'not-allowed'
+	}),
+	loader: css({
+		float: "right",
+		marginLeft: "auto",
+		marginRight: '3px',
+		alignSelf: 'center'
+	}),
+});
 
 export interface ArrayTypeOutputWidgetProps {
 	id: string;
@@ -357,14 +350,15 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 						)}
 					</span>
 					<span className={classes.label}>
-						<IconButton
-							className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
-							style={{ marginLeft: indentation }}
+						<Button
+							appearance="icon"
+							tooltip="Expand/Collapse"
 							onClick={handleExpand}
 							data-testid={`${id}-expand-icon-mapping-target-node`}
+							sx={{ marginLeft: indentation }}
 						>
-							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-						</IconButton>
+							{expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+						</Button>
 						{label}
 					</span>
 					{unionTypeInfo && (

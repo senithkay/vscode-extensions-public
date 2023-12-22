@@ -10,8 +10,6 @@
 import * as React from 'react';
 
 import { CircularProgress } from "@material-ui/core";
-import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
-import TooltipBase from '@material-ui/core/Tooltip';
 import ChevronRight from "@material-ui/icons/ChevronRight";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
@@ -19,6 +17,8 @@ import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { css } from '@emotion/css'
 import classnames from "classnames";
 
 import FunctionIcon from "../../../../assets/icons/FuctionIcon";
@@ -28,109 +28,96 @@ import { getFieldLabel } from '../../utils/dm-utils';
 
 import { LinkConnectorNode } from './LinkConnectorNode';
 
-export const tooltipBaseStyles = {
-    tooltip: {
-        color: "var(--vscode-input-placeholderForeground)",
-        backgroundColor: "var(--vscode-input-background)",
-        border: "1px solid var(--vscode-editorWidget-background)",
-        borderRadius: 6,
-        padding: "1rem"
-    },
-    arrow: {
-        color: "var(--vscode-input-background)"
-    }
-};
-
-const styles = makeStyles((theme: Theme) => createStyles({
-    root: {
+const styles = () => ({
+    root: css({
         width: '100%',
-        backgroundColor: "var(--vscode-input-background)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "5px",
-        color: "var(--vscode-checkbox-border)",
-        boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
-        borderRadius: "10px",
-        alignItems: "center",
-        overflow: "hidden",
-    },
-    element: {
-        backgroundColor: "var(--vscode-input-background)",
-        padding: "5px",
-        cursor: "pointer",
-        transitionDuration: "0.2s",
-        userSelect: "none",
-        pointerEvents: "auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        "&:hover": {
-            filter: "brightness(0.95)",
+        backgroundColor: 'var(--vscode-input-background)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '5px',
+        color: 'var(--vscode-checkbox-border)',
+        boxShadow: '0px 5px 50px var(--vscode-checkbox-border)',
+        borderRadius: '10px',
+        alignItems: 'center',
+        overflow: 'hidden',
+    }),
+    element: css({
+        backgroundColor: 'var(--vscode-input-background)',
+        padding: '5px',
+        cursor: 'pointer',
+        transitionDuration: '0.2s',
+        userSelect: 'none',
+        pointerEvents: 'auto',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        '&:hover': {
+            filter: 'brightness(0.95)',
         },
-    },
-    iconWrapper: {
-        height: "22px",
-        width: "22px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    fromClause: {
-        padding: "5px",
-        fontFamily: "monospace"
-    },
-    mappingPane: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between"
-    },
-    header: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center"
-    },
-    icons: {
+    }),
+    iconWrapper: css({
+        height: '22px',
+        width: '22px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }),
+    fromClause: css({
+        padding: '5px',
+        fontFamily: 'monospace',
+    }),
+    mappingPane: css({
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    }),
+    header: css({
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    }),
+    icons: css({
         padding: '8px',
         '&:hover': {
             backgroundColor: 'var(--vscode-tab-inactiveBackground)',
-        }
-    },
-    expandIcon: {
+        },
+    }),
+    expandIcon: css({
         height: '15px',
         width: '15px',
-        marginTop: '-7px'
-    },
-    buttonWrapper: {
+        marginTop: '-7px',
+    }),
+    buttonWrapper: css({
         border: '1px solid var(--vscode-editorWidget-background)',
         borderRadius: '8px',
-        position: "absolute",
-        right: "35px"
-    },
-    separator: {
+        position: 'absolute',
+        right: '35px',
+    }),
+    separator: css({
         height: "22px",
         width: "1px",
         backgroundColor: "var(--vscode-editor-lineHighlightBorder)",
-    },
-    editIcon: {
+    }),
+    editIcon: css({
         color: "var(--vscode-pickerGroup-border)",
         padding: "5px",
         height: "32px",
         width: "32px"
-    },
-    functionIcon: {
+    }),
+    functionIcon: css({
         padding: "3px"
-    },
-    deleteIcon: {
+    }),
+    deleteIcon: css({
         color: "var(--vscode-editor-selectionBackground)"
-    },
-    loadingContainer: {
+    }),
+    loadingContainer: css({
         padding: "10px"
-    },
-    circularProgress: {
+    }),
+    circularProgress: css({
         color: "var(--vscode-input-background)"
-    }
-}));
+    })
+});
 
 export interface LinkConnectorNodeWidgetProps {
     node: LinkConnectorNode;
@@ -201,8 +188,6 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         updateSelectedComponent(componentViewInfo);
     }
 
-    const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
-
     const loadingScreen = (
         <CircularProgress
             size={22}
@@ -215,10 +200,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
-                <TooltipComponent
-                    interactive={false}
-                    arrow={true}
-                    title={isTnfFunctionCall ? "Transformation Function Call" : "Multi-Input Expression"}
+                <Tooltip
+                    content={isTnfFunctionCall ? "Transformation Function Call" : "Multi-Input Expression"}
                 >
                     <span className={classes.editIcon} >
                         {isTnfFunctionCall ? (
@@ -227,7 +210,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                             </div>
                         ) : <ExpressionIcon/>}
                     </span>
-                </TooltipComponent>
+                </Tooltip>
                 {isTnfFunctionCall && (
                     <div className={classes.element} onClick={onClickOnGoToDef} data-testid={`go-to-tnf-fn-${node?.value}`}>
                         <div className={classes.iconWrapper}>

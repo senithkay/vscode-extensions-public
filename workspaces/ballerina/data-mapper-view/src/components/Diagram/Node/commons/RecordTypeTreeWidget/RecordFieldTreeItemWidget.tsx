@@ -9,10 +9,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useState } from "react";
 
-import IconButton from "@material-ui/core/IconButton";
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { css } from "@emotion/css";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classnames from "classnames";
@@ -20,81 +17,80 @@ import classnames from "classnames";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
 import { InputSearchHighlight } from "../Search";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        treeLabel: {
-            verticalAlign: "middle",
-            padding: "5px",
-            minWidth: "100px",
-            display: "flex",
-            minHeight: "24px",
-            background: "var(--vscode-input-background)",
-            '&:hover': {
-                backgroundColor: 'var(--vscode-tab-inactiveBackground)',
-            }
-        },
-        treeLabelPortSelected: {
-            backgroundColor: 'var(--vscode-editorWidget-background)',
-        },
-        treeLabelParentHovered: {
-            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
-        },
-        treeLabelOutPort: {
-            float: "right",
-            width: 'fit-content',
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center"
-        },
-        treeLabelInPort: {
-            float: "left",
-            marginRight: "5px",
-            width: 'fit-content',
-            display: "flex",
-            alignItems: "center"
-        },
-        typeLabel: {
-            marginLeft: "3px",
-            verticalAlign: "middle",
-            padding: "5px",
-            minWidth: "100px",
-            marginRight: "24px",
-            fontFamily: "GilmerRegular",
-            fontWeight: 400
-        },
-        valueLabel: {
-            verticalAlign: "middle",
-            padding: "5px",
-        },
-        group: {
-            marginLeft: "0px",
-            paddingLeft: "0px",
-            paddingBottom: "5px"
-        },
-        content: {
-            borderTopRightRadius: "16px",
-            borderBottomRightRadius: "16px",
-            paddingRight: "16px",
-        },
-        label: {
-            width: "300px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            display: "inline-block",
-            textOverflow: "ellipsis",
-            "&:hover": {
-                overflow: "visible"
-            }
-        },
-        expandIcon: {
-            color: "var(--vscode-inputOption-activeForeground)",
-            height: "25px",
-            width: "25px",
-            marginLeft: "auto"
+const useStyles = () => ({
+    treeLabel: css({
+        padding: "5px",
+        minWidth: "100px",
+        display: "flex",
+        minHeight: "24px",
+        '&:hover': {
+            backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)',
         }
     }),
-);
+    treeLabelPortSelected: css({
+        backgroundColor: 'var(--vscode-editorWidget-background)',
+    }),
+    treeLabelParentHovered: css({
+        backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+    }),
+    treeLabelOutPort: css({
+        float: "right",
+        width: 'fit-content',
+        marginLeft: "auto",
+        display: "flex",
+        alignItems: "center"
+    }),
+    treeLabelInPort: css({
+        float: "left",
+        marginRight: "5px",
+        width: 'fit-content',
+        display: "flex",
+        alignItems: "center"
+    }),
+    typeLabel: css({
+        marginLeft: "3px",
+        padding: "5px",
+        minWidth: "100px",
+        marginRight: "24px",
+        fontFamily: "GilmerRegular",
+        fontWeight: 400,
+        color: "inherit"
+    }),
+    valueLabel: css({
+        padding: "5px",
+        color: "inherit"
+    }),
+    group: css({
+        marginLeft: "0px",
+        paddingLeft: "0px",
+        paddingBottom: "5px"
+    }),
+    content: css({
+        borderTopRightRadius: "16px",
+        borderBottomRightRadius: "16px",
+        paddingRight: "16px",
+    }),
+    label: css({
+        width: "300px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        textOverflow: "ellipsis",
+        color: "var(--vscode-foreground)",
+        "&:hover": {
+            overflow: "visible"
+        }
+    }),
+    expandIcon: css({
+        color: "var(--vscode-inputOption-activeForeground)",
+        height: "25px",
+        width: "25px",
+        marginLeft: "auto"
+    })
+});
 
 export interface RecordFieldTreeItemWidgetProps {
     parentId: string;
@@ -187,14 +183,14 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                     }
                 </span>
                 <span className={classes.label}>
-                    {fields && <IconButton
-                        id={"button-wrapper-" + fieldId}
-                        className={classes.expandIcon}
-                        style={{ marginLeft: treeDepth * 16 }}
-                        onClick={handleExpand}
-                    >
-                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                    </IconButton>}
+                    {fields && <Button
+                            appearance="icon"
+                            tooltip="Expand/Collapse"
+                            onClick={handleExpand}
+                            sx={{ marginLeft: treeDepth * 16 }}
+                        >
+                            {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                        </Button>}
                     {label}
                 </span>
                 <span className={classes.treeLabelOutPort}>

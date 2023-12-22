@@ -11,11 +11,9 @@ import * as React from 'react';
 // tslint:disable-next-line:no-duplicate-imports
 import { useState } from "react";
 
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { CircularProgress } from "@material-ui/core";
-import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -63,7 +61,6 @@ const useStyles = makeStyles((theme: Theme) =>
 		},
 		typeLabel: {
 			marginLeft: "3px",
-			verticalAlign: "middle",
 			padding: "5px",
 			color: "var(--vscode-icon-foreground)",
 			fontFamily: "GilmerRegular",
@@ -76,7 +73,6 @@ const useStyles = makeStyles((theme: Theme) =>
 			fontSize: "14px",
 		},
 		valueLabel: {
-			verticalAlign: "middle",
 			padding: "5px",
 			color: "var(--vscode-icon-foreground)",
 			fontFamily: "GilmerMedium",
@@ -301,14 +297,14 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					}
 				</span>
 				<span className={classes.label}>
-					<IconButton
-						className={classes.expandIcon}
-						style={{ marginLeft: indentation }}
+					<Button
+						appearance="icon"
+						sx={{ marginLeft: indentation }}
 						onClick={handleExpand}
 						data-testid={`${id}-expand-icon-primitive-type`}
 					>
-						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-					</IconButton>
+						{expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+					</Button>
 					{label}
 				</span>
 				{unionTypeInfo && (

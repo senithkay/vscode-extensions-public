@@ -9,16 +9,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import {
-    Button,
     CircularProgress,
-    IconButton,
     Menu,
     MenuItem
 } from "@material-ui/core";
-import { default as AddIcon } from "@material-ui/icons/Add";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -326,14 +322,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const addElementButton = useMemo(() => {
         return (
             <Button
-                id={"add-array-element"}
+                appearance="icon"
                 aria-label="add"
-                className={classes.addIcon}
                 onClick={onAddElementClick}
-                startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
                 disabled={isAddingElement}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
+                {isAddingElement ? <CircularProgress size={16} /> : <Codicon name="add" />}
                 Add Element
             </Button>
         );
@@ -515,15 +510,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     </span>
                     <span className={classes.label}>
                         {(hasValue && !connectedViaLink) && (
-                            <IconButton
-                                id={"button-wrapper-" + fieldId}
-                                className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
-                                style={{ marginLeft: indentation }}
+                            <Button
+                                appearance="icon"
+                                sx={{ marginLeft: indentation }}
                                 onClick={handleExpand}
                                 data-testid={`${portIn?.getName()}-expand-icon-array-field`}
                             >
-                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                            </IconButton>
+                                {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                            </Button>
                         )}
                         {label}
                     </span>
