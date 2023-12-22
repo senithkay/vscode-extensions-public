@@ -27,7 +27,7 @@ export function TitleBar(props: { clearSelection: () => void }) {
     });
 
     const handleDiagramView = () => {
-        eggplantRpcClient.getWebviewRpcClient().executeCommand('eggplant.openLowCode');
+        eggplantRpcClient.getWebviewRpcClient().executeCommand({ command: "OPEN_LOW_CODE" });
     }
 
     const handleHomeView = () => {
@@ -37,7 +37,7 @@ export function TitleBar(props: { clearSelection: () => void }) {
     return (
         <TitleBar>
             <HeaderData>
-                <VSCodeButton appearance="icon" title="Home" onClick={handleHomeView} style={{ "margin-right": "5px" }}>
+                <VSCodeButton appearance="icon" title="Home" onClick={handleHomeView} style={{ "marginRight": "5px" }}>
                     <Codicon name="home" />
                 </VSCodeButton>
                 <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleDiagramView}>

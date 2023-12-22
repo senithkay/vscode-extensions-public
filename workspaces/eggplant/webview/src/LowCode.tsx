@@ -8,10 +8,11 @@
  */
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
-import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
+import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
+import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
 
 
 const Container = styled.div`
@@ -31,19 +32,19 @@ const MessageContent = styled.div({
 });
 
 
-const LowCode = (props: { state: string }) => {
+const LowCode = (props: { state: MachineStateValue }) => {
+    const { state } = props;
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
 
     const onModelChange = (model: Flow) => {
-        setModel(model);
         if (eggplantRpcClient) {
             eggplantRpcClient.getWebviewRpcClient().updateSource(model);
         }
     }
 
     useEffect(() => {
-        if (eggplantRpcClient) {
+        if (typeof state === 'object' && 'ready' in state && state.ready === 'viewReady') {
             try {
                 eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
                     setModel(model);
@@ -52,11 +53,16 @@ const LowCode = (props: { state: string }) => {
                 setModel(undefined);
             }
         }
-    }, [props.state]);
+    }, [state]);
+
+    const eggplantDiagram = useMemo(() => {
+        return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
+    }, [flowModel]);
+
 
     return (
         <Container>
-            {flowModel ? <EggplantApp flowModel={flowModel} onModelChange={onModelChange} /> :
+            {flowModel ? eggplantDiagram :
                 <MessageContainer>
                     <MessageContent>Select Construct from Overview</MessageContent>
                 </MessageContainer>

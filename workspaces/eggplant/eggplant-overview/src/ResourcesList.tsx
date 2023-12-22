@@ -71,9 +71,9 @@ export function ResourcesList(params: { component: SelectedComponent }) {
     // Your code here
     const getResources = () => {
         const components = component.serviceST.members.map((comp: any, compIndex: number) => {
-            let path = "";
+            let path = "/";
             comp.relativeResourcePath.forEach((res: any) => {
-                path += `/${res.value}`
+                path += res.source ? res.source : res.value;
             })
             return (
                 <ComponentCard

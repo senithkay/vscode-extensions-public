@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -12,19 +11,29 @@ export type Flow = {
     id: string;
     name: string;
     nodes: Node[];
+    endpoints?: Endpoint[];
     fileName: string;
+    bodyCodeLocation: CodeLocation;
 };
+
+export type NodeKinds =
+    | "StartNode"
+    | "HttpResponseNode"
+    | "CodeBlockNode"
+    | "SwitchNode"
+    | "HttpRequestNode"
+    | "TransformNode"
+    | "DefaultNode";
 
 export type Node = {
     id?: string;
     name: string;
-    templateId?: string;
+    templateId?: NodeKinds;
     inputPorts: InputPort[];
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
-    properties?: SwitchNodeProperties; // Need to update with other node types
-    codeBlock?: string;
+    properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties;
 };
 
 export type InputPort = {
@@ -57,8 +66,13 @@ export type LinePosition = {
 };
 
 export type NodeProperties = {
-    templateId?: string;
+    templateId?: NodeKinds;
     name?: string;
+};
+
+export type CodeNodeProperties = NodeProperties & {
+    codeBlock: BalExpression;
+    returnVar?: string;
 };
 
 export type SwitchNodeProperties = NodeProperties & {
@@ -67,13 +81,32 @@ export type SwitchNodeProperties = NodeProperties & {
 };
 
 export type SwitchCaseBlock = {
-    expression: string | BalExpression;
+    expression: BalExpression;
     nodes: string[];
+};
+
+export type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
+
+export type HttpRequestNodeProperties = NodeProperties & {
+    action: HttpMethod;
+    path: string;
+    endpoint: Endpoint;
+    outputType: string;
+};
+
+export type HttpHeader = {
+    name: string;
+    value: string;
+};
+
+export type Endpoint = {
+    name: string;
+    baseUrl: string;
 };
 
 export type BalExpression = {
     expression: string;
-    location: CodeLocation;
+    location?: CodeLocation;
 };
 
 export type DefaultCaseBlock = {

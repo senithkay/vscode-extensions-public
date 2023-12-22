@@ -22,10 +22,10 @@ import { URI } from "vscode-uri";
 
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
 import { EXPR_SCHEME, FILE_SCHEME } from "../../DataMapper/ConfigPanel/utils";
-import { BallerinaRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
-export async function getDiagnostics(docUri: string, ballerinaRpcClient: BallerinaRpcClient): Promise<PublishDiagnosticsParams[]> {
-    const diagnostics = await ballerinaRpcClient.getVisualizerRpcClient().getDiagnostics({
+export async function getDiagnostics(docUri: string, langServerRpcClient: LangServerRpcClient): Promise<PublishDiagnosticsParams[]> {
+    const diagnostics = await langServerRpcClient.getDiagnostics({
         documentIdentifier: {
             uri: docUri,
         }
@@ -34,9 +34,9 @@ export async function getDiagnostics(docUri: string, ballerinaRpcClient: Balleri
     return diagnostics;
 }
 
-export const handleDiagnostics = async (fileURI: string, ballerinaRpcClient: BallerinaRpcClient):
+export const handleDiagnostics = async (fileURI: string, langServerRpcClient: LangServerRpcClient):
     Promise<Diagnostic[]> => {
-    const diagResp = await getDiagnostics(URI.file(fileURI).toString(), ballerinaRpcClient);
+    const diagResp = await getDiagnostics(URI.file(fileURI).toString(), langServerRpcClient);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     return diag;
 }
@@ -61,8 +61,8 @@ export function isDiagInRange(nodePosition: NodePosition, diagPosition: NodePosi
 }
 
 
-export async function getCodeAction(filePath: string, diagnostic: Diagnostic, ballerinaRpcClient: BallerinaRpcClient): Promise<CodeAction[]> {
-    const codeAction = await ballerinaRpcClient.getVisualizerRpcClient().codeAction({
+export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langServerRpcClient: LangServerRpcClient): Promise<CodeAction[]> {
+    const codeAction = await langServerRpcClient.codeAction({
         context: {
             diagnostics: [{
                 code: diagnostic.code,
@@ -102,9 +102,9 @@ export async function getCodeAction(filePath: string, diagnostic: Diagnostic, ba
 export async function getRenameEdits(fileURI: string,
     newName: string,
     position: NodePosition,
-    ballerinaRpcClient: BallerinaRpcClient): Promise<WorkspaceEdit> {
+    langServerRpcClient: LangServerRpcClient): Promise<WorkspaceEdit> {
 
-    const renameEdits = await ballerinaRpcClient.getVisualizerRpcClient().rename({
+    const renameEdits = await langServerRpcClient.rename({
         textDocument: { uri: URI.file(fileURI).toString() },
         position: {
             line: position.startLine,
@@ -117,11 +117,11 @@ export async function getRenameEdits(fileURI: string,
 
 export const handleCodeActions = async (fileURI: string,
     diagnostics: Diagnostic[],
-    ballerinaRpcClient: BallerinaRpcClient): Promise<CodeAction[]> => {
+    langServerRpcClient: LangServerRpcClient): Promise<CodeAction[]> => {
     let codeActions: CodeAction[] = []
 
     for (const diagnostic of diagnostics) {
-        const codeAction = await getCodeAction(URI.file(fileURI).toString(), diagnostic, ballerinaRpcClient)
+        const codeAction = await getCodeAction(URI.file(fileURI).toString(), diagnostic, langServerRpcClient)
         codeActions = [...codeActions, ...codeAction]
     }
     return codeActions;
@@ -132,7 +132,7 @@ export async function getRecordCompletions(
     importStatements: string[],
     fnSTPosition: NodePosition,
     path: string,
-    ballerinaRpcClient: BallerinaRpcClient): Promise<CompletionResponseWithModule[]> {
+    langServerRpcClient: LangServerRpcClient): Promise<CompletionResponseWithModule[]> {
 
     const typeLabelsToIgnore = ["StrandData"];
     const completionMap = new Map<string, CompletionResponseWithModule>();
@@ -143,14 +143,14 @@ export async function getRecordCompletions(
         context: { triggerKind: 22 },
     };
 
-    const completions = await ballerinaRpcClient.getVisualizerRpcClient().getCompletion(completionParams);
+    const completions = await langServerRpcClient.getCompletion(completionParams);
     const recCompletions = completions.filter((item) => item.kind === CompletionItemKind.Struct);
     recCompletions.forEach((item) => completionMap.set(item.insertText, item));
 
     if (importStatements.length > 0) {
 
         const exprFileUrl = URI.file(path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
-        ballerinaRpcClient.getVisualizerRpcClient().didOpen({
+        langServerRpcClient.didOpen({
             textDocument: {
                 languageId: "ballerina",
                 text: currentFileContent,
@@ -172,12 +172,12 @@ export async function getRecordCompletions(
                 `${moduleName}:`
             );
 
-            ballerinaRpcClient.getVisualizerRpcClient().didChange({
+            langServerRpcClient.didChange({
                 textDocument: { uri: exprFileUrl, version: 1 },
                 contentChanges: [{ text: updatedContent }],
             });
 
-            const importCompletions = await ballerinaRpcClient.getVisualizerRpcClient().getCompletion({
+            const importCompletions = await langServerRpcClient.getCompletion({
                 textDocument: { uri: exprFileUrl },
                 position: { character: fnSTPosition.endColumn + moduleName.length + 1, line: fnSTPosition.endLine },
                 context: { triggerKind: 22 },
@@ -191,12 +191,12 @@ export async function getRecordCompletions(
                 }
             });
         }
-        ballerinaRpcClient.getVisualizerRpcClient().didChange({
+        langServerRpcClient.didChange({
             textDocument: { uri: exprFileUrl, version: 1 },
             contentChanges: [{ text: currentFileContent }],
         });
 
-        ballerinaRpcClient.getVisualizerRpcClient().didClose({ textDocument: { uri: exprFileUrl } });
+        langServerRpcClient.didClose({ textDocument: { uri: exprFileUrl } });
     }
 
     const allCompletions = Array.from(completionMap.values()).filter(
@@ -208,9 +208,9 @@ export async function getRecordCompletions(
 
 export async function getTypesForExpressions(fileURI: string,
                                              expressionNodesRanges: ExpressionRange[],
-                                             ballerinaRpcClient: BallerinaRpcClient)
+                                             langServerRpcClient: LangServerRpcClient)
     : Promise<ResolvedTypeForExpression[]> {
-    const typesFromExpression = await ballerinaRpcClient.getDataMapperRpcClient().getTypeFromExpression({
+    const typesFromExpression = await langServerRpcClient.getTypeFromExpression({
         documentIdentifier: {
             uri: URI.file(fileURI).toString()
         },
@@ -222,9 +222,9 @@ export async function getTypesForExpressions(fileURI: string,
 
 export async function getDefinitionPosition(fileURI: string,
     position: LinePosition,
-    ballerinaRpcClient: BallerinaRpcClient): Promise<BallerinaSTModifyResponse> {
+    langServerRpcClient: LangServerRpcClient): Promise<BallerinaSTModifyResponse> {
 
-    const definitionPosition = await ballerinaRpcClient.getVisualizerRpcClient().getDefinitionPosition(
+    const definitionPosition = await langServerRpcClient.getDefinitionPosition(
         {
             textDocument: {
                 uri: URI.file(fileURI).toString()

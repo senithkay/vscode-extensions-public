@@ -14,7 +14,7 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 // import {
 //     FormHeaderSection,
 //     PrimaryButton,
@@ -31,7 +31,7 @@ interface JsonToRecordState {
 interface RecordFromJsonProps {
     onCancel?: () => void;
     onSave?: (recordName: string, recordString: string) => void;
-    langClientPromise: Promise<IBallerinaLangClient>;
+    langServerRpcClient: LangServerRpcClient;
 }
 
 const useStyles = makeStyles(() =>
@@ -117,9 +117,8 @@ const reducer = (state: JsonToRecordState, action: {type: string, payload: boole
 }
 
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
-    const { onSave, onCancel, langClientPromise } = recordFromJsonProps;
+    const { onSave, onCancel, langServerRpcClient } = recordFromJsonProps;
     const classes = useStyles();
-    const { ballerinaRpcClient } = useVisualizerContext();
 
     const [formState, dispatchFromState] = useReducer(reducer, {
         jsonValue: "",
@@ -145,7 +144,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         if (formState.isLoading) {
             void (async () => {
                 const recordName = "TempName";
-                const recordResponse = await ballerinaRpcClient.getVisualizerRpcClient().convert(
+                const recordResponse = await langServerRpcClient.convert(
                     {
                         jsonString: formState.jsonValue,
                         recordName,

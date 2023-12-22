@@ -22,8 +22,10 @@ const Template: Story = (args: { flowModel: Flow }) => {
 
     const onModelChange = (model: Flow) => {
         action("on model change")(model);
-        console.log(model);
-        setModel(model);
+        setTimeout(() => {
+            console.log(model);
+            setModel(model);
+        }, 100);
     };
 
     return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
@@ -43,10 +45,20 @@ const simpleModel: Flow = {
     id: "1",
     name: "flow1",
     fileName: "path",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 4,
@@ -77,7 +89,7 @@ const simpleModel: Flow = {
         },
         {
             name: "B",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 10,
@@ -110,7 +122,7 @@ const simpleModel: Flow = {
         },
         {
             name: "C",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 18,
@@ -149,7 +161,7 @@ const simpleModel: Flow = {
         },
         {
             name: "D",
-            templateId: "TRANSFORMER",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 10,
@@ -186,10 +198,20 @@ const CodeBlockModel: Flow = {
     id: "2",
     name: "main/function",
     fileName: "code_block.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 7,
@@ -208,15 +230,20 @@ const CodeBlockModel: Flow = {
             outputPorts: [
                 {
                     id: "1",
-                    type: "INT",
+                    type: "int",
+                    name: "b",
                     receiver: "B",
                 },
             ],
-            codeBlock: "",
+            properties:{
+                codeBlock: {
+                    expression: "int a = 32 + x;\n"
+                }
+            }
         },
         {
             name: "B",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 17,
@@ -234,7 +261,7 @@ const CodeBlockModel: Flow = {
             inputPorts: [
                 {
                     id: "1",
-                    type: "INT",
+                    type: "int",
                     name: "x",
                     sender: "A",
                 },
@@ -242,12 +269,16 @@ const CodeBlockModel: Flow = {
             outputPorts: [
                 {
                     id: "2",
-                    type: "INT",
+                    type: "int",
                     name: "b",
                     receiver: "function",
                 },
             ],
-            codeBlock: "        int a = 32 + x;\n        int b = a % 12;\n",
+            properties:{
+                codeBlock: {
+                    expression: "int a = 32 + x;\n        int b = a % 12;\n"
+                }
+            }
         },
     ],
 };
@@ -260,10 +291,20 @@ const SwitchModel: Flow = {
     id: "1",
     name: "main/function",
     fileName: "multi_switch.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 7,
@@ -286,11 +327,10 @@ const SwitchModel: Flow = {
                     receiver: "B",
                 },
             ],
-            codeBlock: "",
         },
         {
             name: "B",
-            templateId: "switch",
+            templateId: "SwitchNode",
             codeLocation: {
                 start: {
                     line: 17,
@@ -342,15 +382,15 @@ const SwitchModel: Flow = {
             properties: {
                 cases: [
                     {
-                        expression: "x < 10",
+                        expression: {expression: "x < 10"},
                         nodes: ["2"],
                     },
                     {
-                        expression: "x > 10 && x < 20",
+                        expression: {expression:"x > 10 && x < 20"},
                         nodes: ["3"],
                     },
                     {
-                        expression: "x > 20 && x < 40",
+                        expression: {expression:"x > 20 && x < 40"},
                         nodes: ["4"],
                     },
                 ],
@@ -361,7 +401,7 @@ const SwitchModel: Flow = {
         },
         {
             name: "C",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 38,
@@ -385,11 +425,10 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
         {
             name: "D",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 48,
@@ -413,11 +452,10 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
         {
             name: "E",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 58,
@@ -441,11 +479,10 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
         {
             name: "F",
-            templateId: "block",
+            templateId: "CodeBlockNode",
             codeLocation: {
                 start: {
                     line: 68,
@@ -469,7 +506,6 @@ const SwitchModel: Flow = {
                 },
             ],
             outputPorts: [],
-            codeBlock: "",
         },
     ],
 };
@@ -482,6 +518,16 @@ const SampleModel: Flow = {
     id: "1",
     name: "main/function",
     fileName: "/home/jo/workspace/eggplant/demo_sample/main.bal",
+    bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "CreatePerson",

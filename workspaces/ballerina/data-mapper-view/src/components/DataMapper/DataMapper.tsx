@@ -20,7 +20,6 @@ import {
     LibrarySearchResponse,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 // import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 // import { URI } from "vscode-uri";
@@ -48,7 +47,7 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
-import { useProjectComponents, useSyntaxTreeFromRange } from "../Hooks";
+import { useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
@@ -160,7 +159,10 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 export function DataMapperC(props: DataMapperViewProps) {
     const {
         fnST,
-        applyModifications
+        filePath,
+        langServerRpcClient,
+        applyModifications,
+        onClose
     } = props;
     const ballerinaVersion = '2201.7.2 (swan lake update 7)';
     const openedViaPlus = false;
@@ -171,14 +173,13 @@ export function DataMapperC(props: DataMapperViewProps) {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     } = undefined;
-    const onClose: () => void = undefined;
     const onSave: (fnName: string) => void = undefined;
     const importStatements: string[] = [];
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
-    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents();
+    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
     // const { data } = useSyntaxTreeFromRange();
 
     // const fnST = data?.syntaxTree as FunctionDefinition;
@@ -193,15 +194,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         endColumn: 0
     };
 
-    const visualizerContext = useVisualizerContext();
-    const {
-        viewLocation: {
-            location: {
-                fileName: filePath
-            }
-        },
-        ballerinaRpcClient
-    } = visualizerContext;
     const currentFile = {
         content: "",
         path: filePath,
@@ -375,13 +367,13 @@ export function DataMapperC(props: DataMapperViewProps) {
         setIsSelectionComplete(false)
         void (async () => {
             if (selection.selectedST.stNode && !isFetchingComponents) {
-                const diagnostics = await handleDiagnostics(filePath, visualizerContext.ballerinaRpcClient);
+                const diagnostics = await handleDiagnostics(filePath, langServerRpcClient);
 
                 const context = new DataMapperContext(
                     filePath,
                     fnST,
                     selection,
-                    visualizerContext,
+                    langServerRpcClient,
                     currentFile,
                     moduleVariables,
                     handleSelectedST,
@@ -401,9 +393,9 @@ export function DataMapperC(props: DataMapperViewProps) {
                 );
 
                 if (shouldRestoreTypes) {
-                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion), visualizerContext.ballerinaRpcClient);
+                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion), langServerRpcClient);
                     const functionDefinitions = FunctionDefinitionStore.getInstance();
-                    await functionDefinitions.storeFunctionDefinitions(fnST, context, visualizerContext.ballerinaRpcClient);
+                    await functionDefinitions.storeFunctionDefinitions(fnST, context, langServerRpcClient);
                     setShouldRestoreTypes(false);
                 }
 
@@ -513,7 +505,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         ballerinaVersion,
         onSave: onConfigSave,
         onClose: onConfigClose,
-        ballerinaRpcClient,
+        langServerRpcClient,
         recordPanel
     }
 
@@ -531,6 +523,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 dmSupported={dMSupported}
                                 changeSelection={handleSelectedST}
                                 onConfigOpen={onConfigOpen}
+                                onClose={onClose}
                             />
                         )}
                         {!dMSupported && (
@@ -579,6 +572,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
                                 applyModifications={applyModifications}
+                                langServerRpcClient={langServerRpcClient}
                                 filePath={filePath}
                             />
                         )}

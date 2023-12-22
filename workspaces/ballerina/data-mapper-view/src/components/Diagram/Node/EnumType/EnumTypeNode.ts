@@ -83,7 +83,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
         const types = await getTypesForExpressions(
             this.context.filePath,
             exprRanges,
-            this.context.visualizerContext.ballerinaRpcClient
+            this.context.langServerRpcClient
         );
 
         const allEnumTypeDecls: DMEnumTypeDecl[] = [];
@@ -94,7 +94,7 @@ export class EnumTypeNode extends DataMapperNodeModel {
                     line: type.requestedRange.startLine.line,
                     offset: type.requestedRange.startLine.offset,
                 },
-                this.context.visualizerContext.ballerinaRpcClient
+                this.context.langServerRpcClient
             );
             if (definitionPosition.parseSuccess) {
                 const enumTypePath = Uri.parse(definitionPosition.defFilePath).fsPath;

@@ -8,20 +8,35 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { DiagramEngine, DiagramModel, LinkModel } from "@projectstorm/react-diagrams";
-import { debounce } from 'lodash';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { debounce, set } from "lodash";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
 import {
+    addDiagramListener,
     generateDiagramModelFromFlowModel,
     generateEngine,
+    loadDiagramZoomAndPosition,
     removeOverlay,
-    generateFlowModelFromDiagramModel,
-    addNodeSelectChangeListener,
-    addNodePositionChangeListener,
+    saveDiagramZoomAndPosition,
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
-import { DefaultNodeModel } from "./components/default";
+import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
+import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
+import { DataMapperOverlay } from "./components/data-mapper/ViewManager";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 1000,
+        cacheTime: 1000,
+      },
+    },
+  });
 
 interface EggplantAppProps {
     flowModel: Flow;
@@ -33,6 +48,8 @@ export function EggplantApp(props: EggplantAppProps) {
     const [diagramEngine] = useState<DiagramEngine>(generateEngine());
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [selectedNode, setSelectedNode] = useState<DefaultNodeModel | null>(null);
+    const [_selectedLink, setSelectedLink] = useState<DefaultLinkModel | null>(null);
+    const [tnfFnPosition, setTnfFnPosition] = useState<NodePosition | null>(null);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -40,56 +57,59 @@ export function EggplantApp(props: EggplantAppProps) {
         }
     }, [diagramEngine, flowModel]);
 
-    const debouncedOnModelChange = debounce(onModelChange, 300);
+    const handleDiagramChange = (model: Flow) => {
+        onModelChange(model);
+        saveDiagramZoomAndPosition(diagramEngine.getModel());
+    };
+
+    const openDataMapper = (position: NodePosition) => {
+        setTnfFnPosition(position);
+    };
+
+    const closeDataMapper = () => {
+        setTnfFnPosition(null);
+    };
+
+    const debouncedHandleDiagramChange = debounce(handleDiagramChange, 300);
 
     const drawDiagram = () => {
         const model = new DiagramModel();
         model.addLayer(new OverlayLayerModel());
-
+        // generate diagram model
         generateDiagramModelFromFlowModel(model, flowModel);
-
         diagramEngine.setModel(model);
-        // TODO: deregister listeners
-        diagramEngine.getModel().registerListener({
-            linksUpdated: (event: any) => {
-                (event.link as LinkModel).registerListener({
-                    targetPortChanged(event: any) {
-                        const portUpdatedModel: Flow = generateFlowModelFromDiagramModel(flowModel, diagramEngine.getModel());
-                        onModelChange(portUpdatedModel);
-                    },
-                });
-            },
-        });
-
-        diagramEngine
-            .getModel()
-            .getNodes()
-            .forEach((node) => {
-                addNodeSelectChangeListener(node as DefaultNodeModel, setSelectedNode);
-                addNodePositionChangeListener(node as DefaultNodeModel, () => {
-                    const portUpdatedModel: Flow = generateFlowModelFromDiagramModel(flowModel, diagramEngine.getModel());
-                    debouncedOnModelChange(portUpdatedModel);
-                });
-            });
-
+        addDiagramListener(diagramEngine, flowModel, debouncedHandleDiagramChange, setSelectedNode, setSelectedLink);
         setDiagramModel(model);
-
-        setTimeout(() => {
-            removeOverlay(diagramEngine);
-        }, 1000);
+        loadDiagramZoomAndPosition(diagramEngine);
+        // remove overlay
+        removeOverlay(diagramEngine);
     };
 
     return (
         <>
-            {diagramEngine && diagramModel && (
-                <BodyWidget
-                    engine={diagramEngine}
-                    flowModel={flowModel}
-                    onModelChange={onModelChange}
-                    selectedNode={selectedNode}
-                    setSelectedNode={setSelectedNode}
-                />
-            )}
+            <QueryClientProvider client={queryClient}>
+                {diagramEngine && diagramModel && (
+                    <>
+                        {!tnfFnPosition && (
+                            <BodyWidget
+                                engine={diagramEngine}
+                                flowModel={flowModel}
+                                onModelChange={handleDiagramChange}
+                                selectedNode={selectedNode}
+                                setSelectedNode={setSelectedNode}
+                                openDataMapper={openDataMapper}
+                            />     
+                        )}
+                        {tnfFnPosition && (
+                            <DataMapperOverlay
+                                filePath={flowModel.fileName}
+                                fnLocation={tnfFnPosition}
+                                onClose={closeDataMapper}
+                            />
+                        )}
+                    </>               
+                )}
+            </QueryClientProvider>
         </>
     );
 }

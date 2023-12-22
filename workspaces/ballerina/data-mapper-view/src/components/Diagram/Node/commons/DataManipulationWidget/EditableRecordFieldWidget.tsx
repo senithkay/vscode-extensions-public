@@ -51,7 +51,6 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface EditableRecordFieldWidgetProps {
@@ -82,10 +81,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     } = props;
     const {
         enableStatementEditor,
-        handleCollapse,
-        filePath
+        handleCollapse
     } = context;
-    const { ballerinaRpcClient } = useVisualizerContext();
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);

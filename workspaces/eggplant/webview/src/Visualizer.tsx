@@ -14,13 +14,16 @@ import LowCode from './LowCode';
 import Overview from './Overview';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { Loader } from "./Loader";
+import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
+import InitProject from "./components/overview/InitProject";
+import WelcomeView from "./components/lowcode/WelcomeView";
 
 
 export function Webview({ mode }: { mode: string }) {
     const { eggplantRpcClient } = useVisualizerContext();
-    const [state, setState] = React.useState('Loading');
+    const [state, setState] = React.useState<MachineStateValue>('initialize');
 
-    eggplantRpcClient?.onStateChanged((newState: string) => {
+    eggplantRpcClient?.onStateChanged((newState: MachineStateValue) => {
         setState(newState);
     });
 
@@ -34,20 +37,36 @@ export function Webview({ mode }: { mode: string }) {
 
     return (
         <>
-            {mode === "overview" &&
-                <>
-                    {getStateValues(state)[0] === 'ready' ? <Overview /> : <Loader />}
-                </>
-            }
-            {mode === "lowcode" &&
-                <>
-                    {getStateValues(state)[0] === 'ready' ? <LowCode state={getStateValues(state)[1]} /> : <Loader />}
-                </>
-            }
+            {(() => {
+                switch (mode) {
+                    case "overview":
+                        return <OverviewComponent state={state} />;
+                    case "lowcode":
+                        return <LowCodeComponent state={state} />;
+                }
+            })()}
         </>
     );
 };
 
-function getStateValues(state: string) {
-    return state.split(".");
-}
+const OverviewComponent = ({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state:
+            return <Overview />;
+        case typeof state === 'object' && 'newProject' in state:
+            return <InitProject />;
+        default:
+            return <Loader />;
+    }
+};
+
+const LowCodeComponent = ({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state:
+            return <LowCode state={state} />;
+        case typeof state === 'object' && 'newProject' in state:
+            return <WelcomeView state={state}/>;
+        default:
+            return <Loader />;
+    }
+};

@@ -10,7 +10,10 @@
  */
 import {
     BallerinaProjectComponents,
+    CommandProps,
     Flow,
+    MachineEvent,
+    MachineStateValue,
     STNode,
     VisualizerLocation,
     WebviewAPI,
@@ -21,6 +24,7 @@ import {
     getState,
     getVisualizerState,
     openVisualizerView,
+    sendMachineEvent,
     updateSource
 } from "@wso2-enterprise/eggplant-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -33,7 +37,7 @@ export class WebviewRpcClient implements WebviewAPI {
         this._messenger = messenger;
     }
 
-    getState(): Promise<string> {
+    getState(): Promise<MachineStateValue> {
         return this._messenger.sendRequest(getState, HOST_EXTENSION);
     }
 
@@ -53,7 +57,7 @@ export class WebviewRpcClient implements WebviewAPI {
         return this._messenger.sendRequest(getEggplantModel, HOST_EXTENSION);
     }
 
-    executeCommand(params: string): void {
+    executeCommand(params: CommandProps): void {
         return this._messenger.sendNotification(executeCommand, HOST_EXTENSION, params);
     }
 
@@ -63,5 +67,9 @@ export class WebviewRpcClient implements WebviewAPI {
 
     updateSource(params: Flow): void {
         return this._messenger.sendNotification(updateSource, HOST_EXTENSION, params);
+    }
+
+    sendMachineEvent(params: MachineEvent): void {
+        return this._messenger.sendNotification(sendMachineEvent, HOST_EXTENSION, params);
     }
 }

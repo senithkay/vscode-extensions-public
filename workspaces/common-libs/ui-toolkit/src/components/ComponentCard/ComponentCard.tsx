@@ -58,7 +58,7 @@ export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCard
     const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
 
     const handleComponentClick = () => {
-        onClick(id);
+        onClick && onClick(id);
     };
 
     return (

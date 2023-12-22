@@ -33,7 +33,6 @@ import {
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -112,11 +111,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const classes = useStyles();
     const { link, context, value, field, editorLabel, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
-    const { ballerinaRpcClient } = useVisualizerContext();
 
     React.useEffect(() => {
         async function genModel() {
-            const actions = (await handleCodeActions(context.filePath, link?.diagnostics, ballerinaRpcClient))
+            const actions = (await handleCodeActions(context.filePath, link?.diagnostics, context.langServerRpcClient))
             setCodeActions(actions)
         }
 

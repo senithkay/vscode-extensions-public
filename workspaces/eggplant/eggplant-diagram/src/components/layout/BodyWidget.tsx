@@ -15,19 +15,22 @@ import { DefaultNodeModel } from "../default";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DiagramCanvasWidget } from "./DiagramCanvasWidget";
 import styled from "@emotion/styled";
-import { EVENT_TYPES, NODE_TYPE } from "../../resources";
+import { EVENT_TYPES } from "../../resources";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
-import { Flow, Node } from "../../types";
+import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { addNodePositionChangeListener, addNodeSelectChangeListener, getNodeModel } from "../../utils";
-import { debounce } from "lodash";
+import { getNodeModel, isFixedNode } from "../../utils";
+import { DiagramControls } from "../controls/DiagramControls";
+import { DataMapperOverlay } from "../data-mapper/ViewManager";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
     flowModel: Flow;
     selectedNode: DefaultNodeModel | null;
     setSelectedNode: (node: DefaultNodeModel) => void;
+    openDataMapper: (position: NodePosition) => void;
     onModelChange?: (flowModel: Flow) => void;
 }
 
@@ -51,9 +54,7 @@ namespace S {
 }
 
 export function BodyWidget(props: BodyWidgetProps) {
-    const { engine, flowModel, selectedNode, setSelectedNode, onModelChange } = props;
-
-    const debouncedOnModelChange = debounce(onModelChange, 300);
+    const { engine, flowModel, selectedNode, setSelectedNode, openDataMapper, onModelChange } = props;
 
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
@@ -63,28 +64,39 @@ export function BodyWidget(props: BodyWidgetProps) {
             let node: DefaultNodeModel = getNodeModel(data.type, (nodesCount++).toString());
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
-            addNodeSelectChangeListener(node, setSelectedNode);
-            addNodePositionChangeListener(node, updateFlowModel);
             engine.getModel().addNode(node);
 
             const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
             onModelChange(updatedFlow);
+            setSelectedNode(null);
         },
-        [engine]
+        [engine,flowModel]
     );
 
-    const updateFlowModel = () => {        
+    const updateFlowModel = () => {
         const updatedFlow: Flow = generateFlowModelFromDiagramModel(flowModel, engine.getModel());
-        debouncedOnModelChange(updatedFlow);
+        onModelChange(updatedFlow);
     };
+
+    const handleRefreshDiagram = () => {
+        // TODO: need to implement refresh flow
+        setSelectedNode(null);
+    };
+
+    // has start and return node types in flow model
+    const hasStartNode = flowModel.nodes.some((node) => node.templateId === "StartNode");
+    const hasReturnNode = flowModel.nodes.some((node) => node.templateId === "HttpResponseNode");
 
     return (
         <S.Body>
             <S.Content>
                 <TrayWidget>
-                    <TrayItemWidget model={{ type: NODE_TYPE.START }} name="Start" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.CODE_BLOCK }} name="Code Block" />
-                    <TrayItemWidget model={{ type: NODE_TYPE.SWITCH }} name="Switch" />
+                    {!hasStartNode && false && <TrayItemWidget model={{ type: "StartNode" }} name="Start" />}
+                    <TrayItemWidget model={{ type: "CodeBlockNode" }} name="Code Block" />
+                    <TrayItemWidget model={{ type: "SwitchNode" }} name="Switch" />
+                    <TrayItemWidget model={{ type: "HttpRequestNode" }} name="HTTP Request" />
+                    <TrayItemWidget model={{ type: "TransformNode" }} name="Transform" />
+                    {!hasReturnNode && <TrayItemWidget model={{ type: "HttpResponseNode" }} name="Return" />}
                 </TrayWidget>
                 <S.Layer
                     onDrop={handleDrop}
@@ -95,9 +107,17 @@ export function BodyWidget(props: BodyWidgetProps) {
                     <DiagramCanvasWidget>
                         <CanvasWidget engine={engine} />
                     </DiagramCanvasWidget>
+                    <DiagramControls engine={engine} refresh={handleRefreshDiagram} />
                 </S.Layer>
-                {selectedNode && (
-                    <OptionWidget selectedNode={selectedNode} setSelectedNode={setSelectedNode} updateFlowModel={updateFlowModel} />
+                {selectedNode && !isFixedNode(selectedNode?.getKind()) && (
+                    <OptionWidget
+                        engine={engine}
+                        flowModel={flowModel}
+                        selectedNode={selectedNode}
+                        setSelectedNode={setSelectedNode}
+                        openDataMapper={openDataMapper}
+                        updateFlowModel={updateFlowModel}
+                    />
                 )}
             </S.Content>
         </S.Body>

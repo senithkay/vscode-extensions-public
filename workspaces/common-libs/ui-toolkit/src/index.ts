@@ -35,6 +35,13 @@ export * from './components/Breadcrumb/Breadcrumb';
 export * from './components/Grid/Grid';
 export * from './components/SeachBox/SearchBox';
 
+export * from './components/SampleForm/Header/Header';
+export * from './components/SampleForm/HorizontalIcons/HorizontalIcons';
+export * from './components/SampleForm/HorizontalIconsWithSeparator/HorizontalIconsWithSeparator';
+export * from './components/SampleForm/TypeSelector/TypeSelector';
+export * from './components/SampleForm/VerticleIcons/VerticleIcons';
+export * from './components/SampleForm/WebAppCreation/WebAppCreation';
+
 export * from './components/Commons/ErrorBanner';
 
 export * from './styles';
