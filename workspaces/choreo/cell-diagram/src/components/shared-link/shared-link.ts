@@ -43,7 +43,9 @@ export class SharedLinkModel extends DefaultLinkModel {
                 if (!portMetadata?.args) {
                     return;
                 }
-                const targetPort = targetNode.getPortFromID(alignment + "-" + getEmptyNodeName(bound, ...portMetadata.args));
+                const targetPort = targetNode.getPortFromID(
+                    alignment + "-" + getEmptyNodeName(bound, ...portMetadata.args)
+                );
                 if (!targetPort) {
                     return;
                 }
@@ -121,16 +123,24 @@ export class SharedLinkModel extends DefaultLinkModel {
         const targetPort: Point = this.getTargetPort().getPosition();
 
         if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-            points = `${targetPort.x + 2 * sizeMultiplier} ${targetPort.y}, ${targetPort.x + 12 * sizeMultiplier} ${targetPort.y + 6 * sizeMultiplier},
+            points = `${targetPort.x + 2 * sizeMultiplier} ${targetPort.y}, ${targetPort.x + 12 * sizeMultiplier} ${
+                targetPort.y + 6 * sizeMultiplier
+            },
                 ${targetPort.x + 12 * sizeMultiplier} ${targetPort.y - 6 * sizeMultiplier}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14 * sizeMultiplier} ${targetPort.y + 10 * sizeMultiplier},
+            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 14 * sizeMultiplier} ${
+                targetPort.y + 10 * sizeMultiplier
+            },
                 ${targetPort.x - 14 * sizeMultiplier} ${targetPort.y - 10 * sizeMultiplier}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
-            points = `${targetPort.x} ${targetPort.y + 2 * sizeMultiplier}, ${targetPort.x + 10 * sizeMultiplier} ${targetPort.y + 14 * sizeMultiplier},
+            points = `${targetPort.x} ${targetPort.y + 2 * sizeMultiplier}, ${targetPort.x + 10 * sizeMultiplier} ${
+                targetPort.y + 14 * sizeMultiplier
+            },
                 ${targetPort.x - 10 * sizeMultiplier} ${targetPort.y + 14 * sizeMultiplier}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP) {
-            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10 * sizeMultiplier} ${targetPort.y - 15 * sizeMultiplier},
+            points = `${targetPort.x} ${targetPort.y}, ${targetPort.x + 10 * sizeMultiplier} ${
+                targetPort.y - 15 * sizeMultiplier
+            },
                 ${targetPort.x - 10 * sizeMultiplier} ${targetPort.y - 15 * sizeMultiplier}`;
         }
         return points;
@@ -157,8 +167,29 @@ export class SharedLinkModel extends DefaultLinkModel {
         };
     };
 
-    scaleValueToLinkWidth = (value: number, originalMin: number, originalMax: number, newMin: number = 2, newMax: number = 30): number => {
-        return newMin + ((value - originalMin) * (newMax - newMin)) / (originalMax - originalMin);
+    scaleValueToLinkWidth = (
+        requestCount: number,
+        minRequestCount: number,
+        maxRequestCount: number,
+        maxPossibleRequestCount: number = 1000,
+        minStrokeWidth: number = 2,
+        maxFullStrokeWidth: number = 30
+    ): number => {
+        // Ensure the request count is within the min and max bounds
+        requestCount = Math.max(minRequestCount, Math.min(requestCount, maxRequestCount));
+        const range = maxRequestCount - minRequestCount;
+        const normalizedCount = (requestCount - minRequestCount) / range;
+        const normalizedMaxCount = 1; // Normalized value of max count in the range
+        const base = 10;
+        // Logarithmic transformation with a base
+        const logCount = Math.log(normalizedCount + 1) / Math.log(base);
+        const logMaxCount = Math.log(normalizedMaxCount + 1) / Math.log(base);
+        // Adjusting the scaling factor based on max request count
+        const scalingFactor = maxRequestCount < maxPossibleRequestCount ? maxRequestCount / maxPossibleRequestCount : 1;
+        // Scale to stroke width range
+        const dynamicMaxStrokeWidth = minStrokeWidth + scalingFactor * (maxFullStrokeWidth - minStrokeWidth);
+        const scale = (logCount / logMaxCount) * (dynamicMaxStrokeWidth - minStrokeWidth);
+        return minStrokeWidth + scale;
     };
 
     getLinkArrowId = () => {

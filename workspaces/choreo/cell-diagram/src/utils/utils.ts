@@ -508,6 +508,7 @@ function getObservationSummary(project: Project): ObservationSummary {
             });
         }
     });
+    // Set min request count to 0 since all requests are not captured in Observations
     return { requestCount: { max: maxRequestCount, min: 0 } };
 }
 
