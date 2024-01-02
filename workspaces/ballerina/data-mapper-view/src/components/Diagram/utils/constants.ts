@@ -19,6 +19,10 @@ export const OFFSETS = {
         X: 950,
         Y: 100
     },
+    LET_EXPRESSION_NODE: {
+        X: 50,
+        Y: 100,
+    },
     TARGET_NODE_WITHOUT_MAPPING: {
         X: 650,
     },
