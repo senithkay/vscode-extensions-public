@@ -58,7 +58,7 @@ export function Webview() {
             <VisualizerContainer>
                 <NavigationBar />
                 {viewLocation.view === "Overview" && <Overview />}
-                {viewLocation.view === "ServiceDesigner" && <ServiceDesigner />}
+                {viewLocation.view === "ServiceDesigner" && <ServiceDesigner st={null} />}
                 {viewLocation.view === "DataMapper" && <DataMapperOverlay />}
                 {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
             </VisualizerContainer>

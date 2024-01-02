@@ -12,7 +12,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
+import { MachineStateValue, VisualizerLocation } from "@wso2-enterprise/eggplant-core";
+import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 
 
 const Container = styled.div`
@@ -36,6 +37,7 @@ const LowCode = (props: { state: MachineStateValue }) => {
     const { state } = props;
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
+    const [vState, setVState] = useState<VisualizerLocation>();
 
     const onModelChange = (model: Flow) => {
         if (eggplantRpcClient) {
@@ -48,6 +50,9 @@ const LowCode = (props: { state: MachineStateValue }) => {
             try {
                 eggplantRpcClient.getWebviewRpcClient().getEggplantModel().then((model) => {
                     setModel(model);
+                });
+                eggplantRpcClient.getWebviewRpcClient().getVisualizerState().then((vStateX) => {
+                    setVState(vStateX)
                 });
             } catch (error) {
                 setModel(undefined);
@@ -62,10 +67,11 @@ const LowCode = (props: { state: MachineStateValue }) => {
 
     return (
         <Container>
-            {flowModel ? eggplantDiagram :
-                <MessageContainer>
-                    <MessageContent>Select Construct from Overview</MessageContent>
-                </MessageContainer>
+            {vState?.view === "ServiceDesigner" ? <ServiceDesigner st={null} /> :
+                flowModel ? eggplantDiagram :
+                    <MessageContainer>
+                        <MessageContent>Select Construct from Overview</MessageContent>
+                    </MessageContainer>
             }
         </Container>
     );

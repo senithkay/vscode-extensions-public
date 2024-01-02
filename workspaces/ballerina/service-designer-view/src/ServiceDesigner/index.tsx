@@ -9,8 +9,14 @@
 
 import React, { useState } from "react";
 import { ResourceForm } from "./components/ResourceForm//ResourceForm";
+import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
-export function ServiceDesigner() {
+interface ServiceDesignerProps {
+    st: ServiceDeclaration
+}
+
+export function ServiceDesigner(props: ServiceDesignerProps) {
+    const { st } = props;
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
 
     const handleOnClose = () => {
@@ -22,7 +28,7 @@ export function ServiceDesigner() {
 
     return (
         <div data-testid="service-design-view">
-           <h2 onClick={handleOnClick}>Hello Service Designer</h2>
+           <h2 onClick={handleOnClick}>Hello Service Designer - {st?.value}</h2>
            <ResourceForm isOpen = {isSidePanelOpen} onClose={handleOnClose}/>
         </div>
     )

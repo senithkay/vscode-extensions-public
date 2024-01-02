@@ -12,14 +12,14 @@
 import React, { useEffect, useState } from 'react';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import { ComponentListView } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
 import styled from '@emotion/styled';
 import { ResourcesList } from './ResourcesList';
 import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 
 export interface SelectedComponent {
     fileName: string;
@@ -71,6 +71,10 @@ export function Overview() {
         margin: "auto",
     });
 
+    const DesignerButton = styled.div({
+        float: "right",
+    });
+
     const Loader = () => {
         return (
             <LoaderContainer>
@@ -91,12 +95,22 @@ export function Overview() {
         setSelectedComponent(null);
     }
 
+    const handleServiceView = () => {
+        // Open service designer view
+        eggplantRpcClient.getWebviewRpcClient().openVisualizerView({ view: "ServiceDesigner", location: selectedComponent.serviceST.position })
+    }
+
     return (
         <>
             <TitleBar clearSelection={handleClear} />
             {currentComponents ? (
                 selectedComponent ? (
                     <>
+                        <DesignerButton>
+                            <VSCodeButton appearance="icon" title="Show Designer" onClick={handleServiceView}>
+                                <Codicon name="unfold" />
+                            </VSCodeButton>
+                        </DesignerButton>
                         <Typography variant="h3">{selectedComponent.serviceST.absoluteResourcePath.map(res => res.value)}</Typography>
                         <ResourcesList component={selectedComponent} />
                     </>

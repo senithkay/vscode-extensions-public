@@ -34,7 +34,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getVisualizerState(): Promise<VisualizerLocation> {
         const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve(context);
+            resolve({ view: context.view });
         });
     }
 
