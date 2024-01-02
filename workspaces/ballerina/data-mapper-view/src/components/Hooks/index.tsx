@@ -68,7 +68,7 @@ export const useDiagramModel = (
     const offSetX = model.getOffsetX();
     const offSetY = model.getOffsetY();
     const noOfNodes = nodes.length;
-	const fnSource = nodes.find(node => node.context).context.functionST.source;
+	const fnSource = nodes.find(node => node.context).context.selection.selectedST.stNode.source;
 
     const genModel = async () => {
         const newModel = new DiagramModel();
