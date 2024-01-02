@@ -87,6 +87,9 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
         MIWebViewAPI.getInstance().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: ""
         });
+        sidePanelContext.setFormValues(undefined);
+        sidePanelContext.setNodeRange(undefined);
+        sidePanelContext.setMediator(undefined);
     }
 
     return (
