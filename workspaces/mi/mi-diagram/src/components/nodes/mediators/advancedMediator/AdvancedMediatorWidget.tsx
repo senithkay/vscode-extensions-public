@@ -73,7 +73,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
         leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
         rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
         topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
-        bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.width);
+        bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.height);
 
         subSequences.forEach((subSequence) => {
             let subSequenceHeight = 0;

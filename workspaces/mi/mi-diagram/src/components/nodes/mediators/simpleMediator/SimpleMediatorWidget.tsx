@@ -65,7 +65,7 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
     topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
-    bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.width);
+    bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.height);
     const [isHovered, setIsHovered] = useState(false);
 
     const handleMouseOver = () => {
