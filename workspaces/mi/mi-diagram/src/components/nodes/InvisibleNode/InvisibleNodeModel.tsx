@@ -17,5 +17,6 @@ export class InvisibleNodeModel extends BaseNodeModel {
     constructor(id: string, documentUri: string, isInOutSequence: boolean) {
         super(INVISIBLE_NODE, id, documentUri, isInOutSequence);
         this.addPort(new DefaultPortModel(false, PortModelAlignment.RIGHT));
+        this.addPort(new DefaultPortModel(false, PortModelAlignment.BOTTOM));
     }
 }

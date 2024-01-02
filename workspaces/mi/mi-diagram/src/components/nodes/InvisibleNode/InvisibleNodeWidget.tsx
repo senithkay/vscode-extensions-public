@@ -27,13 +27,13 @@ export function InvisibleNodeWidget(props: BaseNodeProps) {
     return (
         <><PortWidget
             style={{
-                right: 0,
-                top: props.node.height / 2,
+                left: props.node.width / 2,
+                top: 0,
                 width: props.node.width,
                 height: props.node.height,
                 position: 'absolute'
             }}
-            port={props.node.getPort(PortModelAlignment.RIGHT)}
+            port={props.node.getPort(PortModelAlignment.BOTTOM)}
             engine={props.diagramEngine}
         >
         </PortWidget>

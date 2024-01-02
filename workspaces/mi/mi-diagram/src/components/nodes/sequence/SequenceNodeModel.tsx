@@ -20,5 +20,7 @@ export class SequenceNodeModel extends BaseNodeModel {
         this.setNodeRange(range);
         this.addPort(new MediatorPortModel(id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(id, PortModelAlignment.RIGHT));
+        this.addPort(new MediatorPortModel(id, PortModelAlignment.TOP));
+        this.addPort(new MediatorPortModel(id, PortModelAlignment.BOTTOM));
     }
 }

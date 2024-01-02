@@ -13,8 +13,8 @@ export const OFFSET = {
         Y: 50
     },
     BETWEEN: {
-        X: 130,
-        Y: 0,
+        X: 0,
+        Y: 80,
         SEQUENCE: 30,
     },
     MARGIN: {

@@ -62,6 +62,8 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
 
     const leftPort = node.getPortByAllignment(PortModelAlignment.LEFT);
     const rightPort = node.getPortByAllignment(PortModelAlignment.RIGHT);
+    const topPort = node.getPortByAllignment(PortModelAlignment.TOP);
+    const bottomPort = node.getPortByAllignment(PortModelAlignment.BOTTOM);
 
     let [subSequencesWidth, setSubSequencesWidth] = useState(70);
 
@@ -70,6 +72,8 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
 
         leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
         rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
+        topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+        bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.width);
 
         subSequences.forEach((subSequence) => {
             let subSequenceHeight = 0;
@@ -184,12 +188,12 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 </div>
             </div>
             <MediatorPortWidget
-                port={leftPort}
+                port={topPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />
             <MediatorPortWidget
-                port={rightPort}
+                port={bottomPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />

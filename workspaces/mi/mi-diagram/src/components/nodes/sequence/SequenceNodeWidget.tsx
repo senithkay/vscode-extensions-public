@@ -23,18 +23,18 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     const nodes = props.diagramEngine.getModel().getNodes();
     const inSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === IN_SEQUENCE_TAG);
     const outSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === OUT_SEQUENCE_TAG);
-    const canvasWidthInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getX() + inSeqNodes[inSeqNodes.length - 1].width : 0;
-    const canvasWidthOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[0].getX() + outSeqNodes[0].width : 0;
-    const width = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes) + (OFFSET.BETWEEN.X) + 70;
+    const canvasHeightInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getY() + inSeqNodes[inSeqNodes.length - 1].height : 0;
+    const canvasHeightOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[0].getY() + outSeqNodes[0].height : 0;
+    const height = Math.max(canvasHeightInSeqNodes, canvasHeightOutSeqNodes) + (OFFSET.BETWEEN.Y) + 70;
 
-    let height = 0;
+    let width = 0;
     inSeqNodes.forEach((node: any) => {
-        height = Math.max(height, node.height);
+        width = Math.max(width, node.width);
     });
     outSeqNodes.forEach((node: any) => {
-        height = Math.max(height, node.height);
+        width = Math.max(width, node.width);
     });
-    height += OFFSET.MARGIN.SEQUENCE;
+    width += OFFSET.MARGIN.SEQUENCE;
     node.width = width;
     node.height = height;
 
@@ -45,6 +45,11 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
     const rightPort = node.getPortByAllignment(PortModelAlignment.RIGHT);
     rightPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
+
+    const topPort = node.getPortByAllignment(PortModelAlignment.TOP);
+    topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+    const bottomPort = node.getPortByAllignment(PortModelAlignment.BOTTOM);
+    bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
 
     node.fireEvent({}, "updateDimensions");
     return (
@@ -57,12 +62,12 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
                 borderRadius: props.side == "right" ? "0 25px 25px 0" : "25px 0 0 25px",
             }}></div>
             <MediatorPortWidget
-                port={leftPort}
+                port={topPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />
             <MediatorPortWidget
-                port={rightPort}
+                port={bottomPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />

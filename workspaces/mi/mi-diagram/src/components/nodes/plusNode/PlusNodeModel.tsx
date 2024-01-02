@@ -26,5 +26,6 @@ export class PlusNodeModel extends BaseNodeModel {
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.RIGHT));
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.TOP));
+        this.addPort(new MediatorPortModel(this.id, PortModelAlignment.BOTTOM));
     }
 }

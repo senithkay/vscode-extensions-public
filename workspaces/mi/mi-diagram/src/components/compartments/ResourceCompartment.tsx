@@ -31,11 +31,11 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
             border: "1px",
             borderStyle: "solid",
             borderColor: "var(--vscode-panel-dropBorder)",
-            overflow: "hidden"
+            overflow: "hidden",
+            flexDirection: "column"
         }}>
             <div
                 style={{
-                    width: "50px",
                     backgroundColor: "skyblue",
                     padding: "10px",
                     borderRight: "1px solid black",
@@ -48,10 +48,7 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
                     color: "black",
                     textAlign: "center",
                     fontSize: "20px",
-                    fontFamily: "sans-serif",
-                    writingMode: "vertical-lr",
-                    textOrientation: "sideways-rl",
-                    transform: "rotate(180deg)"
+                    fontFamily: "sans-serif"
                 }}
                 >{props.name}</span>
             </div>

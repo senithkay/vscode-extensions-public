@@ -104,10 +104,14 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         const outSeqNode = nodes.filter((node: any) => node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const inSequenceHeight = inSeqNode ? inSeqNode.height : 0;
         const outSequenceHeight = outSeqNode ? outSeqNode.height : 0;
+        const canvasWidthInSeqNodes = inSeqNode ? inSeqNode.width : 0;
+        const canvasWidthOutSeqNodes = outSeqNode ? outSeqNode.width : 0;
+        const canvasWidth = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes);
+        
         if (inSeqNode) {
             inSeqNode.setPosition(x, y);
 
-            setNodePositions(inSeqNodes, false, x, y, inSequenceHeight);
+            setNodePositions(inSeqNodes, false, x, y, canvasWidthInSeqNodes);
 
             x = OFFSET.START.X;
             y = OFFSET.START.Y + inSequenceHeight + OFFSET.BETWEEN.SEQUENCE;
@@ -116,7 +120,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         if (outSeqNode) {
             outSeqNode.setPosition(x, y);
 
-            setNodePositions(outSeqNodes, true, x, y, outSequenceHeight);
+            setNodePositions(outSeqNodes, true, x, y, canvasWidthOutSeqNodes);
         }
 
         if (inSeqNode && outSeqNode && inSeqNodes.length > 0 && outSeqNodes.length > 0) {
@@ -125,9 +129,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             model.addAll(link);
         }
 
-        const canvasWidthInSeqNodes = inSeqNode ? inSeqNode.width : 0;
-        const canvasWidthOutSeqNodes = outSeqNode ? outSeqNode.width : 0;
-        const canvasWidth = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes);
         setCanvasWidth(canvasWidth + OFFSET.START.X + OFFSET.MARGIN.LEFT + OFFSET.MARGIN.RIGHT);
         setCanvasHeight(inSequenceHeight + outSequenceHeight + OFFSET.START.Y + OFFSET.MARGIN.TOP + OFFSET.MARGIN.BOTTOM);
     };

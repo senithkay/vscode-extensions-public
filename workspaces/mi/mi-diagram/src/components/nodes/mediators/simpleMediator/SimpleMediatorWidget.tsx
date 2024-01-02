@@ -60,8 +60,12 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     const nodePosition = node.getPosition();
     const leftPort = node.getPortByAllignment('left');
     const rightPort = node.getPortByAllignment('right');
+    const topPort = node.getPortByAllignment('top');
+    const bottomPort = node.getPortByAllignment('bottom');
     leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
+    topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+    bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.width);
     const [isHovered, setIsHovered] = useState(false);
 
     const handleMouseOver = () => {
@@ -97,12 +101,12 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
                 <EditButton onClick={editNode}> <Codicon name="edit" /> </EditButton>
             </ButtonComponent>
             <MediatorPortWidget
-                port={leftPort}
+                port={topPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />
             <MediatorPortWidget
-                port={rightPort}
+                port={bottomPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />

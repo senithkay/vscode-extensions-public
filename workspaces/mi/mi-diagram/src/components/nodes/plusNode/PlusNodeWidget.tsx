@@ -28,6 +28,10 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
     const rightPort = node.getPortByAllignment('right');
     leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
+    const topPort = node.getPortByAllignment('top');
+    const bottomPort = node.getPortByAllignment('bottom');
+    topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+    bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.width);
 
     function handleClick() {
         sidePanelContext.setNodeRange(props.range);
@@ -59,12 +63,12 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
                 </g>
             </svg>
             <MediatorPortWidget
-                port={leftPort}
+                port={topPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />
             <MediatorPortWidget
-                port={rightPort}
+                port={bottomPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />
