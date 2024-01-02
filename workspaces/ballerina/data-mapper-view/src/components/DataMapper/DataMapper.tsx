@@ -415,8 +415,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             try {
                 traversNode(selection.selectedST.stNode, nodeInitVisitor);
                 const nodes = nodeInitVisitor.getNodes();
-                // if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
-                if (hasIONodesPresent(nodes)) {
+                if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
                     setDmNodes(nodes);
                 }
             } catch (e) {
