@@ -8,69 +8,86 @@
  */
 
 import React, { useState } from 'react';
-import { ActionButtons, Button, Codicon, Divider, Dropdown, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
+import { ResourcePath } from '../ResourcePath/ResourcePath';
+import { Response } from '../ResourceResponse/ResourceResponse';
+import { ResourceParam } from '../ResourceParam/ResourceParam';
+import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions';
+import { Payload } from '../Payload/Payload';
+import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
+import { generateResourceFunction } from '../../utils/utils';
 
-const verbs = [
-	{
-		content: 'GET',
-		id: 'GET',
-		value: 'GET'
-	},
-	{
-		content: 'PUT',
-		id: 'PUT',
-		value: 'PUT'
-	},
-	{
-		content: 'DELETE',
-		id: 'DELETE',
-		value: 'DELETE'	
-	},
-	{
-		content: 'POST',
-		id: 'POST',
-		value: 'POST'
-	},
-	{
-		content: 'PATCH',
-		id: 'PATCH',
-		value: 'PATCH'
-	}
-];
-
-
-export interface ResourceFormProps {
-	isOpen: boolean;
-    onClose: () => void;
-}
-
-const PathContainer = styled.div`
-    display: flex;
+const AdvancedParamTitleWrapper = styled.div`
+	display: flex;
 	flex-direction: row;
 `;
 
-const AddButtonWrapper = styled.div`
-    display: flex;
-	justify-content: flex-end;
-	margin: 8px 0;
-`;
+export interface ResourceFormProps {
+	isOpen: boolean;
+	onClose: () => void;
+}
 
 export function ResourceForm(props: ResourceFormProps) {
-    const { isOpen, onClose } = props;
+	const { isOpen, onClose } = props;
 
-	const [selectedMethod, setSelectedMethod] = useState("GET");
-	const [path, setPath] = useState("");
+	const [method, setMethod] = useState<string>("GET");
+	const [path, setPath] = useState<string>("");
 
-	const handleMethodChange = (input: string) => {
-		setSelectedMethod(input);
+	const [parameters, setParameters] = useState<ParameterConfig[]>([{ id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true }]);
+	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map([
+		[PARAM_TYPES.HEADER, { id: 0, name: "PARAM10", type: "http:Headers", option: PARAM_TYPES.HEADER }]
+	]));
+	const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedParams.size > 0);
+	const [payload, setPayload] = useState<ParameterConfig>({ id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.PAYLOAD });
+	const [response, setResponse] = useState<ResponseConfig[]>([{ id: 0, code: 200 }]);
+
+	const handleParamChange = (params: ParameterConfig[]) => {
+		setParameters(params);
 	};
 
-	const handlePathChange = (input: string) => {
-		setPath(input);
+	const handleAdvanceParamToggle = () => {
+		setShowAdvanced(!showAdvanced);
 	};
 
-	const handlePathAdd = () => {
+	const handleAdvancedParamChange = (params: Map<string, ParameterConfig>) => {
+		setAdvancedParam(params);
+	};
+
+	const handleResponseChange = (resp: ResponseConfig[]) => {
+		setResponse(resp);
+	};
+
+	const handlePayloadChange = (params: ParameterConfig) => {
+		setPayload(params);
+	};
+
+	const onPathChange = (method: string, path: string) => {
+		setMethod(method);
+		setPath(path);
+	}
+
+	const onSave = () => {
+		let paramString = "";
+		parameters.map((param: ParameterConfig, index: number) => {
+			const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
+			paramString = paramString + `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
+		});
+		const payloadType = `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
+		paramString = paramString + payloadType;
+
+		advancedParams.forEach((param: ParameterConfig) => {
+			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}` : param.type;
+			paramString = paramString + `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}`;
+		});
+
+		let responseString = "";
+		response.map((resp: ResponseConfig, index: number) => {
+			responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
+		});
+
+		const genSource = generateResourceFunction({ METHOD: method, PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
+		console.log(genSource);
 	};
 
 	return (
@@ -78,58 +95,38 @@ export function ResourceForm(props: ResourceFormProps) {
 			<SidePanel
 				isOpen={isOpen}
 				alignmanet="right"
-				sx={{width: 600}}
+				sx={{ width: 600 }}
 			>
 				<SidePanelTitleContainer>
-					<>Configure Resource</>
+					<Typography sx={{ margin: 0 }} variant="h3">Configure Resource</Typography>
 					<Button onClick={onClose} appearance="icon">X</Button>
 				</SidePanelTitleContainer>
 
 				<SidePanelBody>
-					<PathContainer>
-						<div
-							style={{
-								width: 160
-							}}
-						>
-							<Dropdown
-								sx={{width: 160}}
-								isRequired
-								errorMsg=""
-								id="drop-down"
-								items={verbs}
-								label="HTTP Method"
-								onChange={handleMethodChange}
-								value={selectedMethod}
-							/>
-						</div>
-						<TextField
-							sx={{marginLeft: 10, flexGrow: 1}}
-							autoFocus
-							errorMsg=""
-							label="Resource Path"
-							size={70}
-							onChange={handlePathChange}
-							placeholder="path/foo"
-							value={path}
-						/>
-					</PathContainer>
-					<></>
-					<AddButtonWrapper>
-						<LinkButton onClick={handlePathAdd} >
-							<Codicon name="add"/>
-							<Typography sx={{margin: 0}} variant="h4">Add Path Param</Typography>
-						</LinkButton>
-					</AddButtonWrapper>
+					<ResourcePath method={method} path={path} onChange={onPathChange} />
 
 					<Divider />
-					
-                    <ActionButtons
-                        primaryButton={{ text : "Save", onClick: () => console.log("Save Button Clicked"), tooltip: "Save" }}
-                        secondaryButton={{ text : "Cancel", onClick: onClose, tooltip: "Cancel" }}
-                        sx={{justifyContent: "flex-end"}}
-                    />
-                </SidePanelBody>
+
+					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Parameters</Typography>
+					<ResourceParam parameters={parameters} onChange={handleParamChange} />
+					<Payload parameter={payload} onChange={handlePayloadChange} />
+					<AdvancedParamTitleWrapper>
+						<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
+						<LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
+					</AdvancedParamTitleWrapper>
+					{showAdvanced && <AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange} />}
+					<Divider />
+
+					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
+					<Response response={response} onChange={handleResponseChange} />
+
+					<ActionButtons
+						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}
+						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
+						sx={{ justifyContent: "flex-end" }}
+					/>
+				</SidePanelBody>
+
 			</SidePanel>
 		</>
 	);

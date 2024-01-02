@@ -29,7 +29,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     return (
         <div data-testid="service-design-view">
            <h2 onClick={handleOnClick}>Hello Service Designer - {st?.value}</h2>
-           <ResourceForm isOpen = {isSidePanelOpen} onClose={handleOnClose}/>
+           {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} onClose={handleOnClose} />}
         </div>
     )
 }
