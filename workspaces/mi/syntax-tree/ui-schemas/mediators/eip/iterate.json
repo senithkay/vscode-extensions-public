@@ -1,0 +1,130 @@
+{
+  "name": "Iterate",
+  "type":"mediator",
+  "title": "Iterate Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "iterateID",
+              "displayName": "Iterate ID",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "iterateExpression",
+              "displayName": "Iterate Expression",
+              "inputType": "expression",
+              "required": true,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "sequentialMediation",
+              "displayName": "Sequential Mediation",
+              "inputType": "checkbox",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "continueParent",
+              "displayName": "Continue Parent",
+              "inputType": "checkbox",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "preservePayload",
+              "displayName": "Preserve Payload",
+              "inputType": "checkbox",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Sequence",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "sequenceType",
+                    "displayName": "Sequence Type",
+                    "inputType": "combo",
+                    "defaultValue": "ANONYMOUS",
+                    "comboValues": [
+                      "ANONYMOUS",
+                      "REGISTRY_REFERENCE",
+                      "NAMED_REFERENCE"
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "sequenceKey",
+                    "displayName": "Sequence Key",
+                    "inputType": "registry",
+                    "enableCondition": [
+                      {
+                        "sequenceType": "REGISTRY_REFERENCE"
+                      }
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "sequenceName",
+                    "displayName": "Sequence Name",
+                    "inputType": "string",
+                    "enableCondition": [
+                      {
+                        "sequenceType": "NAMED_REFERENCE"
+                      }
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

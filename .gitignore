@@ -65,5 +65,7 @@ common/temp/
 common/autoinstallers/*/.npmrc
 **/.rush/temp/
 
+# Playwright
+playwright-report/
 # ignore storybook build
 **/.out/

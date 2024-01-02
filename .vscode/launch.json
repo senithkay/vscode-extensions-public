@@ -22,7 +22,7 @@
             "outFiles": [
                 "${workspaceFolder}/workspaces/ballerina/ballerina-extension/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: watch"
+            "preLaunchTask": "npm: watch-ballerina"
         },
         {
             "name": "Ballerina Extension Tests",
@@ -97,28 +97,57 @@
             "envFile": "${workspaceFolder}/workspaces/choreo/choreo-extension/.env",
             "env": {
                 "WEB_VIEW_DEV_MODE": "true",
-				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js",
             },
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "preLaunchTask": "compile:choreo-tests"
         },
         {
-			"name": "Debug Choreo Playwright-E2E Tests",
-			"type": "node",
-			"program": "${workspaceFolder}/workspaces/choreo/choreo-extension/node_modules/mocha/bin/_mocha",
-			"args": [
+            "name": "Debug Choreo Playwright-E2E Tests",
+            "type": "node",
+            "program": "${workspaceFolder}/workspaces/choreo/choreo-extension/node_modules/mocha/bin/_mocha",
+            "args": [
                 "--config",
                 "${workspaceFolder}/workspaces/choreo/choreo-extension/src/tests/e2e-playwright/.mocharc.js",
-				"${workspaceFolder}/workspaces/choreo/choreo-extension/dist/tests/e2e-playwright/suite/**/*.test.js"
-			],
-			"request": "launch",
-			"outFiles": [
-				"${workspaceFolder}/workspaces/choreo/choreo-extension/dist/**/*.js"
-			],
-			"console": "integratedTerminal",
-			"preLaunchTask": "compile:choreo-tests"
-		},
+                "${workspaceFolder}/workspaces/choreo/choreo-extension/dist/tests/e2e-playwright/suite/**/*.test.js"
+            ],
+            "request": "launch",
+            "outFiles": [
+                "${workspaceFolder}/workspaces/choreo/choreo-extension/dist/**/*.js"
+            ],
+            "console": "integratedTerminal",
+            "preLaunchTask": "compile:choreo-tests"
+        },
+        {
+            "name": "MI Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_WATCH_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/mi/mi-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-mi"
+        },
+        {
+            "name": "MI Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/mi/mi-extension",
+                "--extensionTestsPath=${workspaceFolder}/workspaces/mi/mi-extension/dist/test/suite/index"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/mi/mi-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "watch-mi-tests"
+        },
         {
             "name": "APIChat Extension",
             "type": "extensionHost",
@@ -136,16 +165,16 @@
             "preLaunchTask": "npm: watch-api-chat"
         },
         {
-			"name": "APK Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
-			],
-			"outFiles": [
-				"${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
-			],
-			"preLaunchTask": "npm: watch-apk"
-		},
+            "name": "APK Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/apk/apk-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/apk/apk-extension/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-apk"
+        },
     ]
 }

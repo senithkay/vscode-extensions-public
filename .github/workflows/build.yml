@@ -55,6 +55,7 @@ jobs:
     outputs:
       runBalExtTests: ${{ steps.testMatrix.outputs.runBalExtTests }}
       runChoreoExtTests: ${{ steps.testMatrix.outputs.runChoreoExtTests }}
+      runMIExtTests: ${{ steps.testMatrix.outputs.runMIExtTests }}
       runAPIChatExtTests: ${{ steps.testMatrix.outputs.runAPIChatExtTests }}
       runAPKExtTests: ${{ steps.testMatrix.outputs.runAPKExtTests }}
       runEggplantExtTests: ${{ steps.testMatrix.outputs.runEggplantExtTests }}
@@ -99,9 +100,9 @@ jobs:
             echo "hasChoreoDiff=true" >> $GITHUB_OUTPUT
           fi
 
-          # API Chat ext
-          if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/api-chat" ]]; then
-            echo "hasAPIChatDiff=true" >> $GITHUB_OUTPUT
+          # MI ext
+          if [[ "${CHANGED_DIRS[@]}" =~ "workspaces/mi" ]]; then
+              echo "runMIExtTests=true" >> $GITHUB_OUTPUT
           fi
           
           # APK ext
@@ -346,3 +347,33 @@ jobs:
           path: workspaces/choreo/choreo-extension/test-resources/screenshots/
           name: Choreo-e2e-test-screenshots-${{ github.run_attempt }}
         if: failure()
+
+  ExtTest_MI:
+    name: Run MI extension tests
+    needs: Build_Stage
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runMIExtTests || github.base_ref == 'main' }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: ExtBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
+
+      - name: Run Test
+        run: |
+          cd workspaces/mi/mi-extension
+          xvfb-run --auto-servernum pnpm run test

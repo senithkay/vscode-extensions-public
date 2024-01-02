@@ -30,5 +30,6 @@ export * from './components/Menu/Menu';
 export * from './components/Menu/MenuItem';
 
 export * from './components/Commons/ErrorBanner';
+export * from './components/Commons/RequiredInput';
 
 export * from './styles';

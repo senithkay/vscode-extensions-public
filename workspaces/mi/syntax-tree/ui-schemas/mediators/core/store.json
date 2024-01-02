@@ -1,0 +1,112 @@
+{
+  "name": "store",
+  "type":"mediator",
+  "title": "Store Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Message Store",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "specifyAs",
+                    "displayName": "Specify As",
+                    "inputType": "combo",
+                    "defaultValue": "Value",
+                    "comboValues": [
+                      "Value",
+                      "Expression"
+                    ],
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "availableMessageStores",
+                    "displayName": "Available Message Stores",
+                    "inputType": "combo",
+                    "defaultValue": "Select From Message Stores",
+                    "comboValues": [
+                      "Select From Message Stores"
+                    ],
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "specifyAs": "Value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "messageStore",
+                    "displayName": "Message Store",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "specifyAs": "Value"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "expression",
+                    "displayName": "Expression",
+                    "inputType": "stringOrExpression",
+                    "defaultValue": "",
+                    "required": false,
+                    "helpTip": "",
+                    "enableCondition": [
+                      {
+                        "specifyAs": "Expression"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "onStoreSequence",
+              "displayName": "On Store Sequence",
+              "inputType": "stringOrExpression",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "name": "integration-studio",
+  "displayName": "Integration Studio",
+  "description": "An extension which gives a development environment for designing, developing, debugging, and testing integration solutions.",
+  "version": "0.0.1",
+  "publisher": "wso2",
+  "engines": {
+    "vscode": "^1.81.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:SynapseXml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "SynapseXml",
+        "extensions": [
+          ".xml"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "integrationStudio.showDiagram",
+        "title": "Show Diagram"
+      },
+      {
+        "command": "integrationStudio.addMediator",
+        "title": "Add Mediator by Prompt"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "SynapseXml",
+        "scopeName": "synapse.xml",
+        "path": "./syntaxes/xml.tmLanguage.json"
+      }
+    ],
+    "configuration": [
+      {
+        "type": "object",
+        "title": "Integration Studio",
+        "properties": {
+          "integrationStudio.apiKey": {
+            "type": "string",
+            "default": "",
+            "description": "OpenAI API Key"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "compile": "tsc -p .",
+    "watch": "tsc -p . -w",
+    "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
+    "build": "pnpm clean && pnpm run copyLSLibs && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
+    "compile-tests": "pnpm run compile",
+    "watch-tests": "pnpm run watch",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "pnpm run pretest && node ./out/test/runTest.js",
+    "e2e-test-setup": "npx extest get-vscode -c 1.81.1 && npx extest get-chromedriver -c 1.81.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
+    "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
+    "copyLSLibs": "copyfiles -f language-server/org.eclipse.lemminx/target/*.jar ls",
+    "copyVSIX": "copyfiles *.vsix ./vsix",
+    "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
+    "postbuild": "pnpm run copyVSIX"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.81.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "eslint": "^8.47.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.1.6",
+    "ts-loader": "^9.4.4",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "@vscode/test-electron": "^2.3.4",
+    "rimraf": "~5.0.5"
+  },
+  "dependencies": {
+    "copyfiles": "^2.4.1",
+    "@vscode/vsce": "~2.21.0",
+    "vscode-messenger-common": "~0.4.5",
+    "vscode-messenger": "~0.4.5",
+    "@wso2-enterprise/mi-core": "workspace:*",
+    "@playwright/test": "~1.37.1",
+    "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
+    "vscode-extension-tester": "~5.9.1",
+    "vscode-languageclient": "^8.0.2",
+    "xml2js": "~0.6.2",
+    "@types/xml2js": "~0.4.12",
+    "jsonix": "~3.0.0",
+    "lodash": "~4.17.21",
+    "axios": "~1.5.1",
+    "@types/lodash": "~4.14.199",
+    "vscode-languageserver-protocol": "^3.17.2",
+    "fast-xml-parser": "~4.3.2",
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*"
+  }
+}

@@ -3,7 +3,7 @@
     "tasks": [
         {
             "type": "npm",
-            "script": "watch",
+            "script": "watch-ballerina",
             "path": "workspaces/ballerina/ballerina-extension",
             "problemMatcher": {
                 "owner": "typescript",
@@ -122,6 +122,35 @@
             "type": "npm",
             "path": "workspaces/choreo/choreo-extension",
             "script": "compile-tests",
-        }
+        },
+        {
+            "label": "npm: watch-mi",
+			"type": "npm",
+			"script": "watch",
+            "path": "workspaces/mi/mi-extension",
+            "problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never",
+				"group": "watchers"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+            "label": "watch-mi-tests",
+			"type": "npm",
+			"script": "watch-tests",
+            "path": "workspaces/mi/mi-extension",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never",
+				"group": "watchers"
+			},
+			"group": "build"
+		}
     ]
 }

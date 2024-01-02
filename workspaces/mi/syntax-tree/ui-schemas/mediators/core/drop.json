@@ -1,0 +1,27 @@
+{
+  "name": "drop",
+  "type":"mediator",
+  "title": "Drop Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": true,
+              "helpTip": "Description"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

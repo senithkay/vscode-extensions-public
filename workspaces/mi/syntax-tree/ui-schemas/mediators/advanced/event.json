@@ -1,0 +1,51 @@
+{
+  "name": "Event",
+  "type":"mediator",
+  "title": "Eevnt Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "topicType",
+              "displayName": "Topic Type",
+              "inputType": "combo",
+              "defaultValue": "static",
+              "comboValues": [
+                "static",
+                "dynamic"
+              ],
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "staticTopic",
+              "displayName": "Static Topic",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

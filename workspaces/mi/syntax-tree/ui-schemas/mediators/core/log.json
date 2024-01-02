@@ -1,0 +1,151 @@
+{
+  "name": "log",
+  "type":"mediator",
+  "title": "Log Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "category",
+              "displayName": "Log Category",
+              "inputType": "combo",
+              "defaultValue": "INFO",
+              "comboValues": [
+                "INFO",
+                "TRACE",
+                "DEBUG",
+                "WARN",
+                "ERROR",
+                "FATAL"
+              ],
+              "required": "true",
+              "helpTip": "Log Category"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "level",
+              "displayName": "Log Level",
+              "inputType": "combo",
+              "defaultValue": "SIMPLE",
+              "comboValues": [
+                "SIMPLE",
+                "HEADERS",
+                "FULL",
+                "CUSTOM"
+              ],
+              "required": "true",
+              "helpTip": "Log Level"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "separator",
+              "displayName": "Log Separator",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": "false",
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "properties",
+              "displayName": "Properties",
+              "form": {
+                "title": "Log Property",
+                "description": "Editing of the properties of an object LogProperty",
+                "elements": [
+                  {
+                    "type": "attributeGroup",
+                    "value": {
+                      "groupName": "Properties",
+                      "elements": [
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyName",
+                            "displayName": "Property Name",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyValueType",
+                            "displayName": "Property Value Type",
+                            "inputType": "combo",
+                            "defaultValue": "LITERAL",
+                            "comboValues": [
+                              "LITERAL",
+                              "EXPRESSION"
+                            ],
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyValue",
+                            "displayName": "Property Value",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "propertyValueType": "LITERAL"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "propertyExpression",
+                            "displayName": "Property Expression",
+                            "inputType": "expression",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "propertyValueType": "EXPRESSION"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": "false",
+              "helpTip": "Description"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

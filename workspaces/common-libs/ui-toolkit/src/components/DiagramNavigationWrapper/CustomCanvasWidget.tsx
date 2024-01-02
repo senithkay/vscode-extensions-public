@@ -19,6 +19,8 @@ export interface DiagramProps {
     engine: CanvasEngine;
     className?: string;
     isNodeFocused?: boolean;
+    disableZoom?: boolean;
+    disableMouseEvents?: boolean;
 }
 
 // tslint:disable-next-line:no-namespace
@@ -94,16 +96,24 @@ export class CustomCanvasWidget extends React.Component<DiagramProps> {
                 className={this.props.className}
                 ref={this.ref}
                 onWheel={event => {
-                    this.props.engine.getActionEventBus().fireAction({ event });
+                    if (!this.props.disableZoom) {
+                        this.props.engine.getActionEventBus().fireAction({ event });
+                    }
                 }}
                 onMouseDown={event => {
-                    this.props.engine.getActionEventBus().fireAction({ event });
+                    if (!this.props.disableMouseEvents) {
+                        this.props.engine.getActionEventBus().fireAction({ event });
+                    }
                 }}
                 onMouseUp={event => {
-                    this.props.engine.getActionEventBus().fireAction({ event });
+                    if (!this.props.disableMouseEvents) {
+                        this.props.engine.getActionEventBus().fireAction({ event });
+                    }
                 }}
                 onMouseMove={event => {
-                    this.props.engine.getActionEventBus().fireAction({ event });
+                    if (!this.props.disableMouseEvents) {
+                        this.props.engine.getActionEventBus().fireAction({ event });
+                    }
                 }}
                 onTouchStart={event => {
                     this.props.engine.getActionEventBus().fireAction({ event });

@@ -14,6 +14,7 @@ import styled from "@emotion/styled";
 interface CardContainerProps {
     sx?: any;
     isSelected?: boolean;
+    disbaleHoverEffect?: boolean;
 }
 
 const CardContainer = styled.div<CardContainerProps>`
@@ -35,9 +36,12 @@ const CardContainer = styled.div<CardContainerProps>`
     border-color:  ${(props: CardContainerProps) => props.isSelected ? "var(--vscode-focusBorder)" : "var(--vscode-dropdown-border)"};
     color: var(--vscode-editor-foreground);
     cursor: pointer;
-    &:hover, &.active {
-        background: var(--vscode-welcomePage-tileHoverBackground);
-    };
+    ${(props: CardContainerProps) => props.disbaleHoverEffect ? "" :
+        "\
+    &:hover, &.active {\
+        background: var(--vscode-welcomePage-tileHoverBackground);\
+    };\
+    "};
 	&.not-allowed {
     	cursor: not-allowed;
   	};
@@ -45,24 +49,25 @@ const CardContainer = styled.div<CardContainerProps>`
 `;
 
 export interface ComponentCardProps {
-	id?: string; // Identifier for the component
+    id?: string; // Identifier for the component
     tooltip?: string;
     isSelected?: boolean;
     disabled?: boolean;
+    disbaleHoverEffect?: boolean;
     sx?: any;
     children?: React.ReactNode;
     onClick?: (value: string) => void;
 }
 
 export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCardProps) => {
-    const { id, sx, tooltip, isSelected, disabled, children, onClick } = props;
+    const { id, sx, tooltip, isSelected, disabled, disbaleHoverEffect, children, onClick } = props;
 
     const handleComponentClick = () => {
-        onClick(id);
+        onClick && onClick(id);
     };
 
     return (
-        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} onClick={handleComponentClick} title={tooltip}>
+        <CardContainer id={`card-select-${id}`} className={cn({ "active": isSelected, 'not-allowed': disabled })} sx={sx} isSelected={isSelected} disbaleHoverEffect={disbaleHoverEffect} onClick={handleComponentClick} title={tooltip}>
             {children}
         </CardContainer>
     );

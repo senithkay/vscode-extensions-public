@@ -1,0 +1,137 @@
+{
+  "name": "call-template",
+  "type":"mediator",
+  "title": "Call Template Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Properties",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "availableTemplates",
+              "displayName": "Available Templates",
+              "inputType": "combo",
+              "defaultValue": "Select From Templates",
+              "comboValues": [
+                "Select From Templates"
+              ],
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "parameterNameTable",
+              "displayName": "Parameter Name Table",
+              "form": {
+                "title": "Call-Template Parameter",
+                "description": "Editing of the properties of an object CallTemplateParameter",
+                "elements": [
+                  {
+                    "type": "attributeGroup",
+                    "value": {
+                      "groupName": "Properties",
+                      "elements": [
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "parameterName",
+                            "displayName": "Parameter Name",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "templateParameterType",
+                            "displayName": "Template Parameter Type",
+                            "inputType": "combo",
+                            "defaultValue": "LITERAL",
+                            "comboValues": [
+                              "LITERAL",
+                              "EXPRESSION"
+                            ],
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "parameterValue",
+                            "displayName": "Parameter Value",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "templateParameterType": "LITERAL"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "parameterExpression",
+                            "displayName": "Parameter Expression",
+                            "inputType": "expression",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "templateParameterType": "EXPRESSION"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "targetTemplate",
+              "displayName": "Target Template",
+              "inputType": "string",
+              "required": true,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "onError",
+              "displayName": "OnError",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "required": false,
+              "helpTip": ""
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

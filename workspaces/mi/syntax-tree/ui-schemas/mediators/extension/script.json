@@ -1,0 +1,192 @@
+{
+  "name": "Script",
+  "type":"mediator",
+  "title": "Script Mediator",
+  "help": "",
+  "elements": [
+    {
+      "type": "attribute",
+      "value": {
+        "name": "scriptLanguage",
+        "displayName": "Script Language",
+        "inputType": "combo",
+        "defaultValue": "js",
+        "comboValues": [
+          "js",
+          "rb",
+          "groovy",
+          "nashornJs"
+        ],
+        "required": false,
+        "helpTip": ""
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Script Type",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "scriptType",
+              "displayName": "Script Type",
+              "inputType": "combo",
+              "defaultValue": "INLINE",
+              "comboValues": [
+                "INLINE",
+                "REGISTRY_REFERENCE"
+              ],
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "mediateFunction",
+              "displayName": "Mediate Function",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "scriptType": "REGISTRY_REFERENCE"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "keyType",
+              "displayName": "Key Type",
+              "inputType": "combo",
+              "defaultValue": "STATIC_KEY",
+              "comboValues": [
+                "STATIC_KEY",
+                "DYNAMIC_KEY"
+              ],
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "scriptType": "REGISTRY_REFERENCE"
+                }
+              ]
+            }
+          },
+          {
+            "type": "table",
+            "value": {
+              "name": "scriptKeys",
+              "displayName": "Script Keys",
+              "form": {
+                "title": "Registry Key Property",
+                "description": "Editing of the properties of an object Registry Key Property",
+                "elements": [
+                  {
+                    "type": "attributeGroup",
+                    "value": {
+                      "groupName": "Properties",
+                      "elements": [
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "keyName",
+                            "displayName": "Key Name",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "keyValue",
+                            "displayName": "Key Value",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": ""
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "enableCondition": [
+                {
+                  "scriptType": "REGISTRY_REFERENCE"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "scriptStaticKey",
+              "displayName": "Script Static Key",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                "OR",
+                {
+                  "scriptType": "REGISTRY_REFERENCE"
+                },
+                {
+                  "keyType": "STATIC_KEY"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "scriptDynamicKey",
+              "displayName": "Script Dynamic Key",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                "OR",
+                {
+                  "scriptType": "REGISTRY_REFERENCE"
+                },
+                {
+                  "keyType": "DYNAMIC_KEY"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "scriptBody",
+              "displayName": "Script Body",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "scriptType": "INLINE"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "required": false,
+        "helpTip": ""
+      }
+    }
+  ]
+}
