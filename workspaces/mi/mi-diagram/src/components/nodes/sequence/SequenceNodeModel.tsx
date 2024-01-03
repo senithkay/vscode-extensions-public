@@ -15,8 +15,11 @@ import { MediatorPortModel } from "../../port/MediatorPortModel";
 export const SEQUENCE_NODE = "SequenceNode";
 
 export class SequenceNodeModel extends BaseNodeModel {
-    constructor(id: string, range: Range, isInOutSequence: boolean) {
+    nodes: BaseNodeModel[];
+
+    constructor(id: string, nodes: BaseNodeModel[], range: Range, isInOutSequence: boolean) {
         super(SEQUENCE_NODE, id, null, isInOutSequence);
+        this.nodes = nodes;
         this.setNodeRange(range);
         this.addPort(new MediatorPortModel(id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(id, PortModelAlignment.RIGHT));

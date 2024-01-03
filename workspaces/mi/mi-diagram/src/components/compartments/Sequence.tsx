@@ -68,17 +68,17 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         })();
     }, []);
 
-    function drawSequence(nodes: any[], invertDirection: boolean) {
+    function drawSequence(nodes: BaseNodeModel[], invertDirection: boolean) {
         const range = {
-            start: invertDirection ? nodes[nodes.length - 1].getNodeRange().start : nodes[0].getNodeRange().start,
-            end: invertDirection ? nodes[nodes.length - 1].getNodeRange().start : nodes[0].getNodeRange().start,
+            start: nodes[0].getNodeRange().start,
+            end: nodes[0].getNodeRange().start,
         }
 
-        let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, range, invertDirection);
-        const sourceNode = invertDirection ? nodes[nodes.length - 1] : canvasPortNode;
-        const targetNode = invertDirection ? canvasPortNode : nodes[0];
+        let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, nodes, range, invertDirection);
+        const sourceNode = canvasPortNode;
+        const targetNode = nodes[0];
         const canvasPortLink = createLinks(sourceNode, targetNode, null);
-        if (!invertDirection) model.addAll(sourceNode, ...canvasPortLink, targetNode);
+        model.addAll(sourceNode, ...canvasPortLink, targetNode);
 
         if (nodes.length > 1) {
             for (let i = 0; i < nodes.length; i++) {
@@ -91,7 +91,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                 }
             }
         }
-        if (invertDirection) model.addAll(sourceNode, ...canvasPortLink, targetNode);
     }
 
     function autoDistribute() {
@@ -107,11 +106,11 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         const canvasWidthInSeqNodes = inSeqNode ? inSeqNode.width : 0;
         const canvasWidthOutSeqNodes = outSeqNode ? outSeqNode.width : 0;
         const canvasWidth = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes);
-        
+
         if (inSeqNode) {
             inSeqNode.setPosition(x, y);
 
-            setNodePositions(inSeqNodes, false, x, y, canvasWidthInSeqNodes);
+            setNodePositions(inSeqNodes, x, y, canvasWidthInSeqNodes);
 
             x = OFFSET.START.X;
             y = OFFSET.START.Y + inSequenceHeight + OFFSET.BETWEEN.SEQUENCE;
@@ -120,7 +119,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         if (outSeqNode) {
             outSeqNode.setPosition(x, y);
 
-            setNodePositions(outSeqNodes, true, x, y, canvasWidthOutSeqNodes);
+            setNodePositions(outSeqNodes, x, y, canvasWidthOutSeqNodes);
         }
 
         if (inSeqNode && outSeqNode && inSeqNodes.length > 0 && outSeqNodes.length > 0) {

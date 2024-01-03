@@ -98,7 +98,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 subNodesAndLinks.push(subNodes[0]);
             }
 
-            setNodePositions(subNodesAndLinks, false, nodePosition.x + 20, nodePosition.y + subSequencesHeight + 30, subSequenceHeight + 25);
+            setNodePositions(subNodesAndLinks, nodePosition.x + 20, nodePosition.y + subSequencesHeight + 30, subSequenceHeight + 25);
             subSequence.width = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getX() - subNodes[0].getX()) + subNodes[subNodes.length - 1].width + 75 : 0;
             subSequence.height = subSequenceHeight + 25;
             subSequencesWidth = Math.max(subSequencesWidth, subSequence.width);

@@ -45,22 +45,13 @@ export function generateEngine(): DiagramEngine {
     return engine;
 }
 
-export function setNodePositions(nodes: NodeModel[], isInOutSequence: boolean, startX: number, startY: number, sequenceWidth: number) {
+export function setNodePositions(nodes: NodeModel[], startX: number, startY: number, sequenceWidth: number) {
     startX += OFFSET.BETWEEN.X;
     startY += OFFSET.BETWEEN.Y;
-    if (!isInOutSequence) {
-        for (let i = 0; i < nodes.length; i++) {
-            const node: any = nodes[i];
-            node.setPosition(startX  + (sequenceWidth / 2) - node.width / 2, startY);
-            startY += (node instanceof SequenceNodeModel ? 0 : node.height) + OFFSET.BETWEEN.Y;
-        }
-    } else {
-        for (let i = nodes.length - 1; i >= 0; i--) {
-            const node: any = nodes[i];
-            node.setPosition(startX, startY + (sequenceWidth / 2) - node.height / 2);
-            startX += (node instanceof SequenceNodeModel ? 0 : node.width) + OFFSET.BETWEEN.X;
-            startY += OFFSET.BETWEEN.Y;
-        }
+    for (let i = 0; i < nodes.length; i++) {
+        const node: any = nodes[i];
+        node.setPosition(startX + (sequenceWidth / 2) - node.width / 2, startY);
+        startY += (node instanceof SequenceNodeModel ? 0 : node.height) + OFFSET.BETWEEN.Y;
     }
 }
 
@@ -70,8 +61,8 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
         return [];
     }
     const portsAndNodes = [];
-    let sourcePort = sourceNode.getPortByAllignment(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.TOP : (sourceNode.isInOutSequenceNode() ? PortModelAlignment.TOP : PortModelAlignment.BOTTOM));
-    const targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.TOP : (targetNode.isInOutSequenceNode() ? PortModelAlignment.BOTTOM : PortModelAlignment.TOP));
+    let sourcePort = sourceNode.getPortByAllignment(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.TOP : PortModelAlignment.BOTTOM);
+    const targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.TOP : PortModelAlignment.TOP);
 
     if (!sourcePort || !targetPort || sourceNode.isDropSequence()) {
         return [];
@@ -92,10 +83,10 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
         const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode(), parentNode);
         plusNode.setNodeRange(nodeRange);
         const link = createLinks(sourceNode, plusNode, parentNode, false, false);
-        sourcePort = plusNode.getPortByAllignment(sourceNode.isInOutSequenceNode() ? PortModelAlignment.TOP : PortModelAlignment.BOTTOM);
+        sourcePort = plusNode.getPortByAllignment(PortModelAlignment.BOTTOM);
         sourceNode instanceof SequenceNodeModel ? portsAndNodes.push(plusNode) : portsAndNodes.push(plusNode, ...link);
     }
-    const link: MediatorLinkModel = new MediatorLinkModel(`${sourcePort.getID()}::${targetPort.getID()}`, addArrow, sourceNode.isInOutSequenceNode() != targetNode.isInOutSequenceNode());
+    const link: MediatorLinkModel = new MediatorLinkModel(`${sourcePort.getID()}::${targetPort.getID()}`, addArrow);
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
