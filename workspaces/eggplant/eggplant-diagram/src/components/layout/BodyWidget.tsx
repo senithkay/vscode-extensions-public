@@ -22,7 +22,6 @@ import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
 import { getNodeModel, isFixedNode } from "../../utils";
 import { DiagramControls } from "../controls/DiagramControls";
-import { DataMapperOverlay } from "../data-mapper/ViewManager";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export interface BodyWidgetProps {

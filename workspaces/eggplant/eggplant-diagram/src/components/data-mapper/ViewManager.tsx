@@ -16,7 +16,7 @@ import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@ws
 import { URI } from "vscode-uri";
 import { css, Global } from '@emotion/react';
 
-interface DataMapperOverlayProps {
+interface DataMapperViewManagerProps {
     filePath: string;
     fnLocation: NodePosition;
     onClose: () => void;
@@ -30,7 +30,7 @@ const globalStyles = css`
   }
 `;
 
-export function DataMapperOverlay(props: DataMapperOverlayProps) {
+export function DataMapperViewManager(props: DataMapperViewManagerProps) {
     const { filePath, fnLocation, onClose } = props;
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(fnLocation , filePath, rerender);

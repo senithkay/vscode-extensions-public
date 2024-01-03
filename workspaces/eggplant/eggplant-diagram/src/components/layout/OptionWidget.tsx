@@ -237,14 +237,6 @@ export function OptionWidget(props: OptionWidgetProps) {
                     />
                 </>
             )}
-            {selectedNode.getKind() === "TransformNode" && (
-                <>
-                    <S.Divider />
-                    <Button appearance="secondary" onClick={handleOpenDataMapper}>
-                        Use Data Mapper
-                    </Button>
-                </>
-            )}
             {selectedNode.getKind() === "SwitchNode" && (
                 <>
                     <S.Divider />
@@ -312,6 +304,14 @@ export function OptionWidget(props: OptionWidgetProps) {
                             </S.Row>
                         );
                     })}
+                </>
+            )}
+            {selectedNode.getKind() === "TransformNode" && (
+                <>
+                    <S.Divider />
+                    <Button appearance="secondary" onClick={handleOpenDataMapper}>
+                        Use Data Mapper
+                    </Button>
                 </>
             )}
             <S.ActionButtonContainer>

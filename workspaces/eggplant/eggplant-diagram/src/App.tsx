@@ -23,8 +23,7 @@ import {
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
-import { DataMapperOverlay } from "./components/data-mapper/ViewManager";
+import { DataMapperViewManager } from "./components/data-mapper/ViewManager";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 const queryClient = new QueryClient({
@@ -101,7 +100,7 @@ export function EggplantApp(props: EggplantAppProps) {
                             />     
                         )}
                         {tnfFnPosition && (
-                            <DataMapperOverlay
+                            <DataMapperViewManager
                                 filePath={flowModel.fileName}
                                 fnLocation={tnfFnPosition}
                                 onClose={closeDataMapper}
