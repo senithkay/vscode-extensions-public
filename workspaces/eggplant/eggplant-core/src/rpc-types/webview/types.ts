@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NMD_Metadata as Metadata } from "./metadata-types";
+
 export type Flow = {
     id: string;
     name: string;
@@ -34,6 +36,7 @@ export type Node = {
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
     properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties;
+    metadata?: string | Metadata;
 };
 
 export type InputPort = {
