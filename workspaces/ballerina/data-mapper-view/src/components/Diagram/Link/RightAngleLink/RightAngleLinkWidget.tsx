@@ -28,7 +28,7 @@ export interface RightAngleLinkState { }
 
 export class RightAngleLinkWidget extends React.Component<RightAngleLinkProps, RightAngleLinkState> {
 	public static defaultProps: RightAngleLinkProps = {
-		color: 'var(--vscode-input-background)',
+		color: 'var(--vscode-input-placeholderForeground)',
 		width: 2,
 		link: null,
 		smooth: false,
