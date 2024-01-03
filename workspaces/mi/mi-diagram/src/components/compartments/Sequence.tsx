@@ -37,7 +37,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     const [diagramEngine, setEngine] = useState<DiagramEngine>(generateEngine());
     const [model] = useState<DiagramModel>(new DiagramModel());
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [canvasWidth, setCanvasWidth] = useState<number>(1000);
     const [canvasHeight, setCanvasHeight] = useState<number>(1000);
 
     useEffect(() => {
@@ -105,7 +104,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         const outSequenceHeight = outSeqNode ? outSeqNode.height : 0;
         const canvasWidthInSeqNodes = inSeqNode ? inSeqNode.width : 0;
         const canvasWidthOutSeqNodes = outSeqNode ? outSeqNode.width : 0;
-        const canvasWidth = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes);
 
         if (inSeqNode) {
             inSeqNode.setPosition(x, y);
@@ -127,8 +125,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             const link = createLinks(inSeqNodes[inSeqNodes.length - 1] as any, outSeqNodes[0] as any, null, false, true)[0];
             model.addAll(link);
         }
-
-        setCanvasWidth(canvasWidth + OFFSET.START.X + OFFSET.MARGIN.LEFT + OFFSET.MARGIN.RIGHT);
         setCanvasHeight(inSequenceHeight + outSequenceHeight + OFFSET.START.Y + OFFSET.MARGIN.TOP + OFFSET.MARGIN.BOTTOM);
     };
 
@@ -138,7 +134,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         return <div style={{
             backgroundColor: 'var(--vscode-panel-background)',
             height: canvasHeight,
-            width: canvasWidth,
             overflow: "hidden",
         }}>
             <CanvasContainer>
