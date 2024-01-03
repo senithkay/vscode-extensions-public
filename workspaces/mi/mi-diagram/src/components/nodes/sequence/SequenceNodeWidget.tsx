@@ -53,6 +53,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
 
     node.fireEvent({}, "updateDimensions");
+    const sequenceType = node.getSequenceType() ;
     return (
         <>
             <div style={{
@@ -61,7 +62,17 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
                 border: "2px solid gold",
                 background: "var(--vscode-editor-background)",
                 borderRadius: props.side == "right" ? "0 25px 25px 0" : "25px 0 0 25px",
-            }}></div>
+            }}>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    color: "#fff",
+                    padding: "20px",
+                    fontSize: "14px"
+                }}>
+                    {sequenceType === SequenceType.IN_SEQUENCE ? <span>In sequence</span> : <span>Out sequence</span>}
+                </div>
+            </div>
             <MediatorPortWidget
                 port={topPort}
                 engine={props.diagramEngine}
