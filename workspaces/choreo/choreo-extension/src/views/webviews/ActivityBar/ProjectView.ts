@@ -55,14 +55,14 @@ export class ProjectView implements vscode.WebviewViewProvider {
 	private _getWebviewContent(webview: vscode.Webview) {
 		// The JS file from the React build output
 		const scriptUri = getUri(webview, ext.context.extensionUri, [
-		  "resources",
-		  "jslibs",
-		  "main.js"
+			"resources",
+			"jslibs",
+			"main.js"
 		]);
-	
+
 		const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "resources", "codicons", "codicon.css"));
 		const fontsUri = webview.asWebviewUri(vscode.Uri.joinPath(ext.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
-	
+
 		return /*html*/ `
 			  <!DOCTYPE html>
 			  <html lang="en">
@@ -93,5 +93,5 @@ export class ProjectView implements vscode.WebviewViewProvider {
 				</script>
 			  </html>
 			`;
-	  }
+	}
 }

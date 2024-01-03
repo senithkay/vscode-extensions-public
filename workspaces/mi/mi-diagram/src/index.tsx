@@ -10,10 +10,18 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { MIDiagram } from "./MIDiagram";
+import { ActivityPanel } from "./activity-panel";
 
 export function renderMIDiagram(documentUri: string) {
     ReactDOM.render(
         <MIDiagram documentUri={documentUri}></MIDiagram>,
         document.getElementById("mi-diagram-container")
+    );
+}
+
+export function renderActivityPanel() {
+    ReactDOM.render(
+        <ActivityPanel />,
+        document.getElementById("activity-panel-container")
     );
 }
