@@ -63,6 +63,7 @@ import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFacto
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
 import { getErrorKind } from "./utils/dm-utils";
+import { Icon } from '@wso2-enterprise/ui-toolkit';
 
 const classes = {
 	buttonWrap: css({
@@ -84,9 +85,6 @@ const classes = {
 		transitionDuration: '0.2s',
 		'&:hover': { opacity: 0.5 },
 	}),
-	icon: css({
-		color: "var(--vscode-input-placeholderForeground)"
-	})
 };
 
 interface DataMapperDiagramProps {
@@ -263,14 +261,23 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 							onClick={resetZoomAndOffset}
 							data-testid={"reset-zoom"}
 						>
-							<CachedIcon className={classes.icon} />
+							<Icon
+								name="cached-round"
+								sx={{ height: "fit-content", width: "fit-content" }}
+								iconSx={{ fontSize: "18px", color: "var(--vscode-input-placeholderForeground)" }}
+							/>
 						</div>
 						<div
 							className={classes.iconWrap}
 							onClick={() => void engine.zoomToFitNodes({ margin: 20 })}
 							data-testid={"fit-to-screen"}
 						>
-							<FitToScreenIcon />
+							
+							<Icon
+								name="fit-to-screen"
+								sx={{ height: "fit-content", width: "fit-content" }}
+								iconSx={{ fontSize: "14px", color: "var(--vscode-input-placeholderForeground)" }}
+							/>
 						</div>
 					</div>
 				</>
