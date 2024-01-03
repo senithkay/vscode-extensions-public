@@ -52,7 +52,25 @@
           }
         }
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "wso2-integration-studio",
+          "title": "Integratoin Studio",
+          "icon": "assets/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "wso2-integration-studio": [
+        {
+          "id": "integration-studio.activity.project",
+          "name": "Project",
+          "type": "webview"
+        }
+      ]
+    }
   },
   "scripts": {
     "clean": "rimraf ./dist",
