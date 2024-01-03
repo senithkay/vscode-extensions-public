@@ -37,7 +37,6 @@ export const useStyles = () => ({
     }),
     clauseKeyWrap: css({
         border: "1px solid var(--vscode-input-background)",
-        borderRadius: "8px",
         height: "40px",
         display: "flex",
         alignItems: "center",
@@ -52,15 +51,14 @@ export const useStyles = () => ({
         border: "1px solid var(--vscode-pickergroup-border)"
     }),
     clauseWrap: css({
-        background: "var(--vscode-input-background)",
-        borderRadius: "8px",
+        background: "var(--vscode-welcomePage-tileBackground)",
         height: "40px",
         marginLeft: "25px",
         marginRight: "10px",
         display: "flex",
         alignItems: "center",
         padding: "26px 10px",
-        boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+        // boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         "&:hover": {
             "& $addOrderKeyIcon": {
                 opacity: 0.7
@@ -90,7 +88,6 @@ export const useStyles = () => ({
     }),
     clauseExpression: css({
         background: "var(--vscode-editorHoverWidget-background)",
-        borderRadius: "5px",
         cursor: "pointer",
         padding: "5px",
         marginLeft: "5px",
@@ -115,15 +112,12 @@ export const useStyles = () => ({
         verticalAlign: 'middle',
     }),
     clausePlaceholder: css({
-        background: 'var(--vscode-debugIcon-breakpointCurrentStackframeForeground)',
-        "&:hover": {
-            border: `1px solid var(--vscode-editorWarning-foreground)`
-        }
+        background: 'var(--vscode-dropdown-border)',
     }),
     addIcon: css({
         cursor: 'pointer',
         fontSize: '18px',
-        color: 'var(--vscode-editorInfo-foreground)',
+        color: 'var(--vscode-inputOption-activeForeground)',
         transition: 'all 0.2s',
         "&:hover": {
             color: 'var(--vscode-textLink-foreground)',
