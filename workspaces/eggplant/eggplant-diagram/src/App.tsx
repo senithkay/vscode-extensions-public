@@ -61,12 +61,8 @@ export function EggplantApp(props: EggplantAppProps) {
         saveDiagramZoomAndPosition(diagramEngine.getModel());
     };
 
-    const openDataMapper = (position: NodePosition) => {
+    const handleTnfFnPosition = (position: NodePosition) => {
         setTnfFnPosition(position);
-    };
-
-    const closeDataMapper = () => {
-        setTnfFnPosition(null);
     };
 
     const debouncedHandleDiagramChange = debounce(handleDiagramChange, 300);
@@ -96,14 +92,14 @@ export function EggplantApp(props: EggplantAppProps) {
                                 onModelChange={handleDiagramChange}
                                 selectedNode={selectedNode}
                                 setSelectedNode={setSelectedNode}
-                                openDataMapper={openDataMapper}
+                                openDataMapper={handleTnfFnPosition}
                             />     
                         )}
                         {tnfFnPosition && (
                             <DataMapperViewManager
                                 filePath={flowModel.fileName}
                                 fnLocation={tnfFnPosition}
-                                onClose={closeDataMapper}
+                                onFnChange={handleTnfFnPosition}
                             />
                         )}
                     </>               

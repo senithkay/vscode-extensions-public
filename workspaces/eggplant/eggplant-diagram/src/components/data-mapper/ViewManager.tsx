@@ -19,7 +19,7 @@ import { css, Global } from '@emotion/react';
 interface DataMapperViewManagerProps {
     filePath: string;
     fnLocation: NodePosition;
-    onClose: () => void;
+    onFnChange: (position: NodePosition) => void;
 }
 
 const globalStyles = css`
@@ -31,10 +31,10 @@ const globalStyles = css`
 `;
 
 export function DataMapperViewManager(props: DataMapperViewManagerProps) {
-    const { filePath, fnLocation, onClose } = props;
+    const { filePath, fnLocation, onFnChange } = props;
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(fnLocation , filePath, rerender);
-    const { eggplantRpcClient, viewLocation } = useVisualizerContext();
+    const { eggplantRpcClient } = useVisualizerContext();
     const langServerRpcClient = eggplantRpcClient.getLangServerRpcClient();
     const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
 
@@ -48,7 +48,6 @@ export function DataMapperViewManager(props: DataMapperViewManagerProps) {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
-        const filePath = viewLocation.location.fileName;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRpcClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
@@ -56,7 +55,6 @@ export function DataMapperViewManager(props: DataMapperViewManagerProps) {
             }
         });
         if (parseSuccess) {
-            // TODO: Handle this in extension specific code
             await langServerRpcClient.updateFileContent({
                 content: newSource,
                 fileUri: filePath
@@ -67,9 +65,13 @@ export function DataMapperViewManager(props: DataMapperViewManagerProps) {
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
             const st = fns.find((mem) => mem.functionName.value === fnName);
-            // TODO: Update the state machine
+            onFnChange(st.position);
             setRerender(prevState => !prevState);
         }
+    };
+
+    const closeDataMapper = () => {
+        onFnChange(null);
     };
 
     const view = useMemo(() => {
@@ -84,7 +86,7 @@ export function DataMapperViewManager(props: DataMapperViewManagerProps) {
                     filePath={"/Users/madusha/temp1124/sample1215/main.bal"}
                     langServerRpcClient={langServerRpcClient}
                     applyModifications={applyModifications}
-                    onClose={onClose}
+                    onClose={closeDataMapper}
                 />
             </>
         );
