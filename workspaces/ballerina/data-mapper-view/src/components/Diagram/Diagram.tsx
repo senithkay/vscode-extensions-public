@@ -10,20 +10,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
-	DagreEngine,
 	DefaultDiagramState,
 	DefaultLabelFactory,
 	DefaultLinkFactory,
 	DefaultNodeFactory,
 	DefaultPortFactory,
 	DiagramEngine,
-	DiagramModel,
 	NodeLayerFactory,
 	PathFindingLinkFactory
 } from "@projectstorm/react-diagrams";
@@ -58,11 +56,10 @@ import { RequiredParamNode } from './Node/RequiredParam';
 import { UnionTypeNode } from "./Node/UnionType";
 import { UnsupportedExprNodeKind, UnsupportedIONode } from "./Node/UnsupportedIO";
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
-import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
-import { getErrorKind } from "./utils/dm-utils";
+import { useDiagramModel } from '../Hooks';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -149,100 +146,67 @@ function initDiagramEngine() {
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const classes = useStyles();
-
 	const { nodes, hideCanvas, onError } = props;
+	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
+	const {diagramModel, isFetching, isError} = useDiagramModel(nodes, engine, onError);
+	const [model, setModel] = useState(diagramModel);
 
-	const [engine, setEngine] = React.useState<DiagramEngine>(initDiagramEngine());
-	const [model, setModel] = React.useState(new DiagramModel(defaultModelOptions));
+    useEffect(() => {
+        if (!isFetching) {
+            setModel(diagramModel);
+        }
+    }, [isFetching, diagramModel]);
 
-	const dagreEngine = new DagreEngine({
-		graph: {
-			rankdir: 'LR',
-			ranksep: 600,
-			align: 'UL',
-			nodesep: 300,
-			ranker: 'longest-path',
-			marginx: 30,
-			marginy: 50,
-			fit: true
-		},
-	});
-
-	React.useEffect(() => {
-		async function genModel() {
-			const zoomLevel = model.getZoomLevel();
-			const offSetX = model.getOffsetX();
-			const offSetY = model.getOffsetY();
-
-			const newModel = new DiagramModel();
-			newModel.setZoomLevel(zoomLevel);
-			newModel.setOffset(offSetX, offSetY);
-			newModel.addAll(...nodes);
-			for (const node of nodes) {
-				try {
-					node.setModel(newModel);
-					await node.initPorts();
-					node.initLinks();
-					engine.repaintCanvas();
-				} catch (e) {
-					const errorNodeKind = getErrorKind(node);
-					onError(errorNodeKind);
-				}
-			}
-			newModel.setLocked(true);
-			engine.setModel(newModel);
-			// if (newModel.getLinks().length > 0) {
-			// 	dagreEngine.redistribute(newModel);
-			// 	await engine.repaintCanvas(true);
-			// }
+	useEffect(() => {
+		if (model) {
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;
-			nodes.forEach((node) => {
-				if (node instanceof MappingConstructorNode
-					|| node instanceof ListConstructorNode
-					|| node instanceof PrimitiveTypeNode
-					|| node instanceof UnionTypeNode
-					|| (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-						if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
-							node.setPosition(OFFSETS.TARGET_NODE.X, 0);
-						} else {
-							// Bring mapping constructor node close to input node, if it doesn't have any links
-							node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
-						}
-				}
-				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
-					node.updatePosition();
-				}
-				if (node instanceof RequiredParamNode
-					|| node instanceof LetClauseNode
-					|| node instanceof JoinClauseNode
-					|| node instanceof LetExpressionNode
-					|| node instanceof ModuleVariableNode
-					|| node instanceof EnumTypeNode)
-				{
-					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
-					const isLetExprNode = node instanceof LetExpressionNode;
-					const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
-					requiredParamFields = requiredParamFields
-						+ (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
-					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-					additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
-				}
-				if (node instanceof FromClauseNode) {
-					requiredParamFields = requiredParamFields + node.numberOfFields;
-					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-				}
-				if (node instanceof ExpandedMappingHeaderNode) {
-					additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-					node.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
-				}
-			});
-			newModel.addLayer(new OverlayLayerModel());
-			setModel(newModel);
+			setTimeout(async () => {
+				nodes.forEach((node) => {
+					if (node instanceof MappingConstructorNode
+						|| node instanceof ListConstructorNode
+						|| node instanceof PrimitiveTypeNode
+						|| node instanceof UnionTypeNode
+						|| (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
+							if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
+								node.setPosition(OFFSETS.TARGET_NODE.X, 0);
+							} else {
+								// Bring mapping constructor node close to input node, if it doesn't have any links
+								node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
+							}
+					}
+					if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
+						node.updatePosition();
+					}
+					if (node instanceof RequiredParamNode
+						|| node instanceof LetClauseNode
+						|| node instanceof JoinClauseNode
+						|| node instanceof LetExpressionNode
+						|| node instanceof ModuleVariableNode
+						|| node instanceof EnumTypeNode)
+					{
+						node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
+						const isLetExprNode = node instanceof LetExpressionNode;
+						const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
+						requiredParamFields = requiredParamFields
+							+ (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
+						numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+						additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
+					}
+					if (node instanceof FromClauseNode) {
+						requiredParamFields = requiredParamFields + node.numberOfFields;
+						numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+					}
+					if (node instanceof ExpandedMappingHeaderNode) {
+						additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+						node.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
+					}
+				});
+				engine.repaintCanvas();
+			}, 30);
 		}
-		void genModel();
-	}, [nodes]);
+	}, [model, isFetching]);
 
 	const resetZoomAndOffset = () => {
 		const currentModel = engine.getModel();
@@ -253,7 +217,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	return (
 		<>
-			{engine && engine.getModel() && (
+			{engine && engine.getModel() && model && (
 				<>
 					<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
 						<DataMapperCanvasWidget engine={engine} />
