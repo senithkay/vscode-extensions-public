@@ -15,12 +15,10 @@ import {
     InputType,
 } from "@projectstorm/react-canvas-core";
 import { DiagramEngine, PortModel, LinkModel, DragNewLinkStateOptions } from "@projectstorm/react-diagrams-core";
-// import { MouseEvent } from "react";
-import { DefaultNodeModel } from "../components/default";
-import { DefaultPortModel } from "@projectstorm/react-diagrams-defaults";
+import { DefaultNodeModel, DefaultPortModel } from "../components/default";
 
 export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
-    port: PortModel;
+    port: DefaultPortModel;
     link: LinkModel;
     config: DragNewLinkStateOptions;
 
@@ -37,7 +35,7 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
             new Action({
                 type: InputType.MOUSE_DOWN,
                 fire: (event: ActionEvent<any, any>) => {
-                    this.port = this.engine.getMouseElement(event.event) as PortModel;
+                    this.port = this.engine.getMouseElement(event.event) as DefaultPortModel;
                     if (!this.config.allowLinksFromLockedPorts && this.port.isLocked()) {
                         this.eject();
                         return;
@@ -63,10 +61,19 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                 fire: (event: ActionEvent<any>) => {
                     const model = this.engine.getMouseElement(event.event);
                     // handle linking to a port
-                    if (model instanceof PortModel) {
-                        if (this.port.canLinkToPort(model)) {
+                    if (model instanceof DefaultPortModel) {
+                        if (this.port.canLinkToPort(model) && !model.hasLinks()) {
                             this.link.setTargetPort(model);
                             model.reportPosition();
+                            this.engine.repaintCanvas();
+                            return;
+                        } else if (this.port.canLinkToPort(model) && model.hasLinks()) {
+                            // create a new port and link
+                            const nodeModel = model.getParent() as DefaultNodeModel;
+                            const nextPortId = nodeModel.getNextPortID();
+                            const port = nodeModel.addInPort(nextPortId);
+                            this.link.setTargetPort(port);
+                            port.reportPosition();
                             this.engine.repaintCanvas();
                             return;
                         } else {
@@ -84,14 +91,12 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                         }
                         const availablePort = model.getAvailableInPort();
                         if (availablePort) {
-                            console.log("availablePort", availablePort);
                             this.link.setTargetPort(availablePort);
                             availablePort.reportPosition();
                             this.engine.repaintCanvas();
                             return;
                         }
                         const nextPortId = model.getNextPortID();
-                        console.log("nextPortId", nextPortId);
                         const port = model.addInPort(nextPortId);
                         this.link.setTargetPort(port);
                         port.reportPosition();

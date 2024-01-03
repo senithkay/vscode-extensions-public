@@ -7,7 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { LinkModel, PortModel, PortModelAlignment, PortModelGenerics, PortModelOptions } from "@projectstorm/react-diagrams-core";
+import {
+    LinkModel,
+    PortModel,
+    PortModelAlignment,
+    PortModelGenerics,
+    PortModelOptions,
+} from "@projectstorm/react-diagrams-core";
 import { DefaultLinkModel } from "../link/DefaultLinkModel";
 import { AbstractModelFactory, DeserializeEvent } from "@projectstorm/react-canvas-core";
 import { NodePort } from "../../../types";
