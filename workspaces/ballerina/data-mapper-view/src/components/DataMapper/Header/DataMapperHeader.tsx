@@ -14,8 +14,8 @@ import styled from "@emotion/styled";
 import { SelectionState, ViewOption } from "../DataMapper";
 
 import ConfigureButton from "./ConfigureButton";
-import HeaderBreadcrumbWrapper from "./HeaderBreadcrumbWrapper";
-import SearchBoxWrapper from "./SearchBoxWrapper";
+import HeaderBreadcrumb from "./HeaderBreadcrumb";
+import HeaderSearchBox from "./HeaderSearchBox";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
@@ -34,7 +34,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
         <HeaderContainer>
             <BreadCrumb>
                 <Title> DATA MAPPER: </Title>
-                <HeaderBreadcrumbWrapper
+                <HeaderBreadcrumb
                     selection={selection}
                     changeSelection={changeSelection}
                 />
@@ -42,7 +42,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
             {dmSupported && (
                 <>
                     <FilterBar>
-                        <SearchBoxWrapper selection={selection} />
+                        <HeaderSearchBox selection={selection} />
                     </FilterBar>
                     <ConfigureButton onClick={onConfigOpen}/>
                 </>

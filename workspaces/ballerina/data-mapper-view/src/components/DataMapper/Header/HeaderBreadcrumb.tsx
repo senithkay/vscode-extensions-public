@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo } from 'react';
 
-// import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import { Breadcrumbs, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -38,7 +37,7 @@ export interface HeaderBreadcrumbProps {
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
 }
 
-export default function HeaderBreadcrumbWrapper(props: HeaderBreadcrumbProps) {
+export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
     const { selection, changeSelection } = props;
     const classes = useStyles();
 
