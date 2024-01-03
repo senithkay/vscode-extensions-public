@@ -69,7 +69,6 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
     }
 
     if (addPlus) {
-        // TODO: Fix this
         const nodeRange = {
             start: {
                 line: sourceNode.getNodeRange().end.line,

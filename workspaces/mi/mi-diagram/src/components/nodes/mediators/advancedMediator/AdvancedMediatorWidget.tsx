@@ -21,9 +21,8 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'
 
 const ButtonComponent = styled.div`
-    flex-direction: row;
-    top: 50%;
-    left: 47px;
+    top: 45px;
+    left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
     gap: 5px;
@@ -55,7 +54,6 @@ export interface AdvancedMediatorWidgetProps extends BaseNodeProps {
 }
 
 export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
-    const [isHovered, setIsHovered] = useState(false);
     const node: AdvancedMediatorNodeModel = props.node as AdvancedMediatorNodeModel;
     const subSequences = node.subSequences;
     const nodePosition = node.getPosition();
@@ -65,24 +63,22 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
     const topPort = node.getPortByAllignment(PortModelAlignment.TOP);
     const bottomPort = node.getPortByAllignment(PortModelAlignment.BOTTOM);
 
-    let [subSequencesWidth, setSubSequencesWidth] = useState(70);
+    let [subSequencesWidth, setSubSequencesWidth] = useState(0);
+    let [subSequencesHeight, setSubSequencesHeight] = useState(0);
 
-    let subSequencesHeight = 0;
     useEffect(() => {
 
-        leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
-        rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
-        topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
-        bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.height);
-
+        let subSequencesX = 0;
         subSequences.forEach((subSequence) => {
             let subSequenceHeight = 0;
+            let subSequenceWidth = 40;
             const subNodes = subSequence.nodes;
             const subNodesAndLinks = [];
 
             if (subNodes.length > 1) {
                 for (let i = 0; i < subNodes.length; i++) {
                     subSequenceHeight = Math.max(subSequenceHeight, subNodes[i].height);
+                    subSequenceWidth = Math.max(subSequenceWidth, subNodes[i].width);
                     for (let j = i + 1; j < subNodes.length; j++) {
                         if (subNodes[i].getParentNode() == subNodes[j].getParentNode()) {
                             const link = createLinks(subNodes[i], subNodes[j], subNodes[i].getParentNode());
@@ -94,29 +90,31 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 }
             } else if (subNodes.length == 1) {
                 subSequenceHeight = subNodes[0].height;
+                subSequenceWidth = subNodes[0].width;
                 props.diagramEngine.getModel().addNode(subNodes[0]);
                 subNodesAndLinks.push(subNodes[0]);
             }
 
-            setNodePositions(subNodesAndLinks, nodePosition.x + 20, nodePosition.y + subSequencesHeight + 30, subSequenceHeight + 25);
-            subSequence.width = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getX() - subNodes[0].getX()) + subNodes[subNodes.length - 1].width + 75 : 0;
-            subSequence.height = subSequenceHeight + 25;
-            subSequencesWidth = Math.max(subSequencesWidth, subSequence.width);
-            subSequencesHeight += subSequence.height + 30;
+            subSequence.width = subNodes.length > 0 ? subSequencesWidth + 75 : 80;
+            subSequence.height = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getY() - subNodes[0].getY()) + subNodes[subNodes.length - 1].height + 40 : 0;
+            setSubSequencesWidth(subSequencesWidth + node.width);
+            setNodePositions(subNodesAndLinks, nodePosition.x + subSequencesX + subSequence.width / 2 - 10, nodePosition.y + 70, subSequenceWidth + 25);
+            subSequencesX += subSequence.width + 35;
+            subSequencesHeight = Math.max(subSequencesHeight, subSequence.height);
+
         });
+        setSubSequencesHeight(subSequencesHeight);
 
-        node.height = subSequencesHeight + 20;
-        node.width = subSequencesWidth + 132;
-        setSubSequencesWidth(subSequencesWidth);
-    }, [node.height, node.width, subSequencesHeight, subSequencesWidth]);
+        node.height = subSequencesHeight + 140;
+        node.width = subSequencesWidth + 250;
 
-    const handleMouseOver = () => {
-        setIsHovered(true);
-    };
+        leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
+        rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
+        topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+        bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y + node.height);
+    }, [ subSequencesHeight]);
 
-    const handleMouseOut = () => {
-        setIsHovered(false);
-    };
+
 
     const deleteNode = async () => {
         MIWebViewAPI.getInstance().applyEdit({
@@ -124,58 +122,65 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
         });
     }
 
-    node.fireEvent({}, "updateDimensions");
-    
+    const ActionButtons = () => {
+    const [isHovered, setIsHovered] = useState(false);
+    const handleMouseOver = () => {
+            setIsHovered(true);
+        };
+
+        const handleMouseOut = () => {
+            setIsHovered(false);
+        };
+
+        return (<div style={{
+            padding: "10px",
+            alignItems: "center",
+            margin: "auto",
+            width: 70,
+            height: 70
+        }}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
+        >
+            {getSVGIcon(props.name, props.description, 70, 70)}
+            <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
+                <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
+                <EditButton> <Codicon name="edit" /> </EditButton>
+            </ButtonComponent>
+        </div>);
+    }
+
     return (
         <>
             <div style={{
-                display: "flex",
                 border: "1px",
                 borderStyle: "solid",
                 borderColor: "var(--vscode-panel-dropBorder)",
-                height: props.node.height - 2,
                 width: props.node.width,
+                height: node.height,
                 position: 'relative',
                 zIndex: 1
             }}>
-                <div style={{
-                    padding: "10px",
-                    alignItems: "center",
-                    display: "flex",
-                    width: 70,
-                    height: node.height
-                    }}
-                    onMouseOver={handleMouseOver}
-                    onMouseOut={handleMouseOut}
-                >
-                    {getSVGIcon(props.name, props.description, 70, node.height)}
-                    <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
-                        <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
-                        <EditButton> <Codicon name="edit" /> </EditButton>
-                    </ButtonComponent>
-                </div>
+                <ActionButtons />
                 <div
                     style={{
                         width: "fit-content",
+                        margin: "auto",
                         padding: "10px 10px 0 10px",
-                        borderWidth: "0 0 0 1px",
-                        borderStyle: "solid",
-                        borderColor: "var(--vscode-panel-dropBorder)",
-                        // display: "grid",
-                        // alignItems: "center",
+                        display: "flex",
+                        gap: "10px",
                     }}
                 >
                     {subSequences.map((subSequence) => {
                         return (
                             <div
                                 style={{
-                                    width: subSequencesWidth,
-                                    height: subSequence.height,
+                                    width: subSequence.width,
+                                    height: subSequencesHeight,
                                     padding: "10px",
                                     marginBottom: "10px",
                                     border: "1px",
                                     borderStyle: "solid",
-                                    borderColor: "var(--vscode-panel-dropBorder)",
                                     textAlign: "center",
                                 }}
                             >
