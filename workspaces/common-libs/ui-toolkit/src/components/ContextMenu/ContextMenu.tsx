@@ -19,8 +19,8 @@ import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
 
 interface Item {
-    id: number | string;
-    label: React.ReactNode;
+    id?: number | string;
+    label?: React.ReactNode;
     onClick: () => void;
     disabled?: boolean;
 }
