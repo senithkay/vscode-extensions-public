@@ -31,7 +31,7 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
     const topPort = node.getPortByAllignment('top');
     const bottomPort = node.getPortByAllignment('bottom');
     topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
-    bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.height);
+    bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y + node.height);
 
     function handleClick() {
         sidePanelContext.setNodeRange(props.range);
