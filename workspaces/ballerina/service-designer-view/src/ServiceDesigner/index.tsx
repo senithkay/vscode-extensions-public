@@ -9,8 +9,13 @@
 
 import React, { useState } from "react";
 import { ResourceForm } from "./components/ResourceForm//ResourceForm";
+import { STModification } from "@wso2-enterprise/ballerina-core";
+import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { URI } from "vscode-uri";
 
 export function ServiceDesigner() {
+    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
 
     const handleOnClose = () => {
@@ -20,10 +25,29 @@ export function ServiceDesigner() {
         setIsSidePanelOpen(true);
     };
 
+    const applyModifications = async (modifications: STModification[]) => {
+        const langServerRPCClient = ballerinaRpcClient.getLangServerRpcClient();
+        const visualizerRPCClient = ballerinaRpcClient.getVisualizerRpcClient();
+        const filePath = viewLocation.location.fileName;
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        const { parseSuccess, source } = await visualizerRPCClient?.stModify({
+            astModifications: modifications,
+            documentIdentifier: {
+                uri: URI.file(filePath).toString()
+            }
+        });
+        if (parseSuccess) {
+            await langServerRPCClient.updateFileContent({
+                content: source,
+                fileUri: filePath
+            });
+        }
+    };
+
     return (
         <div data-testid="service-design-view">
            <h2 onClick={handleOnClick}>Hello Service Designer</h2>
-           <ResourceForm isOpen = {isSidePanelOpen} onClose={handleOnClose}/>
+           {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} />}
         </div>
     )
 }

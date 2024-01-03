@@ -10,12 +10,11 @@ import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { LinkButton, LinkButtonProps } from "./LinkButton";
 import { Codicon } from "../Codicon/Codicon";
-import { Typography } from "../Typography/Typography";
 
 const Template: ComponentStory<typeof LinkButton> = (args: LinkButtonProps) => 
     <LinkButton {...args} >
         <Codicon name="add"/>
-        <Typography sx={{margin: 0}} variant="h4">Sample Link Button</Typography>
+        <>Sample Link Button</>
     </LinkButton>
 ;
 
