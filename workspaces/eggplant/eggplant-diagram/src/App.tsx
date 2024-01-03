@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
 import {
@@ -23,8 +23,7 @@ import {
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
-import { DataMapperOverlay } from "./components/data-mapper/ViewManager";
+import { DataMapperWidget } from "./components/layout/DataMapperWidget";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 const queryClient = new QueryClient({
@@ -101,7 +100,7 @@ export function EggplantApp(props: EggplantAppProps) {
                             />     
                         )}
                         {tnfFnPosition && (
-                            <DataMapperOverlay
+                            <DataMapperWidget
                                 filePath={flowModel.fileName}
                                 fnLocation={tnfFnPosition}
                                 onClose={closeDataMapper}
