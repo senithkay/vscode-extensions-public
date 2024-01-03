@@ -63,6 +63,16 @@ export namespace Form {
         gap: 6px;
     `;
 
+    export const Error = styled.div`
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: ${Colors.ERROR};
+        padding: 4px 0px;
+    `;
+
     export const InputField = styled(TextField)`
         width: 100%;
     `;

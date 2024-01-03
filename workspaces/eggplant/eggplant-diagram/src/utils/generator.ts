@@ -11,7 +11,7 @@ import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/rea
 import { DefaultNodeModel } from "../components/default";
 import { ExtendedPort, Flow, InputPort, Node, OutputPort, SwitchNodeProperties } from "../types";
 import { DEFAULT_TYPE } from "../resources";
-import { isFixedNode } from "./node";
+import { isSingleNode } from "./node";
 import { getEncodedNodeMetadata, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
@@ -51,10 +51,10 @@ function getNodeModel(node: Node): GenNodeModel {
     if (node.canvasPosition) {
         nodeModel.setPosition(node.canvasPosition.x, node.canvasPosition.y);
     }
-    const fixedNode = isFixedNode(node.templateId);
+    const fixedNode = isSingleNode(node.templateId);
     // add node ports
     let portCount = 1;
-    node.inputPorts?.forEach((inputPort, index ) => {
+    node.inputPorts?.forEach((inputPort, index) => {
         let portId = inputPort.name || index.toString();
         let port = nodeModel.addInPort(portId, inputPort, fixedNode);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
@@ -270,6 +270,30 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
     let ports: ExtendedPort[] = [];
 
     switch (node.templateId) {
+        case "StartNode":
+            if (node.outputPorts?.length === 0 && nodeMetadata?.outputs?.length > 0) {
+                nodeMetadata.outputs.forEach((input) => {
+                    const portId = getPortId(node.name, false, input.name);
+                    let port = nodeModel.addOutPort(
+                        portId,
+                        {
+                            id: portId,
+                            type: input.type,
+                            name: input.name,
+                        },
+                        fixedNode
+                    );
+                    ports.push({
+                        id: portId,
+                        type: input.type,
+                        name: input.name,
+                        parent: nodeId,
+                        in: false,
+                        model: port,
+                    });
+                });
+            }
+            break;
         case "CodeBlockNode":
             if (node.inputPorts?.length === 0 && nodeMetadata?.inputs?.length > 0) {
                 nodeMetadata.inputs.forEach((input, index) => {

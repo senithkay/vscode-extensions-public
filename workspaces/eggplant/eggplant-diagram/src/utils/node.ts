@@ -9,16 +9,12 @@
 
 import { DefaultNodeModel } from "../components/default";
 import { DEFAULT_TYPE } from "../resources/constants";
-import { Node, NodeKinds } from "../types";
+import { HttpMethod, Node, NodeKinds } from "../types";
 import { getPortId } from "./generator";
 
 // get custom default node factory
-export function getDefaultNodeModel(type: NodeKinds, suffix?: string) {
-    let name = type.toString();
-    const isSingleNode = type === "StartNode" || type === "HttpResponseNode";
-    if (suffix !== undefined && !isSingleNode) {
-        name = type + "_" + suffix;
-    }
+export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix?: string) {
+    let name = generateNodeName(type, action, suffix);
     let nodeModel = new DefaultNodeModel({ name: name, kind: type });
 
     let emptyNode: Node = {
@@ -49,19 +45,33 @@ export function getDefaultNodeModel(type: NodeKinds, suffix?: string) {
         case "StartNode":
             nodeModel.addOutPort(outPortId);
             emptyNode.templateId = "StartNode";
+            emptyNode.metadata = {
+                outputs: [
+                    {
+                        name: "out",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+            };
             break;
-        case "HttpResponseNode":
+        case "HttpRequestNode":
             nodeModel.addInPort(inPortId);
-            emptyNode.templateId = "HttpResponseNode";
+            nodeModel.addInPort(outPortId);
+            emptyNode.templateId = "HttpRequestNode";
             emptyNode.properties = {
                 path: "",
-                action: "get",
-                outputType: "json",
+                action: action, 
+                outputType: DEFAULT_TYPE,
                 endpoint: {
                     baseUrl: "",
                     name: "httpEp",
                 },
             };
+            break;
+        case "HttpResponseNode": // response node
+            nodeModel.addInPort(inPortId);
+            emptyNode.templateId = "HttpResponseNode";
+
             break;
         case "SwitchNode":
             nodeModel.addInPort(inPortId, {
@@ -92,25 +102,25 @@ export function getDefaultNodeModel(type: NodeKinds, suffix?: string) {
             break;
         case "CodeBlockNode":
             // add additional metadata for code block node
-            (emptyNode.properties = {
+            emptyNode.properties = {
                 codeBlock: {
                     expression: "",
                 },
-            }),
-                (emptyNode.metadata = {
-                    inputs: [
-                        {
-                            name: "in",
-                            type: DEFAULT_TYPE,
-                        },
-                    ],
-                    outputs: [
-                        {
-                            name: "out",
-                            type: DEFAULT_TYPE,
-                        },
-                    ],
-                });
+            };
+            emptyNode.metadata = {
+                inputs: [
+                    {
+                        name: "in",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+                outputs: [
+                    {
+                        name: "out",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+            };
         default:
             nodeModel.addInPort(inPortId);
             nodeModel.addOutPort(outPortId);
@@ -122,7 +132,18 @@ export function getDefaultNodeModel(type: NodeKinds, suffix?: string) {
     return nodeModel;
 }
 
+export function generateNodeName(type: NodeKinds, action?: HttpMethod, suffix?: string) {
+    let name = type.toString();
+    if (type === "HttpRequestNode" && action) {
+        name = action.toUpperCase() + "RequestNode";
+    }
+    if (suffix !== undefined && !isSingleNode(type)) {
+        name = name + "_" + suffix;
+    }
+    return name;
+}
+
 // only one start and response node can be added to the canvas
-export function isFixedNode(type: NodeKinds) {
+export function isSingleNode(type: NodeKinds) {
     return type === "StartNode" || type === "HttpResponseNode";
 }

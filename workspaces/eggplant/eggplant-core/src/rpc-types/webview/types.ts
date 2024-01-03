@@ -25,6 +25,7 @@ export type NodeKinds =
     | "SwitchNode"
     | "HttpRequestNode"
     | "TransformNode"
+    | "NewPayloadNode"
     | "DefaultNode";
 
 export type Node = {
