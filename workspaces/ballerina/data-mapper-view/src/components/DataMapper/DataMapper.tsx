@@ -410,8 +410,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             try {
                 traversNode(selection.selectedST.stNode, nodeInitVisitor);
                 const nodes = nodeInitVisitor.getNodes();
-                // if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
-                if (hasIONodesPresent(nodes)) {
+                if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
                     setDmNodes(nodes);
                 }
             } catch (e) {
@@ -442,7 +441,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         if (selection.prevST.length === 0
             && typeStoreStatus === TypeStoreStatus.Loaded
             && ((!isConfigPanelOpen && !showConfigPanel) || hasIncompleteInputs || hasIncompleteOutput)) {
-            if (fnST) {
+            if (fnST && selection.state === DMState.INITIALIZED) {
                 // When open the DM of an existing function using code lens
                 const hasNoParameter = fnST.functionSignature.parameters.length === 0;
                 const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;

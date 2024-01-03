@@ -11,6 +11,15 @@ import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
 import { BallerinaProjectComponents } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
+import {
+    DiagramEngine,
+	DiagramModel,
+    DiagramModelGenerics
+} from "@projectstorm/react-diagrams";
+import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
+import { getErrorKind } from '../Diagram/utils/dm-utils';
+import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
+import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -41,4 +50,53 @@ export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, f
     } = useQuery(['fetchProjectComponents'], () => fetchProjectComponents(), {});
 
     return { projectComponents, isFetching, isError, refetch };
+};
+
+export const useDiagramModel = (
+    nodes: DataMapperNodeModel[],
+    engine: DiagramEngine,
+    onError:(kind: ErrorNodeKind) => void
+): {
+    diagramModel: DiagramModel<DiagramModelGenerics>;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const defaultModelOptions = { zoom: 90 }
+    const model = new DiagramModel(defaultModelOptions);
+    const zoomLevel = model.getZoomLevel();
+    const offSetX = model.getOffsetX();
+    const offSetY = model.getOffsetY();
+    const noOfNodes = nodes.length;
+	const fnSource = nodes.find(node => node.context).context.selection.selectedST.stNode.source;
+
+    const genModel = async () => {
+        const newModel = new DiagramModel();
+        newModel.setZoomLevel(zoomLevel);
+        newModel.setOffset(offSetX, offSetY);
+        newModel.addAll(...nodes);
+        for (const node of nodes) {
+            try {
+                node.setModel(newModel);
+                await node.initPorts();
+                node.initLinks();
+            } catch (e) {
+                const errorNodeKind = getErrorKind(node);
+                onError(errorNodeKind);
+            }
+        }
+        newModel.setLocked(true);
+        engine.setModel(newModel);
+        newModel.addLayer(new OverlayLayerModel());
+        return newModel;
+    };
+
+    const {
+        data: diagramModel,
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['genModel', {fnSource, noOfNodes}], () => genModel(), {});
+
+    return { diagramModel, isFetching, isError, refetch };
 };
