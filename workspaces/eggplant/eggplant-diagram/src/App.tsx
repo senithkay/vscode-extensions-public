@@ -15,6 +15,8 @@ import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
 import {
     addDiagramListener,
+    addStartNode as addDefaultNodesIfNotExists,
+    fitDiagramToNodes,
     generateDiagramModelFromFlowModel,
     generateEngine,
     loadDiagramZoomAndPosition,
@@ -28,14 +30,14 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 const queryClient = new QueryClient({
     defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-        staleTime: 1000,
-        cacheTime: 1000,
-      },
+        queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+            staleTime: 1000,
+            cacheTime: 1000,
+        },
     },
-  });
+});
 
 interface EggplantAppProps {
     flowModel: Flow;
@@ -76,10 +78,16 @@ export function EggplantApp(props: EggplantAppProps) {
         model.addLayer(new OverlayLayerModel());
         // generate diagram model
         generateDiagramModelFromFlowModel(model, flowModel);
+        const hasNewNodes = addDefaultNodesIfNotExists(flowModel, model);
         diagramEngine.setModel(model);
         addDiagramListener(diagramEngine, flowModel, debouncedHandleDiagramChange, setSelectedNode, setSelectedLink);
         setDiagramModel(model);
-        loadDiagramZoomAndPosition(diagramEngine);
+        if (hasNewNodes) {
+            fitDiagramToNodes(diagramEngine);
+        } else {
+            // load previous zoom and position
+            loadDiagramZoomAndPosition(diagramEngine);
+        }
         // remove overlay
         removeOverlay(diagramEngine);
     };
@@ -97,7 +105,7 @@ export function EggplantApp(props: EggplantAppProps) {
                                 selectedNode={selectedNode}
                                 setSelectedNode={setSelectedNode}
                                 openDataMapper={openDataMapper}
-                            />     
+                            />
                         )}
                         {tnfFnPosition && (
                             <DataMapperWidget
@@ -106,7 +114,7 @@ export function EggplantApp(props: EggplantAppProps) {
                                 onClose={closeDataMapper}
                             />
                         )}
-                    </>               
+                    </>
                 )}
             </QueryClientProvider>
         </>

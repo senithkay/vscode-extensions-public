@@ -7,9 +7,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { DEFAULT_TYPE } from "../resources/constants";
-import { HttpMethod, Node, NodeKinds } from "../types";
+import { Flow, HttpMethod, Node, NodeKinds } from "../types";
 import { getPortId } from "./generator";
 
 // get custom default node factory
@@ -149,6 +150,16 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
     nodeModel.setNode(emptyNode);
 
     return nodeModel;
+}
+
+export function addStartNode(flowModel: Flow, model: DiagramModel) {
+    if (!flowModel.nodes?.some((node) => node.templateId === "StartNode")) {
+        let nodeModel = getDefaultNodeModel("StartNode");
+        nodeModel.setPosition(1000, 1000); 
+        model.addNode(nodeModel);
+        return true;
+    }
+    return false;
 }
 
 export function generateNodeName(type: NodeKinds, action?: HttpMethod, suffix?: string) {

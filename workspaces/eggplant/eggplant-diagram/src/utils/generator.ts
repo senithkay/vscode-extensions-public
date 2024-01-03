@@ -11,7 +11,7 @@ import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/rea
 import { DefaultNodeModel } from "../components/default";
 import { ExtendedPort, Flow, InputPort, Node, OutputPort, SwitchNodeProperties } from "../types";
 import { DEFAULT_TYPE } from "../resources";
-import { isSingleNode } from "./node";
+import { getDefaultNodeModel, isSingleNode } from "./node";
 import { getEncodedNodeMetadata, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
@@ -36,6 +36,7 @@ export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, fl
             diagramModel.addLink(linkModel);
         });
     });
+
     return diagramModel;
 }
 
@@ -497,7 +498,6 @@ export function generateFlowModelFromDiagramModel(
         }
         // replace metadata if any
         if (nodeModel.metadata) {
-            // newNode.metadata = getNodeMetadata(nodeModel); // TEST
             newNode.metadata = getEncodedNodeMetadata(nodeModel);
         }
         flowModelNodes?.push(newNode);

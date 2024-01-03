@@ -59,7 +59,6 @@ const LowCode = (props: { state: MachineStateValue }) => {
         return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
     }, [flowModel]);
 
-
     return (
         <Container>
             {flowModel ? eggplantDiagram :
