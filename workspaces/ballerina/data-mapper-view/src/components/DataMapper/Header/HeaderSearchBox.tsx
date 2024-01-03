@@ -39,7 +39,7 @@ interface SearchBoxProps {
     selection: SelectionState;
 }
 
-export default function SearchBoxWrapper(props: SearchBoxProps) {
+export default function HeaderSearchBox(props: SearchBoxProps) {
     const { selection } = props;
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
