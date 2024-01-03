@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { css } from "@emotion/css";
 import {
     BallerinaProjectComponents,
     ComponentViewInfo,
@@ -24,7 +24,6 @@ import {
 import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 // import { URI } from "vscode-uri";
 
-import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
@@ -52,54 +51,52 @@ import { DataMapperViewProps } from "../..";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            flexGrow: 1,
-            height: "100%",
-            overflow: "hidden"
-        },
-        gridContainer: {
-            height: "100%",
-            gridTemplateColumns: "1fr fit-content(200px)"
-        },
-        paper: {
-            padding: theme.spacing(2),
-            textAlign: 'center',
-            color: theme.palette.text.secondary,
-        },
-        overlay: {
-            zIndex: 1,
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            background: theme.palette.common.white,
-            opacity: 0.5,
-        },
-        dmUnsupportedOverlay: {
-            zIndex: 1,
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            background: theme.palette.common.white,
-            opacity: 0.5,
-        },
-        dmUnsupportedMessage: {
-            zIndex: 1,
-            position: 'absolute'
-        },
-        errorBanner: {
-            borderColor: '#FF0000'
-        },
-        errorMessage: {
-            zIndex: 1,
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-        },
+const classes = {
+    root: css({
+        flexGrow: 1,
+        height: "100%",
+        overflow: "hidden",
     }),
-);
+    gridContainer: css({
+        height: "100%",
+        gridTemplateColumns: "1fr fit-content(200px)"
+    }),
+    paper: css({
+        padding: "16px",
+        textAlign: 'center',
+        color: "var(--vscode-foreground)",
+    }),
+    overlay: css({
+        zIndex: 1,
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        background: "var(--vscode-input-background)",
+        opacity: 0.5,
+    }),
+    dmUnsupportedOverlay: css({
+        zIndex: 1,
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        background: "var(--vscode-input-background)",
+        opacity: 0.5,
+    }),
+    dmUnsupportedMessage: css({
+        zIndex: 1,
+        position: 'absolute'
+    }),
+    errorBanner: css({
+        borderColor: "var(--vscode-errorForeground)"
+    }),
+    errorMessage: css({
+        zIndex: 1,
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+    })
+}
 
 export enum ViewOption {
     INITIALIZE,
@@ -166,8 +163,8 @@ export function DataMapperC(props: DataMapperViewProps) {
         applyModifications,
         onClose
     } = props;
-    const ballerinaVersion: string = '2201.7.2 (swan lake update 7)';
-    const openedViaPlus: boolean = false;
+    const ballerinaVersion = '2201.7.2 (swan lake update 7)';
+    const openedViaPlus = false;
     const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const library: {
@@ -229,8 +226,6 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
-
-    const classes = useStyles();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
@@ -299,7 +294,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         const moduleVars = [];
         const consts = [];
         const enums = [];
-        if (projectComponents) {
+        if (projectComponents && projectComponents.packages) {
             for (const pkg of projectComponents.packages) {
                 for (const mdl of pkg.modules) {
                     for (const moduleVariable of mdl.moduleVariables) {

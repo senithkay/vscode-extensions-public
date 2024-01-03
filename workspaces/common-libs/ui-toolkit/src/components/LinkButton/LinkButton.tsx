@@ -35,18 +35,20 @@ const LinkContainer = styled.div<LinkContainerProps>`
 `;
 
 export interface LinkButtonProps {
+    id?: string;
+    className?: string;
 	children?: React.ReactNode;
     sx?: any;
     onClick?: () => void;
 }
 
 export const LinkButton: React.FC<LinkButtonProps> = (props: LinkButtonProps) => {
-    const { children, sx, onClick } = props;
+    const { id, className, children, sx, onClick } = props;
     const handleComponentClick = () => {
         onClick();
     }
     return (
-        <LinkContainer sx={sx} onClick={handleComponentClick}>
+        <LinkContainer id={id} className={className} sx={sx} onClick={handleComponentClick}>
             {children}
         </LinkContainer>
     );

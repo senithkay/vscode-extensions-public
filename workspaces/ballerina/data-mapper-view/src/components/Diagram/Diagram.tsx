@@ -12,7 +12,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useEffect, useState } from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { css } from '@emotion/css';
 import CachedIcon from '@material-ui/icons/Cached';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
@@ -60,31 +60,29 @@ import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFacto
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
 import { useDiagramModel } from '../Hooks';
+import { Icon } from '@wso2-enterprise/ui-toolkit';
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		buttonWrap: {
-			position: 'absolute',
-			bottom: 50,
-			right: 20
-		},
-		iconWrap: {
-			marginBottom: 10,
-			background: theme.palette.common.white,
-			height: 32,
-			width: 32,
-			borderRadius: 32,
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-			cursor: 'pointer',
-			boxShadow: '0 1px 1px 0 #cbcfda;',
-			transitionDuration: '0.2s',
-			'&:hover': { opacity: 0.5 },
-		},
-		icon: { color: '#8d91a3' }
+const classes = {
+	buttonWrap: css({
+		position: 'absolute',
+		bottom: 50,
+		right: 20
 	}),
-);
+	iconWrap: css({
+		marginBottom: 10,
+		background: "var(--vscode-input-background)",
+		height: 32,
+		width: 32,
+		borderRadius: 32,
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		cursor: 'pointer',
+		boxShadow: "0 1px 1px 0 var(--vscode-inputValidation-infoBackground)",
+		transitionDuration: '0.2s',
+		'&:hover': { opacity: 0.5 },
+	}),
+};
 
 interface DataMapperDiagramProps {
 	nodes?: DataMapperNodeModel[];
@@ -145,7 +143,6 @@ function initDiagramEngine() {
 }
 
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
-	const classes = useStyles();
 	const { nodes, hideCanvas, onError } = props;
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
 	const {diagramModel, isFetching, isError} = useDiagramModel(nodes, engine, onError);
@@ -228,14 +225,23 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 							onClick={resetZoomAndOffset}
 							data-testid={"reset-zoom"}
 						>
-							<CachedIcon className={classes.icon} />
+							<Icon
+								name="cached-round"
+								sx={{ height: "fit-content", width: "fit-content" }}
+								iconSx={{ fontSize: "18px", color: "var(--vscode-input-placeholderForeground)" }}
+							/>
 						</div>
 						<div
 							className={classes.iconWrap}
 							onClick={() => void engine.zoomToFitNodes({ margin: 20 })}
 							data-testid={"fit-to-screen"}
 						>
-							<FitToScreenIcon />
+							
+							<Icon
+								name="fit-to-screen"
+								sx={{ height: "fit-content", width: "fit-content" }}
+								iconSx={{ fontSize: "14px", color: "var(--vscode-input-placeholderForeground)" }}
+							/>
 						</div>
 					</div>
 				</>

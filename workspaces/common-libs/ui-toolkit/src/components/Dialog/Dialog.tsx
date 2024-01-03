@@ -12,6 +12,8 @@ import { Overlay } from '../Commons/Overlay';
 import { colors } from '../Commons/Colors';
 
 export interface DialogProps {
+    id?: string;
+    className?: string;
     isOpen?: boolean;
     onClose?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     children?: ReactNode;
@@ -35,10 +37,10 @@ const Container = styled.div<DialogProps>`
 `;
 
 export const Dialog: React.FC<DialogProps> = (props: DialogProps) => {
-    const { isOpen, onClose, children, sx } = props;
+    const { id, className, isOpen, onClose, children, sx } = props;
 
     return (
-        <>
+        <div id={id} className={className}>
             {isOpen && (
                 <>
                     <Overlay sx={{background: colors.vscodeEditorInactiveSelectionBackground, opacity: 0.4}} onClose={onClose} />
@@ -47,6 +49,6 @@ export const Dialog: React.FC<DialogProps> = (props: DialogProps) => {
                     </Container>
                 </>
             )}
-        </>
+        </div>
     );
 };

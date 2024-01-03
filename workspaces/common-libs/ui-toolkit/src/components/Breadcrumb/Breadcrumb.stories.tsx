@@ -9,7 +9,7 @@
 
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import Breadcrumbs, { BreadcrumbProps } from "./Breadcrumb";
+import { Breadcrumbs, BreadcrumbProps } from "./Breadcrumb";
 import { Codicon } from "../Codicon/Codicon";
 
 const Template: ComponentStory<typeof Breadcrumbs> = (args: BreadcrumbProps) => (

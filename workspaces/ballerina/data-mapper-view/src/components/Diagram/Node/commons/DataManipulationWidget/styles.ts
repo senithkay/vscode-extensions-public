@@ -6,213 +6,212 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { css } from "@emotion/css";
 
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        treeLabel: {
-            verticalAlign: "middle",
-            padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerMedium",
-            fontSize: "13px",
-            minWidth: "100px",
-            backgroundColor: "#FFFFFF",
-            display: "flex",
-            minHeight: "24px",
-            width: "100%",
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
+export const useStyles = () => ({
+    treeLabel: css({
+        verticalAlign: "middle",
+        padding: "5px",
+        minWidth: "100px",
+        display: "flex",
+        minHeight: "24px",
+        width: "100%",
+        '&:hover': {
+            backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)',
+        }
+    }),
+    treeLabelPortSelected: css({
+        backgroundColor: 'var(--vscode-editorWidget-background)',
+    }),
+    treeLabelParentHovered: css({
+        backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+    }),
+    treeLabelDisableHover: css({
+        '&:hover': {
+            backgroundColor: 'var(--vscode-input-background)',
+        }
+    }),
+    treeLabelDisabled: css({
+        backgroundColor: "var(--vscode-editorWidget-background)",
+        '&:hover': {
+            backgroundColor: 'var(--vscode-editorWidget-background)',
         },
-        treeLabelPortSelected: {
-            backgroundColor: '#DFE2FF',
-        },
-        treeLabelParentHovered: {
-            backgroundColor: '#F0F1FB',
-        },
-        treeLabelDisableHover: {
-            '&:hover': {
-                backgroundColor: '#F4F5FB',
-            }
-        },
-        treeLabelDisabled: {
-            backgroundColor: "#F7F8FB",
-            '&:hover': {
-                backgroundColor: '#F7F8FB',
-            },
-            cursor: 'not-allowed'
-        },
-        treeLabelArray: {
-            flexDirection: "column"
-        },
-        ArrayFieldRow: {
-            display: "flex",
-            alignItems: 'center',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
-        ArrayFieldRowDisabled: {
-            '&:hover': {
-                backgroundColor: '#F7F8FB'
-            }
-        },
-        innerTreeLabel: {
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            width: "inherit",
-            padding: "10px 12px",
-            margin: "10px",
-            background: "#F7F8FB",
-            border: "1px #A9D7DD solid",
-            borderRadius: "4px",
-            flex: "none",
-            order: 1,
-            flexGrow: 0
-        },
-        treeLabelOutPort: {
-            float: "right",
-            width: 'fit-content',
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center"
-        },
-        treeLabelInPort: {
-            float: "left",
-            marginRight: "5px",
-            width: 'fit-content',
-            display: "flex",
-            alignItems: "center"
-        },
-        typeLabel: {
-            marginLeft: "3px",
-            verticalAlign: "middle",
-            padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerRegular",
-            fontSize: "13px",
-            minWidth: "100px",
-            marginRight: "24px",
-            fontWeight: 400
-        },
-        typeLabelDisabled: {
-            backgroundColor: "#F7F8FB",
-            color: "#40404B",
-            opacity: 0.5
-        },
-        value: {
-            verticalAlign: "middle",
-            padding: "5px",
-            backgroundColor: "#f5f1fb",
-            borderRadius: "5px",
-            cursor: 'pointer',
-            pointerEvents: 'auto',
-            transition: 'border 0.2s',
-            border: `1px solid #f5f1fb`,
-            '&:hover': {
-                border: `1px solid ${theme.palette.grey[300]}`
-            }
-        },
-        valueWithError: {
-            verticalAlign: "middle",
-            padding: "5px",
-            backgroundColor: theme.palette.error.light,
-            borderRadius: "5px",
-            cursor: 'pointer',
-            pointerEvents: 'auto',
-            transition: 'border 0.2s',
-            border: `1px solid ${theme.palette.error.light}`,
-            '&:hover': {
-                border: `1px solid ${theme.palette.error.main}`
-            }
-        },
-        errorIconWrapper: {
-            height: "22px",
-            width: "22px",
-            marginLeft: '5px',
-            verticalAlign: 'middle',
-        },
-        valueLabel: {
-            verticalAlign: "middle",
-            padding: "5px",
-            color: "#222228",
-            fontFamily: "GilmerMedium",
-            fontSize: "13px",
-        },
-        valueLabelDisabled: {
-            backgroundColor: "#F7F8FB",
-            color: "#1D2028",
-            opacity: 0.5
-        },
-        group: {
-            marginLeft: "0px",
-            paddingLeft: "0px",
-            paddingBottom: "5px"
-        },
-        content: {
-            borderTopRightRadius: theme.spacing(2),
-            borderBottomRightRadius: theme.spacing(2),
-            paddingRight: theme.spacing(1),
-        },
-        addIcon: {
-            color: "#5567D5",
+        cursor: 'not-allowed'
+    }),
+    treeLabelArray: css({
+        flexDirection: "column"
+    }),
+    ArrayFieldRow: css({
+        display: "flex",
+        alignItems: 'center',
+        '&:hover': {
+            backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+        }
+    }),
+    ArrayFieldRowDisabled: css({
+        '&:hover': {
+            backgroundColor: 'var(--vscode-editorWidget-background)'
+        }
+    }),
+    innerTreeLabel: css({
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        width: "inherit",
+        padding: "10px 12px",
+        margin: "10px",
+        flex: "none",
+        order: 1,
+        flexGrow: 0
+    }),
+    treeLabelOutPort: css({
+        float: "right",
+        width: 'fit-content',
+        marginLeft: "auto",
+        display: "flex",
+        alignItems: "center"
+    }),
+    treeLabelInPort: css({
+        float: "left",
+        marginRight: "5px",
+        width: 'fit-content',
+        display: "flex",
+        alignItems: "center"
+    }),
+    typeLabel: css({
+        marginLeft: "3px",
+        verticalAlign: "middle",
+        padding: "5px",
+        fontSize: "13px",
+        minWidth: "100px",
+        marginRight: "24px",
+        fontWeight: 400
+    }),
+    typeLabelDisabled: css({
+        backgroundColor: "var(--vscode-editorWidget-background)",
+        color: "var(--vscode-icon-foreground)",
+        opacity: 0.5
+    }),
+    value: css({
+        verticalAlign: "middle",
+        padding: "5px",
+        backgroundColor: "var(--vscode-input-background)",
+        borderRadius: "5px",
+        cursor: 'pointer',
+        pointerEvents: 'auto',
+        transition: 'border 0.2s',
+        border: `1px solid var(--vscode-input-background)`,
+        '&:hover': {
+            border: "1px solid var(--vscode-pickerGroup-border)"
+        }
+    }),
+    valueWithError: css({
+        verticalAlign: "middle",
+        padding: "5px",
+        backgroundColor: "var(--vscode-inputValidation-errorBackground)",
+        borderRadius: "5px",
+        cursor: 'pointer',
+        pointerEvents: 'auto',
+        transition: 'border 0.2s',
+        border: "1px solid var(--vscode-inputValidation-errorBackground)",
+        '&:hover': {
+            border: "1px solid var(--vscode-errorForeground)"
+        }
+    }),
+    errorIconWrapper: css({
+        height: "22px",
+        width: "22px",
+        marginLeft: '5px',
+        verticalAlign: 'middle',
+    }),
+    valueLabel: css({
+        verticalAlign: "middle",
+        padding: "5px",
+        fontWeight: 600,
+        fontSize: "13px",
+        color: "inherit"
+    }),
+    valueLabelDisabled: css({
+        backgroundColor: "var(--vscode-editorWidget-background)",
+        color: "var(--vscode-input-foreground)",
+        opacity: 0.5
+    }),
+    group: css({
+        marginLeft: "0px",
+        paddingLeft: "0px",
+        paddingBottom: "5px"
+    }),
+    content: css({
+        borderTopRightRadius: "16px",
+        borderBottomRightRadius: "16px",
+        paddingRight: "8px",
+    }),
+    addIcon: css({
+        "& > vscode-button": {
+            color: "var(--vscode-inputOption-activeForeground)",
+            backgroundColor: "var(--vscode-dropdown-border)",
             padding: "5px",
             textTransform: "none",
-            justifyContent: "left",
+            display: "flex",
+            justifyContent: "space-between",
             fontStyle: "normal",
             fontWeight: 400,
             fontSize: "13px",
             lineHeight: "24px"
         },
-        editButton: {
-            float: "right",
-            width: 'fit-content',
-            marginLeft: "auto"
-        },
-        label: {
-            width: "300px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            pointerEvents: "none",
-            "&:hover": {
-                overflow: "visible"
-            }
-        },
-        expandIcon: {
-            cursor: "pointer",
-            pointerEvents: "all",
-            color:  theme.palette.common.black,
-            height: "25px",
-            width: "25px",
-            marginLeft: "auto"
-        },
-        expandIconDisabled: {
-            color: "#9797a9",
-        },
-        requiredMark: {
-            color: theme.palette.error.main,
-            margin: '0 2px',
-            fontSize: '18px'
-        },
-        loader: {
-            float: "right",
-            marginLeft: "auto",
-            marginRight: '3px',
-            alignSelf: 'center'
-        },
-        valueConfigMenu: {
-            '& .MuiMenuItem-root': {
-                fontSize: '12px',
-                paddingBottom: "1px",
-                paddingTop: "1px"
-            }
-        },
-        boldedTypeLabel: {
-            fontFamily: "GilmerBold",
-            fontSize: "14px",
-        },
+        "& > vscode-button > *": {
+            margin: "0px 6px"
+        }
     }),
-);
+    editButton: css({
+        float: "right",
+        width: 'fit-content',
+        marginLeft: "auto"
+    }),
+    label: css({
+        width: "300px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        pointerEvents: "none",
+        display: "flex",
+        alignItems: "center",
+        color: "var(--vscode-foreground)",
+        "&:hover": {
+            overflow: "visible"
+        }
+    }),
+    expandIcon: css({
+        cursor: "pointer",
+        pointerEvents: "all",
+        color:  "var(--vscode-inputOption-activeForeground)",
+        height: "25px",
+        width: "25px",
+        marginLeft: "auto"
+    }),
+    expandIconDisabled: css({
+        color: "var(--vscode-editorHoverWidget-border)",
+    }),
+    requiredMark: css({
+        color: "var(--vscode-errorForeground)",
+        margin: '0 2px',
+        fontSize: '18px'
+    }),
+    loader: css({
+        float: "right",
+        marginLeft: "auto",
+        marginRight: '3px',
+        alignSelf: 'center'
+    }),
+    valueConfigMenu: css({
+        '& .MuiMenuItem-root': {
+            fontSize: '12px',
+            paddingBottom: "1px",
+            paddingTop: "1px"
+        }
+    }),
+    boldedTypeLabel: css({
+        fontWeight: 800,
+        fontSize: "14px",
+    })
+});

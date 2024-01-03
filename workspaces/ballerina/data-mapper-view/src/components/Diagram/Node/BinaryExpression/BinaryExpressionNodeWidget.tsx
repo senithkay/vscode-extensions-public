@@ -14,7 +14,7 @@ const styles = () => createStyles({
 		width: '100%',
 		maxWidth: 500,
 		// backgroundColor: theme.palette.background.default,
-		color: "white"
+		color: "var(--vscode-input-background)"
 	}
 });
 

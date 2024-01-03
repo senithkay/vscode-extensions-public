@@ -10,41 +10,26 @@
 import React from 'react';
 
 import MenuItem from "@material-ui/core/MenuItem";
-import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
-import TooltipBase from "@material-ui/core/Tooltip";
 import WarningIcon from "@material-ui/icons/Warning";
+import { Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { css } from '@emotion/css';
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        itemContainer: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            width: '100%',
-            alignItems: 'center'
-        },
-        symbol: {
-            alignSelf: 'flex-end',
-        },
-        warning: {
-            color: '#e85454',
-            fontSize: '16px',
-            marginLeft: '5px'
-        }
+const useStyles = () => ({
+    itemContainer: css({
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        alignItems: 'center'
     }),
-);
-
-export const tooltipStyles = {
-    tooltip: {
-        color: "#8d91a3",
-        backgroundColor: "#fdfdfd",
-        border: "1px solid #e6e7ec",
-        borderRadius: 6,
-        padding: "1rem"
-    },
-    arrow: {
-        color: "#fdfdfd"
-    }
-};
+    symbol: css({
+        alignSelf: 'flex-end',
+    }),
+    warning: css({
+        color: 'var(--vscode-editorError-foreground)',
+        fontSize: '16px',
+        marginLeft: '5px'
+    })
+});
 
 export interface ValueConfigMenuItem {
     title: string;
@@ -56,7 +41,6 @@ export interface ValueConfigMenuItem {
 
 export function ValueConfigMenuItem(props: ValueConfigMenuItem) {
     const { title, onClick, onClose, warningMsg } = props;
-    const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
     const classes = useStyles();
 
     const onClickMenuItem = () => {
@@ -73,13 +57,11 @@ export function ValueConfigMenuItem(props: ValueConfigMenuItem) {
             <div className={classes.itemContainer}>
                 <div>{title}</div>
                 {warningMsg && (
-                    <TooltipComponent
-                        interactive={false}
-                        arrow={true}
-                        title={warningMsg}
+                    <Tooltip
+                        content={warningMsg}
                     >
                         <WarningIcon className={classes.warning}/>
-                    </TooltipComponent>
+                    </Tooltip>
                 )}
             </div>
         </MenuItem>

@@ -9,9 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { IconButton } from '@material-ui/core';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
@@ -85,13 +83,14 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
             >
                 <span className={classes.label}>
                 {isRecord && hasFields && (
-                    <IconButton
-                        className={classes.expandIcon}
+                    <Button
+                        appearance="icon"
+                        tooltip="Expand/Collapse"
                         onClick={handleExpand}
                         data-testid={`${id}-expand-icon-module-var-node`}
                     >
-                        {expanded ? <ExpandMoreIcon/> : <ChevronRightIcon/>}
-                    </IconButton>
+                        {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                    </Button>
                 )}
                     {label}
                 </span>

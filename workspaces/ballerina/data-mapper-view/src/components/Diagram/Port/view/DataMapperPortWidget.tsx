@@ -120,9 +120,10 @@ interface PortsContainerProps {
 const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "pointer",
 	display: "flex",
-	color: (props.active ? "rgb(0, 192, 255)" : props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : "#8D91A3"),
+	strokeOpacity: props.active ? 0.1 : 0,
+	color: (props.active ? "var(--vscode-dropdown-border)" : props.hasLinks ? (props.hasError ? '#FE523C' : "var(--vscode-input-placeholderForeground)") : "var(--vscode-input-placeholderForeground)"),
 	"&:hover": {
-		color: "rgb(0, 192, 255)"
+		color: "var(--vscode-dropdown-border)"
 	}
 }));
 
@@ -134,5 +135,5 @@ const DisabledPortContainer = styled.div`
 const DisabledNewLinkingPortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "not-allowed",
 	display: "flex",
-	color: props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : "#8D91A3",
+	color: props.hasLinks ? (props.hasError ? '#FE523C' : "var(--vscode-input-placeholderForeground)") : "var(--vscode-input-placeholderForeground)",
 }));
