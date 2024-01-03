@@ -11,7 +11,19 @@ import styled from "@emotion/styled";
 
 export interface TooltipProps {
     content?: string | ReactNode;
-    position?: 'top' | 'right' | 'bottom' | 'left';
+    position?:
+        'bottom-end' |
+        'bottom-start' |
+        'bottom' |
+        'left-end' |
+        'left-start' |
+        'left' |
+        'right-end' |
+        'right-start' |
+        'right' |
+        'top-end' |
+        'top-start' |
+        'top';
     children?: ReactNode;
     sx?: any;
 }
@@ -34,16 +46,34 @@ const TooltipContent = styled.div<TooltipProps>`
     visibility: hidden;
     transition: opacity 0.2s ease-in-out;
     white-space: nowrap;
+    z-index: 1;
     ${(props: TooltipProps) => {
         switch (props.position) {
-            case 'top':
-                return 'bottom: 100%; left: 50%; transform: translateX(-50%);';
-            case 'left':
-                return 'top: 50%; right: 100%; transform: translateY(-50%);';
-            case 'right':
-                return 'top: 50%; left: 100%; transform: translateY(-50%);';
+            case 'bottom-end':
+                return 'top: 100%; left: 50%;';
+            case 'bottom-start':
+                return 'top: 100%; right: 50%;';
             case 'bottom':
                 return 'top: 100%; left: 50%; transform: translateX(-50%);';
+            case 'left-end':
+                return 'top: 50%; right: 100%;';
+            case 'left-start':
+                return 'bottom: 50%; right: 100%;';
+            case 'left':
+                return 'top: 50%; right: 100%; transform: translateY(-50%);';
+            case 'right-end':
+                return 'top: 50%; left: 100%;';
+            case 'right-start':
+                return 'bottom: 50%; left: 100%;';
+            case 'right':
+                return 'top: 50%; left: 100%; transform: translateY(-50%);';
+            case 'top-end':
+                return 'bottom: 100%; left: 50%;';
+            case 'top-start':
+                return 'bottom: 100%; right: 50%;';
+            case 'top':
+                return 'bottom: 100%; left: 50%; transform: translateX(-50%);';
+            
             default:
                 return '';
         }
