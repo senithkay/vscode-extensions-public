@@ -24,7 +24,6 @@ import {
 import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 // import { URI } from "vscode-uri";
 
-import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";

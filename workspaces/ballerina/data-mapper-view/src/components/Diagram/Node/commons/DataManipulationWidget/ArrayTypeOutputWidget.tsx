@@ -62,13 +62,13 @@ const useStyles = () => ({
 		marginLeft: "3px",
 		padding: "5px",
 		color: "var(--vscode-icon-foreground)",
-		fontFamily: "GilmerRegular",
+		fontWeight: 400,
 		fontSize: "13px",
 		minWidth: "100px",
 		marginRight: "24px"
 	}),
 	boldedTypeLabel: css({
-		fontFamily: "GilmerBold",
+		fontWeight: 800,
 		fontSize: "14px",
 	}),
 	typeLabelDisabled: css({
@@ -79,7 +79,6 @@ const useStyles = () => ({
 	valueLabel: css({
 		padding: "5px",
 		color: "var(--vscode-icon-foreground)",
-		fontFamily: "GilmerMedium",
 		fontSize: "13px",
 	}),
 	valueLabelDisabled: css({

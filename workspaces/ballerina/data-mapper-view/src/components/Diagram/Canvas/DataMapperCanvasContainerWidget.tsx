@@ -19,7 +19,7 @@ export const Container = styled.div`
   	background-size: 8px 8px;
 	background-color: var(--vscode-input-background);
 	display: ${(props: { hidden: any; }) => (props.hidden ? 'none' : 'flex')};
-	font-family: 'GilmerRegular';
+	font-weight: 400;
 	> * {
 		height: 100%;
 		min-height: 100%;

@@ -82,7 +82,6 @@ export const useStyles = () => ({
         marginLeft: "3px",
         verticalAlign: "middle",
         padding: "5px",
-        fontFamily: "GilmerRegular",
         fontSize: "13px",
         minWidth: "100px",
         marginRight: "24px",
@@ -128,7 +127,7 @@ export const useStyles = () => ({
     valueLabel: css({
         verticalAlign: "middle",
         padding: "5px",
-        fontFamily: "GilmerMedium",
+        fontWeight: 600,
         fontSize: "13px",
         color: "inherit"
     }),
@@ -205,7 +204,7 @@ export const useStyles = () => ({
         }
     }),
     boldedTypeLabel: css({
-        fontFamily: "GilmerBold",
+        fontWeight: 800,
         fontSize: "14px",
     })
 });

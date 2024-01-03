@@ -54,7 +54,6 @@ const useStyles = () => ({
         padding: "5px",
         minWidth: "100px",
         marginRight: "24px",
-        fontFamily: "GilmerRegular",
         fontWeight: 400,
         color: "inherit"
     }),

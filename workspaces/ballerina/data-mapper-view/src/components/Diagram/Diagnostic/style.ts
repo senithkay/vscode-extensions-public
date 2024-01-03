@@ -55,7 +55,6 @@ export const useStyles = () => ({
         '&:hover': {
             color: "var(--vscode-editorInfo-foreground)",
         },
-        fontFamily: "'Gilmer', sans-serif"
     }),
     pre: css({
         margin: 0,

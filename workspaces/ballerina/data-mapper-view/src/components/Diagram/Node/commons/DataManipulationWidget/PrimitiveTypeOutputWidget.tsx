@@ -62,19 +62,18 @@ const useStyles = makeStyles((theme: Theme) =>
 			marginLeft: "3px",
 			padding: "5px",
 			color: "var(--vscode-icon-foreground)",
-			fontFamily: "GilmerRegular",
+			fontWeight: 400,
 			fontSize: "13px",
 			minWidth: "100px",
-			marginRight: "24px"
+			marginRight: "24px",
 		},
 		boldedTypeLabel: {
-			fontFamily: "GilmerBold",
+			fontWeight: 800,
 			fontSize: "14px",
 		},
 		valueLabel: {
 			padding: "5px",
 			color: "var(--vscode-icon-foreground)",
-			fontFamily: "GilmerMedium",
 			fontSize: "13px",
 		},
 		treeLabelOutPort: {

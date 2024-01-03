@@ -125,6 +125,5 @@ const HeaderText = styled.span`
     min-width: 280px;
     font-size: 13px;
     font-weight: 600;
-    font-family: "Gilmer",sans-serif;
     color: var(--vscode-inputOption-activeForeground)
 `;

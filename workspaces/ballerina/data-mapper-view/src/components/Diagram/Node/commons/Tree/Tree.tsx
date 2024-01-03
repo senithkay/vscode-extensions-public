@@ -15,7 +15,6 @@ export const TreeContainer = styled.div`
     gap: 8px;
     background: var(--vscode-welcomePage-tileBackground);
     border: 1px solid var(--vscode-welcomePage-tileBorder);
-    font-family: GilmerMedium;
     font-style: normal;
     font-weight: 600;
     font-size: 13px;

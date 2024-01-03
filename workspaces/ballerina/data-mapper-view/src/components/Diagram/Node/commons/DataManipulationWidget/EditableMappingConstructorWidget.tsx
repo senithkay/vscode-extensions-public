@@ -63,19 +63,18 @@ const useStyles = () => ({
 		marginLeft: "3px",
 		padding: "5px",
 		color: "inherit",
-		fontFamily: "GilmerRegular",
+		fontWeight: 400,
 		fontSize: "13px",
 		minWidth: "100px",
 		marginRight: "24px"
 	}),
 	boldedTypeLabel: css({
-		fontFamily: "GilmerBold",
+		fontWeight: 800,
 		fontSize: "14px",
 	}),
 	valueLabel: css({
 		padding: "5px",
 		color: "inherit",
-		fontFamily: "GilmerMedium",
 		fontSize: "13px",
 	}),
 	treeLabelInPort: css({

@@ -25,7 +25,7 @@ export const useStyles = () => ({
         marginRight: "24px"
     }),
     boldedTypeLabel: css({
-        fontFamily: "GilmerBold",
+        fontWeight: 800,
         fontSize: "14px"
     }),
     treeLabelInPort: css({
