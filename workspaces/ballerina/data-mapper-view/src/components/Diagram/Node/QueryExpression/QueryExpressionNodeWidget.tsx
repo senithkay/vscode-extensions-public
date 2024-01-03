@@ -37,7 +37,6 @@ export const useStyles = () => ({
         gap: "5px",
         color: "var(--vscode-checkbox-border)",
         alignItems: "center",
-        overflow: "hidden",
     }),
     element: css({
         backgroundColor: "var(--vscode-input-background)",
@@ -62,7 +61,7 @@ export const useStyles = () => ({
     }),
     fromClause: css({
         padding: "5px",
-        fontFamily: "GilmerMedium",
+        fontWeight: 600,
         marginRight: '10px'
     }),
     mappingPane: css({
@@ -74,7 +73,10 @@ export const useStyles = () => ({
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "center"
+        alignItems: "center",
+        "& > *": {
+            margin: "0 2px"
+        }
     }),
     icons: css({
         padding: '5px'
@@ -160,12 +162,8 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                 <div className={classes.root} >
                     <div className={classes.header}>
                         <DataMapperPortWidget engine={engine} port={node.inPort} />
-                        <Tooltip content={"Query Expression"}>
-                            <Button
-                                appearance="icon"
-                            >
-                                <Codicon name="list-unordered" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
-                            </Button>
+                        <Tooltip content={"Query Expression"} position="bottom">
+                            <Codicon name="list-unordered" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                         </Tooltip>
                         <Button
                             appearance="icon"
@@ -173,7 +171,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                             onClick={onClickOnExpand}
                             data-testid={`expand-query-${node?.targetFieldFQN}`}
                         >
-                            <Icon name="sign-out" sx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                            <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
                         </Button>
                         {deleteInProgress ? (
                             <div className={classnames(classes.element, classes.loadingContainer)}>
