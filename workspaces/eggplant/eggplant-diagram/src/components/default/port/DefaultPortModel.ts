@@ -42,10 +42,6 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
             type: "default",
             ...options,
         });
-
-        if (!options.multiLink) {
-            super.setMaximumLinks(1);
-        }
     }
 
     deserialize(event: DeserializeEvent<this>) {
