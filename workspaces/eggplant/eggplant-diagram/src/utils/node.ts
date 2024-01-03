@@ -60,7 +60,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             emptyNode.templateId = "HttpRequestNode";
             emptyNode.properties = {
                 path: "",
-                action: action, 
+                action: action,
                 outputType: DEFAULT_TYPE,
                 endpoint: {
                     baseUrl: "",
@@ -71,7 +71,6 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
         case "HttpResponseNode": // response node
             nodeModel.addInPort(inPortId);
             emptyNode.templateId = "HttpResponseNode";
-
             break;
         case "SwitchNode":
             nodeModel.addInPort(inPortId, {
@@ -100,11 +99,30 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 },
             };
             break;
-        case "CodeBlockNode":
+        case "NewPayloadNode":
+            nodeModel.addOutPort(outPortId);
             // add additional metadata for code block node
             emptyNode.properties = {
                 codeBlock: {
-                    expression: "",
+                    expression: `${DEFAULT_TYPE} payload = {};`,
+                },
+            };
+            emptyNode.metadata = {
+                outputs: [
+                    {
+                        name: "payload",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+            };
+            break;
+        case "CodeBlockNode":
+            nodeModel.addInPort(inPortId);
+            nodeModel.addOutPort(outPortId);
+            // add additional metadata for code block node
+            emptyNode.properties = {
+                codeBlock: {
+                    expression: `${DEFAULT_TYPE} out = in;`,
                 },
             };
             emptyNode.metadata = {
@@ -121,6 +139,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                     },
                 ],
             };
+            break;
         default:
             nodeModel.addInPort(inPortId);
             nodeModel.addOutPort(outPortId);

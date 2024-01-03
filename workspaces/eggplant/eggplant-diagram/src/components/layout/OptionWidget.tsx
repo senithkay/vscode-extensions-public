@@ -17,8 +17,8 @@ import { CodeNodeProperties, Flow, Node, SwitchCaseBlock, SwitchNodeProperties }
 import { getPortId, toSnakeCase } from "../../utils";
 import { HttpRequestNodeForm } from "../forms/HttpRequestNodeForm";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { CodeBlockNodeForm } from "../forms/CodeBlockNodeForm";
+import { NewPayloadNodeForm } from "../forms/NewPayloadNodeForm";
 
 export interface OptionWidgetProps {
     engine: DiagramEngine;
@@ -163,6 +163,9 @@ export function OptionWidget(props: OptionWidgetProps) {
     if (selectedNode.getKind() === "CodeBlockNode") {
         return <CodeBlockNodeForm {...props} />;
     }
+    if (selectedNode.getKind() === "NewPayloadNode") {
+        return <NewPayloadNodeForm {...props} />;
+    }
 
     return (
         <S.Tray>
@@ -255,7 +258,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                                 <div key={index}>
                                     <TextArea
                                         label={`Case ${index + 1}`}
-                                        value={caseBlock.expression.toString() || ""}
+                                        value={caseBlock.expression.expression || ""}
                                         rows={2}
                                         resize="vertical"
                                         onChange={(value: string) => {

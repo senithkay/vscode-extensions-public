@@ -15,6 +15,7 @@ import { Flow, Node } from "../../../types";
 import { CodeNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
 import { toSnakeCase } from "../../../utils";
+import { set } from "lodash";
 
 export interface OptionWidgetProps {
     engine: DiagramEngine;
@@ -26,21 +27,28 @@ export interface OptionWidgetProps {
 }
 
 // TODO: update this component with multiple form components
-export function CodeBlockNodeForm(props: OptionWidgetProps) {
+export function NewPayloadNodeForm(props: OptionWidgetProps) {
     const { selectedNode, children, setSelectedNode, updateFlowModel } = props;
 
     const node = useRef(JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node);
     const nodeProperties = useRef(node.current.properties as CodeNodeProperties);
     const nodeMetadata = useRef(getNodeMetadata(node.current));
+    const [payloadSource, setPayloadSource] = React.useState<string>("");
 
     useEffect(() => {
         node.current = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
         nodeProperties.current = node.current.properties as CodeNodeProperties;
         nodeMetadata.current = getNodeMetadata(node.current);
+        setPayloadSource(
+            nodeProperties.current?.codeBlock.expression
+                ?.split(`${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} =`)[1]
+                ?.split(";")[0]
+        );
     }, [selectedNode.getID()]);
 
     const handleOnSave = () => {
         node.current.metadata = nodeMetadata.current;
+        nodeProperties.current.codeBlock.expression = `${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} = ${payloadSource};`;
         node.current.properties = nodeProperties.current;
         selectedNode.setNode(node.current);
         updateFlowModel();
@@ -48,11 +56,9 @@ export function CodeBlockNodeForm(props: OptionWidgetProps) {
     };
 
     const handleOutputTypeChange = (varName: string, type: string) => {
-        console.log(">>> handleOutputTypeChange", varName, type);
         // update output port types with same variable name
         selectedNode.getOutPorts().forEach((port) => {
             const nodePort = port.getOptions()?.port;
-            console.log(">>> nodePort", nodePort, port);
             if (nodePort && nodePort.name === varName) {
                 nodePort.type = type;
             }
@@ -63,7 +69,7 @@ export function CodeBlockNodeForm(props: OptionWidgetProps) {
                 output.type = type;
             }
         });
-    }
+    };
 
     return (
         <Form.Tray>
@@ -125,13 +131,13 @@ export function CodeBlockNodeForm(props: OptionWidgetProps) {
 
             <Form.Divider />
             <TextArea
-                label="Code Block"
-                value={nodeProperties.current?.codeBlock?.expression || ""}
+                label="Payload"
+                value={payloadSource}
                 rows={16}
                 resize="vertical"
                 onChange={(value: string) => {
                     if (node) {
-                        nodeProperties.current.codeBlock.expression = value;
+                        setPayloadSource(value);
                     }
                 }}
             />

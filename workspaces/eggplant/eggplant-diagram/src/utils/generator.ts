@@ -340,6 +340,30 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
                 });
             }
             break;
+        case "NewPayloadNode":
+            if (node.outputPorts?.length === 0 && nodeMetadata?.outputs?.length > 0) {
+                nodeMetadata.outputs.forEach((input, index) => {
+                    const portId = getPortId(node.name, false, input.name);
+                    let port = nodeModel.addOutPort(
+                        portId,
+                        {
+                            id: portId,
+                            type: input.type,
+                            name: input.name,
+                        },
+                        fixedNode
+                    );
+                    ports.push({
+                        id: portId,
+                        type: input.type,
+                        name: input.name,
+                        parent: nodeId,
+                        in: false,
+                        model: port,
+                    });
+                });
+            }
+            break;
         default:
     }
 
