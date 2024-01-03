@@ -9,12 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
-import {
-    CircularProgress,
-    Menu,
-    MenuItem
-} from "@material-ui/core";
+import { Button, Codicon, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -321,13 +316,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const addElementButton = useMemo(() => {
         return (
             <Button
+                className={classes.addIcon}
                 appearance="icon"
                 aria-label="add"
                 onClick={onAddElementClick}
                 disabled={isAddingElement}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
-                {isAddingElement ? <CircularProgress size={16} /> : <Codicon name="add" />}
+                {isAddingElement ? <ProgressRing /> : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />}
                 Add Element
             </Button>
         );
@@ -521,7 +517,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         {label}
                     </span>
                     {(isLoading || isAddingTypeCast) ? (
-                        <CircularProgress size={18} className={classes.loader} />
+                        <ProgressRing />
                     ) : (
                         <>
                             {((hasValue && !connectedViaLink) || !isDisabled) && (
@@ -542,16 +538,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         {arrayElements}
                         {addElementButton}
                             {(isAnydataType || isUnionType) && (
-                                <Menu
-                                    anchorEl={addElementAnchorEl}
-                                    open={addMenuOpen}
-                                    onClose={onCloseElementSetAnchor}
-                                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                                    className={classes.valueConfigMenu}
-                                >
+                                <Menu>
                                     {possibleTypeOptions?.map((item) => (
                                         <>
-                                            <MenuItem key={item.title} onClick={item.onClick}>
+                                            <MenuItem item={item} key={item.title} onClick={item.onClick}>
                                                 {item.title}
                                             </MenuItem>
                                         </>
