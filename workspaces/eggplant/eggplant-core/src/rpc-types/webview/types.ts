@@ -33,7 +33,7 @@ export type Node = {
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
-    properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties;
+    properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties | TransformNodeProperties;
 };
 
 export type InputPort = {
@@ -92,6 +92,13 @@ export type HttpRequestNodeProperties = NodeProperties & {
     path: string;
     endpoint: Endpoint;
     outputType: string;
+};
+
+export type TransformNodeProperties = {
+    codeBlock: BalExpression;
+    expression: BalExpression;
+    outputType: string;
+    transformFunctionLocation: CodeLocation;
 };
 
 export type HttpHeader = {

@@ -23,6 +23,7 @@ import {
 import { getPortId, toSnakeCase } from "../../utils";
 import { HttpRequestNodeForm } from "../forms/HttpRequestNode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { TransformNodeProperties } from "@wso2-enterprise/eggplant-core";
 
 export interface OptionWidgetProps {
     engine: DiagramEngine;
@@ -150,8 +151,13 @@ export function OptionWidget(props: OptionWidgetProps) {
 
     const handleOpenDataMapper = () => {
         // handleOnSave();
-        // TODO: Use the actual position of the node when the BE is ready
-        openDataMapper({startLine: 10, startColumn: 0, endLine: 13, endColumn: 2});
+        const tnfFnLocation = (node.properties as TransformNodeProperties).transformFunctionLocation;
+        openDataMapper({
+            startLine: tnfFnLocation.start.line,
+            startColumn: tnfFnLocation.start.offset,
+            endLine: tnfFnLocation.end.line,
+            endColumn: tnfFnLocation.end.offset
+        });
     };
 
     const handleOnSave = () => {
