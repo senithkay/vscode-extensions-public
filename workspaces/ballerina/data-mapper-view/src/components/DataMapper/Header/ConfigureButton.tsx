@@ -26,7 +26,7 @@ export default function ConfigureButton(props: ConfigureButtonProps) {
     const showText = useMediaQuery("(min-width:500px)");
 
     return (
-        <Tooltip content={"Edit data mapper name, inputs and the output"} position="left">
+        <Tooltip content={"Edit data mapper name, inputs and the output"} position="bottom-start">
             <Button onClick={onClick} appearance="icon">
                 <Codicon sx={{ marginRight: 5 }} name="edit" />
                 {showText ? "Configure" : null}
