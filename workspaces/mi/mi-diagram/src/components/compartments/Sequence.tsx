@@ -119,12 +119,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
 
             setNodePositions(outSeqNodes, x, y, canvasWidthOutSeqNodes);
         }
-
-        if (inSeqNode && outSeqNode && inSeqNodes.length > 0 && outSeqNodes.length > 0) {
-            // create links between in and out
-            const link = createLinks(inSeqNodes[inSeqNodes.length - 1] as any, outSeqNodes[0] as any, null, false, true)[0];
-            model.addAll(link);
-        }
         setCanvasHeight(inSequenceHeight + outSequenceHeight + OFFSET.START.Y + OFFSET.MARGIN.TOP + OFFSET.MARGIN.BOTTOM);
     };
 
