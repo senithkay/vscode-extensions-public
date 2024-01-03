@@ -274,7 +274,8 @@ function generateDisplayNode(node: Node): string {
             NODE: "Node",
             TEMPLATE_ID: node.templateId,
             X_CODE: node.canvasPosition?.x,
-            Y_CODE: node.canvasPosition?.y
+            Y_CODE: node.canvasPosition?.y,
+            METADATA: node.metadata
         }
     });
 }
