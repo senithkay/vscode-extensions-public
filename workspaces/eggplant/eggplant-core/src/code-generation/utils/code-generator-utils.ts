@@ -149,7 +149,7 @@ function generateCallerNode(node: Node): string {
     const callerAction: string = getComponentSource({
         name: 'CALLER_ACTION',
         config: {
-            TYPE: callerProps?.outputType ? sanitizeType(callerProps.outputType) : "json", // TODO: remove sanitize once the correct model is received from BE
+            TYPE: callerProps?.outputType ? callerProps.outputType : "json",
             VARIABLE: callerVariable,
             CALLER: callerEp,
             PATH: callerProps?.path ? removeLeadingSlash(callerProps.path) : undefined,
