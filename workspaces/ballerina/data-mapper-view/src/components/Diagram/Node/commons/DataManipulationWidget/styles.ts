@@ -147,14 +147,21 @@ export const useStyles = () => ({
         paddingRight: "8px",
     }),
     addIcon: css({
-        color: "var(--vscode-editorInfo-foreground)",
-        padding: "5px",
-        textTransform: "none",
-        justifyContent: "left",
-        fontStyle: "normal",
-        fontWeight: 400,
-        fontSize: "13px",
-        lineHeight: "24px"
+        "& > vscode-button": {
+            color: "var(--vscode-inputOption-activeForeground)",
+            backgroundColor: "var(--vscode-dropdown-border)",
+            padding: "5px",
+            textTransform: "none",
+            display: "flex",
+            justifyContent: "space-between",
+            fontStyle: "normal",
+            fontWeight: 400,
+            fontSize: "13px",
+            lineHeight: "24px"
+        },
+        "& > vscode-button > *": {
+            margin: "0px 6px"
+        }
     }),
     editButton: css({
         float: "right",

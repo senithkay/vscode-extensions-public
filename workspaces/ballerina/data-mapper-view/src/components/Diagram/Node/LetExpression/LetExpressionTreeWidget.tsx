@@ -91,12 +91,13 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
             ) : !isWithinQuery && !searchValue && (
                 <LocalVarAddButton>
                     <Button
+                        className={classes.addIcon}
                         appearance='icon'
                         aria-label="add"
                         onClick={onClick}
                         data-testid={"add-local-variable-btn"}
                     >
-                        <Codicon name="add" />
+                        <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />
                         Add Local Variable
                     </Button>
                 </LocalVarAddButton>
