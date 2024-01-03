@@ -40,7 +40,7 @@ export class AdvancedMediatorNodeFactory extends AbstractReactFactory<AdvancedMe
             name: event.initialConfig.model.mediatorName,
             description: event.initialConfig.model.mediatorDescription,
             documentUri: event.initialConfig.model.getDocumentUri(),
-            isInOutSequence: event.initialConfig.model.isInOutSequenceNode(),
+            sequenceType: event.initialConfig.model.getSequenceType(),
             subSequences: event.initialConfig.model.subSequences,
         });
     }

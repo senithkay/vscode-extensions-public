@@ -8,7 +8,7 @@
  */
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
-import { BaseNodeModel } from "../../../base/base-node/base-node";
+import { BaseNodeModel, SequenceType } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
@@ -19,7 +19,7 @@ interface SimpleMediatorNodeModelProps {
     name: string,
     description: string,
     documentUri: string;
-    isInOutSequence: boolean;
+    sequenceType: SequenceType;
     parentNode?: STNode;
     dropSequence?: boolean
 }
@@ -29,9 +29,9 @@ export class SimpleMediatorNodeModel extends BaseNodeModel {
     readonly mediatorDescription: string;
 
     constructor(props: SimpleMediatorNodeModelProps) {
-        const { node, documentUri, isInOutSequence, parentNode, dropSequence } = props;
+        const { node, documentUri, sequenceType, parentNode, dropSequence } = props;
         const id = `${node.tag}${node.range.start.line}.${node.range.start.character}:${node.range.end.line}.${node.range.end.character}`;
-        super(SIMPLE_NODE, id, documentUri, isInOutSequence, node, parentNode, dropSequence);
+        super(SIMPLE_NODE, id, documentUri, sequenceType, node, parentNode, dropSequence);
 
         this.id = id;
         this.mediatorName = props.name;

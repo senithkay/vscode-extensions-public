@@ -8,7 +8,7 @@
  */
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
-import { BaseNodeModel } from "../../../base/base-node/base-node";
+import { BaseNodeModel, SequenceType } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
@@ -26,7 +26,7 @@ interface AdvancedMediatorNodeModelProps {
     name: string,
     description: string,
     documentUri: string;
-    isInOutSequence: boolean;
+    sequenceType: SequenceType;
     subSequences: SubSequence[];
     parentNode?: STNode;
 }
@@ -37,9 +37,9 @@ export class AdvancedMediatorNodeModel extends BaseNodeModel {
     readonly subSequences: SubSequence[] = [];
 
     constructor(props: AdvancedMediatorNodeModelProps) {
-        const { node, documentUri, isInOutSequence, subSequences, parentNode } = props;
+        const { node, documentUri, sequenceType, subSequences, parentNode } = props;
         const id = `${node.tag}${node.range.start.line}${node.range.start.character}${node.range.end.line}${node.range.end.character}`;
-        super(ADVANCED_NODE, id, documentUri, isInOutSequence, node, parentNode);
+        super(ADVANCED_NODE, id, documentUri, sequenceType, node, parentNode);
 
         this.id = id;
         this.mediatorName = props.name;

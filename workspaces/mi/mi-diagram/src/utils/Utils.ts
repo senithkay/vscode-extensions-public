@@ -80,7 +80,7 @@ export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel
                 character: targetNode.getNodeRange().start.character
             }
         }
-        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getDocumentUri(), sourceNode.isInOutSequenceNode(), parentNode);
+        const plusNode = new PlusNodeModel(`${sourcePort.getID()}:plus:${targetPort.getID()}`, sourceNode.getDocumentUri(), sourceNode.getSequenceType(), parentNode);
         plusNode.setNodeRange(nodeRange);
         const link = createLinks(sourceNode, plusNode, parentNode, false, false);
         sourcePort = plusNode.getPortByAllignment(PortModelAlignment.BOTTOM);

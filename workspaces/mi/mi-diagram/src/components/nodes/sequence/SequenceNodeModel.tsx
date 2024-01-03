@@ -8,18 +8,15 @@
  */
 
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
-import { BaseNodeModel } from "../../base/base-node/base-node";
+import { BaseNodeModel, SequenceType } from "../../base/base-node/base-node";
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { MediatorPortModel } from "../../port/MediatorPortModel";
 
 export const SEQUENCE_NODE = "SequenceNode";
 
 export class SequenceNodeModel extends BaseNodeModel {
-    nodes: BaseNodeModel[];
-
-    constructor(id: string, nodes: BaseNodeModel[], range: Range, isInOutSequence: boolean) {
-        super(SEQUENCE_NODE, id, null, isInOutSequence);
-        this.nodes = nodes;
+    constructor(id: string, sequenceType: SequenceType, range: Range) {
+        super(SEQUENCE_NODE, id, null, sequenceType);
         this.setNodeRange(range);
         this.addPort(new MediatorPortModel(id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(id, PortModelAlignment.RIGHT));

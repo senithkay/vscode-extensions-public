@@ -15,7 +15,7 @@ import {
 
 import { CanvasContainer } from '../../Canvas';
 import { generateEngine, createLinks, setNodePositions } from '../../utils/Utils';
-import { BaseNodeModel } from '../base/base-node/base-node';
+import { BaseNodeModel, SequenceType } from '../base/base-node/base-node';
 import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
 import { SequenceNodeModel } from '../nodes/sequence/SequenceNodeModel';
@@ -50,10 +50,10 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             setEngine(diagramEngine);
 
             if (inSequenceNodes.length > 0) {
-                drawSequence(inSequenceNodes, false);
+                drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE);
             }
             if (outSequenceNodes.length > 0) {
-                drawSequence(outSequenceNodes, true);
+                drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE);
             }
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
@@ -68,13 +68,13 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         })();
     }, []);
 
-    function drawSequence(nodes: BaseNodeModel[], invertDirection: boolean) {
+    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType) {
         const range = {
             start: nodes[0].getNodeRange().start,
             end: nodes[0].getNodeRange().start,
         }
 
-        let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, nodes, range, invertDirection);
+        let canvasPortNode = new SequenceNodeModel(`sequence-${sequenceType}`, sequenceType, range);
         const sourceNode = canvasPortNode;
         const targetNode = nodes[0];
         const canvasPortLink = createLinks(sourceNode, targetNode, null);
