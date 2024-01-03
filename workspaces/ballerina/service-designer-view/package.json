@@ -21,12 +21,14 @@
     "@wso2-enterprise/ballerina-rpc-client": "workspace:*",
     "@wso2-enterprise/font-wso2-vscode": "workspace:*",
     "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2-enterprise/syntax-tree": "workspace:*",
     "handlebars": "^4.7.8",
     "monaco-editor": "0.44.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vscode-messenger-common": "^0.4.5",
-    "vscode-messenger-webview": "^0.4.5"
+    "vscode-messenger-webview": "^0.4.5",
+    "vscode-uri": "^3.0.8"
   },
   "devDependencies": {
     "@types/react": "^18.2.33",

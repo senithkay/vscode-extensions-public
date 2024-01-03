@@ -29,8 +29,8 @@ export function activateSubscriptions(context: vscode.ExtensionContext) {
         })
     );
     context.subscriptions.push(
-        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_SERVICE_DESIGNER_VIEW, () => {
-            openView({view: 'ServiceDesigner'});
+        vscode.commands.registerCommand(PALETTE_COMMANDS.SHOW_SERVICE_DESIGNER_VIEW, (path, position) => {
+            openView({view: 'ServiceDesigner', location: {fileName: path || vscode.window.activeTextEditor.document.uri.fsPath, position: position}});
         })
     );
     context.subscriptions.push(
