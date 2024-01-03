@@ -116,6 +116,7 @@ const LocalVarsHeader = styled.div`
     width: 100%;
     line-height: 35px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
     cursor: default;
 `;
