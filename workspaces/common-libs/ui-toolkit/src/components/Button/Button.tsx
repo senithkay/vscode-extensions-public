@@ -15,6 +15,8 @@ export interface ButtonWrapperProps {
 }
 
 export interface ButtonProps {
+    id?: string;
+    className?: string;
     appearance?: "primary" | "secondary" | "icon";
     tooltip?: string;
     disabled?: boolean;
@@ -39,11 +41,11 @@ export const ButtonWrapper = styled.div<ButtonWrapperProps>`
 `;
 
 export const Button = (props: ButtonProps) => {
-    const { disabled, appearance = "primary", tooltip, children, onClick, sx } = props;
+    const { id, className, disabled, appearance = "primary", tooltip, children, onClick, sx } = props;
 
     return (
         // Workaround for button not being disabled when disabled prop is passed
-        <ButtonWrapper sx={sx}>
+        <ButtonWrapper id={id} className={className} sx={sx}>
             <VSCodeButton appearance={appearance} onClick={onClick} title={tooltip} disabled={(disabled ? true : undefined)}>
                 {children}
             </VSCodeButton>

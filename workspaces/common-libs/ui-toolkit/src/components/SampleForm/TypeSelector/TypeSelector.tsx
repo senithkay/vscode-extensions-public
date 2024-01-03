@@ -21,6 +21,8 @@ import { FORM_WIDTH } from '../WebAppCreation/WebAppCreation';
 import { FormContainer } from '../../../styles';
 
 export interface TypeSelectorProps {
+    id?: string;
+    className?: string;
     sx?: any;
     onTypeSelected?: (type: string) => void;
 }
@@ -42,7 +44,7 @@ const PanelWrapper = styled.div`
 `;
 
 export const TypeSelector = (props: TypeSelectorProps) => {
-    const { sx, onTypeSelected } = props;
+    const { id, className, sx, onTypeSelected } = props;
 
     const handleSelection = (type?: string) => {
         if (onTypeSelected) {
@@ -51,7 +53,7 @@ export const TypeSelector = (props: TypeSelectorProps) => {
     };
 
     return (
-        <FormContainer width={FORM_WIDTH} sx={sx}>
+        <FormContainer id={id} className={className} width={FORM_WIDTH} sx={sx}>
             <Header/>
             <Typography variant="h6" sx={{ marginTop: 0 }}>Welcome to Project Choreo, an experimental web-based development workspace from WSO2.</Typography>
             <Typography variant="h5" sx={{ marginTop: 0, marginBottom: 16 }}> Create a new workspace </Typography>

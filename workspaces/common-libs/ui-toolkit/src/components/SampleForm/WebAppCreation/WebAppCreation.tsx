@@ -17,6 +17,8 @@ import { VerticleIcons } from '../VerticleIcons/VerticleIcons';
 export const FORM_WIDTH = 600;
 
 export interface WebAppCreationProps {
+    id?: string;
+    className?: string;
     sx?: any;
 }
 
@@ -36,7 +38,7 @@ const ButtonWrapper = styled.div`
 `;
 
 export const WebAppCreation = (props: WebAppCreationProps) => {
-    const { sx } = props;
+    const { id, className, sx } = props;
 
     const handleRadioButtonChange = (e: any) => {
         console.log(e.target.value);
@@ -47,7 +49,7 @@ export const WebAppCreation = (props: WebAppCreationProps) => {
     };
 
     return (
-        <FormContainer width={FORM_WIDTH} sx={sx}>
+        <FormContainer id={id} className={className} width={FORM_WIDTH} sx={sx}>
             <Header/>
             <Typography variant="h1">New Web App</Typography>
             <Typography variant="h4" sx={{ marginTop: 0 }}>Build a web app using simple HTML/JS/CSS or the framework of your choice</Typography>

@@ -12,13 +12,13 @@ import styled from "@emotion/styled";
 import { Codicon } from "../Codicon/Codicon";
 
 export interface BreadcrumbContainerInterface {
-    className?: string;
     sx?: React.CSSProperties;
 }
 
 export interface BreadcrumbProps {
-    children: React.ReactNode;
+    id?: string;
     className?: string;
+    children: React.ReactNode;
     maxItems?: number;
     separator?: string | React.ReactNode;
     sx?: React.CSSProperties;
@@ -59,7 +59,7 @@ export const BreadcrumbContainer = styled.div<BreadcrumbContainerInterface>`
 `;
 
 export function Breadcrumbs(props: BreadcrumbProps) {
-    const { children, className, maxItems = 8, separator = "/", sx } = props;
+    const { children, id, className, maxItems = 8, separator = "/", sx } = props;
     const [isOverflowing, setIsOverflowing] = React.useState(false);
 
     const [items, activeItem] = React.useMemo(() => {
@@ -99,7 +99,7 @@ export function Breadcrumbs(props: BreadcrumbProps) {
     }, [children, maxItems, separator, isOverflowing]);
 
     return (
-        <BreadcrumbContainer className={className} sx={sx}>
+        <BreadcrumbContainer id={id} className={className} sx={sx}>
             {items}
             {activeItem}
         </BreadcrumbContainer>

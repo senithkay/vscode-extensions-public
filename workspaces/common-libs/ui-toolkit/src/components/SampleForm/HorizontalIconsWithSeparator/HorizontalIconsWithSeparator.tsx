@@ -32,6 +32,8 @@ const PlusIconWrapper = styled.div`
 `;
 
 export interface IconContainerProps {
+    id?: string;
+    className?: string;
     leftIconName?: string;
     rightIconName?: string;
     title?: string;
@@ -86,10 +88,10 @@ const plusStyles = {
 };
 
 export const HorizontalIconsWithSeparator = (props: IconContainerProps) => {
-    const { title, leftIconName, rightIconName,  description, sx, onClick } = props;
+    const { id, className, title, leftIconName, rightIconName,  description, sx, onClick } = props;
 
     return (
-        <Container sx={sx}>
+        <Container id={id} className={className} sx={sx}>
             <ComponentCard onClick={onClick} sx={{display: "flex",  flexDirection: "row", justifyContent: "flex-start", width: FORM_WIDTH, padding: "10px 0", cursor: "default", "&:hover, &.active": { background: "var(--vscode-background)" } }}>
                 <CardContent>
                     <ComponentIconWrapper>

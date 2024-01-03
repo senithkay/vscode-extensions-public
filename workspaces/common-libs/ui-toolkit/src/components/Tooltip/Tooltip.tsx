@@ -10,6 +10,8 @@ import React, { ReactNode } from 'react';
 import styled from "@emotion/styled";
 
 export interface TooltipProps {
+    id?: string;
+    className?: string;
     content?: string | ReactNode;
     position?:
         'bottom-end' |
@@ -82,11 +84,13 @@ const TooltipContent = styled.div<TooltipProps>`
 `;
 
 export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
-    const { content, position, children, sx } = props;
+    const { id, className, content, position, children, sx } = props;
     const [isVisible, setIsVisible] = React.useState(false);
 
     return (
         <TooltipContainer
+            id={id}
+            className={className}
             onMouseEnter={() => setIsVisible(true)}
             onMouseLeave={() => setIsVisible(false)}
         >

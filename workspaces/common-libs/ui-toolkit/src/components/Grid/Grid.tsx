@@ -11,6 +11,8 @@ import React from "react";
 import styled from "@emotion/styled";
 
 export interface GridProps {
+    id?: string;
+    className?: string;
     children: React.ReactNode;
     columns?: number;
 }
@@ -32,6 +34,6 @@ export const GridContainer = styled.div<GridContainerProps>`
 `;
 
 export default function Grid(props: GridProps) {
-    const { children, columns = 3 } = props;
-    return <GridContainer columns={columns}>{children}</GridContainer>;
+    const { id, className, children, columns = 3 } = props;
+    return <GridContainer id={id} className={className} columns={columns}>{children}</GridContainer>;
 }

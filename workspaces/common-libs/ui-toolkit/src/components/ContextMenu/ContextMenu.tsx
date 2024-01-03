@@ -25,6 +25,8 @@ interface Item {
     disabled?: boolean;
 }
 export interface ContextMenuProps {
+    id?: string;
+    className?: string;
     menuItems?: Item[];
     isOpen?: boolean;
     isLoading?: boolean;
@@ -74,7 +76,7 @@ const Container = styled.div`
 `;
 
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
-    const { isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
+    const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -88,7 +90,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
     };
 
     return (
-        <Container>
+        <Container id={id} className={className}>
             {isLoading ? (
                 <SmallProgressRing />
             ) : (
