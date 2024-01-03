@@ -13,16 +13,12 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { TextField, Button, TextArea, Icon, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { Colors, DEFAULT_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
-import {
-    CodeNodeProperties,
-    Flow,
-    Node,
-    SwitchCaseBlock,
-    SwitchNodeProperties,
-} from "../../types";
+import { CodeNodeProperties, Flow, Node, SwitchCaseBlock, SwitchNodeProperties } from "../../types";
 import { getPortId, toSnakeCase } from "../../utils";
-import { HttpRequestNodeForm } from "../forms/HttpRequestNode";
+import { HttpRequestNodeForm } from "../forms/HttpRequestNodeForm";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { getNodeMetadata } from "@wso2-enterprise/eggplant-core";
+import { CodeBlockNodeForm } from "../forms/CodeBlockNodeForm";
 
 export interface OptionWidgetProps {
     engine: DiagramEngine;
@@ -151,7 +147,7 @@ export function OptionWidget(props: OptionWidgetProps) {
     const handleOpenDataMapper = () => {
         // handleOnSave();
         // TODO: Use the actual position of the node when the BE is ready
-        openDataMapper({startLine: 10, startColumn: 0, endLine: 13, endColumn: 2});
+        openDataMapper({ startLine: 10, startColumn: 0, endLine: 13, endColumn: 2 });
     };
 
     const handleOnSave = () => {
@@ -160,8 +156,12 @@ export function OptionWidget(props: OptionWidgetProps) {
         setSelectedNode(null);
     };
 
+    // TODO: write separate factory to support dynamic form generation
     if (selectedNode.getKind() === "HttpRequestNode") {
         return <HttpRequestNodeForm {...props} />;
+    }
+    if (selectedNode.getKind() === "CodeBlockNode") {
+        return <CodeBlockNodeForm {...props} />;
     }
 
     return (
@@ -298,17 +298,6 @@ export function OptionWidget(props: OptionWidgetProps) {
                                     }}
                                     size={32}
                                 />
-                                {selectedNode.getKind() === "CodeBlockNode" && (
-                                    <S.InputField
-                                        label="Name"
-                                        value={(node.properties as CodeNodeProperties).returnVar || "payload"}
-                                        required={true}
-                                        onChange={(value: string) => {
-                                            (node.properties as CodeNodeProperties).returnVar = value;
-                                        }}
-                                        size={32}
-                                    />
-                                )}
                             </S.Row>
                         );
                     })}

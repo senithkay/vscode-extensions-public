@@ -7,14 +7,13 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useRef, useState } from "react";
-import styled from "@emotion/styled";
+import React, { useEffect, useRef, useState } from "react";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { TextField, Button, Icon, Dropdown } from "@wso2-enterprise/ui-toolkit";
-import { Colors } from "../../../resources";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { DefaultNodeModel } from "../../default";
 import { Flow, HttpMethod, HttpRequestNodeProperties, Node } from "../../../types";
 import { toSnakeCase } from "../../../utils";
+import { Form } from "../styles";
 
 export interface OptionWidgetProps {
     engine: DiagramEngine;
@@ -25,87 +24,6 @@ export interface OptionWidgetProps {
     updateFlowModel?: () => void;
 }
 
-namespace S {
-    export const Tray = styled.div`
-        width: 240px;
-        background: ${Colors.SURFACE};
-        padding: 16px 18px;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 0;
-        flex-shrink: 0;
-        gap: 6px;
-        max-height: calc(100vh - 20px);
-        overflow-y: auto;
-    `;
-
-    export const HeaderContainer = styled.div`
-        display: flex;
-        justify-content: space-between;
-    `;
-
-    export const Header = styled.h4`
-        font-family: "GilmerMedium";
-        font-family: var(--font-family);
-        color: ${Colors.ON_SURFACE};
-        margin-bottom: 12px;
-        margin-block-start: unset;
-        user-select: none;
-    `;
-
-    export const SectionTitle = styled.h4`
-        font-family: "GilmerMedium";
-        font-family: var(--font-family);
-        font-weight: normal;
-        color: ${Colors.ON_SURFACE};
-        margin-bottom: 4px;
-        margin-block-start: unset;
-        user-select: none;
-    `;
-
-    export const Divider = styled.div`
-        height: 1px;
-        width: 100%;
-        background: ${Colors.OUTLINE};
-        margin: 6px 0px;
-    `;
-
-    export const Row = styled.div`
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 6px;
-    `;
-
-    export const InputField = styled(TextField)`
-        width: 100%;
-    `;
-
-    export const ActionButtonContainer = styled.div`
-        position: sticky;
-        bottom: 0;
-        padding-top: 16px;
-        background: ${Colors.SURFACE};
-        width: 100%;
-        & vscode-button {
-            width: 100%;
-        }
-    `;
-
-    export const ActionButton = styled(Button)`
-        width: 100%;
-    `;
-
-    export const Select = styled(Dropdown)`
-        & label {
-            font-family: var(--font-family);
-            outline: none;
-            user-select: none;
-            font-size: var(--type-ramp-base-font-size);
-            line-height: var(--type-ramp-base-line-height);
-        }
-    `;
-}
 // TODO: update this component with multiple form components
 export function HttpRequestNodeForm(props: OptionWidgetProps) {
     const { engine, flowModel, selectedNode, children, setSelectedNode, updateFlowModel } = props;
@@ -114,27 +32,32 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
     const node = useRef(JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node)
     const nodeProperties = useRef(node.current.properties as HttpRequestNodeProperties)
 
+    useEffect(() => {
+        node.current = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
+        nodeProperties.current = node.current.properties as HttpRequestNodeProperties;
+    }, [selectedNode]);
+
     const handleOnSave = () => {
         nodeProperties.current.endpoint = selectedEndpoint;
         node.current.properties = nodeProperties.current;
-        console.log(">>> node", node.current);
+        console.log(">>> save http request node form", node.current);
         selectedNode.setNode(node.current);
         updateFlowModel();
         setSelectedNode(null);
     };
 
     return (
-        <S.Tray>
-            <S.HeaderContainer>
-                <S.Header>Configuration HTTP</S.Header>
+        <Form.Tray>
+            <Form.HeaderContainer>
+                <Form.Header>Configuration HTTP</Form.Header>
                 <Icon
                     name="close"
                     onClick={() => {
                         setSelectedNode(null);
                     }}
                 />
-            </S.HeaderContainer>
-            <S.InputField
+            </Form.HeaderContainer>
+            <Form.InputField
                 label="Component Name"
                 value={selectedNode.getName()}
                 required={true}
@@ -145,16 +68,16 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
             />
             {selectedNode.getInPorts().length > 0 && (
                 <>
-                    <S.Divider />
-                    <S.SectionTitle>Input</S.SectionTitle>
+                    <Form.Divider />
+                    <Form.SectionTitle>Input</Form.SectionTitle>
                     {selectedNode.getInPorts()?.map((port, index) => {
                         const nodePort = port.getOptions()?.port;
                         if (!nodePort) {
                             return null;
                         }
                         return (
-                            <S.Row key={index}>
-                                <S.InputField
+                            <Form.Row key={index}>
+                                <Form.InputField
                                     label="Type"
                                     value={nodePort.type}
                                     required={true}
@@ -163,7 +86,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                                     }}
                                     size={32}
                                 />
-                                <S.InputField
+                                <Form.InputField
                                     label="Name"
                                     value={nodePort.name}
                                     required={true}
@@ -172,16 +95,16 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                                     }}
                                     size={32}
                                 />
-                            </S.Row>
+                            </Form.Row>
                         );
                     })}
                 </>
             )}
             <>
-                <S.Divider />
-                <S.SectionTitle>Connection</S.SectionTitle>
+                <Form.Divider />
+                <Form.SectionTitle>Connection</Form.SectionTitle>
                 {flowModel.endpoints.length > 0 && (
-                    <S.Select
+                    <Form.Select
                         id="endpoint"
                         value={selectedEndpoint.name}
                         items={flowModel.endpoints.map((ep) => {
@@ -192,7 +115,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                         }}
                     />
                 )}
-                {/* <S.InputField
+                {/* <Form.InputField
                         label="Base URL"
                         value={(node.properties as HttpRequestNodeProperties).endpoint.baseUrl || ""}
                         required={true}
@@ -201,8 +124,8 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                         }}
                         size={32}
                     /> */}
-                <S.SectionTitle>Method</S.SectionTitle>
-                <S.Select
+                <Form.SectionTitle>Method</Form.SectionTitle>
+                <Form.Select
                     id="method"
                     value={nodeProperties.current?.action || "get"}
                     items={[{ value: "get" }, { value: "post" }, { value: "put" }, { value: "delete" }]}
@@ -210,7 +133,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                         nodeProperties.current.action = value as HttpMethod;
                     }}
                 />
-                <S.InputField
+                <Form.InputField
                     label="Path"
                     value={nodeProperties.current?.path || ""}
                     onChange={(value: string) => {
@@ -220,8 +143,8 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                 />
             </>
             <>
-                <S.Divider />
-                {selectedNode.getOutPorts().length > 0 && <S.SectionTitle>Output</S.SectionTitle>}
+                <Form.Divider />
+                {selectedNode.getOutPorts().length > 0 && <Form.SectionTitle>Output</Form.SectionTitle>}
                 {selectedNode.getOutPorts()?.map((port, index) => {
                     const nodePort = port.getOptions()?.port;
                     if (!nodePort) {
@@ -231,8 +154,8 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                         return null;
                     }
                     return (
-                        <S.Row key={index}>
-                            <S.InputField
+                        <Form.Row key={index}>
+                            <Form.InputField
                                 label="Type"
                                 value={nodeProperties.current.outputType}
                                 required={true}
@@ -241,15 +164,15 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                                 }}
                                 size={32}
                             />
-                        </S.Row>
+                        </Form.Row>
                     );
                 })}
             </>
 
-            <S.ActionButtonContainer>
-                <S.ActionButton onClick={handleOnSave}>Save</S.ActionButton>
-            </S.ActionButtonContainer>
+            <Form.ActionButtonContainer>
+                <Form.ActionButton onClick={handleOnSave}>Save</Form.ActionButton>
+            </Form.ActionButtonContainer>
             {children}
-        </S.Tray>
+        </Form.Tray>
     );
 }

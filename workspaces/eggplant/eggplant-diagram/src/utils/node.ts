@@ -13,7 +13,7 @@ import { Node, NodeKinds } from "../types";
 import { getPortId } from "./generator";
 
 // get custom default node factory
-export function getNodeModel(type: NodeKinds, suffix?: string) {
+export function getDefaultNodeModel(type: NodeKinds, suffix?: string) {
     let name = type.toString();
     const isSingleNode = type === "StartNode" || type === "HttpResponseNode";
     if (suffix !== undefined && !isSingleNode) {
@@ -40,11 +40,6 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
             x: 0,
             y: 0,
         },
-        properties: {
-            codeBlock: {
-                expression: "",
-            },
-        },
     };
 
     const inPortId = getPortId(name, true, 1);
@@ -58,6 +53,15 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
         case "HttpResponseNode":
             nodeModel.addInPort(inPortId);
             emptyNode.templateId = "HttpResponseNode";
+            emptyNode.properties = {
+                path: "",
+                action: "get",
+                outputType: "json",
+                endpoint: {
+                    baseUrl: "",
+                    name: "httpEp",
+                },
+            };
             break;
         case "SwitchNode":
             nodeModel.addInPort(inPortId, {
@@ -86,6 +90,27 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
                 },
             };
             break;
+        case "CodeBlockNode":
+            // add additional metadata for code block node
+            (emptyNode.properties = {
+                codeBlock: {
+                    expression: "",
+                },
+            }),
+                (emptyNode.metadata = {
+                    inputs: [
+                        {
+                            name: "in",
+                            type: DEFAULT_TYPE,
+                        },
+                    ],
+                    outputs: [
+                        {
+                            name: "out",
+                            type: DEFAULT_TYPE,
+                        },
+                    ],
+                });
         default:
             nodeModel.addInPort(inPortId);
             nodeModel.addOutPort(outPortId);
@@ -97,6 +122,7 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
     return nodeModel;
 }
 
+// only one start and response node can be added to the canvas
 export function isFixedNode(type: NodeKinds) {
     return type === "StartNode" || type === "HttpResponseNode";
 }
