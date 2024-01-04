@@ -85,7 +85,14 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
     generatePort = (port: DefaultPortModel) => {
         return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
     };
+
     render() {
+        // handle start node widget
+        // TODO: move this to a separate component
+        if (this.props.node.getOptions().name === "StartNode") {
+            return <S.PortsContainer>{_.map(this.props.node.getUniqueOutPorts(), this.generatePort)}</S.PortsContainer>;
+        }
+
         return (
             <S.Node
                 data-default-node-name={this.props.node.getOptions().name}
@@ -103,7 +110,7 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
                     </S.TitleName>
                 </S.Title>
                 <S.OutPorts>
-                    <S.PortsContainer>{_.map(this.props.node.getOutPorts(), this.generatePort)}</S.PortsContainer>
+                    <S.PortsContainer>{_.map(this.props.node.getUniqueOutPorts(), this.generatePort)}</S.PortsContainer>
                 </S.OutPorts>
             </S.Node>
         );

@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NMD_Metadata as Metadata } from "./metadata-types";
+
 export type Flow = {
     id: string;
     name: string;
@@ -23,6 +25,7 @@ export type NodeKinds =
     | "SwitchNode"
     | "HttpRequestNode"
     | "TransformNode"
+    | "NewPayloadNode"
     | "DefaultNode";
 
 export type Node = {
@@ -34,6 +37,7 @@ export type Node = {
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
     properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties;
+    metadata?: string | Metadata;
 };
 
 export type InputPort = {
@@ -72,7 +76,7 @@ export type NodeProperties = {
 
 export type CodeNodeProperties = NodeProperties & {
     codeBlock: BalExpression;
-    returnVar?: string;
+    returnVar?: string; // TODO: remove this
 };
 
 export type SwitchNodeProperties = NodeProperties & {

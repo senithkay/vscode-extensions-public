@@ -10,11 +10,13 @@
 import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
 import {
     addDiagramListener,
+    addStartNode as addDefaultNodesIfNotExists,
+    fitDiagramToNodes,
     generateDiagramModelFromFlowModel,
     generateEngine,
     loadDiagramZoomAndPosition,
@@ -23,20 +25,19 @@ import {
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
-import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
-import { DataMapperOverlay } from "./components/data-mapper/ViewManager";
+import { DataMapperWidget } from "./components/layout/DataMapperWidget";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 const queryClient = new QueryClient({
     defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-        staleTime: 1000,
-        cacheTime: 1000,
-      },
+        queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+            staleTime: 1000,
+            cacheTime: 1000,
+        },
     },
-  });
+});
 
 interface EggplantAppProps {
     flowModel: Flow;
@@ -77,10 +78,16 @@ export function EggplantApp(props: EggplantAppProps) {
         model.addLayer(new OverlayLayerModel());
         // generate diagram model
         generateDiagramModelFromFlowModel(model, flowModel);
+        const hasNewNodes = addDefaultNodesIfNotExists(flowModel, model);
         diagramEngine.setModel(model);
         addDiagramListener(diagramEngine, flowModel, debouncedHandleDiagramChange, setSelectedNode, setSelectedLink);
         setDiagramModel(model);
-        loadDiagramZoomAndPosition(diagramEngine);
+        if (hasNewNodes) {
+            fitDiagramToNodes(diagramEngine);
+        } else {
+            // load previous zoom and position
+            loadDiagramZoomAndPosition(diagramEngine);
+        }
         // remove overlay
         removeOverlay(diagramEngine);
     };
@@ -98,16 +105,16 @@ export function EggplantApp(props: EggplantAppProps) {
                                 selectedNode={selectedNode}
                                 setSelectedNode={setSelectedNode}
                                 openDataMapper={openDataMapper}
-                            />     
+                            />
                         )}
                         {tnfFnPosition && (
-                            <DataMapperOverlay
+                            <DataMapperWidget
                                 filePath={flowModel.fileName}
                                 fnLocation={tnfFnPosition}
                                 onClose={closeDataMapper}
                             />
                         )}
-                    </>               
+                    </>
                 )}
             </QueryClientProvider>
         </>

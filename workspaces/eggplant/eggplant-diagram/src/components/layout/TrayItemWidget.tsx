@@ -10,12 +10,17 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Colors, EVENT_TYPES } from "../../resources";
-import { NodeKinds } from "../../types";
+import { HttpMethod, NodeKinds } from "../../types";
 
 export interface TrayItemWidgetProps {
-    model: { type: NodeKinds };
+    model: TrayItemModel;
     color?: string;
     name: string;
+}
+
+export type TrayItemModel = {
+    type: NodeKinds,
+    action?: HttpMethod, // TODO: handle this dynamic sub types properly
 }
 
 namespace S {
