@@ -14,6 +14,7 @@ export type Flow = {
     endpoints?: Endpoint[];
     fileName: string;
     bodyCodeLocation: CodeLocation;
+    fileSourceRange: CodeLocation;
 };
 
 export type NodeKinds =
@@ -33,7 +34,7 @@ export type Node = {
     outputPorts: OutputPort[];
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
-    properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties;
+    properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties | TransformNodeProperties;
 };
 
 export type InputPort = {
@@ -79,6 +80,12 @@ export type SwitchNodeProperties = NodeProperties & {
     cases: SwitchCaseBlock[];
     defaultCase?: DefaultCaseBlock;
 };
+
+export type TransformNodeProperties = NodeProperties & {
+    codeBlock: BalExpression;
+    outputType: string;
+    transformFunctionLocation?: CodeLocation;
+}
 
 export type SwitchCaseBlock = {
     expression: BalExpression;
