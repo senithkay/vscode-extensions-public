@@ -1,0 +1,149 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import React, { useEffect, useState } from "react";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
+import { DefaultNodeModel } from "../../default";
+import { Endpoint, Flow, HttpMethod, HttpRequestNodeProperties, Node } from "../../../types";
+import { toSnakeCase } from "../../../utils";
+import { Form } from "../styles";
+import { DEFAULT_TYPE } from "../../../resources";
+
+export interface OptionWidgetProps {
+    engine: DiagramEngine;
+    flowModel: Flow;
+    selectedNode: DefaultNodeModel;
+    children?: React.ReactNode;
+    setSelectedNode?: (node: DefaultNodeModel) => void;
+    updateFlowModel?: () => void;
+}
+
+// TODO: update this component with multiple form components
+export function HttpRequestNodeForm(props: OptionWidgetProps) {
+    const { flowModel, selectedNode, children, setSelectedNode, updateFlowModel } = props;
+
+    const [nodeName, setNodeName] = useState<string>();
+    const [path, setPath] = useState<string>("");
+    const [payloadType, setPayloadType] = useState<string>(DEFAULT_TYPE);
+    const [outputType, setOutputType] = useState<string>(DEFAULT_TYPE);
+    const [action, setAction] = useState<HttpMethod>("get");
+    const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint>();
+
+    useEffect(() => {
+        const node = selectedNode.getNode();
+        const nodeProperties = node.properties as HttpRequestNodeProperties;
+        setNodeName(node.name);
+        setPath(nodeProperties.path);
+        setOutputType(nodeProperties.outputType);
+        setAction(nodeProperties.action);
+        if (selectedNode.getInPorts().length > 0) {
+            setPayloadType(selectedNode.getInPorts()[0].getOptions().type);
+        }
+        if (flowModel.endpoints?.length > 0) {
+            if (nodeProperties.endpoint.name) {
+                setSelectedEndpoint(flowModel.endpoints.find((ep) => ep.name === nodeProperties.endpoint.name));
+            } else {
+                setSelectedEndpoint(flowModel.endpoints[0]);
+            }
+        }
+    }, [selectedNode.getID()]);
+
+    const handleOnSave = () => {
+        const node = JSON.parse(JSON.stringify(selectedNode.getNode())) as Node;
+        const properties: HttpRequestNodeProperties = {
+            path,
+            action,
+            outputType,
+            endpoint: selectedEndpoint,
+        };
+        node.name = toSnakeCase(nodeName);
+        node.properties = properties;
+        selectedNode.setNode(node);
+        updateFlowModel();
+        setSelectedNode(null);
+    };
+
+    const formTitle = action?.toUpperCase() + " Request" || "HTTP Request";
+
+    return (
+        <Form.Tray>
+            <Form.HeaderContainer>
+                <Form.Header>{formTitle}</Form.Header>
+                <Icon
+                    name="close"
+                    onClick={() => {
+                        setSelectedNode(null);
+                    }}
+                />
+            </Form.HeaderContainer>
+            <Form.InputField
+                label="Component Name"
+                value={nodeName}
+                required={true}
+                onChange={(value: string) => {
+                    setNodeName(value);
+                }}
+                size={32}
+            />
+            <>
+                <Form.Divider />
+                <Form.SectionTitle>Connection</Form.SectionTitle>
+                {!(flowModel.endpoints?.length > 0) && <Form.Error>No Endpoints Found</Form.Error>}
+                {flowModel.endpoints?.length > 0 && selectedEndpoint && (
+                    <Form.Select
+                        id="endpoint"
+                        value={selectedEndpoint.name}
+                        items={flowModel.endpoints.map((ep) => {
+                            return { value: ep.name };
+                        })}
+                        onChange={(value: string) => {
+                            setSelectedEndpoint(flowModel.endpoints.find((ep) => ep.name === value));
+                        }}
+                    />
+                )}
+                <Form.InputField
+                    label="Path"
+                    value={path}
+                    onChange={(value: string) => {
+                        setPath(value);
+                    }}
+                    size={32}
+                />
+                {/* {action === "post" && (
+                    <Form.InputField
+                        label="Payload Type"
+                        value={payloadType}
+                        onChange={(value: string) => {
+                            setPayloadType(value);
+                        }}
+                        size={32}
+                    />
+                )} */}
+                <Form.Divider />
+                <Form.Row>
+                    <Form.InputField
+                        label="Output Type"
+                        value={outputType}
+                        required={true}
+                        onChange={(value: string) => {
+                            setOutputType(value);
+                        }}
+                        size={32}
+                    />
+                </Form.Row>
+            </>
+
+            <Form.ActionButtonContainer>
+                <Form.ActionButton onClick={handleOnSave}>Save</Form.ActionButton>
+            </Form.ActionButtonContainer>
+            {children}
+        </Form.Tray>
+    );
+}

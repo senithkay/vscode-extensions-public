@@ -12,14 +12,23 @@ import { DefaultNodeModel } from "./DefaultNodeModel";
 import { DefaultNodeWidget } from "./DefaultNodeWidget";
 import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { StartNodeWidget } from "./StartNodeWidget";
+import { ReturnNodeWidget } from "./ReturnNodeWidget";
 
 export class DefaultNodeFactory extends AbstractReactFactory<DefaultNodeModel, DiagramEngine> {
     constructor() {
         super("default");
     }
 
-    generateReactWidget(event: { model: DefaultNodeModel; }): JSX.Element {
-        return <DefaultNodeWidget engine={this.engine} node={event.model} />;
+    generateReactWidget(event: { model: DefaultNodeModel }): JSX.Element {
+        switch (event.model.getKind()) {
+            case "StartNode":
+                return <StartNodeWidget engine={this.engine} node={event.model} />;
+            case "HttpResponseNode":
+                return <ReturnNodeWidget engine={this.engine} node={event.model} />;
+            default:
+                return <DefaultNodeWidget engine={this.engine} node={event.model} />;
+        }
     }
 
     generateModel(): DefaultNodeModel {

@@ -8,7 +8,14 @@
  */
 
 import createEngine, { DagreEngine, DiagramEngine, DiagramModel, LinkModel } from "@projectstorm/react-diagrams";
-import { DefaultNodeFactory, DefaultPortFactory, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeModel, DefaultLinkModel } from "../components/default";
+import {
+    DefaultNodeFactory,
+    DefaultPortFactory,
+    DefaultLabelFactory,
+    DefaultLinkFactory,
+    DefaultNodeModel,
+    DefaultLinkModel,
+} from "../components/default";
 import { OverlayLayerFactory, OverlayLayerModel } from "../components/overlay";
 import { DeleteItemsAction } from "@projectstorm/react-canvas-core";
 import { action } from "@storybook/addon-actions";
@@ -17,9 +24,7 @@ import { generateFlowModelFromDiagramModel } from "./generator";
 import { DefaultState } from "../states/DefaultState";
 
 export function generateEngine(): DiagramEngine {
-    const engine = createEngine(
-        { registerDefaultDeleteItemsAction: false }
-    );
+    const engine = createEngine({ registerDefaultDeleteItemsAction: false });
     // register default factories
     engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
     engine.getPortFactories().registerFactory(new DefaultPortFactory());
@@ -39,11 +44,11 @@ export function generateEngine(): DiagramEngine {
 export function getDagreEngine() {
     const engine = new DagreEngine({
         graph: {
-            rankdir: 'LR',
+            rankdir: "LR",
             ranksep: 160,
             edgesep: 80,
             nodesep: 40,
-            ranker: 'tight-tree',
+            ranker: "tight-tree",
         },
     });
     return engine;
@@ -62,11 +67,12 @@ export function removeOverlay(diagramEngine: DiagramEngine) {
 }
 
 // register diagram listener
-export function addDiagramListener(diagramEngine: DiagramEngine,
+export function addDiagramListener(
+    diagramEngine: DiagramEngine,
     flowModel: Flow,
     onModelChange: (flowModel: Flow) => void,
     setSelectedNode: (node: DefaultNodeModel | null) => void,
-    setSelectedLink: (node: DefaultLinkModel | null) => void,
+    setSelectedLink: (node: DefaultLinkModel | null) => void
 ) {
     // register node listeners
     diagramEngine
@@ -93,7 +99,7 @@ export function addDiagramListener(diagramEngine: DiagramEngine,
                     } else {
                         setSelectedNode(null);
                     }
-                }
+                },
             });
         });
 
@@ -116,7 +122,7 @@ export function addDiagramListener(diagramEngine: DiagramEngine,
                     } else {
                         setSelectedLink(null);
                     }
-                }
+                },
             });
         });
 
@@ -140,9 +146,6 @@ export function genFlowModelAndCallback(
     flowModel: Flow,
     onModelChange: (flowModel: Flow) => void
 ) {
-    const newFlowModel: Flow = generateFlowModelFromDiagramModel(
-        flowModel,
-        diagramModel
-    );
+    const newFlowModel: Flow = generateFlowModelFromDiagramModel(flowModel, diagramModel);
     onModelChange(newFlowModel);
 }

@@ -7,18 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { DEFAULT_TYPE } from "../resources/constants";
-import { Node, NodeKinds } from "../types";
+import { Flow, HttpMethod, Node, NodeKinds } from "../types";
 import { getPortId } from "./generator";
 
 // get custom default node factory
-export function getNodeModel(type: NodeKinds, suffix?: string) {
-    let name = type.toString();
-    const isSingleNode = type === "StartNode" || type === "HttpResponseNode";
-    if (suffix !== undefined && !isSingleNode) {
-        name = type + "_" + suffix;
-    }
+export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix?: string) {
+    let name = generateNodeName(type, action, suffix);
     let nodeModel = new DefaultNodeModel({ name: name, kind: type });
 
     let emptyNode: Node = {
@@ -40,11 +37,6 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
             x: 0,
             y: 0,
         },
-        properties: {
-            codeBlock: {
-                expression: "",
-            },
-        },
     };
 
     const inPortId = getPortId(name, true, 1);
@@ -54,8 +46,30 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
         case "StartNode":
             nodeModel.addOutPort(outPortId);
             emptyNode.templateId = "StartNode";
+            emptyNode.metadata = {
+                outputs: [
+                    {
+                        name: "out",
+                        type: "()",
+                    },
+                ],
+            };
             break;
-        case "HttpResponseNode":
+        case "HttpRequestNode":
+            nodeModel.addInPort(inPortId);
+            nodeModel.addInPort(outPortId);
+            emptyNode.templateId = "HttpRequestNode";
+            emptyNode.properties = {
+                path: "",
+                action: action,
+                outputType: "json",
+                endpoint: {
+                    baseUrl: "",
+                    name: "pineValleyEp",
+                },
+            };
+            break;
+        case "HttpResponseNode": // response node
             nodeModel.addInPort(inPortId);
             emptyNode.templateId = "HttpResponseNode";
             break;
@@ -86,6 +100,47 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
                 },
             };
             break;
+        case "NewPayloadNode":
+            nodeModel.addOutPort(outPortId);
+            // add additional metadata for code block node
+            emptyNode.properties = {
+                codeBlock: {
+                    expression: `${DEFAULT_TYPE} payload = {};`,
+                },
+            };
+            emptyNode.metadata = {
+                outputs: [
+                    {
+                        name: "payload",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+            };
+            break;
+        case "CodeBlockNode":
+            nodeModel.addInPort(inPortId);
+            nodeModel.addOutPort(outPortId);
+            // add additional metadata for code block node
+            emptyNode.properties = {
+                codeBlock: {
+                    expression: `${DEFAULT_TYPE} payload = {};`,
+                },
+            };
+            emptyNode.metadata = {
+                inputs: [
+                    {
+                        name: "inVar",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+                outputs: [
+                    {
+                        name: "payload",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+            };
+            break;
         default:
             nodeModel.addInPort(inPortId);
             nodeModel.addOutPort(outPortId);
@@ -97,6 +152,28 @@ export function getNodeModel(type: NodeKinds, suffix?: string) {
     return nodeModel;
 }
 
-export function isFixedNode(type: NodeKinds) {
+export function addStartNode(flowModel: Flow, model: DiagramModel) {
+    if (!flowModel.nodes?.some((node) => node.templateId === "StartNode")) {
+        let nodeModel = getDefaultNodeModel("StartNode");
+        nodeModel.setPosition(1000, 1000); 
+        model.addNode(nodeModel);
+        return true;
+    }
+    return false;
+}
+
+export function generateNodeName(type: NodeKinds, action?: HttpMethod, suffix?: string) {
+    let name = type.toString();
+    if (type === "HttpRequestNode" && action) {
+        name = action.toUpperCase() + "RequestNode";
+    }
+    if (suffix !== undefined && !isSingleNode(type)) {
+        name = name + "_" + suffix;
+    }
+    return name;
+}
+
+// only one start and response node can be added to the canvas
+export function isSingleNode(type: NodeKinds) {
     return type === "StartNode" || type === "HttpResponseNode";
 }

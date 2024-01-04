@@ -85,6 +85,7 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
     generatePort = (port: DefaultPortModel) => {
         return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
     };
+
     render() {
         return (
             <S.Node
@@ -103,7 +104,7 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
                     </S.TitleName>
                 </S.Title>
                 <S.OutPorts>
-                    <S.PortsContainer>{_.map(this.props.node.getOutPorts(), this.generatePort)}</S.PortsContainer>
+                    <S.PortsContainer>{_.map(this.props.node.getUniqueOutPorts(), this.generatePort)}</S.PortsContainer>
                 </S.OutPorts>
             </S.Node>
         );

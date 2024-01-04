@@ -17,6 +17,7 @@ export type {
     CodeNodeProperties,
     SwitchNodeProperties,
     HttpRequestNodeProperties,
+    TransformNodeProperties,
     NodeKinds,
     HttpMethod,
     Endpoint,

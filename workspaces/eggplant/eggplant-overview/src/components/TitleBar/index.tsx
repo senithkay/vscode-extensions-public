@@ -41,7 +41,7 @@ export function TitleBar(props: { clearSelection: () => void }) {
                     <Codicon name="home" />
                 </VSCodeButton>
                 <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleDiagramView}>
-                    <Codicon name="circuit-board" />
+                    {/* <Codicon name="circuit-board" /> */}
                 </VSCodeButton>
             </HeaderData>
             <VSCodeDivider />

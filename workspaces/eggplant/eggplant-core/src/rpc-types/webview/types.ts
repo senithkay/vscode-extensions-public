@@ -7,6 +7,8 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { NMD_Metadata as Metadata } from "./metadata-types";
+
 export type Flow = {
     id: string;
     name: string;
@@ -14,6 +16,7 @@ export type Flow = {
     endpoints?: Endpoint[];
     fileName: string;
     bodyCodeLocation: CodeLocation;
+    fileSourceRange: CodeLocation;
 };
 
 export type NodeKinds =
@@ -23,6 +26,7 @@ export type NodeKinds =
     | "SwitchNode"
     | "HttpRequestNode"
     | "TransformNode"
+    | "NewPayloadNode"
     | "DefaultNode";
 
 export type Node = {
@@ -34,6 +38,7 @@ export type Node = {
     codeLocation: CodeLocation;
     canvasPosition?: CanvasPosition;
     properties?: CodeNodeProperties | SwitchNodeProperties | HttpRequestNodeProperties | TransformNodeProperties;
+    metadata?: string | Metadata;
 };
 
 export type InputPort = {
@@ -72,13 +77,19 @@ export type NodeProperties = {
 
 export type CodeNodeProperties = NodeProperties & {
     codeBlock: BalExpression;
-    returnVar?: string;
+    returnVar?: string; // TODO: remove this
 };
 
 export type SwitchNodeProperties = NodeProperties & {
     cases: SwitchCaseBlock[];
     defaultCase?: DefaultCaseBlock;
 };
+
+export type TransformNodeProperties = NodeProperties & {
+    codeBlock: BalExpression;
+    outputType: string;
+    transformFunctionLocation?: CodeLocation;
+}
 
 export type SwitchCaseBlock = {
     expression: BalExpression;
@@ -92,13 +103,6 @@ export type HttpRequestNodeProperties = NodeProperties & {
     path: string;
     endpoint: Endpoint;
     outputType: string;
-};
-
-export type TransformNodeProperties = {
-    codeBlock: BalExpression;
-    expression: BalExpression;
-    outputType: string;
-    transformFunctionLocation: CodeLocation;
 };
 
 export type HttpHeader = {

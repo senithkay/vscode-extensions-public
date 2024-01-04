@@ -13,6 +13,7 @@ import { registerWebviewRpcHandlers } from './rpc-managers/webview/rpc-handler';
 import { StateMachine } from './stateMachine';
 import { stateChanged } from '@wso2-enterprise/eggplant-core';
 import { registerLangServerRpcHandlers } from './rpc-managers/langServer/rpc-handler';
+import { registerServiceDesignerRpcHandlers } from './rpc-managers/service-designer/rpc-handler';
 
 export class RPCLayer {
     private _messenger: Messenger = new Messenger();
@@ -32,6 +33,7 @@ export class RPCLayer {
 
         registerWebviewRpcHandlers(this._messenger);
         registerLangServerRpcHandlers(this._messenger);
+        registerServiceDesignerRpcHandlers(this._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {

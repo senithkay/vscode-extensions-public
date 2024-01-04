@@ -86,12 +86,12 @@ const ProjectForm = () => {
                 <HorizontalCardContainer>
                     <ComponentCard isSelected={selectedModule === "Main"} onClick={() => handleSelection("Main")} sx={{ height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15, margin: 10 }}>
                         <IconWrapper>
-                            <div>Main module</div>
+                            <div>Automation</div>
                         </IconWrapper>
                     </ComponentCard>
                     <ComponentCard isSelected={selectedModule === "Service"} onClick={() => handleSelection("Service")} sx={{ height: 40, width: (FORM_WIDTH / 2 - 25), marginTop: 15, margin: 10 }}>
                         <IconWrapper>
-                            <div>Service module</div>
+                            <div>Service</div>
                         </IconWrapper>
                     </ComponentCard>
                 </HorizontalCardContainer>

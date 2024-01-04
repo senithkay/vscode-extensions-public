@@ -17,7 +17,7 @@ const stateMachine = createMachine<Context>({
     initial: 'initialize',
     context: { // Add this
         langServer: null,
-        errorCode: null
+        errorCode: null,
     },
     states: {
         initialize: {
@@ -64,8 +64,10 @@ const stateMachine = createMachine<Context>({
                         OPEN_VIEW: {
                             target: "viewUpdate",
                             actions: assign({
-                                view: (context, event) => event.viewLocation.view,
-                                location: (context, event) => event.viewLocation.location
+                                view: (context, event) => event.viewLocation.view ? event.viewLocation.view : context.view,
+                                fileName: (context, event) => event.viewLocation.fileName ? event.viewLocation.fileName : context.fileName,
+                                position: (context, event) => event.viewLocation.position ? event.viewLocation.position : context.position,
+                                identifier: (context, event) => event.viewLocation.identifier ? event.viewLocation.identifier : context.identifier,
                             })
                         }
                     }

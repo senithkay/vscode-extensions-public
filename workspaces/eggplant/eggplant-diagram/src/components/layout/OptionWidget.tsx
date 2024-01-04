@@ -13,16 +13,12 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { TextField, Button, TextArea, Icon, Dropdown } from "@wso2-enterprise/ui-toolkit";
 import { Colors, DEFAULT_TYPE } from "../../resources";
 import { DefaultNodeModel } from "../default";
-import {
-    CodeNodeProperties,
-    Flow,
-    Node,
-    SwitchCaseBlock,
-    SwitchNodeProperties,
-} from "../../types";
+import { CodeNodeProperties, Flow, Node, SwitchCaseBlock, SwitchNodeProperties } from "../../types";
 import { getPortId, toSnakeCase } from "../../utils";
-import { HttpRequestNodeForm } from "../forms/HttpRequestNode";
+import { HttpRequestNodeForm } from "../forms/HttpRequestNodeForm";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { CodeBlockNodeForm } from "../forms/CodeBlockNodeForm";
+import { NewPayloadNodeForm } from "../forms/NewPayloadNodeForm";
 import { TransformNodeProperties } from "@wso2-enterprise/eggplant-core";
 
 export interface OptionWidgetProps {
@@ -170,8 +166,15 @@ export function OptionWidget(props: OptionWidgetProps) {
         setSelectedNode(null);
     };
 
+    // TODO: write separate factory to support dynamic form generation
     if (selectedNode.getKind() === "HttpRequestNode") {
         return <HttpRequestNodeForm {...props} />;
+    }
+    if (selectedNode.getKind() === "CodeBlockNode") {
+        return <CodeBlockNodeForm {...props} />;
+    }
+    if (selectedNode.getKind() === "NewPayloadNode") {
+        return <NewPayloadNodeForm {...props} />;
     }
 
     return (
@@ -257,7 +260,7 @@ export function OptionWidget(props: OptionWidgetProps) {
                                 <div key={index}>
                                     <TextArea
                                         label={`Case ${index + 1}`}
-                                        value={caseBlock.expression.toString() || ""}
+                                        value={caseBlock.expression.expression || ""}
                                         rows={2}
                                         resize="vertical"
                                         onChange={(value: string) => {
@@ -300,17 +303,6 @@ export function OptionWidget(props: OptionWidgetProps) {
                                     }}
                                     size={32}
                                 />
-                                {selectedNode.getKind() === "CodeBlockNode" && (
-                                    <S.InputField
-                                        label="Name"
-                                        value={(node.properties as CodeNodeProperties).returnVar || "payload"}
-                                        required={true}
-                                        onChange={(value: string) => {
-                                            (node.properties as CodeNodeProperties).returnVar = value;
-                                        }}
-                                        size={32}
-                                    />
-                                )}
                             </S.Row>
                         );
                     })}
