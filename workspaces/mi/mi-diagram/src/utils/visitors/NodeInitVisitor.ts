@@ -30,7 +30,8 @@ import {
     Validate,
     EndpointHttp,
     Endpoint,
-    Filter
+    Filter,
+    PayloadFactory
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
@@ -443,6 +444,19 @@ export class NodeInitVisitor implements Visitor {
             }
             ));
         this.skipChildrenVisit = true;
+    }
+
+    beginVisitPayloadFactory(node: PayloadFactory): void {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.PAYLOADFACTORY,
+                description: node.mediaType?.toString(),
+                documentUri: this.documentUri,
+                sequenceType: SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
     }
 
     skipChildren(): boolean {
