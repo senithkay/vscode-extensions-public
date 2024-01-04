@@ -33,7 +33,14 @@ const ConfirmDialogButtons = styled.div`
   margin-top: 20px;
 `;
 
-const ConfirmDialog = ({ isOpen, onClose, onConfirm }) => {
+interface ConfirmDialogProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+}
+
+const ConfirmDialog = (props: ConfirmDialogProps) => {
+    const { isOpen, onClose, onConfirm} = props;
     if (!isOpen) return null;
 
     return (
