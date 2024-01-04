@@ -10,7 +10,7 @@
 import React, { useEffect, useRef } from "react";
 import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Node } from "../../../types";
-import { CodeNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
+import { TransformNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
 import { toSnakeCase } from "../../../utils";
 import { OptionWidgetProps } from "../../layout/OptionWidget";
@@ -20,13 +20,13 @@ export function TransformNodeForm(props: OptionWidgetProps) {
     const { selectedNode, children, setSelectedNode, updateFlowModel, openDataMapper } = props;
 
     const node = useRef(JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node);
-    const nodeProperties = useRef(node.current.properties as CodeNodeProperties);
+    const nodeProperties = useRef(node.current.properties as TransformNodeProperties);
     const nodeMetadata = useRef(getNodeMetadata(node.current));
     const outPortType = useRef(DEFAULT_TYPE);
 
     useEffect(() => {
         node.current = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
-        nodeProperties.current = node.current.properties as CodeNodeProperties;
+        nodeProperties.current = node.current.properties as TransformNodeProperties;
         nodeMetadata.current = getNodeMetadata(node.current);
         if (selectedNode.getOutPorts().length > 0) {
             outPortType.current = selectedNode.getOutPorts()[0].getOptions()?.port.type || DEFAULT_TYPE;
@@ -35,8 +35,17 @@ export function TransformNodeForm(props: OptionWidgetProps) {
 
     const handleOpenDataMapper = () => {
         // handleOnSave();
-        // TODO: Use the actual position of the node when the BE is ready
-        openDataMapper({ startLine: 10, startColumn: 0, endLine: 13, endColumn: 2 });
+        const tnfFnLocation = nodeProperties.current.transformFunctionLocation;
+        if (!tnfFnLocation) {
+            console.error("Transform function location is not defined");
+            return;
+        }
+        openDataMapper({
+            startLine: tnfFnLocation.start.line,
+            startColumn: tnfFnLocation.start.offset,
+            endLine: tnfFnLocation.end.line,
+            endColumn: tnfFnLocation.end.offset
+        });
     };
 
     const handleOnSave = () => {

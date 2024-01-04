@@ -111,8 +111,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     }
 
     const emptyView = (
-        <Typography variant="h3">
-            Service list is empty
+        <Typography variant="h3" sx={{ textAlign: "center"}}>
+            No resources found. Add a new resource.
         </Typography>
     );
 

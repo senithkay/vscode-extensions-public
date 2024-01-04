@@ -36,7 +36,7 @@ export function DataMapperOverlay() {
         const langServerRPCClient = ballerinaRpcClient.getLangServerRpcClient();
         const visualizerRPCClient = ballerinaRpcClient.getVisualizerRpcClient();
         const filePath = viewLocation.location.fileName;
-        const { parseSuccess, source: newSource, syntaxTree } = await visualizerRPCClient?.stModify({
+        const { parseSuccess, source: newSource, syntaxTree } = await langServerRPCClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
                 uri: URI.file(filePath).toString()

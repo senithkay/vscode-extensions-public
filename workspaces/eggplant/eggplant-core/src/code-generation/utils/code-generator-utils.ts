@@ -8,9 +8,10 @@
  */
 
 import { BalExpression, CodeNodeProperties, Flow, HttpRequestNodeProperties, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties, TransformNodeProperties } from "../../rpc-types/webview/types";
+import { getNodeMetadata } from "./metadata-utils";
 import { getComponentSource } from "./template-utils";
 
-const defaultInput = "_ = check <- function;";
+// const defaultInput = "_ = check <- function;";
 let returnBlock: string = "";
 let startWorkerCall: string = "";
 
@@ -87,12 +88,12 @@ function generateStartNode(node: Node): string {
 
 function generateBlockNode(node: Node): string {
     const nodeProperties = node.properties as CodeNodeProperties;
-    let inputPorts: string = generateInputPorts(node);
+    const inputPorts: string = generateInputPorts(node);
     const outputPorts: string = generateOutputPorts(node)
     console.log("===inputPorts", inputPorts);
-    if (inputPorts === undefined && outputPorts !== undefined) {
-        inputPorts = defaultInput;
-    }
+    // if (inputPorts === undefined && outputPorts !== undefined) {
+    //     inputPorts = defaultInput;
+    // }
     const workerNode: string = getComponentSource({
         name: 'CODE_BLOCK_NODE',
         config: {
@@ -210,11 +211,11 @@ function generateCallerNode(node: Node): string {
         }
     });
 
-    let inputPorts: string = generateInputPorts(node);
+    const inputPorts: string = generateInputPorts(node);
     const outputPorts: string = generateOutputPorts(node, callerVariable);
-    if (inputPorts === undefined && outputPorts !== undefined) {
-        inputPorts = defaultInput;
-    }
+    // if (inputPorts === undefined && outputPorts !== undefined) {
+    //     inputPorts = defaultInput;
+    // }
 
     const workerNode: string = getComponentSource({
         name: 'CALLER_BLOCK',
@@ -239,7 +240,24 @@ function generateResponseNode(node: Node): string {
     const inputPort = node?.inputPorts[0];
     const varType = inputPort?.type ? sanitizeType(inputPort.type) : undefined;
     const varName = inputPort?.name;
-    const genInport = inputPort ? generateInport(inputPort) : undefined;
+    
+    // TODO: fix the correct type and name when there aremultiple types of the input ports
+    let genInport;
+
+    if (node.inputPorts?.length > 1) {
+        const responseList = generateAlternateResponse(node);
+          genInport = getComponentSource({
+            name: 'ASYNC_RECEIVE_ACTION',
+            config: {
+                TYPE: varType,
+                VAR_NAME: varName,
+                SENDER_WORKER: responseList
+            }
+        });  
+    } else {
+        genInport = inputPort ? generateInport(inputPort) : undefined;
+    }
+
     const workerNode: string = getComponentSource({
         name: 'RESPOND',
         config: {
@@ -266,6 +284,21 @@ function generateResponseNode(node: Node): string {
     return completeNode;
 }
 
+// TODO: Add template for alterate worker check
+function generateAlternateResponse(node: Node): string{
+    // get the inputPorts list and get the receiver name and generate in the form of receiverName1 | recieverName1
+    let inputPorts = "";
+    node.inputPorts.forEach((port: InputPort) => {
+        const receiver = port.sender;
+        inputPorts += receiver;
+        // if the receiver is not the last element add a comma
+        if (node.inputPorts.indexOf(port) !== node.inputPorts.length - 1) {
+            inputPorts += " | ";
+        }
+    });
+    return inputPorts;
+}
+
 function generateTransformNode(node: Node): TransformNodeData {
     const nodeProperties = node.properties as TransformNodeProperties;
     const inputPorts: string = generateInputPorts(node);
@@ -273,16 +306,45 @@ function generateTransformNode(node: Node): TransformNodeData {
     console.log("===codeBLOCK", nodeProperties);
     // create the transform_Function
     if (!nodeProperties?.expression?.expression) {
+        // get metadata
+        const metadata = getNodeMetadata(node);
+        const outputType = metadata?.outputs[0]?.type;
+        const inputPortNames: string[] = [];
+        metadata?.inputs.forEach(input => {
+            inputPortNames.push(input.name);
+        });
+        
+        const inputPortTypes: string[] = [];
+        metadata?.inputs.forEach(input => {
+            inputPortTypes.push(input.type);
+        });
+
+        // generate a comma separated string with inputPortTypes and inputPortNames with same index by taking as one construct
+        const functionParams = inputPortTypes.map((type, index) => {
+            return type + " " + inputPortNames[index];
+        }).join(", ");
+        
+        const parameters = inputPortNames.join(", ");
+        // TODO: move to templates
+        const returnString = "returns " + outputType + "|error";
+
         const transFunName = (node.name + "_transform").toLocaleLowerCase();
         const transFunction = getComponentSource({
             name: 'TRANSFORM_FUNCTION',
             config: {
-                FUNCTION_NAME: transFunName
+                FUNCTION_NAME: transFunName,
+                PARAMETERS: functionParams,
+                RETURN: returnString
             }
         });
+        // TODO: move as template
+        const transFuncSignature = transFunName + "(" + parameters + ");";
+
 
         // generate the function call to transform function
-        const transformCall = nodeProperties?.outputType ? nodeProperties.outputType : "any" + " " + node.name + "_transformed = " + transFunName + "();";
+        const returnType = nodeProperties?.outputType ? nodeProperties.outputType : outputType;
+        const transformCall = returnType + " " + node.name + "_transformed = check " + transFuncSignature;
+        console.log("===transformCall", transformCall);
 
         // generate the worker node
         const workerNode: string = getComponentSource({
