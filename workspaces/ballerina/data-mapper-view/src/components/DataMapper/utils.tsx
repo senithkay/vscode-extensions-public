@@ -18,13 +18,14 @@ export const DM_INHERENTLY_SUPPORTED_INPUT_TYPES = [
     PrimitiveBalType.Float,
     PrimitiveBalType.Int,
     PrimitiveBalType.Record,
-    PrimitiveBalType.String
+    PrimitiveBalType.String,
+    PrimitiveBalType.Json
 ];
 
 export const DM_UNSUPPORTED_TYPES = [
     PrimitiveBalType.Enum,
     PrimitiveBalType.Error,
-    PrimitiveBalType.Json,
+    // PrimitiveBalType.Json,
     PrimitiveBalType.Xml,
     PrimitiveBalType.Var,
     PrimitiveBalType.Nil,

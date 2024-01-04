@@ -37,3 +37,12 @@ export function getModification(code: string, targetPosition: NodePosition): STM
         ...targetPosition
     };
 }
+
+export function removeStatement(targetPosition: NodePosition): STModification {
+    const removeLine: STModification = {
+        type: 'DELETE',
+        ...targetPosition
+    };
+
+    return removeLine;
+}

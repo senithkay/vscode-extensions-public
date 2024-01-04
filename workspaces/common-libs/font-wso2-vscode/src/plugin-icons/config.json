@@ -11,7 +11,9 @@
         "source-view.svg",
         "persist-diagram.svg",
         "cached-round.svg",
-        "fit-to-screen.svg"
+        "fit-to-screen.svg",
+        "explicit-outlined.svg",
+        "error-icon.svg"
     ],
     "choreoExtIcons": [
         "choreo-2.svg"

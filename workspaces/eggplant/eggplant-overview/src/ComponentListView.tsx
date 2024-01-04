@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -8,7 +9,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ComponentView } from "./ComponentView";
 import { ProjectComponentProcessor } from "./util/project-component-processor";
 import { Typography } from "@wso2-enterprise/ui-toolkit";
@@ -46,19 +47,23 @@ export type ComponentCollection = {
 // shows a view that includes document/project symbols(functions, records, etc.)
 // you can switch between files in the project and view the symbols in eachfile
 // when you select a symbol, it will show the symbol's visualization in the diagram view
+let selected: ComponentViewInfo = null;
+
+export function resetSelected() {
+    selected = null;
+}
 export function ComponentListView(props: { currentComponents: ComponentCollection | any, setSelectedComponent: React.Dispatch<SelectedComponent>, handleIsFetching: (value: boolean) => void }) {
 
     const { eggplantRpcClient } = useVisualizerContext();
-    const categories: React.ReactElement[] = [];
 
-    let currentComponents: ComponentCollection | any;
+    const [currentComponents, setCurrentComponents] = useState<ComponentCollection | any>([]);
+    const [categories, setCategories] = useState<React.ReactElement[]>([]);
 
-    if (props.currentComponents) {
+    useEffect(() => {
         const projectComponentProcessor = new ProjectComponentProcessor(props.currentComponents);
         projectComponentProcessor.process();
-        currentComponents = projectComponentProcessor.getComponents();
-    }
-
+        setCurrentComponents(projectComponentProcessor.getComponents());
+    }, [props.currentComponents]);
 
     const CategoryContainer = styled.div`
     `;
@@ -78,22 +83,23 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
             file: info.filePath,
             position: info.position
         })
+        selected = info;
         const context: VisualizerLocation = {
-            location: {
-                fileName: info.filePath,
-                position: info.position
-            }
+            fileName: info.filePath,
+            position: info.position,
+            identifier: info.name
         }
         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
         if (STKindChecker.isServiceDeclaration(serviceST)) {
-            props.setSelectedComponent({fileName: info.filePath, serviceST});
+            props.setSelectedComponent({ fileName: info.filePath, serviceST });
         } else {
             eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
         }
         props.handleIsFetching(false);
     }
 
-    if (currentComponents) {
+    useEffect(() => {
+        const res: React.ReactElement[] = [];
         Object.keys(currentComponents)
             .filter((key) => currentComponents[key].length)
             .forEach((key, index) => {
@@ -102,6 +108,9 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                     const components: any = [];
                     filteredComponents.forEach((comp: ComponentViewInfo, compIndex: number) => {
                         if (comp.name === "main" || key === "services") {
+                            if (selected && selected.name == comp.name) {
+                                handleComponentSelection(comp);
+                            }
                             components.push(
                                 <ComponentView
                                     key={key + compIndex}
@@ -116,7 +125,7 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                     if (components.length === 0) return;
 
                     key = key === "functions" ? "Main Function" : "Services";
-                    categories.push(
+                    res.push(
                         <CategoryContainer key={index}>
                             <Typography variant="h4">
                                 <Capitalize>{key}</Capitalize>
@@ -126,7 +135,8 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                     );
                 }
             });
-    }
+            setCategories(res);
+    }, [currentComponents]);
 
     return (
         <>

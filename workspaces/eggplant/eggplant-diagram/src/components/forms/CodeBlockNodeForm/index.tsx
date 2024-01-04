@@ -48,11 +48,9 @@ export function CodeBlockNodeForm(props: OptionWidgetProps) {
     };
 
     const handleOutputTypeChange = (varName: string, type: string) => {
-        console.log(">>> handleOutputTypeChange", varName, type);
         // update output port types with same variable name
         selectedNode.getOutPorts().forEach((port) => {
             const nodePort = port.getOptions()?.port;
-            console.log(">>> nodePort", nodePort, port);
             if (nodePort && nodePort.name === varName) {
                 nodePort.type = type;
             }
@@ -126,7 +124,7 @@ export function CodeBlockNodeForm(props: OptionWidgetProps) {
             <Form.Divider />
             <TextArea
                 label="Code Block"
-                value={nodeProperties.current?.codeBlock?.expression || ""}
+                value={nodeProperties.current?.codeBlock?.expression.trim() || ""}
                 rows={16}
                 resize="vertical"
                 onChange={(value: string) => {

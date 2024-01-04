@@ -11,9 +11,9 @@ import * as React from 'react';
 // tslint:disable-next-line:no-duplicate-imports
 import { useState } from "react";
 
+import { css } from '@emotion/css';
 import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { CircularProgress } from "@material-ui/core";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -41,75 +41,74 @@ import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableEle
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		root: {
-			flexGrow: 1,
-			width: 400,
-			color: "var(--vscode-input-background)",
-			position: "relative",
-			backgroundColor: "var(--vscode-input-background)",
-			padding: "20px"
-		},
-		header: {
-			color: "black",
-			backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
-			display: "flex",
-			height: "40px",
-			padding: "8px"
-		},
-		typeLabel: {
-			marginLeft: "3px",
-			padding: "5px",
-			color: "var(--vscode-icon-foreground)",
-			fontWeight: 400,
-			fontSize: "13px",
-			minWidth: "100px",
-			marginRight: "24px",
-		},
-		boldedTypeLabel: {
-			fontWeight: 800,
-			fontSize: "14px",
-		},
-		valueLabel: {
-			padding: "5px",
-			color: "var(--vscode-icon-foreground)",
-			fontSize: "13px",
-		},
-		treeLabelOutPort: {
-			float: "right",
-			width: 'fit-content',
-			marginLeft: "auto",
-		},
-		treeLabelInPort: {
-			float: "left",
-			marginRight: "5px",
-			width: 'fit-content',
-		},
-		label: {
-			width: "300px",
-			whiteSpace: "nowrap",
-			overflow: "hidden",
-			display: "inline-block",
-			textOverflow: "ellipsis",
-			"&:hover": {
-				overflow: "visible"
-			}
-		},
-		expandIcon: {
-			color: "var(--vscode-inputOption-activeForeground)",
-			height: "25px",
-			width: "25px",
-			marginLeft: "auto"
-		},
-		loader: {
-			float: "right",
-			marginLeft: "auto",
-			marginRight: '3px',
-			alignSelf: 'center'
-		},
+const useStyles = () => ({
+	root: css({
+		flexGrow: 1,
+		width: 400,
+		color: "var(--vscode-input-background)",
+		position: "relative",
+		backgroundColor: "var(--vscode-input-background)",
+		padding: "20px"
 	}),
-);
+	header: css({
+		color: "black",
+		backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
+		display: "flex",
+		height: "40px",
+		padding: "8px"
+	}),
+	typeLabel: css({
+		marginLeft: "3px",
+		padding: "5px",
+		color: "var(--vscode-icon-foreground)",
+		fontWeight: 400,
+		fontSize: "13px",
+		minWidth: "100px",
+		marginRight: "24px",
+	}),
+	boldedTypeLabel: css({
+		fontWeight: 800,
+		fontSize: "14px",
+	}),
+	valueLabel: css({
+		padding: "5px",
+		color: "var(--vscode-icon-foreground)",
+		fontSize: "13px",
+	}),
+	treeLabelOutPort: css({
+		float: "right",
+		width: 'fit-content',
+		marginLeft: "auto",
+	}),
+	treeLabelInPort: css({
+		float: "left",
+		marginRight: "5px",
+		width: 'fit-content',
+	}),
+	label: css({
+		width: "300px",
+		whiteSpace: "nowrap",
+		overflow: "hidden",
+		display: "flex",
+		alignItems: "center",
+		textOverflow: "ellipsis",
+		"&:hover": {
+			overflow: "visible"
+		}
+	}),
+	expandIcon: css({
+		color: "var(--vscode-inputOption-activeForeground)",
+		height: "25px",
+		width: "25px",
+		marginLeft: "auto"
+	}),
+	loader: css({
+		float: "right",
+		marginLeft: "auto",
+		marginRight: '3px',
+		alignSelf: 'center'
+	}),
+});
 
 export interface PrimitiveTypeOutputWidgetProps {
 	id: string;

@@ -25,6 +25,7 @@
     "@wso2-enterprise/eggplant-rpc-client": "workspace:*",
     "@wso2-enterprise/eggplant-core": "workspace:*",
     "@wso2-enterprise/eggplant-overview": "workspace:*",
+    "@wso2-enterprise/service-designer-view": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vscode-messenger-common": "^0.4.5",

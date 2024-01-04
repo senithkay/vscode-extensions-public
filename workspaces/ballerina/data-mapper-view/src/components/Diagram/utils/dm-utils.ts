@@ -428,6 +428,7 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 		}
 		else {
 			let targetPos: NodePosition;
+			let targetType: Type;
 			Object.keys(targetPort.getLinks()).forEach((linkId) => {
 				if (linkId !== link.getID()) {
 					const targerPortLink = targetPort.getLinks()[linkId]
@@ -437,6 +438,7 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 						}
 					} else if (targerPortLink.getLabels().length > 0) {
 						targetPos = (targerPortLink.getLabels()[0] as ExpressionLabelModel).valueNode.position as NodePosition;
+						targetType = getTypeFromStore(targetPos);
 					} else if (targetNode instanceof MappingConstructorNode
 						|| targetNode instanceof PrimitiveTypeNode
 						|| targetNode instanceof ListConstructorNode)
@@ -453,8 +455,33 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 					}
 
 				}
-			})
-			if (targetPos) {
+			});
+			if (targetType &&
+				targetType.typeName === PrimitiveBalType.Json &&
+				(sourcePort as RecordFieldPortModel).field.typeName === PrimitiveBalType.Json) {
+				modifications.push({
+					type: "INSERT",
+					config: {
+						"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
+					},
+					...targetPos
+				})
+
+				// add imports
+				modifications.push({
+					type: "IMPORT",
+					config: {
+						"TYPE": "ballerina/lang.value",
+					},
+					startLine: 0,
+					startColumn: 0,
+					endLine: 0,
+					endColumn: 0
+				});
+
+				const { context } = targetNode as DataMapperNodeModel;
+				void context.applyModifications(modifications);
+			} else if (targetPos) {
 				modifications.push({
 					type: "INSERT",
 					config: {
