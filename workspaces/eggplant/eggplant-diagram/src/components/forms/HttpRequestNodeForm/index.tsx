@@ -116,7 +116,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                     }}
                     size={32}
                 />
-                {action === "post" && (
+                {/* {action === "post" && (
                     <Form.InputField
                         label="Payload Type"
                         value={payloadType}
@@ -125,7 +125,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                         }}
                         size={32}
                     />
-                )}
+                )} */}
                 <Form.Divider />
                 <Form.Row>
                     <Form.InputField
