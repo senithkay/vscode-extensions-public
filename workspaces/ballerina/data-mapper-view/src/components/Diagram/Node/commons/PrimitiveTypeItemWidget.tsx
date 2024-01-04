@@ -10,7 +10,6 @@
 import React, { useState } from "react";
 
 import { css } from "@emotion/css";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
