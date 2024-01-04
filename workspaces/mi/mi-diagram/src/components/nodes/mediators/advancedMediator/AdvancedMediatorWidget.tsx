@@ -64,13 +64,30 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
     const rightPort = node.getPortByAllignment(PortModelAlignment.RIGHT);
     const topPort = node.getPortByAllignment(PortModelAlignment.TOP);
     const bottomPort = node.getPortByAllignment(PortModelAlignment.BOTTOM);
+    leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
+    rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
+    topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+    bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y + node.height);
 
     let [subSequencesWidth, setSubSequencesWidth] = useState(0);
     let [subSequencesHeight, setSubSequencesHeight] = useState(0);
 
-    useEffect(() => {
+    props.diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
+        eventDidFire: (event: any) => {
+            if (event.function == "updateAdDimensions") {
+                distribute();
+            }
+        }
+    }));
 
+    useEffect(() => {
+        distribute();
+        node.fireEvent({}, "updateAdDimensions");
+    }, [nodePosition.x]);
+
+    function distribute() {
         let subSequencesX = 0;
+        subSequencesWidth = 0;
         subSequences.forEach((subSequence) => {
             let subSequenceHeight = 0;
             let subSequenceWidth = 40;
@@ -97,26 +114,19 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 subNodesAndLinks.push(subNodes[0]);
             }
 
-            subSequence.width = subNodes.length > 0 ? subSequencesWidth + 75 : 80;
-            subSequence.height = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getY() - subNodes[0].getY()) + subNodes[subNodes.length - 1].height + 40 : 0;
-            setSubSequencesWidth(subSequencesWidth + node.width);
-            setNodePositions(subNodesAndLinks, nodePosition.x + subSequencesX + subSequence.width / 2 - 10, nodePosition.y + 70, subSequenceWidth + 25);
+            subSequence.width = subNodes.length > 0 ? subSequenceWidth + 30 : 80;
+            subSequencesWidth += subSequence.width;
+            setNodePositions(subNodesAndLinks, nodePosition.x + subSequencesX + 30, node.getY() + 75, subSequence.width);
+            subSequence.height = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getY() - subNodes[0].getY()) + subNodes[subNodes.length - 1].height + 40 : 50;
             subSequencesX += subSequence.width + 35;
             subSequencesHeight = Math.max(subSequencesHeight, subSequence.height);
-
         });
-        setSubSequencesHeight(subSequencesHeight);
 
         node.height = subSequencesHeight + 140;
-        node.width = subSequencesWidth + 250;
-
-        leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
-        rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
-        topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
-        bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y + node.height);
-    }, [ subSequencesHeight]);
-
-
+        node.width = subSequencesWidth + 85;
+        setSubSequencesHeight(subSequencesHeight);
+        setSubSequencesWidth(subSequencesWidth);
+    }
 
     const deleteNode = async () => {
         MIWebViewAPI.getInstance().applyEdit({
@@ -128,8 +138,8 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
     }
 
     const ActionButtons = () => {
-    const [isHovered, setIsHovered] = useState(false);
-    const handleMouseOver = () => {
+        const [isHovered, setIsHovered] = useState(false);
+        const handleMouseOver = () => {
             setIsHovered(true);
         };
 
@@ -162,7 +172,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 borderStyle: "solid",
                 borderColor: "var(--vscode-panel-dropBorder)",
                 width: props.node.width,
-                height: node.height,
+                height: props.node.height,
                 position: 'relative',
                 zIndex: 1
             }}>

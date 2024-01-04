@@ -79,7 +79,7 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
                 subNodesAndLinks.push(node, ...link.filter((plusNode) => plusNode instanceof PlusNodeModel), subNodes[0]);
             }
 
-            setNodePositions(subNodesAndLinks, nodePosition.x + 720, nodePosition.y + 170, 25);
+            setNodePositions(subNodesAndLinks, nodePosition.x + 500, nodePosition.y + 170, 25);
     }, []);
 
     const deleteNode = async () => {
