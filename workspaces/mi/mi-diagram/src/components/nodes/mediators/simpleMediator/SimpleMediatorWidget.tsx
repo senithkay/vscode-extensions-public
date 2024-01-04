@@ -110,6 +110,11 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
                 engine={props.diagramEngine}
                 node={props.node}
             />
+            <MediatorPortWidget
+                port={leftPort}
+                engine={props.diagramEngine}
+                node={props.node}
+            />
         </div>
     );
 }

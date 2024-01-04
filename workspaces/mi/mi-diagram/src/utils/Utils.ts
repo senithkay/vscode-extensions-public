@@ -12,6 +12,7 @@ import { MediatorLinkFactory } from "../components/link/MediatorLinkFactory";
 import { MediatorPortFactory } from "../components/port/MediatorPortFactory";
 import { MediatorLinkModel } from "../components/link/MediatorLinkModel";
 import { SimpleMediatorNodeFactory } from "../components/nodes/mediators/simpleMediator/SimpleMediatorFactory";
+import { SimpleEndpointNodeFactory } from "../components/nodes/mediators/simpleEndpoint/SimpleEndpointFactory";
 import { InvisibleNodeFactory } from "../components/nodes/InvisibleNode/InvisibleNodeFactory";
 import { PlusNodeFactory } from "../components/nodes/plusNode/PlusNodeFactory";
 import { PlusNodeModel } from "../components/nodes/plusNode/PlusNodeModel";
@@ -21,7 +22,6 @@ import { SequenceNodeModel } from "../components/nodes/sequence/SequenceNodeMode
 import { AdvancedMediatorNodeFactory } from "../components/nodes/mediators/advancedMediator/AdvancedMediatorFactory";
 import { OFFSET } from "../constants";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-
 export function generateEngine(): DiagramEngine {
     const engine: DiagramEngine = createEngine({
         registerDefaultPanAndZoomCanvasAction: false,
@@ -40,6 +40,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new InvisibleNodeFactory());
     engine.getNodeFactories().registerFactory(new PlusNodeFactory());
     engine.getNodeFactories().registerFactory(new SequenceNodeFactory());
+    engine.getNodeFactories().registerFactory(new SimpleEndpointNodeFactory());
 
     // engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return engine;
@@ -56,13 +57,18 @@ export function setNodePositions(nodes: NodeModel[], startX: number, startY: num
 }
 
 export function createLinks(sourceNode: BaseNodeModel, targetNode: BaseNodeModel, parentNode: STNode,
-    addPlus: boolean = true, addArrow: boolean = true): any[] {
+    addPlus: boolean = true, addArrow: boolean = true, isEndpoint: boolean = false): any[] {
     if (!sourceNode || !targetNode) {
         return [];
     }
     const portsAndNodes = [];
     let sourcePort = sourceNode.getPortByAllignment(sourceNode instanceof SequenceNodeModel ? PortModelAlignment.TOP : PortModelAlignment.BOTTOM);
-    const targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.TOP : PortModelAlignment.TOP);
+    let targetPort = targetNode.getPortByAllignment(targetNode instanceof SequenceNodeModel ? PortModelAlignment.TOP : PortModelAlignment.TOP);
+
+    if (isEndpoint) {
+        sourcePort = sourceNode.getPortByAllignment(PortModelAlignment.RIGHT);
+        targetPort = targetNode.getPortByAllignment(PortModelAlignment.LEFT);
+    }
 
     if (!sourcePort || !targetPort || sourceNode.isDropSequence()) {
         return [];
