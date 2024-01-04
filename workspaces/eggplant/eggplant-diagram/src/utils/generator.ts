@@ -54,15 +54,15 @@ function getNodeModel(node: Node): GenNodeModel {
     }
     const fixedNode = isSingleNode(node.templateId);
     // add node ports
-    let portCount = 1;
     node.inputPorts?.forEach((inputPort, index) => {
-        let portId = inputPort.name || index.toString();
+        // let portId = inputPort.name || index.toString();
+        let portId = getPortId(inputPort.name, true, index);
         let port = nodeModel.addInPort(portId, inputPort, fixedNode);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
-    portCount = 1;
     node.outputPorts?.forEach((outputPort, index) => {
-        let portId = outputPort.name || index.toString();
+        // let portId = outputPort.name || index.toString();
+        let portId = getPortId(outputPort.name, false, index);
         let port = nodeModel.addOutPort(portId, outputPort, fixedNode);
         ports.push({ ...outputPort, parent: nodeId, in: false, model: port });
     });
@@ -372,6 +372,7 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
 }
 
 function getLinkModels(node: Node, ports: ExtendedPort[]) {
+    console.log(">>> ports", ports);
     let links: LinkModel[] = [];
     let nodeId = getNodeIdentifier(node);
     node.inputPorts?.forEach((inputPort) => {
@@ -394,7 +395,7 @@ function getNodeIdentifier(node: Node) {
 }
 
 export function getPortId(nodeId: string, inPort: boolean, portId: string | number) {
-    return `${inPort ? "in" : "out"}_${portId.toString()}`;
+    return `${inPort ? "inVar" : "outVar"}${portId.toString()}`;
 }
 
 function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boolean, linkNodeId: string) {
@@ -420,6 +421,7 @@ export function generateFlowModelFromDiagramModel(
     };
     // update the flowModel with data retrieved from the diagramModel
     const flowModelNodes = model.nodes;
+
     // update the canvasPosition of each node
     diagramModel.getNodes().forEach((node) => {
         const defaultNode = node as DefaultNodeModel;
@@ -435,10 +437,11 @@ export function generateFlowModelFromDiagramModel(
                     //get the matching node for portID
                     const defaultNode = node as DefaultNodeModel;
                     defaultNode.getOutPorts().forEach((outPort, index) => {
+                        const senderPortModel = outPort.getOptions().port;
                         if (outPort.getID() === sourcePortID) {
                             inPorts.push({
                                 id: index.toString(),
-                                type: receiverPortModel?.type || DEFAULT_TYPE,
+                                type: senderPortModel?.type || DEFAULT_TYPE, // Use sender port type if available
                                 name: receiverPortModel?.name || inPort.getName(),
                                 sender: defaultNode.getName(),
                             });
