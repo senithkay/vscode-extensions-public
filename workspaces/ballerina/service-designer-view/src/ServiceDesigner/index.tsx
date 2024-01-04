@@ -11,7 +11,6 @@
 import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm//ResourceForm";
 import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
@@ -44,7 +43,6 @@ const ResourceListHeader = styled.div`
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
     const { model, rpcClient } = props;
-    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
@@ -82,7 +80,9 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const applyModifications = async (source: string) => {
-        await rpcClient.getServiceDesignerRpcClient().createResource({ position: model.closeBraceToken.position, source });
+        const position = model.closeBraceToken.position;
+        position.endColumn = 0;
+        await rpcClient.getServiceDesignerRpcClient().createResource({ position: position, source });
     };
 
     // let serviceType = "";
