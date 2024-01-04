@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -19,7 +19,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -28,6 +28,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -109,28 +113,28 @@ const StoreForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Message Store</h3>
 
-                    <div>
+                    <Field>
                         <label>Specify As</label>
                         <AutoComplete items={["Value", "Expression"]} selectedItem={formValues["specifyAs"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "specifyAs": e });
                             formValidators["specifyAs"](e);
                         }} />
                         {errors["specifyAs"] && <Error>{errors["specifyAs"]}</Error>}
-                    </div>
+                    </Field>
 
                     {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "value" &&
-                        <div>
+                        <Field>
                             <label>Available Message Stores</label>
                             <AutoComplete items={["Select From Message Stores"]} selectedItem={formValues["availableMessageStores"]} onChange={(e: any) => {
                                 setFormValues({ ...formValues, "availableMessageStores": e });
                                 formValidators["availableMessageStores"](e);
                             }} />
                             {errors["availableMessageStores"] && <Error>{errors["availableMessageStores"]}</Error>}
-                        </div>
+                        </Field>
                     }
 
                     {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "value" &&
-                        <div>
+                        <Field>
                             <TextField
                                 label="Message Store"
                                 size={50}
@@ -143,11 +147,11 @@ const StoreForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["messageStore"] && <Error>{errors["messageStore"]}</Error>}
-                        </div>
+                        </Field>
                     }
 
                     {formValues["specifyAs"] && formValues["specifyAs"].toLowerCase() == "expression" &&
-                        <div>
+                        <Field>
                             <TextField
                                 label="Expression"
                                 size={50}
@@ -160,11 +164,12 @@ const StoreForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["expression"] && <Error>{errors["expression"]}</Error>}
-                        </div>
+                        </Field>
                     }
 
                 </ComponentCard>
-                <div>
+
+                <Field>
                     <TextField
                         label="On Store Sequence"
                         size={50}
@@ -177,9 +182,9 @@ const StoreForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["onStoreSequence"] && <Error>{errors["onStoreSequence"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -192,9 +197,10 @@ const StoreForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

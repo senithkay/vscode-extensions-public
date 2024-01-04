@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -20,7 +20,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -29,6 +29,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -111,25 +115,25 @@ const LogForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
-                <div>
+                <Field>
                     <label>Log Category</label> <RequiredFormInput />
                     <AutoComplete items={["INFO", "TRACE", "DEBUG", "WARN", "ERROR", "FATAL"]} selectedItem={formValues["category"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "category": e });
                         formValidators["category"](e);
                     }} />
                     {errors["category"] && <Error>{errors["category"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <label>Log Level</label> <RequiredFormInput />
                     <AutoComplete items={["SIMPLE", "HEADERS", "FULL", "CUSTOM"]} selectedItem={formValues["level"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "level": e });
                         formValidators["level"](e);
                     }} />
                     {errors["level"] && <Error>{errors["level"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="Log Separator"
                         size={50}
@@ -142,13 +146,12 @@ const LogForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["separator"] && <Error>{errors["separator"]}</Error>}
-                </div>
+                </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties</h3>
+                    <h3>Properties</h3>
 
-                        <div>
+                        <Field>
                             <TextField
                                 label="Property Name"
                                 size={50}
@@ -161,19 +164,19 @@ const LogForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
-                        </div>
+                        </Field>
 
-                        <div>
+                        <Field>
                             <label>Property Value Type</label>
                             <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["propertyValueType"]} onChange={(e: any) => {
                                 setFormValues({ ...formValues, "propertyValueType": e });
                                 formValidators["propertyValueType"](e);
                             }} />
                             {errors["propertyValueType"] && <Error>{errors["propertyValueType"]}</Error>}
-                        </div>
+                        </Field>
 
                         {formValues["propertyValueType"] && formValues["propertyValueType"].toLowerCase() == "literal" &&
-                            <div>
+                            <Field>
                                 <TextField
                                     label="Property Value"
                                     size={50}
@@ -186,15 +189,15 @@ const LogForm = (props: AddMediatorProps) => {
                                     required={false}
                                 />
                                 {errors["propertyValue"] && <Error>{errors["propertyValue"]}</Error>}
-                            </div>
+                            </Field>
                         }
 
                         {formValues["propertyValueType"] && formValues["propertyValueType"].toLowerCase() == "expression" &&
-                            <div>
-                            </div>
+                            <Field>
+                            </Field>
                         }
 
-                    </ComponentCard>
+
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
                         if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
@@ -239,7 +242,7 @@ const LogForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                 )}
                 </ComponentCard>
-                <div>
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -252,9 +255,10 @@ const LogForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -20,7 +20,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -29,6 +29,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -115,7 +119,7 @@ const ValidateForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
-                <div>
+                <Field>
                     <TextField
                         label="Source"
                         size={50}
@@ -128,32 +132,31 @@ const ValidateForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["source"] && <Error>{errors["source"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["enableSchemaCaching"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "enableSchemaCaching": e.target.checked });
                         formValidators["enableSchemaCaching"](e);
                     }
                     }>Enable Schema Caching </VSCodeCheckbox>
                     {errors["enableSchemaCaching"] && <Error>{errors["enableSchemaCaching"]}</Error>}
-                </div>
+                </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties</h3>
+                    <h3>Schemas</h3>
 
-                        <div>
+                        <Field>
                             <label>Validate Schema Key Type</label>
                             <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["validateSchemaKeyType"]} onChange={(e: any) => {
                                 setFormValues({ ...formValues, "validateSchemaKeyType": e });
                                 formValidators["validateSchemaKeyType"](e);
                             }} />
                             {errors["validateSchemaKeyType"] && <Error>{errors["validateSchemaKeyType"]}</Error>}
-                        </div>
+                        </Field>
 
                         {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "static" &&
-                            <div>
+                            <Field>
                                 <TextField
                                     label="Validate Static Schema Key"
                                     size={50}
@@ -166,21 +169,21 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     required={false}
                                 />
                                 {errors["validateStaticSchemaKey"] && <Error>{errors["validateStaticSchemaKey"]}</Error>}
-                            </div>
+                            </Field>
                         }
 
                         {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "dynamic" &&
-                            <div>
-                            </div>
+                            <Field>
+                            </Field>
                         }
 
-                    </ComponentCard>
+
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                        if (!(validateField("validateSchemaKeyType", formValues["validateSchemaKeyType"], true) || validateField("validateDynamicSchemaKey", formValues["validateDynamicSchemaKey"], true))) {
                             setFormValues({
-                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
-                                "schemas": [...formValues["schemas"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                                ...formValues, "validateSchemaKeyType": undefined, "validateDynamicSchemaKey": undefined,
+                                "schemas": [...formValues["schemas"], [formValues["validateSchemaKeyType"], formValues["validateStaticSchemaKey"], formValues["validateDynamicSchemaKey"]]]
                             });
                         }
                     }}>
@@ -220,10 +223,9 @@ const ValidateForm = (props: AddMediatorProps) => {
                 )}
                 </ComponentCard>
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties</h3>
+                    <h3>Features</h3>
 
-                        <div>
+                        <Field>
                             <TextField
                                 label="Feature Name"
                                 size={50}
@@ -236,24 +238,24 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["featureName"] && <Error>{errors["featureName"]}</Error>}
-                        </div>
+                        </Field>
 
-                        <div>
+                        <Field>
                             <VSCodeCheckbox type="checkbox" checked={formValues["featureEnabled"]} onChange={(e: any) => {
                                 setFormValues({ ...formValues, "featureEnabled": e.target.checked });
                                 formValidators["featureEnabled"](e);
                             }
                             }>Feature Enabled </VSCodeCheckbox>
                             {errors["featureEnabled"] && <Error>{errors["featureEnabled"]}</Error>}
-                        </div>
+                        </Field>
 
-                    </ComponentCard>
+
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                        if (!(validateField("featureName", formValues["featureName"], true) || validateField("", formValues[""], true))) {
                             setFormValues({
-                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
-                                "features": [...formValues["features"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                                ...formValues, "featureName": undefined, "": undefined,
+                                "features": [...formValues["features"], [formValues["featureName"], formValues["featureEnabled"], formValues[""]]]
                             });
                         }
                     }}>
@@ -293,10 +295,9 @@ const ValidateForm = (props: AddMediatorProps) => {
                 )}
                 </ComponentCard>
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties</h3>
+                    <h3>Resources</h3>
 
-                        <div>
+                        <Field>
                             <TextField
                                 label="Location"
                                 size={50}
@@ -309,9 +310,9 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["location"] && <Error>{errors["location"]}</Error>}
-                        </div>
+                        </Field>
 
-                        <div>
+                        <Field>
                             <TextField
                                 label="Location Key"
                                 size={50}
@@ -324,15 +325,15 @@ const ValidateForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["locationKey"] && <Error>{errors["locationKey"]}</Error>}
-                        </div>
+                        </Field>
 
-                    </ComponentCard>
+
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                        if (!(validateField("location", formValues["location"], true) || validateField("", formValues[""], true))) {
                             setFormValues({
-                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
-                                "resources": [...formValues["resources"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                                ...formValues, "location": undefined, "": undefined,
+                                "resources": [...formValues["resources"], [formValues["location"], formValues["locationKey"], formValues[""]]]
                             });
                         }
                     }}>
@@ -371,7 +372,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                 )}
                 </ComponentCard>
-                <div>
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -384,9 +385,10 @@ const ValidateForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button
