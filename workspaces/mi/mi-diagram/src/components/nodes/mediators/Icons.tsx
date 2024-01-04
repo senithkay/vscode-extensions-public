@@ -959,6 +959,34 @@ export const getSVGIcon = (name: string, description: string, width: number, hei
                     />
                 </g>
             </svg>;
+        case MEDIATORS.FILTER:
+            return <svg
+                width="70"
+                height="80"
+                viewBox="15 20 400 550"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path id="Rectangle 1" d="M10 10H430V590H10V10Z" fill="#357B51" />
+                <path
+                    id="Vector_2"
+                    d="M248.056 381.568V381.767L248.082 381.965C248.493 385.048 247.444 388.256 245.209 390.297L245.159 390.342L245.111 390.391C241.14 394.361 234.733 394.361 230.762 390.391L177.889 337.518C175.503 335.132 174.52 331.974 174.916 329.105L174.944 328.901V328.695V261.186V260.153L174.308 259.339L111.15 178.513L111.145 178.506L111.14 178.5C107.716 174.17 108.486 167.769 112.849 164.285C114.93 162.763 117.075 162 119.203 162H303.797C305.925 162 308.07 162.763 310.151 164.285C314.514 167.769 315.284 174.17 311.86 178.5L311.855 178.506L311.85 178.513L248.692 259.339L248.056 260.153V261.186V381.568ZM146.101 182.371H139.943L143.738 187.22L195.315 253.123V324.871V326.114L196.193 326.993L222.564 353.363L227.685 358.485V351.242V252.992L279.26 187.222L283.064 182.371H276.899H146.101Z"
+                    fill="white"
+                    stroke="#357B51"
+                    stroke-width="6"
+                />
+                <text
+                    x="55%"
+                    y="80%"
+                    dominant-baseline="middle"
+                    text-anchor="middle"
+                    fill="white"
+                    font-size="70px"
+                    font-family="Arial, Helvetica, sans-serif"
+                    font-weight="bold"
+                >{name}{description ? `(${description})` : ""}</text>
+            </svg>;
+
         default:
             return <></>;
     }

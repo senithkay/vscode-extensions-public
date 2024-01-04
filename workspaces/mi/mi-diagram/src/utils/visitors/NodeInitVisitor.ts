@@ -29,7 +29,8 @@ import {
     Header,
     Validate,
     EndpointHttp,
-    Endpoint
+    Endpoint,
+    Filter
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
@@ -350,7 +351,7 @@ export class NodeInitVisitor implements Visitor {
             new SimpleMediatorNodeModel({
                 node: node,
                 name: MEDIATORS.HTTPENDPOINT,
-                description: node.tag?.toString(),
+                description: node.key?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
@@ -401,6 +402,47 @@ export class NodeInitVisitor implements Visitor {
     endVisitOutSequence(): void {
         this.isInOutSequence = false;
         this.parents.pop();
+    }
+
+    beginVisitFilter(node: Filter): void {
+        node._else = (node as any).else;
+        const currentSequence = this.currentSequence;
+        const thenSequenceNodes: [] = [];
+        const elseSequenceNodes: [] = [];
+
+        this.parents.push(node);
+        if (node.then) {
+            this.currentSequence = thenSequenceNodes;
+            (node.then.mediatorList as any).forEach((mediator: STNode) => {
+                traversNode(mediator, this);
+            });
+        }
+
+        if (node._else) {
+            this.currentSequence = elseSequenceNodes;
+            (node._else.mediatorList as any).forEach((mediator: STNode) => {
+                traversNode(mediator, this);
+            });
+        }
+        this.parents.pop();
+
+        this.currentSequence = currentSequence;
+        this.currentSequence.push(
+            new AdvancedMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.FILTER,
+                description: "",
+                documentUri: this.documentUri,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1],
+                subSequences: [{
+                    name: "Then", nodes: thenSequenceNodes
+                }, {
+                    name: "Else", nodes: elseSequenceNodes
+                }]
+            }
+            ));
+        this.skipChildrenVisit = true;
     }
 
     skipChildren(): boolean {
