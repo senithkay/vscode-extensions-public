@@ -67,9 +67,35 @@
     "views": {
       "wso2-integration-studio": [
         {
-          "id": "integration-studio.activity.project",
-          "name": "Project",
-          "type": "webview"
+          "id": "project-explorer",
+          "name": "Project Explorer"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "project-explorer.add",
+        "title": "Add Construct",
+        "icon": "$(add)"
+      },
+      {
+        "command": "project-explorer.refresh",
+        "title": "Refresh Project Explorer",
+        "icon": "$(refresh)",
+        "group": "navigation"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "project-explorer.refresh",
+          "when": "view == project-explorer",
+        "group": "navigation"
+        },
+        {
+          "command": "project-explorer.add",
+          "when": "view == project-explorer",
+          "group": "navigation"
         }
       ]
     }

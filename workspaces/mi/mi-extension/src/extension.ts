@@ -12,10 +12,8 @@ import { createDiagramWebview } from './diagram/webview';
 import axios from 'axios';
 import { generatePrompt } from './ai/prompt';
 import { unescape } from 'querystring';
-import { activateActivityBarWebViews } from './activity-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
-	activateActivityBarWebViews(context);
 	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
 		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
 	});
