@@ -60,10 +60,10 @@ export function ResourcesList(params: { component: SelectedComponent }) {
     const handleResourceClick = (comp: any) => {
         console.log("Resource Node", comp);
         const context: VisualizerLocation = {
-            location: {
-                fileName: component.fileName,
-                position: comp.position
-            }
+            fileName: component.fileName,
+            position: comp.position,
+            view: "Overview",
+            identifier: component.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "") + "/" + comp.functionName.value
         }
         eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
     };

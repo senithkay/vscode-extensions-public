@@ -1835,6 +1835,7 @@ importers:
       '@wso2-enterprise/eggplant-diagram': workspace:*
       '@wso2-enterprise/eggplant-overview': workspace:*
       '@wso2-enterprise/eggplant-rpc-client': workspace:*
+      '@wso2-enterprise/service-designer-view': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -1862,6 +1863,7 @@ importers:
       '@wso2-enterprise/eggplant-diagram': link:../eggplant-diagram
       '@wso2-enterprise/eggplant-overview': link:../eggplant-overview
       '@wso2-enterprise/eggplant-rpc-client': link:../eggplant-rpc-client
+      '@wso2-enterprise/service-designer-view': link:../../ballerina/service-designer-view
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

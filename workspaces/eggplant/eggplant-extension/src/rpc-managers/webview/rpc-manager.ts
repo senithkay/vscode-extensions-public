@@ -22,7 +22,7 @@ import {
     workerCodeGen,
     CodeGeneartionData
 } from "@wso2-enterprise/eggplant-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { writeFileSync } from "fs";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
@@ -35,7 +35,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getVisualizerState(): Promise<VisualizerLocation> {
         const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve(context);
+            resolve({ view: context.view, fileName: context.fileName, position: context.position });
         });
     }
 
@@ -71,7 +71,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getEggplantModel(): Promise<Flow> {
         const context = StateMachine.context();
         const langClient = context.langServer as LangClientInterface;
-        if (!context.location) {
+        if (!context.position) {
             // demo hack
             //@ts-ignore
             return new Promise((resolve) => {
@@ -80,14 +80,14 @@ export class WebviewRpcManager implements WebviewAPI {
             });
         }
         const params: EggplantModelRequest = {
-            filePath: context.location.fileName,
+            filePath: context.fileName!,
             startLine: {
-                line: context.location.position.startLine ?? 0,
-                offset: context.location.position.startColumn ?? 0
+                line: context.position.startLine ?? 0,
+                offset: context.position.startColumn ?? 0
             },
             endLine: {
-                line: context.location.position.endLine ?? 0,
-                offset: context.location.position.endColumn ?? 0
+                line: context.position.endLine ?? 0,
+                offset: context.position.endColumn ?? 0
             }
 
         }
@@ -129,18 +129,18 @@ export class WebviewRpcManager implements WebviewAPI {
         }
     }
 
-    async getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
-        const location = params.location;
+    async getSTNodeFromLocation(location: VisualizerLocation): Promise<STNode> {
+
         const req: BallerinaFunctionSTRequest = {
-            documentIdentifier: { uri: Uri.file(location!.fileName).toString() },
+            documentIdentifier: { uri: Uri.file(location.fileName!).toString() },
             lineRange: {
                 start: {
-                    line: location?.position.startLine as number,
-                    character: location?.position.startColumn as number
+                    line: location.position!.startLine as number,
+                    character: location.position!.startColumn as number
                 },
                 end: {
-                    line: location?.position.endLine as number,
-                    character: location?.position.endColumn as number
+                    line: location.position!.endLine as number,
+                    character: location.position!.endColumn as number
                 }
             }
         };
@@ -187,8 +187,8 @@ export class WebviewRpcManager implements WebviewAPI {
                         }
                     ],
                 });
+            }
         }
-    }
 
         console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
 
@@ -223,22 +223,23 @@ export class WebviewRpcManager implements WebviewAPI {
                 ],
             });
 
-            // TODO: Update with notification
-            //TODO fix-hack: Find the correct resource function/other function with the name
-            const serviceDeclaration = (newST as any).members.find((member: any) => member.kind === 'ServiceDeclaration');
-            const newPosition = serviceDeclaration ? serviceDeclaration.members[0].position : newST.position;
 
-            openView({
-                location: {
-                    fileName: flowModel.fileName,
-                    position: {
-                        startLine: newPosition.startLine ?? 0,
-                        startColumn: newPosition.startColumn ?? 0,
-                        endLine: newPosition.endLine ?? 0,
-                        endColumn: newPosition.endColumn ?? 0
+            const st = newST as ModulePart;
+            outerLoop: for (const member of st.members) {
+                if (STKindChecker.isServiceDeclaration(member)) {
+                    const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
+                    for (const resource of member.members) {
+                        if (STKindChecker.isResourceAccessorDefinition(resource)) {
+                            const fnName = resource.functionName.value;
+                            const identifier = service + "/" + fnName;
+                            if (identifier === context.identifier) {
+                                openView({ position: resource.position });
+                                break outerLoop;  // Break out of the inner loop
+                            }
+                        }
                     }
                 }
-            });
+            }
         }
     }
 

@@ -55,17 +55,17 @@ export class LangServerRpcManager implements LangServerAPI {
         const context = stateService.getSnapshot().context;
         const langClient = context.langServer as LangClientInterface;
         return new Promise(async (resolve) => {
-            if (context?.location) {
+            if (context?.position) {
                 const req: BallerinaFunctionSTRequest = {
-                    documentIdentifier: { uri: URI.file(context.location.fileName).toString() },
+                    documentIdentifier: { uri: URI.file(context.fileName!).toString() },
                     lineRange: {
                         start : {
-                            line: context.location.position.startLine || 0,
-                            character: context.location.position.startColumn || 0
+                            line: context.position.startLine || 0,
+                            character: context.position.startColumn || 0
                         },
                         end : {
-                            line: context.location.position.endLine || 0,
-                            character: context.location.position.endColumn || 0
+                            line: context.position.endLine || 0,
+                            character: context.position.endColumn || 0
                         }
                     }
                 };

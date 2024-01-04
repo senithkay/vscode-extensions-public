@@ -12,19 +12,30 @@
 import React, { useEffect, useState } from 'react';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
-import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
-import { ComponentListView } from './ComponentListView';
+import { ComponentListView, resetSelected } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
 import styled from '@emotion/styled';
 import { ResourcesList } from './ResourcesList';
-import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
-import { Typography } from '@wso2-enterprise/ui-toolkit';
+import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
+import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
 
 export interface SelectedComponent {
     fileName: string;
     serviceST: ServiceDeclaration
 }
+
+const OverviewHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+`;
+
+const ButtonWrap = styled.div`
+    height: 40px;
+    align-self: end;
+`;
 
 export function Overview() {
     const [currentComponents, setCurrentComponents] = useState<any>();
@@ -42,6 +53,13 @@ export function Overview() {
     const handleIsFetching = (value: boolean) => {
         setIsFetching(value);
     }
+
+    eggplantRpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === "viewReady") {
+            setSelectedComponent(null);
+            fetchData();
+        }
+    });
 
 
     const fetchData = async () => {
@@ -89,6 +107,18 @@ export function Overview() {
 
     const handleClear = () => {
         setSelectedComponent(null);
+        resetSelected();
+    }
+
+    const handleServiceView = () => {
+        // Open service designer view
+        const context: VisualizerLocation = {
+            view: "ServiceDesigner",
+            fileName: selectedComponent.fileName,
+            position: selectedComponent.serviceST.position,
+            identifier: selectedComponent.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "")
+        }
+        eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
     }
 
     return (
@@ -97,7 +127,15 @@ export function Overview() {
             {currentComponents ? (
                 selectedComponent ? (
                     <>
-                        <Typography variant="h3">{selectedComponent.serviceST.absoluteResourcePath.map(res => res.value)}</Typography>
+                        <OverviewHeader>
+                            <Typography sx={{ padding: 'unset' }} variant="h3">{selectedComponent.serviceST.absoluteResourcePath.map(res => res.value)}</Typography>
+                            <Typography sx={{ padding: 'unset' }} variant="h4">Listening on port {getPortNumber(selectedComponent.serviceST)}</Typography>
+                            <ButtonWrap>
+                                <VSCodeButton appearance="icon" title="Show Designer" onClick={handleServiceView}>
+                                    <Codicon name="preview" />
+                                </VSCodeButton>
+                            </ButtonWrap>
+                        </OverviewHeader>
                         <ResourcesList component={selectedComponent} />
                     </>
                 ) : (
@@ -113,4 +151,27 @@ export function Overview() {
             }
         </>
     );
+}
+
+function getPortNumber(model: ServiceDeclaration) {
+    if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
+        if (
+            STKindChecker.isQualifiedNameReference(
+                model.expressions[0].typeDescriptor
+            )
+        ) {
+            // serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+            const listeningOnText = model.expressions[0].source;
+            // Define a regular expression pattern to match the port number
+            const pattern: RegExp = /\b(\d{4})\b/;
+
+            // Use RegExp.exec to find the match in the input string
+            const match: RegExpExecArray | null = pattern.exec(listeningOnText);
+
+            // Check if a match is found and extract the port number
+            if (match && match[1]) {
+                return match[1];
+            }
+        }
+    }
 }

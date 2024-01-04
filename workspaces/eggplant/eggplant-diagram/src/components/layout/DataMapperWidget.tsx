@@ -48,7 +48,7 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
-        const filePath = viewLocation.location.fileName;
+        const filePath = viewLocation.fileName;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRpcClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
