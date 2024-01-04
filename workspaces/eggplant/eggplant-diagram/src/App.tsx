@@ -63,6 +63,9 @@ export function EggplantApp(props: EggplantAppProps) {
 
     const handleTnfFnPosition = (position: NodePosition) => {
         setTnfFnPosition(position);
+        if (position === null) {
+            setSelectedNode(null);
+        }
     };
 
     const debouncedHandleDiagramChange = debounce(handleDiagramChange, 300);

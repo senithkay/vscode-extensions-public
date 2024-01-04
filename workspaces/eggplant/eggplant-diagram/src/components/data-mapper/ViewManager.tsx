@@ -11,7 +11,7 @@ import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ballerina-core";
-import { useSyntaxTreeFromRange } from "./../../Hooks"
+import { useSyntaxTreeFromRange } from "./../../Hooks";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 import { css, Global } from '@emotion/react';
@@ -37,6 +37,7 @@ export function DataMapperViewManager(props: DataMapperViewManagerProps) {
     const { eggplantRpcClient } = useVisualizerContext();
     const langServerRpcClient = eggplantRpcClient.getLangServerRpcClient();
     const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
+    const [filePosition, setFilePosition] = useState<NodePosition>(null);
 
     useEffect(() => {
         if (!isFetching) {
@@ -64,13 +65,27 @@ export function DataMapperViewManager(props: DataMapperViewManagerProps) {
             const fns = modPart.members.filter((mem) =>
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
-            const st = fns.find((mem) => mem.functionName.value === fnName);
-            onFnChange(st.position);
+            const newFnST = fns.find((mem) => mem.functionName.value === fnName);
+            onFnChange(newFnST.position);
+            setFilePosition(syntaxTree.position);
             setRerender(prevState => !prevState);
         }
     };
 
     const closeDataMapper = () => {
+        if (filePosition) {
+            eggplantRpcClient.getWebviewRpcClient().openVisualizerView({
+                location: {
+                    fileName: filePath,
+                    position: {
+                        startLine: filePosition.startLine ?? 0,
+                        startColumn: filePosition.startColumn ?? 0,
+                        endLine: filePosition.endLine ?? 0,
+                        endColumn: filePosition.endColumn ?? 0
+                    }
+                }
+            });
+        }
         onFnChange(null);
     };
 

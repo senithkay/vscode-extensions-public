@@ -152,6 +152,10 @@ export function OptionWidget(props: OptionWidgetProps) {
     const handleOpenDataMapper = () => {
         // handleOnSave();
         const tnfFnLocation = (node.properties as TransformNodeProperties).transformFunctionLocation;
+        if (!tnfFnLocation) {
+            console.error("Transform function location is not defined");
+            return;
+        }
         openDataMapper({
             startLine: tnfFnLocation.start.line,
             startColumn: tnfFnLocation.start.offset,
