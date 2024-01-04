@@ -1,16 +1,20 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import styled from "@emotion/styled";
 
 export const TreeContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 16px 24px 24px;
     gap: 8px;
-    background: #FFFFFF;
-    box-shadow: 0px 5px 50px rgba(203, 206, 219, 0.5);
-    border-radius: 12px;
-    color: #1D2028;
-    font-family: GilmerMedium;
+    background: var(--vscode-welcomePage-tileBackground);
+    border: 1px solid var(--vscode-welcomePage-tileBorder);
     font-style: normal;
     font-weight: 600;
     font-size: 13px;
@@ -26,14 +30,15 @@ export const TreeHeader = styled.div((
 ) => ({
     height: '40px',
     padding: '8px',
-    background: `${isDisabled ? '#F7F8FB' : isSelected ? '#DFE2FF' : '#E6E8F0'}`,
+    background: 'none',
     borderRadius: '3px',
     width: '100%',
     display: 'flex',
     cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
     '&:hover': {
-        backgroundColor: `${isDisabled ? '#F7F8FB' : '#F0F1FB'}`
-    }
+        backgroundColor: `${isDisabled ? 'var(--vscode-editorWidget-background)' : 'var(--vscode-tab-inactiveBackground)'}`
+    },
+    color: 'var(--vscode-inputOption-activeForeground)'
 }));
 
 export const TreeBody = styled.div`
@@ -42,7 +47,7 @@ export const TreeBody = styled.div`
     align-items: flex-start;
     padding: 1px;
     gap: 1px;
-    background: #E0E2E9;
+    background: none;
     border-radius: 3px;
     flex: none;
     flex-grow: 0;

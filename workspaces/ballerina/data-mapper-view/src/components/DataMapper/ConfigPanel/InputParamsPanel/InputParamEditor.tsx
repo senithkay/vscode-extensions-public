@@ -155,7 +155,7 @@ export {}
 //     width: "100%",
 //     border: "1px solid #EEEEEE",
 //     borderRadius: "5px",
-//     backgroundColor: "#F7F8FB",
+//     backgroundColor: "var(--vscode-editorWidget-background)",
 //     padding: "15px 10px",
 //     margin: "5px",
 // }));
@@ -163,7 +163,7 @@ export {}
 // const IputLabel = styled.div(() => ({
 //     height: "24px",
 //     width: "38px",
-//     color: "#1D2028",
+//     color: "var(--vscode-input-foreground)",
 //     fontSize: "13px",
 //     letterSpacing: "0",
 //     lineHeight: "24px"

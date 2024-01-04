@@ -6,7 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+
+import { css } from "@emotion/css";
 
 export const tooltipBaseStyles = {
   tooltip: {
@@ -21,46 +22,43 @@ export const tooltipBaseStyles = {
   }
 };
 
-
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-      element: {
-        backgroundColor: theme.palette.common.white,
-        padding: "10px",
-        cursor: "pointer",
-        transitionDuration: "0.2s",
-        userSelect: "none",
-        pointerEvents: "auto",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        "&:hover": {
-            filter: "brightness(0.95)",
-        },
-      },
-      lightBulbWrapper: {
-        height: "22px",
-        width: "22px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      },
-      iconButton: {
-        padding: "10px 14px",
-      },
-      menu: {
-        '& .MuiMenuItem-root': {
-            fontSize: '11px',
-            paddingBottom: "1px",
-            paddingTop: "1px"
-        }
-      },
-      pre: {
-        margin: 0,
-        overflowX: "auto",
-        whiteSpace: "pre-wrap",
-        wordWrap: "break-word",
-        backgroundColor: "white"
-      }
-    })
-);
+export const useStyles = () => ({
+  element: css({
+    backgroundColor: "var(--vscode-input-background)",
+    padding: "10px",
+    cursor: "pointer",
+    transitionDuration: "0.2s",
+    userSelect: "none",
+    pointerEvents: "auto",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    "&:hover": {
+      filter: "brightness(0.95)",
+    }
+  }),
+  lightBulbWrapper: css({
+    height: "22px",
+    width: "22px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  }),
+  iconButton: css({
+    padding: "10px 14px",
+  }),
+  menu: css({
+    '& .MuiMenuItem-root': {
+      fontSize: '11px',
+      paddingBottom: "1px",
+      paddingTop: "1px"
+    }
+  }),
+  pre: css({
+    margin: 0,
+    overflowX: "auto",
+    whiteSpace: "pre-wrap",
+    wordWrap: "break-word",
+    backgroundColor: "white"
+  })
+});

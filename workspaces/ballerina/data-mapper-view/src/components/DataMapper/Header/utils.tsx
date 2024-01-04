@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./SearchBox";
+import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL, SearchTerm, SearchType } from "./HeaderSearchBox";
 
 export function getInputOutputSearchTerms(searchTerm: string): [SearchTerm, SearchTerm] {
     const inputFilter = INPUT_FIELD_FILTER_LABEL;

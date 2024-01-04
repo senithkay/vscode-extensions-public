@@ -8,12 +8,8 @@
  */
 import React  from "react";
 
-import { IconButton } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-import TooltipBase from "@material-ui/core/Tooltip";
+import { Button, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { TopLevelPlusIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-
-import { headerStyles } from "../Header/DataMapperHeader";
 
 import { useStyles } from "./style";
 
@@ -25,7 +21,6 @@ export interface NewLetVarDeclPlusButtonProps {
 export function NewLetVarDeclPlusButton(props: NewLetVarDeclPlusButtonProps) {
     const { index, onAddNewVar } = props;
     const overlayClasses = useStyles();
-    const TooltipComponent = withStyles(headerStyles)(TooltipBase);
 
     const handleOnClick = () => {
         onAddNewVar(index);
@@ -33,18 +28,17 @@ export function NewLetVarDeclPlusButton(props: NewLetVarDeclPlusButtonProps) {
 
     return (
         <div className={overlayClasses.plusButton}>
-            <TooltipComponent
-                interactive={false}
-                arrow={true}
-                title={"Add new let variable here"}
+            <Tooltip
+                content={"Add new let variable here"}
             >
-                <IconButton
+                <Button
+                    appearance="icon"
                     onClick={handleOnClick}
                     data-testid={`add-local-variable-btn-${index}`}
                 >
                     <TopLevelPlusIcon selected={undefined}/>
-                </IconButton>
-            </TooltipComponent>
+                </Button>
+            </Tooltip>
         </div>
     );
 }

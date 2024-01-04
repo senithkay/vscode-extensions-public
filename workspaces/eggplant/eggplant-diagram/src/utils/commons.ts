@@ -11,7 +11,7 @@ import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams-core";
 
 export const toSnakeCase = (str: string): string => {
     str = str.trim();
-    return str.replace(/\s+/g, '_');
+    return str.replace(/\s+/g, "_");
 };
 
 // save diagram zoom level and position to local storage
@@ -21,17 +21,25 @@ export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
     const modelOffsetY = model.getOffsetY();
 
     // Store them in localStorage
-    localStorage.setItem('zoomLevel', JSON.stringify(zoomLevel));
-    localStorage.setItem('modelOffsetX', JSON.stringify(modelOffsetX));
-    localStorage.setItem('modelOffsetY', JSON.stringify(modelOffsetY));
+    localStorage.setItem("zoomLevel", JSON.stringify(zoomLevel));
+    localStorage.setItem("modelOffsetX", JSON.stringify(modelOffsetX));
+    localStorage.setItem("modelOffsetY", JSON.stringify(modelOffsetY));
 };
 
 // load diagram zoom level and position from local storage
 export const loadDiagramZoomAndPosition = (engine: DiagramEngine) => {
-    const zoomLevel = JSON.parse(localStorage.getItem('zoomLevel') || '100');
-    const modelOffsetX = JSON.parse(localStorage.getItem('modelOffsetX') || '0');
-    const modelOffsetY = JSON.parse(localStorage.getItem('modelOffsetY') || '0');
+    const zoomLevel = JSON.parse(localStorage.getItem("zoomLevel") || "100");
+    const modelOffsetX = JSON.parse(localStorage.getItem("modelOffsetX") || "0");
+    const modelOffsetY = JSON.parse(localStorage.getItem("modelOffsetY") || "0");
 
     engine.getModel().setZoomLevel(zoomLevel);
     engine.getModel().setOffset(modelOffsetX, modelOffsetY);
+};
+
+// zoom to fit the canvas
+export const fitDiagramToNodes = (engine: DiagramEngine) => {
+    if (engine.getCanvas()?.getBoundingClientRect) {
+        engine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
+    }
+    engine.repaintCanvas();
 };

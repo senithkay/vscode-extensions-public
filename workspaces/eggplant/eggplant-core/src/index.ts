@@ -26,5 +26,8 @@ export * from "./rpc-types/service-designer/types";
 
 export * from "./code-generation/utils/code-generator-utils";
 
+export * from "./rpc-types/webview/metadata-types";
+export * from "./code-generation/utils/metadata-utils";
+
 export type { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 export type { STNode } from "@wso2-enterprise/syntax-tree";

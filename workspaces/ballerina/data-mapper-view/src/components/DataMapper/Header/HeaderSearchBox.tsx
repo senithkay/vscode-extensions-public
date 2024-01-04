@@ -13,83 +13,13 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useEffect, useState } from 'react';
 
-import {
-    // Checkbox,
-    // FormControl,
-    InputAdornment,
-    // ListItemText,
-    makeStyles,
-    // MenuItem,
-    // Select,
-    TextField,
-} from '@material-ui/core';
-import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
 import debounce from "lodash.debounce";
 
-import FilterIcon from "../../../assets/icons/FilterIcon";
 import { useDMSearchStore } from "../../../store/store";
 import { SelectionState } from "../DataMapper";
 
 import { getInputOutputSearchTerms } from "./utils";
-
-const useStyles = makeStyles((theme) => ({
-    textField: {
-        width: '100%',
-        background: theme.palette.common.white,
-        flex: 1,
-        borderRadius: 5,
-        boxShadow: 'inset 0 2px 2px rgba(29, 32, 40, 0.07)',
-        '& .MuiInputBase-input': {
-            lineHeight: '1.7'
-        },
-        '& .MuiOutlinedInput-root': {
-            '& fieldset': {
-                border: `1px solid #E6E7EC`,
-            },
-            '&:hover fieldset': {
-                border: `2px solid #E6E7EC`,
-            },
-            '&.Mui-focused fieldset': {
-                border: `2px solid #A6B3FF`
-            }
-        },
-        '& .MuiOutlinedInput-input': {
-            padding: '6px 7px',
-        },
-        '&. MuiMenuItem-root': {
-            fontSize: '10px'
-        }
-    },
-    menuItem: {
-        height: 30,
-        paddingLeft: '6px',
-        paddingRight: '6px',
-        '& .MuiTypography-displayBlock': {
-            fontSize: '11px'
-        },
-        '& .MuiCheckbox-root': {
-            height: '5px',
-            width: '5px',
-            marginRight: '5px',
-            color: theme.palette.grey[300],
-        },
-        '& .MuiListItem-gutters': {
-            paddingLeft: '5px',
-            paddingRight: '5px',
-        }
-    },
-    clearBtn: {
-        color: theme.palette.grey[300],
-        cursor: 'pointer',
-        transition: "all 0.2s",
-        '&:hover': {
-            color: theme.palette.grey[600],
-        },
-    },
-    filterIcon: {
-        height: '10px',
-    }
-}));
+import { SearchBox } from '@wso2-enterprise/ui-toolkit';
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -109,18 +39,17 @@ interface SearchBoxProps {
     selection: SelectionState;
 }
 
-export default function SearchBox(props: SearchBoxProps) {
+export default function HeaderSearchBox(props: SearchBoxProps) {
     const { selection } = props;
-    const classes = useStyles();
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
     const dmStore = useDMSearchStore.getState();
 
-    const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        debouncedOnChange(event.target.value);
-        setSearchTerm(event.target.value);
+    const handleSearchInputChange = (text: string) => {
+        debouncedOnChange(text);
+        setSearchTerm(text);
     };
 
     const handleSearchOptionChange = (event:  React.ChangeEvent<{value: string[]}>) => {
@@ -204,61 +133,14 @@ export default function SearchBox(props: SearchBoxProps) {
 
     return (
         <>
-            <TextField
+            <SearchBox
                 id={`search-${searchOption}`}
+                autoFocus={true}
                 placeholder={`filter input and output fields`}
-                className={classes.textField}
-                variant="outlined"
                 value={searchTerm}
                 onChange={handleSearchInputChange}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start" className={classes.filterIcon}>
-                            <FilterIcon height={"12px"} width={"12px"}/>
-                        </InputAdornment>
-                    ),
-                    endAdornment: (
-                        <>
-                            {searchTerm && (
-                                <InputAdornment position="end">
-                                    <CloseRoundedIcon
-                                        fontSize='small'
-                                        onClick={handleOnSearchTextClear}
-                                        className={classes.clearBtn}
-                                        data-testid={`search-clear-${searchTerm}`}
-                                    />
-                                </InputAdornment>
-                            )}
-                            {/* <FormControl>
-                                <Select
-                                    labelId="search-option-label"
-                                    displayEmpty={true}
-                                    multiple={true}
-                                    value={searchOption}
-                                    onChange={handleSearchOptionChange}
-                                    renderValue={() => ''}
-                                    MenuProps={{
-                                        getContentAnchorEl: null,
-                                        anchorOrigin: {
-                                            vertical: 'bottom',
-                                            horizontal: 'left',
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value={INPUT_FIELD_FILTER_LABEL} className={classes.menuItem}>
-                                        <Checkbox checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1} />
-                                        <ListItemText primary="Filter in inputs"/>
-                                    </MenuItem>
-                                    <MenuItem value={OUTPUT_FIELD_FILTER_LABEL} className={classes.menuItem}>
-                                        <Checkbox checked={searchOption.indexOf(OUTPUT_FIELD_FILTER_LABEL) > -1} />
-                                        <ListItemText primary="Filter in output" />
-                                    </MenuItem>
-                                </Select>
-                            </FormControl> */}
-                        </>
-                    ),
-                }}
+                size={100}
             />
         </>
-    );
-};
+    )
+}

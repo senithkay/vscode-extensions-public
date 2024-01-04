@@ -45,13 +45,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             alignItems: "center",
             overflow: "hidden",
-            boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+            boxShadow: "0px 5px 50px var(--vscode-checkbox-border)",
         },
         containerHidden: {
             visibility: "hidden",
         },
         element: {
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: "var(--vscode-input-background)",
             padding: "10px",
             cursor: "pointer",
             transitionDuration: "0.2s",
@@ -72,25 +72,25 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
         },
         codeIconButton: {
-            color: theme.palette.grey[400],
+            color: "var(--vscode-checkbox-border)",
         },
         deleteIconButton: {
-            color: theme.palette.grey[400],
+            color: "var(--vscode-checkbox-border)",
         },
         separator: {
             height: "35px",
             width: "1px",
-            backgroundColor: theme.palette.grey[200],
+            backgroundColor: "var(--vscode-editor-lineHighlightBorder)",
         },
         rightBorder: {
             borderRightWidth: "2px",
-            borderColor: theme.palette.grey[300],
+            borderColor: "var(--vscode-pickerGroup-border)",
         },
         loadingContainer: {
             padding: "10px"
         },
         circularProgress: {
-            color: "#CBCEDB",
+            color: "var(--vscode-input-background)",
             display: "block"
         }
     })

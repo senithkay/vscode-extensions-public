@@ -71,14 +71,14 @@ const TypeSelectItemLabel = styled.div`
 `;
 
 const TypeSelectItemModule = styled.div`
-    color: #8d91a3;
+    color: var(--vscode-input-placeholderForeground);
     font-size: 11px;
 `;
 
 const TextFieldStyled = styled(TextField)`
     width: 100%;
-    border: 1px solid #DEE0E7;
+    border: 1px solid var(--vscode-editor-inactiveSelectionBackground);
     border-radius: 5px;
     padding: 2px 6px;
-    background-color: #ffffff;
+    background-color: var(--vscode-input-background);
 `;

@@ -10,100 +10,96 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { css } from '@emotion/css';
 
-export const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            valueLabel: {
-                verticalAlign: "middle",
-                padding: "5px",
-            },
-            typeLabel: {
-                marginLeft: "3px",
-                verticalAlign: "middle",
-                padding: "5px",
-                minWidth: "100px",
-                marginRight: "24px"
-            },
-            boldedTypeLabel: {
-                fontFamily: "GilmerBold",
-                fontSize: "14px",
-            },
-            treeLabelInPort: {
-                float: "left",
-                // marginRight: "5px",
-                width: 'fit-content',
-                display: "flex",
-                alignItems: "center"
-            },
-            label: {
-                width: "300px",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                display: "inline-block",
-                textOverflow: "ellipsis",
-                "&:hover": {
-                    overflow: "visible"
-                }
-            },
-            selectTypeWrap: {
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                width: "inherit",
-                padding: "10px",
-                background: "#F7F8FB",
-                borderRadius: "4px",
-            },
-            unionTypesList: {
-                columnGap: '5%',
-                display: 'grid',
-                gridTemplateColumns: '100%',
-                width: 'inherit',
-                "& .MuiListItem-root": {
-                    marginBottom: '8px',
-                    padding: '0 10px'
-                },
-            },
-            unionTypeListItem: {
-                "& .MuiListItemText-root": {
-                    margin: '0'
-                },
-                ...hoverColor1,
-                ...activeColour
-            },
-            unionTypeValue: {
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-            },
-            loader: {
-                float: "right",
-                marginLeft: "auto",
-                marginRight: '3px',
-                alignSelf: 'center'
-            },
-            warningContainer: {
-                display: 'flex',
-                alignItems: 'center'
-            },
-            warningText: {
-                color:  '#FE523C',
-                fontSize: '15px',
-                fontFamily: 'Droid Sans Mono',
-                fontWeight: 'normal'
-            },
-            warningSymbol: {
-                fontSize: '16px',
-                marginRight: '5px'
-            },
-        }),
-    { index: 1 }
-);
+export const useStyles = () => ({
+    valueLabel: css({
+        verticalAlign: "middle",
+        padding: "5px"
+    }),
+    typeLabel: css({
+        marginLeft: "3px",
+        verticalAlign: "middle",
+        padding: "5px",
+        minWidth: "100px",
+        marginRight: "24px"
+    }),
+    boldedTypeLabel: css({
+        fontWeight: 800,
+        fontSize: "14px"
+    }),
+    treeLabelInPort: css({
+        float: "left",
+        width: 'fit-content',
+        display: "flex",
+        alignItems: "center"
+    }),
+    label: css({
+        width: "300px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        display: "inline-block",
+        textOverflow: "ellipsis",
+        "&:hover": {
+            overflow: "visible"
+        }
+    }),
+    selectTypeWrap: css({
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        width: "inherit",
+        padding: "10px",
+        background: "var(--vscode-editorWidget-background)",
+        borderRadius: "4px"
+    }),
+    unionTypesList: css({
+        columnGap: '5%',
+        display: 'grid',
+        gridTemplateColumns: '100%',
+        width: 'inherit',
+        "& .MuiListItem-root": {
+            marginBottom: '8px',
+            padding: '0 10px'
+        }
+    }),
+    unionTypeListItem: css({
+        "& .MuiListItemText-root": {
+            margin: '0'
+        },
+        ...hoverColor1,
+        ...activeColour
+    }),
+    unionTypeValue: css({
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+    }),
+    loader: css({
+        float: "right",
+        marginLeft: "auto",
+        marginRight: '3px',
+        alignSelf: 'center'
+    }),
+    warningContainer: css({
+        display: 'flex',
+        alignItems: 'center'
+    }),
+    warningText: css({
+        color:  'var(--vscode-statusBar-debuggingBackground)',
+        fontSize: '15px',
+        fontFamily: 'Droid Sans Mono',
+        fontWeight: 'normal'
+    }),
+    warningSymbol: css({
+        fontSize: '16px',
+        marginRight: '5px'
+    })
+});
 
 const hoverColor1 = {
     '&:hover': {
-        backgroundColor: '#F0F1FB',
+        backgroundColor: 'var(--vscode-tab-inactiveBackground)',
     }
 }
 

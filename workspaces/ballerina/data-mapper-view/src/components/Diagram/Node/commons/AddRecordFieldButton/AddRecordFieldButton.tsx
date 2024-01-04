@@ -9,9 +9,8 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { FC, useState } from "react";
 
-import { Button, IconButton, Popover, Tooltip } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import CheckIcon from "@material-ui/icons/CheckCircleOutline";
+import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
+import { Popover } from "@material-ui/core";
 import ErrorIcon from "@material-ui/icons/ErrorOutline";
 
 import { getBalRecFieldName } from "../../../utils/dm-utils";
@@ -67,12 +66,12 @@ export const AddRecordFieldButton: FC<Props> = ({
     return (
         <div className={classes.addFieldWrap} style={{ paddingLeft: indentation }}>
             <Button
+                appearance="icon"
                 data-testid={`add-new-field-${fieldId}`}
                 aria-label="add"
-                className={classes.addIcon}
                 onClick={handleClick}
-                startIcon={<AddIcon />}
             >
+                <Codicon name="add" />
                 Add Field
             </Button>
             <Popover
@@ -104,17 +103,15 @@ export const AddRecordFieldButton: FC<Props> = ({
                     <>
                         {isError && (
                             <Tooltip
-                                classes={{ tooltip: classes.tooltip }}
-                                title={`Field name ${newFieldName} already exists`}
-                                color=""
+                                content={`Field name ${newFieldName} already exists`}
                             >
                                 <ErrorIcon className={classes.errorIcon} />
                             </Tooltip>
                         )}
                         {!isError && (
-                            <IconButton onClick={() => addField(newFieldName)} size="small">
-                                <CheckIcon className={classes.tickIcon} />
-                            </IconButton>
+                            <Button appearance="icon" onClick={() => addField(newFieldName)}>
+                                <Codicon name="pass" />
+                            </Button>
                         )}
                     </>
                 )}

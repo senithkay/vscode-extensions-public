@@ -9,9 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { CircularProgress, IconButton } from "@material-ui/core";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { CircularProgress } from "@material-ui/core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -53,6 +51,7 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -480,15 +479,15 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     </span>
                     <span className={classes.label}>
                         {fields && (
-                            <IconButton
-                                id={"button-wrapper-" + fieldId}
-                                className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
-                                style={{ marginLeft: indentation }}
+                            <Button
+                                appearance="icon"
+                                tooltip="Expand/Collapse"
+                                sx={{ marginLeft: indentation }}
                                 onClick={handleExpand}
                                 data-testid={`${portIn?.getName()}-expand-icon-element`}
                             >
-                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                            </IconButton>
+                               {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />} 
+                            </Button>
                         )}
                         {label}
                     </span>

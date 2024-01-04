@@ -10,7 +10,7 @@ import React from 'react';
 import { Codicon } from '../Codicon/Codicon';
 import { TextField } from '../TextField/TextField';
 
-export interface SeachBoxProps {
+export interface SearchBoxProps {
     value: string;
     label?: string;
     id?: string;
@@ -26,7 +26,7 @@ export interface SeachBoxProps {
 
 const searchIcon = (<Codicon name="search" sx= {{cursor: "auto"}}/>);
 
-export function SeachBox(props: SeachBoxProps) {
+export function SearchBox(props: SearchBoxProps) {
     const { label, size, disabled, readonly, value, id,
         iconPosition, autoFocus, onChange, placeholder
     } = props;

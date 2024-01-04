@@ -13,27 +13,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { Button, makeStyles, useMediaQuery } from '@material-ui/core';
-import { withStyles } from "@material-ui/core/styles";
-import TooltipBase from "@material-ui/core/Tooltip";
+import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
-import RoundEditIcon from "../../../assets/icons/EditIcon";
-
-import {headerStyles} from "./DataMapperHeader";
-
-const useStyles = makeStyles((theme) => ({
-    button: {
-        textTransform: 'none',
-        boxSizing: 'border-box',
-        background: '#F7F8FB',
-        border: '1px solid #E0E2E9',
-        boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.05)',
-        borderRadius: '5px',
-        color: '#40404B',
-        fontSize: '13px',
-        fontWeight: 400
-    }
-}));
+import { useMediaQuery } from "../utils";
 
 interface ConfigureButtonProps {
     onClick: () => void;
@@ -41,24 +23,14 @@ interface ConfigureButtonProps {
 
 export default function ConfigureButton(props: ConfigureButtonProps) {
     const { onClick } = props;
-    const classes = useStyles();
-    const showText = useMediaQuery('(min-width:500px)');
-    const TooltipComponent = withStyles(headerStyles)(TooltipBase);
+    const showText = useMediaQuery("(min-width:500px)");
 
     return (
-        <TooltipComponent
-            interactive={false}
-            arrow={true}
-            title={"Edit data mapper name, inputs and the output"}
-        >
-            <Button
-                onClick={onClick}
-                variant="outlined"
-                startIcon={<RoundEditIcon />}
-                className={classes.button}
-            >
-                {showText ? 'Configure' : null}
+        <Tooltip content={"Edit data mapper name, inputs and the output"} position="bottom-start">
+            <Button onClick={onClick} appearance="icon">
+                <Codicon sx={{ marginRight: 5 }} name="edit" />
+                {showText ? "Configure" : null}
             </Button>
-        </TooltipComponent>
+        </Tooltip>
     );
 }

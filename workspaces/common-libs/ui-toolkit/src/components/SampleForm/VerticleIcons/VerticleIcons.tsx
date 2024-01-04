@@ -26,6 +26,8 @@ const HorizontalCardContainer = styled.div`
 `;
 
 export interface Props {
+    id?: string;
+    className?: string;
     sx?: any;
     onClick?: (selecteType: string) => void;
 }
@@ -35,7 +37,7 @@ const Container = styled.div<Props>`
 `;
 
 export const VerticleIcons = (props: Props) => {
-    const { sx, onClick } = props;
+    const { id, className, sx, onClick } = props;
 
     const handleSelection = (type: string) => {
         if (onClick) {
@@ -44,7 +46,7 @@ export const VerticleIcons = (props: Props) => {
     };
 
     return (
-        <Container sx={sx}>
+        <Container id={id} className={className} sx={sx}>
             <HorizontalCardContainer>
                 <ComponentCard onClick={() => handleSelection("Blank")} sx={{height: 100, width: (FORM_WIDTH / 4 - 30)}}>
                     <IconWrapper>
