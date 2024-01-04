@@ -14,13 +14,13 @@ import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
-import { ComponentListView } from './ComponentListView';
+import { ComponentListView, resetSelected } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
 import styled from '@emotion/styled';
 import { ResourcesList } from './ResourcesList';
 import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
-import { VisualizerLocation } from '@wso2-enterprise/eggplant-core';
+import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
 
 export interface SelectedComponent {
     fileName: string;
@@ -53,6 +53,13 @@ export function Overview() {
     const handleIsFetching = (value: boolean) => {
         setIsFetching(value);
     }
+
+    eggplantRpcClient?.onStateChanged((newState: MachineStateValue) => {
+        if (typeof newState === 'object' && 'ready' in newState && newState.ready === "viewReady") {
+            setSelectedComponent(null);
+            fetchData();
+        }
+    });
 
 
     const fetchData = async () => {
@@ -100,6 +107,7 @@ export function Overview() {
 
     const handleClear = () => {
         setSelectedComponent(null);
+        resetSelected();
     }
 
     const handleServiceView = () => {
@@ -107,8 +115,8 @@ export function Overview() {
         const context: VisualizerLocation = {
             view: "ServiceDesigner",
             fileName: selectedComponent.fileName,
-            position: selectedComponent.serviceST.position
-            
+            position: selectedComponent.serviceST.position,
+            identifier: selectedComponent.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "")
         }
         eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
     }

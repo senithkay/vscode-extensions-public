@@ -19,7 +19,8 @@ import {
     UpdateServiceRequest
 } from "@wso2-enterprise/eggplant-core";
 import { applyModifications, updateFileContent } from "../../utils/modification";
-import { StateMachine } from "../../stateMachine";
+import { StateMachine, openView } from "../../stateMachine";
+import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async createService(params: CreateServiceRequest): Promise<void> {
@@ -48,16 +49,25 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     }
 
     async deleteResource(params: DeleteResourceRequest): Promise<void> {
-        const fileName = StateMachine.context().fileName as string;
+        const context = StateMachine.context();
         const deleteModification: STModification = {
             type: 'DELETE',
             ...params.position
         };
 
-        const response = await applyModifications(fileName, [deleteModification]);
+        const response = await applyModifications(context.fileName!, [deleteModification]);
 
         if (response.parseSuccess) {
-            await updateFileContent({fileUri: fileName, content: response.source});
+            await updateFileContent({ fileUri: context.fileName!, content: response.source });
+            const st = response.syntaxTree as ModulePart;
+            st.members.forEach(member => {
+                if (STKindChecker.isServiceDeclaration(member)) {
+                    const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
+                    if (identifier === context.identifier) {
+                        openView({ position: member.position });
+                    }
+                }
+            });
         }
     }
 }

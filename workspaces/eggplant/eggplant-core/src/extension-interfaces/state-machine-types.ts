@@ -16,6 +16,7 @@ export interface VisualizerLocation {
     view?: Views;
     position?: NodePosition;
     fileName?: string;
+    identifier?: string;
 }
 
 export interface MachineEvent {
