@@ -11,7 +11,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:SynapseXml"
+    "onLanguage:SynapseXml",
+    "workspaceContains:.project",
+    "workspaceContains:.pom.xml"
   ],
   "main": "./dist/extension.js",
   "contributes": {

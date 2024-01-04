@@ -11,16 +11,33 @@ import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface ApplyEditParams {
-   text: string;
-   documentUri: string;
-   range: Range;
+    text: string;
+    documentUri: string;
+    range: Range;
 }
 
 export interface GetConnectorsResponse {
-   path: string;
-   name: string;
-   description: string;
-   icon: string;
+    path: string;
+    name: string;
+    description: string;
+    icon: string;
+}
+
+export interface GetProjectStructureResponse {
+    directoryMap: {
+        [key: string]: {
+            [key: string]: ProjectStructureEntry[]
+        }
+    };
+}
+
+export interface ProjectStructureEntry {
+    sequences: ProjectStructureEntry[],
+    endpoints: ProjectStructureEntry[],
+    type: string,
+    name: string,
+    path: string
+
 }
 
 // request types 
@@ -28,6 +45,7 @@ export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: '
 export const GetSyntaxTreeRequest: RequestType<string, unknown> = { method: 'xml/getSynapseSyntaxTree' };
 export const GetConnectorsRequest: RequestType<void, GetConnectorsResponse[]> = { method: 'getConnectors' };
 export const GetConnectorRequest: RequestType<string, string[]> = { method: 'getConnector' };
+export const GetProjectStructureRequest: RequestType<string, GetProjectStructureResponse> = { method: 'xml/getSynapseSourceMap' };
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
@@ -36,8 +54,8 @@ export const ApplyEdit: NotificationType<ApplyEditParams> = { method: 'applyEdit
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {
-   return {
-      message: err.message,
-      cause: err.cause ? err.cause.message : ""
-   };
+    return {
+        message: err.message,
+        cause: err.cause ? err.cause.message : ""
+    };
 }

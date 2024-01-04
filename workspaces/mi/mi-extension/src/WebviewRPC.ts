@@ -18,11 +18,12 @@ import {
     GetConnectorsResponse,
     GetSyntaxTreeRequest,
     ShowErrorMessage,
+    GetProjectStructureRequest
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
-import path = require("path");
-const { XMLParser } = require("fast-xml-parser");
+import * as path from 'path';
+import { XMLParser } from 'fast-xml-parser'
 
 const connectorsPath = "../resources/connectors"
 
@@ -42,6 +43,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                 uri: documentUri,
             },
         });
+    });
+
+    messenger.onRequest(GetProjectStructureRequest, async (documentUri: string) => {
+        return (await MILanguageClient.getInstance(context)).languageClient!.getProjectStructure(documentUri);
     });
 
     messenger.onRequest(GetConnectorsRequest, async () => {
@@ -149,7 +154,7 @@ export class RegisterWebViewViewRPC {
     private _messenger = new Messenger();
     private _view: WebviewView | undefined;
 
-    constructor( private context: ExtensionContext, view: WebviewView,) {
+    constructor(private context: ExtensionContext, view: WebviewView,) {
         this.registerView(view);
         registerWebviewRPCHandlers(this._messenger, view, context);
     }
