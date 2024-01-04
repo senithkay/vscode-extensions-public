@@ -6,72 +6,70 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-export const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            addIcon: {
-                color: "#5567D5",
-                padding: "5px",
-                textTransform: "none",
-                justifyContent: "left",
-                fontStyle: "normal",
-                fontWeight: 400,
-                fontSize: "13px",
-                lineHeight: "24px"
-            },
-            typeLabel: {
-                marginLeft: "3px",
-                verticalAlign: "middle",
-                padding: "5px",
-                minWidth: "100px",
-                marginRight: "24px"
-            },
-            treeLabelPortSelected: {
-                backgroundColor: '#DFE2FF',
-            },
-            valueLabel: {
-                verticalAlign: "middle",
-                padding: "5px",
-            },
-            treeLabelOutPort: {
-                float: "right",
-                width: 'fit-content',
-                marginLeft: "auto",
-                display: "flex",
-                alignItems: "center"
-            },
-            treeLabelInPort: {
-                float: "left",
-                // marginRight: "5px",
-                width: 'fit-content',
-                display: "flex",
-                alignItems: "center"
-            },
-            label: {
-                width: "300px",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                display: "inline-block",
-                textOverflow: "ellipsis",
-                "&:hover": {
-                    overflow: "visible"
-                }
-            },
-            expandIcon: {
-                color: theme.palette.common.black,
-                height: "25px",
-                width: "25px",
-                marginLeft: "auto"
-            },
-            queryPortWrap: {
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                display: 'flex',
-                alignItems: 'center'
-            }
-        }),
-    { index: 1 }
-);
+import { css } from "@emotion/css";
+
+export const useStyles = () => ({
+    addIcon: css({
+        color: "var(--vscode-editorInfo-foreground)",
+        padding: "5px",
+        textTransform: "none",
+        justifyContent: "left",
+        fontStyle: "normal",
+        fontWeight: 400,
+        fontSize: "13px",
+        lineHeight: "24px"
+    }),
+    typeLabel: css({
+        marginLeft: "3px",
+        verticalAlign: "middle",
+        padding: "5px",
+        minWidth: "100px",
+        marginRight: "24px"
+    }),
+    treeLabelPortSelected: css({
+        backgroundColor: 'var(--vscode-editorWidget-background)',
+    }),
+    valueLabel: css({
+        verticalAlign: "middle",
+        padding: "5px"
+    }),
+    treeLabelOutPort: css({
+        float: "right",
+        width: 'fit-content',
+        marginLeft: "auto",
+        display: "flex",
+        alignItems: "center"
+    }),
+    treeLabelInPort: css({
+        float: "left",
+        width: 'fit-content',
+        display: "flex",
+        alignItems: "center"
+    }),
+    label: css({
+        width: "300px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        textOverflow: "ellipsis",
+        "&:hover": {
+            overflow: "visible"
+        }
+    }),
+    expandIcon: css({
+        color: "var(--vscode-inputOption-activeForeground)",
+        height: "25px",
+        width: "25px",
+        marginLeft: "auto"
+    }),
+    queryPortWrap: css({
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center'
+    })
+});

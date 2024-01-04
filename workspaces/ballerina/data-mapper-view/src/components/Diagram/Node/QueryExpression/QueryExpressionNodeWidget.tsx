@@ -9,12 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
+import { css } from "@emotion/css";
 import { CircularProgress } from "@material-ui/core";
-import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
-import TooltipBase from '@material-ui/core/Tooltip';
-import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
-import ExitToApp from "@material-ui/icons/ExitToApp";
-import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExpressionFunctionBody, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
@@ -28,95 +24,83 @@ import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisi
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
+import { Button, Codicon, Icon, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
-export const tooltipBaseStyles = {
-    tooltip: {
-        color: "#8d91a3",
-        backgroundColor: "#fdfdfd",
-        border: "1px solid #e6e7ec",
-        borderRadius: 6,
-        padding: "1rem"
-    },
-    arrow: {
-        color: "#fdfdfd"
-    }
-};
-
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            width: '100%',
-            backgroundColor: theme.palette.common.white,
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px",
-            color: theme.palette.grey[400],
-            boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
-            borderRadius: "10px",
-            alignItems: "center",
-            overflow: "hidden",
+export const useStyles = () => ({
+    root: css({
+        width: '100%',
+        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        padding: "2px",
+        borderRadius: "6px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        color: "var(--vscode-checkbox-border)",
+        alignItems: "center",
+    }),
+    element: css({
+        backgroundColor: "var(--vscode-input-background)",
+        padding: "5px",
+        cursor: "pointer",
+        transitionDuration: "0.2s",
+        userSelect: "none",
+        pointerEvents: "auto",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        "&:hover": {
+            filter: "brightness(0.95)",
         },
-        element: {
-            backgroundColor: theme.palette.common.white,
-            padding: "5px",
-            cursor: "pointer",
-            transitionDuration: "0.2s",
-            userSelect: "none",
-            pointerEvents: "auto",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            "&:hover": {
-                filter: "brightness(0.95)",
-            },
-        },
-        iconWrapper: {
-            height: "22px",
-            width: "22px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        fromClause: {
-            padding: "5px",
-            fontFamily: "GilmerMedium",
-            marginRight: '10px'
-        },
-        mappingPane: {
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between"
-        },
-        header: {
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center"
-        },
-        icons: {
-            padding: '5px'
-        },
-        openQueryIcon: {
-            color: theme.palette.grey[300],
-            padding: "5px",
-            height: "32px",
-            width: "32px"
-        },
-        editIcon: {
-            color: theme.palette.grey[300],
-        },
-        deleteIcon: {
-            color: theme.palette.error.main
-        },
-        loadingContainer: {
-            padding: "10px"
-        },
-        circularProgress: {
-            color: "#CBCEDB",
-            display: "block"
+    }),
+    iconWrapper: css({
+        height: "22px",
+        width: "22px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+    }),
+    fromClause: css({
+        padding: "5px",
+        fontWeight: 600,
+        marginRight: '10px'
+    }),
+    mappingPane: css({
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between"
+    }),
+    header: css({
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        "& > *": {
+            margin: "0 2px"
         }
+    }),
+    icons: css({
+        padding: '5px'
+    }),
+    openQueryIcon: css({
+        color: "var(--vscode-pickerGroup-border)",
+        padding: "5px",
+        height: "32px",
+        width: "32px"
+    }),
+    editIcon: css({
+        color: "var(--vscode-pickerGroup-border)",
+    }),
+    deleteIcon: css({
+        color: "var(--vscode-errorForeground)"
+    }),
+    loadingContainer: css({
+        padding: "10px"
+    }),
+    circularProgress: css({
+        color: "var(--vscode-input-background)",
+        display: "block"
     })
-);
+});
 
 export interface QueryExprAsSFVNodeWidgetProps {
     node: QueryExpressionNode;
@@ -164,8 +148,6 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
         await node.deleteLink();
     }
 
-    const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
-
     const loadingScreen = (
         <CircularProgress
             size={22}
@@ -180,26 +162,29 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
                 <div className={classes.root} >
                     <div className={classes.header}>
                         <DataMapperPortWidget engine={engine} port={node.inPort} />
-                        <TooltipComponent interactive={false} arrow={true} title={"Query Expression"}>
-                            <span className={classes.openQueryIcon} >
-                                <QueryIcon  />
-                            </span>
-                        </TooltipComponent>
-                        <div className={classes.element} onClick={onClickOnExpand} data-testid={`expand-query-${node?.targetFieldFQN}`}>
-                            <div className={classes.iconWrapper}>
-                                <ExitToApp className={classnames(classes.editIcon)}/>
-                            </div>
-                        </div>
+                        <Tooltip content={"Query Expression"} position="bottom">
+                            <Codicon name="list-unordered" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                        </Tooltip>
+                        <Button
+                            appearance="icon"
+                            tooltip="Edit"
+                            onClick={onClickOnExpand}
+                            data-testid={`expand-query-${node?.targetFieldFQN}`}
+                        >
+                            <Codicon name="export" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                        </Button>
                         {deleteInProgress ? (
                             <div className={classnames(classes.element, classes.loadingContainer)}>
                                 {loadingScreen}
                             </div>
                         ) : (
-                            <div className={classes.element} onClick={deleteQueryLink} data-testid={`delete-query-${node?.targetFieldFQN}`}>
-                                <div className={classes.iconWrapper}>
-                                    <DeleteIcon className={classnames(classes.deleteIcon)}/>
-                                </div>
-                            </div>
+                            <Button
+                                appearance="icon"
+                                tooltip="Delete"
+                                onClick={deleteQueryLink} data-testid={`delete-query-${node?.targetFieldFQN}`}
+                            >
+                                <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                            </Button>
                         )}
                         <DataMapperPortWidget engine={engine} port={node.outPort} />
                     </div>

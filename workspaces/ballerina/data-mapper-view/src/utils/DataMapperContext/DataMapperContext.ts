@@ -15,13 +15,13 @@ import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
-import { VisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;
     selection: SelectionState;
-    visualizerContext: VisualizerContext;
+    langServerRpcClient: LangServerRpcClient;
     filePath: string;
     currentFile?: {
         content: string,
@@ -54,7 +54,7 @@ export class DataMapperContext implements IDataMapperContext {
         public filePath: string,
         private _functionST: FunctionDefinition,
         private _selection: SelectionState,
-        public visualizerContext: VisualizerContext,
+        public langServerRpcClient: LangServerRpcClient,
         public currentFile: {
             content: string,
             path: string,

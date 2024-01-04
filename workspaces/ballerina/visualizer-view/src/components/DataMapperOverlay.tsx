@@ -20,6 +20,7 @@ export function DataMapperOverlay() {
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(rerender);
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+    const langServerRpcClient = ballerinaRpcClient.getLangServerRpcClient();
     const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
 
     useEffect(() => {
@@ -32,6 +33,7 @@ export function DataMapperOverlay() {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
+        const langServerRPCClient = ballerinaRpcClient.getLangServerRpcClient();
         const visualizerRPCClient = ballerinaRpcClient.getVisualizerRpcClient();
         const filePath = viewLocation.location.fileName;
         const { parseSuccess, source: newSource, syntaxTree } = await visualizerRPCClient?.stModify({
@@ -41,7 +43,8 @@ export function DataMapperOverlay() {
             }
         });
         if (parseSuccess) {
-            await visualizerRPCClient.updateFileContent({
+            // TODO: Handle this in extension specific code
+            await langServerRPCClient.updateFileContent({
                 content: newSource,
                 fileUri: filePath
             });
@@ -63,12 +66,14 @@ export function DataMapperOverlay() {
     };
 
     const view = useMemo(() => {
-        if (!mapperData) {
+        if (!mapperData || !viewLocation?.location) {
           return <div>DM Loading...</div>;
         }
         return (
             <DataMapperView
                 fnST={syntaxTree as FunctionDefinition}
+                filePath={viewLocation.location.fileName}
+                langServerRpcClient={langServerRpcClient}
                 applyModifications={applyModifications}
             />
         );

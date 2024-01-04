@@ -10,7 +10,7 @@
 import React, { useCallback } from "react";
 import * as _ from "lodash";
 import { TrayWidget } from "./TrayWidget";
-import { TrayItemWidget } from "./TrayItemWidget";
+import { TrayItemModel, TrayItemWidget } from "./TrayItemWidget";
 import { DefaultNodeModel } from "../default";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DiagramCanvasWidget } from "./DiagramCanvasWidget";
@@ -20,14 +20,16 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
 import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { getNodeModel, isFixedNode } from "../../utils";
+import { getDefaultNodeModel, isSingleNode } from "../../utils";
 import { DiagramControls } from "../controls/DiagramControls";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export interface BodyWidgetProps {
     engine: DiagramEngine;
     flowModel: Flow;
     selectedNode: DefaultNodeModel | null;
     setSelectedNode: (node: DefaultNodeModel) => void;
+    openDataMapper: (position: NodePosition) => void;
     onModelChange?: (flowModel: Flow) => void;
 }
 
@@ -51,14 +53,14 @@ namespace S {
 }
 
 export function BodyWidget(props: BodyWidgetProps) {
-    const { engine, flowModel, selectedNode, setSelectedNode, onModelChange } = props;
+    const { engine, flowModel, selectedNode, setSelectedNode, openDataMapper, onModelChange } = props;
 
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
-            let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE));
+            let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE)) as TrayItemModel;
             let nodesCount = _.keys(engine.getModel().getNodes()).length;
 
-            let node: DefaultNodeModel = getNodeModel(data.type, (nodesCount++).toString());
+            let node: DefaultNodeModel = getDefaultNodeModel(data.type, data.action, (nodesCount++).toString());
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
             engine.getModel().addNode(node);
@@ -88,11 +90,13 @@ export function BodyWidget(props: BodyWidgetProps) {
         <S.Body>
             <S.Content>
                 <TrayWidget>
-                    {!hasStartNode && false && <TrayItemWidget model={{ type: "StartNode" }} name="Start" />}
-                    <TrayItemWidget model={{ type: "CodeBlockNode" }} name="Code Block" />
+                    {/* {!hasStartNode && <TrayItemWidget model={{ type: "StartNode" }} name="Start" />} */}
                     <TrayItemWidget model={{ type: "SwitchNode" }} name="Switch" />
-                    <TrayItemWidget model={{ type: "HttpRequestNode" }} name="HTTP Request" />
                     <TrayItemWidget model={{ type: "TransformNode" }} name="Transform" />
+                    <TrayItemWidget model={{ type: "CodeBlockNode" }} name="Code Block" />
+                    <TrayItemWidget model={{ type: "NewPayloadNode" }} name="New Payload" />
+                    <TrayItemWidget model={{ type: "HttpRequestNode", action: "get" }} name="GET Request" />
+                    <TrayItemWidget model={{ type: "HttpRequestNode", action: "post" }} name="POST Request" />
                     {!hasReturnNode && <TrayItemWidget model={{ type: "HttpResponseNode" }} name="Return" />}
                 </TrayWidget>
                 <S.Layer
@@ -106,12 +110,13 @@ export function BodyWidget(props: BodyWidgetProps) {
                     </DiagramCanvasWidget>
                     <DiagramControls engine={engine} refresh={handleRefreshDiagram} />
                 </S.Layer>
-                {selectedNode && !isFixedNode(selectedNode?.getKind()) && (
+                {selectedNode && !isSingleNode(selectedNode?.getKind()) && (
                     <OptionWidget
                         engine={engine}
                         flowModel={flowModel}
                         selectedNode={selectedNode}
                         setSelectedNode={setSelectedNode}
+                        openDataMapper={openDataMapper}
                         updateFlowModel={updateFlowModel}
                     />
                 )}

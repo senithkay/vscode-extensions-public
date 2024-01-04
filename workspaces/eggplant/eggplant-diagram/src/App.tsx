@@ -8,12 +8,15 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { debounce } from "lodash";
 import { BodyWidget } from "./components/layout/BodyWidget";
 import { Flow } from "./types";
 import {
     addDiagramListener,
+    addStartNode as addDefaultNodesIfNotExists,
+    fitDiagramToNodes,
     generateDiagramModelFromFlowModel,
     generateEngine,
     loadDiagramZoomAndPosition,
@@ -22,6 +25,19 @@ import {
 } from "./utils";
 import { OverlayLayerModel } from "./components/overlay";
 import { DefaultLinkModel, DefaultNodeModel } from "./components/default";
+import { DataMapperWidget } from "./components/layout/DataMapperWidget";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+            staleTime: 1000,
+            cacheTime: 1000,
+        },
+    },
+});
 
 interface EggplantAppProps {
     flowModel: Flow;
@@ -34,6 +50,7 @@ export function EggplantApp(props: EggplantAppProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
     const [selectedNode, setSelectedNode] = useState<DefaultNodeModel | null>(null);
     const [_selectedLink, setSelectedLink] = useState<DefaultLinkModel | null>(null);
+    const [tnfFnPosition, setTnfFnPosition] = useState<NodePosition | null>(null);
 
     useEffect(() => {
         if (diagramEngine) {
@@ -46,6 +63,14 @@ export function EggplantApp(props: EggplantAppProps) {
         saveDiagramZoomAndPosition(diagramEngine.getModel());
     };
 
+    const openDataMapper = (position: NodePosition) => {
+        setTnfFnPosition(position);
+    };
+
+    const closeDataMapper = () => {
+        setTnfFnPosition(null);
+    };
+
     const debouncedHandleDiagramChange = debounce(handleDiagramChange, 300);
 
     const drawDiagram = () => {
@@ -53,27 +78,45 @@ export function EggplantApp(props: EggplantAppProps) {
         model.addLayer(new OverlayLayerModel());
         // generate diagram model
         generateDiagramModelFromFlowModel(model, flowModel);
+        const hasNewNodes = addDefaultNodesIfNotExists(flowModel, model);
         diagramEngine.setModel(model);
         addDiagramListener(diagramEngine, flowModel, debouncedHandleDiagramChange, setSelectedNode, setSelectedLink);
         setDiagramModel(model);
-        loadDiagramZoomAndPosition(diagramEngine);
+        if (hasNewNodes) {
+            fitDiagramToNodes(diagramEngine);
+        } else {
+            // load previous zoom and position
+            loadDiagramZoomAndPosition(diagramEngine);
+        }
         // remove overlay
         removeOverlay(diagramEngine);
     };
 
     return (
         <>
-            {diagramEngine && diagramModel && (
-                <>
-                    <BodyWidget
-                        engine={diagramEngine}
-                        flowModel={flowModel}
-                        onModelChange={handleDiagramChange}
-                        selectedNode={selectedNode}
-                        setSelectedNode={setSelectedNode}
-                    />
-                </>
-            )}
+            <QueryClientProvider client={queryClient}>
+                {diagramEngine && diagramModel && (
+                    <>
+                        {!tnfFnPosition && (
+                            <BodyWidget
+                                engine={diagramEngine}
+                                flowModel={flowModel}
+                                onModelChange={handleDiagramChange}
+                                selectedNode={selectedNode}
+                                setSelectedNode={setSelectedNode}
+                                openDataMapper={openDataMapper}
+                            />
+                        )}
+                        {tnfFnPosition && (
+                            <DataMapperWidget
+                                filePath={flowModel.fileName}
+                                fnLocation={tnfFnPosition}
+                                onClose={closeDataMapper}
+                            />
+                        )}
+                    </>
+                )}
+            </QueryClientProvider>
         </>
     );
 }

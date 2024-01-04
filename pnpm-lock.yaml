@@ -4252,6 +4252,20 @@ importers:
         specifier: ^4.10.0
         version: 4.10.0(webpack@5.89.0)
 
+  workspaces/ballerina/service-designer-view:
+    specifiers:
+      '@wso2-enterprise/ballerina-core': workspace:*
+      '@wso2-enterprise/ballerina-rpc-client': workspace:*
+      '@wso2-enterprise/font-wso2-vscode': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      handlebars: ^4.7.8
+    dependencies:
+      '@wso2-enterprise/ballerina-core': link:../ballerina-core
+      '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
+      '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      handlebars: 4.7.8
+
   workspaces/ballerina/visualizer-view:
     dependencies:
       '@emotion/react':
@@ -32170,35 +32184,7 @@ packages:
       uglify-js: 3.17.4
     dev: true
 
-  /handlebars@4.7.8:
-    resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
-    engines: {node: '>=0.4.7'}
-    hasBin: true
-    dependencies:
-      minimist: 1.2.7
-      neo-async: 2.6.2
-      source-map: 0.6.1
-      wordwrap: 1.0.0
-    optionalDependencies:
-      uglify-js: 3.17.4
-
-  /har-schema@2.0.0:
-    resolution: {integrity: sha512-Oqluz6zhGX8cyRaTQlFMPw80bSJVG2x/cFb8ZPhUILGgHka9SsokCCOQgpveePerqidZOrT14ipqfJb7ILcW5Q==}
-    engines: {node: '>=4'}
-
-  /har-validator@5.1.5:
-    resolution: {integrity: sha512-nmT2T0lljbxdQZfspsno9hgrG3Uir6Ks5afism62poxqBM6sDnMEuPmzTq8XN0OEwqKLLdh1jQI3qyE66Nzb3w==}
-    engines: {node: '>=6'}
-    deprecated: this library is no longer supported
-    dependencies:
-      ajv: 6.12.6
-      har-schema: 2.0.0
-
-  /hard-rejection@2.1.0:
-    resolution: {integrity: sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==}
-    engines: {node: '>=6'}
-
-  /harmony-reflect@1.6.2:
+  /harmony-reflect/1.6.2:
     resolution: {integrity: sha512-HIp/n38R9kQjDEziXyDTuW3vvoxxyxjxFzXLrBr18uB47GnSt+G9D29fqrpM5ZkspMcPICud3XsBJQ4Y2URg8g==}
     dev: true
 
@@ -48374,18 +48360,7 @@ packages:
     engines: {node: '>=0.8.0'}
     hasBin: true
     requiresBuild: true
-
-  /uglify-js@3.4.10:
-    resolution: {integrity: sha512-Y2VsbPVs0FIshJztycsO2SfPk7/KAF/T72qzv9u5EpQ4kB2hQoHlhNQTsNyy6ul7lQtqJN/AoWeS23OzEiEFxw==}
-    engines: {node: '>=0.8.0'}
-    hasBin: true
-    dependencies:
-      commander: 2.19.0
-      source-map: 0.6.1
-
-  /uglify-to-browserify@1.0.2:
-    resolution: {integrity: sha512-vb2s1lYx2xBtUgy+ta+b2J/GLVUR+wmpINwHePmPRhOsIVCG2wDzKJ0n14GslH1BifsqVzSOwQhRaCAsZ/nI4Q==}
-    requiresBuild: true
+    dev: true
     optional: true
 
   /uglifyjs-webpack-plugin@0.4.6(webpack@3.8.1):

@@ -14,7 +14,7 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
+import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 // import {
 //     FormHeaderSection,
 //     PrimaryButton,
@@ -31,7 +31,7 @@ interface JsonToRecordState {
 interface RecordFromJsonProps {
     onCancel?: () => void;
     onSave?: (recordName: string, recordString: string) => void;
-    langClientPromise: Promise<IBallerinaLangClient>;
+    langServerRpcClient: LangServerRpcClient;
 }
 
 const useStyles = makeStyles(() =>
@@ -55,7 +55,7 @@ const useStyles = makeStyles(() =>
         },
         inputLabelForRequired: {
             padding: 0,
-            color: '#1D2028',
+            color: 'var(--vscode-input-foreground)',
             fontSize: 13,
             textTransform: 'capitalize',
             display: 'inline-block',
@@ -63,20 +63,20 @@ const useStyles = makeStyles(() =>
             fontWeight: 300,
         },
         textArea: {
-            backgroundColor: '#F8F9FA',
+            backgroundColor: 'var(--vscode-editorWidget-background)',
             padding: "0.75rem",
             borderRadius: "5px",
             boxShadow: "inset 0 2px 2px 0 rgba(0,0,0,0.07), 0 0 1px 0 rgba(50,50,77,0.07)",
             boxSizing: 'border-box',
             minHeight: 104,
             width: '100%',
-            border: '1px solid #DEE0E7',
+            border: '1px solid var(--vscode-editor-inactiveSelectionBackground)',
             fontFamily: 'inherit',
-            color: '#1D2028',
+            color: 'var(--vscode-input-foreground)',
             // marginTop: '0.5rem',
             lineHeight: '22px',
             '&::placeholder': {
-                color: '#8D91A3',
+                color: 'var(--vscode-input-placeholderForeground)',
                 fontSize: 13,
                 fontWeight: 100,
                 marginTop: '0.5rem',
@@ -92,9 +92,9 @@ const useStyles = makeStyles(() =>
         },
         textareaErrorText: {
             display: 'inline-block',
-            color: '#ea4c4d !important',
+            color: 'var(--vscode-editorError-foreground) !important',
             fontSize: '13px',
-            backgroundColor: '#fff'
+            backgroundColor: 'var(--vscode-input-background)'
         }
     })
 );
@@ -117,9 +117,8 @@ const reducer = (state: JsonToRecordState, action: {type: string, payload: boole
 }
 
 export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
-    const { onSave, onCancel, langClientPromise } = recordFromJsonProps;
+    const { onSave, onCancel, langServerRpcClient } = recordFromJsonProps;
     const classes = useStyles();
-    const { ballerinaRpcClient } = useVisualizerContext();
 
     const [formState, dispatchFromState] = useReducer(reducer, {
         jsonValue: "",
@@ -145,7 +144,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         if (formState.isLoading) {
             void (async () => {
                 const recordName = "TempName";
-                const recordResponse = await ballerinaRpcClient.getVisualizerRpcClient().convert(
+                const recordResponse = await langServerRpcClient.convert(
                     {
                         jsonString: formState.jsonValue,
                         recordName,

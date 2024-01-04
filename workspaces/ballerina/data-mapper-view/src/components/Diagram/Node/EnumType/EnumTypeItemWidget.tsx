@@ -9,9 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { IconButton } from "@material-ui/core";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import classNames from "classnames";
 
@@ -108,18 +106,13 @@ export function EnumTypeItemWidget(props: EnumTypeItemWidgetProps) {
             >
                 <span className={classes.label}>
                     {isType && (
-                        <IconButton
-                            id={"button-wrapper-" + id}
-                            className={classes.expandIcon}
-                            style={{ marginLeft: treeDepth * 16 }}
+                        <Button
+                            appearance="icon"
+                            sx={{ marginLeft: treeDepth * 16 }}
                             onClick={handleExpand}
                         >
-                            {expanded ? (
-                                <ExpandMoreIcon />
-                            ) : (
-                                <ChevronRightIcon />
-                            )}
-                        </IconButton>
+                            {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                        </Button>
                     )}
                     {label}
                 </span>

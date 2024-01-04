@@ -20,11 +20,11 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 		});
 
 		if (isActualLink){
-			this.setColor('#5567D5');
+			this.setColor('var(--vscode-input-placeholderForeground)');
 		}
 
 		if (diagnostics.length > 0){
-			this.setColor('#FE523C');
+			this.setColor('var(--vscode-statusBar-debuggingBackground)');
 		}
 
 	}

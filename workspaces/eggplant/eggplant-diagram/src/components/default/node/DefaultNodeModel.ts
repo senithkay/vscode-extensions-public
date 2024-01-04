@@ -155,6 +155,16 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return this.portsOut;
     }
 
+    getUniqueOutPorts(): DefaultPortModel[] {
+        const uniquePorts: DefaultPortModel[] = [];
+        this.portsOut.forEach((port) => {
+            if (!uniquePorts.find((p) => p.getName() === port.getName())) {
+                uniquePorts.push(port);
+            }
+        });
+        return uniquePorts;
+    }
+
     getName(): string {
         return this.options.name;
     }

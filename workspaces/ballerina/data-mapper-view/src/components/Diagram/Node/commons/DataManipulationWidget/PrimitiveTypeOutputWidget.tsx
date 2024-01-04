@@ -11,11 +11,9 @@ import * as React from 'react';
 // tslint:disable-next-line:no-duplicate-imports
 import { useState } from "react";
 
+import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { CircularProgress } from "@material-ui/core";
-import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -42,44 +40,40 @@ import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		root: {
 			flexGrow: 1,
 			width: 400,
-			color: "white",
+			color: "var(--vscode-input-background)",
 			position: "relative",
-			backgroundColor: " #FFFFFF",
+			backgroundColor: "var(--vscode-input-background)",
 			padding: "20px"
 		},
 		header: {
 			color: "black",
-			backgroundColor: "#d8d8ff",
+			backgroundColor: "var(--vscode-editor-inactiveSelectionBackground)",
 			display: "flex",
 			height: "40px",
 			padding: "8px"
 		},
 		typeLabel: {
 			marginLeft: "3px",
-			verticalAlign: "middle",
 			padding: "5px",
-			color: "#222228",
-			fontFamily: "GilmerRegular",
+			color: "var(--vscode-icon-foreground)",
+			fontWeight: 400,
 			fontSize: "13px",
 			minWidth: "100px",
-			marginRight: "24px"
+			marginRight: "24px",
 		},
 		boldedTypeLabel: {
-			fontFamily: "GilmerBold",
+			fontWeight: 800,
 			fontSize: "14px",
 		},
 		valueLabel: {
-			verticalAlign: "middle",
 			padding: "5px",
-			color: "#222228",
-			fontFamily: "GilmerMedium",
+			color: "var(--vscode-icon-foreground)",
 			fontSize: "13px",
 		},
 		treeLabelOutPort: {
@@ -103,7 +97,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			}
 		},
 		expandIcon: {
-			color: theme.palette.common.black,
+			color: "var(--vscode-inputOption-activeForeground)",
 			height: "25px",
 			width: "25px",
 			marginLeft: "auto"
@@ -301,14 +295,14 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					}
 				</span>
 				<span className={classes.label}>
-					<IconButton
-						className={classes.expandIcon}
-						style={{ marginLeft: indentation }}
+					<Button
+						appearance="icon"
+						sx={{ marginLeft: indentation }}
 						onClick={handleExpand}
 						data-testid={`${id}-expand-icon-primitive-type`}
 					>
-						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-					</IconButton>
+						{expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+					</Button>
 					{label}
 				</span>
 				{unionTypeInfo && (

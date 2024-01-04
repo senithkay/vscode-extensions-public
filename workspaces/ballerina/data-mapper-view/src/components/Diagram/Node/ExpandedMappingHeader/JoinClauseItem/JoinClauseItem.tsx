@@ -25,7 +25,6 @@ import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export function JoinClauseItem(props: {
     intermediateNode: JoinClause;
@@ -36,8 +35,8 @@ export function JoinClauseItem(props: {
     itemIndex: number;
 }) {
     const { onEditClick, onDeleteClick, intermediateNode, context, queryExprNode, itemIndex } = props;
+    const { filePath, applyModifications, langServerRpcClient } = context;
     const classes = useStyles();
-    const { ballerinaRpcClient } = useVisualizerContext();
     const [nameEditable, setNameEditable] = useState(false);
     const variableName = (intermediateNode?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName;
     const [updatedName, setUpdatedName] = useState(variableName.value);
@@ -61,10 +60,10 @@ export function JoinClauseItem(props: {
             setLoading(true);
             try {
                 const workspaceEdit = await getRenameEdits(
-                    context.filePath,
+                    filePath,
                     updatedName,
                     node.position as NodePosition,
-                    ballerinaRpcClient
+                    langServerRpcClient
                 );
                 const modifications: STModification[] = [];
 
@@ -82,7 +81,7 @@ export function JoinClauseItem(props: {
                 });
 
                 modifications.sort((a, b) => a.startLine - b.startLine);
-                await context.applyModifications(modifications);
+                await applyModifications(modifications);
             } finally {
                 setLoading(false);
             }

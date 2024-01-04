@@ -9,10 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { IconButton } from '@material-ui/core';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExitToApp from "@material-ui/icons/ExitToApp";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -105,19 +102,19 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
             >
                 <span className={classes.label}>
                     {isRecord && hasFields && (
-                        <IconButton
-                            id={"local-var-expand-button-wrapper-" + id}
-                            className={classes.expandIcon}
+                        <Button
+                            appearance="icon"
+                            tooltip="Expand/Collapse"
                             onClick={handleExpand}
                             data-testid={`${id}-expand-icon-local-var-node`}
                         >
-                            {expanded ? <ExpandMoreIcon/> : <ChevronRightIcon/>}
-                        </IconButton>
+                            {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                        </Button>
                     )}
                     {label}
                     {isQueryExpr && isGoToQueryWithinLetExprSupported(context.ballerinaVersion) && (
                         <div className={classes.gotoExprIcon} onClick={onClickOnExpand}>
-                            <ExitToApp />
+                            <Icon name="sign-out" />
                         </div>
                     )}
                 </span>

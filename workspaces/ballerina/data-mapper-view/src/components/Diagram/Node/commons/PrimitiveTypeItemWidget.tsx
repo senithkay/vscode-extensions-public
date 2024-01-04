@@ -25,13 +25,11 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         typeLabel: {
             marginLeft: "3px",
-            verticalAlign: "middle",
             padding: "5px",
             minWidth: "100px",
             marginRight: "24px",
         },
         valueLabel: {
-            verticalAlign: "middle",
             padding: "5px",
         },
         treeLabelOutPort: {
@@ -62,7 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
         nodeType: {
             float: 'right',
             marginRight: 5,
-            color: theme.palette.grey[300],
+            color: "var(--vscode-pickerGroup-border)",
         }
     }),
 );

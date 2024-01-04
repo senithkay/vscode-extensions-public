@@ -592,70 +592,91 @@
                 "description": "new-module",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f128"
+                    "fontCharacter": "\\f12f"
                 }
             },
             "distro-refresh": {
                 "description": "refresh",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f130"
+                    "fontCharacter": "\\f139"
                 }
             },
             "distro-new-file": {
                 "description": "new-file",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f126"
+                    "fontCharacter": "\\f12d"
                 }
             },
             "distro-new-folder": {
                 "description": "new-folder",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f127"
+                    "fontCharacter": "\\f12e"
                 }
             },
             "distro-delete": {
                 "description": "delete",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f110"
+                    "fontCharacter": "\\f113"
                 }
             },
             "distro-design-view": {
                 "description": "design-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f111"
+                    "fontCharacter": "\\f114"
                 }
             },
             "distro-start": {
                 "description": "start",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f138"
+                    "fontCharacter": "\\f142"
                 }
             },
             "distro-debug": {
                 "description": "debug",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f10f"
+                    "fontCharacter": "\\f112"
                 }
             },
             "distro-source-view": {
                 "description": "source-view",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f137"
+                    "fontCharacter": "\\f141"
                 }
             },
             "distro-persist-diagram": {
                 "description": "persist-diagram",
                 "default": {
                     "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-                    "fontCharacter": "\\f12b"
+                    "fontCharacter": "\\f133"
+                }
+            },
+            "distro-cached-rounded": {
+                "description": "cached-rounded",
+                "default": {
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontCharacter": "\\f106"
+                }
+            },
+            "distro-cached-round": {
+                "description": "cached-round",
+                "default": {
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontCharacter": "\\f106"
+                }
+            },
+            "distro-fit-to-screen": {
+                "description": "fit-to-screen",
+                "default": {
+                    "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+                    "fontCharacter": "\\f11e"
                 }
             }
         }

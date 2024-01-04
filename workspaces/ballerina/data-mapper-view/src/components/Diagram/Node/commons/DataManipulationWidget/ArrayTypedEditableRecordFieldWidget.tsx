@@ -9,16 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import {
-    Button,
-    CircularProgress,
-    IconButton,
-    Menu,
-    MenuItem
-} from "@material-ui/core";
-import { default as AddIcon } from "@material-ui/icons/Add";
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Button, Codicon, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -53,7 +44,6 @@ import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableEle
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -326,14 +316,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const addElementButton = useMemo(() => {
         return (
             <Button
-                id={"add-array-element"}
-                aria-label="add"
                 className={classes.addIcon}
+                appearance="icon"
+                aria-label="add"
                 onClick={onAddElementClick}
-                startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
                 disabled={isAddingElement}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
+                {isAddingElement ? <ProgressRing /> : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />}
                 Add Element
             </Button>
         );
@@ -515,20 +505,19 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     </span>
                     <span className={classes.label}>
                         {(hasValue && !connectedViaLink) && (
-                            <IconButton
-                                id={"button-wrapper-" + fieldId}
-                                className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
-                                style={{ marginLeft: indentation }}
+                            <Button
+                                appearance="icon"
+                                sx={{ marginLeft: indentation }}
                                 onClick={handleExpand}
                                 data-testid={`${portIn?.getName()}-expand-icon-array-field`}
                             >
-                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                            </IconButton>
+                                {expanded ? <Codicon name="chevron-right" /> : <Codicon name="chevron-down" />}
+                            </Button>
                         )}
                         {label}
                     </span>
                     {(isLoading || isAddingTypeCast) ? (
-                        <CircularProgress size={18} className={classes.loader} />
+                        <ProgressRing />
                     ) : (
                         <>
                             {((hasValue && !connectedViaLink) || !isDisabled) && (
@@ -549,16 +538,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         {arrayElements}
                         {addElementButton}
                             {(isAnydataType || isUnionType) && (
-                                <Menu
-                                    anchorEl={addElementAnchorEl}
-                                    open={addMenuOpen}
-                                    onClose={onCloseElementSetAnchor}
-                                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                                    className={classes.valueConfigMenu}
-                                >
+                                <Menu>
                                     {possibleTypeOptions?.map((item) => (
                                         <>
-                                            <MenuItem key={item.title} onClick={item.onClick}>
+                                            <MenuItem item={item} key={item.title} onClick={item.onClick}>
                                                 {item.title}
                                             </MenuItem>
                                         </>

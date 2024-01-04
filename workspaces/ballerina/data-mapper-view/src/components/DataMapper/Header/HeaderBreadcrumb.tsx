@@ -9,33 +9,27 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo } from 'react';
 
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Link from '@material-ui/core/Link';
-import { createStyles, makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import { Breadcrumbs, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { SelectionState, ViewOption } from "../DataMapper";
+import { css } from '@emotion/css';
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        active: {
-            cursor: "default",
-            color: "textPrimary",
-            lineHeight: "unset"
+const useStyles = () => ({
+    active: css({
+        cursor: "default",
+        lineHeight: "unset",
+        color: "inherit"
+    }),
+    link: css({
+        cursor: "pointer",
+        color: "inherit",
+
+        "&:hover": {
+            color: "inherit"
         },
-        link: {
-            cursor: "pointer"
-        },
-        breadcrumb: {
-            lineHeight: "unset",
-            "& .MuiBreadcrumbs-separator": {
-                margin: "2px"
-            }
-        }
     })
-);
+});
 
 
 export interface HeaderBreadcrumbProps {
@@ -52,9 +46,9 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
             let isFnDef = STKindChecker.isFunctionDefinition(selection.selectedST.stNode);
             let label = selection.selectedST.fieldPath;
             const selectedLink = (
-                <Typography className={classes.active}>
+                <div className={classes.active}>
                     {isFnDef ? label : `${label}:query`}
-                </Typography>
+                </div>
             );
 
             const restLinks = selection.prevST.length > 0 && (
@@ -62,16 +56,15 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
                     label = node.fieldPath;
                     isFnDef = STKindChecker.isFunctionDefinition(node.stNode);
                     return (
-                        <Link
+                        <a
                             data-index={index}
                             key={index}
-                            underline="hover"
                             onClick={handleClick}
                             className={classes.link}
                             data-testid={`dm-header-breadcrumb-${index}`}
                         >
                             {isFnDef ? label : `${label}:query`}
-                        </Link>
+                        </a>
                     );
                 })
             );
@@ -90,8 +83,7 @@ export default function HeaderBreadcrumb(props: HeaderBreadcrumbProps) {
     return (
         <Breadcrumbs
             maxItems={3}
-            separator={<NavigateNextIcon fontSize="small" />}
-            className={classes.breadcrumb}
+            separator={<Codicon name="chevron-right" />}
         >
             {links}
             {activeLink}

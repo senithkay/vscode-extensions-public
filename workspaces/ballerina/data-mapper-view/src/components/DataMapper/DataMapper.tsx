@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { css } from "@emotion/css";
 import {
     BallerinaProjectComponents,
     ComponentViewInfo,
@@ -20,12 +20,10 @@ import {
     LibrarySearchResponse,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 // import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 // import { URI } from "vscode-uri";
 
-import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
@@ -48,59 +46,57 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
-import { useProjectComponents, useSyntaxTreeFromRange } from "../Hooks";
+import { useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            flexGrow: 1,
-            height: "100%",
-            overflow: "hidden"
-        },
-        gridContainer: {
-            height: "100%",
-            gridTemplateColumns: "1fr fit-content(200px)"
-        },
-        paper: {
-            padding: theme.spacing(2),
-            textAlign: 'center',
-            color: theme.palette.text.secondary,
-        },
-        overlay: {
-            zIndex: 1,
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            background: theme.palette.common.white,
-            opacity: 0.5,
-        },
-        dmUnsupportedOverlay: {
-            zIndex: 1,
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            background: theme.palette.common.white,
-            opacity: 0.5,
-        },
-        dmUnsupportedMessage: {
-            zIndex: 1,
-            position: 'absolute'
-        },
-        errorBanner: {
-            borderColor: '#FF0000'
-        },
-        errorMessage: {
-            zIndex: 1,
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-        },
+const classes = {
+    root: css({
+        flexGrow: 1,
+        height: "100%",
+        overflow: "hidden",
     }),
-);
+    gridContainer: css({
+        height: "100%",
+        gridTemplateColumns: "1fr fit-content(200px)"
+    }),
+    paper: css({
+        padding: "16px",
+        textAlign: 'center',
+        color: "var(--vscode-foreground)",
+    }),
+    overlay: css({
+        zIndex: 1,
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        background: "var(--vscode-input-background)",
+        opacity: 0.5,
+    }),
+    dmUnsupportedOverlay: css({
+        zIndex: 1,
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        background: "var(--vscode-input-background)",
+        opacity: 0.5,
+    }),
+    dmUnsupportedMessage: css({
+        zIndex: 1,
+        position: 'absolute'
+    }),
+    errorBanner: css({
+        borderColor: "var(--vscode-errorForeground)"
+    }),
+    errorMessage: css({
+        zIndex: 1,
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+    })
+}
 
 export enum ViewOption {
     INITIALIZE,
@@ -162,10 +158,13 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 export function DataMapperC(props: DataMapperViewProps) {
     const {
         fnST,
-        applyModifications
+        filePath,
+        langServerRpcClient,
+        applyModifications,
+        onClose
     } = props;
-    const ballerinaVersion: string = '2201.7.2 (swan lake update 7)';
-    const openedViaPlus: boolean = false;
+    const ballerinaVersion = '2201.7.2 (swan lake update 7)';
+    const openedViaPlus = false;
     const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const library: {
@@ -173,14 +172,13 @@ export function DataMapperC(props: DataMapperViewProps) {
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     } = undefined;
-    const onClose: () => void = undefined;
     const onSave: (fnName: string) => void = undefined;
     const importStatements: string[] = [];
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
     const updateActiveFile: (currentFile: FileListEntry) => void = undefined;
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
-    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents();
+    const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
     // const { data } = useSyntaxTreeFromRange();
 
     // const fnST = data?.syntaxTree as FunctionDefinition;
@@ -195,15 +193,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         endColumn: 0
     };
 
-    const visualizerContext = useVisualizerContext();
-    const {
-        viewLocation: {
-            location: {
-                fileName: filePath
-            }
-        },
-        ballerinaRpcClient
-    } = visualizerContext;
     const currentFile = {
         content: "",
         path: filePath,
@@ -237,8 +226,6 @@ export function DataMapperC(props: DataMapperViewProps) {
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
-
-    const classes = useStyles();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
@@ -307,7 +294,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         const moduleVars = [];
         const consts = [];
         const enums = [];
-        if (projectComponents) {
+        if (projectComponents && projectComponents.packages) {
             for (const pkg of projectComponents.packages) {
                 for (const mdl of pkg.modules) {
                     for (const moduleVariable of mdl.moduleVariables) {
@@ -379,13 +366,13 @@ export function DataMapperC(props: DataMapperViewProps) {
         setIsSelectionComplete(false)
         void (async () => {
             if (selection.selectedST.stNode && !isFetchingComponents) {
-                const diagnostics = await handleDiagnostics(filePath, visualizerContext.ballerinaRpcClient);
+                const diagnostics = await handleDiagnostics(filePath, langServerRpcClient);
 
                 const context = new DataMapperContext(
                     filePath,
                     fnST,
                     selection,
-                    visualizerContext,
+                    langServerRpcClient,
                     currentFile,
                     moduleVariables,
                     handleSelectedST,
@@ -405,9 +392,9 @@ export function DataMapperC(props: DataMapperViewProps) {
                 );
 
                 if (shouldRestoreTypes) {
-                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion), visualizerContext.ballerinaRpcClient);
+                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion), langServerRpcClient);
                     const functionDefinitions = FunctionDefinitionStore.getInstance();
-                    await functionDefinitions.storeFunctionDefinitions(fnST, context, visualizerContext.ballerinaRpcClient);
+                    await functionDefinitions.storeFunctionDefinitions(fnST, context, langServerRpcClient);
                     setShouldRestoreTypes(false);
                 }
 
@@ -423,8 +410,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             try {
                 traversNode(selection.selectedST.stNode, nodeInitVisitor);
                 const nodes = nodeInitVisitor.getNodes();
-                // if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
-                if (hasIONodesPresent(nodes)) {
+                if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
                     setDmNodes(nodes);
                 }
             } catch (e) {
@@ -455,7 +441,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         if (selection.prevST.length === 0
             && typeStoreStatus === TypeStoreStatus.Loaded
             && ((!isConfigPanelOpen && !showConfigPanel) || hasIncompleteInputs || hasIncompleteOutput)) {
-            if (fnST) {
+            if (fnST && selection.state === DMState.INITIALIZED) {
                 // When open the DM of an existing function using code lens
                 const hasNoParameter = fnST.functionSignature.parameters.length === 0;
                 const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
@@ -517,7 +503,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         ballerinaVersion,
         onSave: onConfigSave,
         onClose: onConfigClose,
-        ballerinaRpcClient,
+        langServerRpcClient,
         recordPanel
     }
 
@@ -535,6 +521,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 dmSupported={dMSupported}
                                 changeSelection={handleSelectedST}
                                 onConfigOpen={onConfigOpen}
+                                onClose={onClose}
                             />
                         )}
                         {!dMSupported && (
@@ -583,6 +570,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 enableStatementEditor={enableStatementEditor}
                                 fnDef={selection.selectedST.stNode}
                                 applyModifications={applyModifications}
+                                langServerRpcClient={langServerRpcClient}
                                 filePath={filePath}
                             />
                         )}

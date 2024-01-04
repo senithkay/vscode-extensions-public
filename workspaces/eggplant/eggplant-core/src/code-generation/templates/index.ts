@@ -29,7 +29,9 @@ export default {
         label: "{{{NODE}}}",
         templateId: "{{{TEMPLATE_ID}}}",
         xCord: {{{X_CODE}}},
-        yCord: {{{Y_CODE}}}
+        yCord: {{{Y_CODE}}}{{#if METADATA}},
+        metadata: "{{{METADATA}}}"
+        {{/if}}
     }`,
     SWITCH_NODE : 
     `worker {{{NODE_NAME}}} returns error? {

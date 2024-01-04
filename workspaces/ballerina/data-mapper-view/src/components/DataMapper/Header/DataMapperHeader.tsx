@@ -15,35 +15,25 @@ import { SelectionState, ViewOption } from "../DataMapper";
 
 import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
-import SearchBox from "./SearchBox";
-
-export const headerStyles = {
-    tooltip: {
-        color: "#8d91a3",
-        backgroundColor: "#fdfdfd",
-        border: "1px solid #e6e7ec",
-        borderRadius: 6,
-        padding: "1rem"
-    },
-    arrow: {
-        color: "#fdfdfd"
-    }
-};
+import HeaderSearchBox from "./HeaderSearchBox";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
     dmSupported: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
+    onClose?: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, dmSupported, changeSelection, onConfigOpen } = props;
+    const { selection, dmSupported, changeSelection, onConfigOpen, onClose } = props;
 
     return (
         <HeaderContainer>
             <BreadCrumb>
-                <Title> Data Mapper: </Title>
+                <Title> DATA MAPPER: </Title>
                 <HeaderBreadcrumb
                     selection={selection}
                     changeSelection={changeSelection}
@@ -52,10 +42,19 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
             {dmSupported && (
                 <>
                     <FilterBar>
-                        <SearchBox selection={selection} />
+                        <HeaderSearchBox selection={selection} />
                     </FilterBar>
                     <ConfigureButton onClick={onConfigOpen}/>
                 </>
+            )}
+            {onClose && (
+                <VSCodeButton 
+                    appearance="icon"
+                    onClick={onClose}
+                    style={{ marginLeft: "15px" }}
+                >
+                    <Codicon name="chrome-close" />
+                </VSCodeButton>
             )}
         </HeaderContainer>
     );
@@ -65,15 +64,16 @@ const HeaderContainer = styled.div`
     height: 50px;
     display: flex;
     padding: 15px;
-    background-color: #f7f8fb;
+    background-color: var(--vscode-editorWidget-background);
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(102,103,133,0.15);
 `;
 
-const Title = styled.div`
-    font-weight: 600;
-    margin-right: 10px;
+const Title = styled.h3`
+    margin: 0 10px 0 0;
+    color: var(--vscode-sideBarSectionHeader-foreground);
+    font-size: var(--vscode-font-size);
 `;
 
 const BreadCrumb = styled.div`

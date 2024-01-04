@@ -310,7 +310,7 @@ export class NodeInitVisitor implements Visitor {
                             param.typeName
                         );
                         if (paramNode.getSourceType()){
-                            paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+                            paramNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
                             this.inputParamNodes.push(paramNode);
                         }
                     } else {
@@ -758,13 +758,16 @@ export class NodeInitVisitor implements Visitor {
                 undefined,
                 true
             );
-            paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+            paramNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
             this.inputParamNodes.push(paramNode);
         }
         const nodes = [...this.inputParamNodes, ...this.otherInputNodes];
         if (this.outputNode) {
             nodes.push(this.outputNode);
         }
+        this.intermediateNodes.forEach((node) => {
+            node.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.TARGET_NODE.Y);
+        });
         nodes.push(...this.intermediateNodes);
         if (this.queryNode){
             nodes.unshift(this.queryNode);

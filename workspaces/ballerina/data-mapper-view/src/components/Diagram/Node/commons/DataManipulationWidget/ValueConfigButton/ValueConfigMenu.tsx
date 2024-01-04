@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from 'react';
 
-import { IconButton } from "@material-ui/core";
+import { Button } from '@wso2-enterprise/ui-toolkit';
 import Menu from "@material-ui/core/Menu";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 
@@ -20,7 +20,7 @@ import { ValueConfigMenuItem } from "./ValueConfigMenuItem";
 const useStyles = makeStyles(() =>
     createStyles({
         tripleDotsIcon: {
-            color: "#5567D5",
+            color: "var(--vscode-editorInfo-foreground)",
             padding: "5px",
             width: 'fit-content',
             height: "25px",
@@ -68,16 +68,15 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
 
     return (
         <>
-            <IconButton
-                id="button-wrapper"
+            <Button
+                appearance="icon"
                 aria-label="valueConfig"
-                className={classes.tripleDotsIcon}
                 onClick={(e) => handleClick(e)}
                 disabled={isDisabled}
                 data-testid={`value-config-${portName}`}
             >
                 <TripleDotsIcon />
-            </IconButton>
+            </Button>
             <Menu
                 anchorEl={anchorEl}
                 open={open}

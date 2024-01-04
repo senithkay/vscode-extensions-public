@@ -12,6 +12,8 @@ import { Overlay } from './../Commons/Overlay';
 import { colors } from '../Commons/Colors';
 
 export interface SidePanelProps {
+	id?: string;
+    className?: string;
 	isOpen?: boolean;
 	alignmanet?: "left" | "right";
 	width?: number;
@@ -32,17 +34,22 @@ const SidePanelContainer = styled.div<SidePanelProps>`
 	z-index: 200;
 	overflow-y: auto;
 	opacity: ${(props: SidePanelProps) => props.isOpen ? 1 : 0};
+	display: ${(props: SidePanelProps) => !props.isOpen && "none" };
 	${(props: SidePanelProps) => props.sx};
 `;
     
 export const SidePanel: React.FC<SidePanelProps> = (props: SidePanelProps) => {
-    const { isOpen = false, alignmanet = "right", width = 312, children, sx } = props;
+    const { id, className, isOpen = false, alignmanet = "right", width = 312, children, sx } = props;
     return (
-        <>
-            {isOpen && (<Overlay sx={{background: colors.vscodeEditorInactiveSelectionBackground, opacity: 0.4}}/>)}
-            <SidePanelContainer isOpen={isOpen} width={width} alignmanet={alignmanet} sx={sx}>
-                {children}
-            </SidePanelContainer>
-        </>
+        <div id={id} className={className}>
+            {isOpen && (
+                <>
+                    <Overlay sx={{background: colors.vscodeEditorInactiveSelectionBackground, opacity: 0.4}}/>
+                    <SidePanelContainer isOpen={isOpen} alignmanet={alignmanet} width={width} sx={sx}>
+                        {children}
+                    </SidePanelContainer>
+                </>
+            )}
+        </div>
     );
 };

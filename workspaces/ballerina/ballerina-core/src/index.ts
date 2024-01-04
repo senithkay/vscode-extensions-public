@@ -19,13 +19,13 @@ export * from "./lang-server-interfaces/http-service-desginer-types";
 export * from "./lang-server-interfaces/trigger-wizard-types";
 export * from "./lang-server-interfaces/extended-lang-server-types";
 export * from "./lang-server-interfaces/vscode-langserver-types";
+export * from "./lang-server-interfaces/common-types";
 
 export * from "./extension-interfaces/extension-types";
 export * from "./extension-interfaces/state-machine-types";
 
 export { default as templates } from "./templates/components";
 
-export * from "./rpc-types/overview";
 export * from "./rpc-types/connector-wizard";
 export * from "./rpc-types/converter";
 export * from "./rpc-types/graphql-designer";
@@ -33,7 +33,7 @@ export * from "./rpc-types/service-designer";
 export * from "./rpc-types/performance-analyzer";
 export * from "./rpc-types/trigger-wizard";
 export * from "./rpc-types/visualizer";
-export * from "./rpc-types/overview/rpc-type";
 export * from "./rpc-types/visualizer/rpc-type";
-export * from "./rpc-types/data-mapper";
-export * from "./rpc-types/data-mapper/rpc-type";
+export * from "./rpc-types/lang-server";
+export * from "./rpc-types/lang-server/rpc-type";
+export * from "./vscode";

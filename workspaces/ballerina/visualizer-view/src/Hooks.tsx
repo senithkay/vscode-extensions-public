@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 import { URI } from "vscode-uri";
 import { transformNodePosition } from './components/Utils';
+import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
 
 export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
@@ -18,7 +19,7 @@ export const useSyntaxTreeFromRange = (hasFileChanged?: boolean) => {
     const getST = async () => {
         if (position && fileName) {
             try {
-                const response = await ballerinaRpcClient?.getVisualizerRpcClient().getSTByRange({
+                const response = await ballerinaRpcClient?.getLangServerRpcClient().getSTByRange({
                     lineRange: transformNodePosition(position),
                     documentIdentifier: {
                         uri: URI.file(fileName).toString()

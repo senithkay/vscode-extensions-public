@@ -50,8 +50,8 @@ const useStyles = makeStyles(() =>
             padding: '5px'
         },
         unsupportedFile: {
-            color: "#0000FF",
-            backgroundColor: "#f4f4f4",
+            color: "var(--vscode-button-background)",
+            backgroundColor: "var(--vscode-input-background)",
             fontFamily: "monospace",
             fontWeight: 100,
             cursor: "pointer",

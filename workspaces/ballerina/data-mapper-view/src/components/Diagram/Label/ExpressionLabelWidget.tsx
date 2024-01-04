@@ -33,7 +33,6 @@ import {
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
-import { useVisualizerContext } from '@wso2-enterprise/ballerina-rpc-client';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
@@ -46,13 +45,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             display: "flex",
             alignItems: "center",
             overflow: "hidden",
-            boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
+            boxShadow: "0px 5px 50px var(--vscode-checkbox-border)",
         },
         containerHidden: {
             visibility: "hidden",
         },
         element: {
-            backgroundColor: theme.palette.common.white,
+            backgroundColor: "var(--vscode-input-background)",
             padding: "10px",
             cursor: "pointer",
             transitionDuration: "0.2s",
@@ -73,25 +72,25 @@ export const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
         },
         codeIconButton: {
-            color: theme.palette.grey[400],
+            color: "var(--vscode-checkbox-border)",
         },
         deleteIconButton: {
-            color: theme.palette.grey[400],
+            color: "var(--vscode-checkbox-border)",
         },
         separator: {
             height: "35px",
             width: "1px",
-            backgroundColor: theme.palette.grey[200],
+            backgroundColor: "var(--vscode-editor-lineHighlightBorder)",
         },
         rightBorder: {
             borderRightWidth: "2px",
-            borderColor: theme.palette.grey[300],
+            borderColor: "var(--vscode-pickerGroup-border)",
         },
         loadingContainer: {
             padding: "10px"
         },
         circularProgress: {
-            color: "#CBCEDB",
+            color: "var(--vscode-input-background)",
             display: "block"
         }
     })
@@ -112,11 +111,10 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     const classes = useStyles();
     const { link, context, value, field, editorLabel, deleteLink } = props.model;
     const diagnostic = link && link.hasError() ? link.diagnostics[0] : null;
-    const { ballerinaRpcClient } = useVisualizerContext();
 
     React.useEffect(() => {
         async function genModel() {
-            const actions = (await handleCodeActions(context.filePath, link?.diagnostics, ballerinaRpcClient))
+            const actions = (await handleCodeActions(context.filePath, link?.diagnostics, context.langServerRpcClient))
             setCodeActions(actions)
         }
 
