@@ -92,4 +92,4 @@ export const EVENT_TYPES = {
 export const NODE_MIN_HEIGHT = 32;
 export const NODE_MIN_WIDTH = 100;
 
-export const DEFAULT_TYPE = "any";
+export const DEFAULT_TYPE = "json";
