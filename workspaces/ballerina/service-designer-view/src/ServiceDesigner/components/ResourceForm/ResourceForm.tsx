@@ -36,7 +36,7 @@ export function ResourceForm(props: ResourceFormProps) {
 	const [path, setPath] = useState<string>("");
 
 	const [parameters, setParameters] = useState<ParameterConfig[]>([]);
-	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>();
+	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map());
 	const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 	const [payload, setPayload] = useState<ParameterConfig>();
 	const [response, setResponse] = useState<ResponseConfig[]>([]);
