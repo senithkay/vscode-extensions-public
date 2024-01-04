@@ -22,7 +22,7 @@ import {
     workerCodeGen,
     CodeGeneartionData
 } from "@wso2-enterprise/eggplant-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { writeFileSync } from "fs";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
@@ -187,8 +187,8 @@ export class WebviewRpcManager implements WebviewAPI {
                         }
                     ],
                 });
+            }
         }
-    }
 
         console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
 
@@ -223,20 +223,23 @@ export class WebviewRpcManager implements WebviewAPI {
                 ],
             });
 
-            // TODO: Update with notification
-            //TODO fix-hack: Find the correct resource function/other function with the name
-            const serviceDeclaration = (newST as any).members.find((member: any) => member.kind === 'ServiceDeclaration');
-            const newPosition = serviceDeclaration ? serviceDeclaration.members[0].position : newST.position;
 
-            openView({
-                fileName: flowModel.fileName,
-                position: {
-                    startLine: newPosition.startLine ?? 0,
-                    startColumn: newPosition.startColumn ?? 0,
-                    endLine: newPosition.endLine ?? 0,
-                    endColumn: newPosition.endColumn ?? 0
+            const st = newST as ModulePart;
+            outerLoop: for (const member of st.members) {
+                if (STKindChecker.isServiceDeclaration(member)) {
+                    const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
+                    for (const resource of member.members) {
+                        if (STKindChecker.isResourceAccessorDefinition(resource)) {
+                            const fnName = resource.functionName.value;
+                            const identifier = service + "/" + fnName;
+                            if (identifier === context.identifier) {
+                                openView({ position: resource.position });
+                                break outerLoop;  // Break out of the inner loop
+                            }
+                        }
+                    }
                 }
-            });
+            }
         }
     }
 

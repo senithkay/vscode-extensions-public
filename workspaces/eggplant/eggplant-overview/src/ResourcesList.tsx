@@ -62,7 +62,8 @@ export function ResourcesList(params: { component: SelectedComponent }) {
         const context: VisualizerLocation = {
             fileName: component.fileName,
             position: comp.position,
-            view: "Overview"
+            view: "Overview",
+            identifier: component.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "") + "/" + comp.functionName.value
         }
         eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
     };

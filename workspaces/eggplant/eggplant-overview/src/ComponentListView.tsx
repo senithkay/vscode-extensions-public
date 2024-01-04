@@ -86,7 +86,8 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
         selected = info;
         const context: VisualizerLocation = {
             fileName: info.filePath,
-            position: info.position
+            position: info.position,
+            identifier: info.name
         }
         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
         if (STKindChecker.isServiceDeclaration(serviceST)) {
