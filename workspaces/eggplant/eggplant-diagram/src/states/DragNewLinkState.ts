@@ -14,7 +14,7 @@ import {
     ActionEvent,
     InputType,
 } from "@projectstorm/react-canvas-core";
-import { DiagramEngine, PortModel, LinkModel, DragNewLinkStateOptions } from "@projectstorm/react-diagrams-core";
+import { DiagramEngine, LinkModel, DragNewLinkStateOptions } from "@projectstorm/react-diagrams-core";
 import { DefaultNodeModel, DefaultPortModel } from "../components/default";
 
 export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {

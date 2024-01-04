@@ -8,22 +8,12 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Icon, TextArea } from "@wso2-enterprise/ui-toolkit";
-import { DefaultNodeModel } from "../../default";
-import { Flow, Node } from "../../../types";
+import { Node } from "../../../types";
 import { CodeNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
 import { toSnakeCase } from "../../../utils";
-
-export interface OptionWidgetProps {
-    engine: DiagramEngine;
-    flowModel: Flow;
-    selectedNode: DefaultNodeModel;
-    children?: React.ReactNode;
-    setSelectedNode?: (node: DefaultNodeModel) => void;
-    updateFlowModel?: () => void;
-}
+import { OptionWidgetProps } from "../../layout/OptionWidget";
 
 // TODO: update this component with multiple form components
 export function CodeBlockNodeForm(props: OptionWidgetProps) {

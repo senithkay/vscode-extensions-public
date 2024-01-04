@@ -30,8 +30,8 @@ namespace S {
 
     export const StackContainer = styled.div`
         position: relative;
-        top: -6px;
-        left: -6px;
+        height: 60%;
+        width: 60%;
     `;
 }
 

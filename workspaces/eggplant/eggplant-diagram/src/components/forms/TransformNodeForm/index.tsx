@@ -8,42 +8,48 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { Icon, TextArea } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Node } from "../../../types";
-import { CodeNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
+import { TransformNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
 import { toSnakeCase } from "../../../utils";
-import { DEFAULT_TYPE } from "../../../resources";
 import { OptionWidgetProps } from "../../layout/OptionWidget";
+import { DEFAULT_TYPE } from "../../../resources";
 
-
-// TODO: update this component with multiple form components
-export function NewPayloadNodeForm(props: OptionWidgetProps) {
-    const { selectedNode, children, setSelectedNode, updateFlowModel } = props;
+export function TransformNodeForm(props: OptionWidgetProps) {
+    const { selectedNode, children, setSelectedNode, updateFlowModel, openDataMapper } = props;
 
     const node = useRef(JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node);
-    const nodeProperties = useRef(node.current.properties as CodeNodeProperties);
+    const nodeProperties = useRef(node.current.properties as TransformNodeProperties);
     const nodeMetadata = useRef(getNodeMetadata(node.current));
     const outPortType = useRef(DEFAULT_TYPE);
-    const [payloadSource, setPayloadSource] = React.useState<string>("");
 
     useEffect(() => {
         node.current = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
-        nodeProperties.current = node.current.properties as CodeNodeProperties;
+        nodeProperties.current = node.current.properties as TransformNodeProperties;
         nodeMetadata.current = getNodeMetadata(node.current);
-        setPayloadSource(
-            nodeProperties.current?.codeBlock.expression
-                ?.split(`${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} =`)[1]
-                ?.split(";")[0]
-        );
         if (selectedNode.getOutPorts().length > 0) {
             outPortType.current = selectedNode.getOutPorts()[0].getOptions()?.port.type || DEFAULT_TYPE;
         }
     }, [selectedNode.getID()]);
 
+    const handleOpenDataMapper = () => {
+        // handleOnSave();
+        const tnfFnLocation = nodeProperties.current.transformFunctionLocation;
+        if (!tnfFnLocation) {
+            console.error("Transform function location is not defined");
+            return;
+        }
+        openDataMapper({
+            startLine: tnfFnLocation.start.line,
+            startColumn: tnfFnLocation.start.offset,
+            endLine: tnfFnLocation.end.line,
+            endColumn: tnfFnLocation.end.offset
+        });
+    };
+
     const handleOnSave = () => {
         node.current.metadata = nodeMetadata.current;
-        nodeProperties.current.codeBlock.expression = `${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} = ${payloadSource};`;
         node.current.properties = nodeProperties.current;
         selectedNode.setNode(node.current);
         updateFlowModel();
@@ -124,19 +130,6 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
                 </>
             )}
 
-            <Form.Divider />
-            <TextArea
-                label="Payload"
-                value={payloadSource}
-                rows={16}
-                resize="vertical"
-                onChange={(value: string) => {
-                    if (node) {
-                        setPayloadSource(value);
-                    }
-                }}
-            />
-
             {outPortType.current && (
                 <>
                     <Form.Divider />
@@ -152,6 +145,11 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
                     />
                 </>
             )}
+
+            <Form.Divider />
+            <Button appearance="secondary" onClick={handleOpenDataMapper}>
+                Use Data Mapper
+            </Button>
 
             <Form.ActionButtonContainer>
                 <Form.ActionButton onClick={handleOnSave}>Save</Form.ActionButton>

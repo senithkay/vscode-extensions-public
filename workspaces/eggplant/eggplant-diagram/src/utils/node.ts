@@ -49,7 +49,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             emptyNode.metadata = {
                 outputs: [
                     {
-                        name: "out",
+                        name: "outVar",
                         type: "()",
                     },
                 ],
@@ -65,7 +65,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 outputType: "json",
                 endpoint: {
                     baseUrl: "",
-                    name: "pineValleyEp",
+                    name: "pineValleyEp", // HACK: this is a temporary value
                 },
             };
             break;
@@ -141,7 +141,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 ],
             };
             break;
-            case "TransformNode":
+        case "TransformNode":
             nodeModel.addInPort(inPortId);
             nodeModel.addOutPort(outPortId);
             // add additional metadata for code block node
