@@ -272,7 +272,7 @@ function generateTransformNode(node: Node): TransformNodeData {
     const outputPorts: string = generateOutputPorts(node, node.name + "_transformed");
     console.log("===codeBLOCK", nodeProperties);
     // create the transform_Function
-    if (!nodeProperties?.codeBlock?.expression) {
+    if (!nodeProperties?.expression?.expression) {
         const transFunName = (node.name + "_transform").toLocaleLowerCase();
         const transFunction = getComponentSource({
             name: 'TRANSFORM_FUNCTION',
@@ -312,7 +312,7 @@ function generateTransformNode(node: Node): TransformNodeData {
             config: {
                 NODE_NAME: node.name,
                 INPUT_PORTS: inputPorts,
-                TRANSFORM_FUNCTION: nodeProperties.codeBlock?.expression,
+                TRANSFORM_FUNCTION: nodeProperties.expression?.expression,
                 OUTPUT_PORTS: outputPorts
             }
         });

@@ -86,7 +86,7 @@ export type SwitchNodeProperties = NodeProperties & {
 };
 
 export type TransformNodeProperties = NodeProperties & {
-    codeBlock: BalExpression;
+    expression: BalExpression;
     outputType: string;
     transformFunctionLocation?: CodeLocation;
 }
