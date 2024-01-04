@@ -9,19 +9,14 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { CircularProgress } from "@material-ui/core";
-import ChevronRight from "@material-ui/icons/ChevronRight";
-import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
-import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css'
 import classnames from "classnames";
 
-import FunctionIcon from "../../../../assets/icons/FuctionIcon";
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 import { DataMapperPortWidget } from '../../Port';
 import { getFieldLabel } from '../../utils/dm-utils';
@@ -31,15 +26,14 @@ import { LinkConnectorNode } from './LinkConnectorNode';
 const styles = () => ({
     root: css({
         width: '100%',
-        backgroundColor: 'var(--vscode-input-background)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '5px',
-        color: 'var(--vscode-checkbox-border)',
-        boxShadow: '0px 5px 50px var(--vscode-checkbox-border)',
-        borderRadius: '10px',
-        alignItems: 'center',
-        overflow: 'hidden',
+        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        padding: "2px",
+        borderRadius: "6px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "5px",
+        color: "var(--vscode-checkbox-border)",
+        alignItems: "center",
     }),
     element: css({
         backgroundColor: 'var(--vscode-input-background)',
@@ -72,10 +66,13 @@ const styles = () => ({
         justifyContent: 'space-between',
     }),
     header: css({
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        "& > *": {
+            margin: "0 2px"
+        }
     }),
     icons: css({
         padding: '8px',
@@ -189,11 +186,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     }
 
     const loadingScreen = (
-        <CircularProgress
-            size={22}
-            thickness={3}
-            className={classes.circularProgress}
-        />
+        <ProgressRing />
     );
 
     return (!node.hidden && (
@@ -203,36 +196,38 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 <Tooltip
                     content={isTnfFunctionCall ? "Transformation Function Call" : "Multi-Input Expression"}
                 >
-                    <span className={classes.editIcon} >
-                        {isTnfFunctionCall ? (
-                            <div className={classes.functionIcon} >
-                                <FunctionIcon />
-                            </div>
-                        ) : <ExpressionIcon/>}
-                    </span>
+                    {isTnfFunctionCall ? (
+                        <Icon name="function-icon" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />) : (
+                        <Icon name="explicit-outlined" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />
+                    )}
                 </Tooltip>
                 {isTnfFunctionCall && (
-                    <div className={classes.element} onClick={onClickOnGoToDef} data-testid={`go-to-tnf-fn-${node?.value}`}>
-                        <div className={classes.iconWrapper}>
-                            <ChevronRight className={classnames(classes.editIcon)}/>
-                        </div>
-                    </div>
+                    <Button
+                        appearance="icon"
+                        onClick={onClickOnGoToDef}
+                        data-testid={`go-to-tnf-fn-${node?.value}`}
+                    >
+                        <Codicon name="chevron-right" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                    </Button>
                 )}
-                <div className={classes.element} onClick={onClickEdit} data-testid={`link-connector-edit-${node?.value}`}>
-                    <div className={classes.iconWrapper}>
-                        <CodeOutlinedIcon className={classnames(classes.icons, classes.editIcon)}/>
-                    </div>
-                </div>
+                <Button
+                    appearance="icon"
+                    onClick={onClickEdit}
+                    data-testid={`link-connector-edit-${node?.value}`}
+                >
+                    <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                </Button>
                 {deleteInProgress ? (
                     <div className={classnames(classes.element, classes.loadingContainer)}>
                         {loadingScreen}
                     </div>
                 ) : (
-                    <div className={classes.element} onClick={onClickDelete} data-testid={`link-connector-delete-${node?.value}`}>
-                        <div className={classes.iconWrapper}>
-                            <DeleteIcon className={classnames(classes.deleteIcon)}/>
-                        </div>
-                    </div>
+                    <Button
+                        appearance="icon"
+                        onClick={onClickDelete} data-testid={`link-connector-delete-${node?.value}`}
+                    >
+                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                    </Button>
                 )}
                 { diagnostic && (
                     <div className={classes.element}>
