@@ -17,7 +17,8 @@ import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
-import { Codicon } from '@wso2-enterprise/ui-toolkit'
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { OFFSET } from '../../../../constants';
 
 const ButtonComponent = styled.div`
     top: 45px;
@@ -64,8 +65,8 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
     leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
     topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
-    bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.height);
-
+    bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y + node.height);
+    
     useEffect(() => {
             const subNodes = subSequences[0].nodes;
             const subNodesAndLinks = [];
@@ -76,11 +77,11 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
 
                 const link = createLinks(node, subNodes[0], subNodes[0].getParentNode(), false, true, true);
                 props.diagramEngine.getModel().addAll(node, ...link, subNodes[0]);
-                subNodesAndLinks.push(node, ...link.filter((plusNode) => plusNode instanceof PlusNodeModel), subNodes[0]);
+                subNodesAndLinks.push(...link.filter((plusNode) => plusNode instanceof PlusNodeModel));
             }
 
-            setNodePositions(subNodesAndLinks, nodePosition.x + 500, nodePosition.y + 170, 25);
-    }, []);
+            setNodePositions(subNodesAndLinks, rightPort.getX() + 500, (nodePosition.y + node.height / 2) - (subNodes[0].height/2) - OFFSET.BETWEEN.Y, 25);
+    }, [nodePosition]);
 
     const deleteNode = async () => {
         MIWebViewAPI.getInstance().applyEdit({

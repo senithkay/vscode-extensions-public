@@ -47,7 +47,7 @@ export class SimpleEndpointNodeModel extends BaseNodeModel {
         this.endpointDescription = props.description;
         this.subSequences = subSequences;
         this.width = 70;
-        this.height = 70;
+        this.height = 100;
 
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.LEFT));
         this.addPort(new MediatorPortModel(this.id, PortModelAlignment.RIGHT));
