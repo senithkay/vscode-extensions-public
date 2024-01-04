@@ -7,21 +7,20 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BaseNodeProps } from '../../../base/base-node/base-node';
+import { SimpleEndpointNodeModel } from './SimpleEndpointModel';
 import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
-import { SimpleMediatorNodeModel } from './SimpleMediatorModel';
 import { getSVGIcon } from '../Icons';
+import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import styled from '@emotion/styled';
+import { createLinks, setNodePositions } from '../../../../utils/Utils';
+import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'
-import SidePanelContext from '../../../sidePanel/SidePanelContexProvider';
-import { getDataFromXML } from '../../../../utils/template-engine/mustach-templates/templateUtils';
 
 const ButtonComponent = styled.div`
-    flex-direction: row;
-    top: 50%;
+    top: 45px;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
@@ -46,17 +45,17 @@ const EditButton = styled.button`
     padding: 2px;
 `
 
-export interface SimpleMediatorWidgetProps extends BaseNodeProps {
+export interface SimpleEndpointWidgetProps extends BaseNodeProps {
     name: string;
     description: string;
     documentUri: string;
     nodePosition: Range;
 }
 
-export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
-    const node: SimpleMediatorNodeModel = props.node as SimpleMediatorNodeModel;
-    const sidePanelContext = React.useContext(SidePanelContext);
+export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
+    const node: SimpleEndpointNodeModel = props.node as SimpleEndpointNodeModel;
 
+    const subSequences = node.subSequences;
     const nodePosition = node.getPosition();
     const leftPort = node.getPortByAllignment('left');
     const rightPort = node.getPortByAllignment('right');
@@ -66,26 +65,22 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
     topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
     bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.height);
-    const [isHovered, setIsHovered] = useState(false);
 
-    const handleMouseOver = () => {
-        setIsHovered(true);
-    };
+    useEffect(() => {
+            const subNodes = subSequences[0].nodes;
+            const subNodesAndLinks = [];
 
-    const handleMouseOut = () => {
-        setIsHovered(false);
-    };
+            if (subNodes.length == 1) {
+                props.diagramEngine.getModel().addNode(subNodes[0]);
+                subNodesAndLinks.push(subNodes[0]);
 
-    const editNode = async () => {
-        sidePanelContext.setNodeRange(props.nodePosition);
-        sidePanelContext.setMediator(props.name.toLowerCase());
-        sidePanelContext.setIsOpen(true);
-        const formData = getDataFromXML(
-            props.name,
-            props.node.getNode()
-        );
-        sidePanelContext.setFormValues(formData);
-    }
+                const link = createLinks(node, subNodes[0], subNodes[0].getParentNode(), false, true, true);
+                props.diagramEngine.getModel().addAll(node, ...link, subNodes[0]);
+                subNodesAndLinks.push(node, ...link.filter((plusNode) => plusNode instanceof PlusNodeModel), subNodes[0]);
+            }
+
+            setNodePositions(subNodesAndLinks, nodePosition.x + 720, nodePosition.y + 170, 25);
+    }, []);
 
     const deleteNode = async () => {
         MIWebViewAPI.getInstance().applyEdit({
@@ -93,13 +88,37 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
         });
     }
 
-    return (
-        <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut} style={{ width: node.width, height: node.height }}>
-            {getSVGIcon(props.name, props.description, node.width, node.height)}
+    const ActionButtons = () => {
+    const [isHovered, setIsHovered] = useState(false);
+    const handleMouseOver = () => {
+            setIsHovered(true);
+        };
+
+        const handleMouseOut = () => {
+            setIsHovered(false);
+        };
+
+        return (<div style={{
+            padding: "10px",
+            alignItems: "center",
+            margin: "auto",
+            width: 70,
+            height: 70
+        }}
+            onMouseOver={handleMouseOver}
+            onMouseOut={handleMouseOut}
+        >
+            {getSVGIcon(props.name, props.description, 70, 70)}
             <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
                 <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
-                <EditButton onClick={editNode}> <Codicon name="edit" /> </EditButton>
+                <EditButton> <Codicon name="edit" /> </EditButton>
             </ButtonComponent>
+        </div>);
+    }
+
+    return (
+        <div style={{ width: node.width, height: node.height }}>
+            <ActionButtons />
             <MediatorPortWidget
                 port={topPort}
                 engine={props.diagramEngine}
@@ -111,11 +130,10 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
                 node={props.node}
             />
             <MediatorPortWidget
-                port={leftPort}
+                port={rightPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />
         </div>
     );
 }
-
