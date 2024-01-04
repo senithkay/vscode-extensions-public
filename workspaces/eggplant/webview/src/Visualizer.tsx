@@ -10,7 +10,7 @@
 // import { Overview } from "@wso2-enterprise/overview-view";
 // import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
-import LowCode from './LowCode';
+import WebPanel from './WebPanel';
 import Overview from './Overview';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { Loader } from "./Loader";
@@ -63,7 +63,7 @@ const OverviewComponent = ({ state }: { state: MachineStateValue }) => {
 const LowCodeComponent = ({ state }: { state: MachineStateValue }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state:
-            return <LowCode state={state} />;
+            return <WebPanel state={state} />;
         case typeof state === 'object' && 'newProject' in state:
             return <WelcomeView state={state}/>;
         default:

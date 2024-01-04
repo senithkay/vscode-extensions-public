@@ -7,39 +7,91 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { BalExpression, CodeNodeProperties, Flow, HttpRequestNodeProperties, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties } from "../../rpc-types/webview/types";
+import { BalExpression, CodeNodeProperties, Flow, HttpRequestNodeProperties, InputPort, Node, OutputPort, SwitchCaseBlock, SwitchNodeProperties, TransformNodeProperties } from "../../rpc-types/webview/types";
 import { getComponentSource } from "./template-utils";
 
 const defaultInput = "_ = check <- function;";
-let returnBlock : string = "";
+let returnBlock: string = "";
+let startWorkerCall: string = "";
 
-export function workerCodeGen(model: Flow): string {
+interface TransformNodeData {
+    transformNode: string;
+    transformFunction?: string;
+}
+
+export interface CodeGeneartionData {
+    workerBlocks: string;
+    transformFunction?: string;
+}
+// Generate new code to update the Flow model
+// Insert your code here
+
+export function workerCodeGen(model: Flow): CodeGeneartionData {
     console.log("===model", model);
     let workerBlocks: string = "";
+    let transformFunction: string;
     // use the util functions and generate the workerblocks
     model?.nodes.forEach(node => {
         if (node.templateId === "SwitchNode") {
             workerBlocks += generateSwitchNode(node);
-        } else if (node.templateId === "HttpRequestNode") { 
+        } else if (node.templateId === "HttpRequestNode") {
             workerBlocks += generateCallerNode(node);
         } else if (node.templateId === "HttpResponseNode") {
             workerBlocks += generateResponseNode(node);
+        } else if (node.templateId === "TransformNode") {
+            const transformNodeData: TransformNodeData = generateTransformNode(node);
+            transformFunction = transformNodeData.transformFunction;
+            workerBlocks += transformNodeData.transformNode;
+        } else if (node.templateId === "StartNode") {
+            workerBlocks += generateStartNode(node);
         } else {
             workerBlocks += generateBlockNode(node);
         }
     });
 
-    return workerBlocks + returnBlock;
+    // TODO: refactor
+    if (transformFunction) {
+        return {
+            workerBlocks: workerBlocks + startWorkerCall + returnBlock,
+            transformFunction: transformFunction
+        };
+    } else {
+        return {
+            workerBlocks: workerBlocks + startWorkerCall +  returnBlock
+        };
+    }
+}
+
+function generateStartNode(node: Node): string {
+    const startNode: string = getComponentSource({
+        name: 'START_NODE',
+        config: {
+            OUTPUT_PORTS: generateOutputPorts(node, "()")
+        }
+    });
+
+    // node with annotation
+    const completeNode = `
+    ${generateDisplayNode(node)}
+    ${startNode}
+    `;
+
+    // TODO: Add as template
+    startWorkerCall = `
+    () -> StartNode;
+    `;
+
+    return completeNode;
 }
 
 
 function generateBlockNode(node: Node): string {
     const nodeProperties = node.properties as CodeNodeProperties;
     let inputPorts: string = generateInputPorts(node);
-    const outputPorts: string = generateOutputPorts(node, nodeProperties?.returnVar)
+    const outputPorts: string = generateOutputPorts(node)
     console.log("===inputPorts", inputPorts);
     if (inputPorts === undefined && outputPorts !== undefined) {
-        inputPorts =  defaultInput;
+        inputPorts = defaultInput;
     }
     const workerNode: string = getComponentSource({
         name: 'CODE_BLOCK_NODE',
@@ -105,21 +157,21 @@ function generateSwitchNode(node: Node): string {
     });
 
     // default case block
-        let outputPorts: string = "";
-        switchProperties.defaultCase?.nodes.forEach(nodeId => {
-            // find the port matching the nodeId from outputPorts
-            const port = node.outputPorts.find(port => port.id === nodeId);
-            if (port) {
-                outputPorts += generateOutport(port);
-            }
-        });
+    let outputPorts: string = "";
+    switchProperties.defaultCase?.nodes.forEach(nodeId => {
+        // find the port matching the nodeId from outputPorts
+        const port = node.outputPorts.find(port => port.id === nodeId);
+        if (port) {
+            outputPorts += generateOutport(port);
+        }
+    });
 
-        switchCaseBlock += getComponentSource({
-            name: 'ELSE_BLOCK',
-            config: {
-                OUTPORTS: outputPorts
-            }
-        });
+    switchCaseBlock += getComponentSource({
+        name: 'ELSE_BLOCK',
+        config: {
+            OUTPORTS: outputPorts
+        }
+    });
 
     // generate switch node
     const switchNode: string = getComponentSource({
@@ -143,7 +195,7 @@ function generateSwitchNode(node: Node): string {
 
 function generateCallerNode(node: Node): string {
     const callerProps = node.properties as HttpRequestNodeProperties;
-    const callerEp: string =  callerProps?.endpoint?.name ? callerProps?.endpoint?.name : "grandOakEp"; // TODO : use the value from the model
+    const callerEp: string = callerProps?.endpoint?.name ? callerProps?.endpoint?.name : "grandOakEp"; // TODO : use the value from the model
     const callerVariable: string = node.name + "_response";
     console.log("===callerProps", callerProps);
     const callerAction: string = getComponentSource({
@@ -154,14 +206,14 @@ function generateCallerNode(node: Node): string {
             CALLER: callerEp,
             PATH: callerProps?.path ? removeLeadingSlash(callerProps.path) : undefined,
             ACTION: callerProps?.action ? callerProps.action : "get",
-            PAYLOAD: node?.inputPorts[0]?.name ? node.inputPorts[0].name : undefined
+            PAYLOAD: callerProps.action === "post" ? (node?.inputPorts[0]?.name ? node.inputPorts[0].name : "{}") : undefined
         }
     });
 
     let inputPorts: string = generateInputPorts(node);
     const outputPorts: string = generateOutputPorts(node, callerVariable);
     if (inputPorts === undefined && outputPorts !== undefined) {
-        inputPorts =  defaultInput;
+        inputPorts = defaultInput;
     }
 
     const workerNode: string = getComponentSource({
@@ -185,7 +237,7 @@ function generateCallerNode(node: Node): string {
 function generateResponseNode(node: Node): string {
     // TODO: current response only suport one inputPort
     const inputPort = node?.inputPorts[0];
-    const varType = inputPort?.type ? sanitizeType(inputPort.type): undefined;
+    const varType = inputPort?.type ? sanitizeType(inputPort.type) : undefined;
     const varName = inputPort?.name;
     const genInport = inputPort ? generateInport(inputPort) : undefined;
     const workerNode: string = getComponentSource({
@@ -214,12 +266,74 @@ function generateResponseNode(node: Node): string {
     return completeNode;
 }
 
+function generateTransformNode(node: Node): TransformNodeData {
+    const nodeProperties = node.properties as TransformNodeProperties;
+    const inputPorts: string = generateInputPorts(node);
+    const outputPorts: string = generateOutputPorts(node, node.name + "_transformed");
+    console.log("===codeBLOCK", nodeProperties);
+    // create the transform_Function
+    if (!nodeProperties?.codeBlock?.expression) {
+        const transFunName = (node.name + "_transform").toLocaleLowerCase();
+        const transFunction = getComponentSource({
+            name: 'TRANSFORM_FUNCTION',
+            config: {
+                FUNCTION_NAME: transFunName
+            }
+        });
 
-function generateOutport(port: OutputPort, expression?:string): string {
+        // generate the function call to transform function
+        const transformCall = nodeProperties?.outputType ? nodeProperties.outputType : "any" + " " + node.name + "_transformed = " + transFunName + "();";
+
+        // generate the worker node
+        const workerNode: string = getComponentSource({
+            name: 'TRANSFORM_NODE',
+            config: {
+                NODE_NAME: node.name,
+                INPUT_PORTS: inputPorts,
+                TRANSFORM_FUNCTION: transformCall,
+                OUTPUT_PORTS: outputPorts
+            }
+        });
+
+        // node with annotation
+        const completeNode = `
+            ${generateDisplayNode(node)}
+            ${workerNode}
+            `;
+
+        return {
+            transformFunction: transFunction,
+            transformNode: completeNode
+        };
+
+    } else {
+        const workerNode: string = getComponentSource({
+            name: 'TRANSFORM_NODE',
+            config: {
+                NODE_NAME: node.name,
+                INPUT_PORTS: inputPorts,
+                TRANSFORM_FUNCTION: nodeProperties.codeBlock?.expression,
+                OUTPUT_PORTS: outputPorts
+            }
+        });
+
+        const completeNode = `
+            ${generateDisplayNode(node)}
+            ${workerNode}
+            `;
+
+        return {
+            transformNode: completeNode
+        };
+    }
+}
+
+
+function generateOutport(port: OutputPort, expression?: string): string {
     return getComponentSource({
         name: 'ASYNC_SEND_ACTION',
         config: {
-            EXPRESSION: expression ? expression :port?.name,
+            EXPRESSION: expression ? expression : port?.name,
             TARGET_WORKER: port?.receiver
         }
     });
@@ -249,7 +363,7 @@ function generateInputPorts(node: Node): string {
     return inputPorts;
 }
 
-function generateOutputPorts(node: Node, expression?:string): string {
+function generateOutputPorts(node: Node, expression?: string): string {
     if (!node.outputPorts || node.outputPorts.length === 0) {
         return undefined;
     }
@@ -274,7 +388,8 @@ function generateDisplayNode(node: Node): string {
             NODE: "Node",
             TEMPLATE_ID: node.templateId,
             X_CODE: node.canvasPosition?.x,
-            Y_CODE: node.canvasPosition?.y
+            Y_CODE: node.canvasPosition?.y,
+            METADATA: node.metadata
         }
     });
 }
@@ -282,9 +397,6 @@ function generateDisplayNode(node: Node): string {
 
 // TODO: remove once the backend model sends the correct type
 function sanitizeType(type: string): string {
-    if (type === "$CompilationError$") {
-        return "json";
-    }
     const typeParts = type.split(":");
     return typeParts[typeParts.length - 1];
 }

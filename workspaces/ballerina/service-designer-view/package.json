@@ -13,6 +13,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives"
   },
   "dependencies": {
+    "@wso2-enterprise/syntax-tree": "workspace:*",
     "@emotion/css": "^11.10.5",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.10.5",

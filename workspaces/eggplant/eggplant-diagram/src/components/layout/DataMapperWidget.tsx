@@ -11,12 +11,12 @@ import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ballerina-core";
-import { useSyntaxTreeFromRange } from "./../../Hooks"
+import { useSyntaxTreeFromRange } from "../../hooks/useSyntaxTreeFromRange"
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 import { css, Global } from '@emotion/react';
 
-interface DataMapperOverlayProps {
+interface DataMapperWidgetProps {
     filePath: string;
     fnLocation: NodePosition;
     onClose: () => void;
@@ -30,7 +30,7 @@ const globalStyles = css`
   }
 `;
 
-export function DataMapperOverlay(props: DataMapperOverlayProps) {
+export function DataMapperWidget(props: DataMapperWidgetProps) {
     const { filePath, fnLocation, onClose } = props;
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(fnLocation , filePath, rerender);
@@ -48,7 +48,7 @@ export function DataMapperOverlay(props: DataMapperOverlayProps) {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
-        const filePath = viewLocation.location.fileName;
+        const filePath = viewLocation.fileName;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRpcClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {

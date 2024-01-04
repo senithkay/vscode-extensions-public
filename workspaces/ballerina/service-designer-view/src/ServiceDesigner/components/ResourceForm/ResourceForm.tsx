@@ -16,8 +16,7 @@ import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions'
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
-import { generateResourceFunction, getModification } from '../../utils/utils';
-import { STModification } from '@wso2-enterprise/ballerina-core';
+import { generateResourceFunction } from '../../utils/utils';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -26,7 +25,7 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	isOpen: boolean;
-	applyModifications?: (modifications: STModification[]) => void;
+	applyModifications?: (source: string) => void;
 	onClose: () => void;
 }
 
@@ -71,30 +70,28 @@ export function ResourceForm(props: ResourceFormProps) {
 
 	const onSave = () => {
 		let paramString = "";
-		parameters.map((param: ParameterConfig, index: number) => {
-			const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
-			paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
-		});
-		const payloadType = `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
-		paramString = paramString + payloadType;
 
-		advancedParams.forEach((param: ParameterConfig) => {
-			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
-			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}`;
-		});
+        advancedParams.forEach((param: ParameterConfig) => {
+            const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
+            paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
+        });
 
-		let responseString = "";
-		response.map((resp: ResponseConfig, index: number) => {
-			responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
-		});
+        parameters.map((param: ParameterConfig, index: number) => {
+            const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
+            paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
+        });
+
+        const payloadType = payload ? `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}` : "";
+        paramString = paramString + payloadType;
+
+        let responseString = "";
+        response.map((resp: ResponseConfig, index: number) => {
+            responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
+        });
 
 		const genSource = generateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });		
 
-		// Insert scenario
-		const modification = getModification(genSource, { startLine: 14, startColumn: 0, endLine: 14, endColumn: 0 });
-		applyModifications && applyModifications([modification]);
-		// Edit scenario
-		// applyModifications && applyModifications([getModification(genSource, viewLocation.location.position)]);
+		applyModifications(genSource);
 
 		onClose();
 	};

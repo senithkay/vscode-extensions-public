@@ -19,9 +19,10 @@ import {
     VisualizerLocation,
     CommandProps,
     WebviewAPI,
-    workerCodeGen
+    workerCodeGen,
+    CodeGeneartionData
 } from "@wso2-enterprise/eggplant-core";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { writeFileSync } from "fs";
 import * as vscode from "vscode";
 import { Uri, commands, workspace } from "vscode";
@@ -34,7 +35,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getVisualizerState(): Promise<VisualizerLocation> {
         const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve(context);
+            resolve({ view: context.view, fileName: context.fileName, position: context.position });
         });
     }
 
@@ -70,7 +71,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getEggplantModel(): Promise<Flow> {
         const context = StateMachine.context();
         const langClient = context.langServer as LangClientInterface;
-        if (!context.location) {
+        if (!context.position) {
             // demo hack
             //@ts-ignore
             return new Promise((resolve) => {
@@ -79,18 +80,21 @@ export class WebviewRpcManager implements WebviewAPI {
             });
         }
         const params: EggplantModelRequest = {
-            filePath: context.location.fileName,
+            filePath: context.fileName!,
             startLine: {
-                line: context.location.position.startLine ?? 0,
-                offset: context.location.position.startColumn ?? 0
+                line: context.position.startLine ?? 0,
+                offset: context.position.startColumn ?? 0
             },
             endLine: {
-                line: context.location.position.endLine ?? 0,
-                offset: context.location.position.endColumn ?? 0
+                line: context.position.endLine ?? 0,
+                offset: context.position.endColumn ?? 0
             }
 
         }
+
+        console.log("===ParamsForBackend", params);
         return langClient.getEggplantModel(params).then((model) => {
+            console.log("===BackEndModel", model);
             //@ts-ignore
             return model.workerDesignModel;
         }).catch((error) => {
@@ -125,18 +129,18 @@ export class WebviewRpcManager implements WebviewAPI {
         }
     }
 
-    async getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
-        const location = params.location;
+    async getSTNodeFromLocation(location: VisualizerLocation): Promise<STNode> {
+
         const req: BallerinaFunctionSTRequest = {
-            documentIdentifier: { uri: Uri.file(location!.fileName).toString() },
+            documentIdentifier: { uri: Uri.file(location.fileName!).toString() },
             lineRange: {
                 start: {
-                    line: location?.position.startLine as number,
-                    character: location?.position.startColumn as number
+                    line: location.position!.startLine as number,
+                    character: location.position!.startColumn as number
                 },
                 end: {
-                    line: location?.position.endLine as number,
-                    character: location?.position.endColumn as number
+                    line: location.position!.endLine as number,
+                    character: location.position!.endColumn as number
                 }
             }
         };
@@ -150,9 +154,45 @@ export class WebviewRpcManager implements WebviewAPI {
 
     async updateSource(flowModel: Flow): Promise<void> {
         const context = StateMachine.context();
-        const code = workerCodeGen(flowModel);
-
+        const code: CodeGeneartionData = workerCodeGen(flowModel);
+        console.log("===code", code);
+        console.log("===flowModel file Position", flowModel.fileSourceRange);
         const langClient = context.langServer as LangClientInterface;
+        // If the transformFunction is found inject it first to the end of the file
+        if (code.transformFunction) {
+            const modification: STModification = {
+                startLine: flowModel.fileSourceRange?.end.line,
+                startColumn: flowModel.fileSourceRange?.end.offset,
+                endLine: flowModel.fileSourceRange?.end.line,
+                endColumn: flowModel.fileSourceRange?.end.offset,
+                type: "INSERT",
+                isImport: false,
+                config: {
+                    "STATEMENT": code.transformFunction
+                }
+            };
+
+            const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+                documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
+                astModifications: [modification]
+            });
+
+            if (parseSuccess) {
+                writeFileSync(flowModel.fileName, source);
+                await langClient.didChange({
+                    textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
+                    contentChanges: [
+                        {
+                            text: source
+                        }
+                    ],
+                });
+            }
+        }
+
+        console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
+
+
         // TODO: Fix with the proper position when retrived from the BE model
         const modification: STModification = {
             startLine: flowModel.bodyCodeLocation?.start.line + 1,
@@ -162,7 +202,7 @@ export class WebviewRpcManager implements WebviewAPI {
             type: "INSERT",
             isImport: false,
             config: {
-                "STATEMENT": code
+                "STATEMENT": code.workerBlocks
             }
         };
 
@@ -171,6 +211,7 @@ export class WebviewRpcManager implements WebviewAPI {
             astModifications: [modification]
         });
 
+        console.log("===parseSuccess", parseSuccess);
         if (parseSuccess) {
             writeFileSync(flowModel.fileName, source);
             await langClient.didChange({
@@ -182,18 +223,23 @@ export class WebviewRpcManager implements WebviewAPI {
                 ],
             });
 
-            // TODO: Update with notification
-            openView({
-                location: {
-                    fileName: flowModel.fileName,
-                    position: {
-                        startLine: newST.position.startLine ?? 0,
-                        startColumn: newST.position.startColumn ?? 0,
-                        endLine: newST.position.endLine ?? 0,
-                        endColumn: newST.position.endColumn ?? 0
+
+            const st = newST as ModulePart;
+            outerLoop: for (const member of st.members) {
+                if (STKindChecker.isServiceDeclaration(member)) {
+                    const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
+                    for (const resource of member.members) {
+                        if (STKindChecker.isResourceAccessorDefinition(resource)) {
+                            const fnName = resource.functionName.value;
+                            const identifier = service + "/" + fnName;
+                            if (identifier === context.identifier) {
+                                openView({ position: resource.position });
+                                break outerLoop;  // Break out of the inner loop
+                            }
+                        }
                     }
                 }
-            });
+            }
         }
     }
 

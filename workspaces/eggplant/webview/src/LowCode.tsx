@@ -12,8 +12,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { EggplantApp, Flow } from "@wso2-enterprise/eggplant-diagram";
 import styled from "@emotion/styled";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { MachineStateValue } from "@wso2-enterprise/eggplant-core";
-
+import { MachineStateValue, VisualizerLocation } from "@wso2-enterprise/eggplant-core";
 
 const Container = styled.div`
     width: 100%;
@@ -59,13 +58,12 @@ const LowCode = (props: { state: MachineStateValue }) => {
         return <EggplantApp flowModel={flowModel} onModelChange={onModelChange} />;
     }, [flowModel]);
 
-
     return (
         <Container>
             {flowModel ? eggplantDiagram :
-                <MessageContainer>
-                    <MessageContent>Select Construct from Overview</MessageContent>
-                </MessageContainer>
+                    <MessageContainer>
+                        <MessageContent>Select Construct from Overview</MessageContent>
+                    </MessageContainer>
             }
         </Container>
     );
