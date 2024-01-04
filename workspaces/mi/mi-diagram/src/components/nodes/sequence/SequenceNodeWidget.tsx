@@ -9,13 +9,14 @@
 
 import React from 'react';
 import { PortModelAlignment } from '@projectstorm/react-diagrams-core';
-import { BaseNodeProps } from '../../base/base-node/base-node';
+import { BaseNodeProps, SequenceType } from '../../base/base-node/base-node';
 import { OFFSET } from '../../../constants';
 import { MediatorPortWidget } from '../../port/MediatorPortWidget';
 import { IN_SEQUENCE_TAG, OUT_SEQUENCE_TAG } from '../../compartments/Sequence';
 
 interface SequenceNodeProps extends BaseNodeProps {
-    side: "right" | "left"
+    side: "right" | "left",
+    sequenceType: SequenceType
 }
 
 export function SequenceNodeWidget(props: SequenceNodeProps) {
@@ -23,18 +24,18 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     const nodes = props.diagramEngine.getModel().getNodes();
     const inSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === IN_SEQUENCE_TAG);
     const outSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === OUT_SEQUENCE_TAG);
-    const canvasWidthInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getX() + inSeqNodes[inSeqNodes.length - 1].width : 0;
-    const canvasWidthOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[0].getX() + outSeqNodes[0].width : 0;
-    const width = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes) + (OFFSET.BETWEEN.X) + 70;
+    const canvasHeightInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getY() + inSeqNodes[inSeqNodes.length - 1].height : 0;
+    const canvasHeightOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[outSeqNodes.length - 1].getY() - outSeqNodes[0].getY() + outSeqNodes[0].height + 250: 0;
+    const height = props.sequenceType === SequenceType.IN_SEQUENCE ? canvasHeightInSeqNodes : canvasHeightOutSeqNodes;
 
-    let height = 0;
+    let width = 0;
     inSeqNodes.forEach((node: any) => {
-        height = Math.max(height, node.height);
+        width = Math.max(width, node.width);
     });
     outSeqNodes.forEach((node: any) => {
-        height = Math.max(height, node.height);
+        width = Math.max(width, node.width);
     });
-    height += OFFSET.MARGIN.SEQUENCE;
+    width += OFFSET.MARGIN.SEQUENCE;
     node.width = width;
     node.height = height;
 
@@ -46,7 +47,13 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     const rightPort = node.getPortByAllignment(PortModelAlignment.RIGHT);
     rightPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
 
+    const topPort = node.getPortByAllignment(PortModelAlignment.TOP);
+    topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+    const bottomPort = node.getPortByAllignment(PortModelAlignment.BOTTOM);
+    bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
+
     node.fireEvent({}, "updateDimensions");
+    const sequenceType = node.getSequenceType() ;
     return (
         <>
             <div style={{
@@ -55,14 +62,24 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
                 border: "2px solid gold",
                 background: "var(--vscode-editor-background)",
                 borderRadius: props.side == "right" ? "0 25px 25px 0" : "25px 0 0 25px",
-            }}></div>
+            }}>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    color: "#fff",
+                    padding: "20px",
+                    fontSize: "14px"
+                }}>
+                    {sequenceType === SequenceType.IN_SEQUENCE ? <span>In sequence</span> : <span>Out sequence</span>}
+                </div>
+            </div>
             <MediatorPortWidget
-                port={leftPort}
+                port={topPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />
             <MediatorPortWidget
-                port={rightPort}
+                port={bottomPort}
                 engine={props.diagramEngine}
                 node={props.node}
             />

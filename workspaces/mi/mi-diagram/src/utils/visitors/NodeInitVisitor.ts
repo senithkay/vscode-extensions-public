@@ -27,12 +27,15 @@ import {
     Drop,
     Callout,
     Header,
-    Validate
+    Validate,
+    EndpointHttp,
+    Endpoint
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { BaseNodeModel } from '../../components/base/base-node/base-node';
+import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
 import { MEDIATORS } from '../../constants';
 import { AdvancedMediatorNodeModel } from '../../components/nodes/mediators/advancedMediator/AdvancedMediatorModel';
+import { SimpleEndpointNodeModel } from '../../components/nodes/mediators/simpleEndpoint/SimpleEndpointModel';
 
 export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
@@ -70,7 +73,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.LOG,
                 description: node.level?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -88,7 +91,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.STORE,
                 description: node.messageStore?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -101,7 +104,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.PROPERTY,
                 description: "",
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -114,7 +117,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.PROPERTYGROUP,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -127,7 +130,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.RESPOND,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -140,7 +143,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.LOOPBACK,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -153,7 +156,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.CALL,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -166,23 +169,41 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.CALLTEMPLATE,
                 description: node.target?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
     }
 
     beginVisitSend(node: Send) {
+        const currentSequence = this.currentSequence;
+        const endpointNodes: [] = [];
+
+        this.parents.push(node);
+        if (node.endpoint) {
+            this.currentSequence = endpointNodes;
+            (node.endpoint as any).forEach((mediator: STNode) => {
+                traversNode(mediator, this);
+            });
+        }
+
+        this.parents.pop();
+
+        this.currentSequence = currentSequence;
         this.currentSequence.push(
-            new SimpleMediatorNodeModel({
+            new SimpleEndpointNodeModel({
                 node: node,
                 name: MEDIATORS.SEND,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
-                parentNode: this.parents[this.parents.length - 1]
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1],
+                subSequences: [{
+                    name: "Endpoints", nodes: endpointNodes
+                }]
             }
             ));
+        this.skipChildrenVisit = true;
     }
 
     beginVisitSequence(node: Sequence) {
@@ -192,7 +213,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.SEQUENCE,
                 description: node.tag?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -205,7 +226,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.DROP,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 dropSequence: true
             }
@@ -219,7 +240,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.CALLOUT,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -232,7 +253,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.HEADER,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -258,7 +279,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.VALIDATE,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
                     name: "OnFail", nodes: onFailSequenceNodes
@@ -296,7 +317,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.THROTTLE,
                 description: node.id?.toString(),
                 documentUri: this.documentUri,
-                isInOutSequence: this.isInOutSequence,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
                     name: "OnAccept", nodes: onAcceptSequenceNodes
@@ -308,7 +329,41 @@ export class NodeInitVisitor implements Visitor {
         this.skipChildrenVisit = true;
     }
 
+    beginVisitEndpoint(node: Endpoint): void {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.HTTPENDPOINT,
+                description: node.tag?.toString(),
+                documentUri: this.documentUri,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitEndpointHttp(node: EndpointHttp): void {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.HTTPENDPOINT,
+                description: node.tag?.toString(),
+                documentUri: this.documentUri,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    endVisitEndpoint(): void {
+        this.skipChildrenVisit = false;
+    }
+
     endVisitThrottle(): void {
+        this.skipChildrenVisit = false;
+    }
+
+    endVisitValidate(): void {
         this.skipChildrenVisit = false;
     }
 

@@ -28,6 +28,7 @@ export class SequenceNodeFactory extends AbstractReactFactory<SequenceNodeModel,
         return <SequenceNodeWidget
             diagramEngine={this.engine}
             node={event.model}
+            sequenceType={event.model.getSequenceType()}
             side={event.model.isInOutSequenceNode() ? "left" : "right"}
         />;
     }
@@ -35,8 +36,8 @@ export class SequenceNodeFactory extends AbstractReactFactory<SequenceNodeModel,
     generateModel(event: { initialConfig: GenerateReactWidgetProps }) {
         return new SequenceNodeModel(
             event.initialConfig.model.getID(),
+            event.initialConfig.model.getSequenceType(),
             event.initialConfig.model.getNodeRange(),
-            event.initialConfig.model.isInOutSequenceNode(),
         );
     }
 }

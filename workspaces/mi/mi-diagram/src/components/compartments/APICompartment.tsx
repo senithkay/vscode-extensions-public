@@ -22,10 +22,10 @@ export function APICompartment(props: React.PropsWithChildren<Props>) {
             borderColor: "var(--vscode-panel-dropBorder)",
             maxHeight: "100%",
             width: "fit-content",
+            flexDirection: "column"
         }}>
             <div
                 style={{
-                    width: "50px",
                     backgroundColor: "skyblue",
                     padding: "10px",
                     borderRight: "1px",
@@ -41,9 +41,6 @@ export function APICompartment(props: React.PropsWithChildren<Props>) {
                     textAlign: "center",
                     fontSize: "20px",
                     fontFamily: "sans-serif",
-                    writingMode: "vertical-lr",
-                    textOrientation: "sideways-rl",
-                    transform: "rotate(180deg)"
                 }}
                 >{props.name}</span>
             </div>

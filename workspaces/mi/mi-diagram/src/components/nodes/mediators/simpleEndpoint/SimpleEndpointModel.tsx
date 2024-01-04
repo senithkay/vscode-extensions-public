@@ -12,30 +12,40 @@ import { BaseNodeModel, SequenceType } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
 import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
-export const SIMPLE_NODE = "SimpleNode";
+export const SIMPLE_ENDPOINT = "SimpleEndpoint";
 
-interface SimpleMediatorNodeModelProps {
+interface SubSequence {
+    name: string;
+    nodes: BaseNodeModel[];
+    width?: number;
+    height?: number;
+}
+
+interface SimpleEndpointNodeModelProps {
     node: STNode;
     name: string,
     description: string,
     documentUri: string;
     sequenceType: SequenceType;
     parentNode?: STNode;
-    dropSequence?: boolean
+    dropSequence?: boolean;
+    subSequences: SubSequence[];
 }
-export class SimpleMediatorNodeModel extends BaseNodeModel {
+export class SimpleEndpointNodeModel extends BaseNodeModel {
     readonly id: string;
-    readonly mediatorName: string;
-    readonly mediatorDescription: string;
+    readonly endpointName: string;
+    readonly endpointDescription: string;
+    readonly subSequences: SubSequence[] = [];
 
-    constructor(props: SimpleMediatorNodeModelProps) {
-        const { node, documentUri, sequenceType, parentNode, dropSequence } = props;
+    constructor(props: SimpleEndpointNodeModelProps) {
+        const { node, documentUri, sequenceType,subSequences, parentNode, dropSequence } = props;
         const id = `${node.tag}${node.range.start.line}.${node.range.start.character}:${node.range.end.line}.${node.range.end.character}`;
-        super(SIMPLE_NODE, id, documentUri, sequenceType, node, parentNode, dropSequence);
+        super(SIMPLE_ENDPOINT, id, documentUri, sequenceType, node, parentNode, dropSequence);
 
         this.id = id;
-        this.mediatorName = props.name;
-        this.mediatorDescription = props.description;
+        this.endpointName = props.name;
+        this.endpointDescription = props.description;
+        this.subSequences = subSequences;
         this.width = 70;
         this.height = 70;
 

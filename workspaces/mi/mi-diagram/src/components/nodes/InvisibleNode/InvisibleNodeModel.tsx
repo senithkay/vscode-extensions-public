@@ -8,14 +8,15 @@
  */
 
 import { DefaultPortModel, PortModelAlignment } from "@projectstorm/react-diagrams";
-import { BaseNodeModel } from "../../base/base-node/base-node";
+import { BaseNodeModel, SequenceType } from "../../base/base-node/base-node";
 
 export const INVISIBLE_NODE = "InvisibleNode";
 
 export class InvisibleNodeModel extends BaseNodeModel {
 
-    constructor(id: string, documentUri: string, isInOutSequence: boolean) {
-        super(INVISIBLE_NODE, id, documentUri, isInOutSequence);
+    constructor(id: string, documentUri: string, sequenceType: SequenceType) {
+        super(INVISIBLE_NODE, id, documentUri, sequenceType);
         this.addPort(new DefaultPortModel(false, PortModelAlignment.RIGHT));
+        this.addPort(new DefaultPortModel(false, PortModelAlignment.BOTTOM));
     }
 }

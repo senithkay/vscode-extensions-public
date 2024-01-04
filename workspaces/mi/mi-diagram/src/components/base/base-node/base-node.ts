@@ -17,21 +17,26 @@ export interface BaseNodeProps extends NodeProps {
     diagramEngine: DiagramEngine;
 }
 
+export enum SequenceType {
+    IN_SEQUENCE = "inSequence",
+    OUT_SEQUENCE = "outSequence"
+}
+
 export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     private readonly parentNode?: STNode;
     private readonly node?: STNode;
     private readonly documentUri: string;
-    private readonly isInOutSequence: boolean;
+    private readonly sequenceType: SequenceType;
     private readonly dropSequence: boolean;
     private nodeRange: Range;
 
-    constructor(type: string, id: string, documentUri: string, isInOutSequence: boolean, node?: STNode, parentNode?: STNode, dropSequence?: boolean) {
+    constructor(type: string, id: string, documentUri: string, sequenceType: SequenceType, node?: STNode, parentNode?: STNode, dropSequence?: boolean) {
         super({
             type: type,
             id: id
         });
 
-        this.isInOutSequence = isInOutSequence;
+        this.sequenceType = sequenceType;
         this.parentNode = parentNode;
         this.documentUri = documentUri;
         this.dropSequence = dropSequence;
@@ -89,7 +94,7 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
     }
 
     isInOutSequenceNode(): boolean {
-        return this.isInOutSequence;
+        return this.sequenceType === SequenceType.OUT_SEQUENCE;
     }
 
     isDropSequence(): boolean {
@@ -98,5 +103,9 @@ export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
 
     getDocumentUri(): string {
         return this.documentUri;
+    }
+
+    getSequenceType(): SequenceType {
+        return this.sequenceType;
     }
 }

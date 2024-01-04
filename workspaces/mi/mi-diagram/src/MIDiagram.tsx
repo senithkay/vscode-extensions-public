@@ -9,7 +9,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { MIWebViewAPI } from './utils/WebViewRpc';
-import { APICompartment } from './components/compartments/APICompartment';
 import { ResourceCompartment } from './components/compartments/ResourceCompartment';
 import { Refresh } from '@wso2-enterprise/mi-core';
 import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvider';
@@ -93,9 +92,7 @@ export function MIDiagram(props: MIDiagramProps) {
 						</SidePanelTitleContainer>
 						<SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
 					</SidePanel>}
-					<APICompartment name='API'>
-						<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
-					</APICompartment>
+					<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
 				</SidePanelProvider>
 			</div >
 			;

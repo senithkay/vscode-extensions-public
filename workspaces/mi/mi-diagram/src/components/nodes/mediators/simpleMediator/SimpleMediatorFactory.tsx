@@ -40,7 +40,7 @@ export class SimpleMediatorNodeFactory extends AbstractReactFactory<SimpleMediat
             name: event.initialConfig.model.mediatorName,
             description: event.initialConfig.model.mediatorDescription,
             documentUri: event.initialConfig.model.getDocumentUri(),
-            isInOutSequence: event.initialConfig.model.isInOutSequenceNode(),
+            sequenceType: event.initialConfig.model.getSequenceType(),
         });
     }
 }

@@ -106,6 +106,9 @@ export class MediatorBaseLinkModel extends DefaultLinkModel {
 		} else if (alignment === PortModelAlignment.BOTTOM) {
 			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 10} ${targetPort.y + 14},
 				${targetPort.x - 10} ${targetPort.y + 14}`;
+		} else if (alignment === PortModelAlignment.TOP) {
+			points = `${targetPort.x - 6} ${targetPort.y - 14}, ${targetPort.x + 6} ${targetPort.y - 14},
+				${targetPort.x} ${targetPort.y}`;
 		}
 		return points;
 	}

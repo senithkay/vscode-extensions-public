@@ -15,7 +15,7 @@ import {
 
 import { CanvasContainer } from '../../Canvas';
 import { generateEngine, createLinks, setNodePositions } from '../../utils/Utils';
-import { BaseNodeModel } from '../base/base-node/base-node';
+import { BaseNodeModel, SequenceType } from '../base/base-node/base-node';
 import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
 import { SequenceNodeModel } from '../nodes/sequence/SequenceNodeModel';
@@ -37,7 +37,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     const [diagramEngine, setEngine] = useState<DiagramEngine>(generateEngine());
     const [model] = useState<DiagramModel>(new DiagramModel());
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [canvasWidth, setCanvasWidth] = useState<number>(1000);
     const [canvasHeight, setCanvasHeight] = useState<number>(1000);
 
     useEffect(() => {
@@ -50,10 +49,10 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             setEngine(diagramEngine);
 
             if (inSequenceNodes.length > 0) {
-                drawSequence(inSequenceNodes, false);
+                drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE);
             }
             if (outSequenceNodes.length > 0) {
-                drawSequence(outSequenceNodes, true);
+                drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE);
             }
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
@@ -68,17 +67,17 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         })();
     }, []);
 
-    function drawSequence(nodes: any[], invertDirection: boolean) {
+    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType) {
         const range = {
-            start: invertDirection ? nodes[nodes.length - 1].getNodeRange().start : nodes[0].getNodeRange().start,
-            end: invertDirection ? nodes[nodes.length - 1].getNodeRange().start : nodes[0].getNodeRange().start,
+            start: nodes[0].getNodeRange().start,
+            end: nodes[0].getNodeRange().start,
         }
 
-        let canvasPortNode = new SequenceNodeModel(`sequence-${invertDirection}`, range, invertDirection);
-        const sourceNode = invertDirection ? nodes[nodes.length - 1] : canvasPortNode;
-        const targetNode = invertDirection ? canvasPortNode : nodes[0];
+        let canvasPortNode = new SequenceNodeModel(`sequence-${sequenceType}`, sequenceType, range);
+        const sourceNode = canvasPortNode;
+        const targetNode = nodes[0];
         const canvasPortLink = createLinks(sourceNode, targetNode, null);
-        if (!invertDirection) model.addAll(sourceNode, ...canvasPortLink, targetNode);
+        model.addAll(sourceNode, ...canvasPortLink, targetNode);
 
         if (nodes.length > 1) {
             for (let i = 0; i < nodes.length; i++) {
@@ -91,7 +90,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                 }
             }
         }
-        if (invertDirection) model.addAll(sourceNode, ...canvasPortLink, targetNode);
     }
 
     function autoDistribute() {
@@ -104,10 +102,13 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         const outSeqNode = nodes.filter((node: any) => node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const inSequenceHeight = inSeqNode ? inSeqNode.height : 0;
         const outSequenceHeight = outSeqNode ? outSeqNode.height : 0;
+        const canvasWidthInSeqNodes = inSeqNode ? inSeqNode.width : 0;
+        const canvasWidthOutSeqNodes = outSeqNode ? outSeqNode.width : 0;
+
         if (inSeqNode) {
             inSeqNode.setPosition(x, y);
 
-            setNodePositions(inSeqNodes, false, x, y, inSequenceHeight);
+            setNodePositions(inSeqNodes, x, y, canvasWidthInSeqNodes);
 
             x = OFFSET.START.X;
             y = OFFSET.START.Y + inSequenceHeight + OFFSET.BETWEEN.SEQUENCE;
@@ -116,19 +117,8 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         if (outSeqNode) {
             outSeqNode.setPosition(x, y);
 
-            setNodePositions(outSeqNodes, true, x, y, outSequenceHeight);
+            setNodePositions(outSeqNodes, x, y, canvasWidthOutSeqNodes);
         }
-
-        if (inSeqNode && outSeqNode && inSeqNodes.length > 0 && outSeqNodes.length > 0) {
-            // create links between in and out
-            const link = createLinks(inSeqNodes[inSeqNodes.length - 1] as any, outSeqNodes[0] as any, null, false, true)[0];
-            model.addAll(link);
-        }
-
-        const canvasWidthInSeqNodes = inSeqNode ? inSeqNode.width : 0;
-        const canvasWidthOutSeqNodes = outSeqNode ? outSeqNode.width : 0;
-        const canvasWidth = Math.max(canvasWidthInSeqNodes, canvasWidthOutSeqNodes);
-        setCanvasWidth(canvasWidth + OFFSET.START.X + OFFSET.MARGIN.LEFT + OFFSET.MARGIN.RIGHT);
         setCanvasHeight(inSequenceHeight + outSequenceHeight + OFFSET.START.Y + OFFSET.MARGIN.TOP + OFFSET.MARGIN.BOTTOM);
     };
 
@@ -138,7 +128,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         return <div style={{
             backgroundColor: 'var(--vscode-panel-background)',
             height: canvasHeight,
-            width: canvasWidth,
             overflow: "hidden",
         }}>
             <CanvasContainer>

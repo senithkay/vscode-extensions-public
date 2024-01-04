@@ -11,34 +11,34 @@ import React from "react";
 
 import { AbstractReactFactory } from "@projectstorm/react-canvas-core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { MediatorNodeWidget } from "./AdvancedMediatorWidget";
-import { ADVANCED_NODE, AdvancedMediatorNodeModel } from "./AdvancedMediatorModel";
+import { EndpointNodeWidget } from "./SimpleEndpointWidget";
+import { SIMPLE_ENDPOINT, SimpleEndpointNodeModel } from "./SimpleEndpointModel";
 
 interface GenerateReactWidgetProps {
-    model: AdvancedMediatorNodeModel;
+    model: SimpleEndpointNodeModel;
 }
 
-export class AdvancedMediatorNodeFactory extends AbstractReactFactory<AdvancedMediatorNodeModel, DiagramEngine> {
+export class SimpleEndpointNodeFactory extends AbstractReactFactory<SimpleEndpointNodeModel, DiagramEngine> {
     constructor() {
-        super(ADVANCED_NODE);
+        super(SIMPLE_ENDPOINT);
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
-        return <MediatorNodeWidget
+        return <EndpointNodeWidget
             diagramEngine={this.engine}
             node={event.model}
-            name={event.model.mediatorName}
-            description={event.model.mediatorDescription}
+            name={event.model.endpointName}
+            description={event.model.endpointDescription}
             documentUri={event.model.getDocumentUri()}
             nodePosition={event.model.getNodeRange()}
         />;
     }
 
     generateModel(event: { initialConfig: GenerateReactWidgetProps }) {
-        return new AdvancedMediatorNodeModel({
+        return new SimpleEndpointNodeModel({
             node: event.initialConfig.model.getNode(),
-            name: event.initialConfig.model.mediatorName,
-            description: event.initialConfig.model.mediatorDescription,
+            name: event.initialConfig.model.endpointName,
+            description: event.initialConfig.model.endpointDescription,
             documentUri: event.initialConfig.model.getDocumentUri(),
             sequenceType: event.initialConfig.model.getSequenceType(),
             subSequences: event.initialConfig.model.subSequences,
