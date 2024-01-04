@@ -14,6 +14,7 @@ export interface DeleteServiceRequest {
 
 export interface CreateResourceRequest {
     position: NodePosition;
+    source: string;
 }
 
 export interface UpdateResourceRequest {

@@ -39,8 +39,28 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     }
 
     async createResource(params: CreateResourceRequest): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        const context = StateMachine.context();
+        const modification: STModification = {
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": params.source
+            },
+            ...params.position
+        };
+        const response = await applyModifications(context.fileName!, [modification]);
+        if (response.parseSuccess) {
+            await updateFileContent({ fileUri: context.fileName!, content: response.source });
+            const st = response.syntaxTree as ModulePart;
+            st.members.forEach(member => {
+                if (STKindChecker.isServiceDeclaration(member)) {
+                    const identifier = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
+                    if (identifier === context.identifier) {
+                        openView({ position: member.position });
+                    }
+                }
+            });
+        }
     }
 
     async updateResource(params: UpdateResourceRequest): Promise<void> {

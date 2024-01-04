@@ -11,10 +11,8 @@
 import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm//ResourceForm";
 import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
-import { STModification } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { URI } from "vscode-uri";
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import ResourceAccordion from "./ResourceAccordion";
@@ -83,23 +81,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         // Handle service config form
     };
 
-    const applyModifications = async (modifications: STModification[]) => {
-        const langServerRPCClient = ballerinaRpcClient.getLangServerRpcClient();
-        const visualizerRPCClient = ballerinaRpcClient.getVisualizerRpcClient();
-        const filePath = viewLocation.location.fileName;
-        // eslint-disable-next-line no-unsafe-optional-chaining
-        const { parseSuccess, source } = await visualizerRPCClient?.stModify({
-            astModifications: modifications,
-            documentIdentifier: {
-                uri: URI.file(filePath).toString()
-            }
-        });
-        if (parseSuccess) {
-            await langServerRPCClient.updateFileContent({
-                content: source,
-                fileUri: filePath
-            });
-        }
+    const applyModifications = async (source: string) => {
+        await rpcClient.getServiceDesignerRpcClient().createResource({ position: model.closeBraceToken.position, source });
     };
 
     // let serviceType = "";
