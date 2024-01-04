@@ -10,12 +10,16 @@ import { responseCodes } from '@wso2-enterprise/ballerina-core';
 
 // Define styles using @emotion/styled
 const AccordionContainer = styled.div`
-    border: 1px solid var(--vscode-foreground);
     margin-top: 10px;
     overflow: hidden;
 
     &.open {
-    ${/* Your open styles go here */ ''}
+        background-color: var(--vscode-inputOption-hoverBackground);
+    }
+
+    &:hover {
+        background-color: var(--vscode-inputOption-hoverBackground);
+        cursor: pointer;
     }
 `;
 
@@ -28,11 +32,11 @@ const AccordionHeader = styled.div`
 `;
 
 const MethodBox = styled.div<MethodProp>`
-    border: 1px solid var(--vscode-foreground);
     width: 60px;
     text-align: center;
     padding: 3px 0px 3px 0px;
-    color: ${(p: MethodProp) => p.color}
+    color: ${(p: MethodProp) => p.color};
+    font-weight: bold;
 `;
 
 const MethodSection = styled.div`
