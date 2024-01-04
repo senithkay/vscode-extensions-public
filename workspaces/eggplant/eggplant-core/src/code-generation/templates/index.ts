@@ -55,7 +55,7 @@ export default {
     `else if ({{{CONDITION}}}) {
         {{{OUTPORTS}}}
     } `,
-    CALLER_ACTION : `{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}->/{{{ PATH }}}.{{{ACTION}}}({{{PAYLOAD}}});
+    CALLER_ACTION : `{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ CALLER }}}->{{{ACTION}}}("{{{ PATH }}}" {{#if PAYLOAD}} ,{{{PAYLOAD}}} {{/if}});
     `,
     CALLER_BLOCK: 
     `worker {{{NODE_NAME}}} returns error? {
@@ -97,6 +97,13 @@ export default {
     TRANSFORM_FUNCTION:
     `
     function {{{FUNCTION_NAME}}}({{{PARAMETERS}}}) {{{RETURN}}} => ();
-    `
+    `,
+    START_NODE:
+    `worker StartNode returns error? {
+        _ = <- function;
+        {{#if OUTPUT_PORTS}}
+        {{{OUTPUT_PORTS}}}
+        {{/if}}
+    }`
 
 }

@@ -12,6 +12,7 @@ import { getComponentSource } from "./template-utils";
 
 const defaultInput = "_ = check <- function;";
 let returnBlock: string = "";
+let startWorkerCall: string = "";
 
 interface TransformNodeData {
     transformNode: string;
@@ -41,6 +42,8 @@ export function workerCodeGen(model: Flow): CodeGeneartionData {
             const transformNodeData: TransformNodeData = generateTransformNode(node);
             transformFunction = transformNodeData.transformFunction;
             workerBlocks += transformNodeData.transformNode;
+        } else if (node.templateId === "StartNode") {
+            workerBlocks += generateStartNode(node);
         } else {
             workerBlocks += generateBlockNode(node);
         }
@@ -49,21 +52,43 @@ export function workerCodeGen(model: Flow): CodeGeneartionData {
     // TODO: refactor
     if (transformFunction) {
         return {
-            workerBlocks: workerBlocks + returnBlock,
+            workerBlocks: workerBlocks + startWorkerCall + returnBlock,
             transformFunction: transformFunction
         };
     } else {
         return {
-            workerBlocks: workerBlocks + returnBlock
+            workerBlocks: workerBlocks + startWorkerCall +  returnBlock
         };
     }
+}
+
+function generateStartNode(node: Node): string {
+    const startNode: string = getComponentSource({
+        name: 'START_NODE',
+        config: {
+            OUTPUT_PORTS: generateOutputPorts(node, "()")
+        }
+    });
+
+    // node with annotation
+    const completeNode = `
+    ${generateDisplayNode(node)}
+    ${startNode}
+    `;
+
+    // TODO: Add as template
+    startWorkerCall = `
+    () -> StartNode;
+    `;
+
+    return completeNode;
 }
 
 
 function generateBlockNode(node: Node): string {
     const nodeProperties = node.properties as CodeNodeProperties;
     let inputPorts: string = generateInputPorts(node);
-    const outputPorts: string = generateOutputPorts(node, nodeProperties?.returnVar)
+    const outputPorts: string = generateOutputPorts(node)
     console.log("===inputPorts", inputPorts);
     if (inputPorts === undefined && outputPorts !== undefined) {
         inputPorts = defaultInput;
@@ -181,7 +206,7 @@ function generateCallerNode(node: Node): string {
             CALLER: callerEp,
             PATH: callerProps?.path ? removeLeadingSlash(callerProps.path) : undefined,
             ACTION: callerProps?.action ? callerProps.action : "get",
-            PAYLOAD: node?.inputPorts[0]?.name ? node.inputPorts[0].name : undefined
+            PAYLOAD: callerProps.action === "post" ? (node?.inputPorts[0]?.name ? node.inputPorts[0].name : "{}") : undefined
         }
     });
 
@@ -257,7 +282,7 @@ function generateTransformNode(node: Node): TransformNodeData {
         });
 
         // generate the function call to transform function
-        const transformCall = nodeProperties.outputType ? nodeProperties.outputType : "any" + " " + node.name + "_transformed = " + transFunName + "();";
+        const transformCall = nodeProperties?.outputType ? nodeProperties.outputType : "any" + " " + node.name + "_transformed = " + transFunName + "();";
 
         // generate the worker node
         const workerNode: string = getComponentSource({
