@@ -12,14 +12,10 @@ export type EventType = "OPEN_VIEW" | "GET_STARTED" | "CANCEL_CREATION";
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
 
-export interface NodeLocation {
-    fileName: string;
-    position: NodePosition;
-}
-
 export interface VisualizerLocation {
     view?: Views;
-    location?: NodeLocation;
+    position?: NodePosition;
+    fileName?: string;
 }
 
 export interface MachineEvent {

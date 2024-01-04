@@ -34,7 +34,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getVisualizerState(): Promise<VisualizerLocation> {
         const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve({ view: context.view });
+            resolve({ view: context.view, fileName: context.fileName, position: context.position });
         });
     }
 
@@ -70,7 +70,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getEggplantModel(): Promise<Flow> {
         const context = StateMachine.context();
         const langClient = context.langServer as LangClientInterface;
-        if (!context.location) {
+        if (!context.position) {
             // demo hack
             //@ts-ignore
             return new Promise((resolve) => {
@@ -79,14 +79,14 @@ export class WebviewRpcManager implements WebviewAPI {
             });
         }
         const params: EggplantModelRequest = {
-            filePath: context.location.fileName,
+            filePath: context.fileName!,
             startLine: {
-                line: context.location.position.startLine ?? 0,
-                offset: context.location.position.startColumn ?? 0
+                line: context.position.startLine ?? 0,
+                offset: context.position.startColumn ?? 0
             },
             endLine: {
-                line: context.location.position.endLine ?? 0,
-                offset: context.location.position.endColumn ?? 0
+                line: context.position.endLine ?? 0,
+                offset: context.position.endColumn ?? 0
             }
 
         }
@@ -125,18 +125,18 @@ export class WebviewRpcManager implements WebviewAPI {
         }
     }
 
-    async getSTNodeFromLocation(params: VisualizerLocation): Promise<STNode> {
-        const location = params.location;
+    async getSTNodeFromLocation(location: VisualizerLocation): Promise<STNode> {
+
         const req: BallerinaFunctionSTRequest = {
-            documentIdentifier: { uri: Uri.file(location!.fileName).toString() },
+            documentIdentifier: { uri: Uri.file(location.fileName!).toString() },
             lineRange: {
                 start: {
-                    line: location?.position.startLine as number,
-                    character: location?.position.startColumn as number
+                    line: location.position!.startLine as number,
+                    character: location.position!.startColumn as number
                 },
                 end: {
-                    line: location?.position.endLine as number,
-                    character: location?.position.endColumn as number
+                    line: location.position!.endLine as number,
+                    character: location.position!.endColumn as number
                 }
             }
         };
@@ -184,14 +184,12 @@ export class WebviewRpcManager implements WebviewAPI {
 
             // TODO: Update with notification
             openView({
-                location: {
-                    fileName: flowModel.fileName,
-                    position: {
-                        startLine: newST.position.startLine ?? 0,
-                        startColumn: newST.position.startColumn ?? 0,
-                        endLine: newST.position.endLine ?? 0,
-                        endColumn: newST.position.endColumn ?? 0
-                    }
+                fileName: flowModel.fileName,
+                position: {
+                    startLine: newST.position.startLine ?? 0,
+                    startColumn: newST.position.startColumn ?? 0,
+                    endLine: newST.position.endLine ?? 0,
+                    endColumn: newST.position.endColumn ?? 0
                 }
             });
         }

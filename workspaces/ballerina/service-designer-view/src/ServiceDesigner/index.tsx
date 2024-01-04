@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -7,27 +8,79 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm//ResourceForm";
-import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import { STModification } from "@wso2-enterprise/ballerina-core";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import { URI } from "vscode-uri";
+import styled from '@emotion/styled';
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import ResourceAccordion from "./ResourceAccordion";
+
 interface ServiceDesignerProps {
-    st: ServiceDeclaration
+    model: ServiceDeclaration;
+    rpcClient: any;
 }
 
+
+const ServiceHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 40;
+    width: 100%;
+    box-shadow: inset 0 -1px 0 0 var(--vscode-foreground);
+    align-items: center;
+`;
+
+const ResourceListHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 40;
+    width: 100%;
+    align-items: center;
+`;
+
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { st } = props;
+    const { model, rpcClient } = props;
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+    const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
+
+    let servicePath = "";
+
+    model.absoluteResourcePath.forEach((pathSegment) => {
+        servicePath += pathSegment.value;
+    });
 
     const handleOnClose = () => {
         setIsSidePanelOpen(false);
     };
     const handleOnClick = () => {
         setIsSidePanelOpen(true);
+    };
+
+    useEffect(() => {
+        const resourceList: JSX.Element[] = [];
+        model?.members.forEach((member) => {
+            if (STKindChecker.isResourceAccessorDefinition(member)) {
+                const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
+                resourceList.push(
+                    <div data-start-position={startPosition} >
+                        <ResourceAccordion rpcClient={rpcClient} model={member as ResourceAccessorDefinition} />
+                    </div>
+                );
+            }
+        });
+        setResources(resourceList);
+    }, [model]);
+
+    const handleServiceConfig = () => {
+        // Handle service config form
     };
 
     const applyModifications = async (modifications: STModification[]) => {
@@ -49,10 +102,56 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         }
     };
 
+    // let serviceType = "";
+    let portNumber = "";
+
+    if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
+        if (
+            STKindChecker.isQualifiedNameReference(
+                model.expressions[0].typeDescriptor
+            )
+        ) {
+            // serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+            const listeningOnText = model.expressions[0].source;
+            // Define a regular expression pattern to match the port number
+            const pattern: RegExp = /\b(\d{4})\b/;
+
+            // Use RegExp.exec to find the match in the input string
+            const match: RegExpExecArray | null = pattern.exec(listeningOnText);
+
+            // Check if a match is found and extract the port number
+            if (match && match[1]) {
+                portNumber = match[1];
+                console.log("Port Number:", portNumber);
+            }
+        }
+    }
+
+    const emptyView = (
+        <Typography variant="h3">
+            Service list is empty
+        </Typography>
+    );
+
     return (
         <div data-testid="service-design-view">
-           <h2 onClick={handleOnClick}>Hello Service Designer - {st?.value}</h2>
-           {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} />}
+            <ServiceHeader>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {servicePath} </Typography>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening on port {portNumber}</Typography>
+                <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceConfig}>
+                    <Codicon name="settings-gear" />
+                </VSCodeButton>
+            </ServiceHeader>
+            <ResourceListHeader>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Available resources </Typography>
+                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleOnClick}>
+                    <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
+                </VSCodeButton>
+            </ResourceListHeader>
+            <>
+                {resources.length > 0 ? resources : emptyView}
+            </>
+            {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} />}
         </div>
     )
 }
