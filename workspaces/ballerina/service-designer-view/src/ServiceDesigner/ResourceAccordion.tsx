@@ -14,12 +14,14 @@ const AccordionContainer = styled.div`
     overflow: hidden;
 
     &.open {
-        background-color: var(--vscode-inputOption-hoverBackground);
+        background-color: var(--vscode-sideBar-background);
     }
 
-    &:hover {
-        background-color: var(--vscode-inputOption-hoverBackground);
-        cursor: pointer;
+    &.closed {
+        &:hover {
+            background-color: var(--vscode-inputOption-hoverBackground);
+            cursor: pointer;
+        }
     }
 `;
 
