@@ -296,6 +296,7 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
             }
             break;
         case "CodeBlockNode":
+        case "TransformNode":
             if (node.inputPorts?.length === 0 && nodeMetadata?.inputs?.length > 0) {
                 nodeMetadata.inputs.forEach((input, index) => {
                     const portId = getPortId(node.name, true, input.name);
@@ -372,7 +373,6 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
 }
 
 function getLinkModels(node: Node, ports: ExtendedPort[]) {
-    console.log(">>> ports", ports);
     let links: LinkModel[] = [];
     let nodeId = getNodeIdentifier(node);
     node.inputPorts?.forEach((inputPort) => {

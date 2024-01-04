@@ -10,7 +10,7 @@
 import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { DEFAULT_TYPE } from "../resources/constants";
-import { Flow, HttpMethod, Node, NodeKinds } from "../types";
+import { Flow, HttpMethod, Node, NodeKinds, TransformNodeProperties } from "../types";
 import { getPortId } from "./generator";
 
 // get custom default node factory
@@ -130,6 +130,33 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 inputs: [
                     {
                         name: "inVar",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+                outputs: [
+                    {
+                        name: "payload",
+                        type: DEFAULT_TYPE,
+                    },
+                ],
+            };
+            break;
+        case "TransformNode":
+            nodeModel.addInPort(inPortId);
+            nodeModel.addOutPort(outPortId);
+            // add additional metadata for code block node
+            emptyNode.properties = {
+                expression: { expression: "" },
+                outputType: DEFAULT_TYPE,
+            } as TransformNodeProperties;
+            emptyNode.metadata = {
+                inputs: [
+                    {
+                        name: "inVar1",
+                        type: DEFAULT_TYPE,
+                    },
+                    {
+                        name: "inVar2",
                         type: DEFAULT_TYPE,
                     },
                 ],

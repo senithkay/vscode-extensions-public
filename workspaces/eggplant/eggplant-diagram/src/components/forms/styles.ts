@@ -49,6 +49,16 @@ export namespace Form {
         user-select: none;
     `;
 
+    export const Text = styled.p`
+        font-family: "GilmerMedium";
+        font-family: var(--font-family);
+        font-weight: normal;
+        color: ${Colors.ON_SURFACE};
+        margin-bottom: 4px;
+        margin-block-start: unset;
+        user-select: none;
+    `;
+
     export const Divider = styled.div`
         height: 1px;
         width: 100%;
