@@ -79,6 +79,7 @@ import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindin
 import {
 	ENUM_TYPE_SOURCE_PORT_PREFIX,
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	JSON_MERGE_MODULE_NAME,
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
@@ -471,7 +472,7 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 				modifications.push({
 					type: "IMPORT",
 					config: {
-						"TYPE": "ballerina/lang.value",
+						"TYPE": JSON_MERGE_MODULE_NAME,
 					},
 					startLine: 0,
 					startColumn: 0,
