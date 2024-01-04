@@ -443,7 +443,7 @@ export function generateFlowModelFromDiagramModel(
                                 type: senderPortModel?.type || DEFAULT_TYPE, // Use sender port type if available
                                 name: receiverPortModel?.name || inPort.getName(),
                                 sender: defaultNode.getName(),
-                                port: receiverPortModel
+                                // port: receiverPortModel
                             });
                         }
                     });
@@ -465,7 +465,7 @@ export function generateFlowModelFromDiagramModel(
                                 type: senderPortModel?.type || DEFAULT_TYPE,
                                 name: senderPortModel?.name || outPort.getName(),
                                 receiver: defaultNode.getName(),
-                                port: senderPortModel
+                                // port: senderPortModel
                             });
                         }
                     });
