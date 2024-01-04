@@ -78,7 +78,6 @@ const classes = {
 		alignItems: 'center',
 		justifyContent: 'center',
 		cursor: 'pointer',
-		boxShadow: "0 1px 1px 0 var(--vscode-inputValidation-infoBackground)",
 		transitionDuration: '0.2s',
 		'&:hover': { opacity: 0.5 },
 	}),
