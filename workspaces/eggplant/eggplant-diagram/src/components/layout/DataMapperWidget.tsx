@@ -11,7 +11,7 @@ import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ballerina-core";
-import { useSyntaxTreeFromRange } from "../../hooks/useSyntaxTreeFromRange";
+import { useSyntaxTreeFromRange } from "../../hooks/LangServer";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 import { css, Global } from '@emotion/react';
@@ -49,7 +49,6 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
-        const filePath = viewLocation.fileName;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRpcClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
@@ -96,7 +95,7 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
                 <Global styles={globalStyles} />
                 <DataMapperView
                     fnST={syntaxTree}
-                    filePath={"/Users/madusha/temp1124/sample1215/main.bal"}
+                    filePath={filePath}
                     langServerRpcClient={langServerRpcClient}
                     applyModifications={applyModifications}
                     onClose={closeDataMapper}
