@@ -296,6 +296,7 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
             }
             break;
         case "CodeBlockNode":
+        case "TransformNode":
             if (node.inputPorts?.length === 0 && nodeMetadata?.inputs?.length > 0) {
                 nodeMetadata.inputs.forEach((input, index) => {
                     const portId = getPortId(node.name, true, input.name);
