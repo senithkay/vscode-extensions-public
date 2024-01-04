@@ -65,7 +65,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 outputType: DEFAULT_TYPE,
                 endpoint: {
                     baseUrl: "",
-                    name: "httpEp",
+                    name: "pineValleyEp",
                 },
             };
             break;
@@ -123,7 +123,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             // add additional metadata for code block node
             emptyNode.properties = {
                 codeBlock: {
-                    expression: `${DEFAULT_TYPE} out = in;`,
+                    expression: `${DEFAULT_TYPE} payload = {};`,
                 },
             };
             emptyNode.metadata = {
@@ -135,7 +135,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 ],
                 outputs: [
                     {
-                        name: "out",
+                        name: "payload",
                         type: DEFAULT_TYPE,
                     },
                 ],
