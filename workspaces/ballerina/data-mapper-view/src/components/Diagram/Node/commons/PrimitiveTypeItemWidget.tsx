@@ -9,10 +9,10 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+import { css } from "@emotion/css";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
@@ -21,49 +21,47 @@ import { getTypeName } from "../../utils/dm-utils";
 import { InputSearchHighlight } from './Search';
 import { TreeContainer, TreeHeader } from './Tree/Tree';
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        typeLabel: {
-            marginLeft: "3px",
-            padding: "5px",
-            minWidth: "100px",
-            marginRight: "24px",
-        },
-        valueLabel: {
-            padding: "5px",
-        },
-        treeLabelOutPort: {
-            float: "right",
-            width: 'fit-content',
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center"
-        },
-        label: {
-            width: "300px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            display: "inline-block",
-            textOverflow: "ellipsis",
-            "&:hover": {
-                overflow: "visible"
-            }
-        },
-        queryPortWrap: {
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            display: 'flex',
-            alignItems: 'center'
-        },
-        nodeType: {
-            float: 'right',
-            marginRight: 5,
-            color: "var(--vscode-pickerGroup-border)",
-        }
+const useStyles = () => ({
+    typeLabel: css({
+        marginLeft: "3px",
+        padding: "5px",
+        minWidth: "100px",
+        marginRight: "24px",
     }),
-);
+    valueLabel: css({
+        padding: "5px",
+    }),
+    treeLabelOutPort: css({
+        float: "right",
+        width: 'fit-content',
+        marginLeft: "auto",
+        display: "flex",
+        alignItems: "center",
+    }),
+    label: css({
+        width: "300px",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        display: "inline-block",
+        textOverflow: "ellipsis",
+        "&:hover": {
+            overflow: "visible",
+        },
+    }),
+    queryPortWrap: css({
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+    }),
+    nodeType: css({
+        float: 'right',
+        marginRight: 5,
+        color: "var(--vscode-pickerGroup-border)",
+    }),
+});
 
 export interface RecordTypeTreeWidgetProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
