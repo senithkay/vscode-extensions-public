@@ -13,7 +13,6 @@ const WebPanel = (props: { state: MachineStateValue }) => {
     useEffect(() => {
         if (typeof state === 'object' && 'ready' in state && state.ready === 'viewReady') {
             try {
-                setServiceSt(undefined);
                 eggplantRpcClient.getWebviewRpcClient().getVisualizerState().then(async (vState: VisualizerLocation) => {
                     if (vState.view === "ServiceDesigner") {
                         const context: VisualizerLocation = {
@@ -22,6 +21,8 @@ const WebPanel = (props: { state: MachineStateValue }) => {
                         }
                         const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
                         setServiceSt(serviceST);
+                    } else {
+                        setServiceSt(undefined);
                     }
                 });
             } catch (error) {
