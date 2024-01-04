@@ -12,8 +12,13 @@ import { createDiagramWebview } from './diagram/webview';
 import axios from 'axios';
 import { generatePrompt } from './ai/prompt';
 import { unescape } from 'querystring';
+import { ProjectExplorerEntryProvider } from './activity-panel/project-explorer-provider';
 
 export async function activate(context: vscode.ExtensionContext) {
+
+	// const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context)
+	// vscode.window.registerTreeDataProvider('project-explorer', projectExplorerDataProvider)
+
 	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
 		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
 	});

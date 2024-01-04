@@ -22,10 +22,10 @@ import {
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
-import * as path from 'path';
-import { XMLParser } from 'fast-xml-parser'
+import path = require("path");
+import { XMLParser } from "fast-xml-parser";
 
-const connectorsPath = "../resources/connectors"
+const connectorsPath = "../resources/connectors";
 
 // Register handlers
 export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView, context: ExtensionContext) {
