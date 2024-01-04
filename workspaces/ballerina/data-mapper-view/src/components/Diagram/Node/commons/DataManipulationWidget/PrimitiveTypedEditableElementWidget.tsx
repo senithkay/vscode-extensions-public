@@ -94,7 +94,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
 
     const label = (
         <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn?.getName()}`}>
-            <span className={classes.valueLabel}>
+            <span className={classes.valueLabel} style={{ marginLeft: "24px" }}>
                 <OutputSearchHighlight>{value}</OutputSearchHighlight>
             </span>
         </span>
@@ -148,7 +148,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
                             <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
                         }
                     </span>
-                    <span>{label}</span>
+                    <span className={classes.label}>{label}</span>
                     <ValueConfigMenu
                         menuItems={valueConfigMenuItems}
                         portName={portIn?.getName()}

@@ -167,7 +167,6 @@ function isUnsupportedTypeDesc(typeDesc: STNode): boolean {
 		|| STKindChecker.isFutureTypeDesc(typeDesc)
 		|| STKindChecker.isHandleTypeDesc(typeDesc)
 		|| STKindChecker.isIntersectionTypeDesc(typeDesc)
-		|| STKindChecker.isJsonTypeDesc(typeDesc)
 		|| STKindChecker.isMapTypeDesc(typeDesc)
 		|| STKindChecker.isNeverTypeDesc(typeDesc)
 		|| STKindChecker.isNilTypeDesc(typeDesc)
