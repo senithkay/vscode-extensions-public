@@ -24,7 +24,7 @@ namespace S {
 
     export const Node = styled.div<NodeStyleProp>`
         background-color: ${(p: NodeStyleProp) => (p.selected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
-        border-radius: 5px;
+        border-radius: 5px 20px 20px 5px;
         font-family: sans-serif;
         border: solid 2px black;
         overflow: visible;
@@ -49,6 +49,7 @@ namespace S {
     export const TitleName = styled.div`
         flex-grow: 1;
         padding: 5px 5px;
+        margin-right: 14px;
     `;
 
     export const Ports = styled.div`
@@ -59,10 +60,6 @@ namespace S {
         margin-left: -9px;
     `;
 
-    export const OutPorts = styled(Ports)`
-        margin-right: -9px;
-    `;
-
     export const PortsContainer = styled.div`
         flex-grow: 1;
         display: flex;
@@ -70,18 +67,25 @@ namespace S {
         gap: 8px;
         margin: 8px 0;
     `;
+
+    export const StartPortContainer = styled.div`
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 20px;
+        height: 20px;
+        border: 2px solid ${Colors.PRIMARY};
+        border-radius: 50%;
+        background: ${Colors.PRIMARY_CONTAINER};
+    `;
 }
 
-export interface DefaultNodeProps {
+export interface ReturnNodeProps {
     node: DefaultNodeModel;
     engine: DiagramEngine;
 }
 
-/**
- * Default node that models the DefaultNodeModel. It creates two columns
- * for both all the input ports on the left, and the output ports on the right.
- */
-export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
+export class ReturnNodeWidget extends React.Component<ReturnNodeProps> {
     generatePort = (port: DefaultPortModel) => {
         return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
     };
@@ -103,9 +107,6 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
                             : this.props.node.getOptions().node?.name || this.props.node.getOptions().name}
                     </S.TitleName>
                 </S.Title>
-                <S.OutPorts>
-                    <S.PortsContainer>{_.map(this.props.node.getUniqueOutPorts(), this.generatePort)}</S.PortsContainer>
-                </S.OutPorts>
             </S.Node>
         );
     }

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { DEFAULT_TYPE } from "../resources/constants";
 import { Flow, HttpMethod, Node, NodeKinds } from "../types";
@@ -50,7 +50,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 outputs: [
                     {
                         name: "out",
-                        type: DEFAULT_TYPE,
+                        type: "()",
                     },
                 ],
             };
@@ -62,7 +62,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             emptyNode.properties = {
                 path: "",
                 action: action,
-                outputType: DEFAULT_TYPE,
+                outputType: "json",
                 endpoint: {
                     baseUrl: "",
                     name: "pineValleyEp",
@@ -129,7 +129,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             emptyNode.metadata = {
                 inputs: [
                     {
-                        name: "in",
+                        name: "inVar",
                         type: DEFAULT_TYPE,
                     },
                 ],
