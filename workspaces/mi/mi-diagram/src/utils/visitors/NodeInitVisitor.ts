@@ -27,12 +27,15 @@ import {
     Drop,
     Callout,
     Header,
-    Validate
+    Validate,
+    EndpointHttp,
+    Endpoint
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
 import { MEDIATORS } from '../../constants';
 import { AdvancedMediatorNodeModel } from '../../components/nodes/mediators/advancedMediator/AdvancedMediatorModel';
+import { SimpleEndpointNodeModel } from '../../components/nodes/mediators/simpleEndpoint/SimpleEndpointModel';
 
 export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
@@ -168,16 +171,34 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitSend(node: Send) {
+        const currentSequence = this.currentSequence;
+        const endpointNodes: [] = [];
+
+        this.parents.push(node);
+        if (node.endpoint) {
+            this.currentSequence = endpointNodes;
+            (node.endpoint as any).forEach((mediator: STNode) => {
+                traversNode(mediator, this);
+            });
+        }
+
+        this.parents.pop();
+
+        this.currentSequence = currentSequence;
         this.currentSequence.push(
-            new SimpleMediatorNodeModel({
+            new SimpleEndpointNodeModel({
                 node: node,
                 name: MEDIATORS.SEND,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
-                parentNode: this.parents[this.parents.length - 1]
+                parentNode: this.parents[this.parents.length - 1],
+                subSequences: [{
+                    name: "Endpoints", nodes: endpointNodes
+                }]
             }
             ));
+        this.skipChildrenVisit = true;
     }
 
     beginVisitSequence(node: Sequence) {
@@ -303,7 +324,41 @@ export class NodeInitVisitor implements Visitor {
         this.skipChildrenVisit = true;
     }
 
+    beginVisitEndpoint(node: Endpoint): void {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.HTTPENDPOINT,
+                description: node.tag?.toString(),
+                documentUri: this.documentUri,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    beginVisitEndpointHttp(node: EndpointHttp): void {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.HTTPENDPOINT,
+                description: node.tag?.toString(),
+                documentUri: this.documentUri,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
+    }
+
+    endVisitEndpoint(): void {
+        this.skipChildrenVisit = false;
+    }
+
     endVisitThrottle(): void {
+        this.skipChildrenVisit = false;
+    }
+
+    endVisitValidate(): void {
         this.skipChildrenVisit = false;
     }
 
