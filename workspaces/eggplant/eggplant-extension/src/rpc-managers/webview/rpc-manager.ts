@@ -244,6 +244,10 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async sendMachineEvent(params: MachineEvent): Promise<void> {
+        if (params.type === "GET_STARTED") {
+            // trigger eggplant.openLowCode command
+            vscode.commands.executeCommand("eggplant.openLowCode");
+        }
         StateMachine.sendEvent(params.type);
     }
 }

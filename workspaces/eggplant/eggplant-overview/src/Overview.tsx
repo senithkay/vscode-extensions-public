@@ -14,13 +14,14 @@ import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client"
 // import { WebViewAPI } from './WebViewAPI';
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
-import { ComponentListView, resetSelected } from './ComponentListView';
+import { ComponentListView, ComponentViewInfo, resetSelected, selected } from './ComponentListView';
 import { TitleBar } from './components/TitleBar';
 import styled from '@emotion/styled';
 import { ResourcesList } from './ResourcesList';
 import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Codicon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { MachineStateValue, VisualizerLocation } from '@wso2-enterprise/eggplant-core';
+import { ProjectComponentProcessor } from './util/project-component-processor';
 
 export interface SelectedComponent {
     fileName: string;
@@ -56,7 +57,7 @@ export function Overview() {
 
     eggplantRpcClient?.onStateChanged((newState: MachineStateValue) => {
         if (typeof newState === 'object' && 'ready' in newState && newState.ready === "viewReady") {
-            setSelectedComponent(null);
+            setIsFetching(true);
             fetchData();
         }
     });
@@ -66,10 +67,35 @@ export function Overview() {
         try {
             const res = await eggplantRpcClient?.getWebviewRpcClient()?.getBallerinaProjectComponents();
             setCurrentComponents(res);
+            if (selected) {
+                const projectComponentProcessor = new ProjectComponentProcessor(res);
+                projectComponentProcessor.process();
+                const updatedComps = projectComponentProcessor.getComponents();
+                Object.keys(updatedComps)
+                    .filter((key) => updatedComps[key].length)
+                    .forEach((key, index) => {
+                        const filteredComponents = updatedComps[key];
+
+                        filteredComponents.forEach(async (comp: ComponentViewInfo, compIndex: number) => {
+                            if (selected && selected.name == comp.name) {
+                                const context: VisualizerLocation = {
+                                    fileName: comp.filePath,
+                                    position: comp.position,
+                                    identifier: comp.name
+                                }
+                                const serviceST = await eggplantRpcClient.getWebviewRpcClient().getSTNodeFromLocation(context);
+                                if (STKindChecker.isServiceDeclaration(serviceST)) {
+                                    setSelectedComponent({ fileName: comp.filePath, serviceST });
+                                }
+                            }
+                        });
+                    })
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
             setLoading(false);
+            setIsFetching(false);
         }
     };
 
