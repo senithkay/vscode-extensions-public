@@ -49,7 +49,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             emptyNode.metadata = {
                 outputs: [
                     {
-                        name: "out",
+                        name: "outVar",
                         type: "()",
                     },
                 ],
@@ -65,7 +65,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 outputType: "json",
                 endpoint: {
                     baseUrl: "",
-                    name: "pineValleyEp",
+                    name: "pineValleyEp", // HACK: this is a temporary value
                 },
             };
             break;

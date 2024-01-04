@@ -10,11 +10,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Icon, TextArea } from "@wso2-enterprise/ui-toolkit";
 import { Node } from "../../../types";
-import {
-    SwitchCaseBlock,
-    SwitchNodeProperties,
-    getNodeMetadata,
-} from "@wso2-enterprise/eggplant-core";
+import { SwitchCaseBlock, SwitchNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
 import { getPortId, toSnakeCase } from "../../../utils";
 import { DEFAULT_TYPE } from "../../../resources";
@@ -49,11 +45,7 @@ export function SwitchNodeForm(props: OptionWidgetProps) {
     const handleAddCase = () => {
         let caseCount = nodeProperties.current.cases.length;
         let portId = getPortId(node.current.name, false, caseCount + 1);
-        // while (selectedNode.getOutPorts().find((port) => port.getID() === portId)) {
-        //     caseCount++;
-        //     portId = getPortId(node.name, false, caseCount + 1);
-        // }
-        // add new case and port
+
         nodeProperties.current.cases.push({
             expression: {
                 expression: "true",
@@ -62,7 +54,7 @@ export function SwitchNodeForm(props: OptionWidgetProps) {
         });
         selectedNode.addOutPort(portId, {
             id: portId,
-            type: DEFAULT_TYPE,
+            type: inPortType.current,
         });
         selectedNode.setNode(node.current);
         // update the diagram
