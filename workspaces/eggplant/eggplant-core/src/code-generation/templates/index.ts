@@ -93,6 +93,10 @@ export default {
     {{{TYPE}}} {{{VAR_NAME}}} = check <- {{{NODE_NAME}}};
     return {{{VAR_NAME}}};
     {{/if}}
+    `,
+    TRANSFORM_FUNCTION:
+    `
+    function {{{FUNCTION_NAME}}}({{{PARAMETERS}}}) {{{RETURN}}} => ();
     `
 
 }

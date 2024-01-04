@@ -55,6 +55,16 @@ const simpleModel: Flow = {
             offset: 1,
         },
     },
+    fileSourceRange: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -208,6 +218,16 @@ const CodeBlockModel: Flow = {
             offset: 1,
         },
     },
+    fileSourceRange: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
     nodes: [
         {
             name: "A",
@@ -292,6 +312,16 @@ const SwitchModel: Flow = {
     name: "main/function",
     fileName: "multi_switch.bal",
     bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
+    fileSourceRange: {
         start: {
             line: 1,
             offset: 1,
@@ -519,6 +549,16 @@ const SampleModel: Flow = {
     name: "main/function",
     fileName: "/home/jo/workspace/eggplant/demo_sample/main.bal",
     bodyCodeLocation: {
+        start: {
+            line: 1,
+            offset: 1,
+        },
+        end: {
+            line: 1,
+            offset: 1,
+        },
+    },
+    fileSourceRange: {
         start: {
             line: 1,
             offset: 1,

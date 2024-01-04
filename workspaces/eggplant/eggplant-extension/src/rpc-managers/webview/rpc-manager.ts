@@ -19,7 +19,8 @@ import {
     VisualizerLocation,
     CommandProps,
     WebviewAPI,
-    workerCodeGen
+    workerCodeGen,
+    CodeGeneartionData
 } from "@wso2-enterprise/eggplant-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { writeFileSync } from "fs";
@@ -90,7 +91,10 @@ export class WebviewRpcManager implements WebviewAPI {
             }
 
         }
+
+        console.log("===ParamsForBackend", params);
         return langClient.getEggplantModel(params).then((model) => {
+            console.log("===BackEndModel", model);
             //@ts-ignore
             return model.workerDesignModel;
         }).catch((error) => {
@@ -150,9 +154,45 @@ export class WebviewRpcManager implements WebviewAPI {
 
     async updateSource(flowModel: Flow): Promise<void> {
         const context = StateMachine.context();
-        const code = workerCodeGen(flowModel);
-
+        const code: CodeGeneartionData = workerCodeGen(flowModel);
+        console.log("===code", code);
+        console.log("===flowModel file Position", flowModel.fileSourceRange);
         const langClient = context.langServer as LangClientInterface;
+        // If the transformFunction is found inject it first to the end of the file
+        if (code.transformFunction) {
+            const modification: STModification = {
+                startLine: flowModel.fileSourceRange?.end.line,
+                startColumn: flowModel.fileSourceRange?.end.offset,
+                endLine: flowModel.fileSourceRange?.end.line,
+                endColumn: flowModel.fileSourceRange?.end.offset,
+                type: "INSERT",
+                isImport: false,
+                config: {
+                    "STATEMENT": code.transformFunction
+                }
+            };
+
+            const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+                documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
+                astModifications: [modification]
+            });
+
+            if (parseSuccess) {
+                writeFileSync(flowModel.fileName, source);
+                await langClient.didChange({
+                    textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
+                    contentChanges: [
+                        {
+                            text: source
+                        }
+                    ],
+                });
+        }
+    }
+
+        console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
+
+
         // TODO: Fix with the proper position when retrived from the BE model
         const modification: STModification = {
             startLine: flowModel.bodyCodeLocation?.start.line + 1,
@@ -162,7 +202,7 @@ export class WebviewRpcManager implements WebviewAPI {
             type: "INSERT",
             isImport: false,
             config: {
-                "STATEMENT": code
+                "STATEMENT": code.workerBlocks
             }
         };
 
@@ -171,6 +211,7 @@ export class WebviewRpcManager implements WebviewAPI {
             astModifications: [modification]
         });
 
+        console.log("===parseSuccess", parseSuccess);
         if (parseSuccess) {
             writeFileSync(flowModel.fileName, source);
             await langClient.didChange({
@@ -183,14 +224,18 @@ export class WebviewRpcManager implements WebviewAPI {
             });
 
             // TODO: Update with notification
+            //TODO fix-hack: Find the correct resource function/other function with the name
+            const serviceDeclaration = (newST as any).members.find((member: any) => member.kind === 'ServiceDeclaration');
+            const newPosition = serviceDeclaration ? serviceDeclaration.members[0].position : newST.position;
+
             openView({
                 location: {
                     fileName: flowModel.fileName,
                     position: {
-                        startLine: newST.position.startLine ?? 0,
-                        startColumn: newST.position.startColumn ?? 0,
-                        endLine: newST.position.endLine ?? 0,
-                        endColumn: newST.position.endColumn ?? 0
+                        startLine: newPosition.startLine ?? 0,
+                        startColumn: newPosition.startColumn ?? 0,
+                        endLine: newPosition.endLine ?? 0,
+                        endColumn: newPosition.endColumn ?? 0
                     }
                 }
             });
