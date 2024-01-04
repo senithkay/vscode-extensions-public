@@ -61,7 +61,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
                 height: height,
                 border: "2px solid gold",
                 background: "var(--vscode-editor-background)",
-                borderRadius: props.side == "right" ? "0 25px 25px 0" : "25px 0 0 25px",
+                borderRadius:"20px",
             }}>
                 <div style={{
                     display: "flex",
