@@ -236,28 +236,10 @@ function generateCallerNode(node: Node): string {
 
 function generateResponseNode(node: Node): string {
     // TODO: current response only suport one inputPort
-    // TODO: fix the correct type and name when there aremultiple types of the input ports
     const inputPort = node?.inputPorts[0];
     const varType = inputPort?.type ? sanitizeType(inputPort.type) : undefined;
     const varName = inputPort?.name;
-    let genInport;
-    
-    
-    if (node.inputPorts?.length > 1) {
-        const responseList = generateAlternateResponse(node);
-          genInport = getComponentSource({
-            name: 'ASYNC_RECEIVE_ACTION',
-            config: {
-                TYPE: varType,
-                VAR_NAME: varName,
-                SENDER_WORKER: responseList
-            }
-        });  
-    } else {
-        genInport = inputPort ? generateInport(inputPort) : undefined;
-    }
-    
-    
+    const genInport = inputPort ? generateInport(inputPort) : undefined;
     const workerNode: string = getComponentSource({
         name: 'RESPOND',
         config: {
@@ -282,24 +264,6 @@ function generateResponseNode(node: Node): string {
     ${workerNode}
     `;
     return completeNode;
-}
-
-// TODO: Add template for alterate worker check
-function generateAlternateResponse(node: Node): string{
-    // get the inputPorts list and get the receiver name and generate in the form of receiverName1 | recieverName1
-    let inputPorts = "";
-    node.inputPorts.forEach((port: InputPort) => {
-        const receiver = port.sender;
-        inputPorts += receiver;
-        // if the receiver is not the last element add a comma
-        if (node.inputPorts.indexOf(port) !== node.inputPorts.length - 1) {
-            inputPorts += " | ";
-        }
-    });
-   
-    return inputPorts;
-
-
 }
 
 function generateTransformNode(node: Node): TransformNodeData {
