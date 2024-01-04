@@ -11,7 +11,7 @@ import { DataMapperView } from "@wso2-enterprise/data-mapper-view";
 import React, { useEffect, useMemo, useState } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ballerina-core";
-import { useSyntaxTreeFromRange } from "../../hooks/useSyntaxTreeFromRange"
+import { useSyntaxTreeFromRange } from "../../hooks/LangServer";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 import { css, Global } from '@emotion/react';
@@ -19,7 +19,7 @@ import { css, Global } from '@emotion/react';
 interface DataMapperWidgetProps {
     filePath: string;
     fnLocation: NodePosition;
-    onClose: () => void;
+    onFnChange: (position: NodePosition) => void;
 }
 
 const globalStyles = css`
@@ -31,12 +31,13 @@ const globalStyles = css`
 `;
 
 export function DataMapperWidget(props: DataMapperWidgetProps) {
-    const { filePath, fnLocation, onClose } = props;
+    const { filePath, fnLocation, onFnChange } = props;
     const [rerender, setRerender] = useState(false);
     const { data, isFetching } = useSyntaxTreeFromRange(fnLocation , filePath, rerender);
     const { eggplantRpcClient, viewLocation } = useVisualizerContext();
     const langServerRpcClient = eggplantRpcClient.getLangServerRpcClient();
     const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
+    const [filePosition, setFilePosition] = useState<NodePosition>(null);
 
     useEffect(() => {
         if (!isFetching) {
@@ -48,7 +49,6 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
     const fnName = syntaxTree?.functionName.value;
 
     const applyModifications = async (modifications: STModification[]) => {
-        const filePath = viewLocation.fileName;
         const { parseSuccess, source: newSource, syntaxTree } = await langServerRpcClient?.stModify({
             astModifications: modifications,
             documentIdentifier: {
@@ -56,7 +56,6 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
             }
         });
         if (parseSuccess) {
-            // TODO: Handle this in extension specific code
             await langServerRpcClient.updateFileContent({
                 content: newSource,
                 fileUri: filePath
@@ -66,10 +65,25 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
             const fns = modPart.members.filter((mem) =>
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
-            const st = fns.find((mem) => mem.functionName.value === fnName);
-            // TODO: Update the state machine
+            const newFnST = fns.find((mem) => mem.functionName.value === fnName);
+            onFnChange(newFnST.position);
+            setFilePosition(syntaxTree.position);
             setRerender(prevState => !prevState);
         }
+    };
+
+    const closeDataMapper = () => {
+        if (filePosition) {
+            eggplantRpcClient.getWebviewRpcClient().openVisualizerView({  
+                position: {
+                    startLine: filePosition.startLine ?? 0,
+                    startColumn: filePosition.startColumn ?? 0,
+                    endLine: filePosition.endLine ?? 0,
+                    endColumn: filePosition.endColumn ?? 0
+                }
+            });
+        }
+        onFnChange(null);
     };
 
     const view = useMemo(() => {
@@ -81,10 +95,10 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
                 <Global styles={globalStyles} />
                 <DataMapperView
                     fnST={syntaxTree}
-                    filePath={"/Users/madusha/temp1124/sample1215/main.bal"}
+                    filePath={filePath}
                     langServerRpcClient={langServerRpcClient}
                     applyModifications={applyModifications}
-                    onClose={onClose}
+                    onClose={closeDataMapper}
                 />
             </>
         );
