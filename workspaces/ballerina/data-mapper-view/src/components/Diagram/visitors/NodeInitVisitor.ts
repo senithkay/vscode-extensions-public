@@ -766,7 +766,7 @@ export class NodeInitVisitor implements Visitor {
             nodes.push(this.outputNode);
         }
         this.intermediateNodes.forEach((node) => {
-            node.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.TARGET_NODE.Y);
+            node.setPosition(OFFSETS.LINK_CONNECTOR_NODE.X, OFFSETS.TARGET_NODE.Y);
         });
         nodes.push(...this.intermediateNodes);
         if (this.queryNode){
