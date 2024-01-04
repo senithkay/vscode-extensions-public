@@ -46,6 +46,7 @@ const Container = styled.div<ContainerProps>`
 const LabelContainer = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
+    margin-bottom: 4px;
 `;
 
 export function TextField(props: TextFieldProps) {

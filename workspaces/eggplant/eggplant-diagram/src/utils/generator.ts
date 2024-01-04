@@ -55,13 +55,11 @@ function getNodeModel(node: Node): GenNodeModel {
     const fixedNode = isSingleNode(node.templateId);
     // add node ports
     node.inputPorts?.forEach((inputPort, index) => {
-        // let portId = inputPort.name || index.toString();
         let portId = getPortId(inputPort.name, true, index);
         let port = nodeModel.addInPort(portId, inputPort, fixedNode);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
     node.outputPorts?.forEach((outputPort, index) => {
-        // let portId = outputPort.name || index.toString();
         let portId = getPortId(outputPort.name, false, index);
         let port = nodeModel.addOutPort(portId, outputPort, fixedNode);
         ports.push({ ...outputPort, parent: nodeId, in: false, model: port });
@@ -373,7 +371,6 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
 }
 
 function getLinkModels(node: Node, ports: ExtendedPort[]) {
-    console.log(">>> ports", ports);
     let links: LinkModel[] = [];
     let nodeId = getNodeIdentifier(node);
     node.inputPorts?.forEach((inputPort) => {
@@ -424,19 +421,20 @@ export function generateFlowModelFromDiagramModel(
     const flowModelNodes = model.nodes;
 
     // update the canvasPosition of each node
-    diagramModel.getNodes().forEach((node) => {
-        const defaultNode = node as DefaultNodeModel;
-        const nodeModel = defaultNode.getNode();
+    diagramModel.getNodes().forEach((dnode) => {
+        const nodeModel = dnode as DefaultNodeModel;
+        const node = nodeModel.getNode();
         // get input and output ports
         const inPorts: InputPort[] = [];
         const outPorts: OutputPort[] = [];
-        defaultNode.getInPorts().forEach((inPort) => {
+
+        nodeModel.getInPorts().forEach((inPort) => {
             const receiverPortModel = inPort.getOptions().port;
             Object.values(inPort.getLinks()).forEach((link) => {
                 const sourcePortID = link.getSourcePort()?.getID();
-                diagramModel.getNodes().forEach((node) => {
+                diagramModel.getNodes().forEach((subNode) => {
                     //get the matching node for portID
-                    const defaultNode = node as DefaultNodeModel;
+                    const defaultNode = subNode as DefaultNodeModel;
                     defaultNode.getOutPorts().forEach((outPort, index) => {
                         const senderPortModel = outPort.getOptions().port;
                         if (outPort.getID() === sourcePortID) {
@@ -445,34 +443,57 @@ export function generateFlowModelFromDiagramModel(
                                 type: senderPortModel?.type || DEFAULT_TYPE, // Use sender port type if available
                                 name: receiverPortModel?.name || inPort.getName(),
                                 sender: defaultNode.getName(),
+                                // port: receiverPortModel
                             });
                         }
                     });
                 });
             });
         });
-        defaultNode.getOutPorts().forEach((outPort) => {
+
+        nodeModel.getOutPorts().forEach((outPort) => {
             const senderPortModel = outPort.getOptions().port;
             Object.values(outPort.getLinks()).forEach((link) => {
                 const targetPortID = link.getTargetPort()?.getID();
-                diagramModel.getNodes().forEach((node) => {
+                diagramModel.getNodes().forEach((subNode) => {
                     //get the matching node for portID
-                    const defaultNode = node as DefaultNodeModel;
+                    const defaultNode = subNode as DefaultNodeModel;
                     defaultNode.getInPorts().forEach((inPort, index) => {
                         if (inPort.getID() === targetPortID) {
                             outPorts.push({
-                                id: index.toString(),
+                                id: senderPortModel?.name || index.toString(),
                                 type: senderPortModel?.type || DEFAULT_TYPE,
                                 name: senderPortModel?.name || outPort.getName(),
                                 receiver: defaultNode.getName(),
+                                // port: senderPortModel
                             });
                         }
                     });
                 });
             });
         });
+
+        if (nodeModel.getKind() === "SwitchNode") {
+            // updates the switch node properties with the unique outPorts
+            // port names are used as unique identifiers for switch node cases
+            const uniqueOutPorts: string[] = [];
+            nodeModel.getOutPorts().forEach((outPort) => {
+                if (!uniqueOutPorts.includes(outPort.getName())) {
+                    uniqueOutPorts.push(outPort.getName());
+                }
+            });
+            const switchNode = nodeModel.getNode();
+            const switchNodeProperties = switchNode.properties as SwitchNodeProperties;
+            switchNodeProperties.cases?.forEach((caseItem, index) => {
+                caseItem.nodes = [uniqueOutPorts[index]];
+            });
+            if (switchNodeProperties.cases.length < uniqueOutPorts.length) {
+                switchNodeProperties.defaultCase.nodes = [uniqueOutPorts[uniqueOutPorts.length - 1]];
+            }
+        }
+
         // get codeLocation
-        let codePosition = nodeModel?.codeLocation;
+        let codePosition = node?.codeLocation;
         if (!codePosition) {
             codePosition = {
                 start: {
@@ -487,23 +508,23 @@ export function generateFlowModelFromDiagramModel(
         }
         // create node
         let newNode: Node = {
-            name: defaultNode.getName(),
-            templateId: defaultNode.getKind(),
+            name: nodeModel.getName(),
+            templateId: nodeModel.getKind(),
             codeLocation: codePosition,
             canvasPosition: {
-                x: Math.floor(defaultNode.getX()),
-                y: Math.floor(defaultNode.getY()),
+                x: Math.floor(nodeModel.getX()),
+                y: Math.floor(nodeModel.getY()),
             },
             inputPorts: inPorts,
             outputPorts: outPorts,
         };
         // add properties if any
-        if (nodeModel.properties) {
-            newNode.properties = nodeModel.properties;
+        if (node.properties) {
+            newNode.properties = node.properties;
         }
         // replace metadata if any
-        if (nodeModel.metadata) {
-            newNode.metadata = getEncodedNodeMetadata(nodeModel);
+        if (node.metadata) {
+            newNode.metadata = getEncodedNodeMetadata(node);
         }
         flowModelNodes?.push(newNode);
     });

@@ -8,22 +8,13 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
-import { DefaultNodeModel } from "../../default";
-import { Endpoint, Flow, HttpMethod, HttpRequestNodeProperties, Node } from "../../../types";
+import { Endpoint, HttpMethod, HttpRequestNodeProperties, Node } from "../../../types";
 import { toSnakeCase } from "../../../utils";
 import { Form } from "../styles";
 import { DEFAULT_TYPE } from "../../../resources";
+import { OptionWidgetProps } from "../../layout/OptionWidget";
 
-export interface OptionWidgetProps {
-    engine: DiagramEngine;
-    flowModel: Flow;
-    selectedNode: DefaultNodeModel;
-    children?: React.ReactNode;
-    setSelectedNode?: (node: DefaultNodeModel) => void;
-    updateFlowModel?: () => void;
-}
 
 // TODO: update this component with multiple form components
 export function HttpRequestNodeForm(props: OptionWidgetProps) {
@@ -44,7 +35,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
         setOutputType(nodeProperties.outputType);
         setAction(nodeProperties.action);
         if (selectedNode.getInPorts().length > 0) {
-            setPayloadType(selectedNode.getInPorts()[0].getOptions().type);
+            setPayloadType(selectedNode.getInPorts()[0].getOptions()?.port.type || DEFAULT_TYPE);
         }
         if (flowModel.endpoints?.length > 0) {
             if (nodeProperties.endpoint.name) {
@@ -116,16 +107,16 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                     }}
                     size={32}
                 />
-                {/* {action === "post" && (
-                    <Form.InputField
-                        label="Payload Type"
-                        value={payloadType}
-                        onChange={(value: string) => {
-                            setPayloadType(value);
-                        }}
-                        size={32}
-                    />
-                )} */}
+                {action === "post" && payloadType && (
+                    <>
+                        <Form.Divider />
+                        <Form.SectionTitle>Payload Type</Form.SectionTitle>
+                        <Form.Row>
+                            <Form.Text>{payloadType}</Form.Text>
+                        </Form.Row>
+                    </>
+                )}
+
                 <Form.Divider />
                 <Form.Row>
                     <Form.InputField
