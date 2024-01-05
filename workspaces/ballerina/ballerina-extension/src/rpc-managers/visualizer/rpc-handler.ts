@@ -21,5 +21,5 @@ export function registerVisualizerRpcHandlers(messenger: Messenger) {
     const rpcManger = new VisualizerRpcManager();
     messenger.onRequest(getVisualizerState, () => rpcManger.getVisualizerState());
     messenger.onRequest(openVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
-    messenger.onRequest(updateVisualizerView, (args: VisualizerLocationContext) => rpcManger.openVisualizerView(args));
+    messenger.onRequest(updateVisualizerView, (args: VisualizerLocationContext) => rpcManger.updateVisualizerView(args));
 }
