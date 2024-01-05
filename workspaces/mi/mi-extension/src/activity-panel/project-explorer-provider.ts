@@ -18,18 +18,22 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
 	constructor(
 		public readonly label: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-		info: ProjectStructureEntry | undefined = undefined
+		info: ProjectStructureEntry | undefined = undefined,
+		icon: string = 'folder'
 	) {
 		super(label, collapsibleState);
 		this.tooltip = `${this.label}`;
 		this.info = info;
+		this.iconPath = new vscode.ThemeIcon(icon);
 	}
 }
 
 export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<ProjectExplorerEntry> {
 	private _data: ProjectExplorerEntry[]
-	private _onDidChangeTreeData: vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void> = new vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>();
-	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>
+		= new vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>();
+	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
+		= this._onDidChangeTreeData.event;
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
@@ -60,7 +64,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 		return element.children;
 	}
 
-	
+
 
 }
 
@@ -85,20 +89,32 @@ async function getProjectStructureData(context: vscode.ExtensionContext): Promis
 }
 
 function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEntry[] {
-	console.log("hehe >>>", data)
 	const directoryMap = data.directoryMap;
 	const result: ProjectExplorerEntry[] = [];
-	const projectRoot = new ProjectExplorerEntry("Project", vscode.TreeItemCollapsibleState.Collapsed);
+	const projectRoot = new ProjectExplorerEntry(
+		"Project",
+		vscode.TreeItemCollapsibleState.Collapsed,
+		undefined,
+		'project'
+	);
 
 	for (const key in directoryMap) {
 		switch (key) {
 			case "esbConfigs":
 				const esbConfigs = new ProjectExplorerEntry(
 					key,
-					isCollapsibleState(Object.keys(directoryMap.esbConfigs).length > 0));
+					isCollapsibleState(Object.keys(directoryMap.esbConfigs).length > 0),
+					undefined,
+					'package'
+				);
 
 				for (const key in directoryMap.esbConfigs) {
-					const parentEntry = new ProjectExplorerEntry(key, isCollapsibleState(directoryMap.esbConfigs[key].length > 0));
+					const parentEntry = new ProjectExplorerEntry(
+						key,
+						isCollapsibleState(directoryMap.esbConfigs[key].length > 0),
+						undefined,
+						'folder'
+					);
 					const children = genProjectStructureEntry(directoryMap.esbConfigs[key]);
 
 					parentEntry.children = children;
@@ -118,7 +134,10 @@ function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEnt
 			case 'dockerExporters':
 				const parentEntry = new ProjectExplorerEntry(
 					key,
-					isCollapsibleState(Object.keys(directoryMap.esbConfigs).length > 0));
+					isCollapsibleState(Object.keys(directoryMap.esbConfigs).length > 0),
+					undefined,
+					'package'
+				);
 				const children = genProjectStructureEntry(directoryMap[key]);
 				parentEntry.children = children;
 				projectRoot.children = projectRoot.children ?? [];
@@ -131,8 +150,6 @@ function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEnt
 
 	result.push(projectRoot);
 
-	console.log("hehe >>>", result)
-
 	return result;
 }
 
@@ -144,8 +161,9 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	const result: ProjectExplorerEntry[] = [];
 
 	for (const entry of data) {
-		const children = genProjectStructureEntry(entry.sequences ?? []).concat(genProjectStructureEntry(entry.endpoints ?? []))
-		result.push(new ProjectExplorerEntry(entry.name, isCollapsibleState(children.length > 0), entry),);
+		const children = genProjectStructureEntry(entry.sequences ?? [])
+			.concat(genProjectStructureEntry(entry.endpoints ?? []))
+		result.push(new ProjectExplorerEntry(entry.name, isCollapsibleState(children.length > 0), entry, 'code'));
 	}
 
 	return result;
