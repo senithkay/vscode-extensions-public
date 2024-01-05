@@ -459,28 +459,26 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 			if (targetType &&
 				targetType.typeName === PrimitiveBalType.Json &&
 				(sourcePort as RecordFieldPortModel).field.typeName === PrimitiveBalType.Json) {
-				modifications.push({
-					type: "INSERT",
-					config: {
-						"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
+				modifications.push(
+					{
+						type: "INSERT",
+						config: {
+							"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
+						},
+						...targetPos
 					},
-					...targetPos
-				})
-
-				// add imports
-				modifications.push({
-					type: "IMPORT",
-					config: {
-						"TYPE": "ballerina/lang.value",
-					},
-					startLine: 0,
-					startColumn: 0,
-					endLine: 0,
-					endColumn: 0
-				});
-
-				const { context } = targetNode as DataMapperNodeModel;
-				void context.applyModifications(modifications);
+					// add module import
+					{
+						type: "IMPORT",
+						config: {
+							"TYPE": "ballerina/lang.value",
+						},
+						startLine: 0,
+						startColumn: 0,
+						endLine: 0,
+						endColumn: 0
+					}
+				);
 			} else if (targetPos) {
 				modifications.push({
 					type: "INSERT",
@@ -492,10 +490,9 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 					startColumn: targetPos.endColumn,
 					startLine: targetPos.endLine
 				});
-
-				const { context } = targetNode as DataMapperNodeModel;
-				void context.applyModifications(modifications);
 			}
+			const { context } = targetNode as DataMapperNodeModel;
+			void context.applyModifications(modifications);
 		}
 	}
 
