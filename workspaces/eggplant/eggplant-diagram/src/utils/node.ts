@@ -152,11 +152,11 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             emptyNode.metadata = {
                 inputs: [
                     {
-                        name: "inVar1",
+                        name: "inVar",
                         type: DEFAULT_TYPE,
                     },
                     {
-                        name: "inVar2",
+                        name: "inVar1",
                         type: DEFAULT_TYPE,
                     },
                 ],
