@@ -25,16 +25,6 @@
         ]
       }
     ],
-    "commands": [
-      {
-        "command": "integrationStudio.showDiagram",
-        "title": "Show Diagram"
-      },
-      {
-        "command": "integrationStudio.addMediator",
-        "title": "Add Mediator by Prompt"
-      }
-    ],
     "grammars": [
       {
         "language": "SynapseXml",
@@ -73,6 +63,14 @@
       ]
     },
     "commands": [
+      {
+        "command": "integrationStudio.showDiagram",
+        "title": "Show Diagram"
+      },
+      {
+        "command": "integrationStudio.addMediator",
+        "title": "Add Mediator by Prompt"
+      },
       {
         "command": "project-explorer.add",
         "title": "Add Construct",
