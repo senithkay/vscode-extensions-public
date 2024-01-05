@@ -1,6 +1,6 @@
 import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
 import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
-import create from 'zustand'
+import { create } from 'zustand';
 
 export interface DataMapperState {
   imports: string[];

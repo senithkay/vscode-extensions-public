@@ -20,6 +20,9 @@ import { DataMapperNodeModel } from '../Diagram/Node/commons/DataMapperNode';
 import { getErrorKind } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
+import { useDMSearchStore } from '../../store/store';
+import { RequiredParamNode } from '../Diagram/Node';
+import { OFFSETS } from '../Diagram/utils/constants';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -69,14 +72,25 @@ export const useDiagramModel = (
     const offSetY = model.getOffsetY();
     const noOfNodes = nodes.length;
 	const fnSource = nodes.find(node => node.context).context.selection.selectedST.stNode.source;
+    const { inputSearch, outputSearch } = useDMSearchStore();
 
     const genModel = async () => {
         const newModel = new DiagramModel();
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
+        if (!nodes.find(node => node instanceof RequiredParamNode && node.getSearchFilteredType())) {
+            const inputSearchNotFoundNode = new RequiredParamNode(undefined, undefined, undefined, true);
+            inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
+            newModel.addNode(inputSearchNotFoundNode);
+            inputSearchNotFoundNode.setModel(newModel);
+        }
         newModel.addAll(...nodes);
         for (const node of nodes) {
             try {
+                if (node instanceof RequiredParamNode && !node.getSearchFilteredType()) {
+                    newModel.removeNode(node);
+                    continue;
+                }
                 node.setModel(newModel);
                 await node.initPorts();
                 node.initLinks();
@@ -96,7 +110,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, noOfNodes}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, noOfNodes, inputSearch, outputSearch}], () => genModel(), {});
 
     return { diagramModel, isFetching, isError, refetch };
 };

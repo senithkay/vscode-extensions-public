@@ -155,12 +155,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
     }, [isFetching, diagramModel]);
 
 	useEffect(() => {
-		if (model) {
+		if (model && !isFetching) {
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;
 			setTimeout(async () => {
-				nodes.forEach((node) => {
+				model.getNodes().forEach((node) => {
 					if (node instanceof MappingConstructorNode
 						|| node instanceof ListConstructorNode
 						|| node instanceof PrimitiveTypeNode

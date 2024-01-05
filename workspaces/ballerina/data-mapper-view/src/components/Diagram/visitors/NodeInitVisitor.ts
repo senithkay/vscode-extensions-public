@@ -309,10 +309,8 @@ export class NodeInitVisitor implements Visitor {
                             param,
                             param.typeName
                         );
-                        if (paramNode.getSourceType()){
-                            paramNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
-                            this.inputParamNodes.push(paramNode);
-                        }
+                        paramNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
+                        this.inputParamNodes.push(paramNode);
                     } else {
                         // TODO for other param types
                     }
@@ -751,16 +749,6 @@ export class NodeInitVisitor implements Visitor {
     }
 
     getNodes() {
-        if (this.inputParamNodes.length === 0 && !!useDMSearchStore.getState().inputSearch) {
-            const paramNode = new RequiredParamNode(
-                this.context,
-                undefined,
-                undefined,
-                true
-            );
-            paramNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
-            this.inputParamNodes.push(paramNode);
-        }
         const nodes = [...this.inputParamNodes, ...this.otherInputNodes];
         if (this.outputNode) {
             nodes.push(this.outputNode);

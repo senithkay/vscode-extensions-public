@@ -23,24 +23,21 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
     }
 
     generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-        if ((event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) || event.model.hasNoMatchingFields) {
+        if (event.model.hasNoMatchingFields && !event.model.typeDef) {
             return (
-                <>
-                    {event.model.hasNoMatchingFields ? (
-                        <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
-                    ) : (
-                        <RecordTypeTreeWidget
-                            engine={this.engine}
-                            id={event.model.value && event.model.value.paramName.value}
-                            typeDesc={event.model.typeDef}
-                            getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                            handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                        />
-                    )}
-                </>
+                <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
+            );
+        } else if (event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) {
+            return (
+                <RecordTypeTreeWidget
+                    engine={this.engine}
+                    id={event.model.value && event.model.value.paramName.value}
+                    typeDesc={event.model.typeDef}
+                    getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                    handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                />
             );
         }
-
         return (
             <PrimitiveTypeItemWidget
                 engine={this.engine}

@@ -132,15 +132,13 @@ export default function HeaderSearchBox(props: SearchBoxProps) {
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
 
     return (
-        <>
-            <SearchBox
-                id={`search-${searchOption}`}
-                autoFocus={true}
-                placeholder={`filter input and output fields`}
-                value={searchTerm}
-                onChange={handleSearchInputChange}
-                size={100}
-            />
-        </>
-    )
+        <SearchBox
+            id={`search-${searchOption}`}
+            autoFocus={true}
+            placeholder={`filter input and output fields`}
+            value={searchTerm}
+            onChange={handleSearchInputChange}
+            size={100}
+        />
+    );
 }
