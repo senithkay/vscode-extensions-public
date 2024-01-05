@@ -10,8 +10,8 @@ import styled from "@emotion/styled";
 import React from "react";
 
 export interface Item {
-    id?: number | string;
-    label?: React.ReactNode;
+    id: number | string;
+    label: React.ReactNode;
     onClick: () => void;
     disabled?: boolean;
 }

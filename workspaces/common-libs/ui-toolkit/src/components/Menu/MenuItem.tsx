@@ -28,6 +28,7 @@ const Container = styled.div<ContainerProps>`
     &:hover, &.active {
         background: var(--vscode-editorHoverWidget-background);
     };
+    ${(props: ContainerProps) => props.sx};
 `;
 
 export const MenuItem: React.FC<MenuItemProps> = (props: MenuItemProps) => {
