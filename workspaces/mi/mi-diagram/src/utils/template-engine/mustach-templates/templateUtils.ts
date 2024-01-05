@@ -10,11 +10,12 @@
 import Mustache from "mustache";
 import { MEDIATORS } from "../../../constants";
 import { getCallFormDataFromSTNode, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateXml } from "./core/call-template";
+import { getPayloadFormDataFromSTNode } from "./core/payloadFactory";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -156,6 +157,52 @@ action="{{propertyAction}}"
     </on-fail>
     {{/on-fail}}
 </validate>`;
+        case MEDIATORS.PAYLOAD:
+            return ` <payloadFactory {{#description}}description="{{description}}"{{/description}} media-type="{{mediaType}}" template-type="{{templateType}}">
+    {{#isInlined}}
+    <format>
+    {{payload}}
+    </format>
+    {{/isInlined}}
+    {{^isInlined}}
+    <format key="{{payloadKey}}"/>
+    {{/isInlined}}
+    {{#args}}
+    <args>
+        <arg {{#argumentValue}}value="{{argumentValue}}"{{/argumentValue}} {{#argumentExpression}}expression="{{argumentExpression}}" evaluator="{{evaluator}}" {{/argumentExpression}} />
+    </args>
+    {{/args}}
+</payloadFactory>`;
+        case MEDIATORS.HTTPENDPOINT:
+            return `<endpoint>
+    <http method="{{httpMethod}}" {{#statisticsEnabled}}statistics="enable"{{/statisticsEnabled}} {{#traceEnabled}}trace="enable"{{/traceEnabled}} uri-template="{{uriTemplate}}">
+    <timeout>
+    <duration>{{timeoutDuration}}</duration>
+    <responseAction>{{timeoutAction}}</responseAction>
+    </timeout>    
+    <suspendOnFailure>
+            {{#suspendErrorCodes}}<errorCodes>{{suspendErrorCodes}}</errorCodes>{{/suspendErrorCodes}}
+            <initialDuration>{{suspendInitialDuration}}</initialDuration>
+            <progressionFactor>{{suspendProgressionFactor}}</progressionFactor>
+            <maximumDuration>{{suspendMaximumDuration}}</maximumDuration>
+        </suspendOnFailure>
+        <markForSuspension>
+            {{#retryErrorCodes}}<errorCodes>{{retryErrorCodes}}</errorCodes>{{/retryErrorCodes}}
+            {{#retryCount}}<retriesBeforeSuspension>{{retryCount}}</retriesBeforeSuspension>{{/retryCount}}
+            {{#retryDelay}}<retryDelay>{{retryDelay}}</retryDelay>{{/retryDelay}}
+        </markForSuspension>
+        {{#failoverNonRetryErrorCodes}}
+        <retryConfig>
+            <disabledErrorCodes>{{failoverNonRetryErrorCodes}}</disabledErrorCodes>
+        </retryConfig>
+        {{/failoverNonRetryErrorCodes}}
+    </http>
+    {{#properties}}
+    <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}"{{/expression}} />
+    {{/properties}}
+    <description>{{description}}</description>
+</endpoint>
+`;
     }
 }
 
@@ -189,6 +236,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getLogFormDataFromSTNode(formData, node as Log);
         case MEDIATORS.CALLTEMPLATE:
             return getCallTemplateFormDataFromSTNode(formData, node as CallTemplate);
+        case MEDIATORS.PAYLOAD:
+            return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
         default:
             return formData;
     }

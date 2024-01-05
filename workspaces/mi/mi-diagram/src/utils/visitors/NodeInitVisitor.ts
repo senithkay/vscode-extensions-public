@@ -449,7 +449,7 @@ export class NodeInitVisitor implements Visitor {
         this.currentSequence.push(
             new SimpleMediatorNodeModel({
                 node: node,
-                name: MEDIATORS.PAYLOADFACTORY,
+                name: MEDIATORS.PAYLOAD,
                 description: node.mediaType?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: SequenceType.IN_SEQUENCE,

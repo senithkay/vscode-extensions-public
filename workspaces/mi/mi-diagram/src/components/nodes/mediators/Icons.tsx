@@ -986,7 +986,7 @@ export const getSVGIcon = (name: string, description: string, width: number, hei
                     font-weight="bold"
                 >{name}{description ? `(${description})` : ""}</text>
             </svg>;
-        case MEDIATORS.PAYLOADFACTORY:
+        case MEDIATORS.PAYLOAD:
             return <svg
                 width={width}
                 height={height}
