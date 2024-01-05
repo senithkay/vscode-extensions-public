@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { GetSyntaxTreeRequest } from "@wso2-enterprise/mi-core";
+import { GetProjectStructureRequest, GetProjectStructureResponse, GetSyntaxTreeRequest } from "@wso2-enterprise/mi-core";
 import { Position, Uri, workspace } from "vscode";
 import { CompletionParams, LanguageClient, TextEdit } from "vscode-languageclient/node";
 
@@ -62,6 +62,10 @@ export class ExtendedLanguageClient extends LanguageClient {
 
     async getSyntaxTree(req: GetSyntaxTreeParams): Promise<GetSyntaxTreeResponse> {
         return this.sendRequest(GetSyntaxTreeRequest.method, { uri: Uri.parse(req.documentIdentifier.uri).toString() });
+    }
+
+    async getProjectStructure(path: string): Promise<GetProjectStructureResponse> {
+        return this.sendRequest('xml/getSynapseDirectoryTree', { uri: Uri.parse(path).toString() });
     }
 
     async getCompletion(params: GetCompletionParams): Promise<CompletionResponse[]> {

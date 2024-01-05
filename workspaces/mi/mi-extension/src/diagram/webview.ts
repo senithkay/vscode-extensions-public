@@ -12,17 +12,8 @@ import { RegisterWebViewPanelRpc } from '../WebviewRPC';
 import { ExtensionContext, Uri, ViewColumn, Webview, WebviewPanel, window, workspace } from 'vscode';
 import { Refresh } from '@wso2-enterprise/mi-core';
 import { debounce } from "lodash";
+import { getComposerJSFiles } from '../util';
 
-const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
-
-function getComposerJSFiles(context: ExtensionContext, componentName: string, webView: Webview): string[] {
-    const filePath = path.join(context.extensionPath, 'resources', 'jslibs', componentName + '.js');
-    return [
-        isDevMode ? path.join(process.env.WEB_VIEW_DEV_HOST!, componentName + '.js')
-            : webView.asWebviewUri(Uri.file(filePath)).toString(),
-        isDevMode ? 'http://localhost:8097' : '' // For React Dev Tools
-    ];
-}
 let diagramWebview: WebviewPanel | undefined;
 
 export function createDiagramWebview(context: ExtensionContext, documentUri: string) {
@@ -55,7 +46,7 @@ export function createDiagramWebview(context: ExtensionContext, documentUri: str
     }, 500);
 
 
-    workspace.onDidChangeTextDocument(function () {
+    workspace.onDidChangeTextDocument(function() {
         refreshDiagram();
     }, context);
 

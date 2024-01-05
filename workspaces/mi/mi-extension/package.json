@@ -11,7 +11,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:SynapseXml"
+    "onLanguage:SynapseXml",
+    "workspaceContains:.project",
+    "workspaceContains:.pom.xml"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -21,16 +23,6 @@
         "extensions": [
           ".xml"
         ]
-      }
-    ],
-    "commands": [
-      {
-        "command": "integrationStudio.showDiagram",
-        "title": "Show Diagram"
-      },
-      {
-        "command": "integrationStudio.addMediator",
-        "title": "Add Mediator by Prompt"
       }
     ],
     "grammars": [
@@ -52,7 +44,63 @@
           }
         }
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "wso2-integration-studio",
+          "title": "Integratoin Studio",
+          "icon": "assets/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "wso2-integration-studio": [
+        {
+          "id": "project-explorer",
+          "name": "Project Explorer"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "integrationStudio.showDiagram",
+        "title": "Show Diagram"
+      },
+      {
+        "command": "integrationStudio.addMediator",
+        "title": "Add Mediator by Prompt"
+      },
+      {
+        "command": "project-explorer.add",
+        "title": "Add Construct",
+        "icon": "$(add)"
+      },
+      {
+        "command": "project-explorer.refresh",
+        "title": "Refresh Project Explorer",
+        "icon": "$(refresh)",
+        "group": "navigation"
+      },
+      {
+        "command": "project-explorer.view",
+        "title": "View"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "project-explorer.refresh",
+          "when": "view == project-explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "project-explorer.add",
+          "when": "view == project-explorer",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "clean": "rimraf ./dist",

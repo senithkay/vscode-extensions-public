@@ -12,8 +12,27 @@ import { createDiagramWebview } from './diagram/webview';
 import axios from 'axios';
 import { generatePrompt } from './ai/prompt';
 import { unescape } from 'querystring';
+import { ProjectExplorerEntryProvider } from './activity-panel/project-explorer-provider';
 
 export async function activate(context: vscode.ExtensionContext) {
+
+	const projectExplorerDataProvider = new ProjectExplorerEntryProvider(context)
+	// vscode.window.registerTreeDataProvider('project-explorer', projectExplorerDataProvider)
+	const projectTree = vscode.window.createTreeView('project-explorer', { treeDataProvider: projectExplorerDataProvider })
+	vscode.commands.registerCommand('project-explorer.refreshEntry', () => { projectExplorerDataProvider.refresh() })
+	vscode.commands.registerCommand('project-explorer.add', () => {
+		// TODO: Form opening logic should go here
+
+	})
+
+	projectTree.onDidChangeSelection(e => {
+		if (e.selection.length > 0 && e.selection[0].info) {
+			const info = e.selection[0].info;
+			console.log(info);
+			// TODO: Open file logic should go here
+		}
+	})
+
 	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
 		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
 	});
