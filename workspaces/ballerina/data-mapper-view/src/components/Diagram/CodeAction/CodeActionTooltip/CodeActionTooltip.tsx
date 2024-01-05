@@ -7,39 +7,29 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useState } from "react";
+import React from "react";
 
-import { MenuItem, withStyles } from "@material-ui/core";
-import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
+import { Item, Menu, MenuItem, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-types";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { tooltipBaseStyles, useStyles } from "../style";
 
-interface Props extends TooltipProps {
+interface Props {
     codeActions: CodeAction[];
     context: IDataMapperContext;
     additionalActions?: {
         title: string;
         onClick: () => void;
     }[];
+    children: React.ReactNode | React.ReactNode[];
 }
 
 export const CodeActionTooltipID = "data-mapper-codeaction-tooltip";
 
 export function CodeActionTooltip(props: Partial<Props>) {
-    const { codeActions, context, children, additionalActions, ...rest } = props;
-    const classes = useStyles();
+    const { codeActions, context, children, additionalActions } = props;
     const menuItems: React.ReactNode[] = [];
-
-    const [isInteractive, setIsInteractive] = useState(true);
-
-    const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
-
-    const onOpen = () => {
-        setIsInteractive(true);
-    }
 
     const onCodeActionSelect = (action: CodeAction) => {
         const modifications: STModification[] = [];
@@ -63,44 +53,45 @@ export function CodeActionTooltip(props: Partial<Props>) {
 
     if (additionalActions && additionalActions.length > 0) {
         additionalActions.forEach((item, index) => {
+            const menuItem: Item = { id: `${item.title}-${index}`, label: item.title, onClick: item.onClick }
             menuItems.push(
-                <MenuItem key={`${item.title}-${index}`} onClick={item.onClick} data-testid={`code-action-additional-${index}`}>
-                    {item.title}
-                </MenuItem>
+                <MenuItem
+                    sx={{ padding: 0 }}
+                    item={menuItem}
+                    onClick={item.onClick}
+                    data-testid={`code-action-additional-${index}`}
+                />
             );
         });
     }
     if (codeActions) {
         codeActions.forEach((action, index) => {
+            const menuItem: Item = { id: index, label: action.title, onClick: () => onCodeActionSelect(action) };
             menuItems.push(
                 <MenuItem
-                    key={index}
+                    sx={{ padding: 0 }}
+                    item={menuItem}
                     onClick={() => onCodeActionSelect(action)}
                     data-testid={`code-action-${index}`}
-                >
-                    {action.title}
-                </MenuItem>
+                />
             );
         });
     }
 
 
     const tooltipTitleComponent = (
-        <pre className={classes.pre}>
+        <Menu sx={{ background: 'none', boxShadow: 'none', padding: 0 }}>
             {menuItems}
-        </pre>
+        </Menu>
     );
 
     return (
-        <TooltipComponent
-            interactive={isInteractive}
-            arrow={false}
-            title={tooltipTitleComponent}
-            onOpen={onOpen}
-            {...rest}
+        <Tooltip
+            content={tooltipTitleComponent}
+            position="bottom"
         >
             {children}
-        </TooltipComponent>
+        </Tooltip>
     )
 
 }

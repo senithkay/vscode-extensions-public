@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, Codicon, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -435,18 +435,18 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const onCloseElementSetAnchor = () => addElementSetAnchorEl(null);
 
-    const possibleTypeOptions = useMemo(() => {
+    const possibleTypeOptions: Item[] = useMemo(() => {
         if (isAnydataType) {
-            const anyDataConvertOptions: ValueConfigMenuItem[] = [];
-            anyDataConvertOptions.push({ title: `Add a primitive element`, onClick: () => handleAddArrayElement("()") })
-            anyDataConvertOptions.push({ title: `Add a record element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
-            anyDataConvertOptions.push({ title: `Add an array element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Array) })
+            const anyDataConvertOptions: Item[] = [];
+            anyDataConvertOptions.push({ id: 'primitive', label: `Add a primitive element`, onClick: () => handleAddArrayElement("()") })
+            anyDataConvertOptions.push({ id: 'record', label: `Add a record element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
+            anyDataConvertOptions.push({ id: 'array', label: `Add an array element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Array) })
             return anyDataConvertOptions;
         } else if (isUnionType) {
-            const unionTypeOptions: ValueConfigMenuItem[] = [];
+            const unionTypeOptions: Item[] = [];
             const supportedTypes = getSupportedUnionTypes(field.type.memberType);
             supportedTypes.forEach((type) => {
-                unionTypeOptions.push({ title: `Add a ${type} element`, onClick: () => handleAddArrayElement(type) })
+                unionTypeOptions.push({ id: type, label: `Add a ${type} element`, onClick: () => handleAddArrayElement(type) })
             })
             return unionTypeOptions;
         }
@@ -541,9 +541,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 <Menu>
                                     {possibleTypeOptions?.map((item) => (
                                         <>
-                                            <MenuItem item={item} key={item.title} onClick={item.onClick}>
-                                                {item.title}
-                                            </MenuItem>
+                                            <MenuItem item={item} onClick={item.onClick} />
                                         </>
                                     ))}
                                 </Menu>
