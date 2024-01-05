@@ -52,25 +52,27 @@ function getNodeModel(node: Node): GenNodeModel {
     if (node.canvasPosition) {
         nodeModel.setPosition(node.canvasPosition.x, node.canvasPosition.y);
     }
-    const fixedNode = isSingleNode(node.templateId);
     // add node ports
     node.inputPorts?.forEach((inputPort, index) => {
         let portId = getPortId(inputPort.name, true, index);
-        let port = nodeModel.addInPort(portId, inputPort, fixedNode);
+        let port = nodeModel.addInPort(portId, inputPort);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
     node.outputPorts?.forEach((outputPort, index) => {
+        if (node.templateId === "StartNode" && index > 0) {
+            return; // skip adding multiple ports for switch node
+        }
         let portId = getPortId(outputPort.name, false, index);
-        let port = nodeModel.addOutPort(portId, outputPort, fixedNode);
+        let port = nodeModel.addOutPort(portId, outputPort);
         ports.push({ ...outputPort, parent: nodeId, in: false, model: port });
     });
     // add default ports if none
     if (node.metadata && getNodeMetadata(node)) {
         // enrich node with metadata
-        const defaultPorts = addDefaultPortsFromMetadata(node, nodeModel, nodeId, fixedNode);
+        const defaultPorts = addDefaultPortsFromMetadata(node, nodeModel, nodeId);
         ports.push(...defaultPorts);
     } else {
-        const defaultPorts = addDefaultPorts(node, nodeModel, nodeId, fixedNode);
+        const defaultPorts = addDefaultPorts(node, nodeModel, nodeId);
         ports.push(...defaultPorts);
     }
 
@@ -78,28 +80,24 @@ function getNodeModel(node: Node): GenNodeModel {
 }
 
 // add default ports without checking for metadata
-function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string, fixedNode: boolean) {
+function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string) {
     let ports: ExtendedPort[] = [];
     switch (node.templateId) {
         case "StartNode":
             if (node.outputPorts?.length === 0) {
                 const portId = getPortId(node.name, false, 1);
-                const port = nodeModel.addOutPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: DEFAULT_TYPE,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                const port = nodeModel.addOutPort(portId, {
+                    id: portId,
+                    type: DEFAULT_TYPE,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
         case "HttpResponseNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
-                const port = nodeModel.addInPort(portId, undefined, fixedNode);
+                const port = nodeModel.addInPort(portId, undefined);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             break;
@@ -107,21 +105,17 @@ function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string
             const nodeProperties = node.properties as SwitchNodeProperties;
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
-                const port = nodeModel.addInPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: DEFAULT_TYPE,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                const port = nodeModel.addInPort(portId, {
+                    id: portId,
+                    type: DEFAULT_TYPE,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             if (node.outputPorts?.length === 0 && nodeProperties.cases?.length > 0) {
                 nodeProperties.cases.forEach((caseItem, index) => {
                     const portId = caseItem.nodes[0] || getPortId(node.name, false, index + 1);
-                    const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                    const port = nodeModel.addOutPort(portId, undefined);
                     ports.push({
                         id: portId,
                         type: DEFAULT_TYPE,
@@ -132,15 +126,11 @@ function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                     });
                 });
                 const portId = nodeProperties.defaultCase.nodes[0] || getPortId(node.name, false, "default");
-                const port = nodeModel.addOutPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: DEFAULT_TYPE,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                const port = nodeModel.addOutPort(portId, {
+                    id: portId,
+                    type: DEFAULT_TYPE,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             } else if (node.outputPorts?.length < nodeProperties.cases?.length + 1) {
                 nodeProperties.cases.forEach((caseItem, index) => {
@@ -148,7 +138,7 @@ function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                     if (node.outputPorts?.some((port) => port.id === portId)) {
                         return;
                     }
-                    const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                    const port = nodeModel.addOutPort(portId, undefined);
                     ports.push({
                         id: portId,
                         type: DEFAULT_TYPE,
@@ -162,35 +152,27 @@ function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string
                 if (node.outputPorts?.some((port) => port.id === portId)) {
                     return;
                 }
-                const port = nodeModel.addOutPort(portId, undefined, fixedNode);
+                const port = nodeModel.addOutPort(portId, undefined);
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
         case "CodeBlockNode":
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
-                let port = nodeModel.addInPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: DEFAULT_TYPE,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                let port = nodeModel.addInPort(portId, {
+                    id: portId,
+                    type: DEFAULT_TYPE,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             if (node.outputPorts?.length === 0) {
                 let portId = getPortId(node.name, false, 1);
-                let port = nodeModel.addOutPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: DEFAULT_TYPE,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                let port = nodeModel.addOutPort(portId, {
+                    id: portId,
+                    type: DEFAULT_TYPE,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
@@ -198,28 +180,20 @@ function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string
             const defaultInputType = "string";
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
-                let port = nodeModel.addInPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: defaultInputType,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                let port = nodeModel.addInPort(portId, {
+                    id: portId,
+                    type: defaultInputType,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: defaultInputType, name: portId, parent: nodeId, in: true, model: port });
             }
             if (node.outputPorts?.length === 0) {
                 let portId = getPortId(node.name, false, 1);
-                let port = nodeModel.addOutPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: defaultInputType,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                let port = nodeModel.addOutPort(portId, {
+                    id: portId,
+                    type: defaultInputType,
+                    name: portId,
+                });
                 ports.push({
                     id: portId,
                     type: defaultInputType,
@@ -233,28 +207,20 @@ function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string
         default:
             if (node.inputPorts?.length === 0) {
                 const portId = getPortId(node.name, true, 1);
-                let port = nodeModel.addInPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: DEFAULT_TYPE,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                let port = nodeModel.addInPort(portId, {
+                    id: portId,
+                    type: DEFAULT_TYPE,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: true, model: port });
             }
             if (node.outputPorts?.length === 0) {
                 let portId = getPortId(node.name, false, 1);
-                let port = nodeModel.addOutPort(
-                    portId,
-                    {
-                        id: portId,
-                        type: DEFAULT_TYPE,
-                        name: portId,
-                    },
-                    fixedNode
-                );
+                let port = nodeModel.addOutPort(portId, {
+                    id: portId,
+                    type: DEFAULT_TYPE,
+                    name: portId,
+                });
                 ports.push({ id: portId, type: DEFAULT_TYPE, name: portId, parent: nodeId, in: false, model: port });
             }
             break;
@@ -264,7 +230,7 @@ function addDefaultPorts(node: Node, nodeModel: DefaultNodeModel, nodeId: string
 }
 
 // Add default ports only if metadata input/output type present
-function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, nodeId: string, fixedNode: boolean) {
+function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, nodeId: string) {
     const nodeMetadata = getNodeMetadata(node);
     let ports: ExtendedPort[] = [];
 
@@ -273,15 +239,11 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
             if (node.outputPorts?.length === 0 && nodeMetadata?.outputs?.length > 0) {
                 nodeMetadata.outputs.forEach((input) => {
                     const portId = getPortId(node.name, false, input.name);
-                    let port = nodeModel.addOutPort(
-                        portId,
-                        {
-                            id: portId,
-                            type: input.type,
-                            name: input.name,
-                        },
-                        fixedNode
-                    );
+                    let port = nodeModel.addOutPort(portId, {
+                        id: portId,
+                        type: input.type,
+                        name: input.name,
+                    });
                     ports.push({
                         id: portId,
                         type: input.type,
@@ -298,15 +260,11 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
             if (node.inputPorts?.length === 0 && nodeMetadata?.inputs?.length > 0) {
                 nodeMetadata.inputs.forEach((input, index) => {
                     const portId = getPortId(node.name, true, input.name);
-                    let port = nodeModel.addInPort(
-                        portId,
-                        {
-                            id: portId,
-                            type: input.type,
-                            name: input.name,
-                        },
-                        fixedNode
-                    );
+                    let port = nodeModel.addInPort(portId, {
+                        id: portId,
+                        type: input.type,
+                        name: input.name,
+                    });
                     ports.push({
                         id: portId,
                         type: input.type,
@@ -320,15 +278,11 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
             if (node.outputPorts?.length === 0 && nodeMetadata?.outputs?.length > 0) {
                 nodeMetadata.outputs.forEach((input, index) => {
                     const portId = getPortId(node.name, false, input.name);
-                    let port = nodeModel.addOutPort(
-                        portId,
-                        {
-                            id: portId,
-                            type: input.type,
-                            name: input.name,
-                        },
-                        fixedNode
-                    );
+                    let port = nodeModel.addOutPort(portId, {
+                        id: portId,
+                        type: input.type,
+                        name: input.name,
+                    });
                     ports.push({
                         id: portId,
                         type: input.type,
@@ -344,15 +298,11 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
             if (node.outputPorts?.length === 0 && nodeMetadata?.outputs?.length > 0) {
                 nodeMetadata.outputs.forEach((input, index) => {
                     const portId = getPortId(node.name, false, input.name);
-                    let port = nodeModel.addOutPort(
-                        portId,
-                        {
-                            id: portId,
-                            type: input.type,
-                            name: input.name,
-                        },
-                        fixedNode
-                    );
+                    let port = nodeModel.addOutPort(portId, {
+                        id: portId,
+                        type: input.type,
+                        name: input.name,
+                    });
                     ports.push({
                         id: portId,
                         type: input.type,
@@ -397,6 +347,10 @@ export function getPortId(nodeId: string, inPort: boolean, portId: string | numb
 }
 
 function getPortFromFlowPorts(ports: ExtendedPort[], parent: string, inPort: boolean, linkNodeId: string) {
+    if (!inPort && parent === "StartNode") {
+        return ports.find((port) => port.parent === parent && port.in === false);
+    }
+
     return ports.find(
         (port) =>
             port.parent === parent &&

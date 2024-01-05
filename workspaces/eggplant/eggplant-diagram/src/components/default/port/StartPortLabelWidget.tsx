@@ -19,18 +19,11 @@ export interface StartPortLabelProps {
 }
 
 namespace S {
-    type LabelStyleProp = {
-        hide?: boolean;
-    };
-
-    export const Port = styled.div<LabelStyleProp>`
-        width: 12px;
-        height: 12px;
+    export const Port = styled.div`
+        width: 18px;
+        height: 18px;
         border-radius: 50%;
         background: ${Colors.PRIMARY};
-        display: ${(p: LabelStyleProp) => (p.hide ? "none" : "block")};
-        position: fixed;
-
         &:hover {
             background: ${Colors.SECONDARY};
         }
