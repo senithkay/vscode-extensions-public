@@ -24,7 +24,7 @@ namespace S {
 
     export const Node = styled.div<NodeStyleProp>`
         background-color: ${(p: NodeStyleProp) => (p.selected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
-        border-radius: 5px 20px 20px 5px;
+        border-radius: 5px;
         font-family: sans-serif;
         border: solid 2px black;
         overflow: visible;
