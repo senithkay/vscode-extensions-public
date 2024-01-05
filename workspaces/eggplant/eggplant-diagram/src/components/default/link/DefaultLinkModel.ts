@@ -34,6 +34,7 @@ export interface DefaultLinkModelOptions extends BaseModelOptions {
     curvyness?: number;
     type?: string;
     testName?: string;
+    receiver?: string;
 }
 
 export interface DefaultLinkModelGenerics extends LinkModelGenerics {
@@ -122,5 +123,9 @@ export class DefaultLinkModel extends LinkModel<DefaultLinkModelGenerics> {
 
     addPoint<P extends PointModel<PointModelGenerics>>(pointModel: P, index?: number): P {
         return;
+    }
+
+    setReceiver(node: string) {
+        this.options.receiver = node;
     }
 }
