@@ -24,6 +24,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		// TODO: Form opening logic should go here
 
 	})
+	vscode.commands.registerCommand('project-explorer.add-api', () => {
+		// TODO: Form opening logic should go here
+
+		console.log('Add API');
+	})
 
 	projectTree.onDidChangeSelection(e => {
 		if (e.selection.length > 0 && e.selection[0].info) {
