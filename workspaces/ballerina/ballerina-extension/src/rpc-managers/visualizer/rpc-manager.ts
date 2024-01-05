@@ -30,7 +30,8 @@ import {
     TextDocumentPositionParams,
     UpdateFileContentRequest,
     VisualizerAPI,
-    VisualizerLocationContext
+    VisualizerLocationContext,
+    InsertorDelete
 } from "@wso2-enterprise/ballerina-core";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -39,7 +40,6 @@ import { normalize } from "path";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";
 import { CodeAction, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
-import { InsertorDelete } from "../../utils/modification-utils";
 import { getSyntaxTreeFromPosition, handleVisualizerView } from "../../utils/navigation";
 import { getLangClient, getService, openView, updateView } from "../../visualizer/activator";
 

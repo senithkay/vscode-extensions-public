@@ -37,3 +37,4 @@ export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/lang-server";
 export * from "./rpc-types/lang-server/rpc-type";
 export * from "./vscode";
+export * from "./utils/modification-utils";
