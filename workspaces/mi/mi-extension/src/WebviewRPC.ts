@@ -21,7 +21,8 @@ import {
     GetConnectorsResponse,
     GetSyntaxTreeRequest,
     ShowErrorMessage,
-    GetProjectStructureRequest
+    GetProjectStructureRequest,
+    CloseWebViewNotification
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
@@ -140,9 +141,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const xmlData =  `<?xml version="1.0" encoding="UTF-8"?>
     <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
         <resource methods="GET">
-            <inSequence/>
-            <outSequence/>
-            <faultSequence/>
+            <inSequence>
+            </inSequence>
+            <outSequence>
+            </outSequence>
+            <faultSequence>
+            </faultSequence>
         </resource>
     </api>`;
 
@@ -176,6 +180,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return synapseAPIPath;
         }
         return "";
+    });
+
+    messenger.onNotification(CloseWebViewNotification, () => {
+        if ("dispose" in view) {
+            view.dispose();
+        }
     });
 }
 

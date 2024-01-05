@@ -115,11 +115,13 @@ export function APIWizard() {
             version: version
         }
         await MIWebViewAPI.getInstance().createAPI(createAPIParams);
-        console.log("Submit");
+        console.log("API created");
+        MIWebViewAPI.getInstance().closeWebView();
     };
 
     const handleCancel = () => {
         console.log("cancel");
+        MIWebViewAPI.getInstance().closeWebView();
     };
 
     // const isValid: boolean = apiName.length > 0 && !!apiContext && !!selectedVersionType;

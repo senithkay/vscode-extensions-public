@@ -71,6 +71,7 @@ export const CreateAPI: RequestType<CreateAPIParams, unknown> = {method: 'create
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 export const Refresh: NotificationType<void> = { method: 'refresh' };
 export const ApplyEdit: NotificationType<ApplyEditParams> = { method: 'applyEdit' };
+export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

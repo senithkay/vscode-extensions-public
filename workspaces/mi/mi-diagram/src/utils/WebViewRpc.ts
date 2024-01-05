@@ -21,7 +21,8 @@ import {
     ShowErrorMessage,
     CreateAPIParams,
     CreateAPI,
-    GetAPIDirectory
+    GetAPIDirectory,
+    CloseWebViewNotification
 } from "@wso2-enterprise/mi-core";
 
 export class MIWebViewAPI {
@@ -70,6 +71,10 @@ export class MIWebViewAPI {
     }
     public createAPI(params: CreateAPIParams) {
         return this._messenger.sendRequest(CreateAPI, HOST_EXTENSION, params);
+    }
+
+    public closeWebView() {
+        this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
     }
 
     public getMessenger() {
