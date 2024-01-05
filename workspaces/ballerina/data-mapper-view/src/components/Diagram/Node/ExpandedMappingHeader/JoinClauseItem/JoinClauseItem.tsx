@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
@@ -25,6 +24,7 @@ import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export function JoinClauseItem(props: {
     intermediateNode: JoinClause;
@@ -147,7 +147,7 @@ export function JoinClauseItem(props: {
                 </div>
 
                 {isLoading ? (
-                    <CircularProgress size={18} />
+                    <ProgressRing sx={{ height: '16px', width: '16px' }} />
                 ) : (
                     <DeleteOutline
                         className={classes.deleteIcon}

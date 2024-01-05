@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useState } from "react";
 
-import { CircularProgress } from "@material-ui/core";
 import { WarningOutlined } from "@material-ui/icons";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -42,6 +41,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { useStyles } from "./style";
 import { UnionTypeSelector } from "./UnionTypeSelector";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface UnionTypeTreeWidgetProps {
     id: string;
@@ -243,7 +243,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                 {unionTypeInfo && resolvedTypeName && (
                     <>
                         {isModifyingTypeCast ? (
-                            <CircularProgress size={18} className={classes.loader} />
+                            <ProgressRing sx={{ height: '16px', width: '16px' }} />
                         ) : (
                             <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
                         )}

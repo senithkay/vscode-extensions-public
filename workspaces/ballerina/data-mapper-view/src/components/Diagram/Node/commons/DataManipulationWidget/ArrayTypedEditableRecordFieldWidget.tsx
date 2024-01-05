@@ -323,7 +323,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 disabled={isAddingElement}
                 data-testid={`array-widget-${portIn?.getName()}-add-element`}
             >
-                {isAddingElement ? <ProgressRing /> : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />}
+                {isAddingElement ? <ProgressRing sx={{ height: '16px', width: '16px' }} /> : <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />}
                 Add Element
             </Button>
         );
