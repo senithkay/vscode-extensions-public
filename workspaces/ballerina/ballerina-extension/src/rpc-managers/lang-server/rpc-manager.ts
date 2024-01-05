@@ -38,6 +38,7 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
+    InsertorDelete
 } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { getLangClient, getService} from "../../visualizer/activator";
@@ -47,7 +48,6 @@ import { Position, Range, WorkspaceEdit, workspace } from "vscode";
 import { CodeAction, WorkspaceEdit as WorkspaceEditType } from "vscode-languageserver-types";
 import { writeFileSync } from 'fs';
 import { normalize } from "path";
-import { InsertorDelete } from "../../utils/modification-utils";
 import { Location, LocationLink } from "vscode-languageserver-types";
 
 export class LangServerRpcManager implements LangServerAPI {
