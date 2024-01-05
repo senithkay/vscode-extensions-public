@@ -9,33 +9,31 @@
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from 'react';
 
+import { css } from '@emotion/css';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import Menu from "@material-ui/core/Menu";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
 
 import TripleDotsIcon from "../../../../../../assets/icons/TripleDotsIcon";
 
 import { ValueConfigMenuItem } from "./ValueConfigMenuItem";
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        tripleDotsIcon: {
-            color: "var(--vscode-editorInfo-foreground)",
-            padding: "5px",
-            width: 'fit-content',
-            height: "25px",
-            float: "right",
-            marginLeft: "auto"
-        },
-        valueConfigMenu: {
-            '& .MuiMenuItem-root': {
-                fontSize: '11px',
-                paddingBottom: "1px",
-                paddingTop: "1px"
-            }
-        }
+const useStyles = () => ({
+    tripleDotsIcon: css({
+        color: "var(--vscode-editorInfo-foreground)",
+        padding: "5px",
+        width: 'fit-content',
+        height: "25px",
+        float: "right",
+        marginLeft: "auto"
     }),
-);
+    valueConfigMenu: css({
+        '& .MuiMenuItem-root': {
+            fontSize: '11px',
+            paddingBottom: "1px",
+            paddingTop: "1px"
+        }
+    })
+});
 
 export enum ValueConfigOption {
     InitializeWithValue = "Initialize With Default Value",

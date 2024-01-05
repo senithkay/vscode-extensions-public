@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { css } from "@emotion/css";
 
 import { useDMSearchStore } from "../../../../../store/store";
 import {TreeContainer} from "../Tree/Tree";
@@ -34,13 +34,11 @@ export enum SearchNoResultFoundKind {
     ModuleVariable = "module variable"
 }
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        noResultFoundBanner: {
-            width: "320px"
-        }
+const useStyles = () => ({
+    noResultFoundBanner: css({
+        width: "320px"
     })
-);
+});
 
 function SearchNoResultFound({ kind, searchText }: SearchNoResultFoundRootProps) {
     const classes = useStyles();
