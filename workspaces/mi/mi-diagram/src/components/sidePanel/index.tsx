@@ -29,6 +29,7 @@ import SequenceForm from './Pages/mediators/core/sequence';
 import StoreForm from './Pages/mediators/core/store';
 import ValidateForm from './Pages/mediators/core/validate';
 import SidePanelContext from './SidePanelContexProvider';
+import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -40,6 +41,7 @@ export interface SidePanelListProps {
     documentUri: string;
 }
 
+const stackRef: string[] = [];
 const SidePanelList = (props: SidePanelListProps) => {
     const sidePanelContext = React.useContext(SidePanelContext);
     const [isLoading, setLoading] = useState<boolean>(true);
@@ -47,6 +49,10 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [actions, setActions] = useState<any[]>([]);
     const [connectorForm, setForm] = useState<any>();
     const [mediatorForm, setMediatorForm] = useState<any>();
+    const [showMediators, setShowMediators] = useState<boolean>(true);
+    const [showConnectors, setShowConnectors] = useState<boolean>(true);
+    const [showMenu, setShowMenu] = useState<boolean>(true);
+
     const goBackRef = useRef(0);
 
     const mediators = [
@@ -125,6 +131,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     useEffect(() => {
         const form = mediators.find((mediator) => mediator.operationName === sidePanelContext.mediator);
         if (form) {
+            setShowMenu(false);
             setMediatorForm(form.form);
             return;
         }
@@ -140,6 +147,17 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setActions([]);
             }
         }
+        switch (stackRef.pop()) {
+            case "mediators":
+                setShowMediators(true);
+                setShowMenu(true);
+                break;
+            case "connectors":
+                setShowConnectors(true);
+                setShowMenu(true);
+                break;
+        }
+
         goBackRef.current = sidePanelContext.backBtn;
     }, [sidePanelContext.backBtn]);
 
@@ -153,20 +171,9 @@ const SidePanelList = (props: SidePanelListProps) => {
         })();
     }, []);
 
-    const showConnectorActions = async (connectorPath: string) => {
-        sidePanelContext.setShowBackBtn(true);
-        const actions = await MIWebViewAPI.getInstance().getConnector(connectorPath);
-        setActions(actions.map((action: any) => JSON.parse(action)));
-    };
-
     const showConnectorForm = async (connectorSchema: any) => {
         sidePanelContext.setShowBackBtn(true);
         setForm(connectorSchema);
-    };
-
-    const showMediatorForm = async (mediator: any) => {
-        sidePanelContext.setShowBackBtn(true);
-        setMediatorForm(mediator.form);
     };
 
     const ConnectorList = () => {
@@ -184,6 +191,15 @@ const SidePanelList = (props: SidePanelListProps) => {
             </>
     }
 
+    const showConnectorActions = async (connectorPath: string) => {
+        sidePanelContext.setShowBackBtn(true);
+        const actions = await MIWebViewAPI.getInstance().getConnector(connectorPath);
+        setActions(actions.map((action: any) => JSON.parse(action)));
+        stackRef.push("connectors");
+        setShowConnectors(false);
+        setShowMenu(false);
+    };
+
     const ActionList = () => {
         return actions.length === 0 ? <h3 style={{ textAlign: "center" }}>No actions found</h3> :
             <>
@@ -199,6 +215,7 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const MediatorList = () => {
         sidePanelContext.setShowBackBtn(false);
+        setShowMediators(true);
         return mediators.length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
                 {mediators.map((action) => (
@@ -211,11 +228,35 @@ const SidePanelList = (props: SidePanelListProps) => {
             </>
     }
 
+    const showMediatorForm = async (mediator: any) => {
+        sidePanelContext.setShowBackBtn(true);
+        stackRef.push("mediators");
+        setShowMediators(false);
+        setShowMenu(false);
+        setMediatorForm(mediator.form);
+    };
+
     return (
         isLoading ? <h1>Loading...</h1> :
-            <div>
-                {mediators.length > 0 && !mediatorForm && !connectorForm && actions.length == 0 && <MediatorList />}
-                {connectorList && !mediatorForm && actions.length == 0 && <ConnectorList />}
+            <div style={{
+                padding: "10px",
+            }}>
+                {showMenu && <VSCodePanels aria-label="Default">
+                    <VSCodePanelTab id="tab-1">Mediators</VSCodePanelTab>
+                    <VSCodePanelTab id="tab-2">Connectors</VSCodePanelTab>
+
+                    <VSCodePanelView id="view-1">
+                        <div style={{ "width": "100%" }}>
+                            {mediators.length > 0 && showMediators && <MediatorList />}
+                        </div>
+                    </VSCodePanelView>
+
+                    <VSCodePanelView id="view-2">
+                        <div style={{ "width": "100%" }}>
+                            {connectorList && showConnectors && <ConnectorList />}
+                        </div>
+                    </VSCodePanelView>
+                </VSCodePanels>}
 
                 {mediatorForm && <>{mediatorForm}</>}
                 {actions.length > 0 && !connectorForm && <ActionList />}
