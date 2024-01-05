@@ -102,81 +102,89 @@
                       "description": "Editing of the properties of an object Payload Factory Argument",
                       "elements": [
                         {
-                          "type": "attribute",
+                          "type": "attributeGroup",
                           "value": {
-                            "name": "argumentType",
-                            "displayName": "Argument Type",
-                            "inputType": "combo",
-                            "defaultValue": "Value",
-                            "comboValues": [
-                              "Value",
-                              "Expression"
-                            ],
-                            "required": false,
-                            "helpTip": ""
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "argumentValue",
-                            "displayName": "Argument Value",
-                            "inputType": "string",
-                            "defaultValue": "default",
-                            "required": false,
-                            "helpTip": "",
-                            "enableCondition": [
+                            "groupName": "Properties",
+                            "elements": [
                               {
-                                "argumentType": "Value"
+                                "type": "attribute",
+                                "value": {
+                                  "name": "argumentType",
+                                  "displayName": "Argument Type",
+                                  "inputType": "combo",
+                                  "defaultValue": "Value",
+                                  "comboValues": [
+                                    "Value",
+                                    "Expression"
+                                  ],
+                                  "required": false,
+                                  "helpTip": ""
+                                }
+                              },
+                              {
+                                "type": "attribute",
+                                "value": {
+                                  "name": "argumentValue",
+                                  "displayName": "Argument Value",
+                                  "inputType": "string",
+                                  "defaultValue": "default",
+                                  "required": false,
+                                  "helpTip": "",
+                                  "enableCondition": [
+                                    {
+                                      "argumentType": "Value"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "attribute",
+                                "value": {
+                                  "name": "argumentExpression",
+                                  "displayName": "Argument Expression",
+                                  "inputType": "expression",
+                                  "defaultValue": "",
+                                  "required": false,
+                                  "helpTip": "",
+                                  "enableCondition": [
+                                    {
+                                      "argumentType": "Expression"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "attribute",
+                                "value": {
+                                  "name": "evaluator",
+                                  "displayName": "Evaluator",
+                                  "inputType": "combo",
+                                  "defaultValue": "xml",
+                                  "comboValues": [
+                                    "xml",
+                                    "json"
+                                  ],
+                                  "required": false,
+                                  "helpTip": "",
+                                  "enableCondition": [
+                                    {
+                                      "argumentType": "Expression"
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "attribute",
+                                "value": {
+                                  "name": "literal",
+                                  "displayName": "Literal",
+                                  "inputType": "checkbox",
+                                  "defaultValue": false,
+                                  "required": false,
+                                  "helpTip": ""
+                                }
                               }
                             ]
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "argumentExpression",
-                            "displayName": "Argument Expression",
-                            "inputType": "expression",
-                            "defaultValue": "",
-                            "required": false,
-                            "helpTip": "",
-                            "enableCondition": [
-                              {
-                                "argumentType": "Expression"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "evaluator",
-                            "displayName": "Evaluator",
-                            "inputType": "combo",
-                            "defaultValue": "xml",
-                            "comboValues": [
-                              "xml",
-                              "json"
-                            ],
-                            "required": false,
-                            "helpTip": "",
-                            "enableCondition": [
-                              {
-                                "argumentType": "Expression"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "type": "attribute",
-                          "value": {
-                            "name": "literal",
-                            "displayName": "Literal",
-                            "inputType": "checkbox",
-                            "defaultValue": false,
-                            "required": false,
-                            "helpTip": ""
                           }
                         }
                       ]
