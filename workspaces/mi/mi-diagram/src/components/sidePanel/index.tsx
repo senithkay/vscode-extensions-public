@@ -30,6 +30,8 @@ import StoreForm from './Pages/mediators/core/store';
 import ValidateForm from './Pages/mediators/core/validate';
 import SidePanelContext from './SidePanelContexProvider';
 import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
+import PayloadForm from './Pages/mediators/transformation/payload';
+import HTTPEndpointForm from './Pages/endpoint/anonymous/http';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -51,85 +53,109 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [mediatorForm, setMediatorForm] = useState<any>();
     const [showMediators, setShowMediators] = useState<boolean>(true);
     const [showConnectors, setShowConnectors] = useState<boolean>(true);
+    const [showEndpoints, setShowEndpoints] = useState<boolean>(true);
     const [showMenu, setShowMenu] = useState<boolean>(true);
 
     const goBackRef = useRef(0);
 
-    const mediators = [
+    const mediators = {
+        "core": [
+            {
+                title: "Call Mediator",
+                operationName: "call",
+                form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
+            },
+            {
+                title: "Call Template Mediator",
+                operationName: "call-template",
+                form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
+            },
+            {
+                title: "Callout Mediator",
+                operationName: "callout",
+                form: <CalloutForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CalloutForm>,
+            },
+            {
+                title: "Drop Mediator",
+                operationName: "drop",
+                form: <DropForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DropForm>,
+            },
+            {
+                title: "Header Mediator",
+                operationName: "header",
+                form: <HeaderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HeaderForm>,
+            },
+            {
+                title: "Log Mediator",
+                operationName: "log",
+                form: <LogForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LogForm>,
+            },
+            {
+                title: "Loopback Mediator",
+                operationName: "loopback",
+                form: <LoopbackForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoopbackForm>,
+            },
+            {
+                title: "Property Mediator",
+                operationName: "property",
+                form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
+            },
+            {
+                title: "Property Group Mediator",
+                operationName: "propertygroup",
+                form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
+            },
+            {
+                title: "Respond Mediator",
+                operationName: "respond",
+                form: <RespondForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RespondForm>,
+            },
+            {
+                title: "Send Mediator",
+                operationName: "send",
+                form: <SendForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SendForm>,
+            },
+            {
+                title: "Sequence Mediator",
+                operationName: "sequence",
+                form: <SequenceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SequenceForm>,
+            },
+            {
+                title: "Store Mediator",
+                operationName: "store",
+                form: <StoreForm nodePosition={props.nodePosition} documentUri={props.documentUri}></StoreForm>,
+            },
+            {
+                title: "Validate Mediator",
+                operationName: "validate",
+                form: <ValidateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ValidateForm>,
+            }
+        ],
+        "transformation": [
+            {
+                title: "Payload Mediator",
+                operationName: "payload",
+                form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
+            }
+        ]
+    };
+
+    const endpoints = [
         {
-            title: "Call Mediator",
-            operationName: "call",
-            form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
+            title: "HTTP Endpoint",
+            operationName: "http",
+            form: <HTTPEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HTTPEndpointForm>,
         },
-        {
-            title: "Call Template Mediator",
-            operationName: "call-template",
-            form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
-        },
-        {
-            title: "Callout Mediator",
-            operationName: "callout",
-            form: <CalloutForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CalloutForm>,
-        },
-        {
-            title: "Drop Mediator",
-            operationName: "drop",
-            form: <DropForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DropForm>,
-        },
-        {
-            title: "Header Mediator",
-            operationName: "header",
-            form: <HeaderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HeaderForm>,
-        },
-        {
-            title: "Log Mediator",
-            operationName: "log",
-            form: <LogForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LogForm>,
-        },
-        {
-            title: "Loopback Mediator",
-            operationName: "loopback",
-            form: <LoopbackForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoopbackForm>,
-        },
-        {
-            title: "Property Mediator",
-            operationName: "property",
-            form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
-        },
-        {
-            title: "Property Group Mediator",
-            operationName: "propertygroup",
-            form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
-        },
-        {
-            title: "Respond Mediator",
-            operationName: "respond",
-            form: <RespondForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RespondForm>,
-        },
-        {
-            title: "Send Mediator",
-            operationName: "send",
-            form: <SendForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SendForm>,
-        },
-        {
-            title: "Sequence Mediator",
-            operationName: "sequence",
-            form: <SequenceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SequenceForm>,
-        },
-        {
-            title: "Store Mediator",
-            operationName: "store",
-            form: <StoreForm nodePosition={props.nodePosition} documentUri={props.documentUri}></StoreForm>,
-        },
-        {
-            title: "Validate Mediator",
-            operationName: "validate",
-            form: <ValidateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ValidateForm>,
-        }
     ];
 
     useEffect(() => {
-        const form = mediators.find((mediator) => mediator.operationName === sidePanelContext.mediator);
+        let form;
+        for (const key in mediators) {
+            form = mediators[key as keyof typeof mediators].find((mediator) => mediator.operationName === sidePanelContext.mediator);
+            if (form) break;
+        }
+        if (!form) form = endpoints.find((mediator) => mediator.operationName === sidePanelContext.mediator);
+
         if (form) {
             setShowMenu(false);
             setMediatorForm(form.form);
@@ -154,6 +180,10 @@ const SidePanelList = (props: SidePanelListProps) => {
                 break;
             case "connectors":
                 setShowConnectors(true);
+                setShowMenu(true);
+                break;
+            case "endpoints":
+                setShowEndpoints(true);
                 setShowMenu(true);
                 break;
         }
@@ -216,14 +246,22 @@ const SidePanelList = (props: SidePanelListProps) => {
     const MediatorList = () => {
         sidePanelContext.setShowBackBtn(false);
         setShowMediators(true);
-        return mediators.length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
+        return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
-                {mediators.map((action) => (
-                    <ButtonContainer key={action.title}>
-                        <Button key={action.operationName} appearance='secondary' sx={{ width: "100%" }} onClick={() => showMediatorForm(action)}>
-                            {action.title.charAt(0).toUpperCase() + action.title.slice(1)}
-                        </Button>
-                    </ButtonContainer>
+                {Object.entries(mediators).map(([key, values]) => (
+                    <div key={key}>
+                        <h3>{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
+                        {values.map((action) => (
+                            <ButtonContainer key={action.title}>
+                                <Button key={action.operationName} appearance='secondary' sx={{ width: "100%" }} onClick={() => showMediatorForm(action)}>
+                                    {action.title.charAt(0).toUpperCase() + action.title.slice(1)}
+                                </Button>
+                            </ButtonContainer>
+                        ))}
+                        <hr style={{
+                            borderColor: "var(--vscode-panel-border)",
+                        }} />
+                    </div>
                 ))}
             </>
     }
@@ -236,6 +274,29 @@ const SidePanelList = (props: SidePanelListProps) => {
         setMediatorForm(mediator.form);
     };
 
+    const EndpointList = () => {
+        sidePanelContext.setShowBackBtn(false);
+        setShowEndpoints(true);
+        return endpoints.length === 0 ? <h3 style={{ textAlign: "center" }}>No endpoints found</h3> :
+            <>
+                {endpoints.map((endpoint) => (
+                    <ButtonContainer key={endpoint.title}>
+                        <Button key={endpoint.operationName} appearance='secondary' sx={{ width: "100%" }} onClick={() => showEndpointForm(endpoint)}>
+                            {endpoint.title.charAt(0).toUpperCase() + endpoint.title.slice(1)}
+                        </Button>
+                    </ButtonContainer>
+                ))}
+            </>
+    }
+
+    const showEndpointForm = async (endpoint: any) => {
+        sidePanelContext.setShowBackBtn(true);
+        stackRef.push("endpoints");
+        setShowEndpoints(false);
+        setShowMenu(false);
+        setMediatorForm(endpoint.form);
+    };
+
     return (
         isLoading ? <h1>Loading...</h1> :
             <div style={{
@@ -244,16 +305,23 @@ const SidePanelList = (props: SidePanelListProps) => {
                 {showMenu && <VSCodePanels aria-label="Default">
                     <VSCodePanelTab id="tab-1">Mediators</VSCodePanelTab>
                     <VSCodePanelTab id="tab-2">Connectors</VSCodePanelTab>
+                    <VSCodePanelTab id="tab-3">Endpoints</VSCodePanelTab>
 
                     <VSCodePanelView id="view-1">
                         <div style={{ "width": "100%" }}>
-                            {mediators.length > 0 && showMediators && <MediatorList />}
+                            {showMediators && <MediatorList />}
                         </div>
                     </VSCodePanelView>
 
                     <VSCodePanelView id="view-2">
                         <div style={{ "width": "100%" }}>
-                            {connectorList && showConnectors && <ConnectorList />}
+                            {showConnectors && <ConnectorList />}
+                        </div>
+                    </VSCodePanelView>
+
+                    <VSCodePanelView id="view-3">
+                        <div style={{ "width": "100%" }}>
+                            {showEndpoints && <EndpointList />}
                         </div>
                     </VSCodePanelView>
                 </VSCodePanels>}
