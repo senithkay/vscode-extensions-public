@@ -26,7 +26,7 @@ export function createApiWizardWebview(context: ExtensionContext) {
     const panel = window.createWebviewPanel(
         'diagram',
         'Integration Studio API Wizard',
-        ViewColumn.Two,
+        ViewColumn.Active,
         {
             enableScripts: true,
             localResourceRoots: [Uri.file(path.join(context.extensionPath, 'resources'))]

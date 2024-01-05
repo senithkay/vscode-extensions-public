@@ -114,8 +114,9 @@ export function APIWizard() {
             type: versionType,
             version: version
         }
-        await MIWebViewAPI.getInstance().createAPI(createAPIParams);
+        const file = await MIWebViewAPI.getInstance().createAPI(createAPIParams);
         console.log("API created");
+        MIWebViewAPI.getInstance().openDiagram(file);
         MIWebViewAPI.getInstance().closeWebView();
     };
 

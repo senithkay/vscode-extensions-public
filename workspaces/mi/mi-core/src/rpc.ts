@@ -65,13 +65,14 @@ export const GetConnectorsRequest: RequestType<void, GetConnectorsResponse[]> = 
 export const GetConnectorRequest: RequestType<string, string[]> = { method: 'getConnector' };
 export const GetProjectStructureRequest: RequestType<string, GetProjectStructureResponse> = { method: 'xml/getSynapseSourceMap' };
 export const GetAPIDirectory: RequestType<void, string> = { method: 'getAPIDirectory' };
-export const CreateAPI: RequestType<CreateAPIParams, unknown> = {method: 'createAPI'};
+export const CreateAPI: RequestType<CreateAPIParams, string> = {method: 'createAPI'};
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 export const Refresh: NotificationType<void> = { method: 'refresh' };
 export const ApplyEdit: NotificationType<ApplyEditParams> = { method: 'applyEdit' };
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
+export const OpenDiagram: NotificationType<string> = { method: 'openDiagram' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

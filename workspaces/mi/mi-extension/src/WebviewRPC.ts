@@ -22,11 +22,13 @@ import {
     GetSyntaxTreeRequest,
     ShowErrorMessage,
     GetProjectStructureRequest,
-    CloseWebViewNotification
+    CloseWebViewNotification,
+    OpenDiagram
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
 import path = require("path");
+import { createDiagramWebview } from "./diagram/webview";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = "../resources/connectors";
@@ -126,7 +128,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         await workspace.applyEdit(edit);
     });
 
-    messenger.onRequest(CreateAPI, async (params: CreateAPIParams) => {
+    messenger.onRequest(CreateAPI, async (params: CreateAPIParams): Promise<string> => {
         const { directory, name, context, swaggerDef, type, version } = params;
         let versionAttributes = '';
         let swaggerAttributes = '';
@@ -152,6 +154,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
         const filePath = path.join(directory, `${name}.xml`);
         fs.writeFileSync(filePath, xmlData);
+        return filePath;
     });
 
     messenger.onRequest(GetAPIDirectory, async (): Promise<string> => {
@@ -186,6 +189,12 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         if ("dispose" in view) {
             view.dispose();
         }
+    });
+    
+    messenger.onNotification(OpenDiagram, async (filePath) => {
+        const document = await workspace.openTextDocument(filePath);
+        await window.showTextDocument(document);
+        commands.executeCommand('integrationStudio.showDiagram');
     });
 }
 
