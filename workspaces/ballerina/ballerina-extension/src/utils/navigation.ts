@@ -1,9 +1,8 @@
-import { BallerinaSTModifyResponse, VisualizerLocation, VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
+import { BallerinaSTModifyResponse, VisualizerLocation } from "@wso2-enterprise/ballerina-core";
 import { getLangClient, openView } from "../visualizer/activator";
 import { Uri } from "vscode";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { BallerinaFunctionSTRequest } from "@wso2-enterprise/ballerina-languageclient";
-import { TextDocumentPositionParams } from "vscode-languageclient";
 
 
 export async function getSyntaxTreeFromPosition(position: BallerinaFunctionSTRequest){
