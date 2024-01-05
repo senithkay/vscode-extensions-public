@@ -12,17 +12,23 @@ import { Messenger } from "vscode-messenger";
 import {
     ApplyEdit,
     ApplyEditParams,
+    CreateAPI,
+    CreateAPIParams,
     ExecuteCommandRequest,
+    GetAPIDirectory,
     GetConnectorRequest,
     GetConnectorsRequest,
     GetConnectorsResponse,
     GetSyntaxTreeRequest,
     ShowErrorMessage,
-    GetProjectStructureRequest
+    GetProjectStructureRequest,
+    CloseWebViewNotification,
+    OpenDiagram
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
 import path = require("path");
+import { createDiagramWebview } from "./diagram/webview";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = "../resources/connectors";
@@ -120,6 +126,75 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
         edit.replace(Uri.parse(params.documentUri), range, text);
         await workspace.applyEdit(edit);
+    });
+
+    messenger.onRequest(CreateAPI, async (params: CreateAPIParams): Promise<string> => {
+        const { directory, name, context, swaggerDef, type, version } = params;
+        let versionAttributes = '';
+        let swaggerAttributes = '';
+        if (version && type !== 'none') {
+            versionAttributes = ` version="${version}" version-type="${type}"`;
+        }
+
+        if (swaggerDef) {
+            swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
+        }
+    
+        const xmlData =  `<?xml version="1.0" encoding="UTF-8"?>
+    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
+        <resource methods="GET">
+            <inSequence>
+            </inSequence>
+            <outSequence>
+            </outSequence>
+            <faultSequence>
+            </faultSequence>
+        </resource>
+    </api>`;
+
+        const filePath = path.join(directory, `${name}.xml`);
+        fs.writeFileSync(filePath, xmlData);
+        return filePath;
+    });
+
+    messenger.onRequest(GetAPIDirectory, async (): Promise<string> => {
+        let result = '';
+        const findSynapseAPIPath = (startPath: string) => {
+            const files = fs.readdirSync(startPath);
+            for(let i = 0; i < files.length; i++){
+                const filename = path.join(startPath, files[i]);
+                const stat = fs.lstatSync(filename);
+                if (stat.isDirectory()){
+                    if(filename.includes('synapse-config/api')) {
+                        result = filename;
+                        return result;
+                    } else {
+                        result = findSynapseAPIPath(filename);
+                    }
+                }
+            }
+            return result;
+        };
+        
+        const workspaceFolder = workspace.workspaceFolders;
+        if (workspaceFolder) {
+            const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+            const synapseAPIPath = findSynapseAPIPath(workspaceFolderPath);
+            return synapseAPIPath;
+        }
+        return "";
+    });
+
+    messenger.onNotification(CloseWebViewNotification, () => {
+        if ("dispose" in view) {
+            view.dispose();
+        }
+    });
+    
+    messenger.onNotification(OpenDiagram, async (filePath) => {
+        const document = await workspace.openTextDocument(filePath);
+        await window.showTextDocument(document);
+        commands.executeCommand('integrationStudio.showDiagram');
     });
 }
 
