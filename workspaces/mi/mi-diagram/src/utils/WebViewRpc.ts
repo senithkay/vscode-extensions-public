@@ -18,7 +18,10 @@ import {
     GetConnectorsRequest,
     GetConnectorsResponse,
     GetSyntaxTreeRequest,
-    ShowErrorMessage
+    ShowErrorMessage,
+    CreateAPIParams,
+    CreateAPI,
+    GetAPIDirectory
 } from "@wso2-enterprise/mi-core";
 
 export class MIWebViewAPI {
@@ -60,6 +63,13 @@ export class MIWebViewAPI {
 
     public getConnector(connectorPath: string): Promise<string[]> {
         return this._messenger.sendRequest(GetConnectorRequest, HOST_EXTENSION, connectorPath);
+    }
+
+    public getAPIDirectory(): Promise<string> {
+        return this._messenger.sendRequest(GetAPIDirectory, HOST_EXTENSION);
+    }
+    public createAPI(params: CreateAPIParams) {
+        return this._messenger.sendRequest(CreateAPI, HOST_EXTENSION, params);
     }
 
     public getMessenger() {

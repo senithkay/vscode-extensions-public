@@ -16,6 +16,15 @@ export interface ApplyEditParams {
     range: Range;
 }
 
+export interface CreateAPIParams {
+   directory: string;
+   name: string;
+   context: string;
+   swaggerDef: string;
+   type: string;
+   version: string;
+}
+
 export interface GetConnectorsResponse {
     path: string;
     name: string;
@@ -55,6 +64,8 @@ export const GetSyntaxTreeRequest: RequestType<string, unknown> = { method: 'xml
 export const GetConnectorsRequest: RequestType<void, GetConnectorsResponse[]> = { method: 'getConnectors' };
 export const GetConnectorRequest: RequestType<string, string[]> = { method: 'getConnector' };
 export const GetProjectStructureRequest: RequestType<string, GetProjectStructureResponse> = { method: 'xml/getSynapseSourceMap' };
+export const GetAPIDirectory: RequestType<void, string> = { method: 'getAPIDirectory' };
+export const CreateAPI: RequestType<CreateAPIParams, unknown> = {method: 'createAPI'};
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
