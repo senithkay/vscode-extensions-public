@@ -118,6 +118,7 @@ function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEnt
 					const children = genProjectStructureEntry(directoryMap.esbConfigs[key]);
 
 					parentEntry.children = children;
+					parentEntry.contextValue = key;
 					esbConfigs.children = esbConfigs.children ?? [];
 					esbConfigs.children.push(parentEntry);
 				}
