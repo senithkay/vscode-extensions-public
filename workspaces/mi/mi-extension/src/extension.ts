@@ -13,6 +13,7 @@ import axios from 'axios';
 import { generatePrompt } from './ai/prompt';
 import { unescape } from 'querystring';
 import { ProjectExplorerEntryProvider } from './activity-panel/project-explorer-provider';
+import { createApiWizardWebview } from './api-wizard/webview';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -25,8 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	})
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
-		// TODO: Form opening logic should go here
-
+		createApiWizardWebview(context);
 		console.log('Add API');
 	})
 

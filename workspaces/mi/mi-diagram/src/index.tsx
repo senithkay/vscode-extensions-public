@@ -11,6 +11,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { MIDiagram } from "./MIDiagram";
 import { ActivityPanel } from "./activity-panel";
+import { APIWizard } from "./APIform";
 
 export function renderMIDiagram(documentUri: string) {
     ReactDOM.render(
@@ -23,5 +24,12 @@ export function renderActivityPanel() {
     ReactDOM.render(
         <ActivityPanel />,
         document.getElementById("activity-panel-container")
+    );
+}
+
+export function renderAPIWizard() {
+    ReactDOM.render(
+        <APIWizard />,
+        document.getElementById("mi-api-wizard-container")
     );
 }

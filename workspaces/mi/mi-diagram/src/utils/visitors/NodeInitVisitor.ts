@@ -150,16 +150,32 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitCall(node: Call) {
+        const currentSequence = this.currentSequence;
+        const endpointNodes: [] = [];
+
+        this.parents.push(node);
+        if (node.endpoint) {
+            this.currentSequence = endpointNodes;
+            traversNode(node.endpoint, this);
+        }
+
+        this.parents.pop();
+
+        this.currentSequence = currentSequence;
         this.currentSequence.push(
-            new SimpleMediatorNodeModel({
+            new SimpleEndpointNodeModel({
                 node: node,
                 name: MEDIATORS.CALL,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
-                parentNode: this.parents[this.parents.length - 1]
+                parentNode: this.parents[this.parents.length - 1],
+                subSequences: [{
+                    name: "Endpoints", nodes: endpointNodes
+                }]
             }
             ));
+        this.skipChildrenVisit = true;
     }
 
     beginVisitCallTemplate(node: CallTemplate) {

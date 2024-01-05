@@ -36,16 +36,25 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 		= this._onDidChangeTreeData.event;
 
 	refresh(): void {
+		getProjectStructureData(this.context)
+			.then(data => {
+				this._data = data
+			})
+			.catch(err => {
+				console.error(err)
+				this._data = []
+			})
+
 		this._onDidChangeTreeData.fire();
 	}
 
-	constructor(context: vscode.ExtensionContext) {
+	constructor(private context: vscode.ExtensionContext) {
 		this._data = []
 
 		getProjectStructureData(context)
 			.then(data => {
 				this._data = data
-				this.refresh()
+				this._onDidChangeTreeData.fire();
 			})
 			.catch(err => {
 				console.error(err)
