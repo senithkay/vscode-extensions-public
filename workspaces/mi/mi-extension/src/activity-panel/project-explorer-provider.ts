@@ -30,8 +30,10 @@ export class ProjectExplorerEntry extends vscode.TreeItem {
 
 export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<ProjectExplorerEntry> {
 	private _data: ProjectExplorerEntry[]
-	private _onDidChangeTreeData: vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void> = new vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>();
-	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>
+		= new vscode.EventEmitter<ProjectExplorerEntry | undefined | null | void>();
+	readonly onDidChangeTreeData: vscode.Event<ProjectExplorerEntry | undefined | null | void>
+		= this._onDidChangeTreeData.event;
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
@@ -159,7 +161,8 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	const result: ProjectExplorerEntry[] = [];
 
 	for (const entry of data) {
-		const children = genProjectStructureEntry(entry.sequences ?? []).concat(genProjectStructureEntry(entry.endpoints ?? []))
+		const children = genProjectStructureEntry(entry.sequences ?? [])
+			.concat(genProjectStructureEntry(entry.endpoints ?? []))
 		result.push(new ProjectExplorerEntry(entry.name, isCollapsibleState(children.length > 0), entry, 'code'));
 	}
 
