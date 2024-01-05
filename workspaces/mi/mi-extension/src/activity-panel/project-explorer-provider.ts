@@ -60,9 +60,6 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 				console.error(err)
 				this._data = []
 			})
-
-		//
-		// this._onDidChangeTreeData.fire();
 	}
 
 	getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem | Thenable<vscode.TreeItem> {
