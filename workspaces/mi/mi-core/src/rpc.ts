@@ -25,15 +25,24 @@ export interface GetConnectorsResponse {
 
 export interface GetProjectStructureResponse {
     directoryMap: {
-        [key: string]: {
+        esbConfigs: {
             [key: string]: ProjectStructureEntry[]
-        }
+        },
+        dataServiceConfigs: ProjectStructureEntry[],
+        dataSourceConfigs: ProjectStructureEntry[],
+        mediatorProjects: ProjectStructureEntry[],
+        registryResources: ProjectStructureEntry[],
+        javaLibraryProjects: ProjectStructureEntry[],
+        compositeExporters: ProjectStructureEntry[],
+        connectorExporters: ProjectStructureEntry[],
+        dockerExporters: ProjectStructureEntry[],
+        kubernetesExporters: ProjectStructureEntry[]
     };
 }
 
 export interface ProjectStructureEntry {
-    sequences: ProjectStructureEntry[],
-    endpoints: ProjectStructureEntry[],
+    sequences?: ProjectStructureEntry[],
+    endpoints?: ProjectStructureEntry[],
     type: string,
     name: string,
     path: string

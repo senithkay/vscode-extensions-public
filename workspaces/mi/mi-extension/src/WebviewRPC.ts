@@ -23,7 +23,7 @@ import {
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
 import path = require("path");
-import { XMLParser } from "fast-xml-parser";
+const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = "../resources/connectors";
 

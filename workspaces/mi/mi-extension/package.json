@@ -28,7 +28,7 @@
     "commands": [
       {
         "command": "integrationStudio.showDiagram",
-        "title": "Integration: Show Diagram"
+        "title": "Show Diagram"
       },
       {
         "command": "integrationStudio.addMediator",

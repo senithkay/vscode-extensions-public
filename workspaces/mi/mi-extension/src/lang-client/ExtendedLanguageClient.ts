@@ -65,7 +65,7 @@ export class ExtendedLanguageClient extends LanguageClient {
     }
 
     async getProjectStructure(path: string): Promise<GetProjectStructureResponse> {
-        return this.sendRequest('xml/getSynapseSourceMap', { uri: Uri.parse(path).toString() });
+        return this.sendRequest('xml/getSynapseDirectoryTree', { uri: Uri.parse(path).toString() });
     }
 
     async getCompletion(params: GetCompletionParams): Promise<CompletionResponse[]> {
