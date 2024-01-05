@@ -197,8 +197,8 @@ function generateSwitchNode(node: Node): string {
 function generateCallerNode(node: Node): string {
     const callerProps = node.properties as HttpRequestNodeProperties;
     const callerEp: string = callerProps?.endpoint?.name ? callerProps?.endpoint?.name : "grandOakEp"; // TODO : use the value from the model
-    const callerVariable: string = node.name + "_response";
-    console.log("===callerProps", callerProps);
+    const callerVariable: string = node.name.toLowerCase() + "_response";
+    
     const callerAction: string = getComponentSource({
         name: 'CALLER_ACTION',
         config: {
@@ -302,8 +302,9 @@ function generateAlternateResponse(node: Node): string{
 function generateTransformNode(node: Node): TransformNodeData {
     const nodeProperties = node.properties as TransformNodeProperties;
     const inputPorts: string = generateInputPorts(node);
-    const outputPorts: string = generateOutputPorts(node, node.name + "_transformed");
-    console.log("===codeBLOCK", nodeProperties);
+    const outputVar: string = node.name.toLowerCase() + "_transformed";
+    const outputPorts: string = generateOutputPorts(node, outputVar);
+    
     // create the transform_Function
     if (!nodeProperties?.expression?.expression) {
         // get metadata
@@ -343,8 +344,7 @@ function generateTransformNode(node: Node): TransformNodeData {
 
         // generate the function call to transform function
         const returnType = nodeProperties?.outputType ? nodeProperties.outputType : outputType;
-        const transformCall = returnType + " " + node.name + "_transformed = check " + transFuncSignature;
-        console.log("===transformCall", transformCall);
+        const transformCall = returnType + " " + outputVar + " = check " + transFuncSignature;
 
         // generate the worker node
         const workerNode: string = getComponentSource({
