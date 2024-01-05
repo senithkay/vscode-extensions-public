@@ -11,9 +11,8 @@
 import { Messenger } from "vscode-messenger-webview";
 import { WebviewRpcClient } from "./rpc-clients/webview/rpc-client";
 import { MachineStateValue, stateChanged } from "@wso2-enterprise/eggplant-core";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient, ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { vscode } from "@wso2-enterprise/ballerina-core";
-import { ServiceDesignerRpcClient } from "./rpc-clients/service-designer/rpc-client";
 
 export class EggplantRpcClient {
 

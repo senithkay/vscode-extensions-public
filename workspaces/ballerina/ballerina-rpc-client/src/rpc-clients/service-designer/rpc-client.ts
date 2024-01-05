@@ -22,7 +22,7 @@ import {
     deleteService,
     updateResource,
     updateService
-} from "@wso2-enterprise/eggplant-core";
+} from "@wso2-enterprise/ballerina-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 

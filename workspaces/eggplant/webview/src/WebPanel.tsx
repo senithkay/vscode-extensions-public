@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
-import { MachineStateValue, VisualizerLocation } from "@wso2-enterprise/eggplant-core";
+import { MachineStateValue, VisualizerLocation, NodePosition } from "@wso2-enterprise/eggplant-core";
 import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
 import LowCode from "./LowCode";
 
@@ -31,9 +31,17 @@ const WebPanel = (props: { state: MachineStateValue }) => {
         }
     }, [state]);
 
+    const showDiagram = (position: NodePosition) => {
+        const context: any = {
+            view: "Overview",
+            position: position
+        }
+        eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
+    }
+
     return (
         <div>
-            {serviceST ? <ServiceDesigner model={serviceST} rpcClient={eggplantRpcClient} /> : <LowCode state={state} />}
+            {serviceST ? <ServiceDesigner model={serviceST} rpcClient={eggplantRpcClient.getServiceDesignerRpcClient()} showDiagram={showDiagram} /> : <LowCode state={state} />}
         </div>
     );
 };

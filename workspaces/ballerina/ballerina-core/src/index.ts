@@ -30,6 +30,8 @@ export * from "./rpc-types/connector-wizard";
 export * from "./rpc-types/converter";
 export * from "./rpc-types/graphql-designer";
 export * from "./rpc-types/service-designer";
+export * from "./rpc-types/service-designer/rpc-type";
+export * from "./rpc-types/service-designer/types";
 export * from "./rpc-types/performance-analyzer";
 export * from "./rpc-types/trigger-wizard";
 export * from "./rpc-types/visualizer";
