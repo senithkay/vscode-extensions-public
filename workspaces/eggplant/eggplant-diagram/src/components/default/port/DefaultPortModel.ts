@@ -17,7 +17,6 @@ import {
 import { DefaultLinkModel } from "../link/DefaultLinkModel";
 import { AbstractModelFactory, DeserializeEvent } from "@projectstorm/react-canvas-core";
 import { NodePort } from "../../../types";
-import { tail } from "lodash";
 
 export interface DefaultPortModelOptions extends PortModelOptions {
     label?: string;
@@ -25,7 +24,6 @@ export interface DefaultPortModelOptions extends PortModelOptions {
     type?: string;
     port?: NodePort;
     multiLink?: boolean;
-    receiver?: string;
 }
 
 export interface DefaultPortModelGenerics extends PortModelGenerics {
@@ -63,6 +61,7 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
             ...super.serialize(),
             in: this.options.in,
             label: this.options.label,
+            metadata: this.options.port
         };
     }
 
@@ -90,9 +89,5 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
 
     hasLinks(): boolean {
         return Object.keys(this.links).length > 0;
-    }
-
-    setReceiver(node: string) {
-        this.options.receiver = node;
     }
 }

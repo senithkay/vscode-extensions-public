@@ -91,6 +91,7 @@ export class DefaultLinkModel extends LinkModel<DefaultLinkModelGenerics> {
             color: this.options.color,
             curvyness: this.options.curvyness,
             selectedColor: this.options.selectedColor,
+            receiver: this.options.receiver,
         };
     }
 

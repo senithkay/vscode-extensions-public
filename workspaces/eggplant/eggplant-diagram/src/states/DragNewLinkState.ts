@@ -74,7 +74,7 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                             const port = nodeModel.addInPort(nextPortId, {
                                 id: nextPortId,
                                 name: nextPortId,
-                                sender: (this.port.getParent() as DefaultNodeModel).getName(),
+                                sender: (this.link.getSourcePort().getParent() as DefaultNodeModel).getName(),
                                 type: this.port.getOptions().port.type,
                             });
                             this.link.setTargetPort(port);
@@ -105,7 +105,7 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                         const port = model.addInPort(nextPortId, {
                             id: nextPortId,
                             name: nextPortId,
-                            sender: (this.port.getParent() as DefaultNodeModel).getName(),
+                            sender: (this.link.getSourcePort().getParent() as DefaultNodeModel).getName(),
                             type: this.port.getOptions().port.type,
                         });
                         this.link.setTargetPort(port);

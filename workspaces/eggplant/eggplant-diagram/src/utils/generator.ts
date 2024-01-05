@@ -11,9 +11,7 @@ import { DiagramModel, DiagramModelGenerics, LinkModel } from "@projectstorm/rea
 import { DefaultLinkModel, DefaultNodeModel, DefaultPortModel } from "../components/default";
 import { ExtendedPort, Flow, InputPort, Node, OutputPort, SwitchNodeProperties } from "../types";
 import { DEFAULT_TYPE } from "../resources";
-import { getDefaultNodeModel, isSingleNode } from "./node";
-import { getEncodedNodeMetadata, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
-import _, { get } from "lodash";
+import { NodeKinds, getEncodedNodeMetadata, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 
 export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, flowModel: Flow) {
     let flowPorts: ExtendedPort[] = [];
@@ -27,7 +25,6 @@ export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, fl
         // keep track of ports
         flowPorts.push(...nodeModel.ports);
     });
-    console.log(">>> flowPorts", flowPorts);
     // add links
     flowModel.nodes?.forEach((node) => {
         let linkModels = getLinkModels(node, flowPorts);
@@ -38,7 +35,6 @@ export function generateDiagramModelFromFlowModel(diagramModel: DiagramModel, fl
             diagramModel.addLink(linkModel);
         });
     });
-
     return diagramModel;
 }
 
@@ -54,12 +50,13 @@ function getNodeModel(node: Node): GenNodeModel {
     if (node.canvasPosition) {
         nodeModel.setPosition(node.canvasPosition.x, node.canvasPosition.y);
     }
-    // add node ports
+    // add in ports
     node.inputPorts?.forEach((inputPort, index) => {
         let portId = getPortId(inputPort.name, true, index);
         let port = nodeModel.addInPort(portId, inputPort);
         ports.push({ ...inputPort, parent: nodeId, in: true, model: port });
     });
+    // add out ports
     if (node.templateId === "SwitchNode") {
         // cases will be added as node ports
         const nodeProperties = node.properties as SwitchNodeProperties;
@@ -354,9 +351,10 @@ function addDefaultPortsFromMetadata(node: Node, nodeModel: DefaultNodeModel, no
 function getLinkModels(node: Node, ports: ExtendedPort[]) {
     let links: LinkModel[] = [];
     let nodeId = getNodeIdentifier(node);
-    node.outputPorts?.forEach((outputPort) => {
-        let outPort: ExtendedPort;
-        if (node.templateId === "SwitchNode") {
+
+    if (node.templateId === "SwitchNode") {
+        node.outputPorts?.forEach((outputPort) => {
+            let outPort: ExtendedPort;
             // get the matching case port
             const nodeProperties = node.properties as SwitchNodeProperties;
             nodeProperties.cases?.forEach((caseItem, index) => {
@@ -369,34 +367,44 @@ function getLinkModels(node: Node, ports: ExtendedPort[]) {
                 const defaultCasePortName = getCaseId("Default");
                 outPort = getCasePortFromFlowPorts(ports, defaultCasePortName);
             }
-        } else {
-            outPort = getPortFromFlowPorts(ports, nodeId, false, outputPort.receiver);
-        }
-        if (!(outPort && outPort.model)) {
-            return;
-        }
-        let inPort = getPortFromFlowPorts(ports, outputPort.receiver, true, nodeId);
-        if (!(inPort && inPort.model)) {
-            return;
-        }
-        let link = inPort.model.link(outPort.model) as DefaultLinkModel;
-        if (link && outputPort.receiver && node.templateId === "SwitchNode") {
-            link.setReceiver(outputPort.receiver);
-        }
-        links.push(link);
-    });
-    // node.inputPorts?.forEach((inputPort) => {
-    //     let inPort = getPortFromFlowPorts(ports, nodeId, true, inputPort.sender);
-    //     if (!inPort?.model) {
-    //         return;
-    //     }
-    //     let outPort = getPortFromFlowPorts(ports, inputPort.sender, false, nodeId);
-    //     if (!outPort?.model) {
-    //         return;
-    //     }
-    //     let link = outPort.model.link(inPort.model);
-    //     links.push(link);
-    // });
+            let inPort = getPortFromFlowPorts(ports, outputPort.receiver, true, nodeId);
+            if (!(inPort && inPort.model)) {
+                return;
+            }
+            let link = inPort.model.link(outPort.model) as DefaultLinkModel;
+            if (link && outputPort.receiver) {
+                link.setReceiver(outputPort.receiver);
+                console.log(">>> link updated", link);
+            }
+
+            links.push(link);
+        });
+    } else {
+        node.outputPorts?.forEach((outputPort) => {
+            let outP = getPortFromFlowPorts(ports, nodeId, false, outputPort.receiver);
+            if (!outP?.model) {
+                return;
+            }
+            let inP = getPortFromFlowPorts(ports, outputPort.receiver, true, nodeId);
+            if (!inP?.model) {
+                return;
+            }
+            let link = outP.model.link(inP.model);
+            links.push(link);
+        });
+        // node.inputPorts?.forEach((inputPort) => {
+        //     let inPort = getPortFromFlowPorts(ports, nodeId, true, inputPort.sender);
+        //     if (!inPort?.model) {
+        //         return;
+        //     }
+        //     let outPort = getPortFromFlowPorts(ports, inputPort.sender, false, nodeId);
+        //     if (!outPort?.model) {
+        //         return;
+        //     }
+        //     let link = outPort.model.link(inPort.model);
+        //     links.push(link);
+        // });
+    }
     return links;
 }
 
@@ -444,9 +452,10 @@ export function generateFlowModelFromDiagramModel(
     // update the flowModel with data retrieved from the diagramModel
     const flowModelNodes = model.nodes;
 
-    console.log(">>> diagramModel", diagramModel);
+    console.log(">>> diagramModel", diagramModel.serialize());
+
     // update the canvasPosition of each node
-    diagramModel.getNodes().forEach((dnode) => {
+    diagramModel.getNodes().forEach((dnode, index) => {
         const nodeModel = dnode as DefaultNodeModel;
         const node = nodeModel.getNode();
         // get input and output ports
@@ -454,54 +463,73 @@ export function generateFlowModelFromDiagramModel(
         const outPorts: OutputPort[] = [];
         nodeModel.getInPorts().forEach((inPort) => {
             const receiverPortModel = inPort.getOptions().port;
-            _.forEach(inPort.getLinks(), (link, key) => {
-                const targetPort = (link.getTargetPort() as DefaultPortModel).getOptions().port;
-                inPorts.push({
-                    id: key.toString(),
-                    type: targetPort.type, // Use sender port type if available
-                    name: receiverPortModel?.name || inPort.getName(),
-                    sender: targetPort.sender,
-                    // port: receiverPortModel
-                });
-            });
-            // Object.values(inPort.getLinks()).forEach((link) => {
-            //     const sourcePortID = link.getSourcePort()?.getID();
-            //     console.log(">>> node in ports", nodeModel.getName(), sourcePortID, link.getOptions());
-            //     diagramModel.getNodes().forEach((subNode) => {
-            //         //get the matching node for portID
-            //         const defaultNode = subNode as DefaultNodeModel;
-            //         defaultNode.getOutPorts().forEach((outPort, index) => {
-            //             const senderPortModel = outPort.getOptions().port;
-            //             console.log(">>> node in ports check", outPort.getID() === sourcePortID);
-            //             if (outPort.getID() === sourcePortID) {
-            //                 inPorts.push({
-            //                     id: index.toString(),
-            //                     type: senderPortModel?.type || DEFAULT_TYPE, // Use sender port type if available
-            //                     name: receiverPortModel?.name || inPort.getName(),
-            //                     sender: defaultNode.getName(),
-            //                     // port: receiverPortModel
-            //                 });
-            //             }
-            //         });
-            //     });
-            // });
-        });
-
-        if (nodeModel.getKind() === "SwitchNode") {
-            // handle switch node output ports
-            nodeModel.getOutPorts().forEach((outPort) => {
-                _.forEach(outPort.getLinks(), (link, key) => {
-                    const senderPortModel = outPort.getOptions().port;
-                    outPorts.push({
-                        id: key.toString(),
-                        type: senderPortModel?.type || DEFAULT_TYPE,
-                        name: senderPortModel?.name || outPort.getName(),
-                        receiver: (link as DefaultLinkModel).getOptions().receiver,
+            Object.values(inPort.getLinks()).forEach((link) => {
+                const sourcePortID = link.getSourcePort()?.getID();
+                diagramModel.getNodes().forEach((subNode) => {
+                    //get the matching node for portID
+                    const defaultNode = subNode as DefaultNodeModel;
+                    defaultNode.getOutPorts().forEach((outPort) => {
+                        const senderPortModel = outPort.getOptions().port;
+                        if (outPort.getID() === sourcePortID) {
+                            inPorts.push({
+                                id: index.toString(),
+                                type: senderPortModel?.type || DEFAULT_TYPE, // Use sender port type if available
+                                name: receiverPortModel?.name || inPort.getName(),
+                                sender: defaultNode.getName(),
+                                // port: receiverPortModel
+                            });
+                        }
                     });
                 });
             });
-            const switchNode = nodeModel.getNode();
-            const switchNodeProperties = switchNode.properties as SwitchNodeProperties;
+        });
+        logger(nodeModel.getKind(), "switch", nodeModel);
+        nodeModel.getOutPorts().forEach((outPort, index) => {
+            // logger(nodeModel.getKind(), "outPort", outPort.getID());
+            const senderPortModel = outPort.getOptions().port;
+            Object.values(outPort.getLinks()).forEach((link) => {
+                // logger(nodeModel.getKind(), "link", link.getID());
+                const targetPortID = link.getTargetPort()?.getID();
+                /// HACK
+                // const targetPort = getPortModelFromId(diagramModel, targetPortID, false);
+                // logger(nodeModel.getKind(), "targetPort", targetPort);
+                // const receiver = (link as DefaultLinkModel).getOptions().receiver;
+                // logger(nodeModel.getKind(), "receiver", receiver);
+                // if(!targetPort && nodeModel.getKind() === "SwitchNode" && receiver) {
+                //     outPorts.push({
+                //         id: index.toString(),
+                //         type: senderPortModel?.type || DEFAULT_TYPE,
+                //         name: senderPortModel?.name || outPort.getName(),
+                //         receiver: receiver,
+                //     });
+                //     return;
+                // }
+                ///
+                diagramModel.getNodes().forEach((subNode) => {
+                    //get the matching node for portID
+                    const defaultNode = subNode as DefaultNodeModel;
+                    defaultNode.getInPorts().forEach((inPort) => {
+                        if (inPort.getID() === targetPortID) {
+                            logger(nodeModel.getKind(), "found port", inPort.getID());
+                            outPorts.push({
+                                id: index.toString(),
+                                type: senderPortModel?.type || DEFAULT_TYPE,
+                                name: senderPortModel?.name || outPort.getName(),
+                                receiver: defaultNode.getName(),
+                                // port: senderPortModel
+                            });
+                        }
+                    });
+                });
+            });
+        });
+
+        // TODO: Add the logic to update the switch node properties
+
+        if (nodeModel.getKind() === "SwitchNode") {
+            // updates the switch node properties with the unique outPorts
+            // port names are used as unique identifiers for switch node cases
+            const switchNodeProperties = nodeModel.getNode().properties as SwitchNodeProperties;
             switchNodeProperties.cases?.forEach((caseItem, index) => {
                 const casePortName = getCaseId(index + 1);
                 caseItem.nodes = outPorts
@@ -520,42 +548,6 @@ export function generateFlowModelFromDiagramModel(
                     }
                 })
                 .filter((node) => node !== undefined);
-        } else {
-            // update default node output ports
-            nodeModel.getOutPorts().forEach((outPort) => {
-                const senderPortModel = outPort.getOptions().port;
-
-                _.forEach(outPort.getLinks(), (link, key) => {
-                    const sourcePort = (link.getTargetPort() as DefaultPortModel).getOptions().port;
-                    outPorts.push({
-                        id: key.toString(),
-                        type: sourcePort.type, // Use sender port type if available
-                        name: senderPortModel?.name || outPort.getName(),
-                        receiver: sourcePort.sender,
-                        // port: receiverPortModel
-                    });
-                });
-                // Object.values(outPort.getLinks()).forEach((link) => {
-                //     const targetPortID = link.getTargetPort()?.getID();
-                //     console.log(">>> node out ports", nodeModel.getName(), targetPortID, link.getOptions());
-                //     diagramModel.getNodes().forEach((subNode) => {
-                //         //get the matching node for portID
-                //         const defaultNode = subNode as DefaultNodeModel;
-                //         defaultNode.getInPorts().forEach((inPort, index) => {
-                //             console.log(">>> node out ports check", inPort.getID() === targetPortID);
-                //             if (inPort.getID() === targetPortID) {
-                //                 outPorts.push({
-                //                     id: index.toString(),
-                //                     type: senderPortModel?.type || DEFAULT_TYPE,
-                //                     name: senderPortModel?.name || outPort.getName(),
-                //                     receiver: defaultNode.getName(),
-                //                     // port: senderPortModel
-                //                 });
-                //             }
-                //         });
-                //     });
-                // });
-            });
         }
 
         // get codeLocation
@@ -595,4 +587,32 @@ export function generateFlowModelFromDiagramModel(
         flowModelNodes?.push(newNode);
     });
     return model;
+}
+
+function logger(kind: NodeKinds, message: string, data?: any) {
+    if (kind !== "SwitchNode") return;
+    console.log(`>>> ${message}`, data);
+}
+
+// find port model from port id
+function getPortModelFromId(diagramModel: DiagramModel, portId: string, inPort: boolean = true) {
+    let portModel: DefaultPortModel;
+    diagramModel.getNodes().forEach((dnode) => {
+        const nodeModel = dnode as DefaultNodeModel;
+        if (inPort) {
+            nodeModel.getInPorts().forEach((inPort) => {
+                if (inPort.getID() === portId) {
+                    portModel = inPort;
+                }
+            });
+        }
+        if (!inPort) {
+            nodeModel.getOutPorts().forEach((outPort) => {
+                if (outPort.getID() === portId) {
+                    portModel = outPort;
+                }
+            });
+        }
+    });
+    return portModel;
 }
