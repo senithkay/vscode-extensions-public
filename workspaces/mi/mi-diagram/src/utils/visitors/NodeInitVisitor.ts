@@ -77,6 +77,11 @@ export class NodeInitVisitor implements Visitor {
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
+        this.skipChildrenVisit = true;
+    }
+
+    endVisitLog(): void {
+        this.skipChildrenVisit = false;
     }
 
     beginVisitStore(node: Store) {

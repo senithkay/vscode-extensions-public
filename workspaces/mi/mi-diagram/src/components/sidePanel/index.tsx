@@ -198,6 +198,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     const MediatorList = () => {
+        sidePanelContext.setShowBackBtn(false);
         return mediators.length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
                 {mediators.map((action) => (

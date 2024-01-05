@@ -19,6 +19,7 @@ import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'
+import SidePanelContext from '../../../sidePanel/SidePanelContexProvider';
 
 const ButtonComponent = styled.div`
     top: 45px;
@@ -57,6 +58,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
     const node: AdvancedMediatorNodeModel = props.node as AdvancedMediatorNodeModel;
     const subSequences = node.subSequences;
     const nodePosition = node.getPosition();
+    const sidePanelContext = React.useContext(SidePanelContext);
 
     const leftPort = node.getPortByAllignment(PortModelAlignment.LEFT);
     const rightPort = node.getPortByAllignment(PortModelAlignment.RIGHT);
@@ -130,6 +132,9 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
         MIWebViewAPI.getInstance().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: ""
         });
+        sidePanelContext.setFormValues(undefined);
+        sidePanelContext.setNodeRange(undefined);
+        sidePanelContext.setMediator(undefined);
     }
 
     const ActionButtons = () => {
