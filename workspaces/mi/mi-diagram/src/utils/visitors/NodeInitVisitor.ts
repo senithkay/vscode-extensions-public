@@ -300,7 +300,7 @@ export class NodeInitVisitor implements Visitor {
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
-                    name: "OnFail", nodes: onFailSequenceNodes
+                    name: "OnFail", nodes: onFailSequenceNodes, range: node.onFail?.range
                 }]
             }
             ));
@@ -338,9 +338,9 @@ export class NodeInitVisitor implements Visitor {
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
-                    name: "OnAccept", nodes: onAcceptSequenceNodes
+                    name: "OnAccept", nodes: onAcceptSequenceNodes, range: node.onAccept?.range
                 }, {
-                    name: "OnReject", nodes: onRejectSequenceNodes
+                    name: "OnReject", nodes: onRejectSequenceNodes, range: node.onReject?.range
                 }]
             }
             ));
@@ -406,7 +406,6 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitFilter(node: Filter): void {
-        node._else = (node as any).else;
         const currentSequence = this.currentSequence;
         const thenSequenceNodes: [] = [];
         const elseSequenceNodes: [] = [];
@@ -419,9 +418,9 @@ export class NodeInitVisitor implements Visitor {
             });
         }
 
-        if (node._else) {
+        if (node.else_) {
             this.currentSequence = elseSequenceNodes;
-            (node._else.mediatorList as any).forEach((mediator: STNode) => {
+            (node.else_.mediatorList as any).forEach((mediator: STNode) => {
                 traversNode(mediator, this);
             });
         }
@@ -437,9 +436,9 @@ export class NodeInitVisitor implements Visitor {
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
-                    name: "Then", nodes: thenSequenceNodes
+                    name: "Then", nodes: thenSequenceNodes, range: node.then?.range
                 }, {
-                    name: "Else", nodes: elseSequenceNodes
+                    name: "Else", nodes: elseSequenceNodes, range: node.else_?.range
                 }]
             }
             ));
