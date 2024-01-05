@@ -81,6 +81,10 @@
         "title": "Refresh Project Explorer",
         "icon": "$(refresh)",
         "group": "navigation"
+      },
+      {
+        "command": "project-explorer.view",
+        "title": "View"
       }
     ],
     "menus": {
@@ -88,7 +92,7 @@
         {
           "command": "project-explorer.refresh",
           "when": "view == project-explorer",
-        "group": "navigation"
+          "group": "navigation"
         },
         {
           "command": "project-explorer.add",
