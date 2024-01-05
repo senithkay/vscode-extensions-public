@@ -57,7 +57,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
             break;
         case "HttpRequestNode":
             nodeModel.addInPort(inPortId);
-            nodeModel.addInPort(outPortId);
+            nodeModel.addOutPort(outPortId);
             emptyNode.templateId = "HttpRequestNode";
             emptyNode.properties = {
                 path: "",
