@@ -93,6 +93,18 @@ export namespace Form {
         padding-top: 16px;
         background: ${Colors.SURFACE};
         width: 100%;
+        & div {
+            width: 100%;
+        }
+        & vscode-button {
+            width: 100%;
+        }
+    `;
+
+    export const ButtonContainer = styled.div`
+        & div {
+            width: 100%;
+        }
         & vscode-button {
             width: 100%;
         }

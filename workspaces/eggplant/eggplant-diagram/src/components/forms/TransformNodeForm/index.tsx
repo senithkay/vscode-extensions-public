@@ -44,7 +44,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
             startLine: tnfFnLocation.start.line,
             startColumn: tnfFnLocation.start.offset,
             endLine: tnfFnLocation.end.line,
-            endColumn: tnfFnLocation.end.offset
+            endColumn: tnfFnLocation.end.offset,
         });
     };
 
@@ -147,9 +147,12 @@ export function TransformNodeForm(props: OptionWidgetProps) {
             )}
 
             <Form.Divider />
-            <Button appearance="secondary" onClick={handleOpenDataMapper}>
-                Use Data Mapper
-            </Button>
+
+            <Form.ButtonContainer>
+                <Form.ActionButton appearance="secondary" onClick={handleOpenDataMapper}>
+                    Use Data Mapper
+                </Form.ActionButton>
+            </Form.ButtonContainer>
 
             <Form.ActionButtonContainer>
                 <Form.ActionButton onClick={handleOnSave}>Save</Form.ActionButton>

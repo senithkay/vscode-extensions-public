@@ -32,8 +32,15 @@ export function generateEngine(): DiagramEngine {
     engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
-    // register an DeleteItemsAction with only ctrl + d as keyCodes
+    // register an DeleteItemsAction with only ctrl + d or meta + d as keyCodes
     engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [68], modifiers: { ctrlKey: true } }));
+    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [68], modifiers: { metaKey: true } }));
+    // register an DeleteItemsAction with only ctrl + backspace or meta + backspace as keyCodes
+    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { ctrlKey: true } }));
+    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { metaKey: true } }));
+    // register an DeleteItemsAction with only ctrl + delete or meta + delete as keyCodes
+    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [46], modifiers: { ctrlKey: true } }));
+    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [46], modifiers: { metaKey: true } }));
 
     // register custom state
     engine.getStateMachine().pushState(new DefaultState());

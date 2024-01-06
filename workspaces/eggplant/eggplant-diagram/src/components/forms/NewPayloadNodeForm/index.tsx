@@ -141,7 +141,7 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
                 <>
                     <Form.Divider />
                     <Form.InputField
-                        label="Output Type"
+                        label="Type"
                         value={outPortType.current}
                         required={true}
                         onChange={(value: string) => {
