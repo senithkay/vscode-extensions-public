@@ -82,7 +82,6 @@ export const useDiagramModel = (
             const inputSearchNotFoundNode = new RequiredParamNode(undefined, undefined, undefined, true);
             inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
             newModel.addNode(inputSearchNotFoundNode);
-            inputSearchNotFoundNode.setModel(newModel);
         }
         newModel.addAll(...nodes);
         for (const node of nodes) {

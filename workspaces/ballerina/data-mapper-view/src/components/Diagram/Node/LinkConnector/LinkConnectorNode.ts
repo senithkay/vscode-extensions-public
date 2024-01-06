@@ -81,6 +81,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
+        this.sourcePorts = [];
+        this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.valueNode.position) + "IN")
             , "IN"
