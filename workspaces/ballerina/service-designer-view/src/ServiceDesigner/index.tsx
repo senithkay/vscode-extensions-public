@@ -10,15 +10,17 @@
 
 import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm//ResourceForm";
-import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import ResourceAccordion from "./ResourceAccordion";
+import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 interface ServiceDesignerProps {
     model: ServiceDeclaration;
-    rpcClient: any;
+    rpcClient: ServiceDesignerRpcClient;
+    showDiagram: (position: NodePosition) =>  void;
 }
 
 
@@ -42,7 +44,7 @@ const ResourceListHeader = styled.div`
 `;
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model, rpcClient } = props;
+    const { model, rpcClient, showDiagram } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
@@ -67,7 +69,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
                 resourceList.push(
                     <div data-start-position={startPosition} >
-                        <ResourceAccordion rpcClient={rpcClient} model={member as ResourceAccessorDefinition} />
+                        <ResourceAccordion rpcClient={rpcClient} model={member as ResourceAccessorDefinition} showDiagram={showDiagram} />
                     </div>
                 );
             }
@@ -82,7 +84,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const applyModifications = async (source: string) => {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
-        await rpcClient.getServiceDesignerRpcClient().createResource({ position: position, source });
+        await rpcClient.createResource({ position: position, source });
     };
 
     // let serviceType = "";

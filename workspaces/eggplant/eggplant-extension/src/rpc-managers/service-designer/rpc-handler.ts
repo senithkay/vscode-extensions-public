@@ -21,7 +21,7 @@ import {
     deleteService,
     updateResource,
     updateService
-} from "@wso2-enterprise/eggplant-core";
+} from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { ServiceDesignerRpcManager } from "./rpc-manager";
 

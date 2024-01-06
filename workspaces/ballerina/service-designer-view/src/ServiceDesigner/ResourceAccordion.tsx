@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Codicon, Icon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton, VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
-import { ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import ConfirmDialog from './ConfirmBox';
 import { responseCodes } from '@wso2-enterprise/ballerina-core';
+import { ServiceDesignerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 
 
 // Define styles using @emotion/styled
@@ -97,8 +98,14 @@ interface DataValues {
     header?: string
 }
 
-const ResourceAccordion = (params: { model: ResourceAccessorDefinition, rpcClient: any }) => {
-    const { model, rpcClient } = params;
+interface ResourceAccordionProps {
+    model: ResourceAccessorDefinition;
+    rpcClient: ServiceDesignerRpcClient;
+    showDiagram: (position: NodePosition) =>  void;
+}
+
+const ResourceAccordion = (params: ResourceAccordionProps) => {
+    const { model, rpcClient, showDiagram } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -107,11 +114,7 @@ const ResourceAccordion = (params: { model: ResourceAccessorDefinition, rpcClien
 
     const handleShowDiagram = () => {
         // Show the eggplant diagram
-        const context: any = {
-            view: "Overview",
-            position: model.position
-        }
-        rpcClient.getWebviewRpcClient().openVisualizerView(context);
+        showDiagram(model.position);
     };
 
     const handleEditResource = () => {
@@ -202,7 +205,7 @@ const ResourceAccordion = (params: { model: ResourceAccessorDefinition, rpcClien
 
     const handleConfirm = async () => {
         // Handle confirmation logic
-        await rpcClient.getServiceDesignerRpcClient().deleteResource({ position: model.position });
+        await rpcClient.deleteResource({ position: model.position });
         setConfirmOpen(false);
     };
 

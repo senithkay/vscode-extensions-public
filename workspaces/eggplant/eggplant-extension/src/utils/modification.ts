@@ -1,10 +1,10 @@
-import { LangClientInterface, STNode } from "@wso2-enterprise/eggplant-core";
+import { BallerinaSTModifyResponse, InsertorDelete, STModification } from "@wso2-enterprise/ballerina-core";
+import { LangClientInterface } from "@wso2-enterprise/eggplant-core";
 import { StateMachine } from "../stateMachine";
 import { normalize } from "path";
 import { Position, Range, Uri, WorkspaceEdit, workspace } from "vscode";
 import { URI } from "vscode-uri";
 import { writeFileSync } from "fs";
-import { BallerinaSTModifyResponse, STModification } from "@wso2-enterprise/ballerina-core";
 
 interface UpdateFileContentRequest {
     fileUri: string;
@@ -16,7 +16,7 @@ export async function applyModifications(fileName: string, modifications: STModi
     const langClient = StateMachine.context().langServer as LangClientInterface;
     return await langClient.stModify({
         documentIdentifier: { uri: Uri.file(fileName).toString() },
-        astModifications: modifications
+        astModifications: await InsertorDelete(modifications)
     });
 }
 

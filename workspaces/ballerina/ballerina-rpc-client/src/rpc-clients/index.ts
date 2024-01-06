@@ -8,3 +8,4 @@
  */
 
 export * from "./lang-server/rpc-client";
+export * from "./service-designer/rpc-client";

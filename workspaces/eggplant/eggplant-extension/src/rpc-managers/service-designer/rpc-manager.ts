@@ -8,8 +8,8 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { STModification } from "@wso2-enterprise/ballerina-core";
 import {
+    STModification,
     CreateResourceRequest,
     CreateServiceRequest,
     DeleteResourceRequest,
@@ -17,7 +17,7 @@ import {
     ServiceDesignerAPI,
     UpdateResourceRequest,
     UpdateServiceRequest
-} from "@wso2-enterprise/eggplant-core";
+} from "@wso2-enterprise/ballerina-core";
 import { applyModifications, updateFileContent } from "../../utils/modification";
 import { StateMachine, openView } from "../../stateMachine";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -70,13 +70,12 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async deleteResource(params: DeleteResourceRequest): Promise<void> {
         const context = StateMachine.context();
-        const deleteModification: STModification = {
+        const modification: STModification = {
             type: 'DELETE',
             ...params.position
         };
 
-        const response = await applyModifications(context.fileName!, [deleteModification]);
-
+        const response = await applyModifications(context.fileName!, [modification]);
         if (response.parseSuccess) {
             await updateFileContent({ fileUri: context.fileName!, content: response.source });
             const st = response.syntaxTree as ModulePart;

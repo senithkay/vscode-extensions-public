@@ -51,7 +51,7 @@ storiesOf("LowCode", module)
   .add("Default", () => {
     const [flowModel, setModel] = useState(simpleModel);
 
-    const onModelChange = (model) => {
+    const onModelChange = (model: any) => {
       setModel(model);
     };
 

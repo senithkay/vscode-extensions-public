@@ -44,20 +44,8 @@ export function createEggplantProject(name: string, isService: boolean) {
                     }
 
                     const newProjectUri = Uri.joinPath(uri[0], name);
-                    // commands.executeCommand('vscode.openFolder', newProjectUri);
+                    commands.executeCommand('vscode.openFolder', newProjectUri);
 
-                    // Get the current workspace folders
-                    const workspaceFolders = workspace.workspaceFolders || [];
-
-                    // Close the current opened panel
-                    LowCode.currentPanel?.dispose();
-
-                    // Check if the folder is not already in the workspace
-                    if (!workspaceFolders.some(folder => folder.uri.fsPath === newProjectUri.fsPath)) {
-                        // Update the workspace to include the newly created project
-                        const newFolder = { uri: newProjectUri, name: name };
-                        workspace.updateWorkspaceFolders(workspaceFolders.length, null, newFolder);
-                    }
                 });
             }
         });
