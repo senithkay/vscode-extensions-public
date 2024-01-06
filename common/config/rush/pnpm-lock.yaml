@@ -3324,6 +3324,7 @@ importers:
       '@vscode/test-electron': ^2.3.4
       '@vscode/vsce': ~2.21.0
       '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-diagram': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
       axios: ~1.5.1
@@ -3351,6 +3352,7 @@ importers:
       '@types/xml2js': 0.4.14
       '@vscode/vsce': 2.21.1
       '@wso2-enterprise/mi-core': link:../mi-core
+      '@wso2-enterprise/mi-diagram': link:../mi-diagram
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       axios: 1.5.1

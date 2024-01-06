@@ -167,6 +167,7 @@
     "@types/lodash": "~4.14.199",
     "vscode-languageserver-protocol": "^3.17.2",
     "fast-xml-parser": "~4.3.2",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*"
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
+    "@wso2-enterprise/mi-diagram": "workspace:*"
   }
 }
