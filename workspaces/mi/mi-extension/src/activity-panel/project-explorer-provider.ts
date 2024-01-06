@@ -99,9 +99,11 @@ async function getProjectStructureData(context: vscode.ExtensionContext): Promis
 
 function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEntry[] {
 	const directoryMap = data.directoryMap;
+	console.log('hello >>>', directoryMap);
 	const result: ProjectExplorerEntry[] = [];
+	const workspaceName = vscode.workspace.name ?? '';
 	const projectRoot = new ProjectExplorerEntry(
-		"Project",
+		`Project ${workspaceName.length > 0 ? `: ${workspaceName.toUpperCase()}` : ''}`,
 		vscode.TreeItemCollapsibleState.Collapsed,
 		undefined,
 		'project'
@@ -128,8 +130,44 @@ function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEnt
 
 					parentEntry.children = children;
 					parentEntry.contextValue = key;
+
+					switch (key) {
+						case 'api':
+							parentEntry.iconPath = new vscode.ThemeIcon('globe');
+							break;
+						case 'endpoints':
+							parentEntry.iconPath = new vscode.ThemeIcon('plug');
+							break;
+						case 'inbound-endpoints':
+							parentEntry.iconPath = new vscode.ThemeIcon('fold-down');
+							break;
+						case 'local-entries':
+							parentEntry.iconPath = new vscode.ThemeIcon('settings');
+							break;
+						case 'message-stores':
+							parentEntry.iconPath = new vscode.ThemeIcon('database');
+							break;
+						case 'message-processors':
+							parentEntry.iconPath = new vscode.ThemeIcon('gear');
+							break;
+						case 'proxy-services':
+							parentEntry.iconPath = new vscode.ThemeIcon('arrow-swap');
+							break;
+						case 'sequences':
+							parentEntry.iconPath = new vscode.ThemeIcon('list-ordered');
+							break;
+						case 'tasks':
+							parentEntry.iconPath = new vscode.ThemeIcon('tasklist');
+							break;
+						case 'templates':
+							parentEntry.iconPath = new vscode.ThemeIcon('file');
+							break;
+						default:
+					}
+
+
 					esbConfigs.children = esbConfigs.children ?? [];
-					esbConfigs.children.push(parentEntry);
+					if (parentEntry.children.length > 0) esbConfigs.children.push(parentEntry);
 				}
 				projectRoot.children = projectRoot.children ?? [];
 				projectRoot.children.push(esbConfigs);
@@ -151,7 +189,7 @@ function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEnt
 				const children = genProjectStructureEntry(directoryMap[key]);
 				parentEntry.children = children;
 				projectRoot.children = projectRoot.children ?? [];
-				projectRoot.children.push(parentEntry);
+				if (children.length > 0) projectRoot.children.push(parentEntry);
 			default:
 			// do none
 
