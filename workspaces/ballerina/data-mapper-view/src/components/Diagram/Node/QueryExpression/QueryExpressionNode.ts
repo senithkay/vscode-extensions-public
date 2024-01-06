@@ -75,6 +75,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
+        this.sourcePort = undefined;
+        this.targetPort = undefined;
+        this.sourceTypeDesc = undefined;
         this.getSourceType();
         this.getTargetType();
         this.inPort = new IntermediatePortModel(

@@ -23,6 +23,7 @@ import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMSearchStore } from '../../store/store';
 import { RequiredParamNode } from '../Diagram/Node';
 import { OFFSETS } from '../Diagram/utils/constants';
+import { FromClauseNode } from '../Diagram/Node/FromClause';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -78,7 +79,10 @@ export const useDiagramModel = (
         const newModel = new DiagramModel();
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
-        if (!nodes.some(node => node instanceof RequiredParamNode && node.getSearchFilteredType())) {
+        const showInputFilterEmpty = !nodes.some(
+            node => (node instanceof RequiredParamNode && node.getSearchFilteredType()) || node instanceof FromClauseNode
+        );
+        if (showInputFilterEmpty) {
             const inputSearchNotFoundNode = new RequiredParamNode(undefined, undefined, undefined, true);
             inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
             newModel.addNode(inputSearchNotFoundNode);

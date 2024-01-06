@@ -31,6 +31,8 @@ export class FromClauseNode extends DataMapperNodeModel {
     public x: number;
     public y: number;
     public numberOfFields:  number;
+    public hasNoMatchingFields: boolean;
+    originalTypeDef: Type;
 
     constructor(
         public context: IDataMapperContext,
@@ -40,9 +42,24 @@ export class FromClauseNode extends DataMapperNodeModel {
             QUERY_EXPR_SOURCE_NODE_TYPE
         );
         this.numberOfFields = 1;
+        const bindingPattern = this.value.typedBindingPattern.bindingPattern;
+        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+            this.sourceBindingPattern = bindingPattern;
+        }
+        // tslint:disable-next-line: prefer-conditional-expression
+        if (STKindChecker.isBinaryExpression(this.value.expression)
+            && STKindChecker.isElvisToken(this.value.expression.operator)) {
+            const exprType = getTypeFromStore(this.value.expression.lhsExpr.position as NodePosition);
+            this.typeDef = exprType && getOptionalArrayField(exprType);
+        } else {
+            this.typeDef = getTypeFromStore(this.value.expression.position as NodePosition);
+        }
+        this.originalTypeDef = this.typeDef;
     }
 
     initPorts(): void {
+        this.typeDef = this.getSearchFilteredType();
+        this.hasNoMatchingFields = !this.typeDef;
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
             if (this.typeDef){
@@ -64,25 +81,16 @@ export class FromClauseNode extends DataMapperNodeModel {
         // Currently, we create links from "IN" ports and back tracing the inputs.
     }
 
-    public getSourceType() {
-        const bindingPattern = this.value.typedBindingPattern.bindingPattern;
-        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-            this.sourceBindingPattern = bindingPattern;
+    public getSearchFilteredType() {
+        if (this.originalTypeDef
+            && this.originalTypeDef?.memberType
+            && this.originalTypeDef.typeName === PrimitiveBalType.Array
+        ) {
+            return getSearchFilteredInput(
+                this.originalTypeDef.memberType,
+                this.sourceBindingPattern?.variableName?.value
+            );
         }
-        let type: Type;
-        // tslint:disable-next-line: prefer-conditional-expression
-        if (STKindChecker.isBinaryExpression(this.value.expression)
-            && STKindChecker.isElvisToken(this.value.expression.operator)) {
-            const exprType = getTypeFromStore(this.value.expression.lhsExpr.position as NodePosition);
-            type = exprType && getOptionalArrayField(exprType);
-        } else {
-            type = getTypeFromStore(this.value.expression.position as NodePosition);
-        }
-
-        if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
-            this.typeDef = getSearchFilteredInput(type.memberType, this.sourceBindingPattern?.variableName?.value);
-        }
-        return this.typeDef;
     }
 
     setPosition(point: Point): void;

@@ -62,6 +62,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.moduleVarDecls = [];
         const exprRanges: ExpressionRange[] = [...this.value].map(([, item]) => {
             let exprPosition: NodePosition = item.node.position as NodePosition;
             if (STKindChecker.isFieldAccess(item.node) || STKindChecker.isOptionalFieldAccess(item.node)) {

@@ -58,6 +58,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
     public innermostExpr: STNode;
     public x: number;
     public y: number;
+    originalTypeDef: Type;
 
     constructor(
         public context: IDataMapperContext,
@@ -73,11 +74,11 @@ export class ListConstructorNode extends DataMapperNodeModel {
             ? (this.queryExpr?.selectClause || this.queryExpr?.resultClause).expression
             : this.value.expression
         );
+        this.originalTypeDef = this.typeDef;
     }
 
     async initPorts() {
-        const originalTypeDef = this.typeDef;
-        this.typeDef = getSearchFilteredOutput(this.typeDef);
+        this.typeDef = getSearchFilteredOutput(this.originalTypeDef);
 
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
@@ -95,7 +96,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
-            this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
+            this.hasNoMatchingFields = hasNoMatchFound(this.originalTypeDef, valueEnrichedType);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (this.typeDef.typeName === PrimitiveBalType.Union) {

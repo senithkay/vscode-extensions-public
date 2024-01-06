@@ -56,9 +56,9 @@ export class LetClauseNode extends DataMapperNodeModel {
 
     initPorts(): void {
         this.typeDef = this.getSearchFilteredType();
+        this.hasNoMatchingFields = !this.typeDef;
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
-            this.hasNoMatchingFields = !this.typeDef;
             if (this.typeDef){
                 const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 

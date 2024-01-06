@@ -26,8 +26,6 @@ import {
     traversNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
-
-import { useDMSearchStore } from "../../../store/store";
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { SelectionState } from "../../DataMapper/DataMapper";
@@ -188,16 +186,14 @@ export class NodeInitVisitor implements Visitor {
 
                         const expandedHeaderPorts: RightAnglePortModel[] = [];
                         const fromClauseNode = new FromClauseNode(this.context, bodyExpr.queryPipeline.fromClause);
-                        if (fromClauseNode.getSourceType()){
-                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                            this.inputParamNodes.push(fromClauseNode);
+                        fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                        this.inputParamNodes.push(fromClauseNode);
 
-                            const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
-                            )?.variableName?.value;
-                            const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
-                            expandedHeaderPorts.push(fromClausePort);
-                            fromClauseNode.addPort(fromClausePort);
-                        }
+                        const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
+                        )?.variableName?.value;
+                        const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                        expandedHeaderPorts.push(fromClausePort);
+                        fromClauseNode.addPort(fromClausePort);
 
                         const letClauses = bodyExpr.queryPipeline.intermediateClauses?.filter((item) => {
                             return (
@@ -492,17 +488,15 @@ export class NodeInitVisitor implements Visitor {
 
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(this.context, node.queryPipeline.fromClause);
-                if (fromClauseNode.getSourceType()){
-                    fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                    this.inputParamNodes.push(fromClauseNode);
+                fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                this.inputParamNodes.push(fromClauseNode);
 
-                    const fromClauseNodeValueLabel = (
-                        node.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
-                    )?.variableName?.value;
-                    const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
-                    expandedHeaderPorts.push(fromClausePort);
-                    fromClauseNode.addPort(fromClausePort);
-                }
+                const fromClauseNodeValueLabel = (
+                    node.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
+                )?.variableName?.value;
+                const fromClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${fromClauseNodeValueLabel}`);
+                expandedHeaderPorts.push(fromClausePort);
+                fromClauseNode.addPort(fromClausePort);
 
                 const letClauses = node.queryPipeline.intermediateClauses?.filter((item) => {
                     return (
@@ -514,18 +508,16 @@ export class NodeInitVisitor implements Visitor {
                 for (const [, item] of letClauses.entries()) {
                     if (STKindChecker.isLetClause(item)) {
                         const paramNode = new LetClauseNode(this.context, item as LetClause);
-                        if (paramNode.getSearchFilteredType()){
-                            paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                            this.inputParamNodes.push(paramNode);
+                        paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
+                        this.inputParamNodes.push(paramNode);
 
-                            const letClauseValueLabel = (
-                                ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
-                                    ?.bindingPattern as CaptureBindingPattern
-                            )?.variableName?.value;
-                            const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
-                            expandedHeaderPorts.push(letClausePort);
-                            paramNode.addPort(letClausePort);
-                        }
+                        const letClauseValueLabel = (
+                            ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
+                                ?.bindingPattern as CaptureBindingPattern
+                        )?.variableName?.value;
+                        const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                        expandedHeaderPorts.push(letClausePort);
+                        paramNode.addPort(letClausePort);
                     } else if (STKindChecker.isJoinClause(item)) {
                         const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                         if (paramNode.getSourceType()){
