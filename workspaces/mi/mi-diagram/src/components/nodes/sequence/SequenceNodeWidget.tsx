@@ -24,11 +24,11 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     const nodes = props.diagramEngine.getModel().getNodes();
     const inSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === IN_SEQUENCE_TAG);
     const outSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === OUT_SEQUENCE_TAG);
-    const canvasHeightInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getY() + inSeqNodes[inSeqNodes.length - 1].height : 0;
-    const canvasHeightOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[outSeqNodes.length - 1].getY() - outSeqNodes[0].getY() + outSeqNodes[0].height + 250: 0;
+    const canvasHeightInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getY() + inSeqNodes[inSeqNodes.length - 1].height + 100 : 150;
+    const canvasHeightOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[outSeqNodes.length - 1].getY() - outSeqNodes[0].getY() + outSeqNodes[0].height + 350: 150;
     const height = props.sequenceType === SequenceType.IN_SEQUENCE ? canvasHeightInSeqNodes : canvasHeightOutSeqNodes;
 
-    let width = 0;
+    let width = 200;
     inSeqNodes.forEach((node: any) => {
         width = Math.max(width, node.width);
     });

@@ -31,7 +31,8 @@ import {
     EndpointHttp,
     Endpoint,
     Filter,
-    PayloadFactory
+    PayloadFactory,
+    Range
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
@@ -43,6 +44,8 @@ export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
     private inSequenceNodes: BaseNodeModel[] = [];
     private outSequenceNodes: BaseNodeModel[] = [];
+    private inSequenceRange: Range;
+    private outSequenceRange: Range;
     private parents: STNode[] = [];
     private documentUri: string;
     private isInOutSequence = false;
@@ -387,6 +390,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitInSequence(node: Sequence): void {
         this.currentSequence = this.inSequenceNodes;
+        this.inSequenceRange = node.range;
         this.parents.push(node);
     }
 
@@ -397,6 +401,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitOutSequence(node: Sequence): void {
         this.isInOutSequence = true;
         this.currentSequence = this.outSequenceNodes;
+        this.outSequenceRange = node.range;
         this.parents.push(node);
     }
 
@@ -472,6 +477,14 @@ export class NodeInitVisitor implements Visitor {
 
     getOutSequenceNodes(): BaseNodeModel[] {
         return this.outSequenceNodes;
+    }
+
+    getInSequenceRange(): Range {
+        return this.inSequenceRange;
+    }
+
+    getOutSequenceRange(): Range {
+        return this.outSequenceRange;
     }
 }
 
