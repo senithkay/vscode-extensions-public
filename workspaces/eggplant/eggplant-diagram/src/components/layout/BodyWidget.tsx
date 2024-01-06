@@ -135,12 +135,12 @@ export function BodyWidget(props: BodyWidgetProps) {
                                 <TrayItemWidget
                                     key={index + "get"}
                                     model={{ type: "HttpRequestNode", endpoint: endpoint, action: "get" }}
-                                    name={endpoint.name + " GET"}
+                                    name={"GET " + endpoint.name}
                                 />
                                 <TrayItemWidget
                                     key={index + "post"}
                                     model={{ type: "HttpRequestNode", endpoint: endpoint, action: "post" }}
-                                    name={endpoint.name + " POST"}
+                                    name={"POST" + endpoint.name}
                                 />
                             </>
                         );

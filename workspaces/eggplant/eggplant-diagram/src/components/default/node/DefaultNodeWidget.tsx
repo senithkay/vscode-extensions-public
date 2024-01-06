@@ -15,12 +15,12 @@ import { DefaultPortLabel } from "../port/DefaultPortLabelWidget";
 import styled from "@emotion/styled";
 import { Colors, NODE_MIN_HEIGHT, NODE_MIN_WIDTH } from "../../../resources";
 import { DefaultPortModel } from "../port/DefaultPortModel";
-import { FunctionIcon } from "../../../resources/assets/icons/FunctionIcon";
+import { CodeIcon } from "../../../resources/assets/icons/CodeIcon";
 import { SwitchIcon } from "../../../resources/assets/icons/SwitchIcon";
 import { NodeKinds } from "@wso2-enterprise/eggplant-core";
 import { JoinIcon } from "../../../resources/assets/icons/JoinIcon";
-import { LinkOutIcon } from "../../../resources/assets/icons/LinkOutIcon";
-import { TriggerIcon } from "../../../resources/assets/icons/TriggerIcon";
+import { OutIcon } from "../../../resources/assets/icons/OutIcon";
+import { PayloadIcon } from "../../../resources/assets/icons/PayloadIcon";
 
 namespace S {
     type NodeStyleProp = {
@@ -42,6 +42,12 @@ namespace S {
         justify-content: space-between;
         min-height: ${NODE_MIN_HEIGHT}px;
         min-width: ${NODE_MIN_WIDTH}px;
+    `;
+
+    export const Body = styled.div`
+        width: 100%;
+        display: flex;
+        flex-direction: row;
     `;
 
     export const Title = styled.div`
@@ -110,13 +116,13 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
             case "SwitchNode":
                 return <SwitchIcon />;
             case "CodeBlockNode":
-                return <FunctionIcon />;
+                return <CodeIcon />;
             case "TransformNode":
                 return <JoinIcon />;
             case "HttpRequestNode":
-                return <LinkOutIcon />;
+                return <OutIcon />;
             case "NewPayloadNode":
-                return <TriggerIcon />;
+                return <PayloadIcon />;
             default:
                 <></>;
         }
@@ -132,16 +138,18 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
                 <S.InPorts>
                     <S.PortsContainer>{_.map(this.props.node.getInPorts(), this.generatePort)}</S.PortsContainer>
                 </S.InPorts>
-                <S.IconContainer>
-                    {this.componentIcon(this.props.node.getOptions().node?.templateId as NodeKinds)}
-                </S.IconContainer>
-                <S.Title>
-                    <S.TitleName>
-                        {this.props.node.getOptions().node?.name === "HttpResponseNode"
-                            ? "Return"
-                            : this.props.node.getOptions().node?.name || this.props.node.getOptions().name}
-                    </S.TitleName>
-                </S.Title>
+                <S.Body>
+                    <S.IconContainer>
+                        {this.componentIcon(this.props.node.getOptions().node?.templateId as NodeKinds)}
+                    </S.IconContainer>
+                    <S.Title>
+                        <S.TitleName>
+                            {this.props.node.getOptions().node?.name === "HttpResponseNode"
+                                ? "Return"
+                                : this.props.node.getOptions().node?.name || this.props.node.getOptions().name}
+                        </S.TitleName>
+                    </S.Title>
+                </S.Body>
                 <S.OutPorts>
                     <S.PortsContainer>{_.map(this.props.node.getUniqueOutPorts(), this.generatePort)}</S.PortsContainer>
                 </S.OutPorts>

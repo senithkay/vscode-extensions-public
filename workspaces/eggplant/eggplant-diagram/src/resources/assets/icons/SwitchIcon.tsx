@@ -11,11 +11,6 @@ import React from "react";
 
 export function SwitchIcon() {
     return (
-        <svg width="40" height="60" viewBox="0, 0, 40, 60" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M5.001 27.006v6l10.12-.014 3.023 7.728 2.357 6.286h7.5v8l7-10.5-7-10.5v8h-4l-3.357-8.429c-.475-1.267-.93-2.435-1.295-3.601l4.51-11.97H28v8l7-10.5-7-10.5v8h-7.5L15.098 27z"
-                stroke="none"
-            />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.126 4A4.002 4.002 0 0 1 23 5a4 4 0 0 1-7.874 1H14a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h1.126A4.002 4.002 0 0 1 23 19a4 4 0 0 1-7.874 1H14a3 3 0 0 1-3-3v-4H8.874A4.002 4.002 0 0 1 1 12a4 4 0 0 1 7.874-1H11V7a3 3 0 0 1 3-3zM19 3a2 2 0 1 0 0 4a2 2 0 0 0 0-4M5 10a2 2 0 1 0 0 4a2 2 0 0 0 0-4m14 7a2 2 0 1 0 0 4a2 2 0 0 0 0-4"/></svg>
     );
 }

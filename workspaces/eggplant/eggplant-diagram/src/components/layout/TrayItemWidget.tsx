@@ -11,11 +11,12 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Colors, EVENT_TYPES } from "../../resources";
 import { Endpoint, HttpMethod, NodeKinds } from "../../types";
-import { FunctionIcon } from "../../resources/assets/icons/FunctionIcon";
+import { CodeIcon } from "../../resources/assets/icons/CodeIcon";
 import { JoinIcon } from "../../resources/assets/icons/JoinIcon";
-import { LinkOutIcon } from "../../resources/assets/icons/LinkOutIcon";
+import { OutIcon } from "../../resources/assets/icons/OutIcon";
 import { SwitchIcon } from "../../resources/assets/icons/SwitchIcon";
-import { TriggerIcon } from "../../resources/assets/icons/TriggerIcon";
+import { PayloadIcon } from "../../resources/assets/icons/PayloadIcon";
+import { ReturnIcon } from "../../resources/assets/icons/ReturnIcon";
 
 export interface TrayItemWidgetProps {
     model: TrayItemModel;
@@ -44,6 +45,7 @@ namespace S {
         display: flex;
         flex-direction: row;
         align-items: center;
+        overflow: hidden;
     `;
 
     export const IconContainer = styled.div`
@@ -68,13 +70,15 @@ export function TrayItemWidget(props: TrayItemWidgetProps) {
             case "SwitchNode":
                 return <SwitchIcon />;
             case "CodeBlockNode":
-                return <FunctionIcon />;
+                return <CodeIcon />;
             case "TransformNode":
                 return <JoinIcon />;
             case "HttpRequestNode":
-                return <LinkOutIcon />;
+                return <OutIcon />;
             case "NewPayloadNode":
-                return <TriggerIcon />;
+                return <PayloadIcon />;
+            case "HttpResponseNode":
+                return <ReturnIcon />;
             default:
                 <></>;
         }
