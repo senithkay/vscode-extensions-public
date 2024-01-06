@@ -10,7 +10,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Colors, EVENT_TYPES } from "../../resources";
-import { HttpMethod, NodeKinds } from "../../types";
+import { Endpoint, HttpMethod, NodeKinds } from "../../types";
 import { FunctionIcon } from "../../resources/assets/icons/FunctionIcon";
 import { JoinIcon } from "../../resources/assets/icons/JoinIcon";
 import { LinkOutIcon } from "../../resources/assets/icons/LinkOutIcon";
@@ -25,7 +25,8 @@ export interface TrayItemWidgetProps {
 
 export type TrayItemModel = {
     type: NodeKinds;
-    action?: HttpMethod; // TODO: handle this dynamic sub types properly
+    endpoint?: Endpoint;
+    action?: HttpMethod;
 };
 
 namespace S {
