@@ -20,7 +20,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
 import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { getDefaultNodeModel, isSingleNode } from "../../utils";
+import { getDefaultNodeModel, isSingleNode, toTitleCase } from "../../utils";
 import { DiagramControls } from "../controls/DiagramControls";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -56,6 +56,16 @@ namespace S {
         font-family: var(--font-family);
         color: ${Colors.ON_SURFACE};
         margin-bottom: 12px;
+        margin-block-start: unset;
+        user-select: none;
+    `;
+
+    export const SubTitle = styled.p`
+        font-family: "GilmerRegular";
+        font-family: var(--font-family);
+        color: ${Colors.ON_SURFACE};
+        margin-bottom: 8px;
+        margin-top: 12px !important;
         margin-block-start: unset;
         user-select: none;
     `;
@@ -112,7 +122,6 @@ export function BodyWidget(props: BodyWidgetProps) {
                     {/* <TrayItemWidget model={{ type: "HttpRequestNode", action: "get" }} name="GET Request" />
                     <TrayItemWidget model={{ type: "HttpRequestNode", action: "post" }} name="POST Request" /> */}
                     {!hasReturnNode && <TrayItemWidget model={{ type: "HttpResponseNode" }} name="Return" />}
-
                     {flowModel.endpoints?.length > 0 && (
                         <>
                             <S.Divider />
@@ -122,6 +131,7 @@ export function BodyWidget(props: BodyWidgetProps) {
                     {flowModel.endpoints.map((endpoint, index) => {
                         return (
                             <>
+                                <S.SubTitle>{toTitleCase(endpoint.name)}</S.SubTitle>
                                 <TrayItemWidget
                                     key={index + "get"}
                                     model={{ type: "HttpRequestNode", endpoint: endpoint, action: "get" }}
