@@ -229,8 +229,11 @@ export class WebviewRpcManager implements WebviewAPI {
                     const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
                     for (const resource of member.members) {
                         if (STKindChecker.isResourceAccessorDefinition(resource)) {
-                            const fnName = resource.functionName.value;
-                            const identifier = service + "/" + fnName;
+                            let resourcePath = "";
+                            resource.relativeResourcePath?.forEach((res: any) => {
+                                resourcePath += res.source ? res.source : res.value;
+                            })
+                            const identifier = service + `/${resource.functionName.value}/${resourcePath}`;
                             if (identifier === context.identifier) {
                                 openView({ position: resource.position });
                                 break outerLoop;  // Break out of the inner loop

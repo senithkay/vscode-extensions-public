@@ -69,27 +69,34 @@ export function ResourceForm(props: ResourceFormProps) {
 	const onSave = () => {
 		let paramString = "";
 
-        advancedParams?.forEach((param: ParameterConfig) => {
-            const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
-            paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
-        });
+		advancedParams?.forEach((param: ParameterConfig) => {
+			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
+			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
+		});
 
-        parameters.map((param: ParameterConfig, index: number) => {
-            const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
-            paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
-        });
+		parameters.map((param: ParameterConfig, index: number) => {
+			const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
+			paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
+		});
 
-        if (payload) {
-            const payloadType = `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}`;
-            paramString += payloadType;
-        }
+		if (payload) {
+			const payloadType = `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}`;
+			paramString += payloadType;
+		}
 
-        let responseString = "";
-        response.map((resp: ResponseConfig, index: number) => {
-            responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
-        });
+		let responseString = "";
+		response.map((resp: ResponseConfig, index: number) => {
+			responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
+		});
 
-		const genSource = generateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });		
+		// Check if "error" is already present in responseString
+		if (responseString !== "" && !responseString.includes("error")) {
+			responseString += " | error?";
+		} else if (responseString === "") {
+			responseString = "error?";
+		}
+
+		const genSource = generateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 
 		applyModifications(genSource);
 

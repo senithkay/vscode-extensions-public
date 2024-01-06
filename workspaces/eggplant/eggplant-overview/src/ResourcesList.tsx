@@ -59,11 +59,16 @@ export function ResourcesList(params: { component: SelectedComponent }) {
 
     const handleResourceClick = (comp: any) => {
         console.log("Resource Node", comp);
+        let resourcePath = "";
+        comp.relativeResourcePath?.forEach((res: any) => {
+            resourcePath += res.source ? res.source : res.value;
+        })
+
         const context: VisualizerLocation = {
             fileName: component.fileName,
             position: comp.position,
             view: "Overview",
-            identifier: component.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "") + "/" + comp.functionName.value
+            identifier: component.serviceST.absoluteResourcePath.reduce((result, obj) => result + obj.value, "") + `/${comp.functionName.value}/${resourcePath}`
         }
         eggplantRpcClient.getWebviewRpcClient().openVisualizerView(context);
     };

@@ -41,7 +41,7 @@ export function Response(props: ResourceParamProps) {
         const newResp: ResponseConfig = {
             id: updatedParameters.length,
             code: 200,
-            type: "string"
+            type: "json"
         };
         updatedParameters.push(newResp);
         onChange(updatedParameters);
