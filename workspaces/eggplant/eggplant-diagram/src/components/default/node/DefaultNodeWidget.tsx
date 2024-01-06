@@ -48,7 +48,7 @@ namespace S {
 
     export const TitleName = styled.div`
         flex-grow: 1;
-        padding: 5px 5px;
+        padding: 5px 16px;
     `;
 
     export const Ports = styled.div`

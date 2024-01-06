@@ -61,6 +61,7 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
             ...super.serialize(),
             in: this.options.in,
             label: this.options.label,
+            metadata: this.options.port
         };
     }
 

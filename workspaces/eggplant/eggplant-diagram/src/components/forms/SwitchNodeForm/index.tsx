@@ -113,9 +113,11 @@ export function SwitchNodeForm(props: OptionWidgetProps) {
                     </div>
                 );
             })}
-            <Button appearance="secondary" onClick={handleAddCase}>
-                Add Case
-            </Button>
+            <Form.ButtonContainer>
+                <Form.ActionButton appearance="secondary" onClick={handleAddCase}>
+                    Add Case
+                </Form.ActionButton>
+            </Form.ButtonContainer>
 
             {inPortType.current && (
                 <>
