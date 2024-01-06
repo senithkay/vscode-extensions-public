@@ -197,7 +197,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					}
 					if (node instanceof ExpandedMappingHeaderNode) {
 						additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-						node.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
 					}
 				});
 				engine.repaintCanvas();
