@@ -194,6 +194,18 @@ const LogForm = (props: AddMediatorProps) => {
 
                         {formValues["propertyValueType"] && formValues["propertyValueType"].toLowerCase() == "expression" &&
                             <Field>
+                                <TextField
+                                    label="Property Expression"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["propertyExpression"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "propertyExpression": e });
+                                        formValidators["propertyExpression"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["propertyExpression"] && <Error>{errors["propertyExpression"]}</Error>}
                             </Field>
                         }
 
