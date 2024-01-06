@@ -155,12 +155,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
     }, [isFetching, diagramModel]);
 
 	useEffect(() => {
-		if (model) {
+		if (model && !isFetching) {
 			let requiredParamFields = 0;
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;
 			setTimeout(async () => {
-				nodes.forEach((node) => {
+				model.getNodes().forEach((node) => {
 					if (node instanceof MappingConstructorNode
 						|| node instanceof ListConstructorNode
 						|| node instanceof PrimitiveTypeNode
@@ -197,7 +197,6 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					}
 					if (node instanceof ExpandedMappingHeaderNode) {
 						additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-						node.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
 					}
 				});
 				engine.repaintCanvas();

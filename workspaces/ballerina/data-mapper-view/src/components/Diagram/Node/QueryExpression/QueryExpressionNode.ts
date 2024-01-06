@@ -75,6 +75,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
+        this.sourcePort = undefined;
+        this.targetPort = undefined;
+        this.sourceTypeDesc = undefined;
         this.getSourceType();
         this.getTargetType();
         this.inPort = new IntermediatePortModel(
@@ -323,7 +326,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public updatePosition() {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
-            this.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, position.y - 5.5)
+            this.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, position.y - 2)
         }
     }
 

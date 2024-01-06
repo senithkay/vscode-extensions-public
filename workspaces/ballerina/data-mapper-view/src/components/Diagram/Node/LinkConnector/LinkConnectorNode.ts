@@ -81,6 +81,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
+        this.sourcePorts = [];
+        this.targetMappedPort = undefined;
         this.inPort = new IntermediatePortModel(
             md5(JSON.stringify(this.valueNode.position) + "IN")
             , "IN"
@@ -234,7 +236,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
     public updatePosition() {
         if (this.targetMappedPort) {
             const position = this.targetMappedPort.getPosition()
-            this.setPosition(this.hasError() ? OFFSETS.LINK_CONNECTOR_NODE_WITH_ERROR.X : OFFSETS.LINK_CONNECTOR_NODE.X, position.y - 4.5)
+            this.setPosition(this.hasError() ? OFFSETS.LINK_CONNECTOR_NODE_WITH_ERROR.X : OFFSETS.LINK_CONNECTOR_NODE.X, position.y - 2)
         }
     }
 
