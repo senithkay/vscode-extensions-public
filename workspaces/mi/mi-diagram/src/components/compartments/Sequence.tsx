@@ -51,8 +51,8 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             diagramEngine.setModel(model);
             setEngine(diagramEngine);
 
-            drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE, props.inSequenceRange, "inSequence");
-            drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE, props.outSequenceRange, "outSequence");
+            if (props.inSequenceRange) drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE, props.inSequenceRange, "inSequence");
+            if (props.outSequenceRange) drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE, props.outSequenceRange, "outSequence");
 
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
