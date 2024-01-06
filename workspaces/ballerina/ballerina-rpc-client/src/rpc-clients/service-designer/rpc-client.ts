@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -13,6 +13,7 @@ import {
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    KeywordTypeResponse,
     ServiceDesignerAPI,
     UpdateResourceRequest,
     UpdateServiceRequest,
@@ -20,6 +21,7 @@ import {
     createService,
     deleteResource,
     deleteService,
+    getKeywordTypes,
     updateResource,
     updateService
 } from "@wso2-enterprise/ballerina-core";
@@ -55,5 +57,9 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     deleteResource(params: DeleteResourceRequest): void {
         return this._messenger.sendNotification(deleteResource, HOST_EXTENSION, params);
+    }
+
+    getKeywordTypes(): Promise<KeywordTypeResponse> {
+        return this._messenger.sendRequest(getKeywordTypes, HOST_EXTENSION);
     }
 }

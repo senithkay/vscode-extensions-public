@@ -8,11 +8,12 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React from 'react';
+import React, { useState } from 'react';
 
-import { ActionButtons, TextField } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, AutoComplete } from '@wso2-enterprise/ui-toolkit';
 import { ResponseConfig } from '../../definitions';
 import { EditorContainer, EditorContent } from '../../styles';
+import { responseCodes } from '@wso2-enterprise/ballerina-core';
 
 export interface ParamProps {
     response: ResponseConfig;
@@ -20,13 +21,17 @@ export interface ParamProps {
     onChange: (param: ResponseConfig) => void;
     onSave?: (param: ResponseConfig) => void;
     onCancel?: (id?: number) => void;
+    typeCompletions?: string[];
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, onSave, onChange, onCancel } = props;
+    const { response, onSave, onChange, onCancel, typeCompletions } = props;
+    const [code, setCode] = useState("200 - OK");
 
     const handleCodeChange = (value: string) => {
-        onChange({ ...response, code: Number(value) });
+        setCode(value);
+        const code = responseCodes.find(code => code.title === value).code;
+        onChange({ ...response, code: Number(code) });
     };
 
     const handleTypeChange = (value: string) => {
@@ -49,19 +54,16 @@ export function ResponseEditor(props: ParamProps) {
     return (
         <EditorContainer>
             <EditorContent>
-                <TextField
-                    size={34}
-                    label='Code'
-                    required
-                    placeholder='Enter code'
-                    value={`${response.code}`}
+                <AutoComplete
+                    label="Code"
+                    selectedItem={code}
+                    items={responseCodes.map(code => code.title)}
                     onChange={handleCodeChange}
                 />
-                <TextField
-                    size={34}
-                    label='Type'
-                    placeholder='Enter type'
-                    value={response.type}
+                <AutoComplete
+                    label="Type"
+                    selectedItem={response.type}
+                    items={typeCompletions}
                     onChange={handleTypeChange}
                 />
             </EditorContent>

@@ -27,10 +27,11 @@ export interface ResourceFormProps {
 	isOpen: boolean;
 	applyModifications?: (source: string) => void;
 	onClose: () => void;
+	typeCompletions?: string[];
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, onClose, applyModifications } = props;
+	const { isOpen, onClose, applyModifications, typeCompletions } = props;
 
 	const [method, setMethod] = useState<string>("GET");
 	const [path, setPath] = useState<string>("");
@@ -131,7 +132,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<Response response={response} onChange={handleResponseChange} />
+					<Response response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}
