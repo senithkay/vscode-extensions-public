@@ -90,4 +90,8 @@ export class DefaultPortModel extends PortModel<DefaultPortModelGenerics> {
     hasLinks(): boolean {
         return Object.keys(this.links).length > 0;
     }
+
+    addLink(link: LinkModel) {
+		this.links[link.getID()] = link;
+	}
 }

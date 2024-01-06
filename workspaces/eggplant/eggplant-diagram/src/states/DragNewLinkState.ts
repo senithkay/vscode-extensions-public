@@ -70,6 +70,18 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                             this.engine.repaintCanvas();
                             return;
                         } else if (this.port.canLinkToPort(model) && model.hasLinks()) {
+                            // if the nodeModel is a HttpResponseNode, then get the port with the links and append the link to it
+                            
+                            if (nodeModel.getKind() === "HttpResponseNode") {
+                                // get the port of the nodeMOdel inport
+                                const port = nodeModel.getInPorts()[0];
+                                this.link.setTargetPort(port);
+                                (this.link as DefaultLinkModel).setReceiver(nodeModel.getName());
+                                this.port.addLink(this.link);
+                                this.port.reportPosition();
+                                this.engine.repaintCanvas();
+                                return;
+                            }
                             // create a new port and link
                             const nextPortId = nodeModel.getNextPortID();
                             const port = nodeModel.addInPort(nextPortId, {
@@ -95,6 +107,16 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                             this.link.remove();
                             this.engine.repaintCanvas();
                             return;
+                        }
+                        if (model.getKind() === "HttpResponseNode") {
+                            const availablePort = model.getPortWithLink();
+                            if (availablePort) {
+                                this.link.setTargetPort(availablePort);
+                                (this.link as DefaultLinkModel).setReceiver(model.getName());
+                                availablePort.reportPosition();
+                                this.engine.repaintCanvas();
+                                return;
+                            }
                         }
                         const availablePort = model.getAvailableInPort();
                         if (availablePort) {

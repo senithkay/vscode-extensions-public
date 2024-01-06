@@ -192,6 +192,16 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return undefined;
     }
 
+    // Get the port related to the HttpResponse link
+    getPortWithLink(): DefaultPortModel | undefined {
+        for (const port of this.portsIn) {
+            if (port.hasLinks()) {
+                return port;
+            }
+        }
+        return undefined;
+    }
+
     getNextPortID(): string {
         let count = this.portsIn.length;
         let nextPortId = getPortId(this.parent.getID(), true, count++);

@@ -208,7 +208,7 @@ function generateCallerNode(node: Node): string {
     const callerProps = node.properties as HttpRequestNodeProperties;
     const callerEp: string = callerProps?.endpoint?.name ? callerProps?.endpoint?.name : "grandOakEp"; // TODO : use the value from the model
     const callerVariable: string = node.name.toLowerCase() + "_response";
-    
+
     const callerAction: string = getComponentSource({
         name: "CALLER_ACTION",
         config: {
@@ -270,7 +270,21 @@ function generateResponseNode(node: Node): string {
             },
         });
     } else {
-        genInport = inputPort ? generateInport(inputPort) : undefined;
+        if (inputPort) {
+            const responseList = generateAlternateReceive(inputPort);
+            genInport = getComponentSource({
+                name: "ASYNC_RECEIVE_ACTION",
+                config: {
+                    TYPE: varType,
+                    VAR_NAME: varName,
+                    SENDER_WORKER: responseList,
+                },
+            });
+        } else {
+            genInport = undefined;
+        }
+
+        //genInport = inputPort ? generateInport(inputPort) : undefined;
     }
 
     const workerNode: string = getComponentSource({
@@ -299,6 +313,18 @@ function generateResponseNode(node: Node): string {
     return completeNode;
 }
 
+function generateAlternateReceive(inport: InputPort): string {
+    let alternateReceive: string = "";
+    inport?.alternateSender?.forEach((sender) => {
+        alternateReceive += sender;
+        console.log("===alternateReceive", alternateReceive);
+        if (inport.alternateSender.indexOf(sender) !== inport.alternateSender.length - 1) {
+            alternateReceive += " | ";
+        }
+    });
+    return alternateReceive;
+}
+
 // TODO: Add template for alterate worker check
 function generateAlternateResponse(node: Node): string {
     // get the inputPorts list and get the receiver name and generate in the form of receiverName1 | recieverName1
@@ -319,7 +345,7 @@ function generateTransformNode(node: Node): TransformNodeData {
     const inputPorts: string = generateInputPorts(node);
     const outputVar: string = node.name.toLowerCase() + "_transformed";
     const outputPorts: string = generateOutputPorts(node, outputVar);
-    
+
     // create the transform_Function
     if (!nodeProperties?.expression?.expression) {
         // get metadata
