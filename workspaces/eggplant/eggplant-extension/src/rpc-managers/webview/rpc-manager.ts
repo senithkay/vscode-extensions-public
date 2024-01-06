@@ -193,12 +193,11 @@ export class WebviewRpcManager implements WebviewAPI {
         console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
 
 
-        // TODO: Fix with the proper position when retrived from the BE model
         const modification: STModification = {
-            startLine: flowModel.bodyCodeLocation?.start.line + 1,
-            startColumn: 0,
+            startLine: flowModel.bodyCodeLocation?.start.line,
+            startColumn: flowModel.bodyCodeLocation?.start.offset,
             endLine: flowModel.bodyCodeLocation?.end.line,
-            endColumn: flowModel.bodyCodeLocation?.end.offset - 2,
+            endColumn: flowModel.bodyCodeLocation?.end.offset,
             type: "INSERT",
             isImport: false,
             config: {
