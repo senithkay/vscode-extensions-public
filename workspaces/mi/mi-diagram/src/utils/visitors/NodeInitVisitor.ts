@@ -413,16 +413,20 @@ export class NodeInitVisitor implements Visitor {
         this.parents.push(node);
         if (node.then) {
             this.currentSequence = thenSequenceNodes;
-            (node.then.mediatorList as any).forEach((mediator: STNode) => {
-                traversNode(mediator, this);
-            });
+            if (node.then.mediatorList) {
+                (node.then.mediatorList as any).forEach((mediator: STNode) => {
+                    traversNode(mediator, this);
+                });
+            }
         }
 
         if (node.else_) {
             this.currentSequence = elseSequenceNodes;
-            (node.else_.mediatorList as any).forEach((mediator: STNode) => {
-                traversNode(mediator, this);
-            });
+            if (node.else_.mediatorList) {
+                (node.else_.mediatorList as any).forEach((mediator: STNode) => {
+                    traversNode(mediator, this);
+                });
+            }
         }
         this.parents.pop();
 

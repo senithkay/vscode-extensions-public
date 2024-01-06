@@ -32,6 +32,7 @@ import SidePanelContext from './SidePanelContexProvider';
 import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-ui-toolkit/react';
 import PayloadForm from './Pages/mediators/transformation/payload';
 import HTTPEndpointForm from './Pages/endpoint/anonymous/http';
+import FilterForm from './Pages/mediators/filter/filter';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -136,6 +137,13 @@ const SidePanelList = (props: SidePanelListProps) => {
                 title: "Payload Mediator",
                 operationName: "payload",
                 form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
+            }
+        ],
+        "filter": [
+            {
+                title: "Filter Mediator",
+                operationName: "filter",
+                form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
             }
         ]
     };

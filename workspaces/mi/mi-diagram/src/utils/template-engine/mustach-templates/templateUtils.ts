@@ -203,6 +203,12 @@ action="{{propertyAction}}"
     <description>{{description}}</description>
 </endpoint>
 `;
+        case MEDIATORS.FILTER:
+            return `<filter{{#description}} description="{{description}}"{{/description}}{{#regularExpression}} regex="{{regularExpression}}"{{/regularExpression}}{{#source}} source="{{source}}"{{/source}}{{#xPath}} xpath="{{xPath}}"{{/xPath}} >
+    <then/>
+    <else/>
+</filter>          
+`
     }
 }
 
@@ -215,7 +221,7 @@ export function getXML(name: string, data: { [key: string]: any }) {
         case MEDIATORS.CALLOUT:
             return getCalloutXml(data);
         case MEDIATORS.CALLTEMPLATE:
-            return getCallTemplateXml(data) 
+            return getCallTemplateXml(data)
         default:
             return Mustache.render(getMustacheTemplate(name), data);
     }
