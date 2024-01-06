@@ -99,7 +99,6 @@ async function getProjectStructureData(context: vscode.ExtensionContext): Promis
 
 function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEntry[] {
 	const directoryMap = data.directoryMap;
-	console.log('hello >>>', directoryMap);
 	const result: ProjectExplorerEntry[] = [];
 	const workspaceName = vscode.workspace.name ?? '';
 	const projectRoot = new ProjectExplorerEntry(
