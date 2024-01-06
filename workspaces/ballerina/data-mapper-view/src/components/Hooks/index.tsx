@@ -78,7 +78,7 @@ export const useDiagramModel = (
         const newModel = new DiagramModel();
         newModel.setZoomLevel(zoomLevel);
         newModel.setOffset(offSetX, offSetY);
-        if (!nodes.find(node => node instanceof RequiredParamNode && node.getSearchFilteredType())) {
+        if (!nodes.some(node => node instanceof RequiredParamNode && node.getSearchFilteredType())) {
             const inputSearchNotFoundNode = new RequiredParamNode(undefined, undefined, undefined, true);
             inputSearchNotFoundNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.SOURCE_NODE.Y);
             newModel.addNode(inputSearchNotFoundNode);

@@ -209,17 +209,15 @@ export class NodeInitVisitor implements Visitor {
                         for (const [, item] of letClauses.entries()) {
                             if (STKindChecker.isLetClause(item)) {
                                 const paramNode = new LetClauseNode(this.context, item as LetClause);
-                                if (paramNode.getSourceType()){
-                                    paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                                    this.inputParamNodes.push(paramNode);
-                                    const letClauseValueLabel = (
-                                        ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
-                                            ?.bindingPattern as CaptureBindingPattern
-                                    )?.variableName?.value;
-                                    const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
-                                    expandedHeaderPorts.push(letClausePort);
-                                    paramNode.addPort(letClausePort);
-                                }
+                                paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
+                                this.inputParamNodes.push(paramNode);
+                                const letClauseValueLabel = (
+                                    ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
+                                        ?.bindingPattern as CaptureBindingPattern
+                                )?.variableName?.value;
+                                const letClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${letClauseValueLabel}`);
+                                expandedHeaderPorts.push(letClausePort);
+                                paramNode.addPort(letClausePort);
                             } else if (STKindChecker.isJoinClause(item)) {
                                 const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                                 if (paramNode.getSourceType()){
@@ -516,7 +514,7 @@ export class NodeInitVisitor implements Visitor {
                 for (const [, item] of letClauses.entries()) {
                     if (STKindChecker.isLetClause(item)) {
                         const paramNode = new LetClauseNode(this.context, item as LetClause);
-                        if (paramNode.getSourceType()){
+                        if (paramNode.getSearchFilteredType()){
                             paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
                             this.inputParamNodes.push(paramNode);
 

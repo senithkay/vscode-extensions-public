@@ -21,6 +21,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
     public typeDef: Type;
     public x: number;
     public numberOfFields:  number;
+    originalTypeDef: Type;
 
     constructor(
         public context: IDataMapperContext,
@@ -32,14 +33,15 @@ export class RequiredParamNode extends DataMapperNodeModel {
             REQ_PARAM_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.typeDef = this.value ? getTypeOfInputParam(this.value, this.context.ballerinaVersion) : undefined;
+        this.originalTypeDef = this.value ? getTypeOfInputParam(this.value, this.context.ballerinaVersion) : undefined;
+        this.typeDef = this.originalTypeDef;
     }
 
     async initPorts() {
         this.numberOfFields = 1;
+        this.typeDef = this.getSearchFilteredType();
+        this.hasNoMatchingFields = !this.typeDef;
         if (this.typeDef) {
-            this.typeDef = this.getSearchFilteredType();
-            this.hasNoMatchingFields = !this.typeDef;
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.value.paramName.value, "OUT", undefined, this.context.collapsedFields);
 
             if (this.typeDef.typeName === PrimitiveBalType.Record) {
@@ -61,8 +63,8 @@ export class RequiredParamNode extends DataMapperNodeModel {
 
             const matchesParamName = this.value?.paramName?.value?.toLowerCase()?.includes(searchValue?.toLowerCase());
             const type = matchesParamName
-                ? this.typeDef
-                : getSearchFilteredInput(this.typeDef,  this.value?.paramName?.value);
+                ? this.originalTypeDef
+                : getSearchFilteredInput(this.originalTypeDef,  this.value?.paramName?.value);
             return type;
         }
     }

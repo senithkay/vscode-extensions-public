@@ -18,11 +18,9 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
-import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getFilteredSubFields, getSearchFilteredInput } from "../../utils/dm-utils";
-import { TypeDescriptorStore } from "../../utils/type-descriptor-store";
+import { getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let";
@@ -34,6 +32,9 @@ export class LetClauseNode extends DataMapperNodeModel {
     public sourceBindingPattern: CaptureBindingPattern;
     public x: number;
     public numberOfFields:  number;
+    public hasNoMatchingFields: boolean;
+    originalTypeDef: Type;
+    letVarDecl: LetVarDecl;
 
     constructor(
         public context: IDataMapperContext,
@@ -43,12 +44,21 @@ export class LetClauseNode extends DataMapperNodeModel {
             QUERY_EXPR_SOURCE_NODE_TYPE
         );
         this.numberOfFields = 1;
+        this.letVarDecl = value.letVarDeclarations[0] as LetVarDecl;
+        const expr = this.letVarDecl?.expression;
+        const bindingPattern = (this.value.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern.bindingPattern;
+        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
+            this.sourceBindingPattern = bindingPattern;
+            this.originalTypeDef = getTypeFromStore(expr.position as NodePosition);
+            this.typeDef = this.originalTypeDef;
+        }
     }
 
     initPorts(): void {
+        this.typeDef = this.getSearchFilteredType();
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
-
+            this.hasNoMatchingFields = !this.typeDef;
             if (this.typeDef){
                 const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 
@@ -72,27 +82,12 @@ export class LetClauseNode extends DataMapperNodeModel {
         // Currently, we create links from "IN" ports and back tracing the inputs.
     }
 
-    public getSourceType() {
-        const expr = (this.value.letVarDeclarations[0] as LetVarDecl)?.expression;
-        const bindingPattern = (this.value.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern.bindingPattern;
-        if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
-            this.sourceBindingPattern = bindingPattern;
-            const exprPosition = expr.position as NodePosition;
-
-            const recordTypeDescriptors = TypeDescriptorStore.getInstance();
-            const type = recordTypeDescriptors.getTypeDescriptor({
-                startLine: exprPosition.startLine,
-                startColumn: exprPosition.startColumn,
-                endLine: exprPosition.endLine,
-                endColumn: exprPosition.endColumn
-            });
-            if (type){
-                const name = this.sourceBindingPattern.variableName.value;
-                const isRecordOrArray = type.typeName === PrimitiveBalType.Record || type.typeName === PrimitiveBalType.Array;
-                this.typeDef = getSearchFilteredInput(isRecordOrArray ? type : {...type, name: (expr as SimpleNameReference)?.name?.value}, name)
-            }
+    public getSearchFilteredType() {
+        if (this.originalTypeDef){
+            const name = this.sourceBindingPattern.variableName.value;
+            const isRecordOrArray = this.originalTypeDef.typeName === PrimitiveBalType.Record || this.originalTypeDef.typeName === PrimitiveBalType.Array;
+            return getSearchFilteredInput(isRecordOrArray ? this.originalTypeDef : {...this.originalTypeDef, name: (this.letVarDecl?.expression as SimpleNameReference)?.name?.value}, name)
         }
-        return this.typeDef;
     }
 
     setPosition(point: Point): void;

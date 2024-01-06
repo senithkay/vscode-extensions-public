@@ -34,6 +34,9 @@ export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, Di
     }
 
     generateReactWidget(event: { model: LetClauseNode; }): JSX.Element {
+        if (event.model.hasNoMatchingFields && !event.model.typeDef) {
+            return;
+        }
         if (event.model.typeDef.typeName === PrimitiveBalType.Record || event.model.typeDef.typeName === PrimitiveBalType.Array){
             return (
                 <RecordTypeTreeWidget
