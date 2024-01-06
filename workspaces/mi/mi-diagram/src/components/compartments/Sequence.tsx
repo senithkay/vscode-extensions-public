@@ -72,7 +72,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         const sequenceNode = canvasPortNode;
 
         // Add initial plus node
-        const plusNode = new PlusNodeModel(`${sequenceType}:plus:start`, "node.getDocumentUri()", sequenceType, null);
+        const plusNode = new PlusNodeModel(`${sequenceType}:plus:start`, null, sequenceType, null);
         const position: Position = {
             line: range.start.line,
             character: range.start.character + tag.length + 2
@@ -104,17 +104,17 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         }
         if (nodes.length > 0) {
             // Add final plus node
-            const plusNode = new PlusNodeModel(`${sequenceType}:plus:end`, "node.getDocumentUri()", sequenceType, null);
+            const sourceNode = nodes[nodes.length - 1];
+            const plusNode = new PlusNodeModel(`${sequenceType}:plus:end`, null, sequenceType, null);
             const position: Position = {
-                line: range.start.line,
-                character: range.start.character + tag.length + 2
+                line: sourceNode.getNodeRange().end.line,
+                character: sourceNode.getNodeRange().end.character
             }
 
             plusNode.setNodeRange({
                 start: position,
                 end: position
             });
-            const sourceNode = nodes[nodes.length - 1];
             const canvasPortLink = createLinks(sourceNode, plusNode, null);
             model.addAll(...canvasPortLink);
         }
