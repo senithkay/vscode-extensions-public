@@ -11,17 +11,22 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Colors, EVENT_TYPES } from "../../resources";
 import { HttpMethod, NodeKinds } from "../../types";
+import { FunctionIcon } from "../../resources/assets/icons/FunctionIcon";
+import { JoinIcon } from "../../resources/assets/icons/JoinIcon";
+import { LinkOutIcon } from "../../resources/assets/icons/LinkOutIcon";
+import { SwitchIcon } from "../../resources/assets/icons/SwitchIcon";
+import { TriggerIcon } from "../../resources/assets/icons/TriggerIcon";
 
 export interface TrayItemWidgetProps {
     model: TrayItemModel;
-    color?: string;
     name: string;
+    color?: string;
 }
 
 export type TrayItemModel = {
-    type: NodeKinds,
-    action?: HttpMethod, // TODO: handle this dynamic sub types properly
-}
+    type: NodeKinds;
+    action?: HttpMethod; // TODO: handle this dynamic sub types properly
+};
 
 namespace S {
     export const Tray = styled.div<{ color: string }>`
@@ -34,12 +39,46 @@ namespace S {
         border-radius: 5px;
         margin-bottom: 2px;
         cursor: pointer;
-        width: max-content;
+        width: 160px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    `;
+
+    export const IconContainer = styled.div`
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        & svg {
+            height: 16px;
+            width: 16px;
+            fill: ${Colors.ON_SURFACE};
+            stroke: ${Colors.ON_SURFACE};
+        }
     `;
 }
 
 export function TrayItemWidget(props: TrayItemWidgetProps) {
     const { model, color, name } = props;
+
+    const componentIcon = (type: NodeKinds) => {
+        switch (type) {
+            case "SwitchNode":
+                return <SwitchIcon />;
+            case "CodeBlockNode":
+                return <FunctionIcon />;
+            case "TransformNode":
+                return <JoinIcon />;
+            case "HttpRequestNode":
+                return <LinkOutIcon />;
+            case "NewPayloadNode":
+                return <TriggerIcon />;
+            default:
+                <></>;
+        }
+    };
+
     return (
         <S.Tray
             color={color}
@@ -49,6 +88,7 @@ export function TrayItemWidget(props: TrayItemWidgetProps) {
             }}
             className="tray-item"
         >
+            <S.IconContainer>{componentIcon(model.type)}</S.IconContainer>
             {name}
         </S.Tray>
     );

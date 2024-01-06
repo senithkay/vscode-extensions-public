@@ -15,6 +15,12 @@ import { DefaultPortLabel } from "../port/DefaultPortLabelWidget";
 import styled from "@emotion/styled";
 import { Colors, NODE_MIN_HEIGHT, NODE_MIN_WIDTH } from "../../../resources";
 import { DefaultPortModel } from "../port/DefaultPortModel";
+import { FunctionIcon } from "../../../resources/assets/icons/FunctionIcon";
+import { SwitchIcon } from "../../../resources/assets/icons/SwitchIcon";
+import { NodeKinds } from "@wso2-enterprise/eggplant-core";
+import { JoinIcon } from "../../../resources/assets/icons/JoinIcon";
+import { LinkOutIcon } from "../../../resources/assets/icons/LinkOutIcon";
+import { TriggerIcon } from "../../../resources/assets/icons/TriggerIcon";
 
 namespace S {
     type NodeStyleProp = {
@@ -48,7 +54,7 @@ namespace S {
 
     export const TitleName = styled.div`
         flex-grow: 1;
-        padding: 5px 16px;
+        padding: 4px 6px;
     `;
 
     export const Ports = styled.div`
@@ -70,6 +76,19 @@ namespace S {
         gap: 8px;
         margin: 8px 0;
     `;
+
+    export const IconContainer = styled.div`
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        & svg {
+            height: 20px;
+            width: 20px;
+            fill: ${Colors.ON_SURFACE};
+            stroke: ${Colors.ON_SURFACE};
+        }
+    `;
 }
 
 export interface DefaultNodeProps {
@@ -86,6 +105,23 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
         return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
     };
 
+    componentIcon = (type: NodeKinds) => {
+        switch (type) {
+            case "SwitchNode":
+                return <SwitchIcon />;
+            case "CodeBlockNode":
+                return <FunctionIcon />;
+            case "TransformNode":
+                return <JoinIcon />;
+            case "HttpRequestNode":
+                return <LinkOutIcon />;
+            case "NewPayloadNode":
+                return <TriggerIcon />;
+            default:
+                <></>;
+        }
+    };
+
     render() {
         return (
             <S.Node
@@ -96,6 +132,9 @@ export class DefaultNodeWidget extends React.Component<DefaultNodeProps> {
                 <S.InPorts>
                     <S.PortsContainer>{_.map(this.props.node.getInPorts(), this.generatePort)}</S.PortsContainer>
                 </S.InPorts>
+                <S.IconContainer>
+                    {this.componentIcon(this.props.node.getOptions().node?.templateId as NodeKinds)}
+                </S.IconContainer>
                 <S.Title>
                     <S.TitleName>
                         {this.props.node.getOptions().node?.name === "HttpResponseNode"
