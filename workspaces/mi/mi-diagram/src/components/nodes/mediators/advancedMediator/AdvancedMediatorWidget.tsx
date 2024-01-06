@@ -112,12 +112,28 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 subSequenceWidth = subNodes[0].width;
                 props.diagramEngine.getModel().addNode(subNodes[0]);
                 subNodesAndLinks.push(subNodes[0]);
+            } else {
+                subSequenceHeight = 80;
+                subSequenceWidth = 80;
+                const plusNode = new PlusNodeModel(`${subSequence.name}-${subSequence.range}:plus`, node.getDocumentUri(), node.getSequenceType(), node.getNode());
+                plusNode.setNodeRange({
+                    start: {
+                        line: subSequence.range.start.line,
+                        character: subSequence.range.start.character + 6
+                    },
+                    end: {
+                        line: subSequence.range.end.line,
+                        character: subSequence.range.end.character - 7
+                    }
+                });
+                props.diagramEngine.getModel().addNode(plusNode);
+                subNodesAndLinks.push(plusNode);
             }
 
-            subSequence.width = subNodes.length > 0 ? subSequenceWidth + 30 : 80;
+            subSequence.width = subSequenceWidth + 30;
             subSequencesWidth += subSequence.width;
             setNodePositions(subNodesAndLinks, nodePosition.x + subSequencesX + 30, node.getY() + 75, subSequence.width);
-            subSequence.height = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getY() - subNodes[0].getY()) + subNodes[subNodes.length - 1].height + 40 : 50;
+            subSequence.height = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getY() - subNodes[0].getY()) + subNodes[subNodes.length - 1].height + 40 : 80;
             subSequencesX += subSequence.width + 35;
             subSequencesHeight = Math.max(subSequencesHeight, subSequence.height);
         });

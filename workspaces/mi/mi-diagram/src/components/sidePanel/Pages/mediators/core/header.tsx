@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -19,7 +19,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -28,6 +28,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -110,7 +114,7 @@ const HeaderForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
-                <div>
+                <Field>
                     <TextField
                         label="Header Name"
                         size={50}
@@ -123,81 +127,82 @@ const HeaderForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["headerName"] && <Error>{errors["headerName"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <label>Header Action</label>
                     <AutoComplete items={["set", "remove"]} selectedItem={formValues["headerAction"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "headerAction": e });
                         formValidators["headerAction"](e);
                     }} />
                     {errors["headerAction"] && <Error>{errors["headerAction"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <label>Scope</label>
                     <AutoComplete items={["default", "transport"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "scope": e });
                         formValidators["scope"](e);
                     }} />
                     {errors["scope"] && <Error>{errors["scope"]}</Error>}
-                </div>
+                </Field>
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>HeaderValue</h3>
+                {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" &&
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>HeaderValue</h3>
 
-                    {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" &&
-                        <div>
+                        <Field>
                             <label>Value Type</label>
                             <AutoComplete items={["LITERAL", "EXPRESSION", "INLINE"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
                                 setFormValues({ ...formValues, "valueType": e });
                                 formValidators["valueType"](e);
                             }} />
                             {errors["valueType"] && <Error>{errors["valueType"]}</Error>}
-                        </div>
-                    }
+                        </Field>
 
-                    {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" ||formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
-                        <div>
-                            <TextField
-                                label="Value Literal"
-                                size={50}
-                                placeholder=""
-                                value={formValues["valueLiteral"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueLiteral": e });
-                                    formValidators["valueLiteral"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueLiteral"] && <Error>{errors["valueLiteral"]}</Error>}
-                        </div>
-                    }
+                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
+                            <Field>
+                                <TextField
+                                    label="Value Literal"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["valueLiteral"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "valueLiteral": e });
+                                        formValidators["valueLiteral"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["valueLiteral"] && <Error>{errors["valueLiteral"]}</Error>}
+                            </Field>
+                        }
 
-                    {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" ||formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
-                        <div>
-                        </div>
-                    }
+                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
+                            <Field>
+                            </Field>
+                        }
 
-                    {formValues["headerAction"] && formValues["headerAction"].toLowerCase() == "set" ||formValues["valueType"] && formValues["valueType"].toLowerCase() == "inline" &&
-                        <div>
-                            <TextField
-                                label="Value Inline"
-                                size={50}
-                                placeholder=""
-                                value={formValues["valueInline"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueInline": e });
-                                    formValidators["valueInline"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueInline"] && <Error>{errors["valueInline"]}</Error>}
-                        </div>
-                    }
+                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "inline" &&
+                            <Field>
+                                <TextField
+                                    label="Value Inline"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["valueInline"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "valueInline": e });
+                                        formValidators["valueInline"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["valueInline"] && <Error>{errors["valueInline"]}</Error>}
+                            </Field>
+                        }
 
-                </ComponentCard>
-                <div>
+                    </ComponentCard>
+                }
+
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -210,9 +215,10 @@ const HeaderForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

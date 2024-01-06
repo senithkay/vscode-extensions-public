@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -20,7 +20,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -29,6 +29,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -108,75 +112,78 @@ const SendForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
-                <div>
+                <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["skipSerialization"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "skipSerialization": e.target.checked });
                         formValidators["skipSerialization"](e);
                     }
                     }>Skip Serialization </VSCodeCheckbox>
                     {errors["skipSerialization"] && <Error>{errors["skipSerialization"]}</Error>}
-                </div>
+                </Field>
 
-                {formValues["skipSerialization"] == true &&
-                    <div>
+                {formValues["skipSerialization"] == false &&
+                    <Field>
                         <VSCodeCheckbox type="checkbox" checked={formValues["buildMessageBeforeSending"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "buildMessageBeforeSending": e.target.checked });
                             formValidators["buildMessageBeforeSending"](e);
                         }
                         }>Build Message Before Sending </VSCodeCheckbox>
                         {errors["buildMessageBeforeSending"] && <Error>{errors["buildMessageBeforeSending"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Receiving Sequence</h3>
+                {formValues["skipSerialization"] == false &&
+                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                        <h3>Receiving Sequence</h3>
 
-                    <div>
-                        <label>Receiving Sequence Type</label>
-                        <AutoComplete items={["Default", "Static", "Dynamic"]} selectedItem={formValues["receivingSequenceType"]} onChange={(e: any) => {
-                            setFormValues({ ...formValues, "receivingSequenceType": e });
-                            formValidators["receivingSequenceType"](e);
-                        }} />
-                        {errors["receivingSequenceType"] && <Error>{errors["receivingSequenceType"]}</Error>}
-                    </div>
+                        <Field>
+                            <label>Receiving Sequence Type</label>
+                            <AutoComplete items={["Default", "Static", "Dynamic"]} selectedItem={formValues["receivingSequenceType"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "receivingSequenceType": e });
+                                formValidators["receivingSequenceType"](e);
+                            }} />
+                            {errors["receivingSequenceType"] && <Error>{errors["receivingSequenceType"]}</Error>}
+                        </Field>
 
-                    {formValues["receivingSequenceType"] && formValues["receivingSequenceType"].toLowerCase() == "static" &&
-                        <div>
-                            <TextField
-                                label="Static Receiving Sequence"
-                                size={50}
-                                placeholder=""
-                                value={formValues["staticReceivingSequence"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "staticReceivingSequence": e });
-                                    formValidators["staticReceivingSequence"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["staticReceivingSequence"] && <Error>{errors["staticReceivingSequence"]}</Error>}
-                        </div>
-                    }
+                        {formValues["receivingSequenceType"] && formValues["receivingSequenceType"].toLowerCase() == "static" &&
+                            <Field>
+                                <TextField
+                                    label="Static Receiving Sequence"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["staticReceivingSequence"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "staticReceivingSequence": e });
+                                        formValidators["staticReceivingSequence"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["staticReceivingSequence"] && <Error>{errors["staticReceivingSequence"]}</Error>}
+                            </Field>
+                        }
 
-                    {formValues["receivingSequenceType"] && formValues["receivingSequenceType"].toLowerCase() == "dynamic" &&
-                        <div>
-                            <TextField
-                                label="Dynamic Receiving Sequence"
-                                size={50}
-                                placeholder=""
-                                value={formValues["dynamicReceivingSequence"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "dynamicReceivingSequence": e });
-                                    formValidators["dynamicReceivingSequence"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["dynamicReceivingSequence"] && <Error>{errors["dynamicReceivingSequence"]}</Error>}
-                        </div>
-                    }
+                        {formValues["receivingSequenceType"] && formValues["receivingSequenceType"].toLowerCase() == "dynamic" &&
+                            <Field>
+                                <TextField
+                                    label="Dynamic Receiving Sequence"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["dynamicReceivingSequence"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "dynamicReceivingSequence": e });
+                                        formValidators["dynamicReceivingSequence"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["dynamicReceivingSequence"] && <Error>{errors["dynamicReceivingSequence"]}</Error>}
+                            </Field>
+                        }
 
-                </ComponentCard>
+                    </ComponentCard>
+                }
+
                 {formValues["receivingSequenceType"] && formValues["receivingSequenceType"].toLowerCase() == "default" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Description"
                             size={50}
@@ -189,10 +196,11 @@ const SendForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["description"] && <Error>{errors["description"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

@@ -44,4 +44,6 @@ export const MEDIATORS = {
     HEADER: "Header",
     VALIDATE: "Validate",
     HTTPENDPOINT: "http",
+    FILTER: "Filter",
+    PAYLOAD: "Payload",
 }

@@ -10,7 +10,7 @@
 import { PortModelAlignment } from "@projectstorm/react-diagrams";
 import { BaseNodeModel, SequenceType } from "../../../base/base-node/base-node";
 import { MediatorPortModel } from "../../../port/MediatorPortModel";
-import { STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Range, STNode } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export const ADVANCED_NODE = "AdvancedNode";
 
@@ -19,6 +19,7 @@ interface SubSequence {
     nodes: BaseNodeModel[];
     width?: number;
     height?: number;
+    range: Range;
 }
 
 interface AdvancedMediatorNodeModelProps {

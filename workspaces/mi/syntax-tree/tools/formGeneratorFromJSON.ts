@@ -110,7 +110,7 @@ const generateForm = (jsonData: any): string => {
 
                 fields +=
                     fixIndentation(`
-                    <div>`, indentation);
+                    <Field>`, indentation);
                 indentation += 4;
                 if (inputType === 'stringOrExpression' || inputType === 'string' || inputType === 'registry') {
 
@@ -191,7 +191,7 @@ const generateForm = (jsonData: any): string => {
                 indentation -= 4;
                 fields +=
                     fixIndentation(`
-                    </div>${enableCondition ? `
+                    </Field>${enableCondition ? `
                 }\n` : "\n"}`, indentation);
 
                 indentation -= enableCondition ? 4 : 0;
@@ -306,7 +306,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
     display: "block", 
-    margin: "5px 0",
+    margin: "15px 0",
     padding: "0 15px 15px 15px",
     width: "auto",
     cursor: "auto" 
@@ -315,6 +315,10 @@ const cardStyle = {
 const Error = styled.span\`
     color: var(--vscode-errorForeground);
     font-size: 12px;
+\`;
+
+const Field = styled.div\`
+    margin-bottom: 12px;
 \`;
 
 const emailRegex = /^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/g;

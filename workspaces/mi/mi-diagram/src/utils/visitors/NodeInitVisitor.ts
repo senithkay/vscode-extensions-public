@@ -29,7 +29,10 @@ import {
     Header,
     Validate,
     EndpointHttp,
-    Endpoint
+    Endpoint,
+    Filter,
+    PayloadFactory,
+    Range
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
@@ -41,6 +44,8 @@ export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
     private inSequenceNodes: BaseNodeModel[] = [];
     private outSequenceNodes: BaseNodeModel[] = [];
+    private inSequenceRange: Range;
+    private outSequenceRange: Range;
     private parents: STNode[] = [];
     private documentUri: string;
     private isInOutSequence = false;
@@ -298,7 +303,7 @@ export class NodeInitVisitor implements Visitor {
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
-                    name: "OnFail", nodes: onFailSequenceNodes
+                    name: "OnFail", nodes: onFailSequenceNodes, range: node.onFail?.range
                 }]
             }
             ));
@@ -336,9 +341,9 @@ export class NodeInitVisitor implements Visitor {
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
-                    name: "OnAccept", nodes: onAcceptSequenceNodes
+                    name: "OnAccept", nodes: onAcceptSequenceNodes, range: node.onAccept?.range
                 }, {
-                    name: "OnReject", nodes: onRejectSequenceNodes
+                    name: "OnReject", nodes: onRejectSequenceNodes, range: node.onReject?.range
                 }]
             }
             ));
@@ -350,7 +355,7 @@ export class NodeInitVisitor implements Visitor {
             new SimpleMediatorNodeModel({
                 node: node,
                 name: MEDIATORS.HTTPENDPOINT,
-                description: node.tag?.toString(),
+                description: node.key?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
                 parentNode: this.parents[this.parents.length - 1]
@@ -385,6 +390,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitInSequence(node: Sequence): void {
         this.currentSequence = this.inSequenceNodes;
+        this.inSequenceRange = node.range;
         this.parents.push(node);
     }
 
@@ -395,12 +401,70 @@ export class NodeInitVisitor implements Visitor {
     beginVisitOutSequence(node: Sequence): void {
         this.isInOutSequence = true;
         this.currentSequence = this.outSequenceNodes;
+        this.outSequenceRange = node.range;
         this.parents.push(node);
     }
 
     endVisitOutSequence(): void {
         this.isInOutSequence = false;
         this.parents.pop();
+    }
+
+    beginVisitFilter(node: Filter): void {
+        const currentSequence = this.currentSequence;
+        const thenSequenceNodes: [] = [];
+        const elseSequenceNodes: [] = [];
+
+        this.parents.push(node);
+        if (node.then) {
+            this.currentSequence = thenSequenceNodes;
+            if (node.then.mediatorList) {
+                (node.then.mediatorList as any).forEach((mediator: STNode) => {
+                    traversNode(mediator, this);
+                });
+            }
+        }
+
+        if (node.else_) {
+            this.currentSequence = elseSequenceNodes;
+            if (node.else_.mediatorList) {
+                (node.else_.mediatorList as any).forEach((mediator: STNode) => {
+                    traversNode(mediator, this);
+                });
+            }
+        }
+        this.parents.pop();
+
+        this.currentSequence = currentSequence;
+        this.currentSequence.push(
+            new AdvancedMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.FILTER,
+                description: "",
+                documentUri: this.documentUri,
+                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1],
+                subSequences: [{
+                    name: "Then", nodes: thenSequenceNodes, range: node.then?.range
+                }, {
+                    name: "Else", nodes: elseSequenceNodes, range: node.else_?.range
+                }]
+            }
+            ));
+        this.skipChildrenVisit = true;
+    }
+
+    beginVisitPayloadFactory(node: PayloadFactory): void {
+        this.currentSequence.push(
+            new SimpleMediatorNodeModel({
+                node: node,
+                name: MEDIATORS.PAYLOAD,
+                description: node.mediaType?.toString(),
+                documentUri: this.documentUri,
+                sequenceType: SequenceType.IN_SEQUENCE,
+                parentNode: this.parents[this.parents.length - 1]
+            }
+            ));
     }
 
     skipChildren(): boolean {
@@ -413,6 +477,14 @@ export class NodeInitVisitor implements Visitor {
 
     getOutSequenceNodes(): BaseNodeModel[] {
         return this.outSequenceNodes;
+    }
+
+    getInSequenceRange(): Range {
+        return this.inSequenceRange;
+    }
+
+    getOutSequenceRange(): Range {
+        return this.outSequenceRange;
     }
 }
 

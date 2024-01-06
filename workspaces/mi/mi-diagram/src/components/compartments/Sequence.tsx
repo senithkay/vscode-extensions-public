@@ -20,13 +20,16 @@ import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
 import { SequenceNodeModel } from '../nodes/sequence/SequenceNodeModel';
 import { PlusNodeModel } from '../nodes/plusNode/PlusNodeModel';
+import { Position, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export const IN_SEQUENCE_TAG = "inSequence";
 export const OUT_SEQUENCE_TAG = "outSequence";
 
 export interface SequenceDiagramProps {
     inSequence: BaseNodeModel[];
+    inSequenceRange?: Range;
     outSequence: BaseNodeModel[];
+    outSequenceRange?: Range;
 }
 
 SequenceDiagram.defaultProps = {
@@ -48,12 +51,9 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             diagramEngine.setModel(model);
             setEngine(diagramEngine);
 
-            if (inSequenceNodes.length > 0) {
-                drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE);
-            }
-            if (outSequenceNodes.length > 0) {
-                drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE);
-            }
+            drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE, props.inSequenceRange, "inSequence");
+            drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE, props.outSequenceRange, "outSequence");
+
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
                     if (event.function == "updateDimensions") {
@@ -67,17 +67,29 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         })();
     }, []);
 
-    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType) {
-        const range = {
-            start: nodes[0].getNodeRange().start,
-            end: nodes[0].getNodeRange().start,
+    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType, range: Range, tag: string) {
+        let canvasPortNode = new SequenceNodeModel(`sequence-${sequenceType}`, sequenceType, range);
+        const sequenceNode = canvasPortNode;
+
+        // Add initial plus node
+        const plusNode = new PlusNodeModel(`${sequenceType}:plus:start`, "node.getDocumentUri()", sequenceType, null);
+        const position: Position = {
+            line: range.start.line,
+            character: range.start.character + tag.length + 2
         }
 
-        let canvasPortNode = new SequenceNodeModel(`sequence-${sequenceType}`, sequenceType, range);
-        const sourceNode = canvasPortNode;
-        const targetNode = nodes[0];
-        const canvasPortLink = createLinks(sourceNode, targetNode, null);
-        model.addAll(sourceNode, ...canvasPortLink, targetNode);
+        plusNode.setNodeRange({
+            start: position,
+            end: position
+        });
+
+        if (nodes.length > 0) {
+            const targetNode = nodes[0];
+            const canvasPortLink = createLinks(plusNode, targetNode, null);
+            model.addAll(sequenceNode, ...canvasPortLink, targetNode);
+        } else {
+            model.addAll(sequenceNode, plusNode);
+        }
 
         if (nodes.length > 1) {
             for (let i = 0; i < nodes.length; i++) {
@@ -89,6 +101,22 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
                     }
                 }
             }
+        }
+        if (nodes.length > 0) {
+            // Add final plus node
+            const plusNode = new PlusNodeModel(`${sequenceType}:plus:end`, "node.getDocumentUri()", sequenceType, null);
+            const position: Position = {
+                line: range.start.line,
+                character: range.start.character + tag.length + 2
+            }
+
+            plusNode.setNodeRange({
+                start: position,
+                end: position
+            });
+            const sourceNode = nodes[nodes.length - 1];
+            const canvasPortLink = createLinks(sourceNode, plusNode, null);
+            model.addAll(...canvasPortLink);
         }
     }
 

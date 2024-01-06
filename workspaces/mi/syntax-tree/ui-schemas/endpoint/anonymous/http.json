@@ -369,7 +369,7 @@
                         {
                           "type": "attributeGroup",
                           "value": {
-                            "groupName": "Properties",
+                            "groupName": "OAuthProperties",
                             "elements": [
                               {
                                 "type": "attribute",

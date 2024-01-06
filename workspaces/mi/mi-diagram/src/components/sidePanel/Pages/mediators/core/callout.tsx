@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -20,7 +20,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -29,6 +29,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -123,16 +127,16 @@ const CalloutForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Service</h3>
 
-                <div>
+                <Field>
                     <label>Endpoint Type</label>
                     <AutoComplete items={["URL", "AddressEndpoint"]} selectedItem={formValues["endpointType"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "endpointType": e });
                         formValidators["endpointType"](e);
                     }} />
                     {errors["endpointType"] && <Error>{errors["endpointType"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="SOAP Action"
                         size={50}
@@ -145,9 +149,9 @@ const CalloutForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["soapAction"] && <Error>{errors["soapAction"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="Path To Axis2 Repository"
                         size={50}
@@ -160,9 +164,9 @@ const CalloutForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["pathToAxis2Repository"] && <Error>{errors["pathToAxis2Repository"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="Path To Axis2xml"
                         size={50}
@@ -175,19 +179,19 @@ const CalloutForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["pathToAxis2xml"] && <Error>{errors["pathToAxis2xml"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <VSCodeCheckbox type="checkbox" checked={formValues["initAxis2ClientOptions"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "initAxis2ClientOptions": e.target.checked });
                         formValidators["initAxis2ClientOptions"](e);
                     }
                     }>Init Axis2 Client Options </VSCodeCheckbox>
                     {errors["initAxis2ClientOptions"] && <Error>{errors["initAxis2ClientOptions"]}</Error>}
-                </div>
+                </Field>
 
                 {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "url" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Service URL"
                             size={50}
@@ -200,11 +204,11 @@ const CalloutForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["serviceURL"] && <Error>{errors["serviceURL"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
                 {formValues["endpointType"] && formValues["endpointType"].toLowerCase() == "addressendpoint" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Address Endpoint"
                             size={50}
@@ -217,29 +221,30 @@ const CalloutForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["addressEndpoint"] && <Error>{errors["addressEndpoint"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
             </ComponentCard>
+
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Source</h3>
 
-                <div>
+                <Field>
                     <label>Payload Type</label>
                     <AutoComplete items={["XPATH", "PROPERTY", "ENVELOPE"]} selectedItem={formValues["payloadType"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "payloadType": e });
                         formValidators["payloadType"](e);
                     }} />
                     {errors["payloadType"] && <Error>{errors["payloadType"]}</Error>}
-                </div>
+                </Field>
 
                 {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "xpath" &&
-                    <div>
-                    </div>
+                    <Field>
+                    </Field>
                 }
 
                 {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "property" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Payload Property"
                             size={50}
@@ -252,29 +257,30 @@ const CalloutForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["payloadProperty"] && <Error>{errors["payloadProperty"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
             </ComponentCard>
+
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Target</h3>
 
-                <div>
+                <Field>
                     <label>Result Type</label>
                     <AutoComplete items={["XPATH", "PROPERTY"]} selectedItem={formValues["resultType"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "resultType": e });
                         formValidators["resultType"](e);
                     }} />
                     {errors["resultType"] && <Error>{errors["resultType"]}</Error>}
-                </div>
+                </Field>
 
                 {formValues["resultType"] && formValues["resultType"].toLowerCase() == "xpath" &&
-                    <div>
-                    </div>
+                    <Field>
+                    </Field>
                 }
 
                 {formValues["resultType"] && formValues["resultType"].toLowerCase() == "property" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Result Context Property"
                             size={50}
@@ -287,35 +293,36 @@ const CalloutForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["resultContextProperty"] && <Error>{errors["resultContextProperty"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
             </ComponentCard>
+
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>WS</h3>
 
-                <div>
+                <Field>
                     <label>Security Type</label>
                     <AutoComplete items={["TRUE", "FALSE"]} selectedItem={formValues["securityType"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "securityType": e });
                         formValidators["securityType"](e);
                     }} />
                     {errors["securityType"] && <Error>{errors["securityType"]}</Error>}
-                </div>
+                </Field>
 
                 {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&
-                    <div>
+                    <Field>
                         <label>Policies</label>
                         <AutoComplete items={["TRUE", "FALSE"]} selectedItem={formValues["policies"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "policies": e });
                             formValidators["policies"](e);
                         }} />
                         {errors["policies"] && <Error>{errors["policies"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
                 {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "false" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Policy Key"
                             size={50}
@@ -328,11 +335,11 @@ const CalloutForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["policyKey"] && <Error>{errors["policyKey"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
                 {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Outbound Policy Key"
                             size={50}
@@ -345,11 +352,11 @@ const CalloutForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["outboundPolicyKey"] && <Error>{errors["outboundPolicyKey"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
                 {formValues["securityType"] && formValues["securityType"].toLowerCase() == "true" &&formValues["policies"] && formValues["policies"].toLowerCase() == "true" &&
-                    <div>
+                    <Field>
                         <TextField
                             label="Inbound Policy Key"
                             size={50}
@@ -362,14 +369,15 @@ const CalloutForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["inboundPolicyKey"] && <Error>{errors["inboundPolicyKey"]}</Error>}
-                    </div>
+                    </Field>
                 }
 
             </ComponentCard>
+
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Misc</h3>
 
-                <div>
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -382,9 +390,10 @@ const CalloutForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

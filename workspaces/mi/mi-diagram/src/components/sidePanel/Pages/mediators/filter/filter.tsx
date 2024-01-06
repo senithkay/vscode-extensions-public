@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -37,7 +37,7 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const RespondForm = (props: AddMediatorProps) => {
+const FilterForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
@@ -46,7 +46,8 @@ const RespondForm = (props: AddMediatorProps) => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
-           setFormValues({});
+           setFormValues({
+       "conditionType": "Source and Regular Expression",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -61,7 +62,7 @@ const RespondForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(MEDIATORS.RESPOND, formValues);
+           const xml = getXML(MEDIATORS.FILTER, formValues);
            MIWebViewAPI.getInstance().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
@@ -73,6 +74,10 @@ const RespondForm = (props: AddMediatorProps) => {
    };
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
+       "conditionType": (e?: any) => validateField("conditionType", e, false),
+       "regularExpression": (e?: any) => validateField("regularExpression", e, false),
+       "source": (e?: any) => validateField("source", e, false),
+       "xPath": (e?: any) => validateField("xPath", e, false),
        "description": (e?: any) => validateField("description", e, false),
 
    };
@@ -103,11 +108,76 @@ const RespondForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <h3>Condition</h3>
+
+                    <Field>
+                        <label>Condition Type</label>
+                        <AutoComplete items={["Source and Regular Expression", "XPath"]} selectedItem={formValues["conditionType"]} onChange={(e: any) => {
+                            setFormValues({ ...formValues, "conditionType": e });
+                            formValidators["conditionType"](e);
+                        }} />
+                        {errors["conditionType"] && <Error>{errors["conditionType"]}</Error>}
+                    </Field>
+
+                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "source and regular expression" &&
+                        <Field>
+                            <TextField
+                                label="Regular Expression"
+                                size={50}
+                                placeholder=""
+                                value={formValues["regularExpression"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "regularExpression": e });
+                                    formValidators["regularExpression"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["regularExpression"] && <Error>{errors["regularExpression"]}</Error>}
+                        </Field>
+                    }
+
+                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "source and regular expression" &&
+                        <Field>
+                            <TextField
+                                label="Source"
+                                size={50}
+                                placeholder=""
+                                value={formValues["source"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "source": e });
+                                    formValidators["source"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["source"] && <Error>{errors["source"]}</Error>}
+                        </Field>
+                    }
+
+                    {formValues["conditionType"] && formValues["conditionType"].toLowerCase() == "xpath" &&
+                        <Field>
+                            <TextField
+                                label="XPath"
+                                size={50}
+                                placeholder=""
+                                value={formValues["xPath"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "xPath": e });
+                                    formValidators["xPath"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["xPath"] && <Error>{errors["xPath"]}</Error>}
+                        </Field>
+                    }
+
+                </ComponentCard>
+
                 <Field>
                     <TextField
                         label="Description"
                         size={50}
-                        placeholder="Description"
+                        placeholder=""
                         value={formValues["description"]}
                         onChange={(e: any) => {
                             setFormValues({ ...formValues, "description": e });
@@ -134,4 +204,4 @@ const RespondForm = (props: AddMediatorProps) => {
     );
 };
 
-export default RespondForm; 
+export default FilterForm; 
