@@ -31,18 +31,6 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
         <>
             {/* Input & Output sequences */}
             <SequenceDiagram inSequence={inSequenceNodes} inSequenceRange={inSequenceRange} outSequence={outSequenceNodes} outSequenceRange={outSequenceRange}></SequenceDiagram>
-
-            <div style={{
-                flex: "0 0 100px",
-                marginTop: "10px",
-                overflow: "hidden",
-                borderStyle: "solid",
-                borderWidth: "1px",
-                borderColor: "var(--vscode-panel-dropBorder)"
-            }}>
-                {/* Fault sequences */}
-                {props.children}
-            </div>
         </>
     );
 };
