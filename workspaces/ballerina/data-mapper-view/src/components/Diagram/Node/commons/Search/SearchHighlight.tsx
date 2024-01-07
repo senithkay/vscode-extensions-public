@@ -21,10 +21,8 @@ interface SearchHighlightProps {
     children: string;
 }
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        highlighted: { background: "var(--vscode-editor-findMatchHighlightBackground)" },
-    })
+const useStyles = () => ({
+    highlighted: css({ background: "var(--vscode-editor-findMatchHighlightBackground)" }),
 });
 
 function SearchHighlight({ children, searchText }: SearchHighlightRootProps) {
