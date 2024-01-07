@@ -22,7 +22,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	const projectTree = vscode.window.createTreeView('project-explorer', { treeDataProvider: projectExplorerDataProvider })
 	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh() })
 	vscode.commands.registerCommand('project-explorer.add', () => {
-		// TODO: Form opening logic should go here
+		vscode.window.showQuickPick([
+			{ label: 'API', description: 'Add new API' }
+		], {
+			placeHolder: 'Select the construct to add'
+		}).then(selection => {
+			if (selection?.label === 'API') {
+				vscode.commands.executeCommand('project-explorer.add-api');
+			}
+		});
 
 	})
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
