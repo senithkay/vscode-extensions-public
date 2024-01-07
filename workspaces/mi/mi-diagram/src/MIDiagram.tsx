@@ -55,6 +55,7 @@ export function MIDiagram(props: MIDiagramProps) {
 		setSidePanelNodeRange(undefined);
 		setSidePanelMediator(undefined);
 		setSidePanelOpen(false);
+		setSidePanelFormValues(undefined);
 	};
 
 	let canvas;

@@ -8,6 +8,29 @@
  */
 
 import { PayloadFactory } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { getMustacheTemplate } from "../templateUtils";
+import { MEDIATORS } from "../../../../constants";
+import Mustache from "mustache";
+
+export function getPayloadXml(data: { [key: string]: any }) {
+    const args = data.args.map((property: string[]) => {
+        if (property[1] === "Value") {
+            return {
+                value: property[2]
+            }
+        } else {
+            return {
+                expression: property[2]
+            }
+        }
+    });
+    const modifiedData = {
+        ...data,
+        args
+    }
+
+    return Mustache.render(getMustacheTemplate(MEDIATORS.PAYLOAD), modifiedData);
+}
 
 export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node: PayloadFactory) {
     if (node.mediaType) {
@@ -21,6 +44,15 @@ export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node:
     }
     if (node.args) {
         data.args = node.args;
+    }
+    if (node.format?.content) {
+        data.payload = node.format.content;
+        data.payloadFormat = "inline";
+    }
+    if (node.args) {
+        data.args = node.args.arg.map((arg) => {
+            return [null, arg.value ? "Value" : "Expression", arg.value ?? arg.expression];
+        });
     }
 
     return data;

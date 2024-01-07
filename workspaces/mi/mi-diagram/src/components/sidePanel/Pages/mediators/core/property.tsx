@@ -83,6 +83,7 @@ const PropertyForm = (props: AddMediatorProps) => {
        "propertyAction": (e?: any) => validateField("propertyAction", e, false),
        "propertyScope": (e?: any) => validateField("propertyScope", e, false),
        "value": (e?: any) => validateField("value", e, false),
+       "expression": (e?: any) => validateField("expression", e, false),
        "valueStringPattern": (e?: any) => validateField("valueStringPattern", e, false),
        "valueStringCapturingGroup": (e?: any) => validateField("valueStringCapturingGroup", e, false),
        "description": (e?: any) => validateField("description", e, false),
@@ -182,6 +183,21 @@ const PropertyForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["value"] && <Error>{errors["value"]}</Error>}
+                    </Field>
+
+                    <Field>
+                        <TextField
+                            label="Expression"
+                            size={50}
+                            placeholder="Expression"
+                            value={formValues["expression"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "expression": e });
+                                formValidators["expression"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["expression"] && <Error>{errors["expression"]}</Error>}
                     </Field>
 
                     <Field>

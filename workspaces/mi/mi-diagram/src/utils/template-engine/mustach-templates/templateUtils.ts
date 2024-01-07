@@ -10,12 +10,13 @@
 import Mustache from "mustache";
 import { MEDIATORS } from "../../../constants";
 import { getCallFormDataFromSTNode, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateXml } from "./core/call-template";
-import { getPayloadFormDataFromSTNode } from "./core/payloadFactory";
+import { getPayloadFormDataFromSTNode, getPayloadXml } from "./core/payloadFactory";
+import { getPropertyFormDataFromSTNode } from "./core/property";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -84,15 +85,7 @@ export function getMustacheTemplate(name: string) {
             return `<loopback{{#description}} description="{{description}}"{{/description}} />`;
         case MEDIATORS.PROPERTY:
             return `<property 
-    name="{{propertyName}}" 
-    scope="{{propertyScope}}" 
-    type="{{propertyDataType}}" 
-    {{#newPropertyName}} expression="{{newPropertyName}}"{{/newPropertyName}} 
-    action="{{propertyAction}}"
-    {{#description}} description="{{description}}"{{/description}} 
-    {{#value}} value="{{value}}"{{/value}}
-    {{#valueStringPattern}} pattern="{{valueStringPattern}}"{{/valueStringPattern}}
-    {{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
+    name="{{newPropertyName}}" scope="{{propertyScope}}" type="{{propertyDataType}}"{{#expression}} expression="{{expression}}"{{/expression}} action="{{propertyAction}}"{{#description}} description="{{description}}"{{/description}}{{#value}} value="{{value}}"{{/value}}{{#valueStringPattern}} pattern="{{valueStringPattern}}"{{/valueStringPattern}}{{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
 />`;
         case MEDIATORS.PROPERTYGROUP:
             return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
@@ -165,13 +158,17 @@ action="{{propertyAction}}"
     </format>
     {{/isInlined}}
     {{^isInlined}}
-    <format key="{{payloadKey}}"/>
+    {{#payloadKey}}<format key="{{payloadKey}}"/>{{/payloadKey}}
+    {{#payload}}<format>
+        {{{payload}}}
+    </format>
+    {{/payload}}
     {{/isInlined}}
-    {{#args}}
     <args>
-        <arg {{#argumentValue}}value="{{argumentValue}}"{{/argumentValue}} {{#argumentExpression}}expression="{{argumentExpression}}" evaluator="{{evaluator}}" {{/argumentExpression}} />
+        {{#args}}
+        <arg {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" evaluator="{{evaluator}}" {{/expression}} />
+        {{/args}}
     </args>
-    {{/args}}
 </payloadFactory>`;
         case MEDIATORS.HTTPENDPOINT:
             return `<endpoint>
@@ -224,6 +221,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getCalloutXml(data);
         case MEDIATORS.CALLTEMPLATE:
             return getCallTemplateXml(data)
+        case MEDIATORS.PAYLOAD:
+            return getPayloadXml(data);    
         default:
             return Mustache.render(getMustacheTemplate(name), data);
     }
@@ -246,6 +245,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getCallTemplateFormDataFromSTNode(formData, node as CallTemplate);
         case MEDIATORS.PAYLOAD:
             return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
+        case MEDIATORS.PROPERTY:
+            return getPropertyFormDataFromSTNode(formData, node as Property);
         default:
             return formData;
     }
