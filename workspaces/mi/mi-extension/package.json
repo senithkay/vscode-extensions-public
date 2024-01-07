@@ -65,7 +65,8 @@
     "commands": [
       {
         "command": "integrationStudio.showDiagram",
-        "title": "Show Diagram"
+        "title": "Show Diagram",
+        "icon": "$(design-view)"
       },
       {
         "command": "integrationStudio.addMediator",
@@ -106,6 +107,13 @@
           "group": "navigation"
         }
       ],
+      "editor/title": [
+        {
+          "command": "integrationStudio.showDiagram",
+          "when": "editorLangId == SynapseXml",
+          "group": "navigation@3"
+        }
+      ],
       "view/item/context": [
         {
           "command": "project-explorer.add-api",
@@ -113,6 +121,15 @@
           "group": "inline"
         }
       ]
+    },
+    "icons": {
+      "design-view": {
+        "description": "design-view",
+        "default": {
+          "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+          "fontCharacter": "\\f10e"
+        }
+      }
     }
   },
   "scripts": {
@@ -120,7 +137,7 @@
     "compile": "tsc -p .",
     "watch": "tsc -p . -w",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
-    "build": "pnpm clean && pnpm run copyLSLibs && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
+    "build": "pnpm clean && pnpm run copyLSLibs && pnpm run copyFonts && webpack --mode production --devtool hidden-source-map && pnpm run package && pnpm run postbuild",
     "compile-tests": "pnpm run compile",
     "watch-tests": "pnpm run watch",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
@@ -128,6 +145,7 @@
     "test": "pnpm run pretest && node ./out/test/runTest.js",
     "e2e-test-setup": "npx extest get-vscode -c 1.81.1 && npx extest get-chromedriver -c 1.81.1 && npx extest install-vsix -f $(ls vsix/*.vsix)",
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
+    "copyFonts": "copyfiles -f ./node_modules/@wso2-enterprise/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyLSLibs": "copyfiles -f language-server/org.eclipse.lemminx/target/*.jar ls",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
@@ -167,6 +185,8 @@
     "@types/lodash": "~4.14.199",
     "vscode-languageserver-protocol": "^3.17.2",
     "fast-xml-parser": "~4.3.2",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*"
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
+    "@wso2-enterprise/mi-diagram": "workspace:*",
+    "@wso2-enterprise/font-wso2-vscode": "workspace:*"
   }
 }

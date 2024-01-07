@@ -91,6 +91,8 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
        "valueExpression": (e?: any) => validateField("valueExpression", e, false),
        "valueStringPattern": (e?: any) => validateField("valueStringPattern", e, false),
        "valueStringCapturingGroup": (e?: any) => validateField("valueStringCapturingGroup", e, false),
+       "Properties.description": (e?: any) => validateField("Properties.description", e, false),
+
    };
 
    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
@@ -216,6 +218,18 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
 
                         {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
                             <Field>
+                                <TextField
+                                    label="Value Expression"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["valueExpression"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "valueExpression": e });
+                                        formValidators["valueExpression"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["valueExpression"] && <Error>{errors["valueExpression"]}</Error>}
                             </Field>
                         }
 
@@ -254,14 +268,14 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                                 label="Description"
                                 size={50}
                                 placeholder="Description"
-                                value={formValues["description"]}
+                                value={formValues["Properties.description"]}
                                 onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "description": e });
-                                    formValidators["description"](e);
+                                    setFormValues({ ...formValues, "Properties.description": e });
+                                    formValidators["Properties.description"](e);
                                 }}
                                 required={false}
                             />
-                            {errors["description"] && <Error>{errors["description"]}</Error>}
+                            {errors["Properties.description"] && <Error>{errors["Properties.description"]}</Error>}
                         </Field>
 
 

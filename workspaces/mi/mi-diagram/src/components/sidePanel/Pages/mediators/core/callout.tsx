@@ -240,6 +240,18 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 {formValues["payloadType"] && formValues["payloadType"].toLowerCase() == "xpath" &&
                     <Field>
+                        <TextField
+                            label="Payload Message XPath"
+                            size={50}
+                            placeholder=""
+                            value={formValues["payloadMessageXPath"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "payloadMessageXPath": e });
+                                formValidators["payloadMessageXPath"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["payloadMessageXPath"] && <Error>{errors["payloadMessageXPath"]}</Error>}
                     </Field>
                 }
 
@@ -276,6 +288,18 @@ const CalloutForm = (props: AddMediatorProps) => {
 
                 {formValues["resultType"] && formValues["resultType"].toLowerCase() == "xpath" &&
                     <Field>
+                        <TextField
+                            label="Result Message XPath"
+                            size={50}
+                            placeholder=""
+                            value={formValues["resultMessageXPath"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "resultMessageXPath": e });
+                                formValidators["resultMessageXPath"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["resultMessageXPath"] && <Error>{errors["resultMessageXPath"]}</Error>}
                     </Field>
                 }
 

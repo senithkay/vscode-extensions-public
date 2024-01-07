@@ -179,6 +179,18 @@ const HeaderForm = (props: AddMediatorProps) => {
 
                         {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
                             <Field>
+                                <TextField
+                                    label="Value Expression"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["valueExpression"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "valueExpression": e });
+                                        formValidators["valueExpression"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["valueExpression"] && <Error>{errors["valueExpression"]}</Error>}
                             </Field>
                         }
 

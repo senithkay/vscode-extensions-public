@@ -174,6 +174,18 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                         {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "dynamic" &&
                             <Field>
+                                <TextField
+                                    label="Validate Dynamic Schema Key"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["validateDynamicSchemaKey"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "validateDynamicSchemaKey": e });
+                                        formValidators["validateDynamicSchemaKey"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["validateDynamicSchemaKey"] && <Error>{errors["validateDynamicSchemaKey"]}</Error>}
                             </Field>
                         }
 

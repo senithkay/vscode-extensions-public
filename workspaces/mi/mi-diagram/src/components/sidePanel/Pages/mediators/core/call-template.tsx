@@ -169,6 +169,18 @@ const CallTemplateForm = (props: AddMediatorProps) => {
 
                         {formValues["templateParameterType"] && formValues["templateParameterType"].toLowerCase() == "expression" &&
                             <Field>
+                                <TextField
+                                    label="Parameter Expression"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["parameterExpression"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "parameterExpression": e });
+                                        formValidators["parameterExpression"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["parameterExpression"] && <Error>{errors["parameterExpression"]}</Error>}
                             </Field>
                         }
 
