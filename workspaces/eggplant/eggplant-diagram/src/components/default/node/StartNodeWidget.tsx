@@ -27,12 +27,6 @@ namespace S {
         border-radius: 50%;
         background: ${Colors.PRIMARY_CONTAINER};
     `;
-
-    export const StackContainer = styled.div`
-        position: relative;
-        top: -6px;
-        left: -6px;
-    `;
 }
 
 export interface StartNodeProps {
@@ -48,7 +42,7 @@ export class StartNodeWidget extends React.Component<StartNodeProps> {
     render() {
         return (
             <S.Node>
-                <S.StackContainer>{_.map(this.props.node.getUniqueOutPorts(), this.generatePort)}</S.StackContainer>
+                {_.map(this.props.node.getUniqueOutPorts(), this.generatePort)}
             </S.Node>
         );
     }

@@ -23,6 +23,7 @@ import {
     FromClauseNode,
     QUERY_EXPR_SOURCE_NODE_TYPE
 } from './FromClauseNode';
+import { InputSearchNoResultFound, SearchNoResultFoundKind } from '../commons/Search';
 
 @injectable()
 @singleton()
@@ -32,6 +33,11 @@ export class FromClauseNodeFactory extends AbstractReactFactory<FromClauseNode, 
     }
 
     generateReactWidget(event: { model: FromClauseNode; }): JSX.Element {
+        if (event.model.hasNoMatchingFields) {
+            return (
+                <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
+            );
+        }
         return (
             <RecordTypeTreeWidget
                 engine={this.engine}

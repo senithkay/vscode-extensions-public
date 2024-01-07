@@ -49,6 +49,16 @@ export namespace Form {
         user-select: none;
     `;
 
+    export const Text = styled.p`
+        font-family: "GilmerMedium";
+        font-family: var(--font-family);
+        font-weight: normal;
+        color: ${Colors.ON_SURFACE};
+        margin-bottom: 4px;
+        margin-block-start: unset;
+        user-select: none;
+    `;
+
     export const Divider = styled.div`
         height: 1px;
         width: 100%;
@@ -83,6 +93,18 @@ export namespace Form {
         padding-top: 16px;
         background: ${Colors.SURFACE};
         width: 100%;
+        & div {
+            width: 100%;
+        }
+        & vscode-button {
+            width: 100%;
+        }
+    `;
+
+    export const ButtonContainer = styled.div`
+        & div {
+            width: 100%;
+        }
         & vscode-button {
             width: 100%;
         }

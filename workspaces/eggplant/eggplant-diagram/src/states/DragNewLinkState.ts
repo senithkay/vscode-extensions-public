@@ -14,8 +14,8 @@ import {
     ActionEvent,
     InputType,
 } from "@projectstorm/react-canvas-core";
-import { DiagramEngine, PortModel, LinkModel, DragNewLinkStateOptions } from "@projectstorm/react-diagrams-core";
-import { DefaultNodeModel, DefaultPortModel } from "../components/default";
+import { DiagramEngine, LinkModel, DragNewLinkStateOptions } from "@projectstorm/react-diagrams-core";
+import { DefaultLinkModel, DefaultNodeModel, DefaultPortModel } from "../components/default";
 
 export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
     port: DefaultPortModel;
@@ -62,17 +62,36 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                     const model = this.engine.getMouseElement(event.event);
                     // handle linking to a port
                     if (model instanceof DefaultPortModel) {
+                        const nodeModel = model.getParent() as DefaultNodeModel;
                         if (this.port.canLinkToPort(model) && !model.hasLinks()) {
                             this.link.setTargetPort(model);
+                            (this.link as DefaultLinkModel).setReceiver(nodeModel.getName());
                             model.reportPosition();
                             this.engine.repaintCanvas();
                             return;
                         } else if (this.port.canLinkToPort(model) && model.hasLinks()) {
+                            // if the nodeModel is a HttpResponseNode, then get the port with the links and append the link to it
+                            
+                            if (nodeModel.getKind() === "HttpResponseNode") {
+                                // get the port of the nodeMOdel inport
+                                const port = nodeModel.getInPorts()[0];
+                                this.link.setTargetPort(port);
+                                (this.link as DefaultLinkModel).setReceiver(nodeModel.getName());
+                                this.port.addLink(this.link);
+                                this.port.reportPosition();
+                                this.engine.repaintCanvas();
+                                return;
+                            }
                             // create a new port and link
-                            const nodeModel = model.getParent() as DefaultNodeModel;
                             const nextPortId = nodeModel.getNextPortID();
-                            const port = nodeModel.addInPort(nextPortId);
+                            const port = nodeModel.addInPort(nextPortId, {
+                                id: nextPortId,
+                                name: nextPortId,
+                                sender: (this.link.getSourcePort().getParent() as DefaultNodeModel).getName(),
+                                type: this.port.getOptions().port?.type,
+                            });
                             this.link.setTargetPort(port);
+                            (this.link as DefaultLinkModel).setReceiver(nodeModel.getName());
                             port.reportPosition();
                             this.engine.repaintCanvas();
                             return;
@@ -89,16 +108,33 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                             this.engine.repaintCanvas();
                             return;
                         }
+                        if (model.getKind() === "HttpResponseNode") {
+                            const availablePort = model.getPortWithLink();
+                            if (availablePort) {
+                                this.link.setTargetPort(availablePort);
+                                (this.link as DefaultLinkModel).setReceiver(model.getName());
+                                availablePort.reportPosition();
+                                this.engine.repaintCanvas();
+                                return;
+                            }
+                        }
                         const availablePort = model.getAvailableInPort();
                         if (availablePort) {
                             this.link.setTargetPort(availablePort);
+                            (this.link as DefaultLinkModel).setReceiver(model.getName());
                             availablePort.reportPosition();
                             this.engine.repaintCanvas();
                             return;
                         }
                         const nextPortId = model.getNextPortID();
-                        const port = model.addInPort(nextPortId);
+                        const port = model.addInPort(nextPortId, {
+                            id: nextPortId,
+                            name: nextPortId,
+                            sender: (this.link.getSourcePort().getParent() as DefaultNodeModel).getName(),
+                            type: this.port.getOptions().port?.type,
+                        });
                         this.link.setTargetPort(port);
+                        (this.link as DefaultLinkModel).setReceiver(model.getName());
                         port.reportPosition();
                         this.engine.repaintCanvas();
                         return;

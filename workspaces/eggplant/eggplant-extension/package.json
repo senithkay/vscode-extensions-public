@@ -30,13 +30,6 @@
             ]
         },
         "views": {
-            "explorer": [
-                {
-                    "id": "lowcode",
-                    "name": "Low Code Editor",
-                    "when": "true"
-                }
-            ],
             "eggplant": [
                 {
                     "type": "webview",

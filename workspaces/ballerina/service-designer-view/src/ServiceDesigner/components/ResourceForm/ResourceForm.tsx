@@ -27,21 +27,20 @@ export interface ResourceFormProps {
 	isOpen: boolean;
 	applyModifications?: (source: string) => void;
 	onClose: () => void;
+	typeCompletions?: string[];
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, onClose, applyModifications } = props;
+	const { isOpen, onClose, applyModifications, typeCompletions } = props;
 
-	const [method, setMethod] = useState<string>("PUT");
+	const [method, setMethod] = useState<string>("GET");
 	const [path, setPath] = useState<string>("");
 
-	const [parameters, setParameters] = useState<ParameterConfig[]>([{ id: 0, name: "PARAM1", type: "string", option: PARAM_TYPES.DEFAULT, isRequired: true }]);
-	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map([
-		[PARAM_TYPES.HEADER, { id: 0, name: "PARAM10", type: "http:Headers", option: PARAM_TYPES.HEADER }]
-	]));
-	const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedParams.size > 0);
-	const [payload, setPayload] = useState<ParameterConfig>({ id: 0, name: "PARAM2", type: "string", option: PARAM_TYPES.PAYLOAD });
-	const [response, setResponse] = useState<ResponseConfig[]>([{ id: 0, code: 200, type: "string" }]);
+	const [parameters, setParameters] = useState<ParameterConfig[]>([]);
+	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map());
+	const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+	const [payload, setPayload] = useState<ParameterConfig>();
+	const [response, setResponse] = useState<ResponseConfig[]>([]);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
 		setParameters(params);
@@ -71,25 +70,34 @@ export function ResourceForm(props: ResourceFormProps) {
 	const onSave = () => {
 		let paramString = "";
 
-        advancedParams.forEach((param: ParameterConfig) => {
-            const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
-            paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
-        });
+		advancedParams?.forEach((param: ParameterConfig) => {
+			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
+			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
+		});
 
-        parameters.map((param: ParameterConfig, index: number) => {
-            const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
-            paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
-        });
+		parameters.map((param: ParameterConfig, index: number) => {
+			const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
+			paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
+		});
 
-        const payloadType = payload ? `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}` : "";
-        paramString = paramString + payloadType;
+		if (payload) {
+			const payloadType = `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}`;
+			paramString += payloadType;
+		}
 
-        let responseString = "";
-        response.map((resp: ResponseConfig, index: number) => {
-            responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
-        });
+		let responseString = "";
+		response.map((resp: ResponseConfig, index: number) => {
+			responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
+		});
 
-		const genSource = generateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });		
+		// Check if "error" is already present in responseString
+		if (responseString !== "" && !responseString.includes("error")) {
+			responseString += " | error?";
+		} else if (responseString === "") {
+			responseString = "error?";
+		}
+
+		const genSource = generateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 
 		applyModifications(genSource);
 
@@ -124,7 +132,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<Response response={response} onChange={handleResponseChange} />
+					<Response response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}

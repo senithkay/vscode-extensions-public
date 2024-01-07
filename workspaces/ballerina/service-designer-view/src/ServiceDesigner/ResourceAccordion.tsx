@@ -3,20 +3,26 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Codicon, Icon, Typography } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton, VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
-import { ResourceAccessorDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import ConfirmDialog from './ConfirmBox';
-import { removeStatement } from './utils/utils';
-import { STModification } from '@wso2-enterprise/ballerina-core';
+import { responseCodes } from '@wso2-enterprise/ballerina-core';
+import { ServiceDesignerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 
 
 // Define styles using @emotion/styled
 const AccordionContainer = styled.div`
-    border: 1px solid var(--vscode-foreground);
     margin-top: 10px;
     overflow: hidden;
 
     &.open {
-    ${/* Your open styles go here */ ''}
+        background-color: var(--vscode-sideBar-background);
+    }
+
+    &.closed {
+        &:hover {
+            background-color: var(--vscode-inputOption-hoverBackground);
+            cursor: pointer;
+        }
     }
 `;
 
@@ -29,11 +35,11 @@ const AccordionHeader = styled.div`
 `;
 
 const MethodBox = styled.div<MethodProp>`
-    border: 1px solid var(--vscode-foreground);
     width: 60px;
     text-align: center;
     padding: 3px 0px 3px 0px;
-    color: ${(p: MethodProp) => p.color}
+    color: ${(p: MethodProp) => p.color};
+    font-weight: bold;
 `;
 
 const MethodSection = styled.div`
@@ -85,8 +91,21 @@ type MethodProp = {
     color: string;
 };
 
-const ResourceAccordion = (params: { model: ResourceAccessorDefinition, rpcClient: any }) => {
-    const { model, rpcClient } = params;
+interface DataValues {
+    code?: string,
+    value: string,
+    type?: string,
+    header?: string
+}
+
+interface ResourceAccordionProps {
+    model: ResourceAccessorDefinition;
+    rpcClient: ServiceDesignerRpcClient;
+    showDiagram: (position: NodePosition) =>  void;
+}
+
+const ResourceAccordion = (params: ResourceAccordionProps) => {
+    const { model, rpcClient, showDiagram } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -95,11 +114,7 @@ const ResourceAccordion = (params: { model: ResourceAccessorDefinition, rpcClien
 
     const handleShowDiagram = () => {
         // Show the eggplant diagram
-        const context: any = {
-            view: "Overview",
-            position: model.position
-        }
-        rpcClient.getWebviewRpcClient().openVisualizerView(context);
+        showDiagram(model.position);
     };
 
     const handleEditResource = () => {
@@ -111,22 +126,86 @@ const ResourceAccordion = (params: { model: ResourceAccessorDefinition, rpcClien
         handleOpenConfirm();
     };
 
-    const paramData = [
-        { type: "string", value: "name" },
-        { type: "http:Request", value: "req" },
-        { type: "string?", value: "Cell Data", header: "@http:Header" },
-    ];
+    const paramData: DataValues[] = [];
 
-    const responseData = [
-        { code: "200", value: "string" },
-        { code: "500", value: "error" },
-    ];
+    const parameters = model.functionSignature?.parameters;
+
+    for (const [i, param] of parameters.entries()) {
+        if (
+            (STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param))
+            && (!param.source.includes("Payload") && !(i === 0 && param.annotations.length === 0 && isStructuredType(param.typeName)))
+        ) {
+            let paramDetails = param.source.split(" ");
+            let annotation = "";
+            if (param.annotations.length > 0) {
+                annotation = param.annotations[0].source;
+                const sourceWithoutAnnotation = param.source.replace(annotation, "");
+                paramDetails = sourceWithoutAnnotation.split(" ");
+            }
+            const recordName = paramDetails[0];
+            let description = paramDetails.length > 0 && paramDetails[1];
+            if (paramDetails.length > 2) {
+                description = paramDetails.slice(1).join(" ");
+            }
+            paramData.push({ type: recordName, value: description });
+
+        }
+    }
+
+    const bodyData: DataValues[] = [];
+
+    model.functionSignature?.parameters?.forEach((param, i) => {
+        if (STKindChecker.isRequiredParam(param) && (param.source.includes("Payload") || (i === 0 && param.annotations.length === 0))) {
+            const typeSymbol = param.typeData?.typeSymbol;
+            const typeName = typeSymbol?.name || typeSymbol?.memberTypeDescriptor?.name;
+            if (typeName) {
+                bodyData.push({
+                    type: `${param.typeName?.source.trim()}`,
+                    value: `${param.paramName?.value}`
+                })
+            } else {
+                bodyData.push({
+                    value: `${param.source}`
+                })
+            }
+        }
+    });
+
+    function getReturnTypesArray() {
+        const returnTypes = model.functionSignature?.returnTypeDesc?.type?.source.split(/\|(?![^{]*[}])/gm);
+        return returnTypes || [];
+    }
+
+    function defaultResponseCode() {
+        const isPost = model?.functionName.value.toUpperCase() === "POST";
+        return isPost ? "201" : "200";
+    }
+
+    const responseData: DataValues[] = [];
+
+    const values = getReturnTypesArray();
+
+    for (const [, value] of values.entries()) {
+        let code = defaultResponseCode();
+        const recordName = value.replace("?", "").trim();
+
+        responseCodes.forEach(item => {
+            if (recordName.includes(item.source)) {
+                code = item.code.toString();
+            }
+        });
+
+        if (value.includes("error")) {
+            code = "500";
+        }
+        responseData.push({ code: code, value: recordName })
+    }
 
     const [isConfirmOpen, setConfirmOpen] = useState(false);
 
     const handleConfirm = async () => {
         // Handle confirmation logic
-        await rpcClient.getServiceDesignerRpcClient().deleteResource({ position: model.position });
+        await rpcClient.deleteResource({ position: model.position });
         setConfirmOpen(false);
     };
 
@@ -162,24 +241,47 @@ const ResourceAccordion = (params: { model: ResourceAccessorDefinition, rpcClien
             </AccordionHeader>
             {isOpen && (
                 <AccordionContent>
-                    <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Parameters</Typography>
-                    <VSCodeDivider />
-                    <VSCodeDataGrid>
-                        <VSCodeDataGridRow row-type="header">
-                            <VSCodeDataGridCell cell-type="columnheader" grid-column="1">
-                                Type
-                            </VSCodeDataGridCell>
-                            <VSCodeDataGridCell cell-type="columnheader" grid-column="2">
-                                Description
-                            </VSCodeDataGridCell>
-                        </VSCodeDataGridRow>
-                        {paramData.map(row => (
-                            <VSCodeDataGridRow>
-                                <VSCodeDataGridCell grid-column="1">{row?.header} {row.type}</VSCodeDataGridCell>
-                                <VSCodeDataGridCell grid-column="2">{row.value}</VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                        ))}
-                    </VSCodeDataGrid>
+                    {paramData.length > 0 &&
+                        <>
+                            <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Parameters</Typography>
+                            <VSCodeDivider />
+                            <VSCodeDataGrid>
+                                <VSCodeDataGridRow row-type="header">
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column="1">
+                                        Type
+                                    </VSCodeDataGridCell>
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column="2">
+                                        Description
+                                    </VSCodeDataGridCell>
+                                </VSCodeDataGridRow>
+                                {paramData.map(row => (
+                                    <VSCodeDataGridRow>
+                                        <VSCodeDataGridCell grid-column="1">{row?.header} {row.type}</VSCodeDataGridCell>
+                                        <VSCodeDataGridCell grid-column="2">{row.value}</VSCodeDataGridCell>
+                                    </VSCodeDataGridRow>
+                                ))}
+                            </VSCodeDataGrid>
+                        </>
+                    }
+
+                    {bodyData.length > 0 &&
+                        <>
+                            <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Body</Typography>
+                            <VSCodeDivider />
+                            <VSCodeDataGrid>
+                                <VSCodeDataGridRow row-type="header">
+                                    <VSCodeDataGridCell cell-type="columnheader" grid-column="1">
+                                        Description
+                                    </VSCodeDataGridCell>
+                                </VSCodeDataGridRow>
+                                {bodyData.map(row => (
+                                    <VSCodeDataGridRow>
+                                        <VSCodeDataGridCell grid-column="1">{row?.type} {row.value}</VSCodeDataGridCell>
+                                    </VSCodeDataGridRow>
+                                ))}
+                            </VSCodeDataGrid>
+                        </>
+                    }
 
                     <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Responses</Typography>
                     <VSCodeDivider />
@@ -232,3 +334,21 @@ function getResourcePath(model: ResourceAccessorDefinition) {
     return pathElements.length === 1 && pathElements[0] === '.' ? "/" : pathElements
 }
 
+function isStructuredType(node: STNode): boolean {
+    // Add logic to determine if the node is a structured node (map/record/table/tuple/array/xml)
+    // Return true if it's structured, false otherwise
+    if (
+        STKindChecker.isMapTypeDesc(node) ||
+        STKindChecker.isRecordTypeDesc(node) ||
+        STKindChecker.isTableTypeDesc(node) ||
+        STKindChecker.isTupleTypeDesc(node) ||
+        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isSimpleNameReference(node.memberTypeDesc) ||
+        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isByteTypeDesc(node.memberTypeDesc) ||
+        STKindChecker.isXmlTypeDesc(node) ||
+        STKindChecker.isSimpleNameReference(node) ||
+        STKindChecker.isOptionalTypeDesc(node) && STKindChecker.isSimpleNameReference(node.typeDescriptor)
+    ) {
+        return true;
+    }
+    return false;
+}

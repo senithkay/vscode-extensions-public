@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { STModification } from "@wso2-enterprise/ballerina-core";
+import { STModification } from "..";
 import { getInsertComponentSource } from "./template-utils";
 
 export async function InsertorDelete(modifications: STModification[]): Promise<STModification[]> {

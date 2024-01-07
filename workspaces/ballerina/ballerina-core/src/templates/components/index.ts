@@ -1,4 +1,4 @@
-export default {
+const templates: { [key: string]: string } = {
     CHECKED_PAYLOAD_FUNCTION_INVOCATION: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{{ RESPONSE }}}.{{{ PAYLOAD }}}();',
     DECLARATION: '{{{ TYPE }}} {{{ VARIABLE }}} = {{{CHECK}}} new ({{{ PARAMS }}});',
     DECLARATION_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check new ({{{ PARAMS }}});',
@@ -179,4 +179,6 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     FLUSH_STATEMENT: `
     error? {{{VAR_NAME}}} = flush {{{WORKER_NAME}}};
     `
-}
+};
+
+export default templates;

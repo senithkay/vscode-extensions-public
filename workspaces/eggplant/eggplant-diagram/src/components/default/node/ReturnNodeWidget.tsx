@@ -15,6 +15,7 @@ import { DefaultPortLabel } from "../port/DefaultPortLabelWidget";
 import styled from "@emotion/styled";
 import { Colors, NODE_MIN_HEIGHT, NODE_MIN_WIDTH } from "../../../resources";
 import { DefaultPortModel } from "../port/DefaultPortModel";
+import { ReturnIcon } from "../../../resources/assets/icons/ReturnIcon";
 
 namespace S {
     type NodeStyleProp = {
@@ -24,7 +25,7 @@ namespace S {
 
     export const Node = styled.div<NodeStyleProp>`
         background-color: ${(p: NodeStyleProp) => (p.selected ? Colors.SECONDARY_CONTAINER : Colors.SURFACE)};
-        border-radius: 5px 20px 20px 5px;
+        border-radius: 5px;
         font-family: sans-serif;
         border: solid 2px black;
         overflow: visible;
@@ -78,6 +79,19 @@ namespace S {
         border-radius: 50%;
         background: ${Colors.PRIMARY_CONTAINER};
     `;
+
+    export const IconContainer = styled.div`
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        & svg {
+            height: 20px;
+            width: 20px;
+            fill: ${Colors.ON_SURFACE};
+            stroke: ${Colors.ON_SURFACE};
+        }
+    `;
 }
 
 export interface ReturnNodeProps {
@@ -100,6 +114,9 @@ export class ReturnNodeWidget extends React.Component<ReturnNodeProps> {
                 <S.InPorts>
                     <S.PortsContainer>{_.map(this.props.node.getInPorts(), this.generatePort)}</S.PortsContainer>
                 </S.InPorts>
+                <S.IconContainer>
+                    <ReturnIcon />
+                </S.IconContainer>
                 <S.Title>
                     <S.TitleName>
                         {this.props.node.getOptions().node?.name === "HttpResponseNode"

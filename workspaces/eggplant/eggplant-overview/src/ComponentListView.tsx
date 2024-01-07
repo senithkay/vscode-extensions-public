@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -47,7 +48,7 @@ export type ComponentCollection = {
 // shows a view that includes document/project symbols(functions, records, etc.)
 // you can switch between files in the project and view the symbols in eachfile
 // when you select a symbol, it will show the symbol's visualization in the diagram view
-let selected: ComponentViewInfo = null;
+export let selected: ComponentViewInfo = null;
 
 export function resetSelected() {
     selected = null;
@@ -108,9 +109,6 @@ export function ComponentListView(props: { currentComponents: ComponentCollectio
                     const components: any = [];
                     filteredComponents.forEach((comp: ComponentViewInfo, compIndex: number) => {
                         if (comp.name === "main" || key === "services") {
-                            if (selected && selected.name == comp.name) {
-                                handleComponentSelection(comp);
-                            }
                             components.push(
                                 <ComponentView
                                     key={key + compIndex}

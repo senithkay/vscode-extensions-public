@@ -21,7 +21,6 @@ import {
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     ExecutorPositionsResponse,
-    GetBallerinaPackagesParams,
     GetBallerinaProjectParams,
     GetSyntaxTreeParams,
     GetSyntaxTreeResponse,
@@ -38,7 +37,7 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
-    DocumentIdentifier
+    InsertorDelete
 } from "@wso2-enterprise/ballerina-core";
 import { URI } from "vscode-uri";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";
@@ -141,7 +140,7 @@ export class LangServerRpcManager implements LangServerAPI {
     async stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
         const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
         return await langClient.stModify({
-            astModifications: params.astModifications,
+            astModifications: await InsertorDelete(params.astModifications),
             documentIdentifier: params.documentIdentifier,
         }) as BallerinaSTModifyResponse;
     }

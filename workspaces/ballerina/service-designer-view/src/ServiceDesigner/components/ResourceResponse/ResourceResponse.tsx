@@ -20,6 +20,7 @@ export interface ResourceParamProps {
     response: ResponseConfig[];
     onChange?: (parameters: ResponseConfig[]) => void,
     readonly?: boolean;
+    typeCompletions?: string[];
 }
 
 const AddButtonWrapper = styled.div`
@@ -27,7 +28,7 @@ const AddButtonWrapper = styled.div`
 `;
 
 export function Response(props: ResourceParamProps) {
-    const { response, readonly, onChange } = props;
+    const { response, readonly, onChange, typeCompletions } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -41,7 +42,7 @@ export function Response(props: ResourceParamProps) {
         const newResp: ResponseConfig = {
             id: updatedParameters.length,
             code: 200,
-            type: "string"
+            type: "json"
         };
         updatedParameters.push(newResp);
         onChange(updatedParameters);
@@ -104,6 +105,7 @@ export function Response(props: ResourceParamProps) {
                         onChange={onChangeParam}
                         onSave={onSaveParam}
                         onCancel={onParamEditCancel}
+                        typeCompletions={typeCompletions}
                     />
                 )
             } else if ((editingSegmentId !== index)) {

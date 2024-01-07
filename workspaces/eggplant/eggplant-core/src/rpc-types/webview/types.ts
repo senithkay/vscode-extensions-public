@@ -46,6 +46,7 @@ export type InputPort = {
     type: string;
     name?: string;
     sender?: string;
+    alternateSender?: string[];
 };
 
 export type OutputPort = {
@@ -86,7 +87,7 @@ export type SwitchNodeProperties = NodeProperties & {
 };
 
 export type TransformNodeProperties = NodeProperties & {
-    codeBlock: BalExpression;
+    expression: BalExpression;
     outputType: string;
     transformFunctionLocation?: CodeLocation;
 }

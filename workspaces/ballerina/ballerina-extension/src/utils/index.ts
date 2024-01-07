@@ -12,4 +12,3 @@ export * from './logger';
 export * from './webview-utils';
 export * from './rpc';
 export * from './file-utils';
-export * from './modification-utils';

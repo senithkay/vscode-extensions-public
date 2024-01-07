@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -19,9 +19,10 @@ import {
     createService,
     deleteResource,
     deleteService,
+    getKeywordTypes,
     updateResource,
-    updateService
-} from "@wso2-enterprise/eggplant-core";
+    updateService,
+} from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { ServiceDesignerRpcManager } from "./rpc-manager";
 
@@ -33,4 +34,5 @@ export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(createResource, (args: CreateResourceRequest) => rpcManger.createResource(args));
     messenger.onNotification(updateResource, (args: UpdateResourceRequest) => rpcManger.updateResource(args));
     messenger.onNotification(deleteResource, (args: DeleteResourceRequest) => rpcManger.deleteResource(args));
+    messenger.onRequest(getKeywordTypes, () => rpcManger.getKeywordTypes());
 }

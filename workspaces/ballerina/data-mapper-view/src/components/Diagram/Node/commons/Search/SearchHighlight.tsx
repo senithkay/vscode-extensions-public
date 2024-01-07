@@ -21,9 +21,9 @@ interface SearchHighlightProps {
     children: string;
 }
 
-const useStyles = () => ({
-    highlighted: css({
-        background: "var(--vscode-inputValidation-warningBackground)"
+const useStyles = makeStyles(() =>
+    createStyles({
+        highlighted: { background: "var(--vscode-editor-findMatchHighlightBackground)" },
     })
 });
 

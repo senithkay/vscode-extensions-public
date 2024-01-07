@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,8 +8,8 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { CreateServiceRequest, UpdateServiceRequest, DeleteServiceRequest, CreateResourceRequest, UpdateResourceRequest, DeleteResourceRequest } from "./types";
-import { NotificationType } from "vscode-messenger-common";
+import { CreateServiceRequest, UpdateServiceRequest, DeleteServiceRequest, CreateResourceRequest, UpdateResourceRequest, DeleteResourceRequest, KeywordTypeResponse } from "./types";
+import { NotificationType, RequestType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
 export const createService: NotificationType<CreateServiceRequest> = { method: `${_preFix}/createService` };
@@ -18,3 +18,4 @@ export const deleteService: NotificationType<DeleteServiceRequest> = { method: `
 export const createResource: NotificationType<CreateResourceRequest> = { method: `${_preFix}/createResource` };
 export const updateResource: NotificationType<UpdateResourceRequest> = { method: `${_preFix}/updateResource` };
 export const deleteResource: NotificationType<DeleteResourceRequest> = { method: `${_preFix}/deleteResource` };
+export const getKeywordTypes: RequestType<void, KeywordTypeResponse> = { method: `${_preFix}/getKeywordTypes` };

@@ -493,10 +493,9 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 					startColumn: targetPos.endColumn,
 					startLine: targetPos.endLine
 				});
-
-				const { context } = targetNode as DataMapperNodeModel;
-				void context.applyModifications(modifications);
 			}
+			const { context } = targetNode as DataMapperNodeModel;
+			void context.applyModifications(modifications);
 		}
 	}
 

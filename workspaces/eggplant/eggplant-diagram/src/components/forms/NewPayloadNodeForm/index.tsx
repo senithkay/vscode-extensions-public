@@ -8,23 +8,14 @@
  */
 
 import React, { useEffect, useRef } from "react";
-import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { Icon, TextArea } from "@wso2-enterprise/ui-toolkit";
-import { DefaultNodeModel } from "../../default";
-import { Flow, Node } from "../../../types";
+import { Node } from "../../../types";
 import { CodeNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
 import { toSnakeCase } from "../../../utils";
-import { set } from "lodash";
+import { DEFAULT_TYPE } from "../../../resources";
+import { OptionWidgetProps } from "../../layout/OptionWidget";
 
-export interface OptionWidgetProps {
-    engine: DiagramEngine;
-    flowModel: Flow;
-    selectedNode: DefaultNodeModel;
-    children?: React.ReactNode;
-    setSelectedNode?: (node: DefaultNodeModel) => void;
-    updateFlowModel?: () => void;
-}
 
 // TODO: update this component with multiple form components
 export function NewPayloadNodeForm(props: OptionWidgetProps) {
@@ -33,6 +24,7 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
     const node = useRef(JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node);
     const nodeProperties = useRef(node.current.properties as CodeNodeProperties);
     const nodeMetadata = useRef(getNodeMetadata(node.current));
+    const outPortType = useRef(DEFAULT_TYPE);
     const [payloadSource, setPayloadSource] = React.useState<string>("");
 
     useEffect(() => {
@@ -44,6 +36,9 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
                 ?.split(`${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} =`)[1]
                 ?.split(";")[0]
         );
+        if (selectedNode.getOutPorts().length > 0) {
+            outPortType.current = selectedNode.getOutPorts()[0].getOptions()?.port.type || DEFAULT_TYPE;
+        }
     }, [selectedNode.getID()]);
 
     const handleOnSave = () => {
@@ -142,41 +137,21 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
                 }}
             />
 
-            <Form.Divider />
-            {selectedNode.getOutPorts().length > 0 && <Form.SectionTitle>Output</Form.SectionTitle>}
-            {selectedNode.getUniqueOutPorts()?.map((port, index) => {
-                const nodePort = port.getOptions()?.port;
-                if (!nodePort) {
-                    return null;
-                }
-                if (selectedNode.getKind() === "SwitchNode" && nodePort.name !== "out_default") {
-                    return null;
-                }
-                return (
-                    <Form.Row key={index}>
-                        <Form.InputField
-                            label="Type"
-                            value={nodePort.type}
-                            required={true}
-                            onChange={(value: string) => {
-                                nodePort.type = value;
-                                nodeMetadata.current.outputs[index].type = value;
-                            }}
-                            size={32}
-                        />
-                        <Form.InputField
-                            label="Name"
-                            value={nodePort.name}
-                            required={true}
-                            onChange={(value: string) => {
-                                nodePort.name = value;
-                                nodeMetadata.current.outputs[index].name = value;
-                            }}
-                            size={32}
-                        />
-                    </Form.Row>
-                );
-            })}
+            {outPortType.current && (
+                <>
+                    <Form.Divider />
+                    <Form.InputField
+                        label="Type"
+                        value={outPortType.current}
+                        required={true}
+                        onChange={(value: string) => {
+                            outPortType.current = value;
+                            nodeMetadata.current.outputs[0].type = value;
+                        }}
+                        size={32}
+                    />
+                </>
+            )}
 
             <Form.ActionButtonContainer>
                 <Form.ActionButton onClick={handleOnSave}>Save</Form.ActionButton>

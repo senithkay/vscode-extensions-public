@@ -157,7 +157,26 @@ export class WebviewRpcManager implements WebviewAPI {
         const code: CodeGeneartionData = workerCodeGen(flowModel);
         console.log("===code", code);
         console.log("===flowModel file Position", flowModel.fileSourceRange);
+        console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
+
         const langClient = context.langServer as LangClientInterface;
+
+        const modificationList: STModification[] = [];
+
+        const modification: STModification = {
+            startLine: flowModel.bodyCodeLocation?.start.line,
+            startColumn: flowModel.bodyCodeLocation?.start.offset,
+            endLine: flowModel.bodyCodeLocation?.end.line,
+            endColumn: flowModel.bodyCodeLocation?.end.offset,
+            type: "INSERT",
+            isImport: false,
+            config: {
+                "STATEMENT": code.workerBlocks
+            }
+        };
+
+        modificationList.push(modification);
+
         // If the transformFunction is found inject it first to the end of the file
         if (code.transformFunction) {
             const modification: STModification = {
@@ -172,43 +191,46 @@ export class WebviewRpcManager implements WebviewAPI {
                 }
             };
 
-            const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
-                documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
-                astModifications: [modification]
-            });
+            modificationList.push(modification);
 
-            if (parseSuccess) {
-                writeFileSync(flowModel.fileName, source);
-                await langClient.didChange({
-                    textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
-                    contentChanges: [
-                        {
-                            text: source
-                        }
-                    ],
-                });
-            }
+            // TODO: Remove this logic once verified with the LS team
+            // const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+            //     documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
+            //     astModifications: [modification]
+            // });
+
+            // if (parseSuccess) {
+            //     writeFileSync(flowModel.fileName, source);
+            //     await langClient.didChange({
+            //         textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
+            //         contentChanges: [
+            //             {
+            //                 text: source
+            //             }
+            //         ],
+            //     });
+            // }
         }
 
-        console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
+        // TODO: Remove this logic once verified with the LS team
+        // const modification: STModification = {
+        //     startLine: flowModel.bodyCodeLocation?.start.line,
+        //     startColumn: flowModel.bodyCodeLocation?.start.offset,
+        //     endLine: flowModel.bodyCodeLocation?.end.line,
+        //     endColumn: flowModel.bodyCodeLocation?.end.offset,
+        //     type: "INSERT",
+        //     isImport: false,
+        //     config: {
+        //         "STATEMENT": code.workerBlocks
+        //     }
+        // };
 
-
-        // TODO: Fix with the proper position when retrived from the BE model
-        const modification: STModification = {
-            startLine: flowModel.bodyCodeLocation?.start.line + 1,
-            startColumn: 0,
-            endLine: flowModel.bodyCodeLocation?.end.line,
-            endColumn: flowModel.bodyCodeLocation?.end.offset - 2,
-            type: "INSERT",
-            isImport: false,
-            config: {
-                "STATEMENT": code.workerBlocks
-            }
-        };
+        // modificationList.push(modification);
+        console.log("===modificationList", modificationList);
 
         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
             documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
-            astModifications: [modification]
+            astModifications: modificationList
         });
 
         console.log("===parseSuccess", parseSuccess);
@@ -230,8 +252,11 @@ export class WebviewRpcManager implements WebviewAPI {
                     const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
                     for (const resource of member.members) {
                         if (STKindChecker.isResourceAccessorDefinition(resource)) {
-                            const fnName = resource.functionName.value;
-                            const identifier = service + "/" + fnName;
+                            let resourcePath = "";
+                            resource.relativeResourcePath?.forEach((res: any) => {
+                                resourcePath += res.source ? res.source : res.value;
+                            })
+                            const identifier = service + `/${resource.functionName.value}/${resourcePath}`;
                             if (identifier === context.identifier) {
                                 openView({ position: resource.position });
                                 break outerLoop;  // Break out of the inner loop
@@ -244,6 +269,10 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async sendMachineEvent(params: MachineEvent): Promise<void> {
+        if (params.type === "GET_STARTED") {
+            // trigger eggplant.openLowCode command
+            vscode.commands.executeCommand("eggplant.openLowCode");
+        }
         StateMachine.sendEvent(params.type);
     }
 }

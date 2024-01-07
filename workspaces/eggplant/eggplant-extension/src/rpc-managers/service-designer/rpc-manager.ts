@@ -8,19 +8,23 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { STModification } from "@wso2-enterprise/ballerina-core";
 import {
+    CompletionParams,
+    CompletionResponse,
     CreateResourceRequest,
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    KeywordTypeResponse,
+    STModification,
     ServiceDesignerAPI,
     UpdateResourceRequest,
-    UpdateServiceRequest
-} from "@wso2-enterprise/eggplant-core";
-import { applyModifications, updateFileContent } from "../../utils/modification";
-import { StateMachine, openView } from "../../stateMachine";
+    UpdateServiceRequest,
+} from "@wso2-enterprise/ballerina-core";
 import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { StateMachine, openView } from "../../stateMachine";
+import { applyModifications, updateFileContent } from "../../utils/modification";
+import { Uri } from "vscode";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async createService(params: CreateServiceRequest): Promise<void> {
@@ -70,13 +74,12 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
 
     async deleteResource(params: DeleteResourceRequest): Promise<void> {
         const context = StateMachine.context();
-        const deleteModification: STModification = {
+        const modification: STModification = {
             type: 'DELETE',
             ...params.position
         };
 
-        const response = await applyModifications(context.fileName!, [deleteModification]);
-
+        const response = await applyModifications(context.fileName!, [modification]);
         if (response.parseSuccess) {
             await updateFileContent({ fileUri: context.fileName!, content: response.source });
             const st = response.syntaxTree as ModulePart;
@@ -89,5 +92,25 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
                 }
             });
         }
+    }
+
+    async getKeywordTypes(): Promise<KeywordTypeResponse> {
+        const context = StateMachine.context();
+        const completionParams: CompletionParams = {
+            textDocument: {
+                uri: Uri.file(context.fileName!).toString()
+            },
+            context: {
+                triggerKind: 25,
+            },
+            position: {
+                character: 0,
+                line: 0
+            }
+        }
+
+        const langClient = await context.langServer!;
+        const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
+        return { completions: completions.filter(value => value.kind === 25) };
     }
 }

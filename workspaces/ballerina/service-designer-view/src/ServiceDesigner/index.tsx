@@ -10,16 +10,17 @@
 
 import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm//ResourceForm";
-import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
-import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
+import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import ResourceAccordion from "./ResourceAccordion";
+import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 interface ServiceDesignerProps {
     model: ServiceDeclaration;
-    rpcClient: any;
+    rpcClient: ServiceDesignerRpcClient;
+    showDiagram: (position: NodePosition) =>  void;
 }
 
 
@@ -43,11 +44,11 @@ const ResourceListHeader = styled.div`
 `;
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model, rpcClient } = props;
-    const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
+    const { model, rpcClient, showDiagram } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
+    const [typeCompletions, setTypeCompletions] = useState<string[]>([]);
 
     let servicePath = "";
 
@@ -62,6 +63,11 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setIsSidePanelOpen(true);
     };
 
+    const fetchTypes = async () => {
+        const types = await rpcClient.getKeywordTypes();
+        setTypeCompletions(types.completions.map(type => type.insertText));
+    }
+
     useEffect(() => {
         const resourceList: JSX.Element[] = [];
         model?.members.forEach((member) => {
@@ -69,12 +75,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
                 resourceList.push(
                     <div data-start-position={startPosition} >
-                        <ResourceAccordion rpcClient={rpcClient} model={member as ResourceAccessorDefinition} />
+                        <ResourceAccordion rpcClient={rpcClient} model={member as ResourceAccessorDefinition} showDiagram={showDiagram} />
                     </div>
                 );
             }
         });
         setResources(resourceList);
+        fetchTypes();
     }, [model]);
 
     const handleServiceConfig = () => {
@@ -82,7 +89,9 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const applyModifications = async (source: string) => {
-        await rpcClient.getServiceDesignerRpcClient().createResource({ position: model.closeBraceToken.position, source });
+        const position = model.closeBraceToken.position;
+        position.endColumn = 0;
+        await rpcClient.createResource({ position: position, source });
     };
 
     // let serviceType = "";
@@ -111,8 +120,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     }
 
     const emptyView = (
-        <Typography variant="h3">
-            Service list is empty
+        <Typography variant="h3" sx={{ textAlign: "center"}}>
+            No resources found. Add a new resource.
         </Typography>
     );
 
@@ -134,7 +143,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             <>
                 {resources.length > 0 ? resources : emptyView}
             </>
-            {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} />}
+            {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} typeCompletions={typeCompletions}/>}
         </div>
     )
 }

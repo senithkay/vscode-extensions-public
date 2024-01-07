@@ -105,7 +105,7 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         return this.addPort(p);
     }
 
-    addOutPort(label: string, nodePort?: NodePort, multiLink = false, after = true): DefaultPortModel {
+    addOutPort(label: string, nodePort?: NodePort, multiLink = true, after = true): DefaultPortModel {
         const p = new DefaultPortModel({
             in: false,
             name: label,
@@ -186,6 +186,16 @@ export class DefaultNodeModel extends NodeModel<DefaultNodeModelGenerics> {
         console.log("getAvailableInPort", this.portsIn);
         for (const port of this.portsIn) {
             if (!port.hasLinks()) {
+                return port;
+            }
+        }
+        return undefined;
+    }
+
+    // Get the port related to the HttpResponse link
+    getPortWithLink(): DefaultPortModel | undefined {
+        for (const port of this.portsIn) {
+            if (port.hasLinks()) {
                 return port;
             }
         }

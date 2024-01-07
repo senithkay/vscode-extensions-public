@@ -52,6 +52,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.letVarDecls = [];
         if (!STKindChecker.isLetExpression(this.value.expression)) {
             return;
         }

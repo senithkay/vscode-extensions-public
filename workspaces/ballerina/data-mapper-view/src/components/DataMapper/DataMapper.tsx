@@ -215,7 +215,7 @@ export function DataMapperC(props: DataMapperViewProps) {
     const [fnSignature, setFnSignature] = useState(getFnSignatureFromST(fnST));
     const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
     const { setFunctionST, setImports } = useDMStore();
-    const { inputSearch, outputSearch, resetSearchStore } = useDMSearchStore();
+    const { resetSearchStore } = useDMSearchStore();
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
@@ -421,7 +421,7 @@ export function DataMapperC(props: DataMapperViewProps) {
         } else {
             setDmNodes([]);
         }
-    }, [isSelectionComplete, dmContext, inputSearch, outputSearch, typeStoreStatus]);
+    }, [isSelectionComplete, dmContext, typeStoreStatus]);
 
     const dMSupported = isDMSupported(ballerinaVersion);
     const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
