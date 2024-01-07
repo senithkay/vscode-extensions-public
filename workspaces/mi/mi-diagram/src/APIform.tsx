@@ -6,10 +6,9 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
-import { AutoComplete, TextField } from "@wso2-enterprise/ui-toolkit";
+import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
 import { MIWebViewAPI } from "./utils/WebViewRpc";
 
 const WizardContainer = styled.div`
@@ -125,75 +124,72 @@ export function APIWizard() {
         MIWebViewAPI.getInstance().closeWebView();
     };
 
-    // const isValid: boolean = apiName.length > 0 && !!apiContext && !!selectedVersionType;
+    const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;
 
     return (
-        <>
-            <WizardContainer>
-                <TitleWrapper>
-                    <h2>New Synapse API</h2>
-                </TitleWrapper>
-                <SectionWrapper>
-                    <h3>Synapse API Artifact</h3>
+        <WizardContainer>
+            <TitleWrapper>
+                <h2>New Synapse API</h2>
+            </TitleWrapper>
+            <SectionWrapper>
+                <h3>Synapse API Artifact</h3>
+                <TextField
+                    value={apiName}
+                    id='name-input'
+                    label="Name"
+                    placeholder="Name"
+                    validationMessage="Project name is required"
+                    onChange={(text: string) => setAPIName(text)}
+                    autoFocus
+                    required
+                />
+                <TextField
+                    placeholder="Context"
+                    label="Context"
+                    onChange={(text: string) => setAPIContext(text)}
+                    validationMessage="API context is required"
+                    value={apiContext}
+                    id='context-input'
+                    required
+                />
+                <span>Version Type</span>
+                <AutoComplete items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
+                {versionType !== "none" && (
                     <TextField
-                        value={apiName}
-                        id='name-input'
-                        label="Name"
-                        placeholder="Name"
-                        validationMessage="Project name is required"
-                        onChange={(text: string) => setAPIName(text)}
-                        autoFocus
-                        required
-                    />
-                    <TextField
-                        placeholder="Context"
-                        label="Context"
-                        onChange={(text: string) => setAPIContext(text)}
-                        validationMessage="API context is required"
-                        value={apiContext}
-                        id='context-input'
-                        required
-                    />
-                    <span>Version Type</span>
-                    <AutoComplete items={versionLabels} selectedItem={versionType} onChange={handleVersionTypeChange}></AutoComplete>
-                    {versionType !== "none" && (
-                        <TextField
-                            placeholder="Version"
-                            label="Version"
-                            onChange={(text: string) => setVersion(text)}
-                            value={version}
-                            id='version-input'
-                        />)}
-                    <TextField
-                        placeholder="Path to swagger definition"
-                        label="Path to swagger definition"
-                        onChange={(text: string) => setSwaggerdefPath(text)}
-                        validationMessage="API context is required"
-                        value={swaggerdefPath}
-                        id='context-input'
-                    />
-                    <SubContainer>
-                        <CardContainer>
-                        </CardContainer>
-                    </SubContainer>
-                </SectionWrapper>
-                <ActionContainer>
-                    <VSCodeButton
-                        appearance="secondary"
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </VSCodeButton>
-                    <VSCodeButton
-                        appearance="primary"
-                        onClick={handleCreateProject}
-                        id='create-project-btn'
-                    // disabled={!isValid}
-                    >
-                        Create
-                    </VSCodeButton>
-                </ActionContainer>
-            </WizardContainer>
-        </>
+                        placeholder="Version"
+                        label="Version"
+                        onChange={(text: string) => setVersion(text)}
+                        value={version}
+                        id='version-input'
+                    />)}
+                <TextField
+                    placeholder="Path to swagger definition"
+                    label="Path to swagger definition"
+                    onChange={(text: string) => setSwaggerdefPath(text)}
+                    validationMessage="API context is required"
+                    value={swaggerdefPath}
+                    id='context-input'
+                />
+                <SubContainer>
+                    <CardContainer>
+                    </CardContainer>
+                </SubContainer>
+            </SectionWrapper>
+            <ActionContainer>
+                <Button
+                    appearance="secondary"
+                    onClick={handleCancel}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    appearance="primary"
+                    onClick={handleCreateProject}
+                    disabled={!isValid}
+                >
+                    Create
+                </Button>
+            </ActionContainer>
+        </WizardContainer>
     );
 }
