@@ -9,7 +9,7 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
@@ -169,6 +169,17 @@ const PayloadForm = (props: AddMediatorProps) => {
 
                     {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "inline" &&
                         <Field>
+                            <TextArea
+                            label="Payload"
+                            placeholder=""
+                            value={formValues["payload"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "payload": e });
+                                formValidators["payload"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["payload"] && <Error>{errors["payload"]}</Error>}
                         </Field>
                     }
 
@@ -240,16 +251,26 @@ const PayloadForm = (props: AddMediatorProps) => {
 
 
                     <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        <Button appearance="primary" onClick={() => {
-                            if (!(validateField("argumentType", formValues["argumentType"], true) || validateField("argumentExpression", formValues["argumentExpression"], true))) {
+                        {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "expression" && <Button appearance="primary" onClick={() => {
+                            if (!(validateField("argumentExpression", formValues["argumentExpression"], true))) {
                                 setFormValues({
                                     ...formValues, "argumentType": undefined, "argumentExpression": undefined,
-                                    "args": [...formValues["args"], [formValues["argumentType"], formValues["argumentValue"], formValues["argumentExpression"]]]
+                                    "args": [...formValues["args"], [null, formValues["argumentType"], formValues["argumentExpression"]]]
                                 });
                             }
                         }}>
                             Add
-                        </Button>
+                        </Button>}
+                        {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "value" && <Button appearance="primary" onClick={() => {
+                            if (!(validateField("argumentValue", formValues["argumentValue"], true))) {
+                                setFormValues({
+                                    ...formValues, "argumentType": undefined, "argumentExpression": undefined,
+                                    "args": [...formValues["args"], [null, formValues["argumentType"], formValues["argumentValue"]]]
+                                });
+                            }
+                        }}>
+                            Add
+                        </Button>}
                     </div>
                     {formValues["args"] && formValues["args"].length > 0 && (
                         <ComponentCard sx={cardStyle} disbaleHoverEffect>

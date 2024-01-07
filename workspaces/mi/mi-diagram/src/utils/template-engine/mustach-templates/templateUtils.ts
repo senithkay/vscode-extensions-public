@@ -15,7 +15,7 @@ import { getLogFormDataFromSTNode, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateXml } from "./core/call-template";
-import { getPayloadFormDataFromSTNode } from "./core/payloadFactory";
+import { getPayloadFormDataFromSTNode, getPayloadXml } from "./core/payloadFactory";
 import { getPropertyFormDataFromSTNode } from "./core/property";
 
 export function getMustacheTemplate(name: string) {
@@ -158,13 +158,17 @@ action="{{propertyAction}}"
     </format>
     {{/isInlined}}
     {{^isInlined}}
-    <format key="{{payloadKey}}"/>
+    {{#payloadKey}}<format key="{{payloadKey}}"/>{{/payloadKey}}
+    {{#payload}}<format>
+        {{{payload}}}
+    </format>
+    {{/payload}}
     {{/isInlined}}
-    {{#args}}
     <args>
-        <arg {{#argumentValue}}value="{{argumentValue}}"{{/argumentValue}} {{#argumentExpression}}expression="{{argumentExpression}}" evaluator="{{evaluator}}" {{/argumentExpression}} />
+        {{#args}}
+        <arg {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" evaluator="{{evaluator}}" {{/expression}} />
+        {{/args}}
     </args>
-    {{/args}}
 </payloadFactory>`;
         case MEDIATORS.HTTPENDPOINT:
             return `<endpoint>
@@ -217,6 +221,8 @@ export function getXML(name: string, data: { [key: string]: any }) {
             return getCalloutXml(data);
         case MEDIATORS.CALLTEMPLATE:
             return getCallTemplateXml(data)
+        case MEDIATORS.PAYLOAD:
+            return getPayloadXml(data);    
         default:
             return Mustache.render(getMustacheTemplate(name), data);
     }
