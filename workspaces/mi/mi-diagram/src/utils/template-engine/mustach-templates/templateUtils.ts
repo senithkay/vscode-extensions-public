@@ -85,15 +85,7 @@ export function getMustacheTemplate(name: string) {
             return `<loopback{{#description}} description="{{description}}"{{/description}} />`;
         case MEDIATORS.PROPERTY:
             return `<property 
-    name="{{newPropertyName}}" 
-    scope="{{propertyScope}}" 
-    type="{{propertyDataType}}" 
-    {{#value}} expression="{{value}}"{{/value}} 
-    action="{{propertyAction}}"
-    {{#description}}description="{{description}}"{{/description}}
-    {{#value}}value="{{value}}"{{/value}}
-    {{#valueStringPattern}}pattern="{{valueStringPattern}}"{{/valueStringPattern}}
-    {{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
+    name="{{newPropertyName}}" scope="{{propertyScope}}" type="{{propertyDataType}}"{{#expression}} expression="{{expression}}"{{/expression}} action="{{propertyAction}}"{{#description}} description="{{description}}"{{/description}}{{#value}} value="{{value}}"{{/value}}{{#valueStringPattern}} pattern="{{valueStringPattern}}"{{/valueStringPattern}}{{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
 />`;
         case MEDIATORS.PROPERTYGROUP:
             return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
