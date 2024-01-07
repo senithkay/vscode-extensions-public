@@ -10,11 +10,10 @@
 import React, { useEffect, useState } from "react";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 import { Endpoint, HttpMethod, HttpRequestNodeProperties, Node } from "../../../types";
-import { toSnakeCase } from "../../../utils";
+import { toSnakeCase, toTitleCase } from "../../../utils";
 import { Form } from "../styles";
 import { DEFAULT_TYPE } from "../../../resources";
 import { OptionWidgetProps } from "../../layout/OptionWidget";
-
 
 // TODO: update this component with multiple form components
 export function HttpRequestNodeForm(props: OptionWidgetProps) {
@@ -37,13 +36,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
         if (selectedNode.getInPorts().length > 0) {
             setPayloadType(selectedNode.getInPorts()[0].getOptions()?.port.type || DEFAULT_TYPE);
         }
-        if (flowModel.endpoints?.length > 0) {
-            if (nodeProperties.endpoint.name) {
-                setSelectedEndpoint(flowModel.endpoints.find((ep) => ep.name === nodeProperties.endpoint.name));
-            } else {
-                setSelectedEndpoint(flowModel.endpoints[0]);
-            }
-        }
+        setSelectedEndpoint(nodeProperties.endpoint);
     }, [selectedNode.getID()]);
 
     const handleOnSave = () => {
@@ -61,7 +54,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
         setSelectedNode(null);
     };
 
-    const formTitle = action?.toUpperCase() + " Request" || "HTTP Request";
+    const formTitle = toTitleCase(selectedEndpoint?.name + " " + action?.toUpperCase() + " Request" || "HTTP Request");
 
     return (
         <Form.Tray>
@@ -84,21 +77,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                 size={32}
             />
             <>
-                <Form.Divider />
-                <Form.SectionTitle>Connection</Form.SectionTitle>
-                {!(flowModel.endpoints?.length > 0) && <Form.Error>No Endpoints Found</Form.Error>}
-                {flowModel.endpoints?.length > 0 && selectedEndpoint && (
-                    <Form.Select
-                        id="endpoint"
-                        value={selectedEndpoint.name}
-                        items={flowModel.endpoints.map((ep) => {
-                            return { value: ep.name };
-                        })}
-                        onChange={(value: string) => {
-                            setSelectedEndpoint(flowModel.endpoints.find((ep) => ep.name === value));
-                        }}
-                    />
-                )}
+                
                 <Form.InputField
                     label="Path"
                     value={path}
@@ -106,6 +85,7 @@ export function HttpRequestNodeForm(props: OptionWidgetProps) {
                         setPath(value);
                     }}
                     size={32}
+                    autoFocus={true}
                 />
                 {action === "post" && payloadType && (
                     <>

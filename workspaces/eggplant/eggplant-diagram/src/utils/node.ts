@@ -10,12 +10,14 @@
 import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DefaultNodeModel } from "../components/default";
 import { DEFAULT_TYPE } from "../resources/constants";
-import { Flow, HttpMethod, Node, NodeKinds, TransformNodeProperties } from "../types";
+import { Endpoint, Flow, HttpMethod, Node, NodeKinds, TransformNodeProperties } from "../types";
 import { getPortId } from "./generator";
+import { toTitleCase } from "./commons";
 
 // get custom default node factory
-export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix?: string) {
-    let name = generateNodeName(type, action, suffix);
+export function getDefaultNodeModel(model: DiagramModel, type: NodeKinds, endpoint?: Endpoint, action?: HttpMethod) {
+    let actionName = endpoint && action ? toTitleCase(endpoint.name + action.toUpperCase()) : undefined;
+    let name = generateNodeName(model, type, actionName);
     let nodeModel = new DefaultNodeModel({ name: name, kind: type });
 
     let emptyNode: Node = {
@@ -63,10 +65,7 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
                 path: "",
                 action: action,
                 outputType: "json",
-                endpoint: {
-                    baseUrl: "",
-                    name: "pineValleyEp", // HACK: this is a temporary value
-                },
+                endpoint: endpoint,
             };
             break;
         case "HttpResponseNode": // response node
@@ -179,28 +178,70 @@ export function getDefaultNodeModel(type: NodeKinds, action?: HttpMethod, suffix
     return nodeModel;
 }
 
+export function getStartNodeModel() {
+    let name = "StartNode";
+    let nodeModel = new DefaultNodeModel({ name: name, kind: "StartNode" });
+
+    let emptyNode: Node = {
+        name: name,
+        templateId: "StartNode",
+        inputPorts: [],
+        outputPorts: [],
+        metadata: {
+            outputs: [
+                {
+                    name: "outVar",
+                    type: "()",
+                },
+            ],
+        },
+        codeLocation: {
+            start: {
+                line: 0,
+                offset: 0,
+            },
+            end: {
+                line: 0,
+                offset: 0,
+            },
+        },
+        canvasPosition: {
+            x: 0,
+            y: 0,
+        },
+    };
+
+    const outPortId = getPortId(name, false, 1);
+    nodeModel.addOutPort(outPortId);
+    nodeModel.setNode(emptyNode);
+    return nodeModel;
+}
+
 export function addStartNode(flowModel: Flow, model: DiagramModel) {
     if (!flowModel.nodes?.some((node) => node.templateId === "StartNode")) {
-        let nodeModel = getDefaultNodeModel("StartNode");
-        nodeModel.setPosition(1000, 1000); 
+        let nodeModel = getStartNodeModel();
+        nodeModel.setPosition(1000, 1000);
         model.addNode(nodeModel);
         return true;
     }
     return false;
 }
 
-export function generateNodeName(type: NodeKinds, action?: HttpMethod, suffix?: string) {
-    let name = type.toString();
-    if (type === "HttpRequestNode" && action) {
-        name = action.toUpperCase() + "RequestNode";
-    }
-    if (suffix !== undefined && !isSingleNode(type)) {
-        name = name + "_" + suffix;
-    }
-    return name;
-}
-
 // only one start and response node can be added to the canvas
 export function isSingleNode(type: NodeKinds) {
     return type === "StartNode" || type === "HttpResponseNode";
+}
+
+export function generateNodeName(model: DiagramModel, type: NodeKinds, name?: string, suffix?: string) {
+    let count = 1;
+    let nodeName = `${name || type}${suffix ? `_${suffix}` : ""}`;
+    while (model.getNodes().some((node) => (node as DefaultNodeModel).getName() === nodeName)) {
+        nodeName = `${name || type}${suffix ? `_${suffix}` : ""}_${count}`;
+        count++;
+    }
+    return toTitleCase(nodeName);
+}
+
+export function getNodeByName(model: DiagramModel, name: string) {
+    return model.getNodes().find((node) => (node as DefaultNodeModel).getName() === name);
 }

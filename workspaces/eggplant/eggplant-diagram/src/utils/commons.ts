@@ -14,6 +14,11 @@ export const toSnakeCase = (str: string): string => {
     return str.replace(/\s+/g, "_");
 };
 
+export const toTitleCase = (str: string): string => {
+    str = str.trim();
+    return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1));
+}
+
 // save diagram zoom level and position to local storage
 export const saveDiagramZoomAndPosition = (model: DiagramModel) => {
     const zoomLevel = model.getZoomLevel();

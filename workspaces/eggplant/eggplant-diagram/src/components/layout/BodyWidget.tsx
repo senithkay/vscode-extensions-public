@@ -15,12 +15,12 @@ import { DefaultNodeModel } from "../default";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DiagramCanvasWidget } from "./DiagramCanvasWidget";
 import styled from "@emotion/styled";
-import { EVENT_TYPES } from "../../resources";
+import { Colors, EVENT_TYPES } from "../../resources";
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { generateFlowModelFromDiagramModel } from "../../utils/generator";
 import { Flow } from "../../types";
 import { OptionWidget } from "./OptionWidget";
-import { getDefaultNodeModel, isSingleNode } from "../../utils";
+import { getDefaultNodeModel, isSingleNode, toTitleCase } from "../../utils";
 import { DiagramControls } from "../controls/DiagramControls";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -50,6 +50,32 @@ namespace S {
         position: relative;
         flex-grow: 1;
     `;
+
+    export const Title = styled.h4`
+        font-family: "GilmerMedium";
+        font-family: var(--font-family);
+        color: ${Colors.ON_SURFACE};
+        margin-bottom: 12px;
+        margin-block-start: unset;
+        user-select: none;
+    `;
+
+    export const SubTitle = styled.p`
+        font-family: "GilmerRegular";
+        font-family: var(--font-family);
+        color: ${Colors.ON_SURFACE};
+        margin-bottom: 8px;
+        margin-top: 12px !important;
+        margin-block-start: unset;
+        user-select: none;
+    `;
+
+    export const Divider = styled.div`
+        height: 1px;
+        width: 100%;
+        /* background-color: ${Colors.OUTLINE_VARIANT}; */
+        margin: 14px 0;
+    `;
 }
 
 export function BodyWidget(props: BodyWidgetProps) {
@@ -58,9 +84,8 @@ export function BodyWidget(props: BodyWidgetProps) {
     const handleDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             let data = JSON.parse(event.dataTransfer.getData(EVENT_TYPES.ADD_NODE)) as TrayItemModel;
-            let nodesCount = _.keys(engine.getModel().getNodes()).length;
 
-            let node: DefaultNodeModel = getDefaultNodeModel(data.type, data.action, (nodesCount++).toString());
+            let node: DefaultNodeModel = getDefaultNodeModel(engine.getModel(), data.type, data.endpoint, data.action);
             let point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
             engine.getModel().addNode(node);
@@ -69,7 +94,7 @@ export function BodyWidget(props: BodyWidgetProps) {
             onModelChange(updatedFlow);
             setSelectedNode(null);
         },
-        [engine,flowModel]
+        [engine, flowModel]
     );
 
     const updateFlowModel = () => {
@@ -82,22 +107,44 @@ export function BodyWidget(props: BodyWidgetProps) {
         setSelectedNode(null);
     };
 
-    // has start and return node types in flow model
-    const hasStartNode = flowModel.nodes.some((node) => node.templateId === "StartNode");
+    // has return node types in flow model
     const hasReturnNode = flowModel.nodes.some((node) => node.templateId === "HttpResponseNode");
 
     return (
         <S.Body>
             <S.Content>
                 <TrayWidget>
-                    {/* {!hasStartNode && <TrayItemWidget model={{ type: "StartNode" }} name="Start" />} */}
+                    <S.Title>Core Components</S.Title>
                     <TrayItemWidget model={{ type: "SwitchNode" }} name="Switch" />
                     <TrayItemWidget model={{ type: "TransformNode" }} name="Transform" />
                     <TrayItemWidget model={{ type: "CodeBlockNode" }} name="Code Block" />
                     <TrayItemWidget model={{ type: "NewPayloadNode" }} name="New Payload" />
-                    <TrayItemWidget model={{ type: "HttpRequestNode", action: "get" }} name="GET Request" />
-                    <TrayItemWidget model={{ type: "HttpRequestNode", action: "post" }} name="POST Request" />
+                    {/* <TrayItemWidget model={{ type: "HttpRequestNode", action: "get" }} name="GET Request" />
+                    <TrayItemWidget model={{ type: "HttpRequestNode", action: "post" }} name="POST Request" /> */}
                     {!hasReturnNode && <TrayItemWidget model={{ type: "HttpResponseNode" }} name="Return" />}
+                    {flowModel.endpoints?.length > 0 && (
+                        <>
+                            <S.Divider />
+                            <S.Title>Endpoints</S.Title>
+                        </>
+                    )}
+                    {flowModel.endpoints.map((endpoint, index) => {
+                        return (
+                            <>
+                                <S.SubTitle>{toTitleCase(endpoint.name)}</S.SubTitle>
+                                <TrayItemWidget
+                                    key={index + "get"}
+                                    model={{ type: "HttpRequestNode", endpoint: endpoint, action: "get" }}
+                                    name={"GET " + endpoint.name}
+                                />
+                                <TrayItemWidget
+                                    key={index + "post"}
+                                    model={{ type: "HttpRequestNode", endpoint: endpoint, action: "post" }}
+                                    name={"POST" + endpoint.name}
+                                />
+                            </>
+                        );
+                    })}
                 </TrayWidget>
                 <S.Layer
                     onDrop={handleDrop}
