@@ -48,6 +48,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
+    const [typeCompletions, setTypeCompletions] = useState<string[]>([]);
 
     let servicePath = "";
 
@@ -62,6 +63,11 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setIsSidePanelOpen(true);
     };
 
+    const fetchTypes = async () => {
+        const types = await rpcClient.getKeywordTypes();
+        setTypeCompletions(types.completions.map(type => type.insertText));
+    }
+
     useEffect(() => {
         const resourceList: JSX.Element[] = [];
         model?.members.forEach((member) => {
@@ -75,6 +81,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             }
         });
         setResources(resourceList);
+        fetchTypes();
     }, [model]);
 
     const handleServiceConfig = () => {
@@ -136,7 +143,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             <>
                 {resources.length > 0 ? resources : emptyView}
             </>
-            {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} />}
+            {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} typeCompletions={typeCompletions}/>}
         </div>
     )
 }
