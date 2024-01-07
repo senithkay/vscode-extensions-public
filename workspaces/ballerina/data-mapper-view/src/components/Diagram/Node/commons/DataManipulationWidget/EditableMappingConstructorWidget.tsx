@@ -10,7 +10,6 @@
 import React, { useMemo, useState } from 'react';
 
 import { css } from '@emotion/css';
-import { CircularProgress } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { AnydataType, STModification, Type } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
@@ -41,7 +40,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 
 const useStyles = () => ({
 	root: css({
@@ -374,7 +373,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					{unionTypeInfo && (
 						<>
 							{isModifyingTypeCast ? (
-								<CircularProgress size={18} className={classes.loader} />
+								<ProgressRing sx={{ height: '16px', width: '16px' }} />
 							) : (
 								<ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
 							)}

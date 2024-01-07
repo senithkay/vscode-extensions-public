@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { CircularProgress } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
@@ -18,6 +17,7 @@ import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-t
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
@@ -104,7 +104,7 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
                 <div className={classes.line} />
                 <div className={classes.addButtonWrap} data-testid={`intermediary-add-btn-${addIndex}`}>
                     {isLoading ? (
-                        <CircularProgress size={13} />
+                        <ProgressRing sx={{ height: '16px', width: '16px' }} />
                     ) : (
                         <AddCircleOutline onClick={handleClick} className={classes.addIcon}/>
                     )}

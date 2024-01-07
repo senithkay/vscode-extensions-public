@@ -79,6 +79,7 @@ import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindin
 import {
 	ENUM_TYPE_SOURCE_PORT_PREFIX,
 	EXPANDED_QUERY_SOURCE_PORT_PREFIX,
+	JSON_MERGE_MODULE_NAME,
 	LET_EXPRESSION_SOURCE_PORT_PREFIX,
 	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
@@ -459,26 +460,28 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 			if (targetType &&
 				targetType.typeName === PrimitiveBalType.Json &&
 				(sourcePort as RecordFieldPortModel).field.typeName === PrimitiveBalType.Json) {
-				modifications.push(
-					{
-						type: "INSERT",
-						config: {
-							"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
-						},
-						...targetPos
+				modifications.push({
+					type: "INSERT",
+					config: {
+						"STATEMENT": `value:mergeJson(${(targetNode as UnionTypeNode).recordField.value.source}, ${(sourcePort as RecordFieldPortModel).fieldFQN})`,
 					},
-					// add module import
-					{
-						type: "IMPORT",
-						config: {
-							"TYPE": "ballerina/lang.value",
-						},
-						startLine: 0,
-						startColumn: 0,
-						endLine: 0,
-						endColumn: 0
-					}
-				);
+					...targetPos
+				})
+
+				// add imports
+				modifications.push({
+					type: "IMPORT",
+					config: {
+						"TYPE": JSON_MERGE_MODULE_NAME,
+					},
+					startLine: 0,
+					startColumn: 0,
+					endLine: 0,
+					endColumn: 0
+				});
+
+				const { context } = targetNode as DataMapperNodeModel;
+				void context.applyModifications(modifications);
 			} else if (targetPos) {
 				modifications.push({
 					type: "INSERT",

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useEffect, useRef } from "react";
 import {
     VSCodeButton,
     VSCodeDataGrid,
@@ -19,8 +19,8 @@ import { Overlay } from "../Commons/Overlay";
 import { Codicon } from "../Codicon/Codicon";
 
 interface Item {
-    id?: number | string;
-    label?: React.ReactNode;
+    id: number | string;
+    label: React.ReactNode;
     onClick: () => void;
     disabled?: boolean;
 }
@@ -78,6 +78,7 @@ const Container = styled.div`
 export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps) => {
     const { id, className, isLoading, isOpen, menuId, sx, iconSx, menuItems, icon } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(isOpen);
+    const contextRef = useRef(null);
 
     const handleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event.stopPropagation();
@@ -89,8 +90,21 @@ export const ContextMenu: React.FC<ContextMenuProps> = (props: ContextMenuProps)
         setIsMenuOpen(false);
     };
 
+    const handleClickOutside = (event: MouseEvent) => {
+        if (contextRef.current && !contextRef.current.contains(event.target as Node)) {
+            setIsMenuOpen(false);
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <Container id={id} className={className}>
+        <Container ref={contextRef} id={id} className={className}>
             {isLoading ? (
                 <SmallProgressRing />
             ) : (

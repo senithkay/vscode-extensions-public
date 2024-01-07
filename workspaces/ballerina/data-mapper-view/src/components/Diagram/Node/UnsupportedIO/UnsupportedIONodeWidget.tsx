@@ -13,8 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode } from "react";
 
+import { css } from "@emotion/css";
 import { Divider } from "@material-ui/core";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { InfoOutlined } from "@material-ui/icons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -35,39 +35,37 @@ interface UnsupportedIOProps {
     message: string;
 }
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        treeContainer: {
-            cursor: "default"
-        },
-        unsupportedIOBanner: {
-            width: "320px"
-        },
-        infoContainer: {
-            display: 'flex',
-            lineHeight: 'initial',
-            fontSize: '13.5px',
-            padding: '5px'
-        },
-        unsupportedFile: {
-            color: "var(--vscode-button-background)",
-            backgroundColor: "var(--vscode-input-background)",
-            fontFamily: "monospace",
-            fontWeight: 100,
-            cursor: "pointer",
-            '&:hover': {
-                textDecoration: "underline"
-            }
-        },
-        infoSymbol: {
-            fontSize: "17px",
-            marginRight: "5px"
-        },
-        divider: {
-            margin: '5px 0px'
-        },
-    })
-);
+const useStyles = () => ({
+    treeContainer: css({
+        cursor: "default"
+    }),
+    unsupportedIOBanner: css({
+        width: "320px"
+    }),
+    infoContainer: css({
+        display: 'flex',
+        lineHeight: 'initial',
+        fontSize: '13.5px',
+        padding: '5px'
+    }),
+    unsupportedFile: css({
+        color: "var(--vscode-button-background)",
+        backgroundColor: "var(--vscode-input-background)",
+        fontFamily: "monospace",
+        fontWeight: 100,
+        cursor: "pointer",
+        '&:hover': {
+            textDecoration: "underline"
+        }
+    }),
+    infoSymbol: css({
+        fontSize: "17px",
+        marginRight: "5px"
+    }),
+    divider: css({
+        margin: '5px 0px'
+    }),
+});
 
 function UnsupportedIOWidget({ children }: UnsupportedIOProp) {
     const classes = useStyles();
