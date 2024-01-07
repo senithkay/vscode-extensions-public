@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { CircularProgress } from "@material-ui/core";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -51,7 +50,7 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -494,7 +493,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     {(!isDisabled || hasValue) && (
                         <>
                             {(isLoading || isAddingTypeCast) ? (
-                                <CircularProgress size={18} className={classes.loader} />
+                                <ProgressRing sx={{ height: '16px', width: '16px' }} />
                             ) : (
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
                             )}

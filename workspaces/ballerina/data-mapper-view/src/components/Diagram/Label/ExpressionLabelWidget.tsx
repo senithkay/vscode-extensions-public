@@ -9,8 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import { CircularProgress } from "@material-ui/core";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { css } from '@emotion/css';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -33,68 +32,77 @@ import {
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
+import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 
 export interface EditableLabelWidgetProps {
     model: ExpressionLabelModel;
 }
 
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        container: {
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            overflow: "hidden",
-            boxShadow: "0px 5px 50px var(--vscode-checkbox-border)",
-        },
-        containerHidden: {
-            visibility: "hidden",
-        },
-        element: {
-            backgroundColor: "var(--vscode-input-background)",
-            padding: "10px",
-            cursor: "pointer",
-            transitionDuration: "0.2s",
-            userSelect: "none",
-            pointerEvents: "auto",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            "&:hover": {
-                filter: "brightness(0.95)",
-            },
-        },
-        iconWrapper: {
-            height: "22px",
-            width: "22px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        codeIconButton: {
-            color: "var(--vscode-checkbox-border)",
-        },
-        deleteIconButton: {
-            color: "var(--vscode-checkbox-border)",
-        },
-        separator: {
-            height: "35px",
-            width: "1px",
-            backgroundColor: "var(--vscode-editor-lineHighlightBorder)",
-        },
-        rightBorder: {
-            borderRightWidth: "2px",
-            borderColor: "var(--vscode-pickerGroup-border)",
-        },
-        loadingContainer: {
-            padding: "10px"
-        },
-        circularProgress: {
-            color: "var(--vscode-input-background)",
-            display: "block"
+export const useStyles = () => ({
+    container: css({
+        width: '100%',
+        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        padding: "2px",
+        borderRadius: "6px",
+        display: "flex",
+        color: "var(--vscode-checkbox-border)",
+        alignItems: "center",
+        "& > vscode-button > *": {
+            margin: "0 2px"
         }
-    })
-);
+    }),
+    containerHidden: css({
+        visibility: 'hidden',
+    }),
+    btnContainer: css({
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        "& > *": {
+            margin: "0 2px"
+        }
+    }),
+    element: css({
+        backgroundColor: 'var(--vscode-input-background)',
+        padding: '10px',
+        cursor: 'pointer',
+        transitionDuration: '0.2s',
+        userSelect: 'none',
+        pointerEvents: 'auto',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        '&:hover': {
+            filter: 'brightness(0.95)',
+        },
+    }),
+    iconWrapper: css({
+        height: '22px',
+        width: '22px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }),
+    codeIconButton: css({
+        color: 'var(--vscode-checkbox-border)',
+    }),
+    deleteIconButton: css({
+        color: 'var(--vscode-checkbox-border)',
+    }),
+    separator: css({
+        height: 'fit-content',
+        width: '1px',
+        backgroundColor: 'var(--vscode-editor-lineHighlightBorder)',
+    }),
+    rightBorder: css({
+        borderRightWidth: '2px',
+        borderColor: 'var(--vscode-pickerGroup-border)',
+    }),
+    loadingContainer: css({
+        padding: '10px',
+    }),
+});
 
 export enum LinkState {
     TemporaryLink,
@@ -192,34 +200,34 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
     }, [props.model]);
 
     const loadingScreen = (
-        <CircularProgress
-            size={22}
-            thickness={3}
-            className={classes.circularProgress}
-        />
+        <ProgressRing sx={{ height: '16px', width: '16px' }} />
     );
 
     const elements: React.ReactNode[] = [
         (
-            <>
-                <div className={classes.element} onClick={onClickEdit} data-testid={`expression-label-edit`}>
-                    <div className={classes.iconWrapper}>
-                        <CodeOutlinedIcon className={classes.codeIconButton}/>
-                    </div>
-                </div>
+            <div className={classes.btnContainer}>
+                <Button
+                    appearance="icon"
+                    onClick={onClickEdit}
+                    data-testid={`expression-label-edit`}
+                    sx={{ userSelect: "none", pointerEvents: "auto" }}
+                >
+                    <Codicon name="code" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                </Button>
                 <div className={classes.separator}/>
                 {deleteInProgress ? (
-                    <div className={classNames(classes.element, classes.loadingContainer)}>
-                        {loadingScreen}
-                    </div>
+                    loadingScreen
                 ) : (
-                    <div className={classes.element} onClick={onClickDelete} data-testid={`expression-label-delete`}>
-                        <div className={classes.iconWrapper}>
-                            <DeleteIcon className={classes.deleteIconButton}/>
-                        </div>
-                    </div>
+                    <Button
+                        appearance="icon"
+                        onClick={onClickDelete}
+                        data-testid={`expression-label-delete`}
+                        sx={{ userSelect: "none", pointerEvents: "auto" }}
+                    >
+                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                    </Button>
                 )}
-            </>
+            </div>
         ),
     ];
 

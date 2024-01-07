@@ -9,9 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { css } from "@emotion/css";
-import { CircularProgress } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -363,7 +362,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 					{unionTypeInfo && (
 						<>
 							{isModifyingTypeCast ? (
-								<CircularProgress size={18} className={classes.loader} />
+								<ProgressRing sx={{ height: '16px', width: '16px' }} />
 							) : (
 								<ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
 							)}

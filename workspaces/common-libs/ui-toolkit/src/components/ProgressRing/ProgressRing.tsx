@@ -10,6 +10,10 @@ import React from "react";
 import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 import { VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
-export const ProgressRing: React.FC = () => <VSCodeProgressRing />;
+interface ProgressRingProps {
+    sx?: React.CSSProperties;
+}
+
+export const ProgressRing: React.FC<ProgressRingProps> = (props: ProgressRingProps) => <VSCodeProgressRing style={props.sx} />;
 
 export default ProgressRing;

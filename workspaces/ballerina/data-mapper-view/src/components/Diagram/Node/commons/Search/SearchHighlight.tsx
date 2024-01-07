@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { css } from "@emotion/css";
 
 import { useDMSearchStore } from "../../../../../store/store";
 
@@ -21,11 +21,9 @@ interface SearchHighlightProps {
     children: string;
 }
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        highlighted: { background: "var(--vscode-editor-findMatchHighlightBackground)" },
-    })
-);
+const useStyles = () => ({
+    highlighted: css({ background: "var(--vscode-editor-findMatchHighlightBackground)" }),
+});
 
 function SearchHighlight({ children, searchText }: SearchHighlightRootProps) {
     const classes = useStyles();

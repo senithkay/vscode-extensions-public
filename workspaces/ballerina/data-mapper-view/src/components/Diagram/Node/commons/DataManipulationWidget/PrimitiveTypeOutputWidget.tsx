@@ -12,8 +12,7 @@ import * as React from 'react';
 import { useState } from "react";
 
 import { css } from '@emotion/css';
-import { Button, Codicon } from '@wso2-enterprise/ui-toolkit';
-import { CircularProgress } from "@material-ui/core";
+import { Button, Codicon, ProgressRing } from '@wso2-enterprise/ui-toolkit';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -307,7 +306,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 				{unionTypeInfo && (
 					<>
 						{isModifyingTypeCast ? (
-							<CircularProgress size={18} className={classes.loader} />
+							<ProgressRing sx={{ height: '16px', width: '16px' }} />
 						) : (
 							<ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
 						)}
