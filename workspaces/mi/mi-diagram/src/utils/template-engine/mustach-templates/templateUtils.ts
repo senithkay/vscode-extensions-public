@@ -10,12 +10,13 @@
 import Mustache from "mustache";
 import { MEDIATORS } from "../../../constants";
 import { getCallFormDataFromSTNode, getCallXml } from "./core/call";
-import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogXml } from "./core/log";
 import { getCalloutFormDataFromSTNode, getCalloutXml } from "./core/callout";
 import { getHeaderFormDataFromSTNode } from "./core/header";
 import { getCallTemplateFormDataFromSTNode, getCallTemplateXml } from "./core/call-template";
 import { getPayloadFormDataFromSTNode } from "./core/payloadFactory";
+import { getPropertyFormDataFromSTNode } from "./core/property";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
@@ -84,15 +85,15 @@ export function getMustacheTemplate(name: string) {
             return `<loopback{{#description}} description="{{description}}"{{/description}} />`;
         case MEDIATORS.PROPERTY:
             return `<property 
-    name="{{propertyName}}" 
+    name="{{newPropertyName}}" 
     scope="{{propertyScope}}" 
     type="{{propertyDataType}}" 
-    {{#newPropertyName}} expression="{{newPropertyName}}"{{/newPropertyName}} 
+    {{#value}} expression="{{value}}"{{/value}} 
     action="{{propertyAction}}"
-    {{#description}} description="{{description}}"{{/description}} 
-    {{#value}} value="{{value}}"{{/value}}
-    {{#valueStringPattern}} pattern="{{valueStringPattern}}"{{/valueStringPattern}}
-    {{#valueStringCapturingGroup}} group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
+    {{#description}}description="{{description}}"{{/description}}
+    {{#value}}value="{{value}}"{{/value}}
+    {{#valueStringPattern}}pattern="{{valueStringPattern}}"{{/valueStringPattern}}
+    {{#valueStringCapturingGroup}}group="{{valueStringCapturingGroup}}"{{/valueStringCapturingGroup}}
 />`;
         case MEDIATORS.PROPERTYGROUP:
             return `<propertyGroup {{#description}}description="{{description}}"{{/description}}>
@@ -246,6 +247,8 @@ export function getDataFromXML(name: string, node: STNode) {
             return getCallTemplateFormDataFromSTNode(formData, node as CallTemplate);
         case MEDIATORS.PAYLOAD:
             return getPayloadFormDataFromSTNode(formData, node as PayloadFactory);
+        case MEDIATORS.PROPERTY:
+            return getPropertyFormDataFromSTNode(formData, node as Property);
         default:
             return formData;
     }
