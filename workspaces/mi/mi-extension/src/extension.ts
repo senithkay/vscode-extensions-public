@@ -30,11 +30,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		console.log('Add API');
 	})
 
-	projectTree.onDidChangeSelection(e => {
+	projectTree.onDidChangeSelection(async e => {
 		if (e.selection.length > 0 && e.selection[0].info) {
 			const info = e.selection[0].info;
 			console.log(info);
 			// TODO: Open file logic should go here
+			const document = await vscode.workspace.openTextDocument(info.path);
+			await vscode.window.showTextDocument(document);
+			vscode.commands.executeCommand('integrationStudio.showDiagram');
 		}
 	})
 
