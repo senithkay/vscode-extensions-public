@@ -71,8 +71,6 @@ export const IconTextWrapper = styled.div`
     cursor: pointer;
     background-color: var(--vscode-inputValidation-infoBackground);
     height: 100%;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
 `;
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -103,7 +101,6 @@ export const disabledHeaderLabel = cx(css`
 export const HeaderLabel = styled.div`
     display: flex;
     background: var(--vscode-editor-background);
-    border-radius: 5px;
     border: 1px solid var(--vscode-dropdown-border);
     margin-top: 8px;
     display: flex;

@@ -41,7 +41,8 @@ export function Payload(props: ResourceParamProps) {
             name: "param",
             type: "string",
             option: PARAM_TYPES.PAYLOAD,
-            defaultValue: ""
+            defaultValue: "",
+            isRequired: true
         };
         onChange(newParam);
     };
@@ -73,6 +74,7 @@ export function Payload(props: ResourceParamProps) {
                         type: parameter.type,
                         option: PARAM_TYPES.PAYLOAD,
                         defaultValue: parameter.defaultValue,
+                        isRequired: parameter.isRequired
                     }}
                     isEdit={true}
                     option={parameter.option}
@@ -89,7 +91,8 @@ export function Payload(props: ResourceParamProps) {
                                 name: parameter.name,
                                 type: parameter.type,
                                 option: parameter.option,
-                                defaultValue: parameter.defaultValue
+                                defaultValue: parameter.defaultValue,
+                                isRequired: parameter.isRequired
                             }}
                             readonly={readonly}
                             onDelete={onDelete}

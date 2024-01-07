@@ -29,21 +29,25 @@ const AddButtonWrapper = styled.div`
 export function AdvancedParams(props: ResourceParamProps) {
     const { parameters, readonly, onChange } = props;
     const [editingComponent, setEditingComponent] = useState<PARAM_TYPES>();
+    const [isNew, setIsNew] = useState(false);
 
     const getAddButton = (paramType: PARAM_TYPES, readonly: boolean) => {
         const addParam = (paramType: PARAM_TYPES) => {
             const updatedParamters = new Map(parameters);
             setEditingComponent(paramType);
+            const existingParam = updatedParamters.get(paramType);
             const newParam: ParameterConfig = {
-                id: 0,
-                name: "param",
-                type: `http:${paramType === PARAM_TYPES.HEADER ? "Headers" : paramType}`,
+                id: existingParam ? existingParam.id : 0,
+                name: existingParam ? existingParam.name : "param",
+                type: existingParam ? existingParam.type : `http:${paramType === PARAM_TYPES.HEADER ? "Headers" : paramType}`,
                 option: paramType,
+                isRequired: existingParam ? existingParam.isRequired : true,
             };
             updatedParamters.set(newParam.option, newParam);
             onChange(updatedParamters);
         };
         const onAddClick = () => {
+            setIsNew(true);
             addParam(paramType);
         };
         return (
@@ -58,17 +62,19 @@ export function AdvancedParams(props: ResourceParamProps) {
 
     const getParam = (param: ParameterConfig, paramType: PARAM_TYPES) => {
         if (param.option === paramType) {
-            const updatedParamters = new Map(parameters);
             const onChangeParam = (param: ParameterConfig) => {
+                const updatedParamters = new Map(parameters);
                 updatedParamters.set(paramType, param);
                 onChange && onChange(updatedParamters);
             };
             const onSave = () => {
+                const updatedParamters = new Map(parameters);
                 setEditingComponent(undefined);
                 onChange(updatedParamters);
             };
 
             const onDelete = (param: ParameterConfig) => {
+                const updatedParamters = new Map(parameters);
                 updatedParamters.delete(param.option);
                 onChange(updatedParamters);
             };
@@ -79,7 +85,10 @@ export function AdvancedParams(props: ResourceParamProps) {
 
             const onParamEditCancel = () => {
                 setEditingComponent(undefined);
-                onDelete(param);
+                if (isNew) {
+                    onDelete(param);
+                }
+                setIsNew(false);
             };
 
             const component = (
@@ -90,6 +99,9 @@ export function AdvancedParams(props: ResourceParamProps) {
                                 id: 0,
                                 name: param.name,
                                 option: paramType,
+                                type: param.type,
+                                defaultValue: param.defaultValue,
+                                isRequired: param.isRequired
                             }}
                             hideType={true}
                             hideDefaultValue={true}
