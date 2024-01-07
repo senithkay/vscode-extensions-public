@@ -40,7 +40,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     const [diagramEngine, setEngine] = useState<DiagramEngine>(generateEngine());
     const [model] = useState<DiagramModel>(new DiagramModel());
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [_canvasHeight, setCanvasHeight] = useState<number>(1000);
+    const [canvasHeight, setCanvasHeight] = useState<number>(1000);
 
     useEffect(() => {
         setLoading(true);
@@ -155,7 +155,8 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     } else {
         return <div style={{
             backgroundColor: 'var(--vscode-panel-background)',
-            height: "100vh",
+            height: canvasHeight,
+            minHeight: "100vh",
             overflow: "hidden",
         }}>
             <CanvasContainer>

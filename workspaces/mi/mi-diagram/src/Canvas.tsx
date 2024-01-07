@@ -17,6 +17,7 @@ const background = require('./resources/assets/PatternBg.svg') as string;
 export const Container: React.FC<any> = styled.div`
   height: inherit;
   position: relative;
+  min-height: 100%;
   &::before {
     content: "";
     position: absolute;
