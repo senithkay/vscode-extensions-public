@@ -80,6 +80,7 @@ export function MIDiagram(props: MIDiagramProps) {
 					{isSidePanelOpen && <SidePanel
 						isOpen={isSidePanelOpen}
 						alignmanet="right"
+						width={450}
 					>
 						<SidePanelTitleContainer>
 							<div style={{ minWidth: "20px" }}>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -19,7 +19,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -28,6 +28,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -107,17 +111,17 @@ const SequenceForm = (props: AddMediatorProps) => {
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Referring Sequence</h3>
 
-                    <div>
+                    <Field>
                         <label>Referring Sequence Type</label>
                         <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["referringSequenceType"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "referringSequenceType": e });
                             formValidators["referringSequenceType"](e);
                         }} />
                         {errors["referringSequenceType"] && <Error>{errors["referringSequenceType"]}</Error>}
-                    </div>
+                    </Field>
 
                     {formValues["referringSequenceType"] && formValues["referringSequenceType"].toLowerCase() == "static" &&
-                        <div>
+                        <Field>
                             <TextField
                                 label="Static Reference Key"
                                 size={50}
@@ -130,11 +134,11 @@ const SequenceForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["staticReferenceKey"] && <Error>{errors["staticReferenceKey"]}</Error>}
-                        </div>
+                        </Field>
                     }
 
                     {formValues["referringSequenceType"] && formValues["referringSequenceType"].toLowerCase() == "dynamic" &&
-                        <div>
+                        <Field>
                             <TextField
                                 label="Dynamic Reference Key"
                                 size={50}
@@ -147,11 +151,12 @@ const SequenceForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["dynamicReferenceKey"] && <Error>{errors["dynamicReferenceKey"]}</Error>}
-                        </div>
+                        </Field>
                     }
 
                 </ComponentCard>
-                <div>
+
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -164,9 +169,10 @@ const SequenceForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

@@ -17,7 +17,9 @@ import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
-import { Codicon } from '@wso2-enterprise/ui-toolkit'
+import { Codicon } from '@wso2-enterprise/ui-toolkit';
+import { OFFSET } from '../../../../constants';
+import SidePanelContext from '../../../sidePanel/SidePanelContexProvider';
 
 const ButtonComponent = styled.div`
     top: 45px;
@@ -45,6 +47,14 @@ const EditButton = styled.button`
     padding: 2px;
 `
 
+const AddBtn = styled.button`
+    height: 23px;
+    width: 23px;
+    display: block;
+    margin: 0 auto;
+    padding: 2px;
+`
+
 export interface SimpleEndpointWidgetProps extends BaseNodeProps {
     name: string;
     description: string;
@@ -54,6 +64,7 @@ export interface SimpleEndpointWidgetProps extends BaseNodeProps {
 
 export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
     const node: SimpleEndpointNodeModel = props.node as SimpleEndpointNodeModel;
+    const sidePanelContext = React.useContext(SidePanelContext);
 
     const subSequences = node.subSequences;
     const nodePosition = node.getPosition();
@@ -64,23 +75,23 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
     leftPort.setPosition(nodePosition.x, nodePosition.y + node.height / 2);
     rightPort.setPosition(nodePosition.x + node.width, nodePosition.y + node.height / 2);
     topPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
-    bottomPort.setPosition(nodePosition.x + node.height / 2, nodePosition.y + node.height);
+    bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y + node.height);
 
     useEffect(() => {
-            const subNodes = subSequences[0].nodes;
-            const subNodesAndLinks = [];
+        const subNodes = subSequences[0].nodes;
+        const subNodesAndLinks = [];
 
-            if (subNodes.length == 1) {
-                props.diagramEngine.getModel().addNode(subNodes[0]);
-                subNodesAndLinks.push(subNodes[0]);
+        if (subNodes.length == 1) {
+            props.diagramEngine.getModel().addNode(subNodes[0]);
+            subNodesAndLinks.push(subNodes[0]);
 
-                const link = createLinks(node, subNodes[0], subNodes[0].getParentNode(), false, true, true);
-                props.diagramEngine.getModel().addAll(node, ...link, subNodes[0]);
-                subNodesAndLinks.push(node, ...link.filter((plusNode) => plusNode instanceof PlusNodeModel), subNodes[0]);
-            }
+            const link = createLinks(node, subNodes[0], subNodes[0].getParentNode(), false, true, true);
+            props.diagramEngine.getModel().addAll(node, ...link, subNodes[0]);
+            subNodesAndLinks.push(...link.filter((plusNode) => plusNode instanceof PlusNodeModel));
+            setNodePositions(subNodesAndLinks, rightPort.getX() + 500, (nodePosition.y + node.height / 2) - (subNodes[0].height / 2) - OFFSET.BETWEEN.Y, 25);
+        }
 
-            setNodePositions(subNodesAndLinks, nodePosition.x + 500, nodePosition.y + 170, 25);
-    }, []);
+    }, [nodePosition]);
 
     const deleteNode = async () => {
         MIWebViewAPI.getInstance().applyEdit({
@@ -89,8 +100,8 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
     }
 
     const ActionButtons = () => {
-    const [isHovered, setIsHovered] = useState(false);
-    const handleMouseOver = () => {
+        const [isHovered, setIsHovered] = useState(false);
+        const handleMouseOver = () => {
             setIsHovered(true);
         };
 
@@ -112,8 +123,24 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
             <ButtonComponent style={{ display: isHovered ? "flex" : "none" }}>
                 <DeleteButton onClick={deleteNode}> <Codicon name="trash" /> </DeleteButton>
                 <EditButton> <Codicon name="edit" /> </EditButton>
+                <AddBtn onClick={addEndpoint}> <Codicon name="plus" /> </AddBtn>
             </ButtonComponent>
         </div>);
+    }
+
+    const addEndpoint = async () => {
+        sidePanelContext.setNodeRange({
+            start: {
+                line: props.nodePosition.end.line,
+                character: props.nodePosition.end.character - 7
+            },
+            end: {
+                line: props.nodePosition.end.line,
+                character: props.nodePosition.end.character - 7
+            }
+        });
+        sidePanelContext.setMediator("http");
+        sidePanelContext.setIsOpen(true);
     }
 
     return (

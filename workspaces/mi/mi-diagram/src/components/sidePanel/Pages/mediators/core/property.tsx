@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -19,7 +19,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -28,6 +28,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -111,16 +115,16 @@ const PropertyForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
-                <div>
+                <Field>
                     <label>Property Name</label>
                     <AutoComplete items={["Action", "COPY_CONTENT_LENGTH_FROM_INCOMING", "CacheLevel", "ClientApiNonBlocking", "ConcurrentConsumers", "ContentType", "disableAddressingForOutMessages", "DISABLE_CHUNKING", "DISABLE_SMOOKS_RESULT_PAYLOAD", "ERROR_CODE", "ERROR_DETAIL", "ERROR_EXCEPTION", "ERROR_MESSAGE", "FAULTS_AS_HTTP_200", "FORCE_ERROR_ON_SOAP_FAULT", "FORCE_HTTP_1_0", "FORCE_HTTP_CONTENT_LENGTH", "FORCE_POST_PUT_NOBODY", "FORCE_SC_ACCEPTED", "FaultTo", "From", "HTTP_ETAG", "HTTP_SC", "JMS_COORELATION_ID", "messageType", "MESSAGE_FORMAT", "MaxConcurrentConsumers", "MercuryLastMessage", "MercurySequenceKey", "MessageID", "NO_ENTITY_BODY", "NO_KEEPALIVE", "OUT_ONLY", "OperationName", "POST_TO_URI", "preserveProcessedHeaders", "PRESERVE_WS_ADDRESSING", "REQUEST_HOST_HEADER", "RESPONSE", "REST_URL_POSTFIX", "RelatesTo", "ReplyTo", "SERVER_IP", "SYSTEM_DATE", "SYSTEM_TIME", "TRANSPORT_HEADERS", "TRANSPORT_IN_NAME", "To", "transportNonBlocking"]} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyName": e });
                         formValidators["propertyName"](e);
                     }} />
                     {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="New Property Name"
                         size={50}
@@ -133,39 +137,39 @@ const PropertyForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["newPropertyName"] && <Error>{errors["newPropertyName"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <label>Property Data Type</label>
                     <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} selectedItem={formValues["propertyDataType"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyDataType": e });
                         formValidators["propertyDataType"](e);
                     }} />
                     {errors["propertyDataType"] && <Error>{errors["propertyDataType"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <label>Property Action</label>
                     <AutoComplete items={["set", "remove"]} selectedItem={formValues["propertyAction"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyAction": e });
                         formValidators["propertyAction"](e);
                     }} />
                     {errors["propertyAction"] && <Error>{errors["propertyAction"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <label>Property Scope</label>
                     <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} selectedItem={formValues["propertyScope"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "propertyScope": e });
                         formValidators["propertyScope"](e);
                     }} />
                     {errors["propertyScope"] && <Error>{errors["propertyScope"]}</Error>}
-                </div>
+                </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Value</h3>
 
-                    <div>
+                    <Field>
                         <TextField
                             label="Value"
                             size={50}
@@ -178,9 +182,9 @@ const PropertyForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["value"] && <Error>{errors["value"]}</Error>}
-                    </div>
+                    </Field>
 
-                    <div>
+                    <Field>
                         <TextField
                             label="Value String Pattern"
                             size={50}
@@ -193,9 +197,9 @@ const PropertyForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["valueStringPattern"] && <Error>{errors["valueStringPattern"]}</Error>}
-                    </div>
+                    </Field>
 
-                    <div>
+                    <Field>
                         <TextField
                             label="Value String Capturing Group"
                             size={50}
@@ -208,10 +212,11 @@ const PropertyForm = (props: AddMediatorProps) => {
                             required={false}
                         />
                         {errors["valueStringCapturingGroup"] && <Error>{errors["valueStringCapturingGroup"]}</Error>}
-                    </div>
+                    </Field>
 
                 </ComponentCard>
-                <div>
+
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -224,9 +229,10 @@ const PropertyForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

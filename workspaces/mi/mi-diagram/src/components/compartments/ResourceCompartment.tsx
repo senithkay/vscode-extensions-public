@@ -24,11 +24,13 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
 
     const inSequenceNodes = visitor.getInSequenceNodes();
     const outSequenceNodes = visitor.getOutSequenceNodes();
+    const inSequenceRange = visitor.getInSequenceRange();
+    const outSequenceRange = visitor.getOutSequenceRange();
 
     return (
         <>
             {/* Input & Output sequences */}
-            <SequenceDiagram inSequence={inSequenceNodes} outSequence={outSequenceNodes}></SequenceDiagram>
+            <SequenceDiagram inSequence={inSequenceNodes} inSequenceRange={inSequenceRange} outSequence={outSequenceNodes} outSequenceRange={outSequenceRange}></SequenceDiagram>
 
             <div style={{
                 flex: "0 0 100px",

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  * 
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -20,7 +20,7 @@ import { MEDIATORS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
-   margin: "5px 0",
+   margin: "15px 0",
    padding: "0 15px 15px 15px",
    width: "auto",
    cursor: "auto"
@@ -29,6 +29,10 @@ const cardStyle = {
 const Error = styled.span`
    color: var(--vscode-errorForeground);
    font-size: 12px;
+`;
+
+const Field = styled.div`
+   margin-bottom: 12px;
 `;
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -45,7 +49,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
        } else {
            setFormValues({
        "availableTemplates": "Select From Templates",
-       "parameterName": [] as string[][],
+       "parameterNameTable": [] as string[][],
        "templateParameterType": "LITERAL",});
        }
    }, [sidePanelContext.formValues]);
@@ -110,20 +114,19 @@ const CallTemplateForm = (props: AddMediatorProps) => {
             <ComponentCard sx={cardStyle} disbaleHoverEffect>
                 <h3>Properties</h3>
 
-                <div>
+                <Field>
                     <label>Available Templates</label>
                     <AutoComplete items={["Select From Templates"]} selectedItem={formValues["availableTemplates"]} onChange={(e: any) => {
                         setFormValues({ ...formValues, "availableTemplates": e });
                         formValidators["availableTemplates"](e);
                     }} />
                     {errors["availableTemplates"] && <Error>{errors["availableTemplates"]}</Error>}
-                </div>
+                </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Properties</h3>
+                    <h3>Parameter Name Table</h3>
 
-                        <div>
+                        <Field>
                             <TextField
                                 label="Parameter Name"
                                 size={50}
@@ -136,19 +139,19 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                 required={false}
                             />
                             {errors["parameterName"] && <Error>{errors["parameterName"]}</Error>}
-                        </div>
+                        </Field>
 
-                        <div>
+                        <Field>
                             <label>Template Parameter Type</label>
                             <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["templateParameterType"]} onChange={(e: any) => {
                                 setFormValues({ ...formValues, "templateParameterType": e });
                                 formValidators["templateParameterType"](e);
                             }} />
                             {errors["templateParameterType"] && <Error>{errors["templateParameterType"]}</Error>}
-                        </div>
+                        </Field>
 
                         {formValues["templateParameterType"] && formValues["templateParameterType"].toLowerCase() == "literal" &&
-                            <div>
+                            <Field>
                                 <TextField
                                     label="Parameter Value"
                                     size={50}
@@ -161,30 +164,42 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                     required={false}
                                 />
                                 {errors["parameterValue"] && <Error>{errors["parameterValue"]}</Error>}
-                            </div>
+                            </Field>
                         }
 
                         {formValues["templateParameterType"] && formValues["templateParameterType"].toLowerCase() == "expression" &&
-                            <div>
-                            </div>
+                            <Field>
+                                <TextField
+                                    label="Parameter Expression"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["parameterExpression"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "parameterExpression": e });
+                                        formValidators["parameterExpression"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["parameterExpression"] && <Error>{errors["parameterExpression"]}</Error>}
+                            </Field>
                         }
 
-                    </ComponentCard>
+
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyValue", formValues["propertyValue"], true))) {
+                        if (!(validateField("parameterName", formValues["parameterName"], true) || validateField("parameterValue", formValues["parameterValue"], true))) {
                             setFormValues({
-                                ...formValues, "propertyName": undefined, "propertyValue": undefined,
-                                "parameterName": [...formValues["parameterName"], [formValues["propertyName"], formValues["propertyValueType"], formValues["propertyValue"]]]
+                                ...formValues, "parameterName": undefined, "parameterValue": undefined,
+                                "parameterNameTable": [...formValues["parameterNameTable"], [formValues["parameterName"], formValues["templateParameterType"], formValues["parameterValue"]]]
                             });
                         }
                     }}>
                         Add
                     </Button>
                 </div>
-                {formValues["parameterName"] && formValues["parameterName"].length > 0 && (
+                {formValues["parameterNameTable"] && formValues["parameterNameTable"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Parameter Name Table</h3>
+                        <h3>Parameter Name Table Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -197,7 +212,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["parameterName"].map((property: string, index: string) => (
+                            {formValues["parameterNameTable"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -214,7 +229,7 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                 )}
                 </ComponentCard>
-                <div>
+                <Field>
                     <TextField
                         label="Target Template"
                         size={50}
@@ -227,9 +242,9 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["targetTemplate"] && <Error>{errors["targetTemplate"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="OnError"
                         size={50}
@@ -242,9 +257,9 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["onError"] && <Error>{errors["onError"]}</Error>}
-                </div>
+                </Field>
 
-                <div>
+                <Field>
                     <TextField
                         label="Description"
                         size={50}
@@ -257,9 +272,10 @@ const CallTemplateForm = (props: AddMediatorProps) => {
                         required={false}
                     />
                     {errors["description"] && <Error>{errors["description"]}</Error>}
-                </div>
+                </Field>
 
             </ComponentCard>
+
 
             <div style={{ textAlign: "right", marginTop: "10px" }}>
                 <Button

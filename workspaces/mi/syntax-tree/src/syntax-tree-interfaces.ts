@@ -723,7 +723,7 @@ export interface Or extends STNode {
 export interface Filter extends STNode {
     mediatorList: CallTemplate | Smooks | Spring | Bam | Class | PublishEvent | FilterSequence | Header | PojoCommand | Callout | Loopback | Xquery | Foreach | Iterate | Script | Builder | Store | Enrich | Ejb | FastXSLT | Clone | DbMediator | Log | ConditionalRouter | Bean | Throttle | Switch | Cache | Jsontransform | Filter | Rewrite | Property | OauthService | Validate | Xslt | EntitlementService | Respond | Event | Transaction | Enqueue | PayloadFactory | DataServiceCall | Send | Datamapper | Call | Rule | Drop | Aggregate | PropertyGroup | Makefault;
     then: FilterThen;
-    _else: FilterElse;
+    else_: FilterElse;
     source: string;
     regex: string;
     xpath: string;
