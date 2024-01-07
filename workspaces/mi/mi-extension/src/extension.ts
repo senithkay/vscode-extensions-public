@@ -41,6 +41,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	})
 
+	vscode.commands.executeCommand('project-explorer.focus');
+
 	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
 		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
 	});
