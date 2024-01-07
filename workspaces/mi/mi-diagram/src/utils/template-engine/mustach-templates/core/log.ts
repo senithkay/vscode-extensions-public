@@ -13,6 +13,7 @@ import { MEDIATORS } from "../../../../constants";
 import { Log } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
 export function getLogXml(data: { [key: string]: any }) {
+  data.level = data.level.toLowerCase();
   const properties = data.properties.map((property: string[]) => {
     return {
       propertyName: property[0],
@@ -28,6 +29,8 @@ export function getLogXml(data: { [key: string]: any }) {
 }
 
 export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log) {
+  if (data.level) data.level = data.level.toString().toUpperCase();
+
   if (node.property) {
     data.properties = node.property.map((property) => {
       return [property.name, property.value ? "LITERAL" : "EXPRESSION", property.value ?? property.expression];
