@@ -18,6 +18,7 @@ import { Combobox } from '@headlessui/react'
 import { Dropdown } from "./Dropdown";
 
 const ComboboxButtonContainerActive = cx(css`
+    height: 28px;
     position: absolute;
     padding-right: 5px;
     background-color: var(--vscode-input-background);
@@ -28,6 +29,7 @@ const ComboboxButtonContainerActive = cx(css`
 `);
 
 const ComboboxButtonContainer = cx(css`
+    height: 28px;
     position: absolute;
     padding-right: 5px;
     background-color: var(--vscode-input-background);
@@ -48,8 +50,8 @@ export const DropdownIcon = cx(css`
 export const SearchableInput = cx(css`
     color: var(--vscode-input-foreground);
     background-color: var(--vscode-input-background);
-    height: 25px;
-    width: 170px;
+    height: 24px;
+    width: 80%;
     padding-left: 8px;
     border-left: 1px solid var(--vscode-dropdown-border);
     border-bottom: 1px solid var(--vscode-dropdown-border);
@@ -64,9 +66,19 @@ export const SearchableInput = cx(css`
     }
 `);
 
+const DropdownLabelDiv = cx(css`
+    margin-bottom: 4px;
+    font-family: var(--font-family);
+`);
+
+const Container = cx(css`
+    width: 100%;
+`);
+
 export interface AutoCompleteProps {
     id?: string;
     items: string[];
+    label?: string;
     notItemsFoundMessage?: string;
     selectedItem?: string;
     widthOffset?: number;
@@ -74,7 +86,7 @@ export interface AutoCompleteProps {
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { id, selectedItem, items, notItemsFoundMessage, widthOffset = 108 , onChange } = props;
+    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, onChange } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -117,8 +129,11 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
             );
 
     return (
-        <div>
+        <div className={Container}>
             <Combobox value={selectedItem} onChange={handleChange}>
+                <div className={DropdownLabelDiv}>
+                    <label>{label}</label>
+                </div>
                 <div>
                     <div>
                         <Combobox.Input
@@ -137,9 +152,9 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                             onClick={handleComboButtonClick}
                         >
                             {isUpButton ? (
-                                <i className={`codicon codicon-chevron-up ${DropdownIcon}`} onClick={handleComboButtonClick}/>
+                                <i className={`codicon codicon-chevron-up ${DropdownIcon}`} onClick={handleComboButtonClick} />
                             ) : (
-                                <i className={`codicon codicon-chevron-down ${DropdownIcon}`} onClick={handleComboButtonClick}/>
+                                <i className={`codicon codicon-chevron-down ${DropdownIcon}`} onClick={handleComboButtonClick} />
                             )}
 
                         </Combobox.Button>
