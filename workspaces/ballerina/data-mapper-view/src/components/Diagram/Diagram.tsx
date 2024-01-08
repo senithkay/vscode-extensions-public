@@ -13,7 +13,6 @@
 import React, { useEffect, useState } from 'react';
 
 import { css } from '@emotion/css';
-import CachedIcon from '@material-ui/icons/Cached';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
 import {
 	DefaultDiagramState,
@@ -28,7 +27,6 @@ import {
 import "reflect-metadata";
 import { container } from "tsyringe";
 
-import FitToScreenIcon from "../../assets/icons/fitToScreen";
 import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
 import { ErrorNodeKind } from "../DataMapper/Error/DataMapperError";
 
@@ -40,26 +38,13 @@ import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
-import { EnumTypeNode } from './Node/EnumType';
-import { ExpandedMappingHeaderNode } from './Node/ExpandedMappingHeader';
-import { FromClauseNode } from './Node/FromClause';
-import { JoinClauseNode } from './Node/JoinClause';
-import { LetClauseNode } from './Node/LetClause';
-import { LetExpressionNode } from "./Node/LetExpression";
 import { LinkConnectorNode } from './Node/LinkConnector';
-import { ListConstructorNode } from './Node/ListConstructor';
-import { MappingConstructorNode } from './Node/MappingConstructor';
-import { ModuleVariableNode } from "./Node/ModuleVariable";
-import { PrimitiveTypeNode } from './Node/PrimitiveType';
 import { QueryExpressionNode } from './Node/QueryExpression';
-import { RequiredParamNode } from './Node/RequiredParam';
-import { UnionTypeNode } from "./Node/UnionType";
-import { UnsupportedExprNodeKind, UnsupportedIONode } from "./Node/UnsupportedIO";
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
-import { useDiagramModel } from '../Hooks';
+import { useDiagramModel, useRepositionedNodes } from '../Hooks';
 import { Icon } from '@wso2-enterprise/ui-toolkit';
 
 const classes = {
@@ -144,8 +129,10 @@ function initDiagramEngine() {
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const { nodes, hideCanvas, onError } = props;
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
-	const {diagramModel, isFetching, isError} = useDiagramModel(nodes, engine, onError);
+	const repositionedNodes = useRepositionedNodes(nodes);
+	const {diagramModel, isFetching, isError} = useDiagramModel(repositionedNodes, engine, onError);
 	const [model, setModel] = useState(diagramModel);
+	const [, forceUpdate] = useState({});
 
     useEffect(() => {
         if (!isFetching) {
@@ -154,52 +141,17 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
     }, [isFetching, diagramModel]);
 
 	useEffect(() => {
-		if (model && !isFetching) {
-			let requiredParamFields = 0;
-			let numberOfRequiredParamNodes = 0;
-			let additionalSpace = 0;
-			setTimeout(async () => {
-				model.getNodes().forEach((node) => {
-					if (node instanceof MappingConstructorNode
-						|| node instanceof ListConstructorNode
-						|| node instanceof PrimitiveTypeNode
-						|| node instanceof UnionTypeNode
-						|| (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
-							if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
-								node.setPosition(OFFSETS.TARGET_NODE.X, 0);
-							} else {
-								// Bring mapping constructor node close to input node, if it doesn't have any links
-								node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
-							}
+		if (model && !isFetching && engine.getModel()) {
+			engine.getModel().getNodes().forEach((node) => {
+				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
+					node.initLinks();
+					const targetPortPosition = node.targetPort?.getPosition();
+					if (targetPortPosition) {
+						node.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, targetPortPosition.y - 2);
+						forceUpdate({} as any);
 					}
-					if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
-						node.updatePosition();
-					}
-					if (node instanceof RequiredParamNode
-						|| node instanceof LetClauseNode
-						|| node instanceof JoinClauseNode
-						|| node instanceof LetExpressionNode
-						|| node instanceof ModuleVariableNode
-						|| node instanceof EnumTypeNode)
-					{
-						node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
-						const isLetExprNode = node instanceof LetExpressionNode;
-						const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
-						requiredParamFields = requiredParamFields
-							+ (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
-						numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-						additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
-					}
-					if (node instanceof FromClauseNode) {
-						requiredParamFields = requiredParamFields + node.numberOfFields;
-						numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-					}
-					if (node instanceof ExpandedMappingHeaderNode) {
-						additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
-					}
-				});
-				engine.repaintCanvas();
-			}, 30);
+				}
+			});
 		}
 	}, [model, isFetching]);
 

@@ -21,9 +21,18 @@ import { getErrorKind } from '../Diagram/utils/dm-utils';
 import { OverlayLayerModel } from '../Diagram/OverlayLayer/OverlayLayerModel';
 import { ErrorNodeKind } from '../DataMapper/Error/DataMapperError';
 import { useDMSearchStore } from '../../store/store';
-import { RequiredParamNode } from '../Diagram/Node';
+import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, QueryExpressionNode, RequiredParamNode } from '../Diagram/Node';
 import { OFFSETS } from '../Diagram/utils/constants';
 import { FromClauseNode } from '../Diagram/Node/FromClause';
+import { UnionTypeNode } from '../Diagram/Node/UnionType';
+import { UnsupportedExprNodeKind, UnsupportedIONode } from '../Diagram/Node/UnsupportedIO';
+import { LinkConnectorNode } from '../Diagram/Node/LinkConnector';
+import { LetClauseNode } from '../Diagram/Node/LetClause';
+import { JoinClauseNode } from '../Diagram/Node/JoinClause';
+import { LetExpressionNode } from '../Diagram/Node/LetExpression';
+import { ModuleVariableNode } from '../Diagram/Node/ModuleVariable';
+import { EnumTypeNode } from '../Diagram/Node/EnumType';
+import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -96,6 +105,9 @@ export const useDiagramModel = (
                 }
                 node.setModel(newModel);
                 await node.initPorts();
+                if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
+                    continue;
+                }
                 node.initLinks();
             } catch (e) {
                 const errorNodeKind = getErrorKind(node);
@@ -103,9 +115,10 @@ export const useDiagramModel = (
             }
         }
         newModel.setLocked(true);
-        engine.setModel(newModel);
         newModel.addLayer(new OverlayLayerModel());
-        return newModel;
+        engine.setModel(newModel);
+        const newModelClone = newModel.clone();
+        return newModelClone;
     };
 
     const {
@@ -117,3 +130,49 @@ export const useDiagramModel = (
 
     return { diagramModel, isFetching, isError, refetch };
 };
+
+
+export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
+    const nodesClone = [...nodes];
+    let requiredParamFields = 0;
+    let numberOfRequiredParamNodes = 0;
+    let additionalSpace = 0;
+    nodesClone.forEach((node) => {
+        if (node instanceof MappingConstructorNode
+            || node instanceof ListConstructorNode
+            || node instanceof PrimitiveTypeNode
+            || node instanceof UnionTypeNode
+            || (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
+                if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
+                    node.setPosition(OFFSETS.TARGET_NODE.X, 0);
+                } else {
+                    // Bring mapping constructor node close to input node, if it doesn't have any links
+                    node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
+                }
+        }
+        if (node instanceof RequiredParamNode
+            || node instanceof LetClauseNode
+            || node instanceof JoinClauseNode
+            || node instanceof LetExpressionNode
+            || node instanceof ModuleVariableNode
+            || node instanceof EnumTypeNode)
+        {
+            node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
+            const isLetExprNode = node instanceof LetExpressionNode;
+            const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
+            requiredParamFields = requiredParamFields
+                + (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
+            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+            additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
+        }
+        if (node instanceof FromClauseNode) {
+            requiredParamFields = requiredParamFields + node.numberOfFields;
+            numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+        }
+        if (node instanceof ExpandedMappingHeaderNode) {
+            additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+        }
+    });
+
+    return nodesClone;
+}
