@@ -67,19 +67,17 @@ export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, f
 
 export const useDiagramModel = (
     nodes: DataMapperNodeModel[],
-    engine: DiagramEngine,
+    diagramModel: DiagramModel,
     onError:(kind: ErrorNodeKind) => void
 ): {
-    diagramModel: DiagramModel<DiagramModelGenerics>;
+    updatedModel: DiagramModel<DiagramModelGenerics>;
     isFetching: boolean;
     isError: boolean;
     refetch: any;
 } => {
-    const defaultModelOptions = { zoom: 90 }
-    const model = new DiagramModel(defaultModelOptions);
-    const zoomLevel = model.getZoomLevel();
-    const offSetX = model.getOffsetX();
-    const offSetY = model.getOffsetY();
+    const zoomLevel = diagramModel.getZoomLevel();
+    const offSetX = diagramModel.getOffsetX();
+    const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
 	const fnSource = nodes.find(node => node.context).context.selection.selectedST.stNode.source;
     const { inputSearch, outputSearch } = useDMSearchStore();
@@ -116,19 +114,17 @@ export const useDiagramModel = (
         }
         newModel.setLocked(true);
         newModel.addLayer(new OverlayLayerModel());
-        engine.setModel(newModel);
-        const newModelClone = newModel.clone();
-        return newModelClone;
+        return newModel;
     };
 
     const {
-        data: diagramModel,
+        data: updatedModel,
         isFetching,
         isError,
         refetch,
     } = useQuery(['genModel', {fnSource, noOfNodes, inputSearch, outputSearch}], () => genModel(), {});
 
-    return { diagramModel, isFetching, isError, refetch };
+    return { updatedModel, isFetching, isError, refetch };
 };
 
 

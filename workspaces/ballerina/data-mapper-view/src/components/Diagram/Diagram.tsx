@@ -21,6 +21,7 @@ import {
 	DefaultNodeFactory,
 	DefaultPortFactory,
 	DiagramEngine,
+	DiagramModel,
 	NodeLayerFactory,
 	PathFindingLinkFactory
 } from "@projectstorm/react-diagrams";
@@ -129,19 +130,21 @@ function initDiagramEngine() {
 function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 	const { nodes, hideCanvas, onError } = props;
 	const [engine, setEngine] = useState<DiagramEngine>(initDiagramEngine());
+	const [diagramModel, setDiagramModel] = useState(new DiagramModel(defaultModelOptions));
 	const repositionedNodes = useRepositionedNodes(nodes);
-	const {diagramModel, isFetching, isError} = useDiagramModel(repositionedNodes, engine, onError);
-	const [model, setModel] = useState(diagramModel);
+	const { updatedModel, isFetching } = useDiagramModel(repositionedNodes, diagramModel, onError);
 	const [, forceUpdate] = useState({});
 
-    useEffect(() => {
-        if (!isFetching) {
-            setModel(diagramModel);
-        }
-    }, [isFetching, diagramModel]);
+	engine.setModel(diagramModel);
 
 	useEffect(() => {
-		if (model && !isFetching && engine.getModel()) {
+        if (!isFetching) {
+            setDiagramModel(updatedModel);
+        }
+    }, [isFetching, updatedModel]);
+
+	useEffect(() => {
+		if (!isFetching && engine.getModel()) {
 			engine.getModel().getNodes().forEach((node) => {
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
 					node.initLinks();
@@ -153,7 +156,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				}
 			});
 		}
-	}, [model, isFetching]);
+	}, [diagramModel, isFetching]);
 
 	const resetZoomAndOffset = () => {
 		const currentModel = engine.getModel();
@@ -164,7 +167,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 
 	return (
 		<>
-			{engine && engine.getModel() && model && (
+			{engine && engine.getModel() && (
 				<>
 					<DataMapperCanvasContainerWidget hideCanvas={hideCanvas}>
 						<DataMapperCanvasWidget engine={engine} />
