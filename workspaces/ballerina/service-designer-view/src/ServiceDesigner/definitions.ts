@@ -7,23 +7,21 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+
+export interface ResponseConfig {
+    id: number;
+    code?: number;
+    type?: string;
+    description?: string;
+}
+
 export enum PARAM_TYPES {
     DEFAULT = 'Query',
     PAYLOAD = 'Payload',
     REQUEST = 'Request',
     CALLER = 'Caller',
     HEADER = 'Header',
-}
-
-export interface PathParam {
-	type: string;
-	name: string;
-}
-
-export interface ResponseConfig {
-    id: number;
-    code?: number;
-    type?: string;
 }
 
 export interface ParameterConfig {
@@ -33,4 +31,21 @@ export interface ParameterConfig {
     option?: PARAM_TYPES;
     defaultValue?: string;
     isRequired?: boolean;
+}
+
+export interface ResourceInfo {
+    method: string;
+    path: string;
+    pathSegments?: ParameterConfig[];
+    params?: ParameterConfig[];
+    advancedParams?: Map<string, ParameterConfig>;
+    payloadConfig?: ParameterConfig;
+    responses?: ResponseConfig[];
+    ST?: ResourceAccessorDefinition;
+}
+
+export interface ResponseCode {
+    code: number;
+    title: string;
+    source: string;
 }
