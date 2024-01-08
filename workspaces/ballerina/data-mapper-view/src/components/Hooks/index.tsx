@@ -79,7 +79,9 @@ export const useDiagramModel = (
     const offSetX = diagramModel.getOffsetX();
     const offSetY = diagramModel.getOffsetY();
     const noOfNodes = nodes.length;
-	const fnSource = nodes.find(node => node.context).context.selection.selectedST.stNode.source;
+    const context = nodes.find(node => node.context)?.context;
+	const fnSource = context ? context.selection.selectedST.stNode.source : undefined;
+    const collapsedFields = context?.collapsedFields;
     const { inputSearch, outputSearch } = useDMSearchStore();
 
     const genModel = async () => {
@@ -122,7 +124,7 @@ export const useDiagramModel = (
         isFetching,
         isError,
         refetch,
-    } = useQuery(['genModel', {fnSource, noOfNodes, inputSearch, outputSearch}], () => genModel(), {});
+    } = useQuery(['genModel', {fnSource, noOfNodes, inputSearch, outputSearch, collapsedFields}], () => genModel(), {});
 
     return { updatedModel, isFetching, isError, refetch };
 };
