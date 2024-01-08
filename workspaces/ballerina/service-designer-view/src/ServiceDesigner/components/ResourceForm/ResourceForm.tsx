@@ -92,13 +92,10 @@ export function ResourceForm(props: ResourceFormProps) {
 
 
 		let responseString = "";
-		// Add "nil" if it contains a type
-		let containsType = false;
 		response.map((resp: ResponseConfig, index: number) => {
-			if (resp.type && resp.type !== "nil") {
-				containsType = true;
+			if (resp.type) {
+				responseString += `${resp.type}${index === response.length - 1 ? "" : " | "}`;
 			}
-			responseString = resp.type ? (responseString + `${(response.length > 1 && index !== 0 && resp.type !== "nil") ? `|` : ""}${resp.type === "nil" && containsType ? "?" : (resp.type === "nil" ? "" : resp.type) }`) : "";
 		});
 
 		// Check if "error" is already present in responseString

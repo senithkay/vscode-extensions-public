@@ -262,19 +262,38 @@ export function getResourceInfo(resource: ResourceAccessorDefinition): ResourceI
                 if (parts.length === 2) {
                     subtype = parts[1].trim().split(/\s+/)[0];
                 }
-
+                response.push({
+                    id: index,
+                    code: getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD),
+                    description: description,
+                    type: subtype ? subtype : type,
+    
+                });
             } else if (member.typeKind === "typeReference") {
                 type = member.name;
                 description = member.signature;
-            } else {
-                type = member.typeKind;
+                response.push({
+                    id: index,
+                    code: getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD),
+                    description: description,
+                    type: subtype ? subtype : type,
+    
+                });
+            } else if (member.typeKind !== "nil") {
+                // Check if member next index is nil and add ? to the type, otherwise add the type as member.typeKind
+                if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members[index + 1]?.typeKind === "nil") {
+                    type = member.typeKind + "?";
+                } else {
+                    type = member.typeKind;
+                }
+                response.push({
+                    id: index,
+                    code: getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD),
+                    description: description,
+                    type: subtype ? subtype : type,
+    
+                });
             }
-            response.push({
-                id: index,
-                code: getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD),
-                description: description,
-                type: subtype ? subtype : type,
-            });
         });
     } else {
         response.push({
