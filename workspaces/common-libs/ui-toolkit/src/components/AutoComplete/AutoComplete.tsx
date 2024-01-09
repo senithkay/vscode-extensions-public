@@ -82,11 +82,12 @@ export interface AutoCompleteProps {
     notItemsFoundMessage?: string;
     selectedItem?: string;
     widthOffset?: number;
+    nullable?: boolean;
     onChange: (item: string, index?: number) => void;
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, onChange } = props;
+    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, nullable, onChange } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -130,7 +131,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
 
     return (
         <div className={Container}>
-            <Combobox value={selectedItem} onChange={handleChange}>
+            <Combobox value={selectedItem} onChange={handleChange} {...(nullable && { nullable })}>
                 <div className={DropdownLabelDiv}>
                     <label>{label}</label>
                 </div>
