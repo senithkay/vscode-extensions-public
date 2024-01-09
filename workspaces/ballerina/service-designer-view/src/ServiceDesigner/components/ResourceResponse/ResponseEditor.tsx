@@ -8,12 +8,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React from 'react';
 
 import { ActionButtons, AutoComplete } from '@wso2-enterprise/ui-toolkit';
 import { ResponseConfig } from '../../definitions';
 import { EditorContainer, EditorContent } from '../../styles';
 import { responseCodes } from '@wso2-enterprise/ballerina-core';
+import { getTitleFromResponseCode } from '../../utils/utils';
 
 export interface ParamProps {
     response: ResponseConfig;
@@ -26,10 +27,8 @@ export interface ParamProps {
 
 export function ResponseEditor(props: ParamProps) {
     const { response, onSave, onChange, onCancel, typeCompletions } = props;
-    const [code, setCode] = useState("200 - OK");
 
     const handleCodeChange = (value: string) => {
-        setCode(value);
         const code = responseCodes.find(code => code.title === value).code;
         onChange({ ...response, code: Number(code) });
     };
@@ -47,6 +46,7 @@ export function ResponseEditor(props: ParamProps) {
             id: response.id,
             type: response.type,
             code: response.code,
+            source: response.source
         };
         onSave(newParam);
     };
@@ -56,7 +56,7 @@ export function ResponseEditor(props: ParamProps) {
             <EditorContent>
                 <AutoComplete
                     label="Code"
-                    selectedItem={code}
+                    selectedItem={getTitleFromResponseCode(response.code)}
                     items={responseCodes.map(code => code.title)}
                     onChange={handleCodeChange}
                 />
@@ -64,6 +64,7 @@ export function ResponseEditor(props: ParamProps) {
                     label="Type"
                     selectedItem={response.type}
                     items={typeCompletions}
+                    nullable
                     onChange={handleTypeChange}
                 />
             </EditorContent>

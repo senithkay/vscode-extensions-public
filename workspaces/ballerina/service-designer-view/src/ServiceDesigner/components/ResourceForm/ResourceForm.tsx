@@ -16,7 +16,7 @@ import { PARAM_TYPES, ParameterConfig, ResourceInfo, ResponseConfig } from '../.
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
-import { generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
+import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 const AdvancedParamTitleWrapper = styled.div`
@@ -35,7 +35,7 @@ export interface ResourceFormProps {
 export function ResourceForm(props: ResourceFormProps) {
 	const { isOpen, resourceConfig, onClose, applyModifications, typeCompletions } = props;
 
-	const [method, setMethod] = useState<string>(resourceConfig?.method.toUpperCase() || "GET");
+	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "/");
 
 	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
@@ -65,7 +65,7 @@ export function ResourceForm(props: ResourceFormProps) {
 	};
 
 	const onPathChange = (method: string, path: string) => {
-		setMethod(method);
+		setMethod(method as HTTP_METHOD);
 		setPath(path);
 	}
 
@@ -93,8 +93,8 @@ export function ResourceForm(props: ResourceFormProps) {
 
 		let responseString = "";
 		response.map((resp: ResponseConfig, index: number) => {
-			if (resp.type) {
-				responseString += `${resp.type}${index === response.length - 1 ? "" : " | "}`;
+			if (resp?.source) {
+				responseString += `${resp?.source}${index === response.length - 1 ? "" : " | "}`;
 			}
 		});
 
@@ -154,7 +154,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<Response response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
+					<Response method={method} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}
