@@ -7,18 +7,17 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useState } from "react";
+import React from "react";
 
-import { Button, Divider, withStyles } from "@material-ui/core";
-import TooltipBase, { TooltipProps } from '@material-ui/core/Tooltip';
-import { Build } from "@material-ui/icons";
+import { Button, Codicon, Divider, Icon, Tooltip } from "@wso2-enterprise/ui-toolkit";
 import * as MonacoEditor from 'monaco-editor';
 import { Diagnostic } from "vscode-languageserver-types";
 
-import ErrorIcon from "../../../../assets/icons/Error";
-import { tooltipBaseStyles, useStyles } from "../style";
+import { useStyles } from "../style";
 
-interface Props extends TooltipProps{
+interface Props {
+    placement: "top" | "bottom" | "left" | "right";
+    children: React.ReactNode;
     diagnostic: Diagnostic
     value?: string
     onClick?: () => void;
@@ -27,14 +26,9 @@ interface Props extends TooltipProps{
 export const DiagnosticTooltipID = "data-mapper-diagnostic-tooltip";
 
 export function DiagnosticTooltip(props: Partial<Props>) {
-    const { diagnostic, value, children, onClick, ...rest } = props;
+    const { diagnostic, value, children, onClick } = props;
     const classes = useStyles();
-    const iconComponent =  <ErrorIcon /> ;
     const source = diagnostic.source || value
-
-    const [isInteractive, setIsInteractive] = useState(true);
-
-    const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
     const codeRef = (ref: HTMLPreElement) => {
         if (ref) {
@@ -42,18 +36,9 @@ export function DiagnosticTooltip(props: Partial<Props>) {
         }
     }
 
-    const onCLickOnEdit = () => {
-        setIsInteractive(false);
-        onClick();
-    }
-
-    const onOpen = () => {
-        setIsInteractive(true);
-    }
-
     const Code = () => (
         <>
-            <Divider className={classes.divider} light={true} />
+            <Divider />
             <div className={classes.source}>
                 <code
                     ref={codeRef}
@@ -63,16 +48,13 @@ export function DiagnosticTooltip(props: Partial<Props>) {
                     {source.trim()}
                 </code>
                 <Button
+                    appearance="icon"
+                    className={classes.editButton}
                     aria-label="edit"
-                    className={classes.editText}
-                    onClick={onCLickOnEdit}
-                    startIcon={(
-                        <Build
-                            className={classes.editButton}
-                        />
-                    )}
+                    onClick={onClick}
                 >
-                    Fix by editing expression
+                    <Codicon name="tools" sx={{ marginRight: "8px" }} />
+                    <span className={classes.editButtonText}>Fix by editing expression</span>
                 </Button>
             </div>
         </>
@@ -80,7 +62,14 @@ export function DiagnosticTooltip(props: Partial<Props>) {
     );
     const DiagnosticC = () => (
         <>
-            <div className={classes.iconWrapper}>{iconComponent}</div>
+            <Button
+                appearance="icon"
+                className={classes.editButton}
+                aria-label="edit"
+                onClick={onClick}
+            >
+                <Icon name="error-icon" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+            </Button>
             <div className={classes.diagnosticWrapper}>{diagnostic.message}</div>
         </>
 
@@ -94,16 +83,13 @@ export function DiagnosticTooltip(props: Partial<Props>) {
     );
 
     return (
-        <TooltipComponent
+        <Tooltip
             id={DiagnosticTooltipID}
-            interactive={isInteractive}
-            arrow={true}
-            title={tooltipTitleComponent}
-            onOpen={onOpen}
-            {...rest}
+            content={tooltipTitleComponent}
+            position="bottom"
         >
             {children}
-        </TooltipComponent>
+        </Tooltip>
     )
 
 }

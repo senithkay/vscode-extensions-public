@@ -61,31 +61,42 @@ export const useStyles = () => ({
         overflowX: "auto",
         whiteSpace: "pre-wrap",
         wordWrap: "break-word",
-        backgroundColor: "white"
     }),
     code: css({
-        color: "var(--vscode-progressBar-background)",
-        fontSize: 12
+        borderRadius: 0,
+        backgroundColor: "var(--input-background)",
+        fontSize: "13px",
+        padding: "4px 2px",
+        "& span": {
+            color: "var(--vscode-inputOption-activeForeground)"
+        }
     }),
     diagnosticWrapper: css({
-        width: '231px',
-        color: 'var(--vscode-statusBar-debuggingBackground)',
-        fontFamily: "Droid Sans Mono",
+        width: '300px',
         fontSize: '12px',
         letterSpacing: '0',
+        color: "var(--vscode-errorForeground)"
     }),
     source: css({
         display: "flex",
         flexDirection: "column"
     }),
     editText: css({
-        color: "var(--vscode-editorInfo-foreground)",
         textTransform: "none",
         justifyContent: "left",
-        fontSize: "11px",
+        fontSize: "13px"
     }),
     editButton: css({
-        height: "11px",
-        width: "11px"
+        marginTop: "10px",
+        color: "var(--vscode-input-placeholderForeground)",
+        width: "100% !important",
+        "& > *:hover": {
+            backgroundColor: "var(--input-background)"
+        }
+    }),
+    editButtonText: css({
+        width: "fit-content",
+        textWrap: "nowrap",
+        fontSize: "13px"
     })
 });
