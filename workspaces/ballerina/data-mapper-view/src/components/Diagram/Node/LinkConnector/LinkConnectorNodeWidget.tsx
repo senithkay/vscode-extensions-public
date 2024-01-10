@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -195,6 +194,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
                 <Tooltip
                     content={isTnfFunctionCall ? "Transformation Function Call" : "Multi-Input Expression"}
+                    position="bottom-end"
                 >
                     {isTnfFunctionCall ? (
                         <Icon name="function-icon" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />) : (
@@ -230,13 +230,11 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     </Button>
                 )}
                 { diagnostic && (
-                    <div className={classes.element}>
-                        <DiagnosticWidget
-                            diagnostic={diagnostic}
-                            value={props.node.valueNode.source}
-                            onClick={onClickEdit}
-                        />
-                    </div>
+                    <DiagnosticWidget
+                        diagnostic={diagnostic}
+                        value={props.node.valueNode.source}
+                        onClick={onClickEdit}
+                    />
                 )}
                 <DataMapperPortWidget engine={engine} port={node.outPort} dataTestId={`link-connector-node-${node?.value}-output`}/>
             </div>
