@@ -59,16 +59,6 @@
                                                 {
                                                     "type": "attribute",
                                                     "value": {
-                                                        "name": "cloneID",
-                                                        "displayName": "Clone ID",
-                                                        "inputType": "string",
-                                                        "required": false,
-                                                        "helpTip": ""
-                                                    }
-                                                },
-                                                {
-                                                    "type": "attribute",
-                                                    "value": {
                                                         "name": "sequenceType",
                                                         "displayName": "Sequence Type",
                                                         "inputType": "combo",

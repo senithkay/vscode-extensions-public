@@ -196,6 +196,22 @@
           {
             "type": "attribute",
             "value": {
+              "name": "targetProperty",
+              "displayName": "Target Property",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "enableCondition": [
+                {
+                  "targetType": "PROPERTY"
+                }
+              ],
+              "helpTip": ""
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
               "name": "description",
               "displayName": "Description",
               "inputType": "string",
