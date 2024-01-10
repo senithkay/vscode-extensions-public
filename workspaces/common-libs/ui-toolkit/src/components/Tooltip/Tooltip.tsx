@@ -6,26 +6,49 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styled from "@emotion/styled";
+import { getOffsetMultiplier } from './utils';
+
+export type PositionType = 
+    'bottom-end' |
+    'bottom-start' |
+    'bottom' |
+    'left-end' |
+    'left-start' |
+    'left' |
+    'right-end' |
+    'right-start' |
+    'right' |
+    'top-end' |
+    'top-start' |
+    'top'
+;
+
+export interface Position {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+}
+
+export interface OffsetMultiplier {
+    hoverEl: Position;
+    tooltipEl: Position;
+}
+
+export type ElementProperties = 
+    Position & {
+        width: number;
+        height: number;
+    }
 
 export interface TooltipProps {
     id?: string;
     className?: string;
     content?: string | ReactNode;
-    position?:
-        'bottom-end' |
-        'bottom-start' |
-        'bottom' |
-        'left-end' |
-        'left-start' |
-        'left' |
-        'right-end' |
-        'right-start' |
-        'right' |
-        'top-end' |
-        'top-start' |
-        'top';
+    position?: PositionType;
     children?: ReactNode;
     sx?: any;
 }
@@ -38,6 +61,8 @@ const TooltipContainer = styled.div`
 
 const TooltipContent = styled.div<TooltipProps>`
     position: absolute;
+    width: fit-content;
+    height: fit-content;
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
     border: var(--vscode-editorHoverWidget-statusBarBackground) 1px solid;
@@ -49,55 +74,67 @@ const TooltipContent = styled.div<TooltipProps>`
     transition: opacity 0.2s ease-in-out;
     white-space: nowrap;
     z-index: 1;
-    ${(props: TooltipProps) => {
-        switch (props.position) {
-            case 'bottom-end':
-                return 'top: 100%; left: 50%;';
-            case 'bottom-start':
-                return 'top: 100%; right: 50%;';
-            case 'bottom':
-                return 'top: 100%; left: 50%; transform: translateX(-50%);';
-            case 'left-end':
-                return 'top: 50%; right: 100%;';
-            case 'left-start':
-                return 'bottom: 50%; right: 100%;';
-            case 'left':
-                return 'top: 50%; right: 100%; transform: translateY(-50%);';
-            case 'right-end':
-                return 'top: 50%; left: 100%;';
-            case 'right-start':
-                return 'bottom: 50%; left: 100%;';
-            case 'right':
-                return 'top: 50%; left: 100%; transform: translateY(-50%);';
-            case 'top-end':
-                return 'bottom: 100%; left: 50%;';
-            case 'top-start':
-                return 'bottom: 100%; right: 50%;';
-            case 'top':
-                return 'bottom: 100%; left: 50%; transform: translateX(-50%);';
-            
-            default:
-                return '';
-        }
-    }}
-    ${(props: TooltipProps) => props.sx};
+    ${(props: TooltipProps) => props.sx}
 `;
 
 export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
     const { id, className, content, position, children, sx } = props;
     const [isVisible, setIsVisible] = React.useState(false);
+    const [diagramPosition, setDiagramPosition] = React.useState<Position>({ top: 0, bottom: 0, left: 0, right: 0 });
+    const hoverElRef = React.useRef(null);
+    const tooltipElRef = React.useRef(null);
+
+    useEffect(() => {
+        const hoverEl = hoverElRef.current;
+        const tooltipEl = tooltipElRef.current;
+        const observer = () => {
+            if (hoverEl && tooltipEl) {
+                const hoverElProps = (hoverEl as any).getBoundingClientRect() as ElementProperties;
+                const tooltipElProps = (tooltipEl as any).getBoundingClientRect() as ElementProperties;
+                const offsetMultiplier: OffsetMultiplier = getOffsetMultiplier(position);
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                setDiagramPosition({
+                    // position + adjustment of position wrt tooltip content + adjustment of position wrt container
+                    ...(offsetMultiplier.hoverEl.top && { top: hoverElProps.top + (hoverElProps.height * offsetMultiplier.hoverEl.top) + (tooltipElProps.height * offsetMultiplier.tooltipEl.top) }),
+                    ...(offsetMultiplier.hoverEl.bottom && { bottom: (viewportHeight - hoverElProps.bottom) + (hoverElProps.height * offsetMultiplier.hoverEl.bottom) + (tooltipElProps.height * offsetMultiplier.tooltipEl.bottom) }),
+                    ...(offsetMultiplier.hoverEl.left && { left: hoverElProps.left + (hoverElProps.width * offsetMultiplier.hoverEl.left) + (tooltipElProps.width * offsetMultiplier.tooltipEl.left) }),
+                    ...(offsetMultiplier.hoverEl.right && { right: (viewportWidth - hoverElProps.right) + (hoverElProps.width * offsetMultiplier.hoverEl.right) + (tooltipElProps.width * offsetMultiplier.tooltipEl.right) })
+                })
+            }
+        }
+        
+        hoverEl.addEventListener('mouseenter', observer);
+
+        return () => {
+            hoverEl.removeEventListener('mouseenter', observer);
+        }
+    }, [position])
 
     return (
         <TooltipContainer
+            ref={hoverElRef}
             id={id}
             className={className}
             onMouseEnter={() => setIsVisible(true)}
             onMouseLeave={() => setIsVisible(false)}
         >
             {children}
-            <TooltipContent position={position} style={{ opacity: isVisible ? 1 : 0, visibility: isVisible ? 'visible' : 'hidden' }} sx={sx}>
-                {content}
-            </TooltipContent>
+            {createPortal(
+                <TooltipContent
+                    ref={tooltipElRef}
+                    style={{
+                        opacity: isVisible ? 1 : 0,
+                        visibility: isVisible ? 'visible' : 'hidden',
+                        ...diagramPosition
+                    }}
+                    sx={sx}
+                >
+                    {content}
+                </TooltipContent>,
+                document.body
+            )}
         </TooltipContainer>
     );
 };
