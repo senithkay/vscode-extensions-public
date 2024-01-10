@@ -64,7 +64,7 @@ export const useStyles = () => ({
     }),
     code: css({
         borderRadius: 0,
-        backgroundColor: "var(--input-background)",
+        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
         fontSize: "13px",
         padding: "4px 2px",
         "& span": {
@@ -89,10 +89,7 @@ export const useStyles = () => ({
     editButton: css({
         marginTop: "10px",
         color: "var(--vscode-input-placeholderForeground)",
-        width: "100% !important",
-        "& > *:hover": {
-            backgroundColor: "var(--input-background)"
-        }
+        width: "100% !important"
     }),
     editButtonText: css({
         width: "fit-content",
