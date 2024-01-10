@@ -46,13 +46,14 @@
                         {
                           "type": "attribute",
                           "value": {
-                            "name": "propertyValueType",
-                            "displayName": "Property Value Type",
+                            "name": "valueType",
+                            "displayName": "Value Type",
                             "inputType": "combo",
                             "defaultValue": "LITERAL",
                             "comboValues": [
                               "LITERAL",
-                              "EXPRESSION"
+                              "MESSAGE_ELEMENT",
+                              "CONTEXT_PROPERTY"
                             ],
                             "required": false,
                             "helpTip": ""
@@ -61,8 +62,8 @@
                         {
                           "type": "attribute",
                           "value": {
-                            "name": "propertyValue",
-                            "displayName": "Property Value",
+                            "name": "valueLiteral",
+                            "displayName": "Value Literal",
                             "inputType": "string",
                             "required": false,
                             "helpTip": "",
@@ -76,16 +77,73 @@
                         {
                           "type": "attribute",
                           "value": {
-                            "name": "propertyExpression",
-                            "displayName": "Property Expression",
+                            "name": "messageAction",
+                            "displayName": "Message Action",
+                            "inputType": "combo",
+                            "defaultValue": "ReadMessage",
+                            "comboValues": [
+                              "ReadMessage",
+                              "UpdateMessage",
+                              "ReadAndUpdateMessage"
+                            ],
+                            "required": false,
+                            "enableCondition": [
+                              {
+                                "propertyValueType": "MESSAGE_ELEMENT"
+                              }
+                            ],
+                            "helpTip": ""
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "valueMessageElementXpath",
+                            "displayName": "Value Message Element Xpath",
                             "inputType": "expression",
                             "required": false,
                             "helpTip": "",
                             "enableCondition": [
                               {
-                                "propertyValueType": "EXPRESSION"
+                                "propertyValueType": "MESSAGE_ELEMENT"
                               }
                             ]
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "valueContextPropertyName",
+                            "displayName": "Value Context Property Name",
+                            "inputType": "string",
+                            "required": false,
+                            "helpTip": "",
+                            "enableCondition": [
+                              {
+                                "propertyValueType": "CONTEXT_PROPERTY"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "attribute",
+                          "value": {
+                            "name": "contextAction",
+                            "displayName": "Context Action",
+                            "inputType": "combo",
+                            "defaultValue": "ReadContext",
+                            "comboValues": [
+                              "ReadContext",
+                              "UpdateContext",
+                              "ReadAndUpdateContext"
+                            ],
+                            "required": false,
+                            "enableCondition": [
+                              {
+                                "propertyValueType": "CONTEXT_PROPERTY"
+                              }
+                            ],
+                            "helpTip": ""
                           }
                         }
                       ]

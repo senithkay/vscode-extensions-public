@@ -59,7 +59,7 @@
                             "name": "evaluatorExpression",
                             "displayName": "Evaluator Expression",
                             "inputType": "string",
-                            "required": false,
+                            "required": true,
                             "helpTip": ""
                           }
                         }

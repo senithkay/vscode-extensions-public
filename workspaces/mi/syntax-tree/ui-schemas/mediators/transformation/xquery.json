@@ -57,6 +57,17 @@
             }
           },
           {
+            "type": "attribute",
+            "value": {
+              "name": "targetXPath",
+              "displayName": "Target XPath",
+              "inputType": "expression",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
             "type": "attributeGroup",
             "value": {
               "groupName": "Variables",

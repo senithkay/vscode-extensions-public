@@ -60,6 +60,16 @@
             }
           },
           {
+            "type": "attribute",
+            "value": {
+              "name": "attachPath",
+              "displayName": "Attach Path",
+              "inputType": "expression",
+              "required": false,
+              "helpTip": ""
+            }
+          },
+          {
             "type": "attributeGroup",
             "value": {
               "groupName": "Sequence",

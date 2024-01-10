@@ -84,8 +84,31 @@
               "displayName": "Connection DB Driver",
               "inputType": "string",
               "enableCondition": [
+                "AND",
                 {
                   "connectionType": "DB_CONNECTION"
+                },
+                {
+                  "isRegistryBasedDriverConfig": "false"
+                }
+              ],
+              "required": true,
+              "helpTip": "Enter the database driver"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "registryBasedonnectionDBDriver",
+              "displayName": "Registry Based Connection DB Driver",
+              "inputType": "registry",
+              "enableCondition": [
+                "AND",
+                {
+                  "connectionType": "DB_CONNECTION"
+                },
+                {
+                  "isRegistryBasedDriverConfig": "true"
                 }
               ],
               "required": true,
@@ -203,7 +226,7 @@
             "value": {
               "name": "registryBasedURLConfigKey",
               "displayName": "Registry Based URL Config Key",
-              "inputType": "string",
+              "inputType": "registry",
               "enableCondition": [
                 "AND",
                 {
@@ -290,7 +313,7 @@
             "value": {
               "name": "registryBasedUserConfigKey",
               "displayName": "Registry Based User Config Key",
-              "inputType": "string",
+              "inputType": "registry",
               "enableCondition": [
                 "AND",
                 {
@@ -377,7 +400,7 @@
             "value": {
               "name": "registryBasedPassConfigKey",
               "displayName": "Registry Based Pass Config Key",
-              "inputType": "string",
+              "inputType": "registry",
               "enableCondition": [
                 "AND",
                 {
@@ -705,8 +728,8 @@
           {
             "type": "attribute",
             "value": {
-              "name": "propertyWhileIdle",
-              "displayName": "Property While Idle",
+              "name": "propertyTestWhileIdle",
+              "displayName": "Property Test While Idle",
               "inputType": "combo",
               "defaultValue": "DEFAULT",
               "comboValues": [

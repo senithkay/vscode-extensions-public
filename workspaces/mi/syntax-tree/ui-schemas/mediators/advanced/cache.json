@@ -223,6 +223,26 @@
                 }
               ]
             }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "sequenceKey",
+              "displayName": "Sequence Key",
+              "inputType": "combo",
+              "defaultValue": "registry",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                "AND",
+                {
+                  "sequenceType": "REGISTRY_REFERENCE"
+                },
+                {
+                  "cacheType": "FINDER"
+                }
+              ]
+            }
           }
         ]
       }
