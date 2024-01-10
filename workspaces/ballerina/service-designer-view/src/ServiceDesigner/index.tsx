@@ -103,6 +103,12 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source });
     };
 
+    const addNameRecord = async (source: string) => {
+        const position = model.closeBraceToken.position;
+        position.startColumn = position.endColumn;
+        await rpcClient.createResource({ position: position, source });
+    };
+
     // let serviceType = "";
     let portNumber = "";
 
@@ -158,6 +164,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     resourceConfig={resources?.length > 0 ? editingResource : undefined}
                     applyModifications={applyModifications}
                     onClose={handleOnClose} 
+                    addNameRecord={addNameRecord}
                     typeCompletions={typeCompletions}
                 />
             }

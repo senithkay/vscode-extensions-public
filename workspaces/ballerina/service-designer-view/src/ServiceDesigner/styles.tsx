@@ -22,6 +22,7 @@ export const EditorContainer = styled.div<CSSObject>`
 
 export const EditorContent = styled.div<CSSObject>`
     display: flex;
+    z-index: 1;
     flex-direction: row;
     justify-content: space-between;
     padding: 10px 0;

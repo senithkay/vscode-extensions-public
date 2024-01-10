@@ -10,7 +10,7 @@
 import React, { useState } from 'react';
 import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
-import { Response } from '../ResourceResponse/ResourceResponse';
+import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
 import { PARAM_TYPES, ParameterConfig, ResourceInfo, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
@@ -28,12 +28,13 @@ export interface ResourceFormProps {
 	isOpen: boolean;
 	resourceConfig?: ResourceInfo;
 	applyModifications?: (source: string, updatePosition?: NodePosition) => void;
+	addNameRecord?: (source: string) => void;
 	onClose: () => void;
 	typeCompletions?: string[];
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, resourceConfig, onClose, applyModifications, typeCompletions } = props;
+	const { isOpen, resourceConfig, onClose, applyModifications, addNameRecord, typeCompletions } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "/");
@@ -154,7 +155,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<Response method={method} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
+					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}

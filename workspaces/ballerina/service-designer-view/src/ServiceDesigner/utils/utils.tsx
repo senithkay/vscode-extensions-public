@@ -126,6 +126,11 @@ export function getResponseRecordCode(code: number, type: string): string {
     return genCode;
 }
 
+export function getResponseRecordDefCode(name: string, code: number, type: string): string {
+    const genCode = `type ${name} record {|*${getSourceFromResponseCode(code)}; ${type} body;|};`;
+    return genCode;
+}
+
 export function getParamType(typeName: string): PARAM_TYPES {
     switch (typeName) {
         case "http:Headers":
@@ -234,7 +239,7 @@ export function getResourceInfo(resource: ResourceAccessorDefinition): ResourceI
                 description = member.signature;
                 response.push({
                     id: index,
-                    code: member.name,
+                    code: getDefaultResponse(resource.functionName.value as HTTP_METHOD),
                     description: description,
                     type: member.name,
                     source: member.name

@@ -8,19 +8,20 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React from 'react';
+import React, { useState } from 'react';
 
-import { ActionButtons, AutoComplete } from '@wso2-enterprise/ui-toolkit';
+import { ActionButtons, AutoComplete, TextField } from '@wso2-enterprise/ui-toolkit';
 import { ResponseConfig } from '../../definitions';
 import { EditorContainer, EditorContent } from '../../styles';
 import { responseCodes } from '@wso2-enterprise/ballerina-core';
-import { getTitleFromResponseCode } from '../../utils/utils';
+import { getSourceFromResponseCode, getTitleFromResponseCode } from '../../utils/utils';
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 
 export interface ParamProps {
     response: ResponseConfig;
     isEdit: boolean;
     onChange: (param: ResponseConfig) => void;
-    onSave?: (param: ResponseConfig) => void;
+    onSave?: (param: ResponseConfig, defineRecordName: string) => void;
     onCancel?: (id?: number) => void;
     typeCompletions?: string[];
 }
@@ -28,12 +29,29 @@ export interface ParamProps {
 export function ResponseEditor(props: ParamProps) {
     const { response, onSave, onChange, onCancel, typeCompletions } = props;
 
+    const [isNameRecord, setIsNameRecord] = useState(false);
+    const [definedRecordName, setDefinedRecordName] = useState("");
+
+    const handleReqFieldChange = () => {
+        setIsNameRecord(!isNameRecord);
+        if (!isNameRecord) {
+            const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
+            setDefinedRecordName(recordName);
+        } else {    
+            setDefinedRecordName("");
+        }
+    };
+
     const handleCodeChange = (value: string) => {
         const code = responseCodes.find(code => code.title === value).code;
         onChange({ ...response, code: Number(code) });
     };
 
     const handleTypeChange = (value: string) => {
+        if (isNameRecord) {
+            const recordName = `${getSourceFromResponseCode(response.code).replace("http:", "")}${response.type ? `${response.type}` : ""}`;
+            setDefinedRecordName(recordName);
+        }
         onChange({ ...response, type: value });
     };
 
@@ -48,7 +66,7 @@ export function ResponseEditor(props: ParamProps) {
             code: response.code,
             source: response.source
         };
-        onSave(newParam);
+        onSave(newParam, definedRecordName);
     };
 
     return (
@@ -68,6 +86,19 @@ export function ResponseEditor(props: ParamProps) {
                     onChange={handleTypeChange}
                 />
             </EditorContent>
+            <>
+                <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">
+                    Define a name record for the return type
+                </VSCodeCheckbox>
+            </>
+            {isNameRecord && (
+                <TextField
+                    size={33}
+                    placeholder='Enter type'
+                    value={definedRecordName}
+                    onChange={handleTypeChange}
+                />
+            )}
             <ActionButtons
                 primaryButton={{ text: "Save", onClick: handleOnSave }}
                 secondaryButton={{ text: "Cancel", onClick: handleOnCancel }}

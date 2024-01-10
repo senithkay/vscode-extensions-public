@@ -15,12 +15,13 @@ import styled from '@emotion/styled';
 import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
 import { ResponseConfig } from '../../definitions';
-import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getSourceFromResponseCode } from '../../utils/utils';
+import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getResponseRecordDefCode, getSourceFromResponseCode } from '../../utils/utils';
 
 export interface ResourceParamProps {
     method: HTTP_METHOD;
     response: ResponseConfig[];
-    onChange?: (parameters: ResponseConfig[]) => void,
+    onChange?: (parameters: ResponseConfig[]) => void;
+    addNameRecord?: (source: string) => void;
     readonly?: boolean;
     typeCompletions?: string[];
 }
@@ -29,8 +30,8 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
-export function Response(props: ResourceParamProps) {
-    const { method, response, readonly, onChange, typeCompletions } = props;
+export function ResourceResponse(props: ResourceParamProps) {
+    const { method, response, readonly, onChange, addNameRecord, typeCompletions } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -72,7 +73,7 @@ export function Response(props: ResourceParamProps) {
         onChange(updatedParameters);
     };
 
-    const onSaveParam = (paramConfig: ResponseConfig) => {
+    const onSaveParam = (paramConfig: ResponseConfig, defineRecordName: string) => {
         const updatedParameters = [...response];
         let modifiedParamConfig: ResponseConfig;
         if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method))) {
@@ -101,6 +102,16 @@ export function Response(props: ResourceParamProps) {
                 ...modifiedParamConfig,
                 code: 500
             };
+        }
+        if (defineRecordName && paramConfig.type) {
+            const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
+            modifiedParamConfig = {
+                ...modifiedParamConfig,
+                code: getDefaultResponse(method),
+                type: defineRecordName,
+                source: defineRecordName
+            };
+            addNameRecord(recordCode);
         }
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
