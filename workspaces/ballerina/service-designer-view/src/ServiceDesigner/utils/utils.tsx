@@ -249,7 +249,7 @@ export function getResourceInfo(resource: ResourceAccessorDefinition): ResourceI
                 }
                 response.push({
                     id: index,
-                    code: getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD),
+                    code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD)),
                     description: description,
                     type: type,
                     source: type

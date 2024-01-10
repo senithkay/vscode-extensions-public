@@ -96,6 +96,12 @@ export function Response(props: ResourceParamProps) {
                 source: getSourceFromResponseCode(paramConfig.code)
             };
         }
+        if (paramConfig.type === "error" || paramConfig.type === "error?") {
+            modifiedParamConfig = {
+                ...modifiedParamConfig,
+                code: 500
+            };
+        }
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
             updatedParameters[index] = modifiedParamConfig;
