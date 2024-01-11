@@ -15,12 +15,8 @@ import React from "react";
 
 import { css } from "@emotion/css";
 
-import { useDMSearchStore } from "../../../../../store/store";
-import {TreeContainer} from "../Tree/Tree";
-
-interface SearchNoResultFoundRootProps extends SearchNoResultFoundProps {
-    searchText: string;
-}
+import { TreeContainer } from "../Tree/Tree";
+import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 interface SearchNoResultFoundProps {
     kind: SearchNoResultFoundKind;
@@ -36,27 +32,30 @@ export enum SearchNoResultFoundKind {
 
 const useStyles = () => ({
     noResultFoundBanner: css({
-        width: "320px"
+        width: "320px",
+        padding: "10px",
+        display: "flex",
     })
 });
 
-function SearchNoResultFound({ kind, searchText }: SearchNoResultFoundRootProps) {
+function SearchNoResultFound({ kind }: SearchNoResultFoundProps) {
     const classes = useStyles();
     return (
         <TreeContainer>
-            <span className={classes.noResultFoundBanner}>
-                {`No matching ${kind} found with ${kind !== SearchNoResultFoundKind.OutputValue ? 'name' : ''} '${searchText}'`}
-            </span>
+            <div className={classes.noResultFoundBanner}>
+                <Codicon sx={{ marginRight: 8, fontSize: 22 }} name="search" />
+                <div>
+                    {`No matching ${kind} found`}
+                </div>
+            </div>
         </TreeContainer>
     );
 }
 
 export function InputSearchNoResultFound({ kind }: SearchNoResultFoundProps) {
-    const inputSearch = useDMSearchStore((state) => state.inputSearch);
-    return <SearchNoResultFound searchText={inputSearch} kind={kind}/>
+    return <SearchNoResultFound kind={kind}/>
 }
 
 export function OutputSearchNoResultFound({ kind }: SearchNoResultFoundProps) {
-    const outputSearch = useDMSearchStore((state) => state.outputSearch);
-    return <SearchNoResultFound searchText={outputSearch} kind={kind}/>
+    return <SearchNoResultFound kind={kind}/>
 }

@@ -85,10 +85,7 @@ export const useStyles = () => ({
         }
     }),
     exprPlaceholder: css({
-        background: 'var(--vscode-inputValidation-warningBackground)',
-        '&:hover': {
-            border: "1px solid var(--vscode-statusBarItem-warningHoverForeground)"
-        }
+        background: 'var(--vscode-inputValidation-warningBackground)'
     }),
     input: css({
         maxWidth: '120px',

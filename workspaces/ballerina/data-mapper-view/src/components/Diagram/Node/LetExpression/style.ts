@@ -14,14 +14,14 @@ export const useStyles = () => ({
         "& > vscode-button": {
             color: "var(--vscode-inputOption-activeForeground)",
             backgroundColor: "var(--vscode-welcomePage-tileBackground)",
-            padding: "5px",
             textTransform: "none",
             display: "flex",
             justifyContent: "space-between",
             fontStyle: "normal",
             fontWeight: 400,
             fontSize: "13px",
-            lineHeight: "24px"
+            lineHeight: "24px",
+            height: "40px",
         },
         "& > vscode-button > *": {
             margin: "0px 6px"
