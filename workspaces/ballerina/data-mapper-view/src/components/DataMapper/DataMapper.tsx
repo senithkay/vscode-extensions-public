@@ -11,18 +11,13 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 
 import { css } from "@emotion/css";
 import {
-    BallerinaProjectComponents,
     ComponentViewInfo,
-    CurrentFile,
     FileListEntry,
     LibraryDataResponse,
     LibraryDocResponse,
-    LibrarySearchResponse,
-    STModification
+    LibrarySearchResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-// import { URI } from "vscode-uri";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
@@ -40,7 +35,7 @@ import { StatementEditorComponent } from "../StatementEditorComponent/StatementE
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./ConfigPanel/InputParamsPanel/types";
 import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
-import { ErrorNodeKind } from "./Error/DataMapperError";
+import { DataMapperError, ErrorNodeKind } from "./Error/DataMapperError";
 import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
@@ -48,6 +43,7 @@ import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
 import { useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
+import { WarningBanner } from "./Warning/DataMapperWarning";
 
 // import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 
@@ -71,6 +67,7 @@ const classes = {
         position: 'absolute',
         width: '100%',
         height: '100%',
+        background: "var(--vscode-input-background)",
         opacity: 0.5,
         cursor: 'not-allowed'
     }),
@@ -84,7 +81,9 @@ const classes = {
     }),
     dmUnsupportedMessage: css({
         zIndex: 1,
-        position: 'absolute'
+        position: 'absolute',
+        left: '50%',
+        transform: 'translateX(-50%)'
     }),
     errorBanner: css({
         borderColor: "var(--vscode-errorForeground)"
@@ -518,7 +517,7 @@ export function DataMapperC(props: DataMapperViewProps) {
                         {fnST && (
                             <DataMapperHeader
                                 selection={selection}
-                                dmSupported={dMSupported}
+                                hasEditDisabled={!dMSupported || !!errorKind}
                                 changeSelection={handleSelectedST}
                                 onConfigOpen={onConfigOpen}
                                 onClose={onClose}
@@ -527,20 +526,20 @@ export function DataMapperC(props: DataMapperViewProps) {
                         {!dMSupported && (
                             <>
                                 {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
-                                {/* <div className={classes.dmUnsupportedMessage}>
+                                <div className={classes.dmUnsupportedMessage}>
                                     <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
-                                </div> */}
+                                </div>
                             </>
                         )}
                         {errorKind && (
                             <>
                                 <div className={classes.overlay} />
-                                {/* <div className={classes.errorMessage}>
+                                <div className={classes.errorMessage}>
                                     <WarningBanner
                                         message={<DataMapperError errorNodeKind={errorKind} />}
                                         className={classes.errorBanner}
                                     />
-                                </div> */}
+                                </div>
                             </>
                         )}
                         {dmNodes.length > 0 && (
