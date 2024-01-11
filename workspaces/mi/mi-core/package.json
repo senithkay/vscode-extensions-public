@@ -12,17 +12,14 @@
   },
   "author": "WSO2",
   "devDependencies": {
-    "typescript": "^4.9.4",
-    "@typescript-eslint/eslint-plugin": "~5.48.2",
-    "eslint": "^8.32.0",
-    "@typescript-eslint/parser": "~5.48.2"
+    "typescript": "^5.2.2",
+    "@typescript-eslint/parser": "^6.9.1",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "eslint": "^8.52.0"
   },
   "dependencies": {
     "vscode-messenger-common": "^0.4.5",
-    "vscode-messenger": "~0.4.5",
-    "vscode": "~1.1.37",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*",
-    "@wso2-enterprise/ui-toolkit": "workspace:*"
+    "@wso2-enterprise/mi-syntax-tree": "workspace:*"
   },
   "repository": {
     "type": "git",
