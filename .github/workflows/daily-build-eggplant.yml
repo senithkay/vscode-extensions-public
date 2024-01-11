@@ -2,94 +2,23 @@ name: Daily Build - Eggplant
 on:
   schedule:
     - cron:  '30 13 * * *'
-jobs:
-  Build:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-       eggplant: true
-       isReleaseBuild: false
 
+jobs:
   Release:
     name: Release VSIX
     needs: Build
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
-      - name: Restore build
-        uses: actions/download-artifact@v3
+      - name: Build
+        uses: ./.github/actions/build
         with:
-            name: ExtBuild
-            path: ./
+          eggplant: true
+          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
-      - name: Set up workspace
-        run: |
-            unzip build.zip
-            rm build.zip
-
-      - name: Get version
-        id: vsix
-        run: |
-            file=$(ls eggplant*.vsix)
-            fileName=${file##*-}
-            version=${fileName%.*}  
-
-            echo $version
-            echo "version=$version" >> $GITHUB_OUTPUT
-            echo "fileName=$file" >> $GITHUB_OUTPUT
-
-      - name: Save VSIX
-        uses: actions/upload-artifact@v4
-        id: artifact-upload
+      - name: Notification - Eggplant
+        uses: ./.github/actions/dailyBuildNotification
         with:
-          path: ${{ steps.vsix.outputs.fileName }}
-          name: Vsix-Artifact
-
-      - name: "Release Notification"
-        shell: bash
-        run: |
-            body=$(cat << EOF
-            {
-            "cards": [
-                { 
-                "header": {
-                    "title": "Daily Build",
-                },
-                "sections": [
-                    {
-                    "widgets": [
-                        {
-                        "keyValue": {
-                            "topLabel": "Eggplant",
-                            "content": "v${{ steps.vsix.outputs.version }}",
-                            "onClick": {
-                            "openLink": {
-                                "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                            }
-                            },
-                            "iconUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
-                            "button": {
-                            "textButton": {
-                                "text": "Download VSIX",
-                                "onClick": {
-                                "openLink": {
-                                    "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.artifact-upload.outputs.artifact-id }}"
-                                }
-                                }
-                            }
-                            }
-                        }
-                        }
-                    ]
-                    }
-                ]
-                }
-            ]
-            }
-            EOF
-            )
-            curl \
-            -X POST \
-            -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAApvQDm3o/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kX2amBnx58zmdZZjgbA-JZpi3OtM8CJaOv7WOKOihwM" \
-            -d "$body"
+          title: Eggplant
+          fileName: eggplant
+          api: https://chat.googleapis.com/v1/spaces/AAAApvQDm3o/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kX2amBnx58zmdZZjgbA-JZpi3OtM8CJaOv7WOKOihwM
