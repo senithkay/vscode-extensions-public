@@ -25,6 +25,7 @@ const Container = styled.div<ContainerProps>`
     display: flex;
     align-items: center;
     padding: 6px 10px;
+    cursor: pointer;
     &:hover, &.active {
         background: var(--vscode-focusBorder);
     };
