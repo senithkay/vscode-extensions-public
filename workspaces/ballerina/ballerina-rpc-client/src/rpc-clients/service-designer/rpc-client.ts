@@ -14,6 +14,8 @@ import {
     DeleteResourceRequest,
     DeleteServiceRequest,
     KeywordTypeResponse,
+    RecordSTRequest,
+    RecordSTResponse,
     ServiceDesignerAPI,
     UpdateResourceRequest,
     UpdateServiceRequest,
@@ -22,6 +24,7 @@ import {
     deleteResource,
     deleteService,
     getKeywordTypes,
+    getRecordST,
     updateResource,
     updateService
 } from "@wso2-enterprise/ballerina-core";
@@ -61,5 +64,9 @@ export class ServiceDesignerRpcClient implements ServiceDesignerAPI {
 
     getKeywordTypes(): Promise<KeywordTypeResponse> {
         return this._messenger.sendRequest(getKeywordTypes, HOST_EXTENSION);
+    }
+
+    getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
+        return this._messenger.sendRequest(getRecordST, HOST_EXTENSION, params);
     }
 }
