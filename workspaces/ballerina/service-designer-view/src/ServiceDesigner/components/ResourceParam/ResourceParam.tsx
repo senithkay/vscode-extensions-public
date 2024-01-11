@@ -43,7 +43,8 @@ export function ResourceParam(props: ResourceParamProps) {
             name: "param",
             type: "string",
             option: PARAM_TYPES.DEFAULT,
-            defaultValue: ""
+            defaultValue: "",
+            isRequired: true
         };
         updatedParameters.push(newParam);
         onChange(updatedParameters);

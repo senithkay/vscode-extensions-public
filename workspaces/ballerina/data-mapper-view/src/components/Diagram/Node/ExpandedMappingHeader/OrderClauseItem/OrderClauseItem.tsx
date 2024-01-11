@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { CircularProgress, MenuItem, Select } from "@material-ui/core";
+import { MenuItem, Select } from "@material-ui/core";
 import Add from "@material-ui/icons/Add";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { CommaToken, NodePosition, OrderByClause, OrderKey, QueryExpression, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -18,6 +18,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export function OrderByClauseItem(props: {
     intermediateNode: OrderByClause;
@@ -156,7 +157,7 @@ export function OrderByClauseItem(props: {
                 </div>
 
                 {isLoading ? (
-                    <CircularProgress size={18} />
+                    <ProgressRing sx={{ height: '16px', width: '16px' }} />
                 ) : (
                     <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`order-clause-delete-${itemIndex}`} />
                 )}

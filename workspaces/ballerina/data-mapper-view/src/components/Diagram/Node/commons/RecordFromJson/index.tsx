@@ -9,8 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useReducer } from 'react';
 
+import { css } from '@emotion/css';
 import { FormControl, FormHelperText, TextareaAutosize } from "@material-ui/core";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
@@ -34,70 +34,67 @@ interface RecordFromJsonProps {
     langServerRpcClient: LangServerRpcClient;
 }
 
-const useStyles = makeStyles(() =>
-    createStyles({
-        inputWrapper: {
-            marginTop: '1rem'
+const useStyles = () => ({
+    inputWrapper: css({
+        marginTop: '1rem'
+    }),
+    wizardFormControl: css({
+        width: '300px',
+        '& .MuiFormControl-marginNormal': {
+            margin: '0 !important',
         },
-        wizardFormControl: {
-            width: 300,
-            "& .MuiFormControl-marginNormal": {
-                margin: '0 !important',
-            },
-        },
-        formWrapper: {
-            width: '100%',
-            flexDirection: "row",
-            padding: '15px 20px',
-        },
-        labelWrapper: {
-            display: 'flex',
-        },
-        inputLabelForRequired: {
-            padding: 0,
-            color: 'var(--vscode-input-foreground)',
-            fontSize: 13,
-            textTransform: 'capitalize',
-            display: 'inline-block',
-            lineHeight: '35px',
-            fontWeight: 300,
-        },
-        textArea: {
-            backgroundColor: 'var(--vscode-editorWidget-background)',
-            padding: "0.75rem",
-            borderRadius: "5px",
-            boxShadow: "inset 0 2px 2px 0 rgba(0,0,0,0.07), 0 0 1px 0 rgba(50,50,77,0.07)",
-            boxSizing: 'border-box',
-            minHeight: 104,
-            width: '100%',
-            border: '1px solid var(--vscode-editor-inactiveSelectionBackground)',
-            fontFamily: 'inherit',
-            color: 'var(--vscode-input-foreground)',
-            // marginTop: '0.5rem',
-            lineHeight: '22px',
-            '&::placeholder': {
-                color: 'var(--vscode-input-placeholderForeground)',
-                fontSize: 13,
-                fontWeight: 100,
-                marginTop: '0.5rem',
-            }
-        },
-        buttonWrapper: {
-            display: 'flex',
-            justifyContent: 'flex-end',
-            width: '50%'
-        },
-        spaceBetween: {
-            padding: '4px'
-        },
-        textareaErrorText: {
-            display: 'inline-block',
-            color: 'var(--vscode-editorError-foreground) !important',
+    }),
+    formWrapper: css({
+        width: '100%',
+        flexDirection: 'row',
+        padding: '15px 20px',
+    }),
+    labelWrapper: css({
+        display: 'flex',
+    }),
+    inputLabelForRequired: css({
+        padding: '0',
+        color: 'var(--vscode-input-foreground)',
+        fontSize: '13px',
+        textTransform: 'capitalize',
+        display: 'inline-block',
+        lineHeight: '35px',
+        fontWeight: '300',
+    }),
+    textArea: css({
+        backgroundColor: 'var(--vscode-editorWidget-background)',
+        padding: '0.75rem',
+        borderRadius: '5px',
+        boxShadow: 'inset 0 2px 2px 0 rgba(0,0,0,0.07), 0 0 1px 0 rgba(50,50,77,0.07)',
+        boxSizing: 'border-box',
+        minHeight: '104px',
+        width: '100%',
+        border: '1px solid var(--vscode-editor-inactiveSelectionBackground)',
+        fontFamily: 'inherit',
+        color: 'var(--vscode-input-foreground)',
+        lineHeight: '22px',
+        '&::placeholder': {
+            color: 'var(--vscode-input-placeholderForeground)',
             fontSize: '13px',
-            backgroundColor: 'var(--vscode-input-background)'
-        }
-    })
-);
+            fontWeight: '100',
+            marginTop: '0.5rem',
+        },
+    }),
+    buttonWrapper: css({
+        display: 'flex',
+        justifyContent: 'flex-end',
+        width: '50%',
+    }),
+    spaceBetween: css({
+        padding: '4px',
+    }),
+    textareaErrorText: css({
+        display: 'inline-block',
+        color: 'var(--vscode-editorError-foreground) !important',
+        fontSize: '13px',
+        backgroundColor: 'var(--vscode-input-background)'
+    }),
+});
 
 const reducer = (state: JsonToRecordState, action: {type: string, payload: boolean | string }): JsonToRecordState => {
     switch (action.type) {

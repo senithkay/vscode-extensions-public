@@ -9,33 +9,17 @@
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React from 'react';
 
-import { Button } from '@wso2-enterprise/ui-toolkit';
-import Menu from "@material-ui/core/Menu";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { css } from '@emotion/css';
+import { Button, ContextMenu, Icon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
 
-import TripleDotsIcon from "../../../../../../assets/icons/TripleDotsIcon";
-
-import { ValueConfigMenuItem } from "./ValueConfigMenuItem";
-
-const useStyles = makeStyles(() =>
-    createStyles({
-        tripleDotsIcon: {
-            color: "var(--vscode-editorInfo-foreground)",
-            padding: "5px",
-            width: 'fit-content',
-            height: "25px",
-            float: "right",
-            marginLeft: "auto"
-        },
-        valueConfigMenu: {
-            '& .MuiMenuItem-root': {
-                fontSize: '11px',
-                paddingBottom: "1px",
-                paddingTop: "1px"
-            }
-        }
+const useStyles = () => ({
+    itemContainer: css({
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        alignItems: 'center'
     }),
-);
+});
 
 export enum ValueConfigOption {
     InitializeWithValue = "Initialize With Default Value",
@@ -46,6 +30,14 @@ export enum ValueConfigOption {
     DeleteArray = "Delete Array"
 }
 
+export interface ValueConfigMenuItem {
+    title: string;
+    onClick: () => void;
+    onClose?: () => void;
+    warningMsg?: string;
+    level?: number;
+}
+
 export interface ValueConfigMenuProps {
     menuItems: ValueConfigMenuItem[]
     isDisabled?: boolean;
@@ -53,53 +45,35 @@ export interface ValueConfigMenuProps {
 }
 
 export function ValueConfigMenu(props: ValueConfigMenuProps) {
-    const { menuItems, isDisabled, portName } = props;
+    const { menuItems, portName } = props;
     const classes = useStyles();
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLButtonElement>(null);
-    const open = Boolean(anchorEl);
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    const items: Item[] = []
+    menuItems.forEach((menuItem: ValueConfigMenuItem) => {
+        if (menuItem) {
+            const itemElement = (
+                <div
+                    className={classes.itemContainer}
+                    key={menuItem.title}
+                    data-testid={`value-config-${portName}-item-${menuItem.title}`}
+                >
+                    <div>{menuItem.title}</div>
+                    {menuItem?.warningMsg && (
+                        <Button
+                            appearance="icon"
+                            tooltip={menuItem?.warningMsg}
+                        >
+                            <Icon name="error-icon" />
+                        </Button>
+                    )}
+                </div>
+            );
+            const item: Item = { id: menuItem.title, label: itemElement, onClick: menuItem.onClick }
+            items.push(item);
+        }
+    });
 
     return (
-        <>
-            <Button
-                appearance="icon"
-                aria-label="valueConfig"
-                onClick={(e) => handleClick(e)}
-                disabled={isDisabled}
-                data-testid={`value-config-${portName}`}
-            >
-                <TripleDotsIcon />
-            </Button>
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-                className={classes.valueConfigMenu}
-            >
-                {
-                    menuItems.map((menuItem: ValueConfigMenuItem) => {
-                        return (
-                            <ValueConfigMenuItem
-                                key={menuItem.title}
-                                title={menuItem.title}
-                                onClick={menuItem.onClick}
-                                warningMsg={menuItem?.warningMsg}
-                                onClose={handleClose}
-                                data-testid={`value-config-${portName}-item-${menuItem.title}`}
-                            />
-                        )
-                    })
-                }
-            </Menu>
-        </>
+        <ContextMenu iconSx={{ transform: "rotate(90deg)" }} menuItems={items} />
     );
 }

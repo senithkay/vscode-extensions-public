@@ -89,28 +89,20 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                     {letVarDeclItems}
                 </TreeContainer>
             ) : !isWithinQuery && !searchValue && (
-                <LocalVarAddButton>
-                    <Button
-                        className={classes.addIcon}
-                        appearance='icon'
-                        aria-label="add"
-                        onClick={onClick}
-                        data-testid={"add-local-variable-btn"}
-                    >
-                        <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />
-                        Add Local Variable
-                    </Button>
-                </LocalVarAddButton>
+                <Button
+                    className={classes.addIcon}
+                    appearance='icon'
+                    aria-label="add"
+                    onClick={onClick}
+                    data-testid={"add-local-variable-btn"}
+                >
+                    <Codicon name="add" iconSx={{ color: "var(--vscode-inputOption-activeForeground)"}} />
+                    <div>Add Local Variable</div>
+                </Button>
             )}
         </>
     );
 }
-
-const LocalVarAddButton = styled.div`
-    padding: 10px;
-    background: var(--vscode-input-background);
-    border-radius: 12px;
-`;
 
 const LocalVarsHeader = styled.div`
     background: var(--vscode-editorWidget-background);

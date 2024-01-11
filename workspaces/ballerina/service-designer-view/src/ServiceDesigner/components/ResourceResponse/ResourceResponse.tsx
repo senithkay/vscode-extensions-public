@@ -108,7 +108,7 @@ export function Response(props: ResourceParamProps) {
                         typeCompletions={typeCompletions}
                     />
                 )
-            } else if ((editingSegmentId !== index)) {
+            } else if ((editingSegmentId !== index) && param.type && param.type !== "nil") {
                 paramComponents.push(
                     <ResponseItem
                         response={{

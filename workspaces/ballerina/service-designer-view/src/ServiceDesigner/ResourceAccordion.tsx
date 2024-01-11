@@ -102,10 +102,11 @@ interface ResourceAccordionProps {
     model: ResourceAccessorDefinition;
     rpcClient: ServiceDesignerRpcClient;
     showDiagram: (position: NodePosition) =>  void;
+    onEditResource: (model: ResourceAccessorDefinition) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { model, rpcClient, showDiagram } = params;
+    const { model, rpcClient, showDiagram, onEditResource } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -118,7 +119,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     };
 
     const handleEditResource = () => {
-        // Edit Resource
+        onEditResource(model);
     };
 
     const handleDeleteResource = (e: Event) => {
@@ -189,7 +190,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         let code = defaultResponseCode();
         const recordName = value.replace("?", "").trim();
 
-        responseCodes.forEach(item => {
+        responseCodes.forEach((item: { source: string; code: { toString: () => string; }; }) => {
             if (recordName.includes(item.source)) {
                 code = item.code.toString();
             }

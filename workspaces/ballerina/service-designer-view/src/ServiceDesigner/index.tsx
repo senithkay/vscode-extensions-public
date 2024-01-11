@@ -16,13 +16,14 @@ import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import ResourceAccordion from "./ResourceAccordion";
 import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { getResourceInfo } from "./utils/utils";
+import { ResourceInfo } from "./definitions";
 
 interface ServiceDesignerProps {
     model: ServiceDeclaration;
     rpcClient: ServiceDesignerRpcClient;
     showDiagram: (position: NodePosition) =>  void;
 }
-
 
 const ServiceHeader = styled.div`
     display: flex;
@@ -50,6 +51,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
     const [typeCompletions, setTypeCompletions] = useState<string[]>([]);
 
+    const [editingResource, setEditingResource] = useState<ResourceInfo>();
+
     let servicePath = "";
 
     model.absoluteResourcePath.forEach((pathSegment) => {
@@ -58,8 +61,14 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     const handleOnClose = () => {
         setIsSidePanelOpen(false);
+        setEditingResource(undefined);
     };
     const handleOnClick = () => {
+        setIsSidePanelOpen(true);
+    };
+    const handleResourceEdit = (resource: ResourceAccessorDefinition) => {
+        const resourceInfo = getResourceInfo(resource);
+        setEditingResource(resourceInfo);
         setIsSidePanelOpen(true);
     };
 
@@ -75,7 +84,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
                 resourceList.push(
                     <div data-start-position={startPosition} >
-                        <ResourceAccordion rpcClient={rpcClient} model={member as ResourceAccessorDefinition} showDiagram={showDiagram} />
+                        <ResourceAccordion rpcClient={rpcClient} onEditResource={handleResourceEdit} model={member as ResourceAccessorDefinition} showDiagram={showDiagram} />
                     </div>
                 );
             }
@@ -88,10 +97,10 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         // Handle service config form
     };
 
-    const applyModifications = async (source: string) => {
+    const applyModifications = async (source: string, updatePosition?: NodePosition) => {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
-        await rpcClient.createResource({ position: position, source });
+        await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source });
     };
 
     // let serviceType = "";
@@ -141,9 +150,17 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 </VSCodeButton>
             </ResourceListHeader>
             <>
-                {resources.length > 0 ? resources : emptyView}
+                {resources?.length > 0 ? resources : emptyView}
             </>
-            {isSidePanelOpen && <ResourceForm isOpen={isSidePanelOpen} applyModifications={applyModifications} onClose={handleOnClose} typeCompletions={typeCompletions}/>}
+            {isSidePanelOpen &&
+                <ResourceForm
+                    isOpen={isSidePanelOpen}
+                    resourceConfig={resources?.length > 0 ? editingResource : undefined}
+                    applyModifications={applyModifications}
+                    onClose={handleOnClose} 
+                    typeCompletions={typeCompletions}
+                />
+            }
         </div>
     )
 }

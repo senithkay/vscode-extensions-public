@@ -71,8 +71,8 @@ const classes = {
         position: 'absolute',
         width: '100%',
         height: '100%',
-        background: "var(--vscode-input-background)",
         opacity: 0.5,
+        cursor: 'not-allowed'
     }),
     dmUnsupportedOverlay: css({
         zIndex: 1,

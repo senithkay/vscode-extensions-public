@@ -10,6 +10,8 @@ export const EXPANDED_QUERY_INPUT_NODE_PREFIX = "expandedQueryExpr.input";
 export const FUNCTION_BODY_QUERY = "FunctionBody.query";
 export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 
+export const JSON_MERGE_MODULE_NAME = "ballerina/lang.value";
+
 export const OFFSETS = {
     SOURCE_NODE: {
         X: 50,

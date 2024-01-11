@@ -25,7 +25,6 @@ export const DM_INHERENTLY_SUPPORTED_INPUT_TYPES = [
 export const DM_UNSUPPORTED_TYPES = [
     PrimitiveBalType.Enum,
     PrimitiveBalType.Error,
-    // PrimitiveBalType.Json,
     PrimitiveBalType.Xml,
     PrimitiveBalType.Var,
     PrimitiveBalType.Nil,

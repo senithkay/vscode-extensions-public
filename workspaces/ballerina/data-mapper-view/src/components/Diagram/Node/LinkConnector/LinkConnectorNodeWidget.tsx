@@ -186,7 +186,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     }
 
     const loadingScreen = (
-        <ProgressRing />
+        <ProgressRing sx={{ height: '16px', width: '16px' }} />
     );
 
     return (!node.hidden && (

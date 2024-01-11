@@ -10,7 +10,6 @@
 import * as React from 'react';
 
 import { css } from "@emotion/css";
-import { CircularProgress } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExpressionFunctionBody, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
@@ -24,7 +23,7 @@ import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisi
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
-import { Button, Codicon, Icon, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 export const useStyles = () => ({
     root: css({
@@ -149,11 +148,7 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
     }
 
     const loadingScreen = (
-        <CircularProgress
-            size={22}
-            thickness={3}
-            className={classes.circularProgress}
-        />
+        <ProgressRing sx={{ height: '16px', width: '16px' }} />
     );
 
     return (!node.hidden && (

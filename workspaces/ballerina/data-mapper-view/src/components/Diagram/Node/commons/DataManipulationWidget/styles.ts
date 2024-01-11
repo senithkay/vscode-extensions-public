@@ -16,9 +16,10 @@ export const useStyles = () => ({
         display: "flex",
         minHeight: "24px",
         width: "100%",
+        lineHeight: 0,
         '&:hover': {
             backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)',
-        }
+        },
     }),
     treeLabelPortSelected: css({
         backgroundColor: 'var(--vscode-editorWidget-background)',
