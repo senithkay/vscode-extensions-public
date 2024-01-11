@@ -107,7 +107,7 @@ export function ResourceResponse(props: ResourceParamProps) {
             const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
             modifiedParamConfig = {
                 ...modifiedParamConfig,
-                code: getDefaultResponse(method),
+                code: paramConfig.code,
                 type: defineRecordName,
                 source: defineRecordName
             };
