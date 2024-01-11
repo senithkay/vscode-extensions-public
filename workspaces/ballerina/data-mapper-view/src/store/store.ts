@@ -1,4 +1,4 @@
-import { BalleriaLanguageClient } from '@wso2-enterprise/ballerina-languageclient';
+import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
 import { create } from 'zustand';
 
@@ -9,8 +9,8 @@ export interface DataMapperState {
   setFunctionST: (st: FunctionDefinition) => void;
   filePath: string;
   setFilePath: (filePath: string) => void;
-  langClientPromise: Promise<BalleriaLanguageClient>;
-  setLangClientPromise: (lCP: Promise<BalleriaLanguageClient>) => void;
+  langClientPromise: LangServerRpcClient;
+  setLangClientPromise: (lCP: LangServerRpcClient) => void;
 }
 
 export interface DataMapperSearchState {
@@ -29,7 +29,7 @@ export const useDMStore = create<DataMapperState>((set) => ({
   setFunctionST: (functionST: FunctionDefinition) => set({ functionST }),
   setImports: (imports) => set({ imports }),
   setFilePath: (filePath: string) => set({ filePath }),
-  setLangClientPromise: (langClientPromise: Promise<BalleriaLanguageClient>) => set({ langClientPromise }),
+  setLangClientPromise: (langClientPromise: LangServerRpcClient) => set({ langClientPromise }),
 }));
 
 

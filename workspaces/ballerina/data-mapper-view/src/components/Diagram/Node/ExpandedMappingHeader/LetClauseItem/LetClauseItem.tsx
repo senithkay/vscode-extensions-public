@@ -10,7 +10,7 @@
 import React, { useState } from "react";
 
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     LetClause,

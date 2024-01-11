@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { CompletionResponse } from "@wso2-enterprise/ballerina-core";
 
 export interface TypeBrowserProps {
     type?: string;

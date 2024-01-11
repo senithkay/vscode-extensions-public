@@ -8,7 +8,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import { Point } from "@projectstorm/geometry";
-import { ResolvedTypeForExpression } from "@wso2-enterprise/ballerina-languageclient";
+import { ResolvedTypeForExpression } from "@wso2-enterprise/ballerina-core";
 import {
     ComponentInfo,
     ExpressionRange,

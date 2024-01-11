@@ -12,7 +12,6 @@ import React, { useEffect, useReducer } from 'react';
 import { css } from '@emotion/css';
 import { FormControl, FormHelperText, TextareaAutosize } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import { IBallerinaLangClient } from '@wso2-enterprise/ballerina-languageclient';
 import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
 import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 // import {
