@@ -96,7 +96,7 @@ export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
                 const viewportHeight = window.innerHeight;
 
                 setDiagramPosition({
-                    // position + adjustment of position wrt tooltip content + adjustment of position wrt container
+                    // updated position = initial position + adjustment of position w.r.t. hover element + adjustment of position w.r.t. tooltip element
                     ...(offsetMultiplier.hoverEl.top && { top: hoverElProps.top + (hoverElProps.height * offsetMultiplier.hoverEl.top) + (tooltipElProps.height * offsetMultiplier.tooltipEl.top) }),
                     ...(offsetMultiplier.hoverEl.bottom && { bottom: (viewportHeight - hoverElProps.bottom) + (hoverElProps.height * offsetMultiplier.hoverEl.bottom) + (tooltipElProps.height * offsetMultiplier.tooltipEl.bottom) }),
                     ...(offsetMultiplier.hoverEl.left && { left: hoverElProps.left + (hoverElProps.width * offsetMultiplier.hoverEl.left) + (tooltipElProps.width * offsetMultiplier.tooltipEl.left) }),

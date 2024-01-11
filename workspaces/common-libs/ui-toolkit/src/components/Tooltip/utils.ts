@@ -2,7 +2,7 @@ import { OffsetMultiplier, Position, PositionType } from "./Tooltip";
 
 export const getOffsetMultiplier = (position: PositionType): OffsetMultiplier => {
     let hoverEl: Position = { top: 0, bottom: 0, left: 0, right: 0 };
-    let tooltipEl: Position = { top: 0, bottom: 0, left: 0, right: 0 };
+    let tooltipEl: Position = { top: 0, left: 0 };
     switch (position) {
         case "bottom":
             hoverEl = { ...hoverEl, top: 0.9, left: 0.5 }
@@ -20,11 +20,9 @@ export const getOffsetMultiplier = (position: PositionType): OffsetMultiplier =>
             break;
         case "left-end":
             hoverEl = { ...hoverEl, top: 0.5, right: 0.9 }
-            tooltipEl = { ...tooltipEl, top: 0, left: 0 }
             break;
         case "left-start":
             hoverEl = { ...hoverEl, bottom: 0.5, right: 0.9 }
-            tooltipEl = { ...tooltipEl, top: 0, left: 0 }
             break;
         case "right":
             hoverEl = { ...hoverEl, top: 0.5, left: 0.9 }
