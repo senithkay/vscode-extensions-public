@@ -9,10 +9,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { ReactNode, useMemo, useState } from "react";
 
-// import { CheckBoxGroup } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 // tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import { CaptureBindingPattern, LetVarDecl, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
@@ -21,12 +20,27 @@ import { getRenameEdits } from "../../Diagram/utils/ls-utils";
 import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import styled from "@emotion/styled";
+import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
+export const LocalVarContainer = styled.div`
+    display: flex;
+    margin: 10px 0;
+    flex-direction: row;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid var(--vscode-dropdown-border);
+    cursor: pointer;
+    margin-left: 10px;
+    justify-content: space-between;
+    height: 40px;
+    align-items: center;
+`;
 
 interface LetVarDeclItemProps {
     index: number;
     letVarDeclModel: LetVarDeclModel;
-    handleOnCheck: () => void;
+    handleOnCheck: (index: number) => void;
     onEditClick: (letVarDecl: LetVarDecl) => void;
     applyModifications: (modifications: STModification[]) => Promise<void>;
     langServerRpcClient: LangServerRpcClient;
@@ -34,7 +48,7 @@ interface LetVarDeclItemProps {
 }
 
 export function LetVarDeclItem(props: LetVarDeclItemProps) {
-    const {index, letVarDeclModel, handleOnCheck, onEditClick, applyModifications, langServerRpcClient, filePath} = props;
+    const {index, letVarDeclModel, handleOnCheck, applyModifications, langServerRpcClient, filePath} = props;
     const overlayClasses = useStyles();
     const varNameNode = (letVarDeclModel.letVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern)
         .variableName;
@@ -50,24 +64,19 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
     }, [letVarDeclModel]);
 
     const [updatedName, setUpdatedName] = useState(varName);
+    const [updatedExpr, setUpdatedExpr] = useState(exprSource);
     const [nameEditable, setNameEditable] = useState(false);
+    const [exprEditable, setExprEditable] = useState(false);
     const [isLoading, setLoading] = useState(false);
 
-    // const handleCheckboxClick = (list: string[]) => {
-    //     letVarDeclModel.checked = list.length > 0;
-    //     handleOnCheck();
-    // };
-
-
-    const handleEdit = (event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-        event.preventDefault();
-        onEditClick(letVarDeclModel.letVarDecl);
+    const handleCheckboxClick = () => {
+        handleOnCheck(letVarDeclModel.index);
     };
 
     const onKeyUp = async (key: string, node?: STNode) => {
         if (key === "Escape") {
             setNameEditable(false);
-            setUpdatedName("");
+            setExprEditable(false);
         }
         if (key === "Enter") {
             setLoading(true);
@@ -88,6 +97,17 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                     });
                 });
 
+                if (updatedExpr !== exprSource) {
+                    modifications.push({
+                        type: "INSERT",
+                        config: {STATEMENT: updatedExpr},
+                        endColumn: letVarDeclModel.letVarDecl.expression.position.endColumn,
+                        endLine: letVarDeclModel.letVarDecl.expression.position.endLine,
+                        startColumn: letVarDeclModel.letVarDecl.expression.position.startColumn,
+                        startLine: letVarDeclModel.letVarDecl.expression.position.startLine,
+                    });
+                }
+
                 modifications.sort((a, b) => a.startLine - b.startLine);
                 await applyModifications(modifications);
             } finally {
@@ -97,68 +117,80 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
     };
 
     const expression: ReactNode = (
-        <>
-            <div className={overlayClasses.declWrap}>
-                <span className={overlayClasses.declExpression}>
-                    {nameEditable ? (
-                        <input
-                            spellCheck={false}
-                            className={overlayClasses.input}
-                            autoFocus={true}
-                            value={updatedName}
-                            onChange={(event) => setUpdatedName(event.target.value)}
-                            onKeyUp={(event) =>
-                                onKeyUp(
-                                    event.key,
-                                    varNameNode
-                                )
-                            }
-                            onBlur={() => {
-                                setNameEditable(false);
-                                setUpdatedName(varName);
-                            }}
-                            data-testid={`local-variable-name-input-${index}`}
-                        />
-                    ) : (
-                        <span
-                            onClick={() => setNameEditable(true)}
-                            data-testid={`local-variable-name-${index}`}
-                        >
-                            {updatedName}
-                        </span>
+        <div className={overlayClasses.declWrap}>
+            {nameEditable ? (
+                <input
+                    spellCheck={false}
+                    className={overlayClasses.input}
+                    autoFocus={true}
+                    value={updatedName}
+                    onChange={(event) => setUpdatedName(event.target.value)}
+                    onKeyUp={(event) =>
+                        onKeyUp(
+                            event.key,
+                            varNameNode
+                        )
+                    }
+                    onBlur={() => {
+                        setNameEditable(false);
+                        setUpdatedName(varName);
+                    }}
+                    data-testid={`local-variable-name-input-${index}`}
+                />
+            ) : (
+                <span
+                    onClick={() => setNameEditable(true)}
+                    data-testid={`local-variable-name-${index}`}
+                    className={overlayClasses.declExpression}
+                >
+                    {updatedName}
+                </span>
+            )}
+            <span>{letVarDeclModel.letVarDecl.equalsToken.value}</span>
+            {exprEditable ? (
+                <input
+                    spellCheck={false}
+                    className={overlayClasses.input}
+                    autoFocus={true}
+                    value={updatedExpr}
+                    onChange={(event) => setUpdatedExpr(event.target.value)}
+                    onKeyUp={(event) =>
+                        onKeyUp(
+                            event.key,
+                            varNameNode
+                        )
+                    }
+                    onBlur={() => {
+                        setExprEditable(false);
+                        setUpdatedExpr(exprSource);
+                    }}
+                    data-testid={`local-variable-name-input-${index}`}
+                />
+            ) : (
+                <span
+                    onClick={() => setExprEditable(true)}
+                    data-testid={`local-variable-value-${index}`}
+                    className={classNames(
+                        overlayClasses.declExpression,
+                        isExprPlaceholder && overlayClasses.exprPlaceholder
                     )}
+                >
+                    {isExprPlaceholder ? `<add-expression>` : exprSource}
                 </span>
-                <span>{letVarDeclModel.letVarDecl.equalsToken.value}</span>
-                <span>
-                    <span
-                        className={classNames(
-                            overlayClasses.declExpression,
-                            isExprPlaceholder && overlayClasses.exprPlaceholder
-                        )}
-                        onClick={(event) => handleEdit(event)}
-                        data-testid={`local-variable-value-${index}`}
-                    >
-                        {isExprPlaceholder ? `<add-expression>` : exprSource}
-                    </span>
-                </span>
-            </div>
-        </>
+            )}
+        </div>
     );
 
     return (
-        <div className={overlayClasses.headerWrapper} data-testid={`${varName}-item`}>
+        <LocalVarContainer>
             <div className={overlayClasses.contentSection}>
-                {/* <CheckBoxGroup
-                    values={[`${type} ${varName}`]}
-                    defaultValues={letVarDeclModel.checked ? [`${type} ${varName}`] : []}
-                    onChange={handleCheckboxClick}
-                    checkBoxLabel={expression}
-                    checkBoxTestId={`select-local-variable-${index}`}
-                /> */}
-                <VSCodeCheckbox checked={letVarDeclModel.checked} onChange={handleOnCheck} id="select-local-var">
-                    {`${type} ${varName}`}
-                </VSCodeCheckbox>
+                {isLoading ? (
+                    <ProgressRing sx={{ height: '16px', width: '16px' }} />
+                ) : (
+                    <VSCodeCheckbox checked={letVarDeclModel.checked} onClick={handleCheckboxClick} id="select-local-var" />
+                )}
+                {expression}
             </div>
-        </div>
+        </LocalVarContainer>
     );
 }
