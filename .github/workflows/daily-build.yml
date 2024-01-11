@@ -22,3 +22,10 @@ jobs:
           title: Eggplant
           fileName: eggplant
           api: https://chat.googleapis.com/v1/spaces/AAAApvQDm3o/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kX2amBnx58zmdZZjgbA-JZpi3OtM8CJaOv7WOKOihwM
+
+      - name: Notification - MI
+        uses: ./.github/actions/dailyBuildNotification
+        with:
+          title: Intergration Studio
+          fileName: integration-studio
+          api: ${{ secrets.MI_EXT_CHAT_API }}
