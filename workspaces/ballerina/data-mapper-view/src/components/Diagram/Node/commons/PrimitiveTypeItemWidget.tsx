@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { css } from "@emotion/css";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-core";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';

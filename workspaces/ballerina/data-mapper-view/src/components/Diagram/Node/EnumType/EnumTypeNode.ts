@@ -14,7 +14,7 @@ import {
     ExpressionRange,
     PrimitiveBalType,
     Type,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "monaco-editor";
 

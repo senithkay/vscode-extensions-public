@@ -13,7 +13,7 @@
  */
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { Type } from "./data-mapper";
+import { Type } from "./data-mapper-types";
 import { LinePosition } from "./common-types";
 import { Diagnostic } from "vscode-languageserver-types";
 

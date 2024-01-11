@@ -15,7 +15,7 @@ import React, { useState } from "react";
 
 import { WarningOutlined } from "@material-ui/icons";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification, Type } from "@wso2-enterprise/ballerina-core";
 import { IdentifierToken, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

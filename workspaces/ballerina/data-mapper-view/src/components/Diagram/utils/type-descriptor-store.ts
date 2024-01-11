@@ -6,12 +6,11 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     ExpressionRange,
     LinePosition,
     Type
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import {
     FunctionDefinition,
     NodePosition,

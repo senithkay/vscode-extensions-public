@@ -9,7 +9,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { URI } from "vscode-uri";
-import { BallerinaProjectComponents } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import {
     DiagramEngine,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -8,22 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-
-export interface DiagramDiagnostic {
-    message: string,
-    diagnosticInfo: {
-        code: string,
-        severity: string
-    },
-    range: NodePosition
-}
-
-export interface NonPrimitiveBal {
-    orgName: string;
-    moduleName: string;
-    name: string;
-    version?: string;
-}
+import { DiagramDiagnostic, NonPrimitiveBal } from "./connector-wizard-types";
 
 export interface Type {
     typeName: string;

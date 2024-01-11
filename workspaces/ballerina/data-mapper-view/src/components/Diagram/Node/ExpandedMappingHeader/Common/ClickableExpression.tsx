@@ -9,7 +9,6 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ErrorIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 

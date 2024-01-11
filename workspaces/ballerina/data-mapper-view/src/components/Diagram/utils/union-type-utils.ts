@@ -11,7 +11,8 @@
  * associated services.
  */
 
-import { OtherBalType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { OtherBalType, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
+import { Type } from "@wso2-enterprise/ballerina-core";
 import {
 	ExpressionFunctionBody,
 	SelectClause,

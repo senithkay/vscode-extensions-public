@@ -11,7 +11,7 @@ import React, { useState } from "react";
 
 import { css } from "@emotion/css";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
 import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
