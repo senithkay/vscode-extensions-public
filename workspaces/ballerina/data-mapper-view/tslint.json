@@ -12,7 +12,6 @@
             true,
             "@material-ui",
             "monaco-editor",
-            "monaco-languageclient",
             "@ballerina",
             "components",
             "store",

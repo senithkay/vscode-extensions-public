@@ -16,7 +16,6 @@ import {
     NodePosition,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "monaco-editor";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";

@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-export declare enum PrimitiveBalType {
+export enum PrimitiveBalType {
     String = "string",
     Record = "record",
     Union = "union",
@@ -22,11 +22,13 @@ export declare enum PrimitiveBalType {
     Error = "error",
     Decimal = "decimal"
 }
-export declare enum OtherBalType {
+
+export enum OtherBalType {
     Map = "map",
     Object = "object",
     Stream = "stream",
     Table = "table",
     Null = "()"
 }
-export declare const AnydataType = "anydata";
+
+export const AnydataType = "anydata";
