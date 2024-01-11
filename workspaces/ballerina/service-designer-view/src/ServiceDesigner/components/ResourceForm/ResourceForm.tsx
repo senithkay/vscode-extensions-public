@@ -12,11 +12,12 @@ import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, S
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { Response } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
-import { PARAM_TYPES, ParameterConfig, ResponseConfig } from '../../definitions';
+import { PARAM_TYPES, ParameterConfig, ResourceInfo, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
-import { generateResourceFunction } from '../../utils/utils';
+import { generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;
@@ -25,22 +26,23 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	isOpen: boolean;
-	applyModifications?: (source: string) => void;
+	resourceConfig?: ResourceInfo;
+	applyModifications?: (source: string, updatePosition?: NodePosition) => void;
 	onClose: () => void;
 	typeCompletions?: string[];
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, onClose, applyModifications, typeCompletions } = props;
+	const { isOpen, resourceConfig, onClose, applyModifications, typeCompletions } = props;
 
-	const [method, setMethod] = useState<string>("GET");
-	const [path, setPath] = useState<string>("");
+	const [method, setMethod] = useState<string>(resourceConfig?.method.toUpperCase() || "GET");
+	const [path, setPath] = useState<string>(resourceConfig?.path || "/");
 
-	const [parameters, setParameters] = useState<ParameterConfig[]>([]);
-	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(new Map());
-	const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
-	const [payload, setPayload] = useState<ParameterConfig>();
-	const [response, setResponse] = useState<ResponseConfig[]>([]);
+	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
+	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(resourceConfig?.advancedParams || new Map<string, ParameterConfig>());
+	const [showAdvanced, setShowAdvanced] = useState<boolean>(advancedParams?.size > 0);
+	const [payload, setPayload] = useState<ParameterConfig>(resourceConfig?.payloadConfig);
+	const [response, setResponse] = useState<ResponseConfig[]>(resourceConfig?.responses || []);
 
 	const handleParamChange = (params: ParameterConfig[]) => {
 		setParameters(params);
@@ -70,24 +72,33 @@ export function ResourceForm(props: ResourceFormProps) {
 	const onSave = () => {
 		let paramString = "";
 
+		let adevancedParamIndex = 0;
 		advancedParams?.forEach((param: ParameterConfig) => {
 			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
-			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${parameters.length > 0 ? ", " : ""}`;
+			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${adevancedParamIndex === advancedParams.size - 1 ? "" : ", "}`;
+			adevancedParamIndex++;
 		});
-
-		parameters.map((param: ParameterConfig, index: number) => {
-			const type = param.option === PARAM_TYPES.HEADER ? ` http:${PARAM_TYPES.HEADER}` : param.type;
-			paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ","}`;
-		});
+		paramString += (advancedParams.size > 0 && parameters.length > 0) ? ", " : "";
 
 		if (payload) {
-			const payloadType = `${parameters.length > 0 ? ", " : ""}@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""}`;
+			const payloadType = `@http:${PARAM_TYPES.PAYLOAD} ${payload.type} ${payload.name}${payload.defaultValue ? ` = ${payload.defaultValue}` : ""} ${parameters.length > 0 ? ", " : ""}`;
 			paramString += payloadType;
 		}
 
+		parameters.map((param: ParameterConfig, index: number) => {
+			const type = param.option === PARAM_TYPES.HEADER ? ` @http:${PARAM_TYPES.HEADER} ${param.type}` : param.type;
+			paramString += `${type}${param.isRequired ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${index === parameters.length - 1 ? "" : ", "}`;
+		});
+
+
 		let responseString = "";
+		// Add "nil" if it contains a type
+		let containsType = false;
 		response.map((resp: ResponseConfig, index: number) => {
-			responseString = responseString + `${(response.length > 1 && index !== 0) ? `|` : ""} ${resp.type}`;
+			if (resp.type && resp.type !== "nil") {
+				containsType = true;
+			}
+			responseString = resp.type ? (responseString + `${(response.length > 1 && index !== 0 && resp.type !== "nil") ? `|` : ""}${resp.type === "nil" && containsType ? "?" : (resp.type === "nil" ? "" : resp.type) }`) : "";
 		});
 
 		// Check if "error" is already present in responseString
@@ -97,10 +108,23 @@ export function ResourceForm(props: ResourceFormProps) {
 			responseString = "error?";
 		}
 
-		const genSource = generateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
-
-		applyModifications(genSource);
-
+		let genSource = "";
+		// Insert scenario
+		if (!resourceConfig?.ST) {
+			// Insert scenario
+			genSource = generateNewResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
+			applyModifications && applyModifications(genSource);
+		} else {
+			// Edit scenario
+			const position = {
+				startLine: resourceConfig?.ST?.functionName?.position?.startLine,
+				startColumn: resourceConfig?.ST?.functionName?.position?.startColumn,
+				endLine: resourceConfig?.ST?.functionSignature?.position?.endLine,
+				endColumn: resourceConfig?.ST?.functionSignature?.position?.endColumn
+			};
+			genSource = updateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
+			applyModifications && applyModifications(genSource, position);
+		}
 		onClose();
 	};
 
@@ -129,6 +153,7 @@ export function ResourceForm(props: ResourceFormProps) {
 						<LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
 					</AdvancedParamTitleWrapper>
 					{showAdvanced && <AdvancedParams parameters={advancedParams} onChange={handleAdvancedParamChange} />}
+					
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>

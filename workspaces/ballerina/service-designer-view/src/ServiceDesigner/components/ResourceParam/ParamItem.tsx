@@ -42,7 +42,7 @@ export function ParamItem(props: ParamItemProps) {
                     <ParamIcon option={param?.option?.toLowerCase()} />
                 </IconWrapper>
                 <OptionLabel>
-                    {param?.option?.toLowerCase()}
+                    {param?.option?.toUpperCase()}
                 </OptionLabel>
             </IconTextWrapper>
             <ContentSection>
