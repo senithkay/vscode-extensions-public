@@ -20,7 +20,6 @@ import {
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-types";
 
-import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -50,7 +49,7 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -304,18 +303,18 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {value && !connectedViaLink && (
                 <>
                     {diagnostic ? (
-                        <DiagnosticTooltip
-                            placement="right"
-                            diagnostic={diagnostic}
-                            value={value}
-                            onClick={handleEditValue}
-                        >
-                            <span className={classes.valueWithError} data-testid={`record-widget-field-${portIn?.getName()}`}>
-                                {value}
-                                <span className={classes.errorIconWrapper}>
-                                    <ErrorIcon />
-                                </span>
-                            </span>
+                        <DiagnosticTooltip diagnostic={diagnostic} value={value} onClick={handleEditValue}>
+                            <Button
+                                appearance="icon"
+                                onClick={handleEditValue}
+                                data-testid={`record-widget-field-${portIn?.getName()}`}
+                            >
+                                <Icon
+                                    name="error-icon"
+                                    sx={{ height: "14px", width: "14px" }}
+                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                />
+                            </Button>
                         </DiagnosticTooltip>
                     ) : (
                         <span

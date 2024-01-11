@@ -234,6 +234,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         diagnostic={diagnostic}
                         value={props.node.valueNode.source}
                         onClick={onClickEdit}
+                        btnSx={{ margin: "0 2px" }}
                     />
                 )}
                 <DataMapperPortWidget engine={engine} port={node.outPort} dataTestId={`link-connector-node-${node?.value}-output`}/>

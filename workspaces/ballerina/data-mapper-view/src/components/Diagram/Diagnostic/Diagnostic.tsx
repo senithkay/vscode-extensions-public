@@ -14,17 +14,17 @@ import { Diagnostic } from "vscode-languageserver-types";
 import { DiagnosticTooltip } from "./DiagnosticTooltip/DiagnosticTooltip";
 import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 
-
 export interface DiagnosticWidgetProps {
     diagnostic: Diagnostic,
     value?: string,
     onClick?: () => void,
-    isLabelElement? : boolean
+    isLabelElement? : boolean,
+    btnSx?: React.CSSProperties
 }
 
 
 export function DiagnosticWidget(props: DiagnosticWidgetProps) {
-    const {diagnostic, value, onClick, isLabelElement} =  props;
+    const {diagnostic, value, onClick, btnSx} =  props;
 
     return (
         <DiagnosticTooltip diagnostic={diagnostic} value={value} onClick={onClick}>
@@ -32,6 +32,7 @@ export function DiagnosticWidget(props: DiagnosticWidgetProps) {
                 appearance="icon"
                 data-testid={`expression-label-diagnostic`}
                 onClick={onClick}
+                sx={btnSx}
             >
                 <Icon
                     name="error-icon"

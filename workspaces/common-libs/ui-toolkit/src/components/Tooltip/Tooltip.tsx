@@ -57,6 +57,7 @@ const TooltipContainer = styled.div`
     position: relative;
     display: inline-block;
     cursor: pointer;
+    pointer-events: auto;
 `;
 
 const TooltipContent = styled.div<TooltipProps>`
