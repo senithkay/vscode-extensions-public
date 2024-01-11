@@ -44,3 +44,8 @@ export interface ResourceInfo {
     responses?: ResponseConfig[];
     ST?: ResourceAccessorDefinition;
 }
+
+export interface PathConfig {
+    path: string;
+    resources: ParameterConfig[];
+}

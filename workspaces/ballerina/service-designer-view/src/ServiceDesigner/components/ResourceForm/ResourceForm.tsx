@@ -28,6 +28,7 @@ export interface ResourceFormProps {
 	isOpen: boolean;
 	resourceConfig?: ResourceInfo;
 	applyModifications?: (source: string, updatePosition?: NodePosition) => void;
+	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
 	onClose: () => void;
 	typeCompletions?: string[];
@@ -73,11 +74,11 @@ export function ResourceForm(props: ResourceFormProps) {
 	const onSave = () => {
 		let paramString = "";
 
-		let adevancedParamIndex = 0;
+		let advancedParamIndex = 0;
 		advancedParams?.forEach((param: ParameterConfig) => {
 			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
-			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${adevancedParamIndex === advancedParams.size - 1 ? "" : ", "}`;
-			adevancedParamIndex++;
+			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${advancedParamIndex === advancedParams.size - 1 ? "" : ", "}`;
+			advancedParamIndex++;
 		});
 		paramString += (advancedParams.size > 0 && parameters.length > 0) ? ", " : "";
 

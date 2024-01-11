@@ -66,8 +66,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const handleOnClick = () => {
         setIsSidePanelOpen(true);
     };
-    const handleResourceEdit = (resource: ResourceAccessorDefinition) => {
-        const resourceInfo = getResourceInfo(resource);
+    const handleResourceEdit = async (resource: ResourceAccessorDefinition) => {
+        const resourceInfo = await getResourceInfo(resource, rpcClient);
         setEditingResource(resourceInfo);
         setIsSidePanelOpen(true);
     };

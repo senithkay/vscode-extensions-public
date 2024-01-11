@@ -6,13 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { responseCodes, STModification } from '@wso2-enterprise/ballerina-core';
 import { VersionedTextDocumentIdentifier } from '@wso2-enterprise/ballerina-core';
 import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
 import { Annotation, NodePosition, OptionalTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
-import { PARAM_TYPES, ParameterConfig, ResourceInfo, ResponseConfig } from '../definitions';
+import { PARAM_TYPES, ParameterConfig, PathConfig, ResourceInfo, ResponseConfig } from '../definitions';
 
 export interface ResourceDefinition {
     METHOD: string;
@@ -106,6 +107,11 @@ export function getCodeFromResponse(response: string, httpMethod: HTTP_METHOD): 
     return code?.code || getDefaultResponse(httpMethod);
 }
 
+export function findResponseCodeByRecordSource(recordSource: string): number {
+    const code = responseCodes.find((responseCode) =>  recordSource?.includes(responseCode.source));
+    return code?.code || 200;
+}
+
 export function getCodeFromSource(response: string, httpMethod: HTTP_METHOD): number {
     const code = responseCodes.find((responseCode) => responseCode.source === response);
     return code?.code || getDefaultResponse(httpMethod);
@@ -159,7 +165,83 @@ export function isHeaderParam(annotations: Annotation[]): boolean {
     return annotations?.some((annotation) => annotation?.source.trim() === "@http:Header");
 }
 
-export function getResourceInfo(resource: ResourceAccessorDefinition): ResourceInfo {
+const getRecordSource = async (recordName: string, rpcClient: any): Promise<string> => {
+    const response = await rpcClient.getRecordST({ recordName: recordName });
+    return response.recordST.source;
+};
+
+export async function getResourceInfo(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResourceInfo> {
+    const pathConfig = getResourcePath(resource);
+    const queryParams: ParameterConfig[] = getQueryParams(resource);
+    const payloadConfig: ParameterConfig = getPayloadConfig(resource);
+    const advanceParams: Map<string, ParameterConfig> = getAdvancedParams(resource);
+    // Collect resource responses
+    const response: ResponseConfig[] = await getResponseConfig(resource, rpcClient);
+    
+    return {
+        method: resource.functionName.value,
+        path: pathConfig.path,
+        pathSegments: pathConfig.resources,
+        params: queryParams,
+        advancedParams: advanceParams,
+        payloadConfig: payloadConfig,
+        responses: response,
+        ST: resource,
+    };
+}
+
+export async function getResponseConfig(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResponseConfig[]> {
+    let index = 0;
+    const response: ResponseConfig[] = [];
+    const members = resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members;
+    if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union" && members) {
+        for (const member of members) {
+            let type = "";
+            if (member.typeKind === "record") {
+                response.push(
+                    getInlineRecordConfig(resource, index, member)
+                );
+                index++;
+            } else if (member.typeKind === "typeReference") {
+                const recordST: string = await getRecordSource(member.name, rpcClient);
+                response.push({
+                    id: index,
+                    code: findResponseCodeByRecordSource(recordST),
+                    description: member.signature,
+                    type: member.name,
+                    source: member.name
+                });
+                index++;
+            } else if (member.typeKind !== "nil") {
+                type = (members[index + 1]?.typeKind === "nil") ? member.typeKind + "?" : member.typeKind;
+                response.push({
+                    id: index,
+                    code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD)),
+                    type: type,
+                    source: type
+                });
+                index++;
+            }
+        }
+    }
+    return response;
+}
+
+export function getInlineRecordConfig(resource: ResourceAccessorDefinition, index: number, member: any): ResponseConfig {
+    const statusRegex = /readonly\s+ballerina\/http:[\d.]+:(\w+)\s+status;/;
+    const statusMatch = member.signature.match(statusRegex);
+    const status = statusMatch ? statusMatch[1] : "";
+    const subTypeRegex = /\b(\w+)\s+body;/;
+    const subTypeMatch =  member.signature.match(subTypeRegex);
+    const subtype =  subTypeMatch ? subTypeMatch[1] : "";
+    return ({
+        id: index,
+        code: getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD),
+        source: getResponseRecordCode(getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD), subtype)
+    });
+}
+
+export function getResourcePath(resource: ResourceAccessorDefinition): PathConfig {
     let resourcePath = "";
     const pathParams: ParameterConfig[] = [];
     // Collect path segments
@@ -173,106 +255,59 @@ export function getResourceInfo(resource: ResourceAccessorDefinition): ResourceI
         }
         resourcePath += STKindChecker.isResourcePathSegmentParam(path) ? path.source : path?.value;
     });
+    return { path: resourcePath, resources: pathParams }; 
+}
 
-    // Collect query params
+export function getQueryParams(resource: ResourceAccessorDefinition): ParameterConfig[] {
     const queryParams: ParameterConfig[] = [];
-    let payloadConfig: ParameterConfig;
-    const advanceParams: Map<string, ParameterConfig> = new Map();
     let index = 0;
     resource.functionSignature?.parameters?.forEach((queryParam) => {
-        if (!STKindChecker.isCommaToken(queryParam)) {
-            if (isAdvancedParam(queryParam?.typeName?.source?.trim())) {
-                advanceParams.set(getParamType(queryParam?.typeName?.source?.trim()), {
-                    id: index,
-                    name: queryParam?.paramName?.value,
-                    type: queryParam?.typeName?.source?.trim(),
-                    option: getParamType(queryParam?.typeName?.source?.trim()),
-                    isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
-                });
-            } else if (isPayloadParam(queryParam?.annotations)) {
-                payloadConfig = {
-                    id: index,
-                    name: queryParam?.paramName?.value,
-                    type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
-                    defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
-                    option: getParamType("@http:Payload"),
-                    isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
-                };
-            } else {
-                queryParams.push({
-                    id: index,
-                    name: queryParam?.paramName?.value,
-                    type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
-                    defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
-                    option: isHeaderParam(queryParam?.annotations) ? getParamType("@http:Header") : getParamType(queryParam?.typeName?.source?.trim()),
-                    isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
-                });
-                index++;
-            }
+        if (!STKindChecker.isCommaToken(queryParam) && !(isAdvancedParam(queryParam?.typeName?.source?.trim())) && !(isPayloadParam(queryParam?.annotations))) {
+            queryParams.push({
+                id: index,
+                name: queryParam?.paramName?.value,
+                type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
+                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
+                option: isHeaderParam(queryParam?.annotations) ? getParamType("@http:Header") : getParamType(queryParam?.typeName?.source?.trim()),
+                isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
+            });
+            index++;
         }
     });
+    return queryParams;
+}
 
-    index = 0;
-    // Collect resource responses
-    const response: ResponseConfig[] = [];
-    if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.typeKind === "union") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members?.forEach((member: any) => {
-            // eg: record {|int body; readonly ballerina/http:2.9.5:StatusAlreadyReported status; string mediaType?; map<string|int|boolean|string[]|int[]|boolean[]> headers?;|}"
-            let type = "";
-            let description = "";
-            if (member.typeKind === "record") {
-                const statusRegex = /readonly\s+ballerina\/http:[\d.]+:(\w+)\s+status;/;
-                const statusMatch = member.signature.match(statusRegex);
-                const status = statusMatch ? statusMatch[1] : "";
-                const subTypeRegex = /\b(\w+)\s+body;/;
-                const subTypeMatch =  member.signature.match(subTypeRegex);
-                const subtype =  subTypeMatch ? subTypeMatch[1] : "";
-                response.push({
-                    id: index,
-                    code: getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD),
-                    description: description,
-                    source: getResponseRecordCode(getCodeFromResponse(`http:${status.replace("Status", "")}`, resource.functionName.value as HTTP_METHOD), subtype)
-                });
-                index++;
-            } else if (member.typeKind === "typeReference") {
-                description = member.signature;
-                response.push({
-                    id: index,
-                    code: getDefaultResponse(resource.functionName.value as HTTP_METHOD),
-                    description: description,
-                    type: member.name,
-                    source: member.name
-                });
-                index++;
-            } else if (member.typeKind !== "nil") {
-                // Check if member next index is nil and add ? to the type, otherwise add the type as member.typeKind
-                if (resource?.functionSignature?.returnTypeDesc?.type?.typeData?.typeSymbol?.members[index + 1]?.typeKind === "nil") {
-                    type = member.typeKind + "?";
-                } else {
-                    type = member.typeKind;
-                }
-                response.push({
-                    id: index,
-                    code: ((type === "error" || type === "error?") ? 500 : getCodeFromResponse(member.name as string, resource.functionName.value as HTTP_METHOD)),
-                    description: description,
-                    type: type,
-                    source: type
-                });
-                index++;
-            }
-        });
-    }
-    return {
-        method: resource.functionName.value,
-        path: resourcePath,
-        pathSegments: pathParams,
-        params: queryParams,
-        advancedParams: advanceParams,
-        payloadConfig: payloadConfig,
-        responses: response,
-        ST: resource,
-    };
+export function getPayloadConfig(resource: ResourceAccessorDefinition): ParameterConfig {
+    let payloadConfig: ParameterConfig;
+    resource.functionSignature?.parameters?.forEach((queryParam) => {
+        if (!STKindChecker.isCommaToken(queryParam) && isPayloadParam(queryParam?.annotations)) {
+            payloadConfig = {
+                id: 0,
+                name: queryParam?.paramName?.value,
+                type: STKindChecker.isOptionalTypeDesc(queryParam?.typeName) ? (queryParam?.typeName as OptionalTypeDesc).typeDescriptor?.source?.trim() : queryParam?.typeName?.source?.trim(),
+                defaultValue: STKindChecker.isDefaultableParam(queryParam) && queryParam?.expression?.source?.trim(),
+                option: getParamType("@http:Payload"),
+                isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
+            };
+        }
+    });
+    return payloadConfig;
+}
+
+export function getAdvancedParams(resource: ResourceAccessorDefinition): Map<string, ParameterConfig> {
+    const advanceParams: Map<string, ParameterConfig> = new Map();
+    resource.functionSignature?.parameters?.forEach((queryParam) => {
+        if (!STKindChecker.isCommaToken(queryParam) && isAdvancedParam(queryParam?.typeName?.source?.trim())) {
+            advanceParams.set(getParamType(queryParam?.typeName?.source?.trim()), {
+                id: 0,
+                name: queryParam?.paramName?.value,
+                type: queryParam?.typeName?.source?.trim(),
+                option: getParamType(queryParam?.typeName?.source?.trim()),
+                isRequired: !STKindChecker.isOptionalTypeDesc(queryParam?.typeName),
+            });
+        }
+    });
+    return advanceParams;
 }
 
 export function removeStatement(targetPosition: NodePosition): STModification {
