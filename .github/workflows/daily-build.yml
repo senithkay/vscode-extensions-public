@@ -1,0 +1,31 @@
+name: Daily Build - Eggplant
+on:
+  schedule:
+    - cron:  '30 13 * * *'
+
+jobs:
+  Release:
+    name: Release VSIX
+    needs: Build
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          eggplant: true
+          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
+
+      - name: Notification - Eggplant
+        uses: ./.github/actions/dailyBuildNotification
+        with:
+          title: Eggplant
+          fileName: eggplant
+          api: https://chat.googleapis.com/v1/spaces/AAAApvQDm3o/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kX2amBnx58zmdZZjgbA-JZpi3OtM8CJaOv7WOKOihwM
+
+      - name: Notification - MI
+        uses: ./.github/actions/dailyBuildNotification
+        with:
+          title: Intergration Studio
+          fileName: integration-studio
+          api: ${{ secrets.MI_EXT_CHAT_API }}
