@@ -8,9 +8,15 @@
  */
 
 import Mustache from "mustache";
-import { getMustacheTemplate } from "../templateUtils";
-import { MEDIATORS } from "../../../../constants";
 import { Log } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+
+export function getLogMustacheTemplate() {
+  return `<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} {{#description}}description="{{description}}"{{/description}}>
+{{#properties}}
+    <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}"{{/expression}} />
+{{/properties}}
+</log>`;
+}
 
 export function getLogXml(data: { [key: string]: any }) {
   data.level = data.level.toLowerCase();
@@ -25,7 +31,7 @@ export function getLogXml(data: { [key: string]: any }) {
     properties
   }
 
-  return Mustache.render(getMustacheTemplate(MEDIATORS.LOG), modifiedData);
+  return Mustache.render(getLogMustacheTemplate(), modifiedData);
 }
 
 export function getLogFormDataFromSTNode(data: { [key: string]: any }, node: Log) {
