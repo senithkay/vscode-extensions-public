@@ -73,12 +73,14 @@ export function ResponseEditor(props: ParamProps) {
         <EditorContainer>
             <EditorContent>
                 <AutoComplete
+                    sx={{ zIndex: 1 }}
                     label="Code"
                     selectedItem={getTitleFromResponseCode(response.code)}
                     items={responseCodes.map(code => code.title)}
                     onChange={handleCodeChange}
                 />
                 <AutoComplete
+                    sx={{ zIndex: 1 }}
                     label="Type"
                     selectedItem={response.type}
                     items={typeCompletions}
