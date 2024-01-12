@@ -42,11 +42,15 @@ interface ContainerProps {
 }
 
 const VSCodeDataGridInlineCell = styled(VSCodeDataGridCell)`
+    color: var(--vscode-inputOption-activeForeground);
     text-align: left;
     width: 220px;
     display: flex;
     align-items: center;
     padding: 6px 10px;
+    &:hover {
+        background-color: var(--vscode-focusBorder);
+    };
 `;
 
 const ExpandedMenu = styled.div<ContainerProps>`

@@ -79,11 +79,11 @@ export class DataMapperCanvasWidget extends React.Component<DiagramProps> {
 	render() {
 		const engine = this.props.engine;
 		const model = engine.getModel();
-  const layers = model.getLayers();
-  const svgLayers = layers.filter((layer) => layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
-  const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+		const layers = model.getLayers();
+		const svgLayers = layers.filter((layer) => layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
+		const nonSVGLayers = layers.filter((layer) => !layer.getOptions().isSvg && !(layer instanceof OverlayLayerModel));
 		const overlayLayers = layers.filter(layer => layer instanceof OverlayLayerModel);
-  const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
+		const reArrangedLayers = [...nonSVGLayers, ...svgLayers, ...overlayLayers];
 
 		return (
 			<Canvas

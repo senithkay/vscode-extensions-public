@@ -69,7 +69,6 @@ export function CodeActionTooltip(props: Partial<Props>) {
             const menuItem: Item = { id: index, label: action.title, onClick: () => onCodeActionSelect(action) };
             menuItems.push(
                 <MenuItem
-                    sx={{ padding: 0 }}
                     item={menuItem}
                     onClick={() => onCodeActionSelect(action)}
                     data-testid={`code-action-${index}`}
@@ -89,6 +88,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
         <Tooltip
             content={tooltipTitleComponent}
             position="bottom"
+            sx={{ padding: 0 }}
         >
             {children}
         </Tooltip>
