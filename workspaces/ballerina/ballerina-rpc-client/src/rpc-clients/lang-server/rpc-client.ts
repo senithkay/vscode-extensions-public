@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -28,7 +28,10 @@ import {
     JsonToRecordRequest,
     JsonToRecordResponse,
     LangServerAPI,
+    PartialSTRequest,
     RenameParams,
+    SymbolInfoRequest,
+    SymbolInfoResponse,
     TextDocumentPositionParams,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
@@ -50,14 +53,21 @@ import {
     getExecutorPositions,
     getST,
     getSTByRange,
+    getSTForExpression,
     getSTForFunction,
+    getSTForModuleMembers,
+    getSTForModulePart,
+    getSTForResource,
+    getSTForSingleStatement,
+    getSymbolDocumentation,
     getSyntaxTree,
     getTypeFromExpression,
     getTypeFromSymbol,
     getTypesFromFnDefinition,
     rename,
     stModify,
-    updateFileContent
+    updateFileContent,
+    PartialSTResponse
 } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { CodeAction, Location, LocationLink, WorkspaceEdit } from "vscode-languageserver-types";
@@ -135,12 +145,36 @@ export class LangServerRpcClient implements LangServerAPI {
         return this._messenger.sendRequest(definition, HOST_EXTENSION, params);
     }
 
-    getSTForFunction(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
+    getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
         return this._messenger.sendRequest(getSTForFunction, HOST_EXTENSION, params);
     }
 
     getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse> {
         return this._messenger.sendRequest(getExecutorPositions, HOST_EXTENSION, params);
+    }
+
+    getSTForExpression(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return this._messenger.sendRequest(getSTForExpression, HOST_EXTENSION, params);
+    }
+
+    getSTForSingleStatement(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return this._messenger.sendRequest(getSTForSingleStatement, HOST_EXTENSION, params);
+    }
+
+    getSTForResource(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return this._messenger.sendRequest(getSTForResource, HOST_EXTENSION, params);
+    }
+
+    getSTForModuleMembers(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return this._messenger.sendRequest(getSTForModuleMembers, HOST_EXTENSION, params);
+    }
+
+    getSTForModulePart(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return this._messenger.sendRequest(getSTForModulePart, HOST_EXTENSION, params);
+    }
+
+    getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse> {
+        return this._messenger.sendRequest(getSymbolDocumentation, HOST_EXTENSION, params);
     }
 
     didOpen(params: DidOpenTextDocumentParams): void {

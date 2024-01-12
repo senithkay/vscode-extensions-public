@@ -25,12 +25,15 @@ import {
     GetBallerinaProjectParams,
     GetSyntaxTreeParams,
     GetSyntaxTreeResponse,
+    InsertorDelete,
     JsonToRecordRequest,
     JsonToRecordResponse,
     NOT_SUPPORTED_TYPE,
     LangServerAPI,
-    RenameParams,
     PublishDiagnosticsParams,
+    RenameParams,
+    SymbolInfoRequest,
+    SymbolInfoResponse,
     TextDocumentPositionParams,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
@@ -38,7 +41,8 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
-    InsertorDelete
+    PartialSTRequest,
+    PartialSTResponse
 } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { getLangClient, getService} from "../../visualizer/activator";
@@ -207,5 +211,35 @@ export class LangServerRpcManager implements LangServerAPI {
 
     async didClose(params: DidCloseTextDocumentParams): Promise<void> {
         return this._langClient.didClose(params);
+    }
+
+    async getSTForExpression(params: PartialSTRequest): Promise<PartialSTResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getSTForSingleStatement(params: PartialSTRequest): Promise<PartialSTResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getSTForResource(params: PartialSTRequest): Promise<PartialSTResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getSTForModuleMembers(params: PartialSTRequest): Promise<PartialSTResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getSTForModulePart(params: PartialSTRequest): Promise<PartialSTResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

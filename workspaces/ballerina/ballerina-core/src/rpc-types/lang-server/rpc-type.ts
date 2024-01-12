@@ -37,7 +37,11 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     ExecutorPositionsResponse,
-    GetBallerinaProjectParams 
+    GetBallerinaProjectParams, 
+    PartialSTResponse,
+    PartialSTRequest,
+    SymbolInfoRequest,
+    SymbolInfoResponse
 } from "../..";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Location, LocationLink } from "vscode-languageserver-types";
@@ -60,8 +64,14 @@ export const getTypeFromExpression: RequestType<TypeFromExpressionRequest, Types
 export const getTypeFromSymbol: RequestType<TypeFromSymbolRequest, TypesFromSymbolResponse> = { method: `${_preFix}/getTypeFromSymbol` };
 export const getTypesFromFnDefinition: RequestType<TypesFromFnDefinitionRequest, TypesFromSymbolResponse> = { method: `${_preFix}/getTypesFromFnDefinition` };
 export const definition: NotificationType<TextDocumentPositionParams> = { method: `${_preFix}/definition` };
-export const getSTForFunction: RequestType<BallerinaFunctionSTRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/getSTForFunction` };
+export const getSTForFunction: RequestType<BallerinaSTModifyRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/getSTForFunction` };
 export const getExecutorPositions: RequestType<GetBallerinaProjectParams, ExecutorPositionsResponse> = { method: `${_preFix}/getExecutorPositions` };
+export const getSTForExpression: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${_preFix}/getSTForExpression` };
+export const getSTForSingleStatement: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${_preFix}/getSTForSingleStatement` };
+export const getSTForResource: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${_preFix}/getSTForResource` };
+export const getSTForModuleMembers: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${_preFix}/getSTForModuleMembers` };
+export const getSTForModulePart: RequestType<PartialSTRequest, PartialSTResponse> = { method: `${_preFix}/getSTForModulePart` };
+export const getSymbolDocumentation: RequestType<SymbolInfoRequest, SymbolInfoResponse> = { method: `${_preFix}/getSymbolDocumentation` };
 export const didOpen: NotificationType<DidOpenTextDocumentParams> = { method: `${_preFix}/didOpen` };
 export const didChange: NotificationType<DidChangeTextDocumentParams> = { method: `${_preFix}/didChange` };
 export const didClose: NotificationType<DidCloseTextDocumentParams> = { method: `${_preFix}/didClose` };
