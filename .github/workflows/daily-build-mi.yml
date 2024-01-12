@@ -6,7 +6,6 @@ on:
 jobs:
   Release:
     name: Release VSIX
-    needs: Build
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
