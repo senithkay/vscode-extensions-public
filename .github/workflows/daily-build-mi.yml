@@ -9,11 +9,16 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+          ref: mi-ext
+
       - name: Build
         uses: ./.github/actions/build
         with:
           mi: true
-          ref: mi-ext
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
       - name: Notification - MI
