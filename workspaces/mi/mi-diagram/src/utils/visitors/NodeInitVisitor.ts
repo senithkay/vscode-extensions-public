@@ -136,7 +136,8 @@ export class NodeInitVisitor implements Visitor {
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
-                parentNode: this.parents[this.parents.length - 1]
+                parentNode: this.parents[this.parents.length - 1],
+                dropSequence: true
             }
             ));
     }
@@ -149,7 +150,8 @@ export class NodeInitVisitor implements Visitor {
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
-                parentNode: this.parents[this.parents.length - 1]
+                parentNode: this.parents[this.parents.length - 1],
+                dropSequence: true
             }
             ));
     }
