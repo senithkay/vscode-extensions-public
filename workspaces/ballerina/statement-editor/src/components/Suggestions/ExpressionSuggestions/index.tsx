@@ -18,8 +18,9 @@ import {
     ListItemText,
     Typography
 } from "@material-ui/core";
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { CheckBoxGroup, StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
@@ -243,15 +244,16 @@ export function ExpressionSuggestions() {
                                                         { selectedGroup: groupIndex, selectedListItem: index })}
                                                     disableRipple={true}
                                                 >
-                                                    <StatementEditorHint content={expression.name}>
+                                                    {/* <StatementEditorHint content={expression.name}> */}
                                                         {displayCheckBoxAsExpression(currentModel.model, expression) ? (
-                                                            <CheckBoxGroup
-                                                                testId="is-closed"
-                                                                values={["is Closed ?"]}
-                                                                defaultValues={isClosedRecord(currentModel.model) ?
-                                                                    ["is Closed ?"] : []}
-                                                                onChange={null}
-                                                            />
+                                                            <>
+                                                                <VSCodeCheckbox
+                                                                    checked={isClosedRecord(currentModel.model)}
+                                                                    onChange={null}
+                                                                    data-testid="is-closed"
+                                                                />
+                                                                <div>{"is-closed ?"}</div>
+                                                            </>
                                                         ) : (
                                                             <ListItemText
                                                                 data-testid="expression-title"
@@ -262,7 +264,7 @@ export function ExpressionSuggestions() {
                                                                 )}
                                                             />
                                                         )}
-                                                    </StatementEditorHint>
+                                                    {/* </StatementEditorHint> */}
                                                 </ListItem>
                                             ))
                                         }

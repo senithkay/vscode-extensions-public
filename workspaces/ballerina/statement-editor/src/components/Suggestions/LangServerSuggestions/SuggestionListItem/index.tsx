@@ -10,7 +10,7 @@
 import React from "react";
 
 import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { acceptedCompletionKindForTypes } from "../../../../constants";
 import { Suggestion, SuggestionItem } from "../../../../models/definitions";
@@ -47,10 +47,10 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
     }
 
     return (
-        <StatementEditorHint
-            content={suggestion.value}
-            contentType={!acceptedCompletionKindForTypes.includes(suggestion.completionKind) ? suggestion.kind : null}
-        >
+        // <StatementEditorHint
+        //     content={suggestion.value}
+        //     contentType={!acceptedCompletionKindForTypes.includes(suggestion.completionKind) ? suggestion.kind : null}
+        // >
             <ListItem
                 button={true}
                 key={key}
@@ -82,6 +82,6 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                     />
                 )}
             </ListItem>
-        </StatementEditorHint>
+        // </StatementEditorHint>
     );
 }

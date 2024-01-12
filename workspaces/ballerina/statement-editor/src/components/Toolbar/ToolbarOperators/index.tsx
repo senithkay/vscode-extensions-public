@@ -14,7 +14,7 @@ import {
     IconButton,
     Typography
 } from "@material-ui/core";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import {
@@ -192,8 +192,9 @@ export function ToolbarOperators() {
                 <div className={statementEditorToolbarClasses.toolbarOperators} key={groupIndex}>
                     {
                         group.expressions.map((expression, index) => (
-                            <StatementEditorHint content={expression.name} key={index}>
+                            // <StatementEditorHint content={expression.name} key={index}>
                                 <IconButton
+                                    key={index}
                                     onClick={() => updateModelWithOperator(expression)}
                                     className={statementEditorToolbarClasses.toolbarOperatorsIcons}
                                 >
@@ -201,7 +202,7 @@ export function ToolbarOperators() {
                                         {expression.symbol}
                                     </Typography>
                                 </IconButton>
-                            </StatementEditorHint>
+                            // </StatementEditorHint>
                         ))
                     }
                 </div>

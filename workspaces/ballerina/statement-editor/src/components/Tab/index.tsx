@@ -11,7 +11,7 @@ import React, { useEffect } from 'react';
 
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import { StatementEditorHint } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+// import { StatementEditorHint } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 
 import { useStmtEditorHelperPanelStyles } from "../styles";
 
@@ -61,9 +61,9 @@ export default function TabPanel(props: TabPanelProps) {
                     value={tabValue}
                     disableRipple={true}
                     label={(
-                        <StatementEditorHint content={hint} >
+                        // <StatementEditorHint content={hint} >
                             <span>{tabValue}</span>
-                        </StatementEditorHint>
+                        // </StatementEditorHint>
                     )}
                 />
             );

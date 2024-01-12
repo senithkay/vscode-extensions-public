@@ -12,7 +12,7 @@ import React, { useContext, useEffect, useMemo } from "react";
 import { Divider, Typography } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
@@ -142,7 +142,7 @@ export default function Toolbar() {
 
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
-            <StatementEditorHint content={"Undo"} disabled={!hasUndo} >
+            {/* <StatementEditorHint content={"Undo"} disabled={!hasUndo} > */}
                 <IconButton
                     onClick={undo}
                     disabled={!hasUndo}
@@ -151,8 +151,8 @@ export default function Toolbar() {
                 >
                     <ToolbarUndoIcon />
                 </IconButton>
-            </StatementEditorHint>
-            <StatementEditorHint content={"Redo"} disabled={!hasRedo} >
+            {/* </StatementEditorHint>
+            <StatementEditorHint content={"Redo"} disabled={!hasRedo} > */}
                 <IconButton
                     onClick={redo}
                     disabled={!hasRedo}
@@ -161,9 +161,9 @@ export default function Toolbar() {
                 >
                     <ToolbarRedoIcon />
                 </IconButton>
-            </StatementEditorHint>
+            {/* </StatementEditorHint> */}
             <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
-            <StatementEditorHint content={"Delete"} disabled={!deletable} >
+            {/* <StatementEditorHint content={"Delete"} disabled={!deletable} > */}
                 <IconButton
                     onClick={onClickOnDelete}
                     disabled={!deletable}
@@ -173,7 +173,7 @@ export default function Toolbar() {
                 >
                     <ToolbarDeleteIcon/>
                 </IconButton>
-            </StatementEditorHint>
+            {/* </StatementEditorHint> */}
             {/* <StatementEditorHint content={"Add configurable"} disabled={!configurable || hasSyntaxDiagnostics} >
                 <IconButton
                     onClick={onClickOnConfigurable}
@@ -193,7 +193,7 @@ export default function Toolbar() {
             )}
             <ToolbarOperators />
             <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider} />
-            <StatementEditorHint content={"More expressions"} >
+            {/* <StatementEditorHint content={"More expressions"} > */}
                 <IconButton
                     onClick={onClickExpressions}
                     className={statementEditorClasses.toolbarIcons}
@@ -203,7 +203,7 @@ export default function Toolbar() {
                         More
                     </Typography>
                 </IconButton>
-            </StatementEditorHint>
+            {/* </StatementEditorHint> */}
         </div>
     );
 }

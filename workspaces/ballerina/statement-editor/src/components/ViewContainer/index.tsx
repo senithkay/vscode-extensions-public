@@ -10,10 +10,8 @@
 import React, { useContext } from 'react';
 import { useIntl } from "react-intl";
 
-import {
-    PrimaryButton,
-    SecondaryButton} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModuleVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Button } from '@wso2-enterprise/ui-toolkit';
 import { Uri } from 'monaco-editor';
 
 import { EditorModel } from "../../models/definitions";
@@ -24,7 +22,6 @@ import Breadcrumb from "../Breadcrumb";
 import { CloseButton } from "../Button/CloseButton";
 import { EditorOverlay, OverlayType } from '../EditorOverlay';
 import { EditorPane } from '../EditorPane';
-import { Help } from "../Help";
 import { useStatementEditorStyles } from "../styles";
 
 export interface ViewContainerProps {
@@ -162,7 +159,6 @@ export function ViewContainer(props: ViewContainerProps) {
                 {!isHeaderHidden && (
                     <div className={overlayClasses.statementEditorHeader}>
                         <Breadcrumb />
-                        {isCodeServerInstance && <Help />}
                         <div className={overlayClasses.closeButton} data-testid="close-btn">
                             {onCancel && <CloseButton onCancel={onCancel} />}
                         </div>
@@ -185,26 +181,33 @@ export function ViewContainer(props: ViewContainerProps) {
                         </div>
                         <div className={overlayClasses.footer}>
                             <div className={overlayClasses.buttonWrapper}>
-                                <SecondaryButton
-                                    text={activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
-                                    disabled={activeEditorId !== editors.length - 1}
-                                    fullWidth={false}
+                                <Button
+                                    appearance='secondary'
                                     onClick={activeEditorId !== 0 && isConfigurableStmt ? onBackClick : onCancelClick}
-                                    dataTestId="cancel-btn"
-                                />
-                                <PrimaryButton
-                                    dataTestId="save-btn"
-                                    text={
+                                    disabled={activeEditorId !== editors.length - 1}
+                                    data-testid="cancel-btn"
+                                >
+                                    {activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
+                                </Button>
+                                <Button
+                                    appearance='primary'
+                                    onClick={
+                                        activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick
+                                    }
+                                    disabled={
+                                        !isStatementValid
+                                            || activeEditorId !== editors.length - 1
+                                            || hasConfPlaceholder
+                                            || editing
+                                    }
+                                    data-testid="save-btn"
+                                >
+                                    {
                                         activeEditorId !== 0 && isConfigurableStmt
                                             ? addConfigurableButtonText
                                             : saveButtonText
                                     }
-                                    disabled={!isStatementValid || activeEditorId !== editors.length - 1 || hasConfPlaceholder || editing}
-                                    fullWidth={false}
-                                    onClick={
-                                        activeEditorId !== 0 && isConfigurableStmt ? onAddConfigurableClick : onSaveClick
-                                    }
-                                />
+                                </Button>
                             </div>
                         </div>
                     </>

@@ -552,8 +552,8 @@ export function DataMapperC(props: DataMapperViewProps) {
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
-                                langClientPromise={undefined}
-                                applyModifications={undefined}
+                                langClientPromise={langServerRpcClient}
+                                applyModifications={applyModifications}
                                 updateFileContent={updateFileContent}
                                 currentFile={currentFile}
                                 library={library}
