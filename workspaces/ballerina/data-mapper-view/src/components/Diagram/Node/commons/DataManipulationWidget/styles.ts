@@ -16,7 +16,6 @@ export const useStyles = () => ({
         display: "flex",
         minHeight: "24px",
         width: "100%",
-        lineHeight: 0,
         '&:hover': {
             backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)',
         },
@@ -81,7 +80,6 @@ export const useStyles = () => ({
     }),
     typeLabel: css({
         marginLeft: "3px",
-        verticalAlign: "middle",
         padding: "5px",
         fontSize: "13px",
         minWidth: "100px",
@@ -126,7 +124,6 @@ export const useStyles = () => ({
         verticalAlign: 'middle',
     }),
     valueLabel: css({
-        verticalAlign: "middle",
         padding: "5px",
         fontWeight: 600,
         fontSize: "13px",
@@ -150,7 +147,6 @@ export const useStyles = () => ({
     addIcon: css({
         "& > vscode-button": {
             color: "var(--vscode-inputOption-activeForeground)",
-            backgroundColor: "var(--vscode-dropdown-border)",
             padding: "5px",
             textTransform: "none",
             display: "flex",
@@ -196,7 +192,7 @@ export const useStyles = () => ({
     requiredMark: css({
         color: "var(--vscode-errorForeground)",
         margin: '0 2px',
-        fontSize: '18px'
+        fontSize: '13px'
     }),
     loader: css({
         float: "right",

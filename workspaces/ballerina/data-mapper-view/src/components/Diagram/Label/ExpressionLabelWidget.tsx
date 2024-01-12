@@ -262,6 +262,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 codeActions={codeActions}
                 context={context}
                 additionalActions={additionalActions}
+                btnSx={{ margin: "0 2px" }}
             />
         );
     }
@@ -274,6 +275,7 @@ export function EditableLabelWidget(props: EditableLabelWidgetProps) {
                 value={value}
                 onClick={onClickEdit}
                 isLabelElement={true}
+                btnSx={{ margin: "0 2px" }}
             />
         );
     }

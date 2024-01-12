@@ -9,14 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from "react";
 
-import { Button, Codicon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Icon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-types";
 
-import ErrorIcon from "../../../../../assets/icons/Error";
 import { useDMSearchStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
@@ -192,18 +191,21 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 </span>
             ) : (
                 <DiagnosticTooltip
-                    placement="right"
                     diagnostic={{
                         message: "Type information is missing",
                         range: null
                     }}
                 >
-                    <span className={classes.valueWithError}>
+                    <Button
+                        appearance="icon"
+                    >
                         {typeName}
-                        <span className={classes.errorIconWrapper}>
-                            <ErrorIcon />
-                        </span>
-                    </span>
+                        <Icon
+                            name="error-icon"
+                            sx={{ height: "14px", width: "14px" }}
+                            iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                        />
+                    </Button>
                 </DiagnosticTooltip>
             )}
             {!listConstructor && !connectedViaLink && hasValue && (
@@ -215,15 +217,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             value={valExpr?.source}
                             onClick={handleEditValue}
                         >
-                            <span
-                                className={classes.valueWithError}
+                            <Button
+                                appearance="icon"
                                 data-testid={`array-widget-field-${portIn?.getName()}`}
                             >
                                 {valExpr?.source}
-                                <span className={classes.errorIconWrapper}>
-                                    <ErrorIcon />
-                                </span>
-                            </span>
+                                <Icon
+                                    name="error-icon"
+                                    sx={{ height: "14px", width: "14px" }}
+                                    iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                                />
+                            </Button>
                         </DiagnosticTooltip>
                     ) : (
                         <span

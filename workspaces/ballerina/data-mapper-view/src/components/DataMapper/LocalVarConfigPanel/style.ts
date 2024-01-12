@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// tslint:disable: ordered-imports
 import { css } from "@emotion/css";
 
 export const useStyles = () => ({
@@ -18,9 +17,8 @@ export const useStyles = () => ({
     }),
     addNewButtonWrapper: css({
         display: "flex",
-        marginTop: 15,
-        marginLeft: 20,
-        marginRight: 10,
+        marginTop: 20,
+        marginLeft: 10,
         flexDirection: "column",
         "& button": {
             marginBottom: 16
@@ -29,23 +27,7 @@ export const useStyles = () => ({
     doneButtonWrapper: css({
         display: 'flex',
         justifyContent: 'flex-end',
-        marginRight: 20,
-        marginTop: 16,
-    }),
-    headerWrapper: css({
-        background: "white",
-        padding: 10,
-        borderRadius: 5,
-        cursor: "pointer",
-        border: "1px solid var(--vscode-editor-inactiveSelectionBackground)",
-        marginTop: 15,
-        marginLeft: 20,
-        marginRight: 10,
-        justifyContent: "space-between",
-        display: "flex",
-        flexDirection: 'row',
-        height: 40,
-        alignItems: 'center'
+        marginTop: '16px'
     }),
     contentSection: css({
         display: "flex",
@@ -53,7 +35,8 @@ export const useStyles = () => ({
         justifyContent: "flex-start"
     }),
     varMgtToolbar: css({
-        padding: 10,
+        padding: '10px',
+        marginTop: '10px',
         display: "inline-flex",
         alignItems: "center",
         "& a": {
@@ -64,21 +47,17 @@ export const useStyles = () => ({
             textDecoration: "none",
         }
     }),
-    marginSpace: css({
-        marginLeft: 15,
-        marginRight: 15
-    }),
-    deleteLetVarDecl: css({
+    localVarControlButton: css({
+        padding: '5px',
         display: "flex",
         alignItems: "center",
-        color: "var(--vscode-editorError-foreground)",
         cursor: "pointer",
-        "& svg": {
-            marginRight: 8
-        }
+    }),
+    deleteLetVarDecl: css({
+        color: "var(--vscode-charts-red)"
     }),
     deleteLetVarDeclEnabled: css({
-        color: "#fa4c36",
+        color: "var(--vscode-terminal-ansiRed)",
         fontWeight: 500
     }),
     declWrap: css({
@@ -93,33 +72,50 @@ export const useStyles = () => ({
     }),
     declExpression: css({
         background: "var(--vscode-editorHoverWidget-background)",
-        borderRadius: 5,
+        marginLeft: "5px",
+        marginRight: "5px",
+        borderRadius: "4px",
+        border: "1px solid transparent",
         cursor: 'pointer',
-        padding: 5,
-        marginLeft: 5,
-        marginRight: 5,
+        padding: 4,
         transition: 'border 0.2s',
-        border: `1px solid transparent`,
         '&:hover': {
             border: "1px solid var(--vscode-pickerGroup-border)"
         }
     }),
     exprPlaceholder: css({
-        background: 'var(--vscode-debugIcon-breakpointCurrentStackframeForeground)',
-        '&:hover': {
-            border: "1px solid var(--vscode-editorWarning-foreground)"
-        }
+        background: 'var(--vscode-inputValidation-warningBackground)'
     }),
     input: css({
         maxWidth: '120px',
-        padding: "5px",
-        border: 0,
-        '&:hover': { outline: 0 },
-        '&:focus': { outline: 0 },
-        background: 'transparent'
+        padding: "4px",
+        '&:focus': { outline: 0, border: "1px solid var(--vscode-inputOption-activeBorder)" },
+        background: "var(--vscode-editorHoverWidget-background)",
+        marginLeft: "5px",
+        marginRight: "5px",
+        color: 'var(--vscode-editor-foreground)',
+        borderRadius: "4px",
+        border: "1px solid transparent",
     }),
     plusButton: css({
-        marginLeft: '10px',
-        marginBottom: '-15px'
-    })
+        margin: '5px 0 5px 10px',
+    }),
+    linePrimaryButton: css({
+        "& > vscode-button": {
+            color: "var(--button-primary-foreground)",
+            backgroundColor: "var(--button-primary-background)",
+            display: "flex",
+            justifyContent: "center",
+            height: "35px",
+            width: "100%",
+            borderRadius: "3px",
+            "&:hover": {
+                backgroundColor: "var(--vscode-button-hoverBackground)"
+            }
+        }
+    }),
+    doneButton: css({
+        color: "var(--button-primary-foreground)",
+        padding: "3px",
+    }),
 });

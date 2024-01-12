@@ -8,8 +8,7 @@
  */
 import React  from "react";
 
-import { Button, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { TopLevelPlusIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import { useStyles } from "./style";
 
@@ -29,14 +28,14 @@ export function NewLetVarDeclPlusButton(props: NewLetVarDeclPlusButtonProps) {
     return (
         <div className={overlayClasses.plusButton}>
             <Tooltip
-                content={"Add new let variable here"}
+                content={"Add new local variable here"}
             >
                 <Button
                     appearance="icon"
                     onClick={handleOnClick}
                     data-testid={`add-local-variable-btn-${index}`}
                 >
-                    <TopLevelPlusIcon selected={undefined}/>
+                    <Codicon name="add"/>
                 </Button>
             </Tooltip>
         </div>

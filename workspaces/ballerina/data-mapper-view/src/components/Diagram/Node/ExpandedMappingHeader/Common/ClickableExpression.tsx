@@ -15,6 +15,7 @@ import classNames from "classnames";
 
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { useStyles } from "../styles";
+import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 
 export const ClickableExpression = (props: {
     node: STNode;
@@ -35,15 +36,18 @@ export const ClickableExpression = (props: {
                 value={node.source}
                 onClick={onEditClick}
             >
-                <span
-                    className={classNames(classes.clauseDiagnostics, classes.clauseExpression)}
+                <Button
+                    appearance="icon"
                     data-testid={`${testIdPrefix || "intermediate-clause-expression"}-${index}`}
+                    onClick={onEditClick}
                 >
                     {node.source}
-                    <span className={classes.errorIconWrapper}>
-                        <ErrorIcon />
-                    </span>
-                </span>
+                    <Icon
+                        name="error-icon"
+                        sx={{ height: "14px", width: "14px" }}
+                        iconSx={{ fontSize: "14px", color: "var(--vscode-errorForeground)" }}
+                    />
+                </Button>
             </DiagnosticTooltip>
         );
     }

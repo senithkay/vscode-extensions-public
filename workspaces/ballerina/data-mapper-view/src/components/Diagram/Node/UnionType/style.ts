@@ -86,7 +86,7 @@ export const useStyles = () => ({
         alignItems: 'center'
     }),
     warningText: css({
-        color:  'var(--vscode-statusBar-debuggingBackground)',
+        color:  'var(--vscode-errorForeground)',
         fontSize: '15px',
         fontFamily: 'Droid Sans Mono',
         fontWeight: 'normal'

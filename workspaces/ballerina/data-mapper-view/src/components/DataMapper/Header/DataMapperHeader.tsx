@@ -21,25 +21,27 @@ import { Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
-    dmSupported: boolean;
+    hasEditDisabled: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
     onConfigOpen: () => void;
     onClose?: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, dmSupported, changeSelection, onConfigOpen, onClose } = props;
+    const { selection, hasEditDisabled, changeSelection, onConfigOpen, onClose } = props;
 
     return (
         <HeaderContainer>
             <BreadCrumb>
                 <Title> DATA MAPPER: </Title>
-                <HeaderBreadcrumb
-                    selection={selection}
-                    changeSelection={changeSelection}
-                />
+                {!hasEditDisabled && (
+                    <HeaderBreadcrumb
+                        selection={selection}
+                        changeSelection={changeSelection}
+                    />
+                )}
             </BreadCrumb>
-            {dmSupported && (
+            {!hasEditDisabled && (
                 <>
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />

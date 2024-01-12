@@ -23,7 +23,7 @@ import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisi
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
-import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 export const useStyles = () => ({
     root: css({
