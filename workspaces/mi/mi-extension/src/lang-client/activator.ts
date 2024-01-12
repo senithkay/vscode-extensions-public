@@ -10,6 +10,7 @@
 import {
     commands,
     ExtensionContext,
+    extensions,
     IndentAction,
     LanguageConfiguration,
     languages,
@@ -158,6 +159,8 @@ export class MILanguageClient {
                 xml = { xml: JSON.parse(x) };
 
             }
+            let extensionPath = extensions.getExtension("wso2.integration-studio")!.extensionPath;
+            xml['xml']['catalogs'] = [`${extensionPath}/synapse-schemas/catalog.xml`];
             xml['xml']['useCache'] = true;
             return xml;
         }
