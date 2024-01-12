@@ -35,8 +35,7 @@ export interface CodeGeneartionData {
     workerBlocks: string;
     transformFunction?: string;
 }
-// Generate new code to update the Flow model
-// Insert your code here
+
 
 export function workerCodeGen(model: Flow): CodeGeneartionData {
     console.log("===model", model);
@@ -61,17 +60,10 @@ export function workerCodeGen(model: Flow): CodeGeneartionData {
         }
     });
 
-    // TODO: refactor
-    if (transformFunction) {
-        return {
-            workerBlocks: workerBlocks + startWorkerCall + returnBlock,
-            transformFunction: transformFunction,
-        };
-    } else {
-        return {
-            workerBlocks: workerBlocks + startWorkerCall + returnBlock,
-        };
-    }
+    return {
+        workerBlocks: workerBlocks + startWorkerCall + returnBlock,
+        transformFunction: transformFunction || undefined,
+    };
 }
 
 function generateStartNode(node: Node): string {
@@ -88,7 +80,6 @@ function generateStartNode(node: Node): string {
     ${startNode}
     `;
 
-    // TODO: Add as template
     startWorkerCall = `
     () -> StartNode;
     `;
@@ -100,10 +91,7 @@ function generateBlockNode(node: Node): string {
     const nodeProperties = node.properties as CodeNodeProperties;
     const inputPorts: string = generateInputPorts(node);
     const outputPorts: string = generateOutputPorts(node);
-    console.log("===inputPorts", inputPorts);
-    // if (inputPorts === undefined && outputPorts !== undefined) {
-    //     inputPorts = defaultInput;
-    // }
+    
     const workerNode: string = getComponentSource({
         name: "CODE_BLOCK_NODE",
         config: {
@@ -206,17 +194,17 @@ function generateSwitchNode(node: Node): string {
 
 function generateCallerNode(node: Node): string {
     const callerProps = node.properties as HttpRequestNodeProperties;
-    const callerEp: string = callerProps?.endpoint?.name ? callerProps?.endpoint?.name : "grandOakEp"; // TODO : use the value from the model
+    const callerEp: string = callerProps.endpoint?.name;
     const callerVariable: string = node.name.toLowerCase() + "_response";
 
     const callerAction: string = getComponentSource({
         name: "CALLER_ACTION",
         config: {
-            TYPE: callerProps?.outputType ? callerProps.outputType : "json",
+            TYPE: callerProps.outputType,
             VARIABLE: callerVariable,
             CALLER: callerEp,
             PATH: callerProps?.path ? removeLeadingSlash(callerProps.path) : undefined,
-            ACTION: callerProps?.action ? callerProps.action : "get",
+            ACTION: callerProps.action,
             PAYLOAD:
                 callerProps.action === "post"
                     ? node?.inputPorts[0]?.name
@@ -228,9 +216,6 @@ function generateCallerNode(node: Node): string {
 
     const inputPorts: string = generateInputPorts(node);
     const outputPorts: string = generateOutputPorts(node, callerVariable);
-    // if (inputPorts === undefined && outputPorts !== undefined) {
-    //     inputPorts = defaultInput;
-    // }
 
     const workerNode: string = getComponentSource({
         name: "CALLER_BLOCK",
@@ -251,14 +236,14 @@ function generateCallerNode(node: Node): string {
 }
 
 function generateResponseNode(node: Node): string {
-    // TODO: current response only suport one inputPort
     const inputPort = node?.inputPorts[0];
     const varType = inputPort?.type ? sanitizeType(inputPort.type) : undefined;
     const varName = inputPort?.name;
 
-    // TODO: fix the correct type and name when there aremultiple types of the input ports
+    // TODO: fix the correct type and name when there are multiple types of the input ports
     let genInport;
 
+    // TODO: Remove once the BE supports only one inputPort
     if (node.inputPorts?.length > 1) {
         const responseList = generateAlternateResponse(node);
         genInport = getComponentSource({
@@ -284,7 +269,6 @@ function generateResponseNode(node: Node): string {
             genInport = undefined;
         }
 
-        //genInport = inputPort ? generateInport(inputPort) : undefined;
     }
 
     const workerNode: string = getComponentSource({
@@ -314,18 +298,16 @@ function generateResponseNode(node: Node): string {
 }
 
 function generateAlternateReceive(inport: InputPort): string {
-    let alternateReceive: string = "";
-    inport?.alternateSender?.forEach((sender) => {
-        alternateReceive += sender;
-        console.log("===alternateReceive", alternateReceive);
-        if (inport.alternateSender.indexOf(sender) !== inport.alternateSender.length - 1) {
-            alternateReceive += " | ";
-        }
+    const alternateReceive: string = getComponentSource({
+        name: "UNION_EXPRESSION",
+        config: {
+            UNION_FIELDS: inport?.alternateSender,
+        },
     });
     return alternateReceive;
 }
 
-// TODO: Add template for alterate worker check
+// TODO: Remove once the BE model agreed on the alterante sender
 function generateAlternateResponse(node: Node): string {
     // get the inputPorts list and get the receiver name and generate in the form of receiverName1 | recieverName1
     let inputPorts = "";
@@ -360,33 +342,42 @@ function generateTransformNode(node: Node): TransformNodeData {
         metadata?.inputs.forEach((input) => {
             inputPortTypes.push(input.type);
         });
-
-        // generate a comma separated string with inputPortTypes and inputPortNames with same index by taking as one construct
+        
         const functionParams = inputPortTypes
             .map((type, index) => {
                 return type + " " + inputPortNames[index];
             })
             .join(", ");
 
-        const parameters = inputPortNames.join(", ");
-        // TODO: move to templates
-        const returnString = "returns " + outputType + "|error";
+        const funcArgs = inputPortNames.join(", ");
+        
+        const functionReturn = getComponentSource({
+            name: "FUNCTION_RETURN",
+            config: {
+                TYPE: outputType
+            },
+        });
 
         const transFunName = (node.name + "_transform").toLocaleLowerCase();
+
         const transFunction = getComponentSource({
             name: "TRANSFORM_FUNCTION",
             config: {
                 FUNCTION_NAME: transFunName,
                 PARAMETERS: functionParams,
-                RETURN: returnString,
+                FUNCTION_RETURN: functionReturn,
             },
         });
-        // TODO: move as template
-        const transFuncSignature = transFunName + "(" + parameters + ");";
 
-        // generate the function call to transform function
-        const returnType = nodeProperties?.outputType ? nodeProperties.outputType : outputType;
-        const transformCall = returnType + " " + outputVar + " = check " + transFuncSignature;
+        const transFunctionCall = getComponentSource({
+            name: "TRANSFORM_FUNCTION_CALL",
+            config: {
+                TYPE: nodeProperties?.outputType ? nodeProperties.outputType : outputType,
+                VAR_NAME: outputVar,
+                FUNCTION_NAME: transFunName,
+                PARAMETERS: funcArgs,
+            },
+        });
 
         // generate the worker node
         const workerNode: string = getComponentSource({
@@ -394,7 +385,7 @@ function generateTransformNode(node: Node): TransformNodeData {
             config: {
                 NODE_NAME: node.name,
                 INPUT_PORTS: inputPorts,
-                TRANSFORM_FUNCTION: transformCall,
+                TRANSFORM_FUNCTION: transFunctionCall,
                 OUTPUT_PORTS: outputPorts,
             },
         });

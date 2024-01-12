@@ -96,7 +96,7 @@ export default {
     `,
     TRANSFORM_FUNCTION:
     `
-    function {{{FUNCTION_NAME}}}({{{PARAMETERS}}}) {{{RETURN}}} => ();
+    function {{{FUNCTION_NAME}}}({{{PARAMETERS}}}) {{{FUNCTION_RETURN}}} => ();
     `,
     START_NODE:
     `worker StartNode returns error? {
@@ -104,6 +104,12 @@ export default {
         {{#if OUTPUT_PORTS}}
         {{{OUTPUT_PORTS}}}
         {{/if}}
-    }`
+    }`,
+    FUNCTION_RETURN:
+    `returns {{{TYPE}}}|error`,
+    TRANSFORM_FUNCTION_CALL:`
+    {{{TYPE}}} {{{VAR_NAME}}} = check {{{FUNCTION_NAME}}}({{{PARAMETERS}}});`,
+    UNION_EXPRESSION:
+    `{{#each UNION_FIELDS}}{{this}}{{#unless @last}} | {{/unless}}{{/each}}`,
 
 }
