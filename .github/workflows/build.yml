@@ -41,6 +41,9 @@ on:
       isReleaseBuild:  
         type: boolean
         default: false
+      ref:
+        type: string
+        required: false  
 
 env:
   ballerina_version: 2201.7.2
@@ -64,13 +67,7 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
-
-      - uses: actions/checkout@v2
-        if: ${{ inputs.eggplant }}
-        with:
-          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-          fetch-depth: 2    
-          ref: rewrite
+          ref: ${{ inputs.ref }}
 
       - name: Analyze diff
         shell: bash
