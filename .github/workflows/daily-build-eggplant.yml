@@ -9,6 +9,12 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+          ref: rewrite
+
       - name: Build
         uses: ./.github/actions/build
         with:
