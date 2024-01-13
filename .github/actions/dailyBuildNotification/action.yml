@@ -79,5 +79,5 @@ runs:
           curl \
           -X POST \
           -H 'Content-Type: application/json' \
-          "{{ inputs.api }}" \
+          "${{ inputs.api }}" \
           -d "$body"
