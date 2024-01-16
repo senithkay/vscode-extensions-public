@@ -191,14 +191,36 @@ export class LangServerRpcManager implements LangServerAPI {
         return this._langClient.definition(params);
     }
 
-    async getSTForFunction(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+    async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
+        return await this._langClient.getSTForFunction(params) as BallerinaSTModifyResponse;
     }
 
     async getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return await this._langClient.getExecutorPositions(params) as ExecutorPositionsResponse;
+    }
+
+    async getSTForExpression(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return await this._langClient.getSTForExpression(params) as PartialSTResponse;
+    }
+
+    async getSTForSingleStatement(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return await this._langClient.getSTForSingleStatement(params) as PartialSTResponse;
+    }
+
+    async getSTForResource(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return await this._langClient.getSTForResource(params) as PartialSTResponse;
+    }
+
+    async getSTForModuleMembers(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return await this._langClient.getSTForModuleMembers(params) as PartialSTResponse;
+    }
+
+    async getSTForModulePart(params: PartialSTRequest): Promise<PartialSTResponse> {
+        return await this._langClient.getSTForModulePart(params) as PartialSTResponse;
+    }
+
+    async getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse> {
+        return await this._langClient.getSymbolDocumentation(params) as SymbolInfoResponse;
     }
 
     async didOpen(params: DidOpenTextDocumentParams): Promise<void> {
@@ -213,33 +235,4 @@ export class LangServerRpcManager implements LangServerAPI {
         return this._langClient.didClose(params);
     }
 
-    async getSTForExpression(params: PartialSTRequest): Promise<PartialSTResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getSTForSingleStatement(params: PartialSTRequest): Promise<PartialSTResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getSTForResource(params: PartialSTRequest): Promise<PartialSTResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getSTForModuleMembers(params: PartialSTRequest): Promise<PartialSTResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getSTForModulePart(params: PartialSTRequest): Promise<PartialSTResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
 }

@@ -12,13 +12,14 @@ import React, { useEffect, useState } from 'react';
 import { FormControl } from '@material-ui/core';
 import {
     CommandResponse,
-    ExpressionEditorLangClientInterface, KeyboardNavigationManager,
+    KeyboardNavigationManager,
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
@@ -30,7 +31,7 @@ import { StatementEditor } from "../StatementEditor";
 import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
-    getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
+    langServerRpcClient: LangServerRpcClient;
     applyModifications: (modifications: STModification[]) => void;
     updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => Promise<boolean>;
     currentFile: {
@@ -84,7 +85,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         config,
         onCancel,
         onWizardClose,
-        getLangClient,
+        langServerRpcClient,
         applyModifications,
         updateFileContent,
         library,
@@ -115,6 +116,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
+    const [fullSource, setFullSource] = useState("");
 
     useEffect(() => {
         (async () => {
@@ -123,9 +125,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             if (initialSource) {
                 const partialST =
                     isConfigurableStmt || isModuleVar
-                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, getLangClient)
-                        : (isExpressionMode ? await getPartialSTForExpression({codeSnippet: initialSource.trim()}, getLangClient)
-                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim()}, getLangClient));
+                        ? await getPartialSTForModuleMembers({ codeSnippet: initialSource.trim() }, langServerRpcClient)
+                        : (isExpressionMode ? await getPartialSTForExpression({codeSnippet: initialSource.trim()}, langServerRpcClient)
+                        : await getPartialSTForStatement({ codeSnippet: initialSource.trim()}, langServerRpcClient));
 
                 if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
                     model = partialST;
@@ -143,6 +145,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 undoRedoManager: new StmtEditorUndoRedoManager(),
                 hasIncorrectSyntax
             };
+
+            const fullST = await langServerRpcClient.getST({ documentIdentifier: { uri: currentFile.path } });
+            setFullSource(fullST.syntaxTree.source);
 
             setEditors((prevEditors: EditorModel[]) => {
                 return [...prevEditors, newEditor];
@@ -189,7 +194,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const addConfigurable = async (newLabel: string, newPosition: NodePosition,
                                    newSource: string, isExistingStmt: boolean = false) => {
         const partialST = await getPartialSTForModuleMembers(
-            {codeSnippet: newSource.trim()}, getLangClient);
+            {codeSnippet: newSource.trim()}, langServerRpcClient);
 
         const newEditor: EditorModel = {
             label: newLabel,
@@ -235,10 +240,16 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             onCancel={onCancel}
                             config={config}
                             formArgs={formArgs}
-                            getLangClient={getLangClient}
+                            langServerRpcClient={langServerRpcClient}
                             applyModifications={applyModifications}
                             updateFileContent={updateFileContent}
-                            currentFile={currentFile}
+                            currentFile={
+                                {
+                                    ...currentFile,
+                                    content: fullSource,
+                                    originalContent: fullSource
+                                }
+                            }
                             library={library}
                             importStatements={importStatements}
                             syntaxTree={syntaxTree}

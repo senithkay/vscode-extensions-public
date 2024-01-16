@@ -10,7 +10,7 @@ import { ExpressionInfo } from "../DataMapper/DataMapper";
 
 export interface StatementEditorComponentProps {
     expressionInfo: ExpressionInfo,
-    langClientPromise?: LangServerRpcClient;
+    langServerRpcClient: LangServerRpcClient;
     currentFile?: {
         content: string,
         path: string,
@@ -31,7 +31,7 @@ export interface StatementEditorComponentProps {
 function StatementEditorC(props: StatementEditorComponentProps) {
     const {
         expressionInfo,
-        langClientPromise,
+        langServerRpcClient,
         currentFile,
         applyModifications,
         updateFileContent,
@@ -54,7 +54,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             onWizardClose: onClose,
             syntaxTree: null,
             stSymbolInfo: null,
-            getLangClient: () => undefined,
+            langServerRpcClient: langServerRpcClient,
             library,
             label: expressionInfo.label,
             initialSource:  expressionInfo.value,

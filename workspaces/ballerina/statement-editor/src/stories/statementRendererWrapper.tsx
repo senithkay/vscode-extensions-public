@@ -74,11 +74,7 @@ function getStatementEditorContextProps(statement: any): CtxProviderProps {
             formArgs: statement
         },
         handleChange: (arg: any) => null,
-        getLangClient: async () =>  {
-            const ls = await langClientPromise;
-            await ls.onReady();
-            return ls
-        },
+        langServerRpcClient: undefined,
         applyModifications: (arg: any) => null,
         updateFileContent: (arg: any) => null,
         currentFile: {

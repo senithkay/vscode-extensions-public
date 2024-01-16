@@ -8,7 +8,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
-import { useIntl } from "react-intl";
+// import { useIntl } from "react-intl";
 
 import { ModuleVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button } from '@wso2-enterprise/ui-toolkit';
@@ -40,12 +40,12 @@ export function ViewContainer(props: ViewContainerProps) {
         isDisableEditor,
         isHeaderHidden
     } = props;
-    const intl = useIntl();
+    // const intl = useIntl();
     const overlayClasses = useStatementEditorStyles();
     const {
         currentFile,
         applyModifications,
-        getLangClient,
+        langServerRpcClient,
         onCancel,
         onWizardClose,
         modelCtx: {
@@ -65,25 +65,25 @@ export function ViewContainer(props: ViewContainerProps) {
     const hasConfPlaceholder = isConfigurableStmt &&
                                statementModel?.typedBindingPattern?.bindingPattern?.variableName?.value === CONF_NAME_PLACEHOLDER;
 
-    const saveButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.statementEditor.saveButton.text",
-        defaultMessage: "Save"
-    });
+    // const saveButtonText = intl.formatMessage({
+    //     id: "lowcode.develop.configForms.statementEditor.saveButton.text",
+    //     defaultMessage: "Save"
+    // });
 
-    const cancelButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.statementEditor.cancelButton.text",
-        defaultMessage: "Cancel"
-    });
+    // const cancelButtonText = intl.formatMessage({
+    //     id: "lowcode.develop.configForms.statementEditor.cancelButton.text",
+    //     defaultMessage: "Cancel"
+    // });
 
-    const addConfigurableButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.statementEditor.addConfigurableButton.text",
-        defaultMessage: "Add"
-    });
+    // const addConfigurableButtonText = intl.formatMessage({
+    //     id: "lowcode.develop.configForms.statementEditor.addConfigurableButton.text",
+    //     defaultMessage: "Add"
+    // });
 
-    const backButtonText = intl.formatMessage({
-        id: "lowcode.develop.configForms.statementEditor.backButton.text",
-        defaultMessage: "Back"
-    });
+    // const backButtonText = intl.formatMessage({
+    //     id: "lowcode.develop.configForms.statementEditor.backButton.text",
+    //     defaultMessage: "Back"
+    // });
 
     const onSaveClick = async () => {
         const typeName = await handleModifications();
@@ -126,7 +126,7 @@ export function ViewContainer(props: ViewContainerProps) {
 
     const handleModifications = async () => {
         if (statementModel) {
-            await sendDidChange(fileSchemeURI, currentFile.draftSource, getLangClient);
+            await sendDidChange(fileSchemeURI, currentFile.draftSource, langServerRpcClient);
             // HACK: trigger apply modification with space to re draw diagram and code formatting
             applyModifications([
                 {
@@ -187,7 +187,7 @@ export function ViewContainer(props: ViewContainerProps) {
                                     disabled={activeEditorId !== editors.length - 1}
                                     data-testid="cancel-btn"
                                 >
-                                    {activeEditorId !== 0 && isConfigurableStmt ? backButtonText : cancelButtonText}
+                                    {activeEditorId !== 0 && isConfigurableStmt ? "Back" : "Cancel"}
                                 </Button>
                                 <Button
                                     appearance='primary'
@@ -204,8 +204,8 @@ export function ViewContainer(props: ViewContainerProps) {
                                 >
                                     {
                                         activeEditorId !== 0 && isConfigurableStmt
-                                            ? addConfigurableButtonText
-                                            : saveButtonText
+                                            ? "Add"
+                                            : "Save"
                                     }
                                 </Button>
                             </div>
