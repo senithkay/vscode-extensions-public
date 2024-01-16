@@ -14,7 +14,8 @@
         "fit-to-screen.svg",
         "explicit-outlined.svg",
         "error-icon.svg",
-        "error-outline.svg"
+        "error-outline.svg",
+        "symbol-struct-icon.svg"
     ],
     "choreoExtIcons": [
         "choreo-2.svg"
