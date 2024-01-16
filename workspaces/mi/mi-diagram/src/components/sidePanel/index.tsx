@@ -59,7 +59,7 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const goBackRef = useRef(0);
 
-    const mediators = {
+    let mediators = {
         "core": [
             {
                 title: "Call Mediator",
@@ -68,7 +68,7 @@ const SidePanelList = (props: SidePanelListProps) => {
             },
             {
                 title: "Call Template Mediator",
-                operationName: "call-template",
+                operationName: "calltemplate",
                 form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
             },
             {
@@ -225,6 +225,8 @@ const SidePanelList = (props: SidePanelListProps) => {
         }
     ];
 
+    type MediatorsType = typeof mediators;
+
     useEffect(() => {
         let form;
         if (sidePanelContext.isEditing) {
@@ -244,10 +246,23 @@ const SidePanelList = (props: SidePanelListProps) => {
 
             // If the mediator is found
             if (mediator) {
+                if (mediator.exception){
+                    const filteredMediators: MediatorsType = {
+                        core: [],
+                        transformation: [],
+                        filter: []
+                    };
+
+                    for (const category in mediators) {
+                        filteredMediators[category as keyof typeof mediators] = mediators[category as keyof typeof mediators].filter(mediatorItem => !mediator.exception.includes(mediatorItem.operationName));
+                    }
+                    mediators = filteredMediators;
+                }
+
                 // Set the states based on the operations array
                 setShowMediators(mediator.operations.includes("mediators"));
                 setShowConnectors(mediator.operations.includes("connectors"));
-                setShowEndpoints(mediator.operations.includes("endpoints"));
+                setShowEndpoints(mediator.operations.includes("endpoints"));                
             }
         }
 
