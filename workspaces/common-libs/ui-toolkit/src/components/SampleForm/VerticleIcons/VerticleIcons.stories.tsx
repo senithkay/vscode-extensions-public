@@ -9,7 +9,8 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { VerticleIcons as IconsWrapper, Props } from "./VerticleIcons";
-import { FORM_WIDTH } from "../WebAppCreation/WebAppCreation";
+
+const FORM_WIDTH = 600;
 
 const Template: ComponentStory<typeof IconsWrapper> = (args: Props) => <IconsWrapper {...args} />;
 

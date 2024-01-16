@@ -17,8 +17,9 @@ import {
     VSCodePanelView
 } from "@vscode/webview-ui-toolkit/react";
 import { HorizontalIconsWithSeparator } from '../HorizontalIconsWithSeparator/HorizontalIconsWithSeparator';
-import { FORM_WIDTH } from '../WebAppCreation/WebAppCreation';
 import { FormContainer } from '../../../styles';
+
+const FORM_WIDTH = 600;
 
 export interface TypeSelectorProps {
     id?: string;

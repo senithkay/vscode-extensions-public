@@ -10,8 +10,9 @@ import React from 'react';
 import { ComponentCard } from '../../ComponentCard/ComponentCard';
 import { Icon } from '../../Icon/Icon';
 import styled from '@emotion/styled';
-import { FORM_WIDTH } from '../WebAppCreation/WebAppCreation';
 import { Codicon } from '../../Codicon/Codicon';
+
+const FORM_WIDTH = 600;
 
 const ComponentIconWrapper = styled.div`
     display: flex;
