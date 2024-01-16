@@ -80,6 +80,7 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
         sidePanelContext.setNodeRange(props.nodePosition);
         sidePanelContext.setOperationName(props.name.toLowerCase());
         sidePanelContext.setIsOpen(true);
+        sidePanelContext.setIsEditing(true);
         const formData = getDataFromXML(
             props.name,
             props.node.getNode()
