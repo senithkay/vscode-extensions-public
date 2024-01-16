@@ -9,7 +9,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LibraryKind, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
@@ -24,7 +24,6 @@ import {
 
 import { InputEditorContextProvider } from "./input-editor-context";
 import { ToolbarContextProvider } from './toolbar-context';
-import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
@@ -74,7 +73,6 @@ export const StatementEditorContext = React.createContext({
     },
     langServerRpcClient: null,
     applyModifications: (modifications: STModification[]) => undefined,
-    updateFileContent: (content: string, skipForceSave?: boolean) => (Promise.resolve({} as any)),
     library: {
         getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
         getLibrariesData: () => (Promise.resolve({} as any)),
@@ -138,7 +136,6 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         editors?: EditorModel[]
     },
     targetPosition: NodePosition,
-    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>,
     currentReferences?: string[]
 }
 
@@ -181,7 +178,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
-        updateFileContent,
         currentReferences,
         langServerRpcClient,
         ...restProps
@@ -246,7 +242,6 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 isCodeServerInstance,
                 openExternalUrl,
                 langServerRpcClient,
-                updateFileContent,
                 currentReferences,
                 ...restProps
             }}

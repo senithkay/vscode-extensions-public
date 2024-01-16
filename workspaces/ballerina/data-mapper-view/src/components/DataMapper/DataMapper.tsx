@@ -164,7 +164,6 @@ export function DataMapperC(props: DataMapperViewProps) {
     } = props;
     const ballerinaVersion = '2201.7.2 (swan lake update 7)';
     const openedViaPlus = false;
-    const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
     const library: {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
@@ -554,7 +553,6 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 expressionInfo={currentEditableField}
                                 langServerRpcClient={langServerRpcClient}
                                 applyModifications={applyModifications}
-                                updateFileContent={updateFileContent}
                                 currentFile={currentFile}
                                 library={library}
                                 onCancel={cancelStatementEditor}

@@ -76,7 +76,6 @@ function getStatementEditorContextProps(statement: any): CtxProviderProps {
         handleChange: (arg: any) => null,
         langServerRpcClient: undefined,
         applyModifications: (arg: any) => null,
-        updateFileContent: (arg: any) => null,
         currentFile: {
             content: "",
             path: "",

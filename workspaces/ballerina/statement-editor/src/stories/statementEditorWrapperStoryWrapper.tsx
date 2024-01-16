@@ -57,7 +57,6 @@ function getStatementEditorWrapperProps(statement: STNode, file: string,
             }
         },
         applyModifications: (arg: any) => null,
-        updateFileContent: (arg: any) => null,
         currentFile: {
             content: fileContent,
             path: file,

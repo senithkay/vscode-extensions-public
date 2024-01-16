@@ -70,7 +70,7 @@ export function registerLangServerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getTypeFromSymbol, (args: TypeFromSymbolRequest) => rpcManger.getTypeFromSymbol(args));
     messenger.onRequest(getTypesFromFnDefinition, (args: TypesFromFnDefinitionRequest) => rpcManger.getTypesFromFnDefinition(args));
     messenger.onRequest(definition, (args: TextDocumentPositionParams) => rpcManger.definition(args));
-    messenger.onRequest(getSTForFunction, (args: BallerinaFunctionSTRequest) => rpcManger.getSTForFunction(args));
+    messenger.onRequest(getSTForFunction, (args: BallerinaSTModifyRequest) => rpcManger.getSTForFunction(args));
     messenger.onRequest(getExecutorPositions, (args: GetBallerinaProjectParams) => rpcManger.getExecutorPositions(args));
     messenger.onRequest(didOpen, (args: DidOpenTextDocumentParams) => rpcManger.didOpen(args));
     messenger.onRequest(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));

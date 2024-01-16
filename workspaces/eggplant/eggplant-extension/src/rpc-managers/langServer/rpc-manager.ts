@@ -37,7 +37,11 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     UpdateFileContentRequest,
-    InsertorDelete
+    InsertorDelete,
+    PartialSTResponse,
+    SymbolInfoResponse,
+    SymbolInfoRequest,
+    PartialSTRequest
 } from "@wso2-enterprise/ballerina-core";
 import { URI } from "vscode-uri";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";
@@ -178,16 +182,6 @@ export class LangServerRpcManager implements LangServerAPI {
         return false;
     }
 
-    async getSTForFunction(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
     async getTypeFromExpression(params: TypeFromExpressionRequest): Promise<TypesFromExpressionResponse> {
         const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
         return langClient.getTypeFromExpression(params);
@@ -206,6 +200,46 @@ export class LangServerRpcManager implements LangServerAPI {
     async definition(params: TextDocumentPositionParams): Promise<Location | Location[] | LocationLink[] | null> {
         const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
         return langClient.definition(params);
+    }
+
+    async getSTForFunction(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getSTForFunction(params) as BallerinaSTModifyResponse;
+    }
+
+    async getExecutorPositions(params: GetBallerinaProjectParams): Promise<ExecutorPositionsResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getExecutorPositions(params) as ExecutorPositionsResponse;
+    }
+
+    async getSTForExpression(params: PartialSTRequest): Promise<PartialSTResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getSTForExpression(params) as PartialSTResponse;
+    }
+
+    async getSTForSingleStatement(params: PartialSTRequest): Promise<PartialSTResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getSTForSingleStatement(params) as PartialSTResponse;
+    }
+
+    async getSTForResource(params: PartialSTRequest): Promise<PartialSTResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getSTForResource(params) as PartialSTResponse;
+    }
+
+    async getSTForModuleMembers(params: PartialSTRequest): Promise<PartialSTResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getSTForModuleMembers(params) as PartialSTResponse;
+    }
+
+    async getSTForModulePart(params: PartialSTRequest): Promise<PartialSTResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getSTForModulePart(params) as PartialSTResponse;
+    }
+
+    async getSymbolDocumentation(params: SymbolInfoRequest): Promise<SymbolInfoResponse> {
+        const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
+        return await langClient.getSymbolDocumentation(params) as SymbolInfoResponse;
     }
 
     async didOpen(params: DidOpenTextDocumentParams): Promise<void> {

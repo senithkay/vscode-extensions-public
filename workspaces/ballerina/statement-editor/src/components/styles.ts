@@ -947,7 +947,6 @@ export const useStatementEditorStyles = makeStyles(() =>
         mainStatementWrapper: {
             display: 'flex',
             height: 'auto',
-            width: 600,
             flexDirection: 'column',
         },
         stmtEditorInnerWrapper: {

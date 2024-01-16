@@ -10,7 +10,6 @@
 import React, { useContext } from "react";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import Breadcrumb from "../Breadcrumb";
 import { Diagnostics } from "../Diagnostics";
 import { HelperPane } from "../HelperPane";
 import { StatementRenderer } from "../StatementRenderer";

@@ -50,7 +50,8 @@ import {
     getPartialSTForModuleMembers,
     getPartialSTForStatement,
     getSymbolDocumentation,
-    sendDidChange
+    sendDidChange,
+    updateFileContent
 } from "../../utils/ls-utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { StackElement } from "../../utils/undo-redo";
@@ -86,7 +87,6 @@ export function StatementEditor(props: StatementEditorProps) {
         config,
         langServerRpcClient,
         applyModifications,
-        updateFileContent,
         library,
         currentFile,
         syntaxTree,
@@ -287,7 +287,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const stmtIndex = getStatementIndex(updatedContent, statement, targetPosition);
         const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
-        await updateFileContent(updatedContent, true, currentFile.path);
+        await updateFileContent(currentFile.path, updatedContent, langServerRpcClient, true);
 
         setDraftSource(updatedContent);
         setDraftPosition(newTargetPosition);
@@ -355,7 +355,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const updateStatementModel = async (updatedStatement: string, updatedSource: string, position: NodePosition) => {
-        await updateFileContent(updatedSource, true, currentFile.path);
+        await updateFileContent(currentFile.path, updatedSource, langServerRpcClient, true);
         setDraftSource(updatedSource);
         setDraftPosition(position);
         const partialST = isModuleMember(model)
@@ -543,7 +543,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     async function handleOnCancel(){
-        await updateFileContent(currentFile.content, undefined, currentFile.path);
+        await updateFileContent(currentFile.path, currentFile.content, langServerRpcClient);
         onCancel();
     }
 
@@ -587,7 +587,6 @@ export function StatementEditor(props: StatementEditorProps) {
                     formArgs={formArgs}
                     langServerRpcClient={langServerRpcClient}
                     applyModifications={applyModifications}
-                    updateFileContent={updateFileContent}
                     currentFile={currentFile}
                     library={library}
                     importStatements={importStatements}

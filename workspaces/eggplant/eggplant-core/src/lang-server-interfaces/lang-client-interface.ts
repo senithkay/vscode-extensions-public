@@ -19,14 +19,20 @@ import {
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
+    ExecutorPositionsResponse,
     GetBallerinaPackagesParams,
+    GetBallerinaProjectParams,
     GetSyntaxTreeParams,
     GetSyntaxTreeResponse,
     JsonToRecordRequest,
     JsonToRecordResponse,
     NOT_SUPPORTED_TYPE,
+    PartialSTRequest,
+    PartialSTResponse,
     PublishDiagnosticsParams,
     RenameParams,
+    SymbolInfoRequest,
+    SymbolInfoResponse,
     TextDocumentPositionParams,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
@@ -72,4 +78,12 @@ export interface LangClientInterface extends LanguageClient {
     getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE>;
     convertJsonToRecord(params: JsonToRecordRequest): Promise<JsonToRecordResponse | NOT_SUPPORTED_TYPE>;
     updateStatusBar(): void;
+    getSTForFunction: (params: BallerinaSTModifyRequest) => Promise<BallerinaSTModifyResponse>;
+    getExecutorPositions: (params: GetBallerinaProjectParams) => Promise<ExecutorPositionsResponse>;
+    getSTForExpression: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForSingleStatement: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForResource: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForModuleMembers: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForModulePart: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSymbolDocumentation: (params: SymbolInfoRequest) => Promise<SymbolInfoResponse>;
 }

@@ -29,11 +29,11 @@ import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTFo
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { StatementEditor } from "../StatementEditor";
 import { useStatementEditorStyles } from '../styles';
+import { URI } from "vscode-uri";
 
 export interface LowCodeEditorProps {
     langServerRpcClient: LangServerRpcClient;
     applyModifications: (modifications: STModification[]) => void;
-    updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => Promise<boolean>;
     currentFile: {
         content: string,
         path: string,
@@ -87,7 +87,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         onWizardClose,
         langServerRpcClient,
         applyModifications,
-        updateFileContent,
         library,
         currentFile,
         syntaxTree,
@@ -146,7 +145,9 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                 hasIncorrectSyntax
             };
 
-            const fullST = await langServerRpcClient.getST({ documentIdentifier: { uri: currentFile.path } });
+            const fullST = await langServerRpcClient.getST({
+                documentIdentifier: { uri: URI.file(currentFile.path).toString() }
+            });
             setFullSource(fullST.syntaxTree.source);
 
             setEditors((prevEditors: EditorModel[]) => {
@@ -242,7 +243,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             formArgs={formArgs}
                             langServerRpcClient={langServerRpcClient}
                             applyModifications={applyModifications}
-                            updateFileContent={updateFileContent}
                             currentFile={
                                 {
                                     ...currentFile,

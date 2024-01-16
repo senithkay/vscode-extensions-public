@@ -13,6 +13,7 @@ import {
     PublishDiagnosticsParams,
     SymbolInfoResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import {
     NodePosition,
     STKindChecker,
@@ -30,7 +31,6 @@ import { CurrentModel, SuggestionItem } from '../models/definitions';
 
 import { getSymbolPosition, sortSuggestions } from "./index";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
 export async function getPartialSTForStatement(
     partialSTRequest: PartialSTRequest,
@@ -332,6 +332,21 @@ export async function getSymbolDocumentation(
         }
     });
     return symbolDoc;
+}
+
+
+export async function updateFileContent(
+    fileUri: string,
+    content: string,
+    langServerRpcClient: LangServerRpcClient,
+    skipForceSave?: boolean,
+): Promise<boolean> {
+    const response = await langServerRpcClient.updateFileContent({
+        fileUri,
+        content,
+        skipForceSave
+    });
+    return response;
 }
 
 export const handleDiagnostics = async (
