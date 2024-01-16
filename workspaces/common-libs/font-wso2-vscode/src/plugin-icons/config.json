@@ -15,7 +15,8 @@
         "explicit-outlined.svg",
         "error-icon.svg",
         "error-outline.svg",
-        "symbol-struct-icon.svg"
+        "symbol-struct-icon.svg",
+        "add-circle-outline.svg"
     ],
     "choreoExtIcons": [
         "choreo-2.svg"
