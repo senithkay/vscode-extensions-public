@@ -78,6 +78,13 @@ schemas:
   OAuth2Authentication:
     type: object
     properties:
+      required:
+        type: string
+        default: mandatory
+        enum:
+          - mandatory
+          - optional
+        description: Specifies whether OAuth2 is mandatory or optional
       authType:
         type: string
         enum: [OAuth2]
@@ -85,30 +92,22 @@ schemas:
       sendTokenToUpstream:
         type: boolean
         default: false
-        description:
-          Specifies whether to send the authentication token to the upstream
-          service.
+        description: Specifies whether to send the authentication token to the upstream service.
       enabled:
         type: boolean
         example: true
-        description: Specifies whether authentication is enabled for the API.
+        description: Specifies whether OAuth2 authentication is enabled for the API.
       headerName:
         type: string
         example: Authorization
-        description:
-          The name of the header field used to send the authentication
-          token.
+        description: The name of the header field used to send the authentication token.
       queryParamName:
         type: string
         example: apikey
-        description:
-          The name of the query parameter used to send the authentication
-          token.
+        description: The name of the query parameter used to send the authentication token.
       headerEnable:
         type: boolean
-        description:
-          Specifies whether the authentication token can be sent in the
-          header.
+        description: Specifies whether the authentication token can be sent in the header.
       queryParamEnable:
         type: boolean
         description: Specifies whether the authentication token can be sent as a query parameter.
@@ -124,9 +123,11 @@ schemas:
       enabled:
         type: boolean
         example: true
+        default: true
         description: Specifies whether mTLS authentication is enabled for the API.
       required:
         type: string
+        default: optional
         enum:
           - mandatory
           - optional
