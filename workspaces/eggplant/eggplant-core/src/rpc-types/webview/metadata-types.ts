@@ -12,6 +12,7 @@
 export type NMD_Metadata = {
     inputs?: NMD_TypeData[];
     outputs?: NMD_TypeData[];
+    isEdited?: boolean;
 };
 
 export type NMD_TypeData = {
