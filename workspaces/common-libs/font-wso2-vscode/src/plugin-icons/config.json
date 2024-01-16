@@ -16,7 +16,9 @@
         "error-icon.svg",
         "error-outline.svg",
         "symbol-struct-icon.svg",
-        "add-circle-outline.svg"
+        "add-circle-outline.svg",
+        "radio-button-checked.svg",
+        "radio-button-unchecked.svg"
     ],
     "choreoExtIcons": [
         "choreo-2.svg"
