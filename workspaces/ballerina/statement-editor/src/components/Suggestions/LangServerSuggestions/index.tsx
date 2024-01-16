@@ -9,11 +9,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { FormControl, Input, InputAdornment } from "@material-ui/core";
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     ACTION,
     CURRENT_REFERENCES_TITLE,
@@ -33,6 +31,7 @@ import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
+import { Codicon, SearchBox } from "@wso2-enterprise/ui-toolkit";
 
 export function LSSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -244,8 +243,7 @@ export function LSSuggestions() {
         inputEditorCtx.onSuggestionSelection(value);
     }
 
-    const searchSuggestions = (e: any) => {
-        const searchValue = e.target.value;
+    const searchSuggestions = (searchValue: string) => {
         setKeyword(searchValue);
         setFilteredSuggestions(lsSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())));
         setFilteredSecondLevelSuggestions(secondLevelSuggestions.filter(suggestion => suggestion.value.toLowerCase().includes(searchValue.toLowerCase())))
@@ -254,20 +252,17 @@ export function LSSuggestions() {
 
     return (
         <>
-            <FormControl style={{ width: '100%', padding: '0 25px' }}>
-                <Input
-                    data-testid="ls-suggestions-searchbar"
-                    className={stmtEditorHelperClasses.librarySearchBox}
+            <div className={stmtEditorHelperClasses.searchBox}>
+                <SearchBox
+                    id={'ls-suggestions-searchbar'}
+                    autoFocus={true}
                     placeholder={`Search Suggestions`}
-                    onChange={searchSuggestions}
                     value={keyword}
-                    endAdornment={(
-                        <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                            <LibrarySearchIcon/>
-                        </InputAdornment>
-                    )}
+                    onChange={searchSuggestions}
+                    size={100}
+                    data-testid="ls-suggestions-searchbar"
                 />
-            </FormControl>
+            </div>
             {(filteredSuggestions?.length || filteredSecondLevelSuggestions?.length) ?
             (
                 <div className={stmtEditorHelperClasses.lsSuggestionList}>

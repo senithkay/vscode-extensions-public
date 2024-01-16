@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useMemo } from "react";
 
-import { Divider, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 // import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -40,6 +40,7 @@ import { useStatementEditorToolbarStyles } from "../styles";
 
 import StatementQualifiers from "./StatementQualifiers";
 import { ToolbarOperators } from "./ToolbarOperators";
+import { Button, Codicon, Divider, Icon } from "@wso2-enterprise/ui-toolkit";
 
 export default function Toolbar() {
     const statementEditorClasses = useStatementEditorToolbarStyles();
@@ -142,68 +143,55 @@ export default function Toolbar() {
 
     return (
         <div className={statementEditorClasses.toolbar} data-testid="toolbar">
-            {/* <StatementEditorHint content={"Undo"} disabled={!hasUndo} > */}
-                <IconButton
-                    onClick={undo}
-                    disabled={!hasUndo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-undo"
-                >
-                    <ToolbarUndoIcon />
-                </IconButton>
-            {/* </StatementEditorHint>
-            <StatementEditorHint content={"Redo"} disabled={!hasRedo} > */}
-                <IconButton
-                    onClick={redo}
-                    disabled={!hasRedo}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-redo"
-                >
-                    <ToolbarRedoIcon />
-                </IconButton>
-            {/* </StatementEditorHint> */}
-            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
-            {/* <StatementEditorHint content={"Delete"} disabled={!deletable} > */}
-                <IconButton
-                    onClick={onClickOnDelete}
-                    disabled={!deletable}
-                    style={{color: deletable ? '#FE523C' : '#8D91A3'}}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-delete"
-                >
-                    <ToolbarDeleteIcon/>
-                </IconButton>
-            {/* </StatementEditorHint> */}
-            {/* <StatementEditorHint content={"Add configurable"} disabled={!configurable || hasSyntaxDiagnostics} >
-                <IconButton
-                    onClick={onClickOnConfigurable}
-                    disabled={!configurable || hasSyntaxDiagnostics}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-configurable"
-                >
-                    <ToolbarConfigurableIcon/>
-                </IconButton>
-            </StatementEditorHint> */}
-            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
+            <Button
+                appearance="icon"
+                onClick={undo}
+                disabled={!hasUndo}
+                tooltip="Undo"
+                className={statementEditorClasses.toolbarIcons}
+                data-testid="toolbar-undo"
+            >
+                <Codicon name="discard" />
+            </ Button>
+            <Button
+                appearance="icon"
+                onClick={redo}
+                disabled={!hasRedo}
+                tooltip="Redo"
+                className={statementEditorClasses.toolbarIcons}
+                data-testid="toolbar-redo"
+            >
+                <Codicon name="redo" />
+            </ Button>
+            <Divider className={statementEditorClasses.toolbarDivider} />
+            <Button
+                appearance="icon"
+                onClick={onClickOnDelete}
+                disabled={!deletable}
+                tooltip="Delete"
+                className={statementEditorClasses.toolbarIcons}
+                data-testid="toolbar-delete"
+            >
+                <Icon sx={{marginTop: 2, color: "var(--vscode-editorGutter-deletedBackground)"}} name="delete"/>
+            </ Button>
+            <Divider className={statementEditorClasses.toolbarDivider} />
             {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && (
                 <>
                     <StatementQualifiers />
-                    <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
+                    <Divider className={statementEditorClasses.toolbarDivider} />
                 </>
             )}
             <ToolbarOperators />
-            <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider} />
-            {/* <StatementEditorHint content={"More expressions"} > */}
-                <IconButton
-                    onClick={onClickExpressions}
-                    className={statementEditorClasses.toolbarIcons}
-                    data-testid="toolbar-expressions"
-                >
-                    <Typography className={statementEditorClasses.toolbarMoreExpIcon}>
-                        More
-                    </Typography>
-                </IconButton>
-            {/* </StatementEditorHint> */}
+            <Divider className={statementEditorClasses.toolbarDivider} />
+            <Button
+                appearance="icon"
+                onClick={onClickExpressions}
+                tooltip="More expressions"
+                className={statementEditorClasses.toolbarIcons}
+                data-testid="toolbar-expressions"
+            >
+                <div className={statementEditorClasses.toolbarMoreExpIcon}> More </div>
+            </Button>
         </div>
     );
 }

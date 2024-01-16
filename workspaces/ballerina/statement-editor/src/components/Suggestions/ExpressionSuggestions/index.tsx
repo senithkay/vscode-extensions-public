@@ -52,6 +52,7 @@ import {
     switchOpenClose
 } from "../../../utils/expressions";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
+import { SearchBox } from "@wso2-enterprise/ui-toolkit";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
@@ -204,20 +205,17 @@ export function ExpressionSuggestions() {
         <>
 
             <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
-                <FormControl style={{ width: '100%', padding: '0 25px' }}>
-                    <Input
-                        data-testid="expr-suggestions-searchbar"
-                        className={stmtEditorHelperClasses.librarySearchBox}
-                        value={keyword}
+                <div className={stmtEditorHelperClasses.searchBox}>
+                    <SearchBox
+                        id={'expr-suggestions-searchbar'}
+                        autoFocus={true}
                         placeholder={`Search Expression`}
-                        onChange={(e) => searchExpressions(e.target.value)}
-                        endAdornment={(
-                            <InputAdornment position={"end"} style={{ padding: '8.5px' }}>
-                                <LibrarySearchIcon/>
-                            </InputAdornment>
-                        )}
+                        value={keyword}
+                        onChange={searchExpressions}
+                        size={100}
+                        data-testid="expr-suggestions-searchbar"
                     />
-                </FormControl>
+                </div>
                 {!filteredExpressions.length && (
                     <div className={statementEditorClasses.stmtEditorInnerWrapper}>
                         <p>Expressions not available</p>
@@ -258,9 +256,9 @@ export function ExpressionSuggestions() {
                                                             <ListItemText
                                                                 data-testid="expression-title"
                                                                 primary={(
-                                                                    <Typography style={{fontFamily: 'monospace'}}>
+                                                                    <div className={stmtEditorHelperClasses.expressionExample}>
                                                                         {expression.example}
-                                                                    </Typography>
+                                                                    </div>
                                                                 )}
                                                             />
                                                         )}

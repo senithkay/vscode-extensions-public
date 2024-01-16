@@ -909,6 +909,9 @@ importers:
       '@babel/core': ^7.20.12
       '@babel/preset-env': ^7.20.2
       '@date-io/date-fns': ^1.3.13
+      '@emotion/css': ~11.11.2
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
       '@material-ui/core': ^4.12.3
       '@material-ui/icons': ^4.9.1
       '@material-ui/lab': ^4.0.0-alpha.52
@@ -1002,6 +1005,9 @@ importers:
       webpack-dev-server: ^4.11.1
     dependencies:
       '@date-io/date-fns': 1.3.13_date-fns@2.30.0
+      '@emotion/css': 11.11.2
+      '@emotion/react': 11.11.1_5n3si3aeogjujeu5eks6mxpsfi
+      '@emotion/styled': 11.11.0_6uyfaveggaeim4gielocsuclya
       '@material-ui/core': 4.12.4_codnxbw47uuodsmrol27vrrbgm
       '@material-ui/icons': 4.11.3_mkre2ojqraiap6nunvaaz2nrdu
       '@material-ui/lab': 4.0.0-alpha.61_mkre2ojqraiap6nunvaaz2nrdu

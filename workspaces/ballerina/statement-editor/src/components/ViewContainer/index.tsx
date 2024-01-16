@@ -10,7 +10,7 @@
 import React, { useContext } from 'react';
 
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, SidePanel, SidePanelBody, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit';
 import { Uri } from 'monaco-editor';
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
@@ -18,6 +18,7 @@ import { sendDidChange } from "../../utils/ls-utils";
 import { EditorOverlay, OverlayType } from '../EditorOverlay';
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
+import styled from "@emotion/styled";
 
 export interface ViewContainerProps {
     isStatementValid: boolean;
@@ -106,42 +107,40 @@ export function ViewContainer(props: ViewContainerProps) {
                         </>
                     )}
                 </SidePanelTitleContainer>
-                <SidePanelBody>
-                    <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor">
-                        {isDisableEditor && (
-                            <EditorOverlay type={OverlayType.Disabled}/>
-                        )}
-                        {isPullingModule && !isDisableEditor && (
-                            <EditorOverlay type={OverlayType.ModulePulling}/>
-                        )}
-                        {!isPullingModule && !isDisableEditor && (
-                            <>
-                                <div className={overlayClasses.statementExpressionWrapper}>
-                                    <EditorPane data-testid="editor-pane" />
+                <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor">
+                    {isDisableEditor && (
+                        <EditorOverlay type={OverlayType.Disabled}/>
+                    )}
+                    {isPullingModule && !isDisableEditor && (
+                        <EditorOverlay type={OverlayType.ModulePulling}/>
+                    )}
+                    {!isPullingModule && !isDisableEditor && (
+                        <>
+                            <div className={overlayClasses.statementExpressionWrapper}>
+                                <EditorPane data-testid="editor-pane" />
+                            </div>
+                            <div className={overlayClasses.footer}>
+                                <div className={overlayClasses.buttonWrapper}>
+                                    <Button
+                                        appearance='secondary'
+                                        onClick={onCancelClick}
+                                        data-testid="cancel-btn"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        appearance='primary'
+                                        onClick={onSaveClick}
+                                        disabled={!isStatementValid || editing}
+                                        data-testid="save-btn"
+                                    >
+                                        Save
+                                    </Button>
                                 </div>
-                                <div className={overlayClasses.footer}>
-                                    <div className={overlayClasses.buttonWrapper}>
-                                        <Button
-                                            appearance='secondary'
-                                            onClick={onCancelClick}
-                                            data-testid="cancel-btn"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            appearance='primary'
-                                            onClick={onSaveClick}
-                                            disabled={!isStatementValid || editing}
-                                            data-testid="save-btn"
-                                        >
-                                            Save
-                                        </Button>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </SidePanelBody>
+                            </div>
+                        </>
+                    )}
+                </div>
             </SidePanel>
         )
     )

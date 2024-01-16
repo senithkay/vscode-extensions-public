@@ -9,11 +9,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import {
-    Divider,
-    IconButton,
-    Typography
-} from "@material-ui/core";
 // import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -70,6 +65,7 @@ import {
     trapOperators,
     TRAP_OPERATORS
 } from "./utils/operators";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 
 export function ToolbarOperators() {
     const statementEditorToolbarClasses = useStatementEditorToolbarStyles();
@@ -192,16 +188,23 @@ export function ToolbarOperators() {
                 <div className={statementEditorToolbarClasses.toolbarOperators} key={groupIndex}>
                     {
                         group.expressions.map((expression, index) => (
-                            // <StatementEditorHint content={expression.name} key={index}>
-                                <IconButton
-                                    key={index}
-                                    onClick={() => updateModelWithOperator(expression)}
-                                    className={statementEditorToolbarClasses.toolbarOperatorsIcons}
-                                >
-                                    <Typography data-testid="operator-value" style={{ fontFamily: 'monospace' }}>
-                                        {expression.symbol}
-                                    </Typography>
-                                </IconButton>
+                            <Button
+                                appearance="icon"
+                                onClick={() => updateModelWithOperator(expression)}
+                                tooltip={expression.name}
+                                className={statementEditorToolbarClasses.toolbarOperatorsIcons}
+                            >
+                                <div style={{ fontFamily: 'monospace' }}>{expression.symbol}</div>
+                            </Button>
+                                // <IconButton
+                                //     key={index}
+                                //     onClick={() => updateModelWithOperator(expression)}
+                                //     className={statementEditorToolbarClasses.toolbarOperatorsIcons}
+                                // >
+                                //     <Typography data-testid="operator-value" style={{ fontFamily: 'monospace' }}>
+                                //         {expression.symbol}
+                                //     </Typography>
+                                // </IconButton>
                             // </StatementEditorHint>
                         ))
                     }

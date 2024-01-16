@@ -32,7 +32,7 @@ export function EditorPane() {
         <>
             <div className={statementEditorClasses.stmtEditorContentWrapper} data-testid="statement-contentWrapper">
                 <Toolbar />
-                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                <div className={statementEditorClasses.sourceEditor}>
                     <div className={statementEditorClasses.statementExpressionContent}  data-testid="statement-renderer">
                         <StatementRenderer
                             model={statementModel}

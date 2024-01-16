@@ -66,18 +66,18 @@ export function SuggestionListItem(props: SuggestionListItemProps) {
                     data-testid="suggestion-value"
                     style={{ flex: 'none', maxWidth: '80%' }}
                     primary={(
-                        <Typography className={stmtEditorHelperClasses.suggestionValue}>
+                        <div className={stmtEditorHelperClasses.suggestionValue}>
                             {isReference ? simplifyValue(suggestion.value) : suggestion.value}
-                        </Typography>
+                        </div>
                     )}
                 />
                 {!acceptedCompletionKindForTypes.includes(suggestion.completionKind) && (
                     <ListItemText
                         style={{ marginLeft: '8px' }}
                         primary={(
-                            <Typography className={stmtEditorHelperClasses.suggestionDataType}>
+                            <div className={stmtEditorHelperClasses.suggestionDataType}>
                                 {suggestion.kind}
-                            </Typography>
+                            </div>
                         )}
                     />
                 )}
