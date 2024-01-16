@@ -9,86 +9,124 @@
 
 import React, { useEffect, useState } from "react";
 
-import { TextField } from "@material-ui/core";
+import { InputAdornment } from "@material-ui/core";
 
+import IconButton from "../../ChoreoSystem/IconButton/IconButton";
+import { Lock, Unlock } from "../../ChoreoSystem/Icons/generated";
 import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
-    id?: string;
-    isRequired?: boolean;
-    name?: string;
-    value: any;
-    valueRef?: string;
-    isSensitiveField?: boolean;
-    disabled?: boolean;
-    type: string;
-    inputProps?: object;
-    placeholder?: string;
-    setTextFieldValue?: (id: string, value: any, valuRef: any, isSensitiveField: boolean) => void;
+  id?: string;
+  isRequired?: boolean;
+  name?: string;
+  value: any;
+  valueRef?: string;
+  isSensitiveField?: boolean;
+  disabled?: boolean;
+  type: string;
+  inputProps?: object;
+  placeholder?: string;
+  setTextFieldValue?: (
+    id: string,
+    value: any,
+    valuRef: any,
+    isSensitiveField: boolean
+  ) => void;
+  handleMarkSecret?: () => void;
+  enableMarkingSecret?: boolean;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
-    const classes = useStyles();
-    const {
-        id,
-        isRequired,
-        value,
-        valueRef,
-        type,
-        inputProps,
-        placeholder,
-        setTextFieldValue,
-        name,
-        disabled,
-        isSensitiveField,
-    } = props;
-    const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
-    const [inputValueRef, setInputValueRef] = useState(valueRef ? String(valueRef) : undefined);
-    const [inputSensitiveField, setInputSensitiveField] = useState(isSensitiveField ? isSensitiveField : false);
+  const classes = useStyles();
+  const {
+    id,
+    isRequired,
+    value,
+    valueRef,
+    type,
+    inputProps,
+    placeholder,
+    setTextFieldValue,
+    name,
+    disabled,
+    isSensitiveField,
+    enableMarkingSecret
+  } = props;
+  const [inputValue, setInputValue] = useState(
+    value ? String(value) : undefined
+  );
+  const [inputValueRef, setInputValueRef] = useState(
+    valueRef ? String(valueRef) : undefined
+  );
+  const [inputSensitiveField, setInputSensitiveField] = useState(
+    isSensitiveField ? isSensitiveField : false
+  );
 
-    useEffect(() => {
-        setTextFieldValue(id, inputValue, inputValueRef, inputSensitiveField);
-    }, [inputValue]);
+  const handleEndButtonClick = () => {
+    props.handleMarkSecret();
+    setInputSensitiveField(!inputSensitiveField);
+  };
 
-    useEffect(() => {
-        setInputValueRef(valueRef);
-    }, [valueRef]);
+  useEffect(() => {
+    setTextFieldValue(id, inputValue, inputValueRef, inputSensitiveField);
+  }, [inputValue]);
 
-    useEffect(() => {
-        setInputValue(value);
-    }, [value]);
+  useEffect(() => {
+    setInputValueRef(valueRef);
+  }, [valueRef]);
 
-    useEffect(() => {
-        setInputSensitiveField(isSensitiveField);
-    }, [isSensitiveField]);
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let newValue = e.target.value;
-        if (type === "string") {
-            newValue = handleQuotes(newValue);
-        }
-        setInputValue(newValue);
-    };
+  useEffect(() => {
+    setInputSensitiveField(isSensitiveField);
+  }, [isSensitiveField]);
 
-    const newInputProps = {
-        ...inputProps,
-        style: { fontSize: 14 },
-    };
-    return (
-        <TextInput
-            required={isRequired}
-            placeholder={placeholder}
-            fullWidth={true}
-            value={inputValue}
-            type={type}
-            margin="none"
-            onChange={handleChange}
-            inputProps={newInputProps}
-            data-cyid={name}
-            disabled={disabled}
-        />
-    );
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newValue = e.target.value;
+    if (type === "string") {
+      newValue = handleQuotes(newValue);
+    }
+    setInputValue(newValue);
+  };
+
+  const newInputProps = {
+    ...inputProps,
+    style: { fontSize: 14 },
+  };
+  return (
+    <TextInput
+      required={isRequired}
+      placeholder={placeholder}
+      fullWidth={true}
+      value={inputValue}
+      type={type}
+      margin="none"
+      onChange={handleChange}
+      inputProps={newInputProps}
+      data-cyid={name}
+      disabled={disabled}
+      endAdornment={
+        enableMarkingSecret &&
+        (valueRef === "" || valueRef === undefined) &&
+        (
+        <InputAdornment position="end">
+          <IconButton
+            onClick={handleEndButtonClick}
+            size="small"
+            variant="text"
+            color="primary"
+            testId="secret"
+          >
+            {inputSensitiveField ? <Lock /> : <Unlock />}
+          </IconButton>
+        </InputAdornment>
+        )
+      }
+    />
+  );
 }
 
 function handleQuotes(strValue: string): string {

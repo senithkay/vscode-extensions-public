@@ -108,7 +108,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: theme.spacing(1.5),
         },
         linkTextSytle: {
-            paddingLeft: theme.spacing(0.5),
+            paddingLeft: theme.spacing(0),
         },
         mainLabel: {
             alignItems: "center",

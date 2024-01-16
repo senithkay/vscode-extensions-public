@@ -28,8 +28,9 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { EditIcon, SelectIcon } from "../../../assets/icons";
+import { SelectIcon } from "../../../assets/icons";
 import Chip from "../../ChoreoSystem/Chip/Chip";
+import { Edit } from "../../ChoreoSystem/Icons/generated";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
@@ -160,7 +161,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
         setIsMarkedSensitive(false);
     };
 
-    const handleChange = () => {
+    const handleMarkSecret = () => {
         setIsMarkedSensitive(!isMarkedSensitive);
     };
 
@@ -293,16 +294,6 @@ const StringType = (props: StringTypeProps): ReactElement => {
         </Box>
     );
 
-    const markSensitiveCheckbox = (
-        <Box>
-            <FormControlLabel
-                control={<Checkbox color={"primary"} />}
-                onChange={handleChange}
-                label="Mark as Sensitive"
-            />
-        </Box>
-    );
-
     if (!isSensitive) {
         returnElement.push(
             (
@@ -325,18 +316,15 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                 value={selectedValue}
                                 valueRef={selectedValueRef}
                                 isSensitiveField={isMarkedSensitive || props.isSensitive}
+                                handleMarkSecret={handleMarkSecret}
+                                enableMarkingSecret={true}
                             />
                         </Box>
                         {!isInsideArray &&
                             !isLowCode &&
+                            !isMarkedSensitive &&
                             iconButton}
                     </Box>
-                    {
-                        !isLowCode &&
-                        isFeaturePreview &&
-                        (selectedValueRef === undefined || selectedValueRef === "") &&
-                        markSensitiveCheckbox
-                    }
                     <Box>
                         <Popover
                             id={ids}
@@ -375,11 +363,18 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                 onClick={handleClickSensitive}
                                 className={classes.linkStyle}
                             >
-                                <EditIcon />
-                                <span className={classes.linkTextSytle}>Update Sensitive Content</span>
+                                <IconButton
+                                    size={"small"}
+                                    onClick={handleClick}
+                                    color={"primary"}
+                                >
+                                    <Edit fontSize="small"/>
+                                </IconButton>
+                                <span className={classes.linkTextSytle}>Update Secret Content</span>
                             </Link>
                         </Box>
                     </Box>
+
                     <Box>
                         <Popover
                             id={ids}
