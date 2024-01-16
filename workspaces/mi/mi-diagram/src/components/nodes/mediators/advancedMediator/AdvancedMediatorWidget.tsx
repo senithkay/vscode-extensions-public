@@ -150,7 +150,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
         });
         sidePanelContext.setFormValues(undefined);
         sidePanelContext.setNodeRange(undefined);
-        sidePanelContext.setMediator(undefined);
+        sidePanelContext.setOperationName(undefined);
     }
 
     const ActionButtons = () => {

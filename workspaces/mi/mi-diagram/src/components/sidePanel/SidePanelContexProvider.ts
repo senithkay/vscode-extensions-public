@@ -13,10 +13,12 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 interface SidePanelContext {
     setIsOpen: Dispatch<SetStateAction<boolean>>;
     isOpen: boolean;
+    setIsEditing: Dispatch<SetStateAction<boolean>>;
+    isEditing: boolean;
     setNodeRange: Dispatch<SetStateAction<Range>>;
     nodeRange?: Range;
-    setMediator?: Dispatch<SetStateAction<string>>;
-    mediator?: string;
+    setOperationName?: Dispatch<SetStateAction<string>>;
+    operationName?: string;
     setFormValues?: Dispatch<SetStateAction<{ [key: string]: any }>>;
     formValues?: { [key: string]: any };
     setShowBackBtn: Dispatch<SetStateAction<boolean>>;
@@ -28,10 +30,12 @@ interface SidePanelContext {
 const SidePanelContext = React.createContext<SidePanelContext>({
     setIsOpen: () => { },
     isOpen: false,
+    setIsEditing: () => { },
+    isEditing: false,
     setNodeRange: () => { },
     nodeRange: undefined,
-    setMediator: () => { },
-    mediator: undefined,
+    setOperationName: () => { },
+    operationName: undefined,
     setFormValues: () => { },
     formValues: {},
     setShowBackBtn: () => { },
