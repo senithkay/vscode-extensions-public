@@ -40,3 +40,4 @@ export * from "./rpc-types/lang-server";
 export * from "./rpc-types/lang-server/rpc-type";
 export * from "./vscode";
 export * from "./utils/modification-utils";
+export * from "./utils/visitors/records-finder-visitor";

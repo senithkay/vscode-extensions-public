@@ -13,6 +13,7 @@ import {
     CreateServiceRequest,
     DeleteResourceRequest,
     DeleteServiceRequest,
+    RecordSTRequest,
     UpdateResourceRequest,
     UpdateServiceRequest,
     createResource,
@@ -20,8 +21,9 @@ import {
     deleteResource,
     deleteService,
     getKeywordTypes,
+    getRecordST,
     updateResource,
-    updateService,
+    updateService
 } from "@wso2-enterprise/ballerina-core";
 import { Messenger } from "vscode-messenger";
 import { ServiceDesignerRpcManager } from "./rpc-manager";
@@ -35,4 +37,5 @@ export function registerServiceDesignerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(updateResource, (args: UpdateResourceRequest) => rpcManger.updateResource(args));
     messenger.onNotification(deleteResource, (args: DeleteResourceRequest) => rpcManger.deleteResource(args));
     messenger.onRequest(getKeywordTypes, () => rpcManger.getKeywordTypes());
+    messenger.onRequest(getRecordST, (args: RecordSTRequest) => rpcManger.getRecordST(args));
 }

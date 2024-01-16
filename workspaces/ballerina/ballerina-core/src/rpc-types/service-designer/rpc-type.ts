@@ -8,7 +8,7 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { CreateServiceRequest, UpdateServiceRequest, DeleteServiceRequest, CreateResourceRequest, UpdateResourceRequest, DeleteResourceRequest, KeywordTypeResponse } from "./types";
+import { CreateServiceRequest, UpdateServiceRequest, DeleteServiceRequest, CreateResourceRequest, UpdateResourceRequest, DeleteResourceRequest, KeywordTypeResponse, RecordSTResponse, RecordSTRequest } from "./types";
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
 const _preFix = "service-designer";
@@ -19,3 +19,4 @@ export const createResource: NotificationType<CreateResourceRequest> = { method:
 export const updateResource: NotificationType<UpdateResourceRequest> = { method: `${_preFix}/updateResource` };
 export const deleteResource: NotificationType<DeleteResourceRequest> = { method: `${_preFix}/deleteResource` };
 export const getKeywordTypes: RequestType<void, KeywordTypeResponse> = { method: `${_preFix}/getKeywordTypes` };
+export const getRecordST: RequestType<RecordSTRequest, RecordSTResponse> = { method: `${_preFix}/getRecordST` };
