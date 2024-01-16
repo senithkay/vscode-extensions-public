@@ -13,7 +13,8 @@
         "cached-round.svg",
         "fit-to-screen.svg",
         "explicit-outlined.svg",
-        "error-icon.svg"
+        "error-icon.svg",
+        "error-outline.svg"
     ],
     "choreoExtIcons": [
         "choreo-2.svg"
