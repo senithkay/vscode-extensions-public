@@ -93,7 +93,7 @@ export function MIDiagram(props: MIDiagramProps) {
 									sidePanelShowBackBtn && <Button onClick={incrementCount} appearance="icon">{"<"}</Button>
 								}
 							</div>
-							{isEditing ? <div>Edit</div> : <div>Add New</div>}
+							{isEditing ? <div>Edit {sidePanelMediator}</div> : <div>Add New</div>}
 							<Button onClick={closePanel} appearance="icon">X</Button>
 						</SidePanelTitleContainer>
 						<SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
