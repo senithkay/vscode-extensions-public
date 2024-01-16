@@ -10,7 +10,7 @@
 import React, { useEffect, useRef } from "react";
 import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
 import { Node } from "../../../types";
-import { TransformNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
+import { NMD_TypeData, TransformNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 import { Form } from "../styles";
 import { toSnakeCase } from "../../../utils";
 import { OptionWidgetProps } from "../../layout/OptionWidget";
@@ -22,12 +22,13 @@ export function TransformNodeForm(props: OptionWidgetProps) {
     const node = useRef(JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node);
     const nodeProperties = useRef(node.current.properties as TransformNodeProperties);
     const nodeMetadata = useRef(getNodeMetadata(node.current));
-    const outPortType = useRef(DEFAULT_TYPE);
+    const outPortType = nodeMetadata.current?.outputs[0]?.type ? useRef(nodeMetadata.current.outputs[0].type) : useRef(DEFAULT_TYPE);
 
     useEffect(() => {
         node.current = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
         nodeProperties.current = node.current.properties as TransformNodeProperties;
         nodeMetadata.current = getNodeMetadata(node.current);
+        nodeMetadata.current.isEdited = false;
         if (selectedNode.getOutPorts().length > 0) {
             outPortType.current = selectedNode.getOutPorts()[0].getOptions()?.port.type || DEFAULT_TYPE;
         }
@@ -65,7 +66,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
             }
         });
         // update node metadata
-        nodeMetadata.current.outputs.forEach((output) => {
+        nodeMetadata.current.outputs.forEach((output : NMD_TypeData) => {
             if (output.name === varName) {
                 output.type = type;
             }
@@ -110,6 +111,8 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                                     value={nodePort.type}
                                     required={true}
                                     onChange={(value: string) => {
+                                        nodeMetadata.current.isEdited = true;
+                                        nodeMetadata.current.inputs[index].type = value;
                                         handleOutputTypeChange(nodePort.name, value);
                                     }}
                                     size={32}
@@ -121,6 +124,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                                     onChange={(value: string) => {
                                         nodePort.name = value;
                                         nodeMetadata.current.inputs[index].name = value;
+                                        nodeMetadata.current.isEdited = true;
                                     }}
                                     size={32}
                                 />
@@ -140,6 +144,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                         onChange={(value: string) => {
                             outPortType.current = value;
                             nodeMetadata.current.outputs[0].type = value;
+                            nodeMetadata.current.isEdited = true;
                         }}
                         size={32}
                     />
