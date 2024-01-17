@@ -10,13 +10,13 @@
 import React, { useState } from 'react';
 import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, SidePanelTitleContainer, Typography } from '@wso2-enterprise/ui-toolkit';
 import { ResourcePath } from '../ResourcePath/ResourcePath';
-import { Response } from '../ResourceResponse/ResourceResponse';
+import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
 import { PARAM_TYPES, ParameterConfig, ResourceInfo, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
-import { generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
+import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 const AdvancedParamTitleWrapper = styled.div`
@@ -28,14 +28,16 @@ export interface ResourceFormProps {
 	isOpen: boolean;
 	resourceConfig?: ResourceInfo;
 	applyModifications?: (source: string, updatePosition?: NodePosition) => void;
+	getRecordST?: (recordName: string) => void;
+	addNameRecord?: (source: string) => void;
 	onClose: () => void;
 	typeCompletions?: string[];
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, resourceConfig, onClose, applyModifications, typeCompletions } = props;
+	const { isOpen, resourceConfig, onClose, applyModifications, addNameRecord, typeCompletions } = props;
 
-	const [method, setMethod] = useState<string>(resourceConfig?.method.toUpperCase() || "GET");
+	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "/");
 
 	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
@@ -65,18 +67,18 @@ export function ResourceForm(props: ResourceFormProps) {
 	};
 
 	const onPathChange = (method: string, path: string) => {
-		setMethod(method);
+		setMethod(method as HTTP_METHOD);
 		setPath(path);
 	}
 
 	const onSave = () => {
 		let paramString = "";
 
-		let adevancedParamIndex = 0;
+		let advancedParamIndex = 0;
 		advancedParams?.forEach((param: ParameterConfig) => {
 			const type = param.option === PARAM_TYPES.HEADER ? `http:${PARAM_TYPES.HEADER}s` : param.type;
-			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${adevancedParamIndex === advancedParams.size - 1 ? "" : ", "}`;
-			adevancedParamIndex++;
+			paramString += `${type}${param.isRequired || param.option === PARAM_TYPES.HEADER ? "" : "?"} ${param.name}${param.defaultValue ? ` = ${param.defaultValue}` : ""}${advancedParamIndex === advancedParams.size - 1 ? "" : ", "}`;
+			advancedParamIndex++;
 		});
 		paramString += (advancedParams.size > 0 && parameters.length > 0) ? ", " : "";
 
@@ -92,13 +94,10 @@ export function ResourceForm(props: ResourceFormProps) {
 
 
 		let responseString = "";
-		// Add "nil" if it contains a type
-		let containsType = false;
 		response.map((resp: ResponseConfig, index: number) => {
-			if (resp.type && resp.type !== "nil") {
-				containsType = true;
+			if (resp?.source) {
+				responseString += `${resp?.source}${index === response.length - 1 ? "" : " | "}`;
 			}
-			responseString = resp.type ? (responseString + `${(response.length > 1 && index !== 0 && resp.type !== "nil") ? `|` : ""}${resp.type === "nil" && containsType ? "?" : (resp.type === "nil" ? "" : resp.type) }`) : "";
 		});
 
 		// Check if "error" is already present in responseString
@@ -157,7 +156,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<Response response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
+					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}

@@ -80,7 +80,7 @@ export class WebviewRpcManager implements WebviewAPI {
             });
         }
         const params: EggplantModelRequest = {
-            filePath: context.fileName!,
+            filePath: Uri.parse(context.fileName!).fsPath,
             startLine: {
                 line: context.position.startLine ?? 0,
                 offset: context.position.startColumn ?? 0
@@ -132,7 +132,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getSTNodeFromLocation(location: VisualizerLocation): Promise<STNode> {
 
         const req: BallerinaFunctionSTRequest = {
-            documentIdentifier: { uri: Uri.file(location.fileName!).toString() },
+            documentIdentifier: { uri: Uri.parse(location.fileName!).toString() },
             lineRange: {
                 start: {
                     line: location.position!.startLine as number,
@@ -177,17 +177,16 @@ export class WebviewRpcManager implements WebviewAPI {
 
         modificationList.push(modification);
 
-        // If the transformFunction is found inject it first to the end of the file
         if (code.transformFunction) {
             const modification: STModification = {
-                startLine: flowModel.fileSourceRange?.end.line,
-                startColumn: flowModel.fileSourceRange?.end.offset,
-                endLine: flowModel.fileSourceRange?.end.line,
-                endColumn: flowModel.fileSourceRange?.end.offset,
+                startLine: code.transformFunction.location ? code.transformFunction.location.start.line : flowModel.fileSourceRange?.end.line,
+                startColumn: code.transformFunction.location ? code.transformFunction.location.start.offset : flowModel.fileSourceRange?.end.offset,
+                endLine: code.transformFunction.location ? code.transformFunction.location.end.line : flowModel.fileSourceRange?.end.line,
+                endColumn: code.transformFunction.location ? code.transformFunction.location.end.offset : flowModel.fileSourceRange?.end.offset,
                 type: "INSERT",
                 isImport: false,
                 config: {
-                    "STATEMENT": code.transformFunction
+                    "STATEMENT": code.transformFunction.code
                 }
             };
 
