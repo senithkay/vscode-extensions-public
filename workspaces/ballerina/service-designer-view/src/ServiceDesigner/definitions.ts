@@ -13,7 +13,6 @@ export interface ResponseConfig {
     id: number;
     code?: number;
     type?: string;
-    description?: string;
     source?: string;
 }
 

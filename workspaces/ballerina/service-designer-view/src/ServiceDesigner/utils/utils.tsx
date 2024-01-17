@@ -207,7 +207,6 @@ export async function getResponseConfig(resource: ResourceAccessorDefinition, rp
                 response.push({
                     id: index,
                     code: findResponseCodeByRecordSource(recordST),
-                    description: member.signature,
                     type: member.name,
                     source: member.name
                 });

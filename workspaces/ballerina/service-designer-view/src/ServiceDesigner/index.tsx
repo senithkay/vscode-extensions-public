@@ -79,12 +79,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     useEffect(() => {
         const resourceList: JSX.Element[] = [];
-        model?.members.forEach((member) => {
+        model?.members.forEach(async (member) => {
             if (STKindChecker.isResourceAccessorDefinition(member)) {
                 const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
+                const resourceInfo = await getResourceInfo(member, rpcClient);
                 resourceList.push(
                     <div data-start-position={startPosition} >
-                        <ResourceAccordion rpcClient={rpcClient} onEditResource={handleResourceEdit} model={member as ResourceAccessorDefinition} showDiagram={showDiagram} />
+                        <ResourceAccordion rpcClient={rpcClient} resourceInfo={resourceInfo} onEditResource={handleResourceEdit} model={member as ResourceAccessorDefinition} showDiagram={showDiagram} />
                     </div>
                 );
             }

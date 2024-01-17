@@ -1,13 +1,20 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Codicon, Icon, Typography } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeButton, VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
-import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import ConfirmDialog from './ConfirmBox';
-import { responseCodes } from '@wso2-enterprise/ballerina-core';
 import { ServiceDesignerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
-
+import { ResourceInfo } from './definitions';
+import { AccordionTable } from './components/AccordionTable/AccordionTable';
 
 // Define styles using @emotion/styled
 const AccordionContainer = styled.div`
@@ -91,22 +98,17 @@ type MethodProp = {
     color: string;
 };
 
-interface DataValues {
-    code?: string,
-    value: string,
-    type?: string,
-    header?: string
-}
 
 interface ResourceAccordionProps {
     model: ResourceAccessorDefinition;
+    resourceInfo: ResourceInfo;
     rpcClient: ServiceDesignerRpcClient;
     showDiagram: (position: NodePosition) =>  void;
     onEditResource: (model: ResourceAccessorDefinition) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { model, rpcClient, showDiagram, onEditResource } = params;
+    const { model, resourceInfo, rpcClient, showDiagram, onEditResource } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -127,80 +129,23 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         handleOpenConfirm();
     };
 
-    const paramData: DataValues[] = [];
-
-    const parameters = model.functionSignature?.parameters;
-
-    for (const [i, param] of parameters.entries()) {
-        if (
-            (STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param))
-            && (!param.source.includes("Payload") && !(i === 0 && param.annotations.length === 0 && isStructuredType(param.typeName)))
-        ) {
-            let paramDetails = param.source.split(" ");
-            let annotation = "";
-            if (param.annotations.length > 0) {
-                annotation = param.annotations[0].source;
-                const sourceWithoutAnnotation = param.source.replace(annotation, "");
-                paramDetails = sourceWithoutAnnotation.split(" ");
-            }
-            const recordName = paramDetails[0];
-            let description = paramDetails.length > 0 && paramDetails[1];
-            if (paramDetails.length > 2) {
-                description = paramDetails.slice(1).join(" ");
-            }
-            paramData.push({ type: recordName, value: description });
-
-        }
-    }
-
-    const bodyData: DataValues[] = [];
-
-    model.functionSignature?.parameters?.forEach((param, i) => {
-        if (STKindChecker.isRequiredParam(param) && (param.source.includes("Payload") || (i === 0 && param.annotations.length === 0))) {
-            const typeSymbol = param.typeData?.typeSymbol;
-            const typeName = typeSymbol?.name || typeSymbol?.memberTypeDescriptor?.name;
-            if (typeName) {
-                bodyData.push({
-                    type: `${param.typeName?.source.trim()}`,
-                    value: `${param.paramName?.value}`
-                })
-            } else {
-                bodyData.push({
-                    value: `${param.source}`
-                })
-            }
-        }
+    const resourceParams: string[][] = [];
+    resourceInfo?.advancedParams?.forEach((param) => {
+        resourceParams.push([param.type, `${param.name}${param?.defaultValue ? ` = ${param.defaultValue}` : ""}`]);
+    });
+    resourceInfo?.params?.forEach((param) => {
+        resourceParams.push([param.type, `${param.name}${param?.defaultValue ? ` = ${param.defaultValue}` : ""}`]);
     });
 
-    function getReturnTypesArray() {
-        const returnTypes = model.functionSignature?.returnTypeDesc?.type?.source.split(/\|(?![^{]*[}])/gm);
-        return returnTypes || [];
+    const payloadInfo: string[][] = [];
+    if (resourceInfo?.payloadConfig) {
+        payloadInfo.push([`@http:Payload ${resourceInfo?.payloadConfig.type} ${resourceInfo?.payloadConfig.name}`]);
     }
 
-    function defaultResponseCode() {
-        const isPost = model?.functionName.value.toUpperCase() === "POST";
-        return isPost ? "201" : "200";
-    }
-
-    const responseData: DataValues[] = [];
-
-    const values = getReturnTypesArray();
-
-    for (const [, value] of values.entries()) {
-        let code = defaultResponseCode();
-        const recordName = value.replace("?", "").trim();
-
-        responseCodes.forEach((item: { source: string; code: { toString: () => string; }; }) => {
-            if (recordName.includes(item.source)) {
-                code = item.code.toString();
-            }
-        });
-
-        if (value.includes("error")) {
-            code = "500";
-        }
-        responseData.push({ code: code, value: recordName })
-    }
+    const responses: string[][] = [];
+    resourceInfo?.responses?.forEach((response) => {
+        responses.push([`${response.code}`, response.type]);
+    });
 
     const [isConfirmOpen, setConfirmOpen] = useState(false);
 
@@ -222,7 +167,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         <AccordionContainer className={isOpen ? 'open' : 'closed'}>
             <AccordionHeader onClick={toggleAccordion}>
                 <MethodSection>
-                    <MethodBox color={getColorByMethod(model.functionName.value)}>{model.functionName.value.toUpperCase()}</MethodBox><MethodPath>{getResourcePath(model)}</MethodPath>
+                    <MethodBox color={getColorByMethod(resourceInfo.method)}>{resourceInfo.method.toUpperCase()}</MethodBox><MethodPath>{resourceInfo?.path}</MethodPath>
                 </MethodSection>
                 <ButtonSection>
                     <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
@@ -242,66 +187,15 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
             </AccordionHeader>
             {isOpen && (
                 <AccordionContent>
-                    {paramData.length > 0 &&
-                        <>
-                            <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Parameters</Typography>
-                            <VSCodeDivider />
-                            <VSCodeDataGrid>
-                                <VSCodeDataGridRow row-type="header">
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column="1">
-                                        Type
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column="2">
-                                        Description
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {paramData.map(row => (
-                                    <VSCodeDataGridRow>
-                                        <VSCodeDataGridCell grid-column="1">{row?.header} {row.type}</VSCodeDataGridCell>
-                                        <VSCodeDataGridCell grid-column="2">{row.value}</VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </>
+                    {resourceParams?.length > 0 &&
+                        <AccordionTable titile="Parameters" headers={["Type", "Description"]} content={resourceParams} /> 
                     }
-
-                    {bodyData.length > 0 &&
-                        <>
-                            <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Body</Typography>
-                            <VSCodeDivider />
-                            <VSCodeDataGrid>
-                                <VSCodeDataGridRow row-type="header">
-                                    <VSCodeDataGridCell cell-type="columnheader" grid-column="1">
-                                        Description
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                                {bodyData.map(row => (
-                                    <VSCodeDataGridRow>
-                                        <VSCodeDataGridCell grid-column="1">{row?.type} {row.value}</VSCodeDataGridCell>
-                                    </VSCodeDataGridRow>
-                                ))}
-                            </VSCodeDataGrid>
-                        </>
+                    {payloadInfo.length > 0 && 
+                        <AccordionTable titile="Body"  headers={["Description"]} content={payloadInfo} />
                     }
-
-                    <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Responses</Typography>
-                    <VSCodeDivider />
-                    <VSCodeDataGrid>
-                        <VSCodeDataGridRow row-type="header">
-                            <VSCodeDataGridCell cell-type="columnheader" grid-column="1">
-                                Code
-                            </VSCodeDataGridCell>
-                            <VSCodeDataGridCell cell-type="columnheader" grid-column="2">
-                                Description
-                            </VSCodeDataGridCell>
-                        </VSCodeDataGridRow>
-                        {responseData.map(row => (
-                            <VSCodeDataGridRow>
-                                <VSCodeDataGridCell grid-column="1">{row.code}</VSCodeDataGridCell>
-                                <VSCodeDataGridCell grid-column="2">{row.value}</VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                        ))}
-                    </VSCodeDataGrid>
+                    {responses.length > 0 &&
+                        <AccordionTable titile="Responses" headers={["Code", "Description"]} content={responses} />
+                    }
                 </AccordionContent>
             )}
             <ConfirmDialog
@@ -314,42 +208,3 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 };
 
 export default ResourceAccordion;
-
-function getResourcePath(model: ResourceAccessorDefinition) {
-    const pathElements = model?.relativeResourcePath.map(node => {
-        if (STKindChecker.isIdentifierToken(node) || STKindChecker.isSlashToken(node)) {
-            return node.value
-        } else if (STKindChecker.isResourcePathSegmentParam(node) || STKindChecker.isResourcePathRestParam(node)) {
-            return (
-                <>
-                    [<span className={'type-descriptor'}>
-                        {`${(node as any).typeDescriptor?.name?.value} `}
-                    </span>
-                    {STKindChecker.isResourcePathRestParam(node) ? '...' : ''}{(node as any).paramName?.value}]
-                </>
-            );
-        } else if (STKindChecker.isDotToken(node)) {
-            return (<>/</>);
-        }
-    });
-    return pathElements.length === 1 && pathElements[0] === '.' ? "/" : pathElements
-}
-
-function isStructuredType(node: STNode): boolean {
-    // Add logic to determine if the node is a structured node (map/record/table/tuple/array/xml)
-    // Return true if it's structured, false otherwise
-    if (
-        STKindChecker.isMapTypeDesc(node) ||
-        STKindChecker.isRecordTypeDesc(node) ||
-        STKindChecker.isTableTypeDesc(node) ||
-        STKindChecker.isTupleTypeDesc(node) ||
-        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isSimpleNameReference(node.memberTypeDesc) ||
-        STKindChecker.isArrayTypeDesc(node) && STKindChecker.isByteTypeDesc(node.memberTypeDesc) ||
-        STKindChecker.isXmlTypeDesc(node) ||
-        STKindChecker.isSimpleNameReference(node) ||
-        STKindChecker.isOptionalTypeDesc(node) && STKindChecker.isSimpleNameReference(node.typeDescriptor)
-    ) {
-        return true;
-    }
-    return false;
-}
