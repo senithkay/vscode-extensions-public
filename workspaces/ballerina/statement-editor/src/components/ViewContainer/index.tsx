@@ -18,7 +18,6 @@ import { sendDidChange } from "../../utils/ls-utils";
 import { EditorOverlay, OverlayType } from '../EditorOverlay';
 import { EditorPane } from '../EditorPane';
 import { useStatementEditorStyles } from "../styles";
-import styled from "@emotion/styled";
 
 export interface ViewContainerProps {
     isStatementValid: boolean;

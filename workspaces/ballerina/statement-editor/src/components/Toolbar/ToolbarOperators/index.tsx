@@ -9,8 +9,8 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Button } from "@wso2-enterprise/ui-toolkit";
 
 import {
     CONFIGURABLE_VALUE_REQUIRED_TOKEN
@@ -65,7 +65,8 @@ import {
     trapOperators,
     TRAP_OPERATORS
 } from "./utils/operators";
-import { Button } from "@wso2-enterprise/ui-toolkit";
+
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 export function ToolbarOperators() {
     const statementEditorToolbarClasses = useStatementEditorToolbarStyles();
@@ -189,6 +190,7 @@ export function ToolbarOperators() {
                     {
                         group.expressions.map((expression, index) => (
                             <Button
+                                key={index}
                                 appearance="icon"
                                 onClick={() => updateModelWithOperator(expression)}
                                 tooltip={expression.name}

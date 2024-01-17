@@ -6,8 +6,8 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { css } from "@emotion/css";
+import { theme } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 const syntaxHighlightingRules = {
     '& .type-descriptor, &.type-descriptor': {

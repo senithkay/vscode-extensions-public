@@ -21,15 +21,14 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import * as monaco from "monaco-editor";
+import { URI } from "vscode-uri";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
+import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { StatementEditor } from "../StatementEditor";
 import { useStatementEditorStyles } from '../styles';
-import { URI } from "vscode-uri";
 
 export interface LowCodeEditorProps {
     langServerRpcClient: LangServerRpcClient;

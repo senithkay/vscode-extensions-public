@@ -10,20 +10,16 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import {
-    FormControl,
-    Input,
-    InputAdornment,
     List,
     ListItem,
-    ListItemText,
-    Typography
+    ListItemText
 } from "@material-ui/core";
 // tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from '@vscode/webview-ui-toolkit/react';
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { SearchBox } from "@wso2-enterprise/ui-toolkit";
 
-import LibrarySearchIcon from "../../../assets/icons/LibrarySearchIcon";
 import {
     CALL_CONFIG_TYPE,
     CONFIGURABLE_VALUE_REQUIRED_TOKEN,
@@ -52,7 +48,6 @@ import {
     switchOpenClose
 } from "../../../utils/expressions";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
-import { SearchBox } from "@wso2-enterprise/ui-toolkit";
 
 export function ExpressionSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();

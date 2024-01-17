@@ -11,6 +11,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { SearchBox } from "@wso2-enterprise/ui-toolkit";
 
 import {
     ACTION,
@@ -31,7 +32,6 @@ import { getActionExprWithArgs } from "../../Parameters/ParameterTree/utils";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
 
 import { SuggestionsList } from "./SuggestionsList";
-import { Codicon, SearchBox } from "@wso2-enterprise/ui-toolkit";
 
 export function LSSuggestions() {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();

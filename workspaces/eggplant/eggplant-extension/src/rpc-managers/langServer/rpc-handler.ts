@@ -21,7 +21,9 @@ import {
     GetBallerinaProjectParams,
     GetSyntaxTreeParams,
     JsonToRecordRequest,
+    PartialSTRequest,
     RenameParams,
+    SymbolInfoRequest,
     TextDocumentPositionParams,
     TypeFromExpressionRequest,
     TypeFromSymbolRequest,
@@ -40,7 +42,13 @@ import {
     getExecutorPositions,
     getST,
     getSTByRange,
+    getSTForExpression,
     getSTForFunction,
+    getSTForModuleMembers,
+    getSTForModulePart,
+    getSTForResource,
+    getSTForSingleStatement,
+    getSymbolDocumentation,
     getSyntaxTree,
     getTypeFromExpression,
     getTypeFromSymbol,
@@ -72,7 +80,13 @@ export function registerLangServerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(definition, (args: TextDocumentPositionParams) => rpcManger.definition(args));
     messenger.onRequest(getSTForFunction, (args: BallerinaSTModifyRequest) => rpcManger.getSTForFunction(args));
     messenger.onRequest(getExecutorPositions, (args: GetBallerinaProjectParams) => rpcManger.getExecutorPositions(args));
-    messenger.onRequest(didOpen, (args: DidOpenTextDocumentParams) => rpcManger.didOpen(args));
-    messenger.onRequest(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));
-    messenger.onRequest(didClose, (args: DidCloseTextDocumentParams) => rpcManger.didClose(args));
+    messenger.onRequest(getSTForExpression, (args: PartialSTRequest) => rpcManger.getSTForExpression(args));
+    messenger.onRequest(getSTForSingleStatement, (args: PartialSTRequest) => rpcManger.getSTForSingleStatement(args));
+    messenger.onRequest(getSTForResource, (args: PartialSTRequest) => rpcManger.getSTForResource(args));
+    messenger.onRequest(getSTForModuleMembers, (args: PartialSTRequest) => rpcManger.getSTForModuleMembers(args));
+    messenger.onRequest(getSTForModulePart, (args: PartialSTRequest) => rpcManger.getSTForModulePart(args));
+    messenger.onRequest(getSymbolDocumentation, (args: SymbolInfoRequest) => rpcManger.getSymbolDocumentation(args));
+    messenger.onNotification(didOpen, (args: DidOpenTextDocumentParams) => rpcManger.didOpen(args));
+    messenger.onNotification(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));
+    messenger.onNotification(didClose, (args: DidCloseTextDocumentParams) => rpcManger.didClose(args));
 }

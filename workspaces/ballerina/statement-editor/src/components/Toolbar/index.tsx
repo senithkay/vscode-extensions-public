@@ -7,19 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 
-import { Typography } from "@material-ui/core";
-import IconButton from "@material-ui/core/IconButton";
 import { genVariableName, getAllVariables, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Button, Codicon, Divider, Icon } from "@wso2-enterprise/ui-toolkit";
 
-import ToolbarConfigurableIcon from "../../assets/icons/ToolbarConfigurableIcon";
-import ToolbarDeleteIcon from "../../assets/icons/ToolbarDeleteIcon";
-import ToolbarDocumentationIcon from "../../assets/icons/ToolbarDocumentationIcon";
-import ToolbarRedoIcon from "../../assets/icons/ToolbarRedoIcon";
-import ToolbarUndoIcon from "../../assets/icons/ToolbarUndoIcon";
 import {
     ADD_CONFIGURABLE_LABEL,
     CALL_CONFIG_TYPE,
@@ -40,7 +33,6 @@ import { useStatementEditorToolbarStyles } from "../styles";
 
 import StatementQualifiers from "./StatementQualifiers";
 import { ToolbarOperators } from "./ToolbarOperators";
-import { Button, Codicon, Divider, Icon } from "@wso2-enterprise/ui-toolkit";
 
 export default function Toolbar() {
     const statementEditorClasses = useStatementEditorToolbarStyles();
