@@ -139,7 +139,7 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
                 character: props.nodePosition.end.character - 7
             }
         });
-        sidePanelContext.setMediator("http");
+        sidePanelContext.setOperationName(props.name.toLowerCase());
         sidePanelContext.setIsOpen(true);
     }
 

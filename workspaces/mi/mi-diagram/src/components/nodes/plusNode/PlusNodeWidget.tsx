@@ -12,6 +12,8 @@ import { BaseNodeProps } from '../../base/base-node/base-node';
 import SidePanelContext from '../../sidePanel/SidePanelContexProvider';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { MediatorPortWidget } from '../../port/MediatorPortWidget';
+import { PlusNodeModel } from './PlusNodeModel';
+import { AdvancedMediatorNodeModel } from '../mediators/advancedMediator/AdvancedMediatorModel';
 
 export interface PlusNodeWidgetProps extends BaseNodeProps {
     range: Range;
@@ -19,10 +21,15 @@ export interface PlusNodeWidgetProps extends BaseNodeProps {
 }
 
 export function PlusNodeWidget(props: PlusNodeWidgetProps) {
-    const node = props.node;
+    const node = props.node as PlusNodeModel;
     const sidePanelContext = useContext(SidePanelContext)
 
     const nodePosition = node.getPosition();
+
+    // get parentName
+    const modelsValues = Object.values((node as any).parent.models);
+    const parentModel: any = modelsValues.find(model => model instanceof AdvancedMediatorNodeModel);
+    const parentName = parentModel?.mediatorName?.toLowerCase();
 
     const leftPort = node.getPortByAllignment('left');
     const rightPort = node.getPortByAllignment('right');
@@ -36,6 +43,7 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
     function handleClick() {
         sidePanelContext.setNodeRange(props.range);
         sidePanelContext.setIsOpen(true);
+        sidePanelContext.setOperationName(parentName);
     }
 
     return (
