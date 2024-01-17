@@ -127,7 +127,6 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
                     <MenuItem
                         key={item.id}
                         item={item}
-                        onClick={item.onClick}
                     />
                 ))}
             </Menu>

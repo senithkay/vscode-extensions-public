@@ -64,7 +64,6 @@ export function ValueConfigMenuItem(props: ValueConfigMenuItem) {
     return (
         <MenuItem
             key={title}
-            onClick={onClickMenuItem}
             item={menuItem}
         />
     );
