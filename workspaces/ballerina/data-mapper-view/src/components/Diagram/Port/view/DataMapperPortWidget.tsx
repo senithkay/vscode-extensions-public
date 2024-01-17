@@ -84,13 +84,9 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 
 	const RadioButton = (checked: boolean) => (
 		checked ? (
-			<Button appearance="icon">
-				<Icon name="radio-button-checked" />
-			</Button>
+			<Icon sx={{ height: "18px", width: "18px" }} iconSx={{ display: "flex", fontSize: "18px" }} name="radio-button-checked" />
 		) : (
-			<Button appearance="icon">
-				<Icon name="radio-button-unchecked" />
-			</Button>
+			<Icon sx={{ height: "18px", width: "18px" }} iconSx={{ display: "flex", fontSize: "18px" }} name="radio-button-unchecked" />
 		)
 	);
 
@@ -111,15 +107,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				engine={engine}
 			>
 				<ActivePortContainer {...containerProps}>
-					{hasLinks || portState === PortState.PortSelected ? (
-						<Button appearance="icon">
-							<Icon name="radio-button-checked" />
-						</Button>
-					) : (
-						<Button appearance="icon">
-							<Icon name="radio-button-unchecked" />
-						</Button>
-					)}
+					{hasLinks || portState === PortState.PortSelected ? <RadioButtonChecked /> : <RadioButtonUnchecked />}
 				</ActivePortContainer>
 			</PortWidget>
 		) : (
