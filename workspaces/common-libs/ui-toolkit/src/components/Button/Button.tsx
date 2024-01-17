@@ -22,7 +22,7 @@ export interface ButtonProps {
     disabled?: boolean;
     children?: React.ReactNode;
     sx?: React.CSSProperties;
-    onClick?: (() => void) | ((event: React.MouseEvent<HTMLButtonElement | SVGSVGElement>) => void);
+    onClick?: (() => void) | ((event: React.MouseEvent<HTMLElement | SVGSVGElement>) => void);
 }
 
 export const IconLabel = styled.div`
