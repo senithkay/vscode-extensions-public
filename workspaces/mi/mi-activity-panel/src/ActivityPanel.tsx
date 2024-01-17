@@ -7,6 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./rpc";
-export * from "./state-machine-types";
-export * from "./vscode";
+import React from "react";
+
+export function ActivityPanel() {
+    return (
+        <>
+            <h1>Hello Activity Panel</h1>
+        </>
+    );
+};

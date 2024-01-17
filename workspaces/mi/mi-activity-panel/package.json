@@ -18,7 +18,6 @@
     "eslint": "^8.52.0"
   },
   "dependencies": {
-    "@types/vscode-webview": "^1.57.3",
     "vscode-messenger-common": "^0.4.5",
     "@wso2-enterprise/mi-syntax-tree": "workspace:*"
   },

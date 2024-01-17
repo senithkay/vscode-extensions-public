@@ -1,4 +1,5 @@
-/**
+
+/*
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
@@ -7,6 +8,10 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./rpc";
-export * from "./state-machine-types";
-export * from "./vscode";
+import { ExtensionContext } from "vscode";
+
+export class MIExtensionContext {
+    public context!: ExtensionContext;
+}
+
+export const extension = new MIExtensionContext();

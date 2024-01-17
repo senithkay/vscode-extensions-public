@@ -580,6 +580,14 @@
       "projectFolder": "workspaces/mi/syntax-tree"
     },
     {
+      "packageName": "@wso2-enterprise/mi-visualizer",
+      "projectFolder": "workspaces/mi/mi-visualizer"
+    },
+    {
+      "packageName": "@wso2-enterprise/mi-rpc-client",
+      "projectFolder": "workspaces/mi/mi-rpc-client"
+    },
+    {
       "packageName": "api-chat",
       "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"
