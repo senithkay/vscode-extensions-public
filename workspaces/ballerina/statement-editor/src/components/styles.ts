@@ -98,6 +98,7 @@ export const useStatementEditorToolbarStyles = () => ({
         display: 'flex',
         width: '100%',
         justifyContent: 'flex-start',
+        borderBottom: '1px solid var(--vscode-panel-border)',
         paddingLeft: '17px'
     }),
     toolbarSet: css({
@@ -120,9 +121,7 @@ export const useStatementEditorToolbarStyles = () => ({
     toolbarOperatorsIcons: css({
         color: 'var(--foreground)',
         padding: '0px 8px',
-        borderRadius: '5px',
-        margin: '5px 0px',
-        ...hoverColor1
+        margin: '5px 0px'
     }),
     toolbarMoreExpIcon: css({
         color: 'var(--vscode-textLink-foreground)',
@@ -946,7 +945,6 @@ export const useStatementEditorStyles = () => ({
         fontFamily: 'Gilmer',
         overflowY: 'hidden',
         padding: '0px 10px 0px 10px',
-        backgroundColor: 'var(--vscode-editorHoverWidget-background)',
         margin: '0px 10px'
     }),
     statementExpressionWrapper: css({

@@ -164,7 +164,7 @@ export default function Toolbar() {
                 className={statementEditorClasses.toolbarIcons}
                 data-testid="toolbar-delete"
             >
-                <Icon sx={{marginTop: 2, color: "var(--vscode-editorGutter-deletedBackground)"}} name="delete"/>
+                <Codicon sx={{color: "var(--vscode-editorGutter-deletedBackground)"}} name="trash" />
             </ Button>
             <Divider className={statementEditorClasses.toolbarDivider} />
             {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && (
