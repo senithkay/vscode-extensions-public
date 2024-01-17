@@ -1,4 +1,4 @@
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import { CompletionResponse } from "../../lang-server-interfaces/extended-lang-server-types";
 
 export interface CreateServiceRequest {
@@ -28,4 +28,12 @@ export interface DeleteResourceRequest {
 
 export interface KeywordTypeResponse {
     completions: CompletionResponse[]
+}
+
+export interface RecordSTRequest {
+    recordName: string;
+}
+
+export interface RecordSTResponse {
+    recordST: TypeDefinition;
 }
