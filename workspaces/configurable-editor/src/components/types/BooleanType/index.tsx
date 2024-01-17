@@ -155,7 +155,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
 
     const handleClickSensitive = () => {
         setIsSensitive(false);
-        setIsMarkedSensitive(false);
+        setIsMarkedSensitive(true);
     };
 
     const handleChange = () => {

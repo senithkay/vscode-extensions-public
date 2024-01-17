@@ -34,10 +34,12 @@ export interface ConfigElementProps {
     placeholder?: string;
     arrayType?: ConfigType;
     connectionConfig?: ConnectionSchema[];
-    setConfigElement?: (id: string, value: any) => void;
+    setConfigElement?: (id: string, value: any, isSecret?: boolean) => void;
     isLowCode?: boolean;
     isFeaturePreview?: boolean;
     isInsideArray?: boolean;
+    isSecret?: boolean;
+    isSensitive?: boolean;
 }
 
 export const ConfigElement = (props: ConfigElementProps): ReactElement => {
@@ -111,6 +113,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
                 ...props,
                 setSimpleConfig: props.setConfigElement,
                 value: props.value,
+                enableMarkingSecret: true,
             };
 
             returnElement.push(

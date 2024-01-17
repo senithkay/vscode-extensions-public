@@ -29,6 +29,7 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Button from "../../ChoreoSystem/Button/Button";
 import Chip from "../../ChoreoSystem/Chip/Chip";
 import { Edit } from "../../ChoreoSystem/Icons/generated";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
@@ -45,7 +46,7 @@ export interface IntegerTypeProps extends SimpleTypeProps {
     value?: number;
     valueRef?: string;
     isSensitive?: boolean;
-    setIntegerConfig: (id: string, intValue: number, valueRef: any) => void;
+    setIntegerConfig: (id: string, intValue: number, valueRef: any, isSecret?: boolean) => void;
     isInsideArray?: boolean;
     isLowCode?: boolean;
     isFeaturePreview?: boolean;
@@ -94,8 +95,9 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         propertyId: string,
         propertyValue: number,
         propertyRef: any,
+        isSecret?: boolean,
     ) => {
-        setIntegerConfig(propertyId, Number(propertyValue), propertyRef);
+        setIntegerConfig(propertyId, Number(propertyValue), propertyRef, isSecret);
     };
 
     useEffect(() => {
@@ -162,11 +164,12 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
 
     const handleClickSensitive = () => {
         setIsSensitive(false);
-        setIsMarkedSensitive(false);
+        setIsMarkedSensitive(true);
+        props.updateSecret(id);
     };
 
-    const handleMarkSecret = () => {
-        setIsMarkedSensitive(!isMarkedSensitive);
+    const handleMarkSecret = (isSecret: boolean) => {
+        setIsMarkedSensitive(isSecret);
     };
 
     const getConnection = connectionConfigs?.map((connections, index) => {
@@ -329,9 +332,9 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                                 disabled={textInputDisabledState}
                                 value={selectedValue}
                                 valueRef={selectedValueRef}
-                                isSensitiveField={isMarkedSensitive || props.isSensitive}
+                                isSensitiveField={isMarkedSensitive}
                                 handleMarkSecret={handleMarkSecret}
-                                enableMarkingSecret={true}
+                                enableMarkingSecret={props.enableMarkingSecret}
                             />
                         </Box>
                         {!isInsideArray &&
@@ -361,52 +364,37 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         );
     } else {
         returnElement.push(
-            (
-                <div key={id + "-FIELD"}>
-                    <Box
-                        flexGrow={1}
-                        display="flex"
-                        gridGap={4}
-                        alignItems="center"
-                    >
-                        <Box flexGrow={1}>
-                            <Link
-                                component="button"
-                                variant="inherit"
-                                underline="none"
-                                onClick={handleClickSensitive}
-                                className={classes.linkStyle}
-                            >
-                                <IconButton
-                                    size={"small"}
-                                    onClick={handleClick}
-                                    color={"primary"}
-                                >
-                                    <Edit fontSize="small"/>
-                                </IconButton>
-                                <span className={classes.linkTextSytle}>Update Secret Content</span>
-                            </Link>
-                        </Box>
-                    </Box>
-                    <Box>
-                        <Popover
-                            id={ids}
-                            open={open}
-                            anchorEl={anchorEl}
-                            onClose={handleClose}
-                            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                            transformOrigin={{ horizontal: "right", vertical: "top" }}
-                            className={classes.popOver}
-                        >
-                            <Box>
-                                <Typography className={classes.popOver}>
-                                    {getConnection}
-                                </Typography>
-                            </Box>
-                        </Popover>
-                    </Box>
-                </div>
-            ),
+          <div key={id + "-FIELD"}>
+            <Box flexGrow={1} display="flex" gridGap={4} alignItems="center">
+              <Box flexGrow={1}>
+                <Button
+                  onClick={handleClickSensitive}
+                  variant="link"
+                  startIcon={<Edit />}
+                  testId="update-secret-string"
+                >
+                  Update Secret Content
+                </Button>
+              </Box>
+            </Box>
+            <Box>
+              <Popover
+                id={ids}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                className={classes.popOver}
+              >
+                <Box>
+                  <Typography className={classes.popOver}>
+                    {getConnection}
+                  </Typography>
+                </Box>
+              </Popover>
+            </Box>
+          </div>
         );
     }
 

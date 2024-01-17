@@ -11,7 +11,7 @@ import React, { useEffect, useState } from "react";
 
 import { InputAdornment } from "@material-ui/core";
 
-import IconButton from "../../ChoreoSystem/IconButton/IconButton";
+import Button from "../../ChoreoSystem/Button/Button";
 import { Lock, Unlock } from "../../ChoreoSystem/Icons/generated";
 import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { useStyles } from "../../style";
@@ -33,7 +33,7 @@ export interface TextFieldInputProps {
     valuRef: any,
     isSensitiveField: boolean
   ) => void;
-  handleMarkSecret?: () => void;
+  handleMarkSecret?: (isSecret: boolean) => void;
   enableMarkingSecret?: boolean;
 }
 
@@ -60,17 +60,17 @@ export function TextFieldInput(props: TextFieldInputProps) {
     valueRef ? String(valueRef) : undefined
   );
   const [inputSensitiveField, setInputSensitiveField] = useState(
-    isSensitiveField ? isSensitiveField : false
+    isSensitiveField !== undefined ? isSensitiveField : false
   );
 
   const handleEndButtonClick = () => {
-    props.handleMarkSecret();
+    props.handleMarkSecret(!inputSensitiveField);
     setInputSensitiveField(!inputSensitiveField);
   };
 
   useEffect(() => {
     setTextFieldValue(id, inputValue, inputValueRef, inputSensitiveField);
-  }, [inputValue]);
+  }, [inputValue, inputSensitiveField]);
 
   useEffect(() => {
     setInputValueRef(valueRef);
@@ -94,7 +94,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
 
   const newInputProps = {
     ...inputProps,
-    style: { fontSize: 14 },
+    className: classes.textInput,
   };
   return (
     <TextInput
@@ -110,19 +110,16 @@ export function TextFieldInput(props: TextFieldInputProps) {
       disabled={disabled}
       endAdornment={
         enableMarkingSecret &&
-        (valueRef === "" || valueRef === undefined) &&
-        (
-        <InputAdornment position="end">
-          <IconButton
-            onClick={handleEndButtonClick}
-            size="small"
-            variant="text"
-            color="primary"
-            testId="secret"
-          >
-            {inputSensitiveField ? <Lock /> : <Unlock />}
-          </IconButton>
-        </InputAdornment>
+        (valueRef === "" || valueRef === undefined) && (
+          <InputAdornment position="end">
+            <Button
+              style={{ marginRight: 0 }}
+              onClick={handleEndButtonClick}
+              variant="link"
+              endIcon={inputSensitiveField ? <Lock /> : <Unlock />}
+              testId="update-secret-string"
+            />
+          </InputAdornment>
         )
       }
     />

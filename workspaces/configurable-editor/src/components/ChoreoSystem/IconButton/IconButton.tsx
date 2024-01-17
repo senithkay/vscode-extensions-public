@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained

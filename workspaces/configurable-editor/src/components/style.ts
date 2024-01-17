@@ -168,6 +168,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             boxShadow: `inset 2px 0px 0px ${theme.palette.primary.main}`,
             padding: theme.spacing(0, 0, 0, 1.5),
         },
+        textInput: {
+            fontSize: theme.spacing(1.75),
+        },
         textInputRoot: {
             "& .MuiInputBase-root": {
                 backgroundColor: "#ffffff",
