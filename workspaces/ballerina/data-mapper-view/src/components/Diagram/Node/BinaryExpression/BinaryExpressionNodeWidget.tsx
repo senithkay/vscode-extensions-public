@@ -23,9 +23,9 @@ class BinaryExpressionNodeWidgetC extends React.Component<BinaryExpressionNodeWi
 					color: 'white'
 				}}
 			>
-				{/* <Typography variant="h6">
-					{node.value.source}
-				</Typography> */}
+				<Typography variant="h6">
+					{this.props.node.value.source}
+				</Typography>
 			</div>
 		);
 	}
@@ -34,6 +34,5 @@ class BinaryExpressionNodeWidgetC extends React.Component<BinaryExpressionNodeWi
 export const BinaryExpressionNodeWidget = styled(BinaryExpressionNodeWidgetC)`
 	width: '100%';
 	max-width: 500;
-	// backgroundColor: theme.palette.background.default;
 	color: "var(--vscode-input-background)"
 `;
