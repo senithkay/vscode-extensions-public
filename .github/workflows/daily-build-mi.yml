@@ -1,4 +1,4 @@
-name: Daily Build - Eggplant
+name: Daily Build - MI
 on:
   schedule:
     - cron:  '30 13 * * *'
@@ -13,18 +13,17 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
-          ref: rewrite
+          ref: mi-ext
 
       - name: Build
         uses: ./.github/actions/build
         with:
-          eggplant: true
-          ref: rewrite
+          mi: true
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
-      - name: Notification - Eggplant
+      - name: Notification - MI
         uses: ./.github/actions/dailyBuildNotification
         with:
-          title: Eggplant
-          fileName: eggplant
-          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}
+          title: Intergration Studio
+          fileName: integration-studio
+          api: ${{ secrets.MI_EXT_CHAT_API }}

@@ -21,6 +21,16 @@ on:
         type: boolean
         required: true
         default: false
+      eggplant:
+        description: Release Eggplant extension
+        type: boolean
+        required: true
+        default: false
+      mi:
+        description: Release MI extension
+        type: boolean
+        required: true
+        default: false
       version:
         type: choice
         description: 'Enter the version type'
@@ -42,6 +52,8 @@ jobs:
       ballerina: ${{ inputs.ballerina }}
       choreo: ${{ inputs.choreo }}
       apk: ${{ inputs.apk }}
+      eggplant:  ${{ inputs.eggplant }}
+      mi:  ${{ inputs.mi }}
       version: ${{ inputs.version }}
       isReleaseBuild: true
 
