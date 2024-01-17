@@ -28,7 +28,6 @@ import {
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
 import path = require("path");
-import { createDiagramWebview } from "./visualizer/webview";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = "../resources/connectors";

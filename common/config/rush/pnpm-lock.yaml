@@ -3322,6 +3322,7 @@ importers:
       '@wso2-enterprise/font-wso2-vscode': workspace:*
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-diagram': workspace:*
+      '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/playwright-vscode-tester': workspace:*
       axios: ~1.5.1
@@ -3352,6 +3353,7 @@ importers:
       '@wso2-enterprise/font-wso2-vscode': link:../../common-libs/font-wso2-vscode
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-diagram': link:../mi-diagram
+      '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/playwright-vscode-tester': link:../../common-libs/playwright-vscode-tester
       axios: 1.5.1
@@ -20850,7 +20852,7 @@ packages:
       loader-utils: 2.0.4
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.89.0_webpack-cli@5.1.4
+      webpack: 5.89.0_webpack-cli@4.10.0
 
   /babel-loader/8.3.0_jjnmf74eengfttb6oelaelb37m:
     resolution: {integrity: sha512-H8SvsMF+m9t15HNLMipppzkC+Y2Yq+v3SonZyU70RBL/h1gxPkH08Ot8pEE9Z4Kd+czyWJClmFS8qzIP9OZ04Q==}

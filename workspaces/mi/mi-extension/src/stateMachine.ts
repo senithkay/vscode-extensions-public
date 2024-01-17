@@ -6,6 +6,8 @@ import * as path from 'path';
 import { window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
+import { EventType, MachineStateValue } from '@wso2-enterprise/mi-core';
+import { StateLocation } from '@wso2-enterprise/mi-rpc-client';
 
 interface Context {
     langServer: any | null;
@@ -142,7 +144,7 @@ export const StateMachine = {
     sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(viewLocation: VisualizerLocation) {
+export function openView(viewLocation: StateLocation) {
     stateService.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
 }
 

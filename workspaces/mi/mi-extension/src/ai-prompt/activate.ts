@@ -34,27 +34,27 @@ export function activateAiPrompt(context: vscode.ExtensionContext) {
 						vscode.window.showErrorMessage('Please set your OpenAI API key in the settings.');
 						return;
 					}
-					const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-						model: "gpt-3.5-turbo",
-						"messages": [{ "role": "user", "content": prompt }],
-						temperature: 0.2,
-					}, {
-						headers: {
-							'Content-Type': 'application/json',
-							'Authorization': `Bearer ${apiKey}`
-						}
-					});
+					// const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+					// 	model: "gpt-3.5-turbo",
+					// 	"messages": [{ "role": "user", "content": prompt }],
+					// 	temperature: 0.2,
+					// }, {
+					// 	headers: {
+					// 		'Content-Type': 'application/json',
+					// 		'Authorization': `Bearer ${apiKey}`
+					// 	}
+					// });
 
-					progress.report({ increment: 50 });
+					// progress.report({ increment: 50 });
 
-					const data = response.data;
-					if (editor) {
-						const position = editor.selection.active;
-						await editor.edit(editBuilder => {
-							const content = data.choices[0].message.content;
-							editBuilder.replace(new vscode.Range(document.positionAt(0), document.positionAt(text.length)), content);
-						});
-					}
+					// const data = response.data;
+					// if (editor) {
+					// 	const position = editor.selection.active;
+					// 	await editor.edit(editBuilder => {
+					// 		const content = data.choices[0].message.content;
+					// 		editBuilder.replace(new vscode.Range(document.positionAt(0), document.positionAt(text.length)), content);
+					// 	});
+					// }
 
 					progress.report({ increment: 100 });
 				} catch (error) {
