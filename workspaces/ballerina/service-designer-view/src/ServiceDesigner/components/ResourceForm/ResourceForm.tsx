@@ -38,7 +38,7 @@ export function ResourceForm(props: ResourceFormProps) {
 	const { isOpen, resourceConfig, onClose, applyModifications, addNameRecord, typeCompletions } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
-	const [path, setPath] = useState<string>(resourceConfig?.path || "/");
+	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
 
 	const [parameters, setParameters] = useState<ParameterConfig[]>(resourceConfig?.params || []);
 	const [advancedParams, setAdvancedParam] = useState<Map<string, ParameterConfig>>(resourceConfig?.advancedParams || new Map<string, ParameterConfig>());
