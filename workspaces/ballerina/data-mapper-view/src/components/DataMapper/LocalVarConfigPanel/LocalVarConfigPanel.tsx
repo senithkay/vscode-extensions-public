@@ -8,23 +8,9 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
-// import { useIntl } from "react-intl";
 
-import { Link } from "@material-ui/core";
-import FormControl from "@material-ui/core/FormControl/FormControl";
-import {
-    DeleteButton,
-    STModification
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-// import {
-//     FormHeaderSection,
-//     LinePrimaryButton,
-//     Panel,
-//     PrimaryButton,
-//     useStyles as useFormStyles
-// } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import { LetVarDecl, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, SidePanel } from "@wso2-enterprise/ui-toolkit";
 import classNames from "classnames";
 
 import { ExpressionInfo } from "../DataMapper";
@@ -40,8 +26,12 @@ import {
 import { NewLetVarDeclPlusButton } from "./NewLetVarDeclPlusButton";
 import { useStyles } from "./style";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import styled from "@emotion/styled";
+import { Button, Codicon, Icon, SidePanel, colors } from "@wso2-enterprise/ui-toolkit";
+import { EmptyLocalVarPanel } from "./EmptyLocalVarPanel";
 
 export interface LetVarDeclModel {
+    index: number;
     letVarDecl: LetVarDecl;
     checked: boolean;
     hasDiagnostics: boolean;
@@ -54,7 +44,23 @@ export interface LocalVarConfigPanelProps {
     applyModifications: (modifications: STModification[]) => Promise<void>;
     langServerRpcClient: LangServerRpcClient,
     filePath: string;
-}
+};
+
+export const SidePanelTitleContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid var(--vscode-panel-border);
+    font: inherit;
+    font-weight: bold;
+    color: var(--vscode-editor-foreground);
+`;
+
+export const SidePanelBody = styled.div`
+    padding: 16px;
+`;
 
 export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     const {
@@ -66,11 +72,10 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         filePath
     } = props;
 
-    // const intl = useIntl();
-
     const letExpression = getLetExpression(fnDef);
     const [letVarDecls, setLetVarDecls] = useState<LetVarDeclModel[]>([]);
     const hasSelectedLetVarDecl = letVarDecls.some(decl => decl.checked);
+    const hasDiagnostics = letVarDecls.some(decl => decl.hasDiagnostics);
 
     useEffect(() => {
         const letVarDeclarations = letExpression
@@ -78,6 +83,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
             : [];
         setLetVarDecls(letVarDeclarations.map(decl => {
             return {
+                index: letVarDeclarations.indexOf(decl),
                 letVarDecl: decl,
                 checked: false,
                 hasDiagnostics: !!decl?.typeData?.diagnostics?.length
@@ -85,7 +91,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         }))
     }, [fnDef]);
 
-    // const formClasses = useFormStyles();
     const overlayClasses = useStyles();
 
     const onCancel = () => {
@@ -97,8 +102,16 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         await applyModifications([addModification]);
     };
 
-    const handleOnCheck = () => {
-        setLetVarDecls([...letVarDecls]);
+    const handleOnCheck = (index: number) => {        
+        setLetVarDecls(prevDecls => {
+            return prevDecls.map(decl => {
+                const isChecked = decl.checked;
+                if (decl.index === index) {
+                    decl.checked = !isChecked;
+                }
+                return decl;
+            }
+        )});
     };
 
     const onEditClick = (letVarDecl: LetVarDecl) => {
@@ -111,11 +124,16 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
 
     const onSelectAll = () => {
         let checkAll = true;
-        if (letVarDecls.every(value => value.checked)) {
+        const letVarDeclsClone = [...letVarDecls];
+        if (letVarDeclsClone.every(value => value.checked)) {
             checkAll = false;
         }
-        letVarDecls.forEach(decl => decl.checked = checkAll);
-        setLetVarDecls([...letVarDecls]);
+        setLetVarDecls(prevDecls => {
+            return prevDecls.map(decl => {
+                decl.checked = checkAll;
+                return decl;
+            }
+        )});
     }
 
     const onDeleteSelected = async () => {
@@ -128,16 +146,6 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         setLetVarDecls(updatedVarList);
         await applyModifications(modifications);
     };
-
-    // const overviewSelectAll = intl.formatMessage({
-    //     id: "lowcode.develop.configForms.recordEditor.overview.overviewSelectAll",
-    //     defaultMessage: "Select All"
-    // });
-
-    // const deleteSelected = intl.formatMessage({
-    //     id: "lowcode.develop.configForms.recordEditor.overview.deleteSelected",
-    //     defaultMessage: "Delete Selected"
-    // });
 
     const letVarList: ReactNode = useMemo(() => {
         return (
@@ -166,69 +174,70 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
     }, [letVarDecls]);
 
     return (
-        <SidePanel>
-            <FormControl
-                variant="outlined"
-                data-testid="data-mapper-local-variables-form"
-                // className={formClasses.wizardFormControlExtended}
-            >
-                {/* <FormHeaderSection
-                    onCancel={onCancel}
-                    formTitle={"lowcode.develop.configForms.DataMapper.localVarConfigTitle"}
-                    defaultMessage={"Local Variables"}
-                /> */}
+        <SidePanel
+            isOpen={true}
+            alignmanet="right"
+            sx={{transition: "all 0.3s ease-in-out", width: 600}}
+        >
+            <SidePanelTitleContainer>
+                <div>Local Variables</div>
+                <Button onClick={onCancel} appearance="icon"><Codicon name="close"/></Button>
+            </SidePanelTitleContainer>
+            <SidePanelBody>
                 <div className={overlayClasses.localVarFormWrapper}>
                     {letVarList}
-                    <div className={overlayClasses.addNewButtonWrapper}>
-                        <Button
-                            tooltip={"Add New"}
-                            onClick={onAddNewVar}
-                        />
-                        {/* <LinePrimaryButton
-                            text={"Add New"}
-                            fullWidth={true}
-                            onClick={onAddNewVar}
-                            dataTestId="create-new-local-variable-btn"
-                            startIcon={<AddIcon />}
-                        /> */}
-                    </div>
-                    <div className={overlayClasses.varMgtToolbar}>
-                        <Link
-                            key={'select-all'}
-                            onClick={onSelectAll}
-                            className={overlayClasses.marginSpace}
-                            data-testid={'select-all-local-variables'}
-                        >
-                            {"Select All"}
-                        </Link>
-
-                        <div
-                            className={classNames(
-                                overlayClasses.deleteLetVarDecl,
-                                overlayClasses.marginSpace,
-                                hasSelectedLetVarDecl && overlayClasses.deleteLetVarDeclEnabled
-                            )}
-                            onClick={hasSelectedLetVarDecl ? onDeleteSelected : undefined}
-                            data-testid={'delete-selected-local-variables'}
-                        >
-                            <DeleteButton /> {"Delete"}
-                        </div>
-                    </div>
+                    {letVarDecls.length === 0 ? (
+                        <EmptyLocalVarPanel onAddNewVar={onAddNewVar}/>
+                    ) : (
+                        <>
+                            <div className={overlayClasses.addNewButtonWrapper}>
+                                <Button
+                                    appearance="icon"
+                                    onClick={onAddNewVar}
+                                    className={overlayClasses.linePrimaryButton} 
+                                    sx={{width: '100%'}}
+                                >
+                                    <Codicon sx={{marginTop: 2, marginRight: 5}} name="add"/>
+                                    <div>Add New</div>
+                                </Button>
+                            </div>
+                            <div className={overlayClasses.varMgtToolbar}>
+                                <Button onClick={onSelectAll} appearance="icon">
+                                    <div className={overlayClasses.localVarControlButton}>
+                                        <Codicon sx={{ marginRight: 5 }} name="check-all" />
+                                        Select All
+                                    </div>
+                                </Button>
+                                <Button
+                                    appearance="icon"
+                                    onClick={hasSelectedLetVarDecl ? onDeleteSelected : undefined}
+                                    disabled={!hasSelectedLetVarDecl}
+                                >
+                                    <div 
+                                        className={classNames(
+                                            overlayClasses.deleteLetVarDecl,
+                                            overlayClasses.localVarControlButton,
+                                            hasSelectedLetVarDecl && overlayClasses.deleteLetVarDeclEnabled
+                                        )}
+                                    >
+                                        <Icon sx={{marginRight: 5}} name="delete"/>
+                                        Delete Selected
+                                    </div>
+                                </Button>
+                            </div>
+                            <div className={overlayClasses.doneButtonWrapper}>
+                                <Button
+                                    appearance="primary"
+                                    onClick={!hasDiagnostics ? onCancel : undefined}
+                                    disabled={hasDiagnostics}
+                                >
+                                    <div className={overlayClasses.doneButton}>Done</div>
+                                </Button>
+                            </div>
+                        </>
+                    )}
                 </div>
-                <div className={overlayClasses.doneButtonWrapper}>
-                    <Button
-                        tooltip={"Done"}
-                        onClick={onCancel}
-                    />
-                    {/* <PrimaryButton
-                        dataTestId="done-btn"
-                        text={"Done"}
-                        fullWidth={false}
-                        disabled={letVarDecls.some(decl => decl.hasDiagnostics)}
-                        onClick={onCancel}
-                    /> */}
-                </div>
-            </FormControl>
+            </SidePanelBody>
         </SidePanel>
     );
 }

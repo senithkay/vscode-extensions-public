@@ -14,8 +14,7 @@ import { CodeAction } from "vscode-languageserver-types";
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 
 import { CodeActionTooltip } from "./CodeActionTooltip/CodeActionTooltip";
-import { LightBulbSVG } from "./LightBulb";
-import { useStyles } from "./style";
+import { Button, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface CodeActionWidgetProps {
     codeActions: CodeAction[];
@@ -24,20 +23,25 @@ export interface CodeActionWidgetProps {
         title: string;
         onClick: () => void;
     }[];
+    btnSx?: React.CSSProperties;
 }
 
 export function CodeActionWidget(props: CodeActionWidgetProps) {
-    const { codeActions, context, additionalActions } =
-        props;
-    const classes = useStyles();
+    const { codeActions, context, additionalActions, btnSx } = props;
 
     return (
         <CodeActionTooltip codeActions={codeActions} context={context} additionalActions={additionalActions}>
-            <div className={classes.element}  data-testid={`expression-label-code-action`}>
-                <span  className={classes.lightBulbWrapper}>
-                    <LightBulbSVG />
-                </span>
-            </div>
+            <Button
+                appearance="icon"
+                data-testid={`expression-label-code-action`}
+                sx={{ ...btnSx, userSelect: "none", pointerEvents: "auto" }}
+            >
+                <Codicon
+                    name="lightbulb"
+                    sx={{ height: "18px", width: "18px" }}
+                    iconSx={{ fontSize: "17px", color: "var(--vscode-input-placeholderForeground)" }}
+                />
+            </Button>
         </CodeActionTooltip>
     );
 }

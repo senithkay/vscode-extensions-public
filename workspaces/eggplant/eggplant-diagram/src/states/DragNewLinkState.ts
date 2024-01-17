@@ -16,6 +16,7 @@ import {
 } from "@projectstorm/react-canvas-core";
 import { DiagramEngine, LinkModel, DragNewLinkStateOptions } from "@projectstorm/react-diagrams-core";
 import { DefaultLinkModel, DefaultNodeModel, DefaultPortModel } from "../components/default";
+import { getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 
 export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
     port: DefaultPortModel;
@@ -64,6 +65,11 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                     if (model instanceof DefaultPortModel) {
                         const nodeModel = model.getParent() as DefaultNodeModel;
                         if (this.port.canLinkToPort(model) && !model.hasLinks()) {
+                            if (nodeModel.getKind() === "TransformNode") {
+                                const metaData = getNodeMetadata(nodeModel.getOptions().node);
+                                metaData.isEdited = true;
+                                nodeModel.getOptions().node.metadata = metaData;
+                            }
                             this.link.setTargetPort(model);
                             (this.link as DefaultLinkModel).setReceiver(nodeModel.getName());
                             model.reportPosition();
@@ -81,6 +87,11 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                                 this.port.reportPosition();
                                 this.engine.repaintCanvas();
                                 return;
+                            }
+                            if (nodeModel.getKind() === "TransformNode") {
+                                const metaData = getNodeMetadata(nodeModel.getOptions().node);
+                                metaData.isEdited = true;
+                                nodeModel.getOptions().node.metadata = metaData;
                             }
                             // create a new port and link
                             const nextPortId = nodeModel.getNextPortID();
@@ -117,6 +128,11 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                                 this.engine.repaintCanvas();
                                 return;
                             }
+                        }
+                        if (model.getKind() === "TransformNode") {
+                            const metaData = getNodeMetadata(model.getOptions().node);
+                            metaData.isEdited = true;
+                            model.getOptions().node.metadata = metaData;
                         }
                         const availablePort = model.getAvailableInPort();
                         if (availablePort) {

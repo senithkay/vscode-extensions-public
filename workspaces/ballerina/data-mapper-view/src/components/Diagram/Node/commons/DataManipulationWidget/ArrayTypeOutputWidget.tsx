@@ -101,7 +101,7 @@ const useStyles = () => ({
 		width: "300px",
 		whiteSpace: "nowrap",
 		overflow: "hidden",
-		display: "inline-block",
+		display: "flex",
 		textOverflow: "ellipsis",
 		"&:hover": {
 			overflow: "visible"

@@ -24,7 +24,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 		}
 
 		if (diagnostics.length > 0){
-			this.setColor('var(--vscode-statusBar-debuggingBackground)');
+			this.setColor('var(--vscode-errorForeground)');
 		}
 
 	}

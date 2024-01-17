@@ -66,8 +66,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const handleOnClick = () => {
         setIsSidePanelOpen(true);
     };
-    const handleResourceEdit = (resource: ResourceAccessorDefinition) => {
-        const resourceInfo = getResourceInfo(resource);
+    const handleResourceEdit = async (resource: ResourceAccessorDefinition) => {
+        const resourceInfo = await getResourceInfo(resource, rpcClient);
         setEditingResource(resourceInfo);
         setIsSidePanelOpen(true);
     };
@@ -101,6 +101,12 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         const position = model.closeBraceToken.position;
         position.endColumn = 0;
         await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source });
+    };
+
+    const addNameRecord = async (source: string) => {
+        const position = model.closeBraceToken.position;
+        position.startColumn = position.endColumn;
+        await rpcClient.createResource({ position: position, source });
     };
 
     // let serviceType = "";
@@ -158,6 +164,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     resourceConfig={resources?.length > 0 ? editingResource : undefined}
                     applyModifications={applyModifications}
                     onClose={handleOnClose} 
+                    addNameRecord={addNameRecord}
                     typeCompletions={typeCompletions}
                 />
             }

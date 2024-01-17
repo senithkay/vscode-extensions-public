@@ -12,8 +12,10 @@ import React from "react";
 import { Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
 import { ResponseConfig } from "../../definitions";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../styles";
+import { HTTP_METHOD, getDefaultResponse } from "../../utils/utils";
 
 interface ParamItemProps {
+    method: HTTP_METHOD;
     response: ResponseConfig;
     readonly: boolean;
     onDelete?: (param: ResponseConfig) => void;
@@ -21,7 +23,7 @@ interface ParamItemProps {
 }
 
 export function ResponseItem(props: ParamItemProps) {
-    const { response, readonly, onDelete, onEditClick } = props;
+    const { method, response, readonly, onDelete, onEditClick } = props;
 
     const handleDelete = () => {
         onDelete(response);
@@ -39,7 +41,7 @@ export function ResponseItem(props: ParamItemProps) {
                     <Icon name="header" />
                 </IconWrapper>
                 <OptionLabel>
-                    {response?.code}
+                    {response?.source ? response.code : getDefaultResponse(method)}
                 </OptionLabel>
             </IconTextWrapper>
             <ContentSection>
@@ -48,7 +50,7 @@ export function ResponseItem(props: ParamItemProps) {
                     className={readonly ? disabledHeaderLabel : headerLabelStyles}
                     onClick={handleEdit}
                 >
-                    {response.type}
+                    {response.source ? response.source : response?.type}
                 </div>
                 {!readonly && (
                     <ActionIconWrapper>
