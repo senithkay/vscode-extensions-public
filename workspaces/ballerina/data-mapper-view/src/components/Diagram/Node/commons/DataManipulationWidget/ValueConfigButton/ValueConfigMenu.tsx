@@ -10,7 +10,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { Button, ContextMenu, Icon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
+import { Button, ContextMenu, Icon, Item } from '@wso2-enterprise/ui-toolkit';
 
 const useStyles = () => ({
     itemContainer: css({

@@ -9,15 +9,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import AddCircleOutline from "@material-ui/icons/AddCircleOutline";
 import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
@@ -98,6 +95,15 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         await insertStatement(` outer join var ${variableName} in EXPRESSION on EXPRESSION equals EXPRESSION`)
     };
 
+    const menuItems: Item[] = [
+        { id: 0, label: "Add where clause", onClick: onClickAddWhereClause },
+        { id: 1, label: "Add let clause", onClick: onClickAddLetClause },
+        { id: 2, label: "Add limit clause", onClick: onClickAddLimitClause },
+        { id: 3, label: "Add order by clause", onClick: onClickAddOrderByClause },
+        { id: 4, label: "Add join clause", onClick: onClickAddJoinClause },
+        { id: 5, label: "Add outer join clause", onClick: onClickAddOuterJoinClause },
+    ]
+
     return (
         <>
             <div className={classes.lineWrap}>
@@ -106,26 +112,24 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
                     {isLoading ? (
                         <ProgressRing sx={{ height: '16px', width: '16px' }} />
                     ) : (
-                        <AddCircleOutline onClick={handleClick} className={classes.addIcon}/>
+                        <Button
+                            appearance="icon"
+                            onClick={handleClick}
+                        >
+                            <Icon name="add-circle-outline" className={classes.addIcon} />
+                        </Button>
                     )}
                 </div>
                 <div className={classes.line} />
             </div>
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
-                className={classes.addMenu}
-            >
-                <MenuItem onClick={onClickAddWhereClause}>Add where clause</MenuItem>
-                <MenuItem onClick={onClickAddLetClause}>Add let clause</MenuItem>
-                <MenuItem onClick={onClickAddLimitClause}>Add limit clause</MenuItem>
-                <MenuItem onClick={onClickAddOrderByClause}>Add order by clause</MenuItem>
-                <MenuItem onClick={onClickAddJoinClause}>Add join clause</MenuItem>
-                <MenuItem onClick={onClickAddOuterJoinClause}>Add outer join clause</MenuItem>
-
+            <Menu>
+                {menuItems.map((item) => (
+                    <MenuItem
+                        key={item.id}
+                        item={item}
+                        onClick={item.onClick}
+                    />
+                ))}
             </Menu>
         </>
     );

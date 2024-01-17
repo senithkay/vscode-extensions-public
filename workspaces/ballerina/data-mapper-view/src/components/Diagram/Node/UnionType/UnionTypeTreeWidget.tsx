@@ -13,7 +13,6 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useState } from "react";
 
-import { WarningOutlined } from "@material-ui/icons";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { IdentifierToken, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -41,7 +40,7 @@ import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { useStyles } from "./style";
 import { UnionTypeSelector } from "./UnionTypeSelector";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Icon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface UnionTypeTreeWidgetProps {
     id: string;
@@ -258,7 +257,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                     >
                         <div className={classes.warningText}>
                             <div className={classes.warningContainer}>
-                                <WarningOutlined className={classes.warningSymbol} />
+                                <Icon name="error-icon" iconSx={{ color: "var(--vscode-errorForeground)" }} />
                                 <span>{`Types are ambiguous.`}</span>
                             </div>
                             <span>{`Please select a type to continue.`}</span>

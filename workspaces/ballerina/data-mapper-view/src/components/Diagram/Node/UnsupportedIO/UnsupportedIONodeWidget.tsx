@@ -14,12 +14,11 @@
 import React, { ReactNode } from "react";
 
 import { css } from "@emotion/css";
-import { Divider } from "@material-ui/core";
-import { InfoOutlined } from "@material-ui/icons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { TreeContainer } from "../commons/Tree/Tree";
+import { Divider, Icon } from "@wso2-enterprise/ui-toolkit";
 
 interface UnsupportedIOProp {
     children: ReactNode
@@ -84,7 +83,7 @@ export function UnsupportedIO({ message }: UnsupportedIOProps) {
     return (
         <UnsupportedIOWidget>
             <div className={classes.infoContainer}>
-                <InfoOutlined className={classes.infoSymbol} />
+                <Icon name="error-outline" />
                 <span>{message}</span>
             </div>
         </UnsupportedIOWidget>
@@ -105,10 +104,10 @@ export function UnsupportedExpr({ filePath, unsupportedExpr, context }: Unsuppor
     return (
         <UnsupportedIOWidget>
             <div className={classes.infoContainer}>
-                <InfoOutlined className={classes.infoSymbol} />
+                <Icon name="error-outline" />
                 <span>{`Unsupported Expression`}</span>
             </div>
-            <Divider className={classes.divider} light={true} />
+            <Divider />
             <a
                 onClick={handleGoToSource}
                 className={classes.unsupportedFile}

@@ -10,8 +10,6 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
-import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";

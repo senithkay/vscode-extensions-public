@@ -13,13 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { List } from "@material-ui/core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 
-import { useStyles } from "./style";
 import { UnionTypeListItem } from "./UnionTypeListItem";
+import { Grid } from "@wso2-enterprise/ui-toolkit";
 
 export interface UnionTypesListProps {
     unionTypes: string[];
@@ -31,24 +30,25 @@ export interface UnionTypesListProps {
 
 export function UnionTypesList(props: UnionTypesListProps) {
     const { unionTypes, context, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
-    const classes = useStyles();
 
     return (
         <>
-            <List className={classes.unionTypesList} data-testid="suggestion-list">
+            <Grid direction="row" data-testid="suggestion-list">
                 {
                     unionTypes.map((type: string, index: number) => (
-                        <UnionTypeListItem
-                            key={index}
-                            context={context}
-                            type={type}
-                            hasInvalidTypeCast={hasInvalidTypeCast}
-                            innermostExpr={innermostExpr}
-                            typeCastExpr={typeCastExpr}
-                        />
+                        <Grid item={true}>
+                            <UnionTypeListItem
+                                key={index}
+                                context={context}
+                                type={type}
+                                hasInvalidTypeCast={hasInvalidTypeCast}
+                                innermostExpr={innermostExpr}
+                                typeCastExpr={typeCastExpr}
+                            />
+                        </Grid>
                     ))
                 }
-            </List>
+            </Grid>
         </>
     );
 }
