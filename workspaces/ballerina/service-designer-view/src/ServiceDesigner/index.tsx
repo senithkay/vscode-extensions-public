@@ -14,10 +14,10 @@ import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition, NodePosi
 import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import ResourceAccordion from "./ResourceAccordion";
 import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { getResourceInfo } from "./utils/utils";
 import { ResourceInfo } from "./definitions";
+import ResourceAccordion from "./components/ResourceAccordion/ResourceAccordion";
 
 interface ServiceDesignerProps {
     model: ServiceDeclaration;

@@ -11,10 +11,10 @@ import styled from '@emotion/styled';
 import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
-import ConfirmDialog from './ConfirmBox';
 import { ServiceDesignerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
-import { ResourceInfo } from './definitions';
-import { AccordionTable } from './components/AccordionTable/AccordionTable';
+import { AccordionTable } from '../AccordionTable/AccordionTable';
+import { ResourceInfo } from '../../definitions';
+import ConfirmDialog from '../ConfirmBox/ConfirmBox';
 
 // Define styles using @emotion/styled
 const AccordionContainer = styled.div`
