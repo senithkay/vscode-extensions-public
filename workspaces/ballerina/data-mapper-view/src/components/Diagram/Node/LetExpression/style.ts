@@ -13,7 +13,7 @@ export const useStyles = () => ({
     addIcon: css({
         "& > vscode-button": {
             color: "var(--vscode-inputOption-activeForeground)",
-            backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+            backgroundColor: "var(--vscode-sideBar-background)",
             textTransform: "none",
             display: "flex",
             justifyContent: "space-between",
