@@ -20,9 +20,10 @@ import { ResourceInfo } from "./definitions";
 import ResourceAccordion from "./components/ResourceAccordion/ResourceAccordion";
 
 interface ServiceDesignerProps {
-    model: ServiceDeclaration;
-    rpcClient: ServiceDesignerRpcClient;
-    showDiagram: (position: NodePosition) =>  void;
+    model: ServiceDeclaration | ResourceInfo;
+    rpcClient?: ServiceDesignerRpcClient;
+    showDiagram?: (position: NodePosition) =>  void;
+    onSave?: (resources: ResourceInfo) =>  void;
 }
 
 const ServiceHeader = styled.div`
@@ -45,7 +46,7 @@ const ResourceListHeader = styled.div`
 `;
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model, rpcClient, showDiagram } = props;
+    const { model, rpcClient, showDiagram, onSave } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
@@ -55,7 +56,12 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     let servicePath = "";
 
-    model.absoluteResourcePath.forEach((pathSegment) => {
+    let serviceModel = model as ServiceDeclaration;
+    if (!STKindChecker.isServiceDeclaration(serviceModel)) {
+        serviceModel = undefined;
+    }
+
+    serviceModel.absoluteResourcePath.forEach((pathSegment) => {
         servicePath += pathSegment.value;
     });
 
@@ -66,9 +72,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const handleOnClick = () => {
         setIsSidePanelOpen(true);
     };
-    const handleResourceEdit = async (resource: ResourceAccessorDefinition) => {
-        const resourceInfo = await getResourceInfo(resource, rpcClient);
-        setEditingResource(resourceInfo);
+    const handleResourceEdit = async (resource: ResourceInfo) => {
+        setEditingResource(resource);
         setIsSidePanelOpen(true);
     };
 
@@ -79,17 +84,21 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
 
     useEffect(() => {
         const resourceList: JSX.Element[] = [];
-        model?.members.forEach(async (member) => {
-            if (STKindChecker.isResourceAccessorDefinition(member)) {
-                const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
-                const resourceInfo = await getResourceInfo(member, rpcClient);
-                resourceList.push(
-                    <div data-start-position={startPosition} >
-                        <ResourceAccordion rpcClient={rpcClient} resourceInfo={resourceInfo} onEditResource={handleResourceEdit} model={member as ResourceAccessorDefinition} showDiagram={showDiagram} />
-                    </div>
-                );
-            }
-        });
+        if (serviceModel) {
+            serviceModel?.members.forEach(async (member) => {
+                if (STKindChecker.isResourceAccessorDefinition(member)) {
+                    const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
+                    const resourceInfo = await getResourceInfo(member, rpcClient);
+                    resourceList.push(
+                        <div data-start-position={startPosition} >
+                            <ResourceAccordion rpcClient={rpcClient} resourceInfo={resourceInfo} onEditResource={handleResourceEdit} modelPosition={(member as ResourceAccessorDefinition).position} showDiagram={showDiagram} />
+                        </div>
+                    );
+                }
+            });
+        } else {
+            <ResourceAccordion rpcClient={rpcClient} resourceInfo={model as ResourceInfo} onEditResource={handleResourceEdit} showDiagram={showDiagram} />
+        }
         setResources(resourceList);
         fetchTypes();
     }, [model]);
@@ -98,14 +107,18 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         // Handle service config form
     };
 
-    const applyModifications = async (source: string, updatePosition?: NodePosition) => {
-        const position = model.closeBraceToken.position;
-        position.endColumn = 0;
-        await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source });
+    const handleSave = async (content: string, config: ResourceInfo, updatePosition?: NodePosition) => {
+        if (serviceModel) {
+            const position = serviceModel.closeBraceToken.position;
+            position.endColumn = 0;
+            await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source: content });
+        } else {
+            onSave && onSave(config);
+        }
     };
 
     const addNameRecord = async (source: string) => {
-        const position = model.closeBraceToken.position;
+        const position = serviceModel.closeBraceToken.position;
         position.startColumn = position.endColumn;
         await rpcClient.createResource({ position: position, source });
     };
@@ -113,14 +126,14 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     // let serviceType = "";
     let portNumber = "";
 
-    if (STKindChecker.isExplicitNewExpression(model.expressions[0])) {
+    if (STKindChecker.isExplicitNewExpression(serviceModel?.expressions[0])) {
         if (
             STKindChecker.isQualifiedNameReference(
-                model.expressions[0].typeDescriptor
+                serviceModel.expressions[0].typeDescriptor
             )
         ) {
             // serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
-            const listeningOnText = model.expressions[0].source;
+            const listeningOnText = serviceModel.expressions[0].source;
             // Define a regular expression pattern to match the port number
             const pattern: RegExp = /\b(\d{4})\b/;
 
@@ -163,7 +176,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 <ResourceForm
                     isOpen={isSidePanelOpen}
                     resourceConfig={resources?.length > 0 ? editingResource : undefined}
-                    applyModifications={applyModifications}
+                    onSave={handleSave}
                     onClose={handleOnClose} 
                     addNameRecord={addNameRecord}
                     typeCompletions={typeCompletions}

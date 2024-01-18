@@ -27,7 +27,7 @@ const AdvancedParamTitleWrapper = styled.div`
 export interface ResourceFormProps {
 	isOpen: boolean;
 	resourceConfig?: ResourceInfo;
-	applyModifications?: (source: string, updatePosition?: NodePosition) => void;
+	onSave?: (source: string, config: ResourceInfo, updatePosition?: NodePosition) => void;
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
 	onClose: () => void;
@@ -35,7 +35,7 @@ export interface ResourceFormProps {
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, resourceConfig, onClose, applyModifications, addNameRecord, typeCompletions } = props;
+	const { isOpen, resourceConfig, onClose, onSave, addNameRecord, typeCompletions } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
@@ -71,7 +71,7 @@ export function ResourceForm(props: ResourceFormProps) {
 		setPath(path);
 	}
 
-	const onSave = () => {
+	const handleSave = () => {
 		let paramString = "";
 
 		let advancedParamIndex = 0;
@@ -108,11 +108,19 @@ export function ResourceForm(props: ResourceFormProps) {
 		}
 
 		let genSource = "";
+		const config = {
+			method: method,
+			path: path,
+			params: parameters,
+			advancedParams: advancedParams,
+			payloadConfig: payload,
+			responses: response
+		};
 		// Insert scenario
 		if (!resourceConfig?.ST) {
 			// Insert scenario
 			genSource = generateNewResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
-			applyModifications && applyModifications(genSource);
+			onSave && onSave(genSource, config);
 		} else {
 			// Edit scenario
 			const position = {
@@ -122,7 +130,7 @@ export function ResourceForm(props: ResourceFormProps) {
 				endColumn: resourceConfig?.ST?.functionSignature?.position?.endColumn
 			};
 			genSource = updateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
-			applyModifications && applyModifications(genSource, position);
+			onSave && onSave(genSource, config, position);
 		}
 		onClose();
 	};
@@ -159,7 +167,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
-						primaryButton={{ text: "Save", onClick: onSave, tooltip: "Save" }}
+						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}
 						secondaryButton={{ text: "Cancel", onClick: onClose, tooltip: "Cancel" }}
 						sx={{ justifyContent: "flex-end" }}
 					/>

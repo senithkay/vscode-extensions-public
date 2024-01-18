@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { ServiceDesignerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { ResourceInfo } from '../../definitions';
@@ -100,15 +100,15 @@ type MethodProp = {
 
 
 interface ResourceAccordionProps {
-    model: ResourceAccessorDefinition;
     resourceInfo: ResourceInfo;
+    modelPosition?: NodePosition;
     rpcClient: ServiceDesignerRpcClient;
     showDiagram: (position: NodePosition) =>  void;
-    onEditResource: (model: ResourceAccessorDefinition) => void;
+    onEditResource: (resourceInfo: ResourceInfo) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { model, resourceInfo, rpcClient, showDiagram, onEditResource } = params;
+    const { modelPosition, resourceInfo, rpcClient, showDiagram, onEditResource } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -117,11 +117,11 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleShowDiagram = () => {
         // Show the eggplant diagram
-        showDiagram(model.position);
+        showDiagram(modelPosition);
     };
 
     const handleEditResource = () => {
-        onEditResource(model);
+        onEditResource(resourceInfo);
     };
 
     const handleDeleteResource = (e: Event) => {
@@ -151,7 +151,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleConfirm = async () => {
         // Handle confirmation logic
-        await rpcClient.deleteResource({ position: model.position });
+        await rpcClient.deleteResource({ position: modelPosition });
         setConfirmOpen(false);
     };
 
