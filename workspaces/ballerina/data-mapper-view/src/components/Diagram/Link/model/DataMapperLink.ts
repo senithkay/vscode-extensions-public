@@ -35,7 +35,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 			const sourcePoint: Point = new Point(this.getFirstPoint().getPosition().x + 8,
 				this.getFirstPoint().getPosition().y);
 			const targetPoint: Point = new Point(this.getLastPoint().getPosition().x - 8,
-				this.getLastPoint().getPosition().y);
+				this.getLastPoint().getPosition().y - 2);
 			curve.setSource(sourcePoint);
 			curve.setTarget(targetPoint);
 
