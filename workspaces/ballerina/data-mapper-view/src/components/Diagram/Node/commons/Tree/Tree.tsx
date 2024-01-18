@@ -34,7 +34,7 @@ export const TreeHeader = styled.div((
     borderRadius: '3px',
     width: '100%',
     display: 'flex',
-    cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
+        cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
     '&:hover': {
         backgroundColor: `${isDisabled ? 'var(--vscode-tab-inactiveBackground)' : 'var(--vscode-list-hoverBackground)'}`
     },
@@ -53,4 +53,5 @@ export const TreeBody = styled.div`
     flex-grow: 0;
     width: 100%;
     cursor: pointer;
+    color: var(--vscode-foreground);
 `;

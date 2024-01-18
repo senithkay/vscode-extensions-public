@@ -10,7 +10,7 @@ export const LINK_TYPE_ID = "datamapper-link";
 export class DataMapperLinkModel extends DefaultLinkModel {
 
 	constructor(public value?: STNode, public diagnostics: Diagnostic[] = [],
-				         public isActualLink: boolean = false, public notContainsLabel?: boolean) {
+		public isActualLink: boolean = false, public notContainsLabel?: boolean) {
 		super({
 			type: LINK_TYPE_ID,
 			width: 1,
@@ -20,7 +20,7 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 		});
 
 		if (isActualLink){
-			this.setColor('var(--vscode-input-placeholderForeground)');
+			this.setColor('var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))');
 		}
 
 		if (diagnostics.length > 0){

@@ -7,7 +7,7 @@ import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 import { DataMapperLinkModel } from "../../Link"
 import { IntermediatePortModel } from "../IntermediatePort";
 import { RecordFieldPortModel } from "../model/RecordFieldPortModel";
-import { Button, Icon } from "@wso2-enterprise/ui-toolkit";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
@@ -83,11 +83,11 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 	};
 
 	const RadioButton = (checked: boolean) => (
-		checked ? (
-			<Icon sx={{ height: "18px", width: "18px" }} iconSx={{ display: "flex", fontSize: "18px" }} name="radio-button-checked" />
-		) : (
-			<Icon sx={{ height: "18px", width: "18px" }} iconSx={{ display: "flex", fontSize: "18px" }} name="radio-button-unchecked" />
-		)
+		<Icon
+			sx={{ height: "18px", width: "18px" }}
+			iconSx={{ display: "flex", fontSize: "18px", color: "inherit" }}
+			name={checked ? "radio-button-checked" : "radio-button-unchecked"}
+		/>
 	);
 
 	const RadioButtonChecked = styled(() => RadioButton(true))`
@@ -134,13 +134,15 @@ interface PortsContainerProps {
 	hasError: boolean;
 }
 
+const portActiveColor = "var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))";
+
 const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "pointer",
 	display: "flex",
 	strokeOpacity: props.active ? 0.1 : 0,
-	color: (props.active ? "var(--vscode-dropdown-border)" : props.hasLinks ? (props.hasError ? 'var(--vscode-errorForeground)' : "var(--vscode-input-placeholderForeground)") : "var(--vscode-input-placeholderForeground)"),
+	color: (props.active ? portActiveColor : props.hasLinks ? (props.hasError ? "var(--vscode-errorForeground)" : portActiveColor) : "var(--vscode-list-activeSelectionBackground)"),
 	"&:hover": {
-		color: "var(--vscode-dropdown-border)"
+		color: portActiveColor
 	}
 }));
 
