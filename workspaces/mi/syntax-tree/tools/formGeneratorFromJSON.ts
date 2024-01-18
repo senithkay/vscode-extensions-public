@@ -459,6 +459,19 @@ const generateForms = () => {
             console.log('---------------END-----------------');
         }
     });
+
+    // lint generated files
+    console.log('Linting...');
+    const { exec } = require('child_process');
+    exec(`eslint --fix ${destination}/**/*.tsx`, (err: any, stdout: any, stderr: any) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log(stdout);
+        console.log(stderr);
+    }
+    );
 }
 
 generateForms();
