@@ -33,6 +33,14 @@ import { VSCodePanelTab, VSCodePanelView, VSCodePanels } from '@vscode/webview-u
 import PayloadForm from './Pages/mediators/transformation/payload';
 import HTTPEndpointForm from './Pages/endpoint/anonymous/http';
 import FilterForm from './Pages/mediators/filter/filter';
+import AddressEndpointForm from './Pages/endpoint/anonymous/address';
+import DefaultEndpointForm from './Pages/endpoint/anonymous/default';
+import FailoverEndpointForm from './Pages/endpoint/anonymous/failover';
+import LoadbalanceEndpointForm from './Pages/endpoint/anonymous/loadbalance';
+import NamedEndpointForm from './Pages/endpoint/anonymous/namedEndpoint';
+import RecipientListEndpointForm from './Pages/endpoint/anonymous/recipientList';
+import TemplateEndpointForm from './Pages/endpoint/anonymous/template';
+import WSDLEndpointForm from './Pages/endpoint/anonymous/wsdl';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -150,10 +158,50 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const endpoints = [
         {
+            title: "Address Endpoint",
+            operationName: "address",
+            form: <AddressEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></AddressEndpointForm>,
+        },
+        {
+            title: "Default Endpoint",
+            operationName: "http",
+            form: <DefaultEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DefaultEndpointForm>,
+        },
+        {
+            title: "Failover Endpoint",
+            operationName: "http",
+            form: <FailoverEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FailoverEndpointForm>,
+        },
+        {
             title: "HTTP Endpoint",
             operationName: "http",
             form: <HTTPEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HTTPEndpointForm>,
         },
+        {
+            title: "Loadbalance Endpoint",
+            operationName: "http",
+            form: <LoadbalanceEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoadbalanceEndpointForm>,
+        },
+        {
+            title: "Named Endpoint",
+            operationName: "http",
+            form: <NamedEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></NamedEndpointForm>,
+        },
+        {
+            title: "Recipient List Endpoint",
+            operationName: "http",
+            form: <RecipientListEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RecipientListEndpointForm>,
+        },
+        {
+            title: "Template Endpoint",
+            operationName: "http",
+            form: <TemplateEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TemplateEndpointForm>,
+        },
+        {
+            title: "WSDL Endpoint",
+            operationName: "wsdl",
+            form: <WSDLEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></WSDLEndpointForm>,
+        }
     ];
 
     useEffect(() => {

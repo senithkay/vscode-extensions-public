@@ -16,7 +16,7 @@ import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../../mediators/common';
 import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../../constants';
+import { ENDPOINTS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
@@ -79,7 +79,7 @@ const HTTPEndpointForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(MEDIATORS.HTTPENDPOINT, formValues);
+           const xml = getXML(ENDPOINTS.HTTP, formValues);
            MIWebViewAPI.getInstance().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
