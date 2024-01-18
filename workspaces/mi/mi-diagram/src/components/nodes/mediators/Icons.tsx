@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { MEDIATORS } from "../../../constants";
+import { ENDPOINTS, MEDIATORS } from "../../../constants";
 
 export const getSVGIcon = (name: string, description: string, width: number, height: number): any => {
     switch (name) {
@@ -840,7 +840,7 @@ export const getSVGIcon = (name: string, description: string, width: number, hei
                     />
                 </g>
             </svg>;
-        case MEDIATORS.HTTPENDPOINT:
+        case ENDPOINTS.HTTP:
             return <svg
                 width={width}
                 height={height}

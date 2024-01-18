@@ -74,7 +74,7 @@ const WSDLEndpointForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(ENDPOINTS.WSDLENDPOINT, formValues);
+           const xml = getXML(ENDPOINTS.WSDL, formValues);
            MIWebViewAPI.getInstance().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
