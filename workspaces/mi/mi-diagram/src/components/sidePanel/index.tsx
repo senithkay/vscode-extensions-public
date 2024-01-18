@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { Button } from '@wso2-enterprise/ui-toolkit';
+import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../utils/WebViewRpc';
@@ -41,6 +41,8 @@ import NamedEndpointForm from './Pages/endpoint/anonymous/namedEndpoint';
 import RecipientListEndpointForm from './Pages/endpoint/anonymous/recipientList';
 import TemplateEndpointForm from './Pages/endpoint/anonymous/template';
 import WSDLEndpointForm from './Pages/endpoint/anonymous/wsdl';
+import { getSVGIcon } from '../nodes/mediators/Icons';
+import { MEDIATORS } from '../../constants';
 
 const ButtonContainer = styled.div`
     text-align: center;
@@ -70,87 +72,87 @@ const SidePanelList = (props: SidePanelListProps) => {
     const mediators = {
         "core": [
             {
-                title: "Call Mediator",
-                operationName: "call",
+                title: "Call",
+                operationName: MEDIATORS.CALL,
                 form: <CallForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallForm>,
             },
             {
-                title: "Call Template Mediator",
-                operationName: "call-template",
+                title: "Call Template",
+                operationName: MEDIATORS.CALLTEMPLATE,
                 form: <CallTemplateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CallTemplateForm>,
             },
             {
-                title: "Callout Mediator",
-                operationName: "callout",
+                title: "Callout",
+                operationName: MEDIATORS.CALLOUT,
                 form: <CalloutForm nodePosition={props.nodePosition} documentUri={props.documentUri}></CalloutForm>,
             },
             {
-                title: "Drop Mediator",
-                operationName: "drop",
+                title: "Drop",
+                operationName: MEDIATORS.DROP,
                 form: <DropForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DropForm>,
             },
             {
-                title: "Header Mediator",
-                operationName: "header",
+                title: "Header",
+                operationName: MEDIATORS.HEADER,
                 form: <HeaderForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HeaderForm>,
             },
             {
-                title: "Log Mediator",
-                operationName: "log",
+                title: "Log",
+                operationName: MEDIATORS.LOG,
                 form: <LogForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LogForm>,
             },
             {
-                title: "Loopback Mediator",
-                operationName: "loopback",
+                title: "Loopback",
+                operationName: MEDIATORS.LOOPBACK,
                 form: <LoopbackForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoopbackForm>,
             },
             {
-                title: "Property Mediator",
-                operationName: "property",
+                title: "Property",
+                operationName: MEDIATORS.PROPERTY,
                 form: <PropertyForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyForm>,
             },
             {
-                title: "Property Group Mediator",
-                operationName: "propertygroup",
+                title: "Property Group",
+                operationName: MEDIATORS.PROPERTYGROUP,
                 form: <PropertyGroupForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PropertyGroupForm>,
             },
             {
-                title: "Respond Mediator",
-                operationName: "respond",
+                title: "Respond",
+                operationName: MEDIATORS.RESPOND,
                 form: <RespondForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RespondForm>,
             },
             {
-                title: "Send Mediator",
-                operationName: "send",
+                title: "Send",
+                operationName: MEDIATORS.SEND,
                 form: <SendForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SendForm>,
             },
             {
-                title: "Sequence Mediator",
-                operationName: "sequence",
+                title: "Sequence",
+                operationName: MEDIATORS.SEQUENCE,
                 form: <SequenceForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SequenceForm>,
             },
             {
-                title: "Store Mediator",
-                operationName: "store",
+                title: "Store",
+                operationName: MEDIATORS.STORE,
                 form: <StoreForm nodePosition={props.nodePosition} documentUri={props.documentUri}></StoreForm>,
             },
             {
-                title: "Validate Mediator",
-                operationName: "validate",
+                title: "Validate",
+                operationName: MEDIATORS.VALIDATE,
                 form: <ValidateForm nodePosition={props.nodePosition} documentUri={props.documentUri}></ValidateForm>,
             }
         ],
         "transformation": [
             {
-                title: "Payload Mediator",
-                operationName: "payload",
+                title: "Payload",
+                operationName: MEDIATORS.PAYLOAD,
                 form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
             }
         ],
         "filter": [
             {
-                title: "Filter Mediator",
-                operationName: "filter",
+                title: "Filter",
+                operationName: MEDIATORS.FILTER,
                 form: <FilterForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FilterForm>,
             }
         ]
@@ -307,13 +309,20 @@ const SidePanelList = (props: SidePanelListProps) => {
                 {Object.entries(mediators).map(([key, values]) => (
                     <div key={key}>
                         <h3>{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
-                        {values.map((action) => (
-                            <ButtonContainer key={action.title}>
-                                <Button key={action.operationName} appearance='secondary' sx={{ width: "100%" }} onClick={() => showMediatorForm(action)}>
-                                    {action.title.charAt(0).toUpperCase() + action.title.slice(1)}
-                                </Button>
-                            </ButtonContainer>
-                        ))}
+                        <div style={{ display: "grid", grid: "130px / auto auto auto auto" }}>
+                            {values.map((action) => (
+                                <ButtonContainer key={action.title}>
+                                    <Button key={action.operationName} appearance='icon' sx={{ width: "90px", height: "120px", padding: "5px 0" }} onClick={() => showMediatorForm(action)}>
+                                        <div>
+                                            {getSVGIcon(action.operationName, null, 70, 50)}
+                                            <div style={{ marginTop: "15px" }}>
+                                                <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
+                                            </div>
+                                        </div>
+                                    </Button>
+                                </ButtonContainer>
+                            ))}
+                        </div>
                         <hr style={{
                             borderColor: "var(--vscode-panel-border)",
                         }} />
