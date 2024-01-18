@@ -9,9 +9,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
 
-import MenuItem from "@material-ui/core/MenuItem";
-import WarningIcon from "@material-ui/icons/Warning";
-import { Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Icon, Item, MenuItem, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css';
 
 const useStyles = () => ({
@@ -48,22 +46,25 @@ export function ValueConfigMenuItem(props: ValueConfigMenuItem) {
         onClose();
     }
 
+    const itemElement = (
+        <div className={classes.itemContainer}>
+            <div>{title}</div>
+            {warningMsg && (
+                <Tooltip
+                    content={warningMsg}
+                >
+                    <Icon name="error-icon" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                </Tooltip>
+            )}
+        </div>
+    );
+
+    const menuItem: Item = { id: title, label: itemElement, onClick: onClickMenuItem }
+
     return (
         <MenuItem
             key={title}
-            onClick={onClickMenuItem}
-            disabled={!onClick}
-        >
-            <div className={classes.itemContainer}>
-                <div>{title}</div>
-                {warningMsg && (
-                    <Tooltip
-                        content={warningMsg}
-                    >
-                        <WarningIcon className={classes.warning}/>
-                    </Tooltip>
-                )}
-            </div>
-        </MenuItem>
+            item={menuItem}
+        />
     );
 }

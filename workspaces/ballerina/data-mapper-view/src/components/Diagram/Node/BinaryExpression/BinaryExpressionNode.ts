@@ -8,7 +8,7 @@ export const BINARY_EXPR_NODE_TYPE = "datamapper-node-binary-expr";
 export class BinaryExpressionNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
-		      public value: BinaryExpression,
+		public value: BinaryExpression,
         public parentNode: STNode) {
         super(
             context,

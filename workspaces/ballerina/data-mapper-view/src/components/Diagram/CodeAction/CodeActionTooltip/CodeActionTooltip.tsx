@@ -30,7 +30,7 @@ export const CodeActionTooltipID = "data-mapper-codeaction-tooltip";
 export function CodeActionTooltip(props: Partial<Props>) {
     const { codeActions, context, children, additionalActions } = props;
     const menuItems: React.ReactNode[] = [];
-
+    
     const onCodeActionSelect = (action: CodeAction) => {
         const modifications: STModification[] = [];
         (action.edit?.documentChanges[0] as TextDocumentEdit).edits.forEach(
@@ -56,9 +56,8 @@ export function CodeActionTooltip(props: Partial<Props>) {
             const menuItem: Item = { id: `${item.title}-${index}`, label: item.title, onClick: item.onClick }
             menuItems.push(
                 <MenuItem
-                    sx={{ padding: 0 }}
+                    sx={{ pointerEvents: "auto", userSelect: "none" }}
                     item={menuItem}
-                    onClick={item.onClick}
                     data-testid={`code-action-additional-${index}`}
                 />
             );
@@ -69,8 +68,8 @@ export function CodeActionTooltip(props: Partial<Props>) {
             const menuItem: Item = { id: index, label: action.title, onClick: () => onCodeActionSelect(action) };
             menuItems.push(
                 <MenuItem
+                    sx={{ pointerEvents: "auto", userSelect: "none" }}
                     item={menuItem}
-                    onClick={() => onCodeActionSelect(action)}
                     data-testid={`code-action-${index}`}
                 />
             );

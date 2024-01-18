@@ -10,10 +10,21 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import HomeIcon from '@material-ui/icons/Home';
+import { Button, ButtonProps, Codicon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperHeaderProps {
     onClose: () => void;
+}
+
+function Home(props: ButtonProps) {
+    return (
+        <Button
+            appearance="icon"
+            {...props}
+        >
+            <Codicon name="home" /> 
+        </Button>
+    )
 }
 
 export function UnsupportedDataMapperHeader(props: DataMapperHeaderProps) {
@@ -34,7 +45,7 @@ const HeaderContainer = styled.div`
     background-color: white;
 `;
 
-const HomeButton = styled(HomeIcon)`
+const HomeButton = styled(Home)`
     cursor: pointer;
     margin-right: 10px;
 `;

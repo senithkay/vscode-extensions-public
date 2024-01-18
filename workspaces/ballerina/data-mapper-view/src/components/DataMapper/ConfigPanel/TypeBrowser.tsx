@@ -1,10 +1,8 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-import styled from "@emotion/styled";
-import { LinearProgress, TextField } from "@material-ui/core";
-import Autocomplete from '@material-ui/lab/Autocomplete'
 import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { AutoComplete, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 export interface TypeBrowserProps {
     type?: string;
@@ -28,57 +26,17 @@ export function TypeBrowser(props: TypeBrowserProps) {
 
     return (
         <>
-            <Autocomplete
+            <AutoComplete
                 key={`type-select-${isLoading.toString()}`}
                 data-testid='type-select-dropdown'
-                getOptionLabel={(option) => option?.insertText}
-                options={recordCompletions}
-                disabled={isLoading}
-                inputValue={selectedTypeStr}
-                onInputChange={(_, value) => {
-                    if (!isLoading) {
-                        setSelectedTypeStr(value)
-                    }
-                }}
-                defaultValue={recordCompletions.find(item => item.insertText === type?.split(':')?.pop())}
-                onChange={(_, value: CompletionResponseWithModule) => onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)}
-                renderInput={(params) => <TextFieldStyled {...params} autoFocus={!isLoading && !selectedTypeStr} />}
-                renderOption={(item) =>
-                    (
-                        <TypeSelectItem>
-                            <TypeSelectItemLabel>{item.label}</TypeSelectItemLabel>
-                            <TypeSelectItemModule>{item.module}</TypeSelectItemModule>
-                        </TypeSelectItem>
-                    )
-                }
-                blurOnSelect={true}
-                openOnFocus={true}
+                items={recordCompletions.map(
+                    item => item?.module ? `${item.module}:${item.insertText}` : item?.insertText
+                )}
+                selectedItem={selectedTypeStr}
+                onChange={onChange}
             />
-            {isLoading && <LinearProgress data-testid={'type-select-linear-progress'} />}
+            {isLoading && <ProgressIndicator data-testid={'type-select-linear-progress'} />}
         </>
     );
 }
 
-const TypeSelectItem = styled.div`
-    width: 100%;
-    display: flex;
-    align-items: center;
-`;
-
-const TypeSelectItemLabel = styled.div`
-    word-break: break-word;
-    flex: 1;
-`;
-
-const TypeSelectItemModule = styled.div`
-    color: var(--vscode-input-placeholderForeground);
-    font-size: 11px;
-`;
-
-const TextFieldStyled = styled(TextField)`
-    width: 100%;
-    border: 1px solid var(--vscode-editor-inactiveSelectionBackground);
-    border-radius: 5px;
-    padding: 2px 6px;
-    background-color: var(--vscode-input-background);
-`;

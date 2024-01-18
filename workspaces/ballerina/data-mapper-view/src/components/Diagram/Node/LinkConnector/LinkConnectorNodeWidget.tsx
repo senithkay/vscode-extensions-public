@@ -25,7 +25,7 @@ import { LinkConnectorNode } from './LinkConnectorNode';
 const styles = () => ({
     root: css({
         width: '100%',
-        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
         borderRadius: "6px",
         display: "flex",

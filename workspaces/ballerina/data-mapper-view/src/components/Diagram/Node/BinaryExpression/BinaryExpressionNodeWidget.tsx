@@ -1,24 +1,14 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import { Typography } from '@material-ui/core';
-import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
-import type { } from "@material-ui/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { BinaryExpressionNode } from './BinaryExpressionNode';
+import { Typography } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
 
-// @ts-ignore
-const styles = () => createStyles({
-	root: {
-		width: '100%',
-		maxWidth: 500,
-		// backgroundColor: theme.palette.background.default,
-		color: "var(--vscode-input-background)"
-	}
-});
 
-export interface BinaryExpressionNodeWidgetProps extends WithStyles<typeof styles> {
+export interface BinaryExpressionNodeWidgetProps {
 	node: BinaryExpressionNode;
 	engine: DiagramEngine;
 }
@@ -33,13 +23,16 @@ class BinaryExpressionNodeWidgetC extends React.Component<BinaryExpressionNodeWi
 					color: 'white'
 				}}
 			>
-				<Typography variant="subtitle1">
-					{/* {node.value.source} */}
+				<Typography variant="h6">
+					{this.props.node.value.source}
 				</Typography>
-
 			</div>
 		);
 	}
 }
 
-export const BinaryExpressionNodeWidget = withStyles(styles, { withTheme: true })(BinaryExpressionNodeWidgetC);
+export const BinaryExpressionNodeWidget = styled(BinaryExpressionNodeWidgetC)`
+	width: '100%';
+	max-width: 500;
+	color: "var(--vscode-input-background)"
+`;

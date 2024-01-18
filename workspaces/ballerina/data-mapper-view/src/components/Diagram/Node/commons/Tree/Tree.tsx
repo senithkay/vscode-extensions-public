@@ -13,7 +13,7 @@ export const TreeContainer = styled.div`
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    background: var(--vscode-welcomePage-tileBackground);
+    background: var(--vscode-sideBar-background);
     border: 1px solid var(--vscode-welcomePage-tileBorder);
     font-style: normal;
     font-weight: 600;
@@ -34,9 +34,9 @@ export const TreeHeader = styled.div((
     borderRadius: '3px',
     width: '100%',
     display: 'flex',
-    cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
+        cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
     '&:hover': {
-        backgroundColor: `${isDisabled ? 'var(--vscode-editorWidget-background)' : 'var(--vscode-tab-inactiveBackground)'}`
+        backgroundColor: `${isDisabled ? 'var(--vscode-tab-inactiveBackground)' : 'var(--vscode-list-hoverBackground)'}`
     },
     color: 'var(--vscode-inputOption-activeForeground)'
 }));
@@ -53,4 +53,5 @@ export const TreeBody = styled.div`
     flex-grow: 0;
     width: 100%;
     cursor: pointer;
+    color: var(--vscode-foreground);
 `;

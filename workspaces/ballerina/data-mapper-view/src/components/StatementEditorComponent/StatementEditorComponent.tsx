@@ -1,7 +1,6 @@
 // tslint:disable: no-implicit-dependencies
 import React from "react";
 
-import FormControl from "@material-ui/core/FormControl";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 // import { Panel } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";

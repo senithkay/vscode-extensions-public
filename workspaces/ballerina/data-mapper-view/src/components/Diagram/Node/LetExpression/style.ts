@@ -13,7 +13,7 @@ export const useStyles = () => ({
     addIcon: css({
         "& > vscode-button": {
             color: "var(--vscode-inputOption-activeForeground)",
-            backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+            backgroundColor: "var(--vscode-sideBar-background)",
             textTransform: "none",
             display: "flex",
             justifyContent: "space-between",
@@ -35,7 +35,12 @@ export const useStyles = () => ({
         marginRight: "24px"
     }),
     treeLabelPortSelected: css({
-        backgroundColor: 'var(--vscode-editorWidget-background)',
+        color: "var(--vscode-list-activeSelectionForeground)",
+        backgroundColor: 'var(--vscode-list-activeSelectionBackground)',
+        outline: "1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))",
+        "&:hover": {
+            backgroundColor: 'var(--vscode-list-activeSelectionBackground)'
+        }
     }),
     valueLabel: css({
         verticalAlign: "middle",
