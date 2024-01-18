@@ -63,7 +63,10 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                             appearance="icon"
                             tooltip={menuItem?.warningMsg}
                         >
-                            <Icon name="error-icon" />
+                            <Icon
+                                name="error-icon"
+                                iconSx={{ fontSize: "16px", color: "var(--vscode-errorForeground)" }}
+                            />
                         </Button>
                     )}
                 </div>
