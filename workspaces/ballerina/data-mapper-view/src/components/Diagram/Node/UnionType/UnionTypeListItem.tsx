@@ -12,11 +12,9 @@
  */
 // tslint:disable: jsx-no-multiline-js no-submodule-imports
 import React, { useState } from "react";
-// import { VscSymbolStructure } from "react-icons/vsc";
 
-// import { CircularProgress, ListItem, ListItemText, Typography } from "@material-ui/core";
-// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { Icon, ProgressRing, Tooltip, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { IDataMapperContext} from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getModification } from "../../utils/modifications";
@@ -64,40 +62,28 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
     };
 
     return (
-        <div>
-            Statement Editor Hint
-        </div>
+        <Tooltip
+            content={type}
+            position="right-end"
+        >
+            <div
+                key={key}
+                onMouseDown={onClickOnListItem}
+                className={classes.unionTypeListItem}
+            >
+                {isAddingTypeCast ? (
+                    <ProgressRing />
+                ) : (
+                    <Icon
+                        name="symbol-struct-icon"
+                        sx={{ height: "15px", width: "15px" }}
+                        iconSx={{ display: "flex", fontSize: "15px", color: "var(--vscode-input-placeholderForeground)" }}
+                    />
+                )}
+                <Typography variant="h4" className={classes.unionTypeValue} sx={{ margin: "0 0 0 6px" }} >
+                    {type}
+                </Typography>
+            </div>
+        </Tooltip>
     );
-
-    // return (
-    //     <StatementEditorHint
-    //         content={type}
-    //         contentType={null}
-    //     >
-    //         <ListItem
-    //             button={true}
-    //             key={key}
-    //             onMouseDown={onClickOnListItem}
-    //             className={classes.unionTypeListItem}
-    //             disableRipple={true}
-    //         >
-    //             {isAddingTypeCast ? (
-    //                 <CircularProgress size={16} />
-    //             ) : (
-    //                 <VscSymbolStructure
-    //                     style={{ minWidth: '22px', textAlign: 'left', color: '#000' }}
-    //                 />
-    //             )}
-    //             <ListItemText
-    //                 data-testid="suggestion-value"
-    //                 style={{ flex: 'none', maxWidth: '80%' }}
-    //                 primary={(
-    //                     <Typography className={classes.unionTypeValue}>
-    //                         {type}
-    //                     </Typography>
-    //                 )}
-    //             />
-    //         </ListItem>
-    //     </StatementEditorHint>
-    // );
 }

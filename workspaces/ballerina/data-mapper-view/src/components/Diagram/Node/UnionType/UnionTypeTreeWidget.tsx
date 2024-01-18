@@ -257,7 +257,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                     >
                         <div className={classes.warningText}>
                             <div className={classes.warningContainer}>
-                                <Icon name="error-icon" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                                <Icon name="error-icon" sx={{ marginRight: "6px" }} iconSx={{ color: "var(--vscode-errorForeground)" }} />
                                 <span>{`Types are ambiguous.`}</span>
                             </div>
                             <span>{`Please select a type to continue.`}</span>
