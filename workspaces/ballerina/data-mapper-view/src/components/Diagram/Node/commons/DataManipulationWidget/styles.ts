@@ -17,14 +17,14 @@ export const useStyles = () => ({
         minHeight: "24px",
         width: "100%",
         '&:hover': {
-            backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)',
+            backgroundColor: 'var(--vscode-list-hoverBackground)',
         },
     }),
     treeLabelPortSelected: css({
         backgroundColor: 'var(--vscode-editorWidget-background)',
     }),
     treeLabelParentHovered: css({
-        backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+        backgroundColor: 'var(--vscode-list-hoverBackground)',
     }),
     treeLabelDisableHover: css({
         '&:hover': {

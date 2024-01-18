@@ -90,6 +90,6 @@ export const useStyles = () => ({
         backgroundColor: "var(--vscode-editorWidget-background)"
     }),
     treeLabelParentHovered: css({
-        backgroundColor: 'var(--vscode-tab-inactiveBackground)'
+        backgroundColor: 'var(--vscode-list-hoverBackground)'
     })
 });
