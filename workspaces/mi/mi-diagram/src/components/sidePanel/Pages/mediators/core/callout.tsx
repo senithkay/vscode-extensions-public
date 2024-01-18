@@ -57,7 +57,7 @@ const CalloutForm = (props: AddMediatorProps) => {
    }, [sidePanelContext.formValues]);
 
    const onClick = async () => {
-       let newErrors = {} as any;
+       const newErrors = {} as any;
        Object.keys(formValidators).forEach((key) => {
            const error = formValidators[key]();
            if (error) {
@@ -103,7 +103,7 @@ const CalloutForm = (props: AddMediatorProps) => {
 
    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
        const value = e ?? formValues[id];
-       let newErrors = { ...errors };
+       const newErrors = { ...errors };
        let error;
        if (isRequired && !value) {
            error = "This field is required";
