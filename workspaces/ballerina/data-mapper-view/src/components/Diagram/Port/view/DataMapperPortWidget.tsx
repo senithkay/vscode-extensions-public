@@ -154,5 +154,5 @@ const DisabledPortContainer = styled.div`
 const DisabledNewLinkingPortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "not-allowed",
 	display: "flex",
-	color: props.hasLinks ? (props.hasError ? 'var(--vscode-errorForeground)' : "var(--vscode-input-placeholderForeground)") : "var(--vscode-input-placeholderForeground)",
+	color: props.hasLinks ? (props.hasError ? 'var(--vscode-errorForeground)' : portActiveColor) : "var(--vscode-list-activeSelectionBackground)",
 }));
