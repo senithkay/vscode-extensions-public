@@ -153,11 +153,9 @@ export class WebviewRpcManager implements WebviewAPI {
     }
 
     async updateSource(flowModel: Flow): Promise<void> {
+        return new Promise(async (resolve) => {
         const context = StateMachine.context();
         const code: CodeGeneartionData = workerCodeGen(flowModel);
-        console.log("===code", code);
-        console.log("===flowModel file Position", flowModel.fileSourceRange);
-        console.log("===flowModel bodyCodeLocation", flowModel.bodyCodeLocation);
 
         const langClient = context.langServer as LangClientInterface;
 
@@ -225,14 +223,12 @@ export class WebviewRpcManager implements WebviewAPI {
         // };
 
         // modificationList.push(modification);
-        console.log("===modificationList", modificationList);
 
         const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
             documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
             astModifications: modificationList
         });
 
-        console.log("===parseSuccess", parseSuccess);
         if (parseSuccess) {
             writeFileSync(flowModel.fileName, source);
             await langClient.didChange({
@@ -265,6 +261,8 @@ export class WebviewRpcManager implements WebviewAPI {
                 }
             }
         }
+        resolve();
+        });
     }
 
     async sendMachineEvent(params: MachineEvent): Promise<void> {
