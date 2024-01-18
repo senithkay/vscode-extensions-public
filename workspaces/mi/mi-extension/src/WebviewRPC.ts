@@ -23,7 +23,11 @@ import {
     ShowErrorMessage,
     GetProjectStructureRequest,
     CloseWebViewNotification,
-    OpenDiagram
+    OpenDiagram,
+    CreateEndpoint,
+    CreateEndpointParams,
+    GetEndpointDirectory,
+    OpenFile
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
@@ -157,6 +161,59 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return filePath;
     });
 
+    messenger.onRequest(CreateEndpoint, async (params: CreateEndpointParams): Promise<string> => {
+        const { directory, name, address, configuration, method, type, uriTemplate } = params;
+        const endpointType = type.split(" ")[0].toLowerCase();
+
+        let endpointAttributes = `${endpointType}`;
+        let otherAttributes = '';
+        let closingAttributes = `</${endpointType}>`;
+        if (endpointType === 'http') {
+            endpointAttributes = `${endpointAttributes} method="${method.toLowerCase()}" uri-template="${uriTemplate}"`;
+        } else if (endpointType === 'address') {
+            endpointAttributes = `${endpointAttributes} uri="${address}"`;
+        } else if (endpointType === 'fail') {
+            endpointAttributes = `failover`;
+            otherAttributes = `<endpoint name="endpoint_urn_uuid">
+            <address uri="http://localhost">`;
+            closingAttributes = `       </address>
+        </endpoint>
+    </failover>`;
+        } else if (endpointType === 'load') {
+            endpointAttributes = `loadbalance algorithm="org.apache.synapse.endpoints.algorithms.RoundRobin"`;
+            otherAttributes = `<endpoint name="endpoint_urn_uuid">
+            <address uri="http://localhost">`;
+            closingAttributes = `       </address>
+        </endpoint>
+    </loadbalance>`;
+        } else if (endpointType === 'recipient') {
+            endpointAttributes = `recipientlist`;
+            otherAttributes = `<endpoint>
+            <default>`;
+            closingAttributes = `       </default>
+        </endpoint>
+    </recipientlist>`;
+        }
+
+        const xmlData =  `<?xml version="1.0" encoding="UTF-8"?>
+<endpoint name="${name}" xmlns="http://ws.apache.org/ns/synapse">
+    <${endpointAttributes}>
+        ${otherAttributes}
+        <suspendOnFailure>
+            <initialDuration>-1</initialDuration>
+            <progressionFactor>1.0</progressionFactor>
+        </suspendOnFailure>
+        <markForSuspension>
+            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+        </markForSuspension>
+    ${closingAttributes}
+</endpoint>`;
+
+        const filePath = path.join(directory, `${name}.xml`);
+        fs.writeFileSync(filePath, xmlData);
+        return filePath;
+    });
+
     messenger.onRequest(GetAPIDirectory, async (): Promise<string> => {
         let result = '';
         const findSynapseAPIPath = (startPath: string) => {
@@ -185,6 +242,34 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return "";
     });
 
+    messenger.onRequest(GetEndpointDirectory, async (): Promise<string> => {
+        let result = '';
+        const findSynapseEndpointPath = (startPath: string) => {
+            const files = fs.readdirSync(startPath);
+            for(let i = 0; i < files.length; i++){
+                const filename = path.join(startPath, files[i]);
+                const stat = fs.lstatSync(filename);
+                if (stat.isDirectory()){
+                    if(filename.includes('synapse-config/endpoints')) {
+                        result = filename;
+                        return result;
+                    } else {
+                        result = findSynapseEndpointPath(filename);
+                    }
+                }
+            }
+            return result;
+        };
+        
+        const workspaceFolder = workspace.workspaceFolders;
+        if (workspaceFolder) {
+            const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+            const synapseEndpointPath = findSynapseEndpointPath(workspaceFolderPath);
+            return synapseEndpointPath;
+        }
+        return "";
+    });
+
     messenger.onNotification(CloseWebViewNotification, () => {
         if ("dispose" in view) {
             view.dispose();
@@ -195,6 +280,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         const document = await workspace.openTextDocument(filePath);
         await window.showTextDocument(document);
         commands.executeCommand('integrationStudio.showDiagram');
+    });
+
+    messenger.onNotification(OpenFile, async (filePath) => {
+        const document = await workspace.openTextDocument(filePath);
+        await window.showTextDocument(document);
     });
 }
 

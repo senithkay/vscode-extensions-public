@@ -14,6 +14,7 @@ import { generatePrompt } from './ai/prompt';
 import { unescape } from 'querystring';
 import { ProjectExplorerEntryProvider } from './activity-panel/project-explorer-provider';
 import { createApiWizardWebview } from './api-wizard/webview';
+import { createEndpointWizardWebview } from './endpoint-wizard/webview';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -23,12 +24,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh() })
 	vscode.commands.registerCommand('project-explorer.add', () => {
 		vscode.window.showQuickPick([
-			{ label: 'API', description: 'Add new API' }
+			{ label: 'API', description: 'Add new API' },
+			{ label: 'Endpoint', description: 'Add new Endpoint' }
 		], {
 			placeHolder: 'Select the construct to add'
 		}).then(selection => {
 			if (selection?.label === 'API') {
 				vscode.commands.executeCommand('project-explorer.add-api');
+			} else if (selection?.label === 'Endpoint') {
+				vscode.commands.executeCommand('project-explorer.add-endpoint');
 			}
 		});
 
@@ -38,6 +42,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		console.log('Add API');
 	})
 
+	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
+		createEndpointWizardWebview(context);
+		console.log('Add Endpoint');
+	})
+
 	projectTree.onDidChangeSelection(async e => {
 		if (e.selection.length > 0 && e.selection[0].info) {
 			const info = e.selection[0].info;
@@ -45,7 +54,9 @@ export async function activate(context: vscode.ExtensionContext) {
 			// TODO: Open file logic should go here
 			const document = await vscode.workspace.openTextDocument(info.path);
 			await vscode.window.showTextDocument(document);
-			vscode.commands.executeCommand('integrationStudio.showDiagram');
+			if (info.type === 'api') {
+				vscode.commands.executeCommand('integrationStudio.showDiagram');
+			}
 		}
 	})
 

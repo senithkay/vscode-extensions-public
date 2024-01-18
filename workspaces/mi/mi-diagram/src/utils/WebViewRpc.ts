@@ -23,7 +23,11 @@ import {
     CreateAPI,
     GetAPIDirectory,
     CloseWebViewNotification,
-    OpenDiagram
+    OpenDiagram,
+    CreateEndpointParams,
+    CreateEndpoint,
+    GetEndpointDirectory,
+    OpenFile
 } from "@wso2-enterprise/mi-core";
 
 export class MIWebViewAPI {
@@ -70,8 +74,17 @@ export class MIWebViewAPI {
     public getAPIDirectory(): Promise<string> {
         return this._messenger.sendRequest(GetAPIDirectory, HOST_EXTENSION);
     }
+
     public createAPI(params: CreateAPIParams): Promise<string> {
         return this._messenger.sendRequest(CreateAPI, HOST_EXTENSION, params);
+    }
+
+    public getEndpointDirectory(): Promise<string> {
+        return this._messenger.sendRequest(GetEndpointDirectory, HOST_EXTENSION);
+    }
+
+    public createEndpoint(params: CreateEndpointParams): Promise<string> {
+        return this._messenger.sendRequest(CreateEndpoint, HOST_EXTENSION, params);
     }
 
     public closeWebView() {
@@ -80,6 +93,10 @@ export class MIWebViewAPI {
 
     public openDiagram(filePath: string) {
         this._messenger.sendNotification(OpenDiagram, HOST_EXTENSION, filePath);
+    }
+
+    public openFile(filePath: string) {
+        this._messenger.sendNotification(OpenFile, HOST_EXTENSION, filePath);
     }
 
     public getMessenger() {
