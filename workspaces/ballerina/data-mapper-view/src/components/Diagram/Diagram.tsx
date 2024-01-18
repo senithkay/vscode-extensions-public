@@ -150,7 +150,7 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					node.initLinks();
 					const targetPortPosition = node.targetPort?.getPosition();
 					if (targetPortPosition) {
-						node.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, targetPortPosition.y - 4.5);
+						node.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, targetPortPosition.y - 4);
 						forceUpdate({} as any);
 					}
 				}
