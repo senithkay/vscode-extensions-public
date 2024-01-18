@@ -39,18 +39,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	})
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
 		createApiWizardWebview(context);
-		console.log('Add API');
 	})
 
 	vscode.commands.registerCommand('project-explorer.add-endpoint', () => {
 		createEndpointWizardWebview(context);
-		console.log('Add Endpoint');
 	})
 
 	projectTree.onDidChangeSelection(async e => {
 		if (e.selection.length > 0 && e.selection[0].info) {
 			const info = e.selection[0].info;
-			console.log(info);
 			// TODO: Open file logic should go here
 			const document = await vscode.workspace.openTextDocument(info.path);
 			await vscode.window.showTextDocument(document);

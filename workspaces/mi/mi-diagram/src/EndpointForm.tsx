@@ -138,13 +138,11 @@ export function EndpointWizard() {
             method: method
         }
         const file = await MIWebViewAPI.getInstance().createEndpoint(createEndpointParams);
-        console.log("Endpoint created");
         MIWebViewAPI.getInstance().openFile(file);
         MIWebViewAPI.getInstance().closeWebView();
     };
 
     const handleCancel = () => {
-        console.log("cancel");
         MIWebViewAPI.getInstance().closeWebView();
     };
 
