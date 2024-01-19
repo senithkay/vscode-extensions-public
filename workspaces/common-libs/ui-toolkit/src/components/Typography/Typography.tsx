@@ -8,7 +8,7 @@
  */
 import React, { ReactNode } from "react";
 
-interface TypographyProps {
+export interface TypographyProps {
     id?: string;
     className?: string;
     children: ReactNode;

@@ -16,6 +16,7 @@ import { css, cx } from "@emotion/css";
 import { Combobox } from '@headlessui/react'
 
 import { Dropdown } from "./Dropdown";
+import styled from '@emotion/styled';
 
 const ComboboxButtonContainerActive = cx(css`
     height: 28px;
@@ -71,9 +72,14 @@ const DropdownLabelDiv = cx(css`
     font-family: var(--font-family);
 `);
 
-const Container = cx(css`
+interface ContainerProps {
+    sx?: React.CSSProperties;
+}
+
+export const Container = styled.div<ContainerProps>`
     width: 100%;
-`);
+    ${(props: ContainerProps) => props.sx}
+`;
 
 export interface AutoCompleteProps {
     id?: string;
@@ -82,11 +88,13 @@ export interface AutoCompleteProps {
     notItemsFoundMessage?: string;
     selectedItem?: string;
     widthOffset?: number;
+    nullable?: boolean;
+    sx?: React.CSSProperties;
     onChange: (item: string, index?: number) => void;
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, onChange } = props;
+    const { id, selectedItem, items, label, notItemsFoundMessage, widthOffset = 157, nullable, sx, onChange } = props;
     const [query, setQuery] = useState('');
     const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
     const [isUpButton, setIsUpButton] = useState(false);
@@ -129,8 +137,8 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
             );
 
     return (
-        <div className={Container}>
-            <Combobox value={selectedItem} onChange={handleChange}>
+        <Container sx={sx}>
+            <Combobox value={selectedItem} onChange={handleChange} {...(nullable && { nullable })}>
                 <div className={DropdownLabelDiv}>
                     <label>{label}</label>
                 </div>
@@ -168,6 +176,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                     />
                 </div>
             </Combobox>
-        </div>
+        </Container>
     )
 }

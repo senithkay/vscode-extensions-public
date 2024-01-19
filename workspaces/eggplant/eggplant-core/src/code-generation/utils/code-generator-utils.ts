@@ -9,6 +9,7 @@
 
 import {
     BalExpression,
+    CodeLocation,
     CodeNodeProperties,
     Flow,
     HttpRequestNodeProperties,
@@ -26,21 +27,26 @@ import { getComponentSource } from "./template-utils";
 let returnBlock: string = "";
 let startWorkerCall: string = "";
 
+interface TransformFunction {
+    code: string;
+    location: CodeLocation;
+}
+
 interface TransformNodeData {
     transformNode: string;
-    transformFunction?: string;
+    transformFunction?: TransformFunction;
 }
 
 export interface CodeGeneartionData {
     workerBlocks: string;
-    transformFunction?: string;
+    transformFunction?: TransformFunction;
 }
 
 
 export function workerCodeGen(model: Flow): CodeGeneartionData {
     console.log("===model", model);
     let workerBlocks: string = "";
-    let transformFunction: string;
+    let transformFunction: TransformFunction;
     // use the util functions and generate the workerblocks
     model?.nodes.forEach((node) => {
         if (node.templateId === "SwitchNode") {
@@ -91,7 +97,7 @@ function generateBlockNode(node: Node): string {
     const nodeProperties = node.properties as CodeNodeProperties;
     const inputPorts: string = generateInputPorts(node);
     const outputPorts: string = generateOutputPorts(node);
-    
+
     const workerNode: string = getComponentSource({
         name: "CODE_BLOCK_NODE",
         config: {
@@ -327,22 +333,26 @@ function generateTransformNode(node: Node): TransformNodeData {
     const inputPorts: string = generateInputPorts(node);
     const outputVar: string = node.name.toLowerCase() + "_transformed";
     const outputPorts: string = generateOutputPorts(node, outputVar);
+    const metadata = getNodeMetadata(node);
 
     // create the transform_Function
-    if (!nodeProperties?.expression?.expression) {
-        // get metadata
-        const metadata = getNodeMetadata(node);
+    if (!nodeProperties?.expression?.expression || metadata.isEdited) {
         const outputType = metadata?.outputs[0]?.type;
         const inputPortNames: string[] = [];
-        metadata?.inputs.forEach((input) => {
-            inputPortNames.push(input.name);
-        });
-
         const inputPortTypes: string[] = [];
-        metadata?.inputs.forEach((input) => {
-            inputPortTypes.push(input.type);
-        });
-        
+
+        if (node.inputPorts.length > 0) {
+            node.inputPorts.forEach((input) => {
+                inputPortNames.push(input.name);
+                inputPortTypes.push(input.type);
+            });
+        } else {
+            metadata?.inputs.forEach((input) => {
+                inputPortNames.push(input.name);
+                inputPortTypes.push(input.type);
+            });
+        }
+
         const functionParams = inputPortTypes
             .map((type, index) => {
                 return type + " " + inputPortNames[index];
@@ -350,7 +360,7 @@ function generateTransformNode(node: Node): TransformNodeData {
             .join(", ");
 
         const funcArgs = inputPortNames.join(", ");
-        
+
         const functionReturn = getComponentSource({
             name: "FUNCTION_RETURN",
             config: {
@@ -372,7 +382,7 @@ function generateTransformNode(node: Node): TransformNodeData {
         const transFunctionCall = getComponentSource({
             name: "TRANSFORM_FUNCTION_CALL",
             config: {
-                TYPE: nodeProperties?.outputType ? nodeProperties.outputType : outputType,
+                TYPE: outputType,
                 VAR_NAME: outputVar,
                 FUNCTION_NAME: transFunName,
                 PARAMETERS: funcArgs,
@@ -397,7 +407,10 @@ function generateTransformNode(node: Node): TransformNodeData {
             `;
 
         return {
-            transformFunction: transFunction,
+            transformFunction: {
+                code: transFunction,
+                location: nodeProperties?.transformFunctionLocation ? nodeProperties.transformFunctionLocation : undefined,
+            },
             transformNode: completeNode,
         };
     } else {

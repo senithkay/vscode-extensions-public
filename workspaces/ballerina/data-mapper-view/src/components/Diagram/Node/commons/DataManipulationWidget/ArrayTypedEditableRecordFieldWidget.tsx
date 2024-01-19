@@ -545,7 +545,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 <Menu>
                                     {possibleTypeOptions?.map((item) => (
                                         <>
-                                            <MenuItem item={item} onClick={item.onClick} />
+                                            <MenuItem item={item} />
                                         </>
                                     ))}
                                 </Menu>

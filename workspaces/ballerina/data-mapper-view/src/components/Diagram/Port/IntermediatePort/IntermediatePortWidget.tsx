@@ -1,12 +1,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
-import Brightness1 from '@material-ui/icons/Brightness1';
-import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 
 import { IntermediatePortModel } from "./IntermediatePortModel";
+import { Button, Codicon, Icon } from "@wso2-enterprise/ui-toolkit";
+import styled from "@emotion/styled";
 
 
 export interface IntermediatePortWidgetProps {
@@ -46,6 +45,28 @@ export const IntermediatePortWidget: React.FC<IntermediatePortWidgetProps> = (pr
 		})
 	}, []);
 
+	const RadioButton = (checked: boolean) => (
+		checked ? (
+			<Button appearance="icon">
+				<Icon name="radio-button-checked" />
+			</Button>
+		) : (
+			<Button appearance="icon">
+				<Icon name="radio-button-unchecked" />
+			</Button>
+		)
+	);
+
+	const RadioButtonChecked = styled(() => RadioButton(true))`
+		user-select: none;
+		pointer-events: auto;
+	`;
+
+	const RadioButtonUnchecked = styled(() => RadioButton(false))`
+		user-select: none;
+		pointer-events: auto;
+	`;
+
 	return <PortWidget
 		port={port}
 		engine={engine}
@@ -55,6 +76,10 @@ export const IntermediatePortWidget: React.FC<IntermediatePortWidgetProps> = (pr
 			color: active ? "#C25B56" : (hasLinks ? "#96C0CE" : "#FEF6EB")
 		}}
 	>
-		{active ? <Brightness1/> : (hasLinks ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>)}
+		{active ? (
+			<Button>
+				<Codicon name="circle-filled" />
+			</Button>
+		) : (hasLinks ? <RadioButtonChecked /> : <RadioButtonUnchecked />)}
 	</PortWidget>
 }

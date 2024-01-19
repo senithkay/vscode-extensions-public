@@ -81,7 +81,7 @@ export function ResourcePath(props: ResourcePathProps) {
 					}}
 				>
 					<Dropdown
-						sx={{ width: 160 }}
+						sx={{ width: 160, marginTop: 2 }}
 						isRequired
 						errorMsg=""
 						id="drop-down"

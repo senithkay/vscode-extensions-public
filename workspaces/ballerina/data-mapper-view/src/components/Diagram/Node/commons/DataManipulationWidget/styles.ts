@@ -17,14 +17,19 @@ export const useStyles = () => ({
         minHeight: "24px",
         width: "100%",
         '&:hover': {
-            backgroundColor: 'var(--vscode-editorHoverWidget-statusBarBackground)',
+            backgroundColor: 'var(--vscode-list-hoverBackground)',
         },
     }),
     treeLabelPortSelected: css({
-        backgroundColor: 'var(--vscode-editorWidget-background)',
+        color: "var(--vscode-list-activeSelectionForeground)",
+        backgroundColor: 'var(--vscode-list-activeSelectionBackground)',
+        outline: "1px solid var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))",
+        "&:hover": {
+            backgroundColor: 'var(--vscode-list-activeSelectionBackground)'
+        }
     }),
     treeLabelParentHovered: css({
-        backgroundColor: 'var(--vscode-tab-inactiveBackground)',
+        backgroundColor: 'var(--vscode-list-hoverBackground)',
     }),
     treeLabelDisableHover: css({
         '&:hover': {
@@ -173,7 +178,7 @@ export const useStyles = () => ({
         pointerEvents: "none",
         display: "flex",
         alignItems: "center",
-        color: "var(--vscode-foreground)",
+        color: "inherit",
         "&:hover": {
             overflow: "visible"
         }

@@ -16,6 +16,7 @@ export interface TextAreaProps {
     value: string;
     label?: string;
     id?: string;
+    className?: string;
     autoFocus?: boolean;
     required?: boolean;
     errorMsg?: string;
@@ -45,7 +46,7 @@ const LabelContainer = styled.div<ContainerProps>`
 `;
 
 export function TextArea(props: TextAreaProps) {
-    const { label, value, id, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
+    const { label, value, id, className, autoFocus, required, onChange, placeholder, validationMessage, cols = 40, 
         rows, disabled, resize, readonly, errorMsg, sx
     } = props;
     const handleChange = (e: any) => {
@@ -65,6 +66,7 @@ export function TextArea(props: TextAreaProps) {
                 readOnly={readonly}
                 resize={resize}
                 id={id}
+                className={className}
             >
                 <LabelContainer><div style={{color: "var(--vscode-editor-foreground)"}}>
                     <label htmlFor={`${id}-label`}>{label}</label></div> {(required && label) && (<RequiredFormInput />)}

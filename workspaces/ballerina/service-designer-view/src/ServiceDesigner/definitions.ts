@@ -14,6 +14,7 @@ export interface ResponseConfig {
     code?: number;
     type?: string;
     description?: string;
+    source?: string;
 }
 
 export enum PARAM_TYPES {
@@ -44,8 +45,7 @@ export interface ResourceInfo {
     ST?: ResourceAccessorDefinition;
 }
 
-export interface ResponseCode {
-    code: number;
-    title: string;
-    source: string;
+export interface PathConfig {
+    path: string;
+    resources: ParameterConfig[];
 }

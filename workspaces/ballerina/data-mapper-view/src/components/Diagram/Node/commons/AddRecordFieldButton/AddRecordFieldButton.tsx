@@ -9,9 +9,7 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { FC, useState } from "react";
 
-import { Button, Codicon, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { Popover } from "@material-ui/core";
-import ErrorIcon from "@material-ui/icons/ErrorOutline";
+import { Button, Codicon, Icon, Popover, Tooltip } from "@wso2-enterprise/ui-toolkit";
 
 import { getBalRecFieldName } from "../../../utils/dm-utils";
 
@@ -78,16 +76,6 @@ export const AddRecordFieldButton: FC<Props> = ({
                 id={id}
                 open={open}
                 anchorEl={popoverAnchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                    vertical: "center",
-                    horizontal: "right",
-                }}
-                transformOrigin={{
-                    vertical: "center",
-                    horizontal: "center",
-                }}
-                classes={{ paper: classes.popoverRoot }}
             >
                 <input
                     spellCheck={false}
@@ -105,7 +93,7 @@ export const AddRecordFieldButton: FC<Props> = ({
                             <Tooltip
                                 content={`Field name ${newFieldName} already exists`}
                             >
-                                <ErrorIcon className={classes.errorIcon} />
+                                <Icon name="error-outline" iconSx={{ color: "var(--vscode-errorForeground)" }} />
                             </Tooltip>
                         )}
                         {!isError && (

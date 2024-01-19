@@ -10,9 +10,7 @@
 import React, { useEffect, useReducer } from 'react';
 
 import { css } from '@emotion/css';
-import { FormControl, FormHelperText, TextareaAutosize } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
-import { Button, IconLabel } from '@wso2-enterprise/ui-toolkit';
+import { Button, IconLabel, TextArea, Typography } from '@wso2-enterprise/ui-toolkit';
 import { LangServerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 // import {
 //     FormHeaderSection,
@@ -126,11 +124,11 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         dispatchFromState({type: 'jsonConversionStart', payload: true});
     };
 
-    const onJsonChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        dispatchFromState({type: 'setJsonValue', payload: event.target.value});
+    const onJsonChange = (val: string) => {
+        dispatchFromState({type: 'setJsonValue', payload: val});
         try {
-            JSON.parse(event.target.value);
-            dispatchFromState({type: 'setJsonValidity', payload: (JSON.stringify(event.target.value) !== `"{}"`)});
+            JSON.parse(val);
+            dispatchFromState({type: 'setJsonValidity', payload: (JSON.stringify(val) !== `"{}"`)});
         } catch (e) {
             dispatchFromState({type: 'setJsonValidity', payload: false});
         }
@@ -159,7 +157,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const jsonError = "Please enter a valid JSON";
 
     return (
-        <FormControl data-testid="module-variable-config-form" className={classes.wizardFormControl}>
+        <form data-testid="module-variable-config-form" className={classes.wizardFormControl}>
             {/* <FormHeaderSection
                 onCancel={recordFromJsonProps.onCancel}
                 formTitle="Import Sample JSON"
@@ -169,10 +167,10 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
             <div id="json-input-container" data-testId="json-input-container" className={classes.formWrapper}>
                 <div className={classes.inputWrapper}>
                     <div className={classes.labelWrapper}>
-                        <FormHelperText className={classes.inputLabelForRequired}>Sample JSON</FormHelperText>
+                        <Typography variant="h6" className={classes.inputLabelForRequired}>Sample JSON</Typography>
                     </div>
                 </div>
-                <TextareaAutosize
+                <TextArea
                     className={classes.textArea}
                     placeholder={`eg: {"organization": "wso2", "address": "Colombo"}`}
                     onChange={onJsonChange}
@@ -180,7 +178,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 />
                 {!formState.isValidRecord && (
                     <Typography
-                        variant="body2"
+                        variant="h6"
                         className={classes.textareaErrorText}
                     >
                         {jsonError}
@@ -221,6 +219,6 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                     </div>
                 </div>
             </div>
-        </FormControl>
+        </form>
     );
 }
