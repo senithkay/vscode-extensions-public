@@ -43,7 +43,18 @@ export const MEDIATORS = {
     CALLOUT: "Callout",
     HEADER: "Header",
     VALIDATE: "Validate",
-    HTTPENDPOINT: "http",
     FILTER: "Filter",
     PAYLOAD: "Payload",
+}
+
+export const ENDPOINTS = {
+    ADDRESS: "address",
+    DEFAULT: "default",
+    FAILOVER: "failover",
+    HTTP: "http",
+    LOADBALANCE: "loadbalance",
+    NAMED: "named",
+    RECIPIENTLIST: "recipientlist",
+    TEMPLATE: "template",
+    WSDL: "wsdl",
 }
