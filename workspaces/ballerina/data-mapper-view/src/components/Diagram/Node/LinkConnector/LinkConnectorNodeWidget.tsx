@@ -10,7 +10,7 @@
 import * as React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentViewInfo } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css'
@@ -25,7 +25,7 @@ import { LinkConnectorNode } from './LinkConnectorNode';
 const styles = () => ({
     root: css({
         width: '100%',
-        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
         borderRadius: "6px",
         display: "flex",

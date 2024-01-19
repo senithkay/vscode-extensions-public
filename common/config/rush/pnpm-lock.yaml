@@ -299,15 +299,12 @@ importers:
     specifiers:
       '@babel/core': ^7.20.12
       '@babel/preset-env': ^7.20.2
-      '@date-io/date-fns': ^1.3.13
       '@emotion/css': ~11.11.2
       '@emotion/react': ^11.9.3
       '@emotion/styled': ^11.10.5
       '@material-ui/core': ~4.12.3
       '@material-ui/icons': ~4.9.1
       '@material-ui/lab': ^4.0.0-alpha.52
-      '@material-ui/pickers': ^3.2.10
-      '@material-ui/styles': ~4.11.5
       '@projectstorm/geometry': ^6.7.4
       '@projectstorm/react-canvas-core': ^6.7.4
       '@projectstorm/react-diagrams': ^6.7.4
@@ -327,8 +324,6 @@ importers:
       '@types/classnames': ^2.2.9
       '@types/handlebars': ^4.1.0
       '@types/lodash': 4.14.189
-      '@types/lodash.camelcase': ^4.3.0
-      '@types/lodash.clonedeep': ^4.5.6
       '@types/lodash.debounce': ^4.0.6
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
@@ -340,8 +335,6 @@ importers:
       '@vitejs/plugin-react': ^4.1.0
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/ballerina-core': workspace:*
-      '@wso2-enterprise/ballerina-languageclient': workspace:*
-      '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/ballerina-rpc-client': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
@@ -349,34 +342,21 @@ importers:
       babel-plugin-transform-typescript-metadata: ^0.3.2
       blueimp-md5: ^2.19.0
       classnames: ^2.2.6
-      clipboard-copy: ^3.1.0
-      clsx: ^1.1.0
       copy-webpack-plugin: ^9.0.1
       copyfiles: ^2.4.1
-      cron-validator: 1.2.0
       css-loader: ^5.2.7
       dagre: ^0.8.5
-      date-fns: ^2.0.0-beta.5
-      date-fns-tz: ^1.0.12
-      dexie: ^3.2.2
       eslint: ^8.52.0
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-react-refresh: ^0.4.4
       file-loader: ^5.0.2
       fork-ts-checker-webpack-plugin: ^6.2.0
-      glob: ^7.2.0
-      graphql: ^16.6.0
-      handlebars: ^4.7.7
       jest: ^29.4.2
-      joi: ^17.3.0
       lodash: ^4.17.11
-      lodash.camelcase: ^4.3.0
-      lodash.clonedeep: ^4.5.0
       lodash.debounce: ^4.0.8
       monaco-editor: 0.44.0
       monaco-editor-core: 0.25.1
       monaco-editor-webpack-plugin: ^4.1.2
-      monaco-languageclient: 0.13.1-next.9
       mousetrap: ^1.6.5
       pathfinding: ^0.4.18
       paths-js: ^0.4.11
@@ -388,7 +368,6 @@ importers:
       react-monaco-editor: 0.43.0
       react-scripts-ts: ^3.1.0
       react-test-renderer: ^17.0.2
-      react-zoom-pan-pinch: ^1.6.1
       reflect-metadata: ^0.1.13
       resize-observer-polyfill: ^1.5.1
       rimraf: ^3.0.2
@@ -413,9 +392,7 @@ importers:
       tslint-react-hooks: ^2.2.2
       tsyringe: ^4.7.0
       typescript: ^4.9.4
-      uuid: ^8.3.0
       vite: ^4.5.0
-      vscode-languageserver-protocol: ^3.16.0
       vscode-languageserver-types: ^3.17.5
       vscode-uri: ^3.0.8
       webpack: ^5.56.0
@@ -424,15 +401,12 @@ importers:
       zustand: ^4.4.7
     dependencies:
       '@babel/preset-env': 7.23.5_@babel+core@7.23.5
-      '@date-io/date-fns': 1.3.13_date-fns@2.30.0
       '@emotion/css': 11.11.2
       '@emotion/react': 11.11.1_5n3si3aeogjujeu5eks6mxpsfi
       '@emotion/styled': 11.11.0_6uyfaveggaeim4gielocsuclya
       '@material-ui/core': 4.12.4_codnxbw47uuodsmrol27vrrbgm
       '@material-ui/icons': 4.9.1_mkre2ojqraiap6nunvaaz2nrdu
       '@material-ui/lab': 4.0.0-alpha.61_mkre2ojqraiap6nunvaaz2nrdu
-      '@material-ui/pickers': 3.3.11_phlbjj2qqbzyjdfzujtmlw3coi
-      '@material-ui/styles': 4.11.5_codnxbw47uuodsmrol27vrrbgm
       '@projectstorm/geometry': 6.7.4
       '@projectstorm/react-canvas-core': 6.7.4_vcdvlsazmnbhnp7yjvhccw67ha
       '@projectstorm/react-diagrams': 6.7.4_6l7h466civevrtttfpamhgiu7q
@@ -442,45 +416,27 @@ importers:
       '@types/lodash': 4.14.189
       '@vscode/webview-ui-toolkit': 1.4.0_react@17.0.2
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
-      '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
-      '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/ballerina-rpc-client': link:../ballerina-rpc-client
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       blueimp-md5: 2.19.0
       classnames: 2.3.2
-      clipboard-copy: 3.2.0
-      clsx: 1.2.1
-      cron-validator: 1.2.0
-      date-fns: 2.30.0
-      date-fns-tz: 1.3.8_date-fns@2.30.0
-      dexie: 3.2.4
-      glob: 7.2.3
-      graphql: 16.8.1
-      handlebars: 4.7.8
       jest: 29.7.0
-      joi: 17.11.0
       lodash: 4.17.21
-      lodash.camelcase: 4.3.0
-      lodash.clonedeep: 4.5.0
       lodash.debounce: 4.0.8
       monaco-editor: 0.44.0
       monaco-editor-core: 0.25.1
-      monaco-languageclient: 0.13.1-next.9
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-icons: 4.12.0_react@17.0.2
       react-intl: 5.25.1_oatgdhaahtizs2uezdzbohxvne
       react-lottie: 1.2.3_react@17.0.2
       react-monaco-editor: 0.43.0_5n3si3aeogjujeu5eks6mxpsfi
-      react-zoom-pan-pinch: 1.6.1_sfoxds7t5ydpegc3knd667wn6m
       reflect-metadata: 0.1.14
       resize-observer-polyfill: 1.5.1
       ts-loader: 9.5.1_qlezttlhlpl72ulofohwh4wd3u
       tslint: 6.1.3_typescript@4.9.5
       tsyringe: 4.8.0
-      uuid: 8.3.2
-      vscode-languageserver-protocol: 3.17.5
       vscode-languageserver-types: 3.17.5
       zustand: 4.4.7_5n3si3aeogjujeu5eks6mxpsfi
     devDependencies:
@@ -497,8 +453,6 @@ importers:
       '@types/blueimp-md5': 2.18.2
       '@types/classnames': 2.3.1
       '@types/handlebars': 4.1.0
-      '@types/lodash.camelcase': 4.3.9
-      '@types/lodash.clonedeep': 4.5.9
       '@types/lodash.debounce': 4.0.9
       '@types/react': 17.0.71
       '@types/react-dom': 17.0.14

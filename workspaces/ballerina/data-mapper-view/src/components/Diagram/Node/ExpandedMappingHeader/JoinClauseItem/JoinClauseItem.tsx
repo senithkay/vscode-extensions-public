@@ -9,8 +9,7 @@
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React, { useState } from "react";
 
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     JoinClause,
@@ -24,7 +23,7 @@ import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export function JoinClauseItem(props: {
     intermediateNode: JoinClause;
@@ -149,11 +148,13 @@ export function JoinClauseItem(props: {
                 {isLoading ? (
                     <ProgressRing sx={{ height: '16px', width: '16px' }} />
                 ) : (
-                    <DeleteOutline
-                        className={classes.deleteIcon}
+                    <Button
+                        appearance="icon"
                         onClick={onDelete}
                         data-testid={`join-clause-delete-${itemIndex}`}
-                    />
+                    >
+                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                    </Button>
                 )}
             </div>
 

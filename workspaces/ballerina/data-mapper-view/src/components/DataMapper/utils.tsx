@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useState, useEffect } from "react";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 
 export const ObjectBalType = "object";
 

@@ -15,7 +15,7 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";

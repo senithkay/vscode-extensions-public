@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Type } from "@wso2-enterprise/ballerina-core";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../../Link";

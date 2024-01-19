@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 import { Button, Codicon, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { css } from "@emotion/css";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification, Type } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 

@@ -8,7 +8,7 @@
  */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
 import {
 	AnydataTypeDesc,
 	AnyTypeDesc,

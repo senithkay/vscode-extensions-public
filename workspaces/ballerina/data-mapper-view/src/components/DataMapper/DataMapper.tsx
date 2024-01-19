@@ -16,7 +16,7 @@ import {
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../store/store";

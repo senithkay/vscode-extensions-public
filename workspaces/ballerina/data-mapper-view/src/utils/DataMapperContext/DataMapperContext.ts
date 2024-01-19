@@ -6,17 +6,12 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-// import {
-//     ComponentViewInfo,
-//     FileListEntry,
-//     STModification
-// } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-types";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 
 export interface IDataMapperContext {
     functionST: FunctionDefinition;

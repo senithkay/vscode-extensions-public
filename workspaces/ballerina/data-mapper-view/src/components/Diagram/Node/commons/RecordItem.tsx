@@ -9,10 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ListItem, ListItemText, Typography } from "@material-ui/core";
 import { css } from "@emotion/css";
-
-import SymbolStructIcon from "../../../../assets/icons/SymbolStructIcon";
+import { Icon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 const useStyles = () => ({
     menuItem: css({
@@ -44,17 +42,15 @@ export function RecordItem(props: RecordItemProps) {
 
     return (
         <>
-            <ListItem
+            <div
                 className={classes.menuItem}
                 key={recordName}
-                value={recordName}
                 onClick={onClickOnListItem}
             >
-                <SymbolStructIcon />
-                <ListItemText
-                    primary={<Typography className={classes.menuItemText}>{recordName}</Typography>}
-                />
-            </ListItem>
+                <Icon name="symbol-struct-icon" />
+                <Typography className={classes.menuItemText}>{recordName}</Typography>
+            </div>
         </>
     );
 }
+

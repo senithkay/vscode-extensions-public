@@ -10,7 +10,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { Button, ContextMenu, Icon, Item, Menu, MenuItem } from '@wso2-enterprise/ui-toolkit';
+import { Button, ContextMenu, Icon, Item } from '@wso2-enterprise/ui-toolkit';
 
 const useStyles = () => ({
     itemContainer: css({
@@ -63,7 +63,10 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                             appearance="icon"
                             tooltip={menuItem?.warningMsg}
                         >
-                            <Icon name="error-icon" />
+                            <Icon
+                                name="error-icon"
+                                iconSx={{ fontSize: "16px", color: "var(--vscode-errorForeground)" }}
+                            />
                         </Button>
                     )}
                 </div>

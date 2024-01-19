@@ -11,7 +11,7 @@ import React, { useMemo, useState } from "react";
 
 import { Button, Codicon, Icon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-types";
@@ -545,7 +545,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 <Menu>
                                     {possibleTypeOptions?.map((item) => (
                                         <>
-                                            <MenuItem item={item} onClick={item.onClick} />
+                                            <MenuItem item={item} />
                                         </>
                                     ))}
                                 </Menu>

@@ -9,24 +9,19 @@
 
 import React from "react";
 import { ComponentStory } from "@storybook/react";
-import styled from '@emotion/styled';
-import Grid, { GridProps } from "./Grid";
-
-const GridItem = styled.div`
-    width: fit-content;
-    height: fit-content;
-`;
+import { Grid, GridProps } from "./Grid";
 
 const Template: ComponentStory<typeof Grid> = (args: GridProps) => (
     <Grid {...args}>
-        <GridItem key={1}>Item 1</GridItem>
-        <GridItem key={2}>Item 2</GridItem>
-        <GridItem key={3}>Item 3</GridItem>
-        <GridItem key={4}>Item 4</GridItem>
-        <GridItem key={5}>Item 5</GridItem>
-        <GridItem key={6}>Item 6</GridItem>
-        <GridItem key={7}>Item 7</GridItem>
-        <GridItem key={8}>Item 8</GridItem>
+        <Grid item={true} key={1}>Item 1</Grid>
+        <Grid item={true} key={2}>Item 2</Grid>
+        <Grid item={true} key={3}>Item 3</Grid>
+        <Grid item={true} key={4}>Item 4</Grid>
+        <Grid item={true} key={5}>Item 5</Grid>
+        <Grid item={true} key={6}>Item 6</Grid>
+        <Grid item={true} key={7}>Item 7</Grid>
+        <Grid item={true} key={8}>Item 8</Grid>
+        <Grid item={true} key={9}>Item 9</Grid>     
     </Grid>
 );
 
