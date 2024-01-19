@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ApiDirectoryResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, OpenDiagramRequest, ProjectStructureRequest, ProjectStructureResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse } from "./types";
+import { ApiDirectoryResponse, ApplyEditRequest, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, OpenDiagramRequest, ProjectStructureRequest, ProjectStructureResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse } from "./types";
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
@@ -19,7 +19,7 @@ export interface MiDiagramAPI {
     createAPI: (params: CreateAPIRequest) => Promise<CreateAPIRequest>;
     showErrorMessage: (params: ShowErrorMessageRequest) => void;
     refresh: () => void;
-    applyEdit: () => void;
+    applyEdit: (params: ApplyEditRequest) => Promise<boolean>;
     closeWebViewNotification: () => void;
     openDiagram: (params: OpenDiagramRequest) => void;
 }

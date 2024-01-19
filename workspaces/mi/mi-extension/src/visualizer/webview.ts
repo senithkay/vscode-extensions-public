@@ -63,8 +63,8 @@ export class DiagramWebview {
         const scriptUri = getComposerJSFiles(extension.context, 'Visualizer', webview).map(jsFile =>
             '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
 
-        const codiconUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "resources", "codicons", "codicon.css"));
-        const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
+        // const codiconUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "resources", "codicons", "codicon.css"));
+        // const fontsUri = webview.asWebviewUri(Uri.joinPath(extension.context.extensionUri, "node_modules", "@wso2-enterprise", "font-wso2-vscode", "dist", "wso2-vscode.css"));
 
         return /*html*/ `
         <!DOCTYPE html>
@@ -74,8 +74,7 @@ export class DiagramWebview {
           <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
           <meta name="theme-color" content="#000000">
           <title>Integration Studio</title>
-          <link rel="stylesheet" href="${codiconUri}">
-          <link rel="stylesheet" href="${fontsUri}">
+         
           ${scriptUri}
         </head>
         <body>

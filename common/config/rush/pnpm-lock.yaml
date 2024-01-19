@@ -3241,6 +3241,7 @@ importers:
       '@types/vscode-webview': ~1.57.2
       '@vscode/webview-ui-toolkit': ~1.2.2
       '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-rpc-client': workspace:*
       '@wso2-enterprise/mi-syntax-tree': workspace:*
       '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ~2.4.1
@@ -3277,6 +3278,7 @@ importers:
       '@types/react-dom': 17.0.25
       '@vscode/webview-ui-toolkit': 1.2.2_react@18.2.0
       '@wso2-enterprise/mi-core': link:../mi-core
+      '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       copyfiles: 2.4.1
@@ -3433,6 +3435,7 @@ importers:
       '@types/vscode-webview': ^1.57.4
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-diagram': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -3452,6 +3455,7 @@ importers:
       '@types/vscode-webview': 1.57.4
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/mi-core': link:../mi-core
+      '@wso2-enterprise/mi-diagram': link:../mi-diagram
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

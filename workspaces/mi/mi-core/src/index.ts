@@ -7,6 +7,12 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export * from "./rpc";
+// export * from "./rpc";
 export * from "./state-machine-types";
 export * from "./vscode";
+
+
+export * from "./rpc-types/mi-diagram/index";
+export * from "./rpc-types/mi-diagram/rpc-type";
+export * from "./rpc-types/mi-diagram/types";
+

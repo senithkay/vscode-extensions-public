@@ -8,19 +8,22 @@ import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import { EventType, MachineStateValue } from '@wso2-enterprise/mi-core';
 import { StateLocation } from '@wso2-enterprise/mi-rpc-client';
+import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 
-interface Context {
-    langServer: any | null;
+export interface MachineContext {
+    langClient: ExtendedLanguageClient | null;
     errorCode: string | null;
+    documentUri: string | null;
 }
 
-const stateMachine = createMachine<Context>({
-    /** @xstate-layout N4IgpgJg5mDOIC5RilADgGwIYDsAuAdAJY5F5FYZEBeYAxBAPY5jE4BujA1qwMYAWYXlwAKAJ0YArIXgDaABgC6iUGkawyRZipAAPRAGYA7ADYCJgKxH58gwfkBGEwBYjpgDQgAnogC0DgCYCAwBOYxCjEOcHZwNXCwsAX0TPFHRsfDZNShp6MDEJMQJMLDwAM0YxAFsCASFRCWleOSUdNQ1ybSQ9REsQgjc4+QiQh3sTB08fBF8DBwcCaId5C2GjAA4YgKSU8FQSzLRGmQARMDwZSDoFZW72zS7QfQQHCzMTO1c7MItjKcMDBZzBNNs5hhZ1iYVslUvsMoQADIAZQAkqQ8AxmKwSJweAQ0gdEaj0QgcYxeKUtDgbjc2uoHjgdM9XAsEs51gl5CYTKYef8EJYjAMEmNuSF1utnL8YXt0rgiWiyHR8oVithypUagT4QRkYq8KSOOTKcwaa07vTOozus8DB8CBzJa4os5Rq6DPyOWZ7BYAgF5M4AhN2SEZdr5QQxGAsBAvAR2EQwAB3ABK0djdAA8iIAKIAOQA+gA1FE5gDqtItHSpTMQyyMCxZES+VhW6353NZErBjhCJhCAXZYbhEajMbjCeTAFU0BBSvQmCw2LjWOHMmPY-HE0mZ3OLobOBSrWbbqpLTWbXWA2ZnZETAF1iNAfzfesHet7AEjK7bJEdrC5UyFgk3EKQZAIJMwAwXhGCqegAHEcwAFQLJEkIAQRTJCcxOSsz2rR4eheZYzAfQELDBVsG3bbw-ACUICBWaIDACeYLBCEIEiMYdAMIYDQKaQheDHC46AAYXQvMxJzBECzElMc3QpCUUzPM8JAe4rVrF55EhcxNg4rlISsSx+VmdYhW2ZxA22MV2ScZJdhwRgIDgHQ1zwOkCOtJ5EA4h1tgcdYgz7fsHDcMy3iCKzjD9FY5kcHjCSycgcloLyGW06J+mCiUjCsCzrG-MzAQMcwYkBTj5GsCxAiSnUjjA5ozguZpIAyrTLwQSrzD7FYqpWX5tn5L8yqGejWJMSVvmceqIz1dEOovXyXlcALauC-sxXCowOyhB1XgDGI3EhAw5vXdNpnwzKuo5fpTA2D8ITmX4PVohBrIWAwP0cOJAycBxQ12DzI0urdkzTcclsI54QmqgYeQlQEP1eOwO0lYJDu+3kbBcc7CA3Cdt13edoZ8ojAk2AZv3WXT73yiU9vkA7VmiVwNg+fGCAgIhYCwAAjDB2qrG6VqMVjFisKJ73FftB09NwCF+ILg2cFwonWLn+OOZoye0uG3wsiIIS-f0wjM1xnGFT75D9B9+1m4GRyA5MBPAyDoNgsA9a6zizCNhnTeGN7plmQJgi-SwHxWL9xS112daEkTvZFzqVspt8eW5Qd2WiKFnBK4YArcGxQjtKxHMSIA */
+const stateMachine = createMachine<MachineContext>({
+    /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJkkA2dJIDMegCwBWIwE4zNgBwB2ADQgAnogCM+ww8narVh5Wdkbm+gC+4S5oDCrEZJRgAkIC6PJEBLgAZtQCyOhcPPxCouwSMuqKyvhqSJo63sZmljam9s5uOnpG6EHWdoEOvqbadpHRGPIlYgAiYLhikBRSsnVVKrWgWgjm2i7uCA5G2uh2kh7apqZ2dl56dtrjIDFEsACSOLhUtPTYzGzoF7vT4IP7UdiZVRYFYrSpKDZYdTbIzWdDaDyhbQOM5HDx6PT7RB6KzmU7dY4YjzYyRHJ5Aj54ChJFJpDLZXL5ekgsEQmrQmSwtbwvlIxAoqxojG7am4-GEhCOUl+UzEo5GSSSEZ0jACMAECCudCMVBgADuABlqPrsFBvnQGP96DFdfrDcazZbrVgoKCmODIbQYRUhdUoaKFeYHKcHPisVZTCYQnZ5fdTOghmYUVSPBZzFZtegXQajSbTQAlPUGigAeT4AFEAHIAfQAam86wB1QUKYVhurbOx6DzoQKmfQ0jzma7ysKkoymI6+ePnbF2cwFotu0sV10UABib3NdabdZmbwAKt2QOsRf3PLoJZJbqY+kN-B55UM7CPI9cQmYrmxDdKy3M06wgFRvQoU8LybGZqwbOsrxvPstk8DwBnTIJJCsXwHDxc5zHlBdvxfS4znxa4USMBwCzoU1BBEMR0FNMAiHYahkEoABxOtzybABlc8AEEy3PU9kN7TZ6h2BcRxjKcSXVXw9CIzoEHVUkHEjBxAl-bFrFMOizUY0pcAKF0FgoABhYSG2sutzSbayyzrYTzzeBDJNDaTtinKNcNUtpLBpfQ1IObRzFJeNdjzUIjBzXQ9EiKIQCwagIDgdQ0DhHzETvBAAFoCXU4rDA1DUgqo0JktSmJsDiEhyFyhFwxGeUSXQFoF2JNd8Ro2i6smaYyjmBYykgFrbzQhAVUkdMTCseLrCHNd5VudBjnfYk8xjQcjALV4GVwKbUJknMDBfMcovMSc9BwnNPyfQxLAeIdugXBLgNdU7fMQKcDEihx0WxK70XCsVAkMAYovw+7tASydvuLd0LStCDvV+-KZrzNMgZBuwwcnFMgnQBd4zmhdzG6fMhsLECSzNHcDSx8MvEjSVItU-yluplMhlOXYE2xYIczaZHQNNcDIKgVmCoxMd0CHdmPCCYk9EilMzk2oW-EkPNVauAsINgAgACMiEmkNWoKsIAu6Kcn1uMxRg6A4BkupobG6fQjDGOn6NMsQ5ZmmitIShwVTaFUwmTdS8W-DWEeJLFtDMDWjIDkyRvM1j2M4sAQ5kkYelxSPbBjp95TT4d7hCBLtH8TVIwOrOGJziy9QWIvtm0tNsTMHM12pwJq7MXobizRurGbwbIiAA */
     id: 'mi',
     initial: 'initialize',
     context: {
-        langServer: null,
+        langClient: null,
         errorCode: null,
+        documentUri: null
     },
     states: {
         initialize: {
@@ -48,7 +51,7 @@ const stateMachine = createMachine<Context>({
                 onDone: {
                     target: 'ready',
                     actions: assign({
-                        langServer: (context, event) => event.data
+                        langClient: (context, event) => event.data
                     })
                 },
                 onError: {
@@ -60,25 +63,42 @@ const stateMachine = createMachine<Context>({
             }
         },
         ready: {
-            initial: 'viewReady',
+            initial: 'viewLoading',
             states: {
-                viewReady: {
-                    on: {
-                        OPEN_VIEW: {
-                            target: "viewUpdate",
-                            actions: assign({
-                            })
-                        }
-                    }
-                },
-                viewUpdate: {
+                viewLoading: {
                     invoke: {
                         src: 'waitForloading',
                         onDone: {
                             target: 'viewReady'
                         }
                     }
-                }
+                },
+                viewReady: {
+                    on: {
+                        OPEN_VIEW: {
+                            target: "viewLoading",
+                            actions: assign({
+                                documentUri: (context, event) => event.viewLocation.fileName
+                            })
+                        },
+                        FILE_EDIT: {
+                            target: "viewEditing",
+                            actions: assign({
+                                documentUri: (context, event) => event.viewLocation.fileName
+                            })
+                        }
+                    }
+                },
+                viewEditing: {
+                    on: {
+                        EDIT_DONE: {
+                            target: "viewReady",
+                            actions: assign({
+                                documentUri: (context, event) => event.viewLocation.fileName
+                            })
+                        }
+                    }
+                },
             }
         },
         disabled: {
@@ -118,12 +138,12 @@ const stateMachine = createMachine<Context>({
         waitForLS: (context, event) => {
             // replace this with actual promise that waits for LS to be ready
             return new Promise(async (resolve, reject) => {
-                await MILanguageClient.getInstance(extension .context);
-                resolve(undefined);
+                const ls = (await MILanguageClient.getInstance(extension .context)).languageClient;
+                resolve(ls);
             });
         },
         waitForloading: (context, event) => {
-            // replace this with actual promise that waits for LS to be ready
+            // Get context values from the project storage so that we can restore the earlier state when user reopens vscode
             return new Promise((resolve, reject) => {
                 resolve(undefined);
             });
@@ -146,6 +166,10 @@ export const StateMachine = {
 
 export function openView(viewLocation: StateLocation) {
     stateService.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
+}
+
+export function fileUpdated(viewLocation: StateLocation) {
+    stateService.send({ type: "FILE_UPDATED", viewLocation: viewLocation });
 }
 
 async function checkIfMiProject() {

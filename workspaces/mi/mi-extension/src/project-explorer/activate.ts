@@ -9,6 +9,7 @@
 
 import * as vscode from 'vscode';
 import { ProjectExplorerEntryProvider } from './project-explorer-provider';
+import { openView } from '../stateMachine';
 
 export function activateProjectExplorer(context: vscode.ExtensionContext) {
 
@@ -39,8 +40,9 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			const info = e.selection[0].info;
 			console.log(info);
 			// TODO: Open file logic should go here
-			const document = await vscode.workspace.openTextDocument(info.path);
-			await vscode.window.showTextDocument(document);
+			// const document = await vscode.workspace.openTextDocument(info.path);
+			// await vscode.window.showTextDocument(document);
+			openView( { fileName: info.path });
 			vscode.commands.executeCommand('integrationStudio.showDiagram');
 		}
 	});

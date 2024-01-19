@@ -7,29 +7,31 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { MIDiagram } from "./MIDiagram";
-import { ActivityPanel } from "./activity-panel";
-import { APIWizard } from "./APIform";
+// import * as React from "react";
+// import * as ReactDOM from "react-dom";
+// import { MIDiagram } from "./MIDiagram";
+// import { ActivityPanel } from "./activity-panel";
+// import { APIWizard } from "./APIform";
 
-export function renderMIDiagram(documentUri: string) {
-    ReactDOM.render(
-        <MIDiagram documentUri={documentUri}></MIDiagram>,
-        document.getElementById("mi-diagram-container")
-    );
-}
+// export function renderMIDiagram(documentUri: string) {
+//     ReactDOM.render(
+//         <MIDiagram documentUri={documentUri}></MIDiagram>,
+//         document.getElementById("mi-diagram-container")
+//     );
+// }
 
-export function renderActivityPanel() {
-    ReactDOM.render(
-        <ActivityPanel />,
-        document.getElementById("activity-panel-container")
-    );
-}
+// export function renderActivityPanel() {
+//     ReactDOM.render(
+//         <ActivityPanel />,
+//         document.getElementById("activity-panel-container")
+//     );
+// }
 
-export function renderAPIWizard() {
-    ReactDOM.render(
-        <APIWizard />,
-        document.getElementById("mi-api-wizard-container")
-    );
-}
+// export function renderAPIWizard() {
+//     ReactDOM.render(
+//         <APIWizard />,
+//         document.getElementById("mi-api-wizard-container")
+//     );
+// }
+
+export { MIDiagram } from "./MIDiagram";

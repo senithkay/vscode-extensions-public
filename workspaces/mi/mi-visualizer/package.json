@@ -20,6 +20,7 @@
     "@types/vscode-webview": "^1.57.4",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/mi-core": "workspace:*",
+    "@wso2-enterprise/mi-diagram": "workspace:*",
     "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

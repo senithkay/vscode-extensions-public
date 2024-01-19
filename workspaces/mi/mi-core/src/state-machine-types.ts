@@ -8,7 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NotificationType } from "vscode-messenger-common";
+import { NotificationType, RequestType } from "vscode-messenger-common";
 
 export type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner" | "DataMapper";
 
@@ -32,3 +32,4 @@ export interface CommandProps {
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
+export const getVisualizerState: RequestType<void, any> = { method: 'getVisualizerState'};

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
  *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -10,6 +11,8 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+
+import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface ApplyEditRequest {
     text: string;
@@ -26,11 +29,14 @@ export interface CreateAPIRequest {
    version: string;
 }
 
-export interface ConnectorsResponse {
+export interface Connector {
     path: string;
     name: string;
     description: string;
     icon: string;
+}
+export interface ConnectorsResponse {
+    data: Connector[];
 }
 
 export interface ProjectStructureResponse {
@@ -68,17 +74,18 @@ export interface CommandsResponse {
 }
 
 export interface getSTRequest {
-    path: string;
+    documentUri: string;
 }
 export interface getSTResponse {
-    path: string;
+    syntaxTree: any;
+    defFilePath: string;
 }
 
 export interface ConnectorRequest {
-    data: string[];
+    path: string;
 }
 export interface ConnectorResponse {
-    data: string[];
+    data: Connector[];
 }
 
 export interface ProjectStructureRequest {
@@ -92,8 +99,7 @@ export interface ShowErrorMessageRequest {
     message: string;
 }
 
-export interface OpenDiagramRequest {
-    data: string;
+export interface OpenDiagramRequest extends CreateAPIRequest{
 }
 
 export interface CreateAPIResponse {

@@ -9,8 +9,10 @@
 
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
-import { StateMachine } from './stateMachine';
-import { stateChanged } from '@wso2-enterprise/mi-core';
+import { MachineContext, StateMachine } from './stateMachine';
+import { stateChanged, getVisualizerState } from '@wso2-enterprise/mi-core';
+import { State } from 'xstate';
+import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 
 export class RPCLayer {
     private _messenger: Messenger = new Messenger();
@@ -25,15 +27,28 @@ export class RPCLayer {
         // Register state change notification
         StateMachine.service().onTransition((state) => {
             this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, state.value);
-            this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
+            // this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
         });
+
+        this._messenger.onRequest(getVisualizerState, () => this.getContext());
+
+        registerMiDiagramRpcHandlers(this._messenger);
 
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
         return new RPCLayer(webViewPanel);
     }
+
+    async getContext(): Promise<MachineContext> {
+        const context = StateMachine.context();
+        return new Promise((resolve) => {
+            resolve({documentUri: context.documentUri, langClient: null, errorCode: null});
+        });
+    }
 }
+
+
 
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     const title = webview.title;

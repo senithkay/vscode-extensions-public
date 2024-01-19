@@ -10,6 +10,7 @@
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/mi-core";
+import DiagramPanel from "./DiagramPanel";
 
 
 export function Visualizer({ mode }: { mode: string }) {
@@ -35,7 +36,7 @@ export function Visualizer({ mode }: { mode: string }) {
                     case "activityPanel":
                         return <h2>Hello Activity Panel</h2>
                     case "visualizer":
-                        return <h2>Hello Visualizer</h2>
+                        return <LowCodeComponent state={state}/>
                 }
             })()}
         </>
@@ -53,13 +54,13 @@ export function Visualizer({ mode }: { mode: string }) {
 //     }
 // };
 
-// const LowCodeComponent = ({ state }: { state: MachineStateValue }) => {
-//     switch (true) {
-//         case typeof state === 'object' && 'ready' in state:
-//             return <WebPanel state={state} />;
-//         case typeof state === 'object' && 'newProject' in state:
-//             return <WelcomeView state={state}/>;
-//         default:
-//             return <Loader />;
-//     }
-// };
+const LowCodeComponent = ({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state:
+            return <DiagramPanel state={state} />;
+        case typeof state === 'object' && 'newProject' in state:
+            return <h1>New Project Page</h1>
+        default:
+            return <h1>LOADING</h1>;
+    }
+};

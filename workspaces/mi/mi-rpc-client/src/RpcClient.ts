@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
  
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -9,26 +10,31 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState } from "@wso2-enterprise/mi-core";
+import { MiDiagramRpcClient } from "./rpc-clients/mi-diagram/rpc-client";
+import { HOST_EXTENSION } from "vscode-messenger-common";
 
 export class RpcClient {
 
     private messenger: Messenger;
+    private _diagram: MiDiagramRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
-
-        // Register RPC client objects
-        // this._overview = new WebviewRpcClient(this.messenger);
+        this._diagram = new MiDiagramRpcClient(this.messenger);
     }
 
-    // getWebviewRpcClient(): WebviewRpcClient {
-    //     return this._overview;
-    // }
+    getMiDiagramRpcClient(): MiDiagramRpcClient {
+        return this._diagram;
+    }
 
     onStateChanged(callback: (state: MachineStateValue) => void) {
         this.messenger.onNotification(stateChanged, callback);
+    }
+
+    getVisualizerState(): Promise<any> {
+        return this.messenger.sendRequest(getVisualizerState, HOST_EXTENSION);
     }
 
 }
