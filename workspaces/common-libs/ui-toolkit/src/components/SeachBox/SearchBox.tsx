@@ -14,6 +14,7 @@ export interface SearchBoxProps {
     value: string;
     label?: string;
     id?: string;
+    icon?: React.ReactNode;
     iconPosition?: "start" | "end";
     autoFocus?: boolean;
     size?: number;
@@ -28,7 +29,7 @@ const searchIcon = (<Codicon name="search" sx= {{cursor: "auto"}}/>);
 
 export function SearchBox(props: SearchBoxProps) {
     const { label, size, disabled, readonly, value, id,
-        iconPosition, autoFocus, onChange, placeholder
+        icon, iconPosition, autoFocus, onChange, placeholder
     } = props;
     const handleChange = (value: string) => {
         onChange && onChange(value);
@@ -36,7 +37,7 @@ export function SearchBox(props: SearchBoxProps) {
     return (
         <TextField
             autoFocus={autoFocus}
-            icon={{ iconComponent: searchIcon, position: iconPosition || "start" }}
+            icon={{ iconComponent: icon ?? searchIcon, position: iconPosition || "start" }}
             size={size}
             disabled={disabled}
             readonly={readonly}
