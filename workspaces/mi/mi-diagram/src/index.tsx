@@ -12,6 +12,12 @@
 // import { MIDiagram } from "./MIDiagram";
 // import { ActivityPanel } from "./activity-panel";
 // import { APIWizard } from "./APIform";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { MIDiagram } from "./MIDiagram";
+import { ActivityPanel } from "./activity-panel";
+import { APIWizard } from "./APIform";
+import { EndpointWizard } from "./EndpointForm";
 
 // export function renderMIDiagram(documentUri: string) {
 //     ReactDOM.render(
@@ -35,3 +41,16 @@
 // }
 
 export { MIDiagram } from "./MIDiagram";
+export function renderAPIWizard() {
+    ReactDOM.render(
+        <APIWizard />,
+        document.getElementById("mi-api-wizard-container")
+    );
+}
+
+export function renderEndpointWizard() {
+    ReactDOM.render(
+        <EndpointWizard />,
+        document.getElementById("mi-endpoint-wizard-container")
+    );
+}
