@@ -25,18 +25,18 @@ interface LibraryProps {
 }
 
 export function Library(props: LibraryProps) {
-    const {
-        library: {
-            getLibraryData
-        }
-    } = useContext(StatementEditorContext);
+    const { libraryBrowserRpcClient } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;
 
     const onClickOnLibrary = async () => {
         libraryDataFetchingHandler(true);
-        const response = await getLibraryData(orgName, id, version);
+        const response = await libraryBrowserRpcClient.getLibraryData({
+            orgName: orgName,
+            moduleName: id,
+            version: version
+        });
 
         if (response) {
             libraryBrowsingHandler(response);

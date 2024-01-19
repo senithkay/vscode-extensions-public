@@ -75,16 +75,12 @@ function getStatementEditorContextProps(statement: any): CtxProviderProps {
         },
         handleChange: (arg: any) => null,
         langServerRpcClient: undefined,
+        libraryBrowserRpcClient: undefined,
         applyModifications: (arg: any) => null,
         currentFile: {
             content: "",
             path: "",
             size: 10
-        },
-        library: {
-            getLibrariesList: () => Promise.resolve(undefined),
-            getLibrariesData: () => Promise.resolve(undefined),
-            getLibraryData: () => Promise.resolve(undefined),
         },
         onCancel: () => null,
         onWizardClose: () => null,

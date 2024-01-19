@@ -86,8 +86,8 @@ export function StatementEditor(props: StatementEditorProps) {
         formArgs,
         config,
         langServerRpcClient,
+        libraryBrowserRpcClient,
         applyModifications,
-        library,
         currentFile,
         syntaxTree,
         stSymbolInfo,
@@ -586,9 +586,9 @@ export function StatementEditor(props: StatementEditorProps) {
                     config={config}
                     formArgs={formArgs}
                     langServerRpcClient={langServerRpcClient}
+                    libraryBrowserRpcClient={libraryBrowserRpcClient}
                     applyModifications={applyModifications}
                     currentFile={currentFile}
-                    library={library}
                     importStatements={importStatements}
                     syntaxTree={syntaxTree}
                     stSymbolInfo={stSymbolInfo}

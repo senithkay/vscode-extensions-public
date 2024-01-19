@@ -159,17 +159,13 @@ export function DataMapperC(props: DataMapperViewProps) {
         fnST,
         filePath,
         langServerRpcClient,
+        libraryBrowserRpcClient,
         applyModifications,
         onClose
     } = props;
     const ballerinaVersion = '2201.7.2 (swan lake update 7)';
     const openedViaPlus = false;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
-    const library: {
-        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
-        getLibrariesData: () => Promise<LibrarySearchResponse>;
-        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
-    } = undefined;
     const onSave: (fnName: string) => void = undefined;
     const importStatements: string[] = [];
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
@@ -552,9 +548,9 @@ export function DataMapperC(props: DataMapperViewProps) {
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
                                 langServerRpcClient={langServerRpcClient}
+                                libraryBrowserRpcClient={libraryBrowserRpcClient}
                                 applyModifications={applyModifications}
                                 currentFile={currentFile}
-                                library={library}
                                 onCancel={cancelStatementEditor}
                                 onClose={closeStatementEditor}
                                 importStatements={importStatements}

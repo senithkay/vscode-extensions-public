@@ -13,13 +13,10 @@ import { FormControl } from '@material-ui/core';
 import {
     CommandResponse,
     KeyboardNavigationManager,
-    LibraryDataResponse,
-    LibraryDocResponse,
-    LibrarySearchResponse,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { URI } from "vscode-uri";
 
@@ -32,17 +29,13 @@ import { useStatementEditorStyles } from '../styles';
 
 export interface LowCodeEditorProps {
     langServerRpcClient: LangServerRpcClient;
+    libraryBrowserRpcClient: LibraryBrowserRpcClient;
     applyModifications: (modifications: STModification[]) => void;
     currentFile: {
         content: string,
         path: string,
         size: number,
         originalContent?: string
-    };
-    library: {
-        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
-        getLibrariesData: () => Promise<LibrarySearchResponse>;
-        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     formArgs: any;
     config: {
@@ -85,8 +78,8 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
         onCancel,
         onWizardClose,
         langServerRpcClient,
+        libraryBrowserRpcClient,
         applyModifications,
-        library,
         currentFile,
         syntaxTree,
         stSymbolInfo,
@@ -241,6 +234,7 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             config={config}
                             formArgs={formArgs}
                             langServerRpcClient={langServerRpcClient}
+                            libraryBrowserRpcClient={libraryBrowserRpcClient}
                             applyModifications={applyModifications}
                             currentFile={
                                 {
@@ -249,7 +243,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                                     originalContent: fullSource
                                 }
                             }
-                            library={library}
                             importStatements={importStatements}
                             syntaxTree={syntaxTree}
                             stSymbolInfo={stSymbolInfo}

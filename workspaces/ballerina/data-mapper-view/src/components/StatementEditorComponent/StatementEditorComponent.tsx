@@ -1,8 +1,8 @@
 // tslint:disable: no-implicit-dependencies
 import React from "react";
 
-import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification } from "@wso2-enterprise/ballerina-core";
-import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { STModification } from "@wso2-enterprise/ballerina-core";
+import { LangServerRpcClient, LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
 import { ExpressionInfo } from "../DataMapper/DataMapper";
@@ -11,17 +11,13 @@ import { ExpressionInfo } from "../DataMapper/DataMapper";
 export interface StatementEditorComponentProps {
     expressionInfo: ExpressionInfo,
     langServerRpcClient: LangServerRpcClient;
+    libraryBrowserRpcClient: LibraryBrowserRpcClient;
     currentFile?: {
         content: string,
         path: string,
         size: number
     };
     applyModifications: (modifications: STModification[]) => void;
-    library: {
-        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
-        getLibrariesData: () => Promise<LibrarySearchResponse>;
-        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
-    };
     onCancel: () => void;
     onClose: () => void;
     importStatements: string[];
@@ -31,9 +27,9 @@ function StatementEditorC(props: StatementEditorComponentProps) {
     const {
         expressionInfo,
         langServerRpcClient,
+        libraryBrowserRpcClient,
         currentFile,
         applyModifications,
-        library,
         onCancel,
         onClose,
         importStatements,
@@ -53,7 +49,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
             syntaxTree: null,
             stSymbolInfo: null,
             langServerRpcClient: langServerRpcClient,
-            library,
+            libraryBrowserRpcClient: libraryBrowserRpcClient,
             label: expressionInfo.label,
             initialSource:  expressionInfo.value,
             applyModifications,
@@ -69,20 +65,7 @@ function StatementEditorC(props: StatementEditorComponentProps) {
         }
     );
 
-    // return  (
-    //     <span>
-    //         Statement Editor
-    //     </span>
-    // )
-    return  (
-        // <Panel onClose={onCancel}>
-        //     <FormControl variant="outlined" data-testid="data-mapper-stmt-editor-form" >
-        <>
-            {stmtEditorComponent}
-        </>
-        //     </FormControl>
-        // </Panel>
-    )
+    return  stmtEditorComponent;
 }
 
 export const StatementEditorComponent = React.memo(StatementEditorC);

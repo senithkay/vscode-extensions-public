@@ -42,6 +42,8 @@ export * from "./rpc-types/visualizer";
 export * from "./rpc-types/visualizer/rpc-type";
 export * from "./rpc-types/lang-server";
 export * from "./rpc-types/lang-server/rpc-type";
+export * from "./rpc-types/library-browser";
+export * from "./rpc-types/library-browser/rpc-type";
 export * from "./vscode";
 export * from "./utils/modification-utils";
 export * from "./utils/form-component-utils";

@@ -48,9 +48,7 @@ export function ModuleElement(props: ModuleElementProps) {
             updateModuleList
         },
         targetPosition,
-        library: {
-            getLibraryData
-        }
+        libraryBrowserRpcClient
     } = useContext(StatementEditorContext);
 
     const onClickOnModuleElement = async () => {
@@ -58,7 +56,11 @@ export function ModuleElement(props: ModuleElementProps) {
         let content = keywords.includes(moduleName) ? `${moduleName}0:${id}` : `${moduleName}:${id}`;
         setClickedModuleElement(content);
         if (isFunction) {
-            const response: LibraryDataResponse = await getLibraryData(moduleOrgName, moduleId, moduleVersion);
+            const response: LibraryDataResponse = await libraryBrowserRpcClient.getLibraryData({
+                orgName: moduleOrgName,
+                moduleName: moduleId,
+                version: moduleVersion
+            });
 
             let functionProperties: LibraryFunction = null;
             response.docsData.modules[0].functions.map((libFunction: LibraryFunction) => {

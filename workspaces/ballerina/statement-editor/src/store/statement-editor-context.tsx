@@ -24,6 +24,7 @@ import {
 
 import { InputEditorContextProvider } from "./input-editor-context";
 import { ToolbarContextProvider } from './toolbar-context';
+import { LibraryBrowserRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {
@@ -72,12 +73,8 @@ export const StatementEditorContext = React.createContext({
         editors: []
     },
     langServerRpcClient: null,
+    libraryBrowserRpcClient: null as LibraryBrowserRpcClient,
     applyModifications: (modifications: STModification[]) => undefined,
-    library: {
-        getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
-        getLibrariesData: () => (Promise.resolve({} as any)),
-        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
-    },
     currentFile: {
         content: "",
         path: "",
@@ -180,6 +177,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         openExternalUrl,
         currentReferences,
         langServerRpcClient,
+        libraryBrowserRpcClient,
         ...restProps
     } = props;
 
@@ -242,6 +240,7 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 isCodeServerInstance,
                 openExternalUrl,
                 langServerRpcClient,
+                libraryBrowserRpcClient,
                 currentReferences,
                 ...restProps
             }}

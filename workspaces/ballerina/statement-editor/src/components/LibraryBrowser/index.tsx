@@ -52,12 +52,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
     const { libraryType } = props;
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const statementEditorClasses = useStatementEditorStyles();
-    const {
-        library: {
-            getLibrariesList,
-            getLibrariesData
-        }
-    } = useContext(StatementEditorContext);
+    const { libraryBrowserRpcClient } = useContext(StatementEditorContext);
 
     const [libraryBrowserMode, setLibraryBrowserMode] = useState(LibraryBrowserMode.LIB_LIST);
     const [searchScope, setSearchScope] = useState(DEFAULT_SEARCH_SCOPE);
@@ -71,7 +66,7 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
 
     useEffect(() => {
         (async () => {
-            const response = await getLibrariesData();
+            const response = await libraryBrowserRpcClient.getLibrariesData();
             if (response) {
                 setLibrariesSearchData(response);
             }
@@ -83,11 +78,11 @@ export function LibraryBrowser(props: LibraryBrowserProps) {
             libraryDataFetchingHandler(true);
             let response;
             if (libraryType === LANG_LIBS_IDENTIFIER) {
-                response = await getLibrariesList(LibraryKind.langLib);
+                response = await libraryBrowserRpcClient.getLibrariesList(LibraryKind.langLib);
             } else if (libraryType === STD_LIBS_IDENTIFIER) {
-                response = await getLibrariesList(LibraryKind.stdLib);
+                response = await libraryBrowserRpcClient.getLibrariesList(LibraryKind.stdLib);
             } else {
-                response = await getLibrariesList();
+                response = await libraryBrowserRpcClient.getLibrariesList();
             }
 
             if (response) {
