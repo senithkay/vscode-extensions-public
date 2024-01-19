@@ -110,7 +110,7 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
         };
 
         return (<div style={{
-            padding: "10px",
+            padding: "10px 0",
             alignItems: "center",
             margin: "auto",
             width: 70,

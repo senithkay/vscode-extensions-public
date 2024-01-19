@@ -63,8 +63,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
         const connectors = fs.readdirSync(path.join(__dirname, connectorsPath));
         connectors.forEach(connector => {
-            const connectorPath = path.join(__dirname, `${connectorsPath}/${connector}`);
+            const connectorPath = path.join(__dirname, connectorsPath, connector);
             const connectorInfoFile = path.join(connectorPath, `connector.xml`);
+            const connectorIconFile = path.join(connectorPath, "icon", `icon-large.png`);
             if (fs.existsSync(connectorInfoFile)) {
                 const connectorDefinition = fs.readFileSync(connectorInfoFile, "utf8");
                 const options = {
@@ -75,7 +76,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                 const connectorInfo = parser.parse(connectorDefinition);
                 const connectorName = connectorInfo["connector"]["component"]["@_name"];
                 const connectorDescription = connectorInfo["connector"]["component"]["description"];
-                const connectorIcon = connectorInfo["connector"]["icon"];
+                const connectorIcon = Buffer.from(fs.readFileSync(connectorIconFile)).toString('base64');
                 connectorNames.push({ path: connectorPath, name: connectorName, description: connectorDescription, icon: connectorIcon });
             }
         });

@@ -42,11 +42,17 @@ import RecipientListEndpointForm from './Pages/endpoint/anonymous/recipientList'
 import TemplateEndpointForm from './Pages/endpoint/anonymous/template';
 import WSDLEndpointForm from './Pages/endpoint/anonymous/wsdl';
 import { getSVGIcon } from '../nodes/mediators/Icons';
-import { MEDIATORS } from '../../constants';
+import { ENDPOINTS, MEDIATORS } from '../../constants';
+
+const ButtonGrid = styled.div`
+    display: grid;
+    grid: 130px / auto auto auto auto;
+`;
 
 const ButtonContainer = styled.div`
     text-align: center;
     padding: 5px;
+    width: 90px;
 `;
 
 export interface SidePanelListProps {
@@ -66,6 +72,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [showConnectors, setShowConnectors] = useState<boolean>(true);
     const [showEndpoints, setShowEndpoints] = useState<boolean>(true);
     const [showMenu, setShowMenu] = useState<boolean>(true);
+    const [activeTab, setActiveTab] = useState<string>("mediators");
 
     const goBackRef = useRef(0);
 
@@ -161,53 +168,54 @@ const SidePanelList = (props: SidePanelListProps) => {
     const endpoints = [
         {
             title: "Address Endpoint",
-            operationName: "address",
+            operationName: ENDPOINTS.ADDRESS,
             form: <AddressEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></AddressEndpointForm>,
         },
         {
             title: "Default Endpoint",
-            operationName: "http",
+            operationName: ENDPOINTS.DEFAULT,
             form: <DefaultEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DefaultEndpointForm>,
         },
         {
             title: "Failover Endpoint",
-            operationName: "http",
+            operationName: ENDPOINTS.FAILOVER,
             form: <FailoverEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FailoverEndpointForm>,
         },
         {
             title: "HTTP Endpoint",
-            operationName: "http",
+            operationName: ENDPOINTS.HTTP,
             form: <HTTPEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></HTTPEndpointForm>,
         },
         {
             title: "Loadbalance Endpoint",
-            operationName: "http",
+            operationName: ENDPOINTS.LOADBALANCE,
             form: <LoadbalanceEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></LoadbalanceEndpointForm>,
         },
         {
             title: "Named Endpoint",
-            operationName: "http",
+            operationName: ENDPOINTS.NAMED,
             form: <NamedEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></NamedEndpointForm>,
         },
         {
             title: "Recipient List Endpoint",
-            operationName: "http",
+            operationName: ENDPOINTS.RECIPIENTLIST,
             form: <RecipientListEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RecipientListEndpointForm>,
         },
         {
             title: "Template Endpoint",
-            operationName: "http",
+            operationName: ENDPOINTS.TEMPLATE,
             form: <TemplateEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></TemplateEndpointForm>,
         },
         {
             title: "WSDL Endpoint",
-            operationName: "wsdl",
+            operationName: ENDPOINTS.WSDL,
             form: <WSDLEndpointForm nodePosition={props.nodePosition} documentUri={props.documentUri}></WSDLEndpointForm>,
         }
     ];
 
     useEffect(() => {
-        let form;
+    sidePanelContext.setShowBackBtn(false);
+    let form;
         for (const key in mediators) {
             form = mediators[key as keyof typeof mediators].find((mediator) => mediator.operationName === sidePanelContext.mediator);
             if (form) break;
@@ -240,6 +248,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setShowConnectors(true);
                 setShowMenu(true);
                 break;
+            case "connector":
+                sidePanelContext.setShowBackBtn(true);    
             case "endpoints":
                 setShowEndpoints(true);
                 setShowMenu(true);
@@ -259,24 +269,24 @@ const SidePanelList = (props: SidePanelListProps) => {
         })();
     }, []);
 
-    const showConnectorForm = async (connectorSchema: any) => {
-        sidePanelContext.setShowBackBtn(true);
-        setForm(connectorSchema);
-    };
-
     const ConnectorList = () => {
         return connectorList.length === 0 ? <h3 style={{ textAlign: "center" }}>No connectors found</h3> :
-            <>
+            <ButtonGrid>
                 {connectorList.map((connector) => (
                     <ButtonContainer key={connector.name} >
-                        <Button key={connector.name} appearance='secondary' sx={{ width: "100%" }} onClick={() => showConnectorActions(connector.path)}>
-                            {connector.name.charAt(0).toUpperCase() + connector.name.slice(1)}
-                            <br />
-                            {connector.description}
+                        <Button key={connector.name} appearance='icon' sx={{ width: "90px", height: "120px", padding: "5px 0" }} onClick={() => showConnectorActions(connector.path)}>
+                            <div>
+                                <img src={`data:image/png;base64, ${connector.icon}`} alt="Connector Icon" style={{ width: "70px", height: "70px" }} />
+                                <div style={{ marginTop: "15px" }}>
+                                    <IconLabel>
+                                        {connector.name.charAt(0).toUpperCase() + connector.name.slice(1)}
+                                    </IconLabel>
+                                </div>
+                            </div>
                         </Button>
                     </ButtonContainer>
                 ))}
-            </>
+            </ButtonGrid>
     }
 
     const showConnectorActions = async (connectorPath: string) => {
@@ -292,7 +302,7 @@ const SidePanelList = (props: SidePanelListProps) => {
         return actions.length === 0 ? <h3 style={{ textAlign: "center" }}>No actions found</h3> :
             <>
                 {actions.map((action) => (
-                    <ButtonContainer key={action.title}>
+                    <ButtonContainer key={action.title} style={{ width: "100%" }}>
                         <Button key={action.operationName} appearance='secondary' sx={{ width: "100%" }} onClick={() => showConnectorForm(action)}>
                             {action.title.charAt(0).toUpperCase() + action.title.slice(1)}
                         </Button>
@@ -301,20 +311,25 @@ const SidePanelList = (props: SidePanelListProps) => {
             </>
     }
 
+    const showConnectorForm = async (connectorSchema: any) => {
+        sidePanelContext.setShowBackBtn(true);
+        stackRef.push("connector");
+        setForm(connectorSchema);
+    };
+
     const MediatorList = () => {
-        sidePanelContext.setShowBackBtn(false);
         setShowMediators(true);
         return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
                 {Object.entries(mediators).map(([key, values]) => (
                     <div key={key}>
                         <h3>{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
-                        <div style={{ display: "grid", grid: "130px / auto auto auto auto" }}>
+                        <ButtonGrid>
                             {values.map((action) => (
                                 <ButtonContainer key={action.title}>
                                     <Button key={action.operationName} appearance='icon' sx={{ width: "90px", height: "120px", padding: "5px 0" }} onClick={() => showMediatorForm(action)}>
                                         <div>
-                                            {getSVGIcon(action.operationName, null, 70, 50)}
+                                            {getSVGIcon(action.operationName, null, 70, 70)}
                                             <div style={{ marginTop: "15px" }}>
                                                 <IconLabel>{action.title.charAt(0).toUpperCase() + action.title.slice(1)}</IconLabel>
                                             </div>
@@ -322,7 +337,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                                     </Button>
                                 </ButtonContainer>
                             ))}
-                        </div>
+                        </ButtonGrid>
                         <hr style={{
                             borderColor: "var(--vscode-panel-border)",
                         }} />
@@ -340,18 +355,22 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     const EndpointList = () => {
-        sidePanelContext.setShowBackBtn(false);
         setShowEndpoints(true);
         return endpoints.length === 0 ? <h3 style={{ textAlign: "center" }}>No endpoints found</h3> :
-            <>
+            <ButtonGrid>
                 {endpoints.map((endpoint) => (
                     <ButtonContainer key={endpoint.title}>
-                        <Button key={endpoint.operationName} appearance='secondary' sx={{ width: "100%" }} onClick={() => showEndpointForm(endpoint)}>
-                            {endpoint.title.charAt(0).toUpperCase() + endpoint.title.slice(1)}
+                        <Button key={endpoint.operationName} appearance='icon' sx={{ width: "90px", height: "120px", padding: "5px 0" }} onClick={() => showEndpointForm(endpoint)}>
+                            <div>
+                                {getSVGIcon(endpoint.operationName, null, 70, 70)}
+                                <div style={{ marginTop: "15px" }}>
+                                    <IconLabel>{endpoint.title.charAt(0).toUpperCase() + endpoint.title.slice(1)}</IconLabel>
+                                </div>
+                            </div>
                         </Button>
                     </ButtonContainer>
                 ))}
-            </>
+            </ButtonGrid>
     }
 
     const showEndpointForm = async (endpoint: any) => {
@@ -367,10 +386,10 @@ const SidePanelList = (props: SidePanelListProps) => {
             <div style={{
                 padding: "10px",
             }}>
-                {showMenu && <VSCodePanels aria-label="Default">
-                    <VSCodePanelTab id="tab-1">Mediators</VSCodePanelTab>
-                    <VSCodePanelTab id="tab-2">Connectors</VSCodePanelTab>
-                    <VSCodePanelTab id="tab-3">Endpoints</VSCodePanelTab>
+                {showMenu && <VSCodePanels aria-label="Default" activeid={activeTab}>
+                    <VSCodePanelTab id="mediators" onClick={(e: any) => { setActiveTab(e.target.id) }}>Mediators</VSCodePanelTab>
+                    <VSCodePanelTab id="connectors" onClick={(e: any) => { setActiveTab(e.target.id) }}>Connectors</VSCodePanelTab>
+                    <VSCodePanelTab id="endpoints" onClick={(e: any) => { setActiveTab(e.target.id) }}>Endpoints</VSCodePanelTab>
 
                     <VSCodePanelView id="view-1">
                         <div style={{ "width": "100%" }}>

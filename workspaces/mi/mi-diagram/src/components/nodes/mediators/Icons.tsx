@@ -476,9 +476,9 @@ export const getSVGIcon = (name: string, description: string, width: number, hei
             </svg>;
         case MEDIATORS.CALL:
             return <svg
-                width={width + 20}
+                width={width}
                 height={height + 20}
-                viewBox="135 50 400 550"
+                viewBox="75 50 290 550"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
             >
@@ -635,9 +635,9 @@ export const getSVGIcon = (name: string, description: string, width: number, hei
             </svg>;
         case MEDIATORS.SEND:
             return <svg
-                width={width + 20}
+                width={width}
                 height={height + 20}
-                viewBox="135 50 400 550"
+                viewBox="135 50 170 550"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
             >
