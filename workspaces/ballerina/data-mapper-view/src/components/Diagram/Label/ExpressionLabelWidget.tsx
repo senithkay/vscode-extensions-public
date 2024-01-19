@@ -10,7 +10,7 @@
 import React from 'react';
 
 import { css } from '@emotion/css';
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
 

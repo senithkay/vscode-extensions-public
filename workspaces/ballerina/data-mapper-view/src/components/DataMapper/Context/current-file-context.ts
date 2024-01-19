@@ -1,5 +1,9 @@
 import React from "react";
 
-import { CurrentFile } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+export interface CurrentFile {
+    content: string;
+    path: string;
+    size: number;
+}
 
 export const CurrentFileContext = React.createContext<CurrentFile>(undefined);

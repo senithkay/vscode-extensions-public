@@ -10,7 +10,7 @@
 import React, { useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-core";
 import {
     MappingConstructor,
     NodePosition,

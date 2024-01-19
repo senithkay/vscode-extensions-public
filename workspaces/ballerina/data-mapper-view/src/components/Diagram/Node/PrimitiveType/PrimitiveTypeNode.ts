@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { Point } from "@projectstorm/geometry";
-import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification, Type, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 import {
     ExpressionFunctionBody,
     IdentifierToken,

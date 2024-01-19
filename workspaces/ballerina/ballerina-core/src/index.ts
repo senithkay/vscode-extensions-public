@@ -20,9 +20,13 @@ export * from "./lang-server-interfaces/trigger-wizard-types";
 export * from "./lang-server-interfaces/extended-lang-server-types";
 export * from "./lang-server-interfaces/vscode-langserver-types";
 export * from "./lang-server-interfaces/common-types";
+export * from "./lang-server-interfaces/data-mapper-types";
 
 export * from "./extension-interfaces/extension-types";
 export * from "./extension-interfaces/state-machine-types";
+export * from "./extension-interfaces/library-browser-types";
+
+export * from "./common-types/common-types";
 
 export { default as templates } from "./templates/components";
 
@@ -40,4 +44,6 @@ export * from "./rpc-types/lang-server";
 export * from "./rpc-types/lang-server/rpc-type";
 export * from "./vscode";
 export * from "./utils/modification-utils";
+export * from "./utils/form-component-utils";
+export * from "./utils/diagnostics-utils";
 export * from "./utils/visitors/records-finder-visitor";

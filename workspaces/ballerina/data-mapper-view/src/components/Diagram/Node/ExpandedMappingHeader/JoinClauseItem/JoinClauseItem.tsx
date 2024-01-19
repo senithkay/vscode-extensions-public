@@ -9,7 +9,7 @@
 // tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     JoinClause,

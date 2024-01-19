@@ -10,7 +10,7 @@
 import React from "react";
 
 import { Item, Menu, MenuItem, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-types";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";

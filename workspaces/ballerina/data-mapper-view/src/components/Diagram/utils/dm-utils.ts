@@ -9,12 +9,14 @@
 import { NodeModel } from "@projectstorm/react-diagrams";
 import {
 	keywords,
+	PrimitiveBalType
+} from "@wso2-enterprise/ballerina-core";
+import {
 	LinePosition,
 	NonPrimitiveBal,
-	PrimitiveBalType,
 	STModification,
 	Type
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import {
 	CaptureBindingPattern,
 	ExpressionFunctionBody,

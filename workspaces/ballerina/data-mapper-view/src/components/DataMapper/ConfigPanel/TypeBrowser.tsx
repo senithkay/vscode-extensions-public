@@ -1,7 +1,7 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-import { CompletionResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { CompletionResponse } from "@wso2-enterprise/ballerina-core";
 import { AutoComplete, ProgressIndicator } from "@wso2-enterprise/ui-toolkit";
 
 export interface TypeBrowserProps {
