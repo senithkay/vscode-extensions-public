@@ -336,7 +336,7 @@ function generateTransformNode(node: Node): TransformNodeData {
     const metadata = getNodeMetadata(node);
 
     // create the transform_Function
-    if (!nodeProperties?.expression?.expression || metadata.isEdited) {
+    if (!nodeProperties?.expression?.expression || metadata.isEdited || nodeProperties?.isFormEdited) {
         const outputType = metadata?.outputs[0]?.type;
         const inputPortNames: string[] = [];
         const inputPortTypes: string[] = [];

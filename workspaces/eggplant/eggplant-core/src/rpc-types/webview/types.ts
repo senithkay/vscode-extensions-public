@@ -90,6 +90,7 @@ export type TransformNodeProperties = NodeProperties & {
     expression: BalExpression;
     outputType: string;
     transformFunctionLocation?: CodeLocation;
+    isFormEdited?: boolean;
 }
 
 export type SwitchCaseBlock = {

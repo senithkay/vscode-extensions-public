@@ -34,33 +34,18 @@ export function TransformNodeForm(props: OptionWidgetProps) {
         }
     }, [selectedNode.getID()]);
 
-
-    useEffect(() => {
-        if (nodeMetadata.current.isEdited) {
-            const nodeWithSameName = flowModel.nodes.find(
-                (node) => node.name === selectedNode.getName() && node.templateId === "TransformNode"
-            );
-            const nodeProperties = nodeWithSameName.properties as TransformNodeProperties;
-            const tnfFnLocation = nodeProperties.transformFunctionLocation;
-            setSelectedNode(null);
-            openDataMapper({
-                startLine: tnfFnLocation.start.line,
-                startColumn: tnfFnLocation.start.offset,
-                endLine: tnfFnLocation.end.line,
-                endColumn: tnfFnLocation.end.offset,
-            });
-        }
-    });
-
     const handleOpenDataMapper = () => {
-        if (nodeMetadata.current.isEdited) {
+        if (nodeProperties.current.isFormEdited) {
             node.current.metadata = nodeMetadata.current;
             node.current.properties = nodeProperties.current;
             selectedNode.setNode(node.current);
             updateFlowModel();
             setSelectedNode(selectedNode);
+            
         } else {
-            const tnfFnLocation = nodeProperties.current.transformFunctionLocation;
+            setSelectedNode(null);
+        }
+        const tnfFnLocation = nodeProperties.current.transformFunctionLocation;
             if (!tnfFnLocation) {
                 console.error("Transform function location is not defined");
                 return;
@@ -71,7 +56,6 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                 endLine: tnfFnLocation.end.line,
                 endColumn: tnfFnLocation.end.offset,
             });
-        }
     };
 
     const handleOnSave = () => {
@@ -136,7 +120,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                                     value={nodePort.type}
                                     required={true}
                                     onChange={(value: string) => {
-                                        nodeMetadata.current.isEdited = true;
+                                        nodeProperties.current.isFormEdited = true;
                                         if (nodeMetadata.current.inputs[index]) {
                                             nodeMetadata.current.inputs[index].type = value;
                                         }
@@ -154,7 +138,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                                         if (nodeMetadata.current.inputs[index]) {
                                             nodeMetadata.current.inputs[index].name = value;
                                         }
-                                        nodeMetadata.current.isEdited = true;
+                                        nodeProperties.current.isFormEdited = true;
                                     }}
                                     size={32}
                                 />
@@ -176,7 +160,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                             if (nodeMetadata.current.outputs[0]) {
                                 nodeMetadata.current.outputs[0].type = value;
                             }
-                            nodeMetadata.current.isEdited = true;
+                            nodeProperties.current.isFormEdited = true;
                         }}
                         size={32}
                     />
