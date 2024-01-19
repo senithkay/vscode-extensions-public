@@ -20,10 +20,19 @@ import { ResourceInfo } from "./definitions";
 import ResourceAccordion from "./components/ResourceAccordion/ResourceAccordion";
 
 interface ServiceDesignerProps {
-    model: ServiceDeclaration | ResourceInfo;
+    model?: ServiceDeclaration | ResourceInfo;
     rpcClient?: ServiceDesignerRpcClient;
     showDiagram?: (position: NodePosition) =>  void;
     onSave?: (resources: ResourceInfo) =>  void;
+}
+
+const defaultResourceInfo: ResourceInfo = {
+    path: "resourcePath",
+    method: "GET",
+    params: [],
+    responses: [],
+    advancedParams: new Map<string, any>(),
+    payloadConfig: undefined,
 }
 
 const ServiceHeader = styled.div`
@@ -46,7 +55,7 @@ const ResourceListHeader = styled.div`
 `;
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model, rpcClient, showDiagram, onSave } = props;
+    const { model = defaultResourceInfo, rpcClient, showDiagram, onSave } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
@@ -61,7 +70,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         serviceModel = undefined;
     }
 
-    serviceModel.absoluteResourcePath.forEach((pathSegment) => {
+    serviceModel?.absoluteResourcePath.forEach((pathSegment) => {
         servicePath += pathSegment.value;
     });
 
@@ -126,7 +135,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     // let serviceType = "";
     let portNumber = "";
 
-    if (STKindChecker.isExplicitNewExpression(serviceModel?.expressions[0])) {
+    if (serviceModel && STKindChecker.isExplicitNewExpression(serviceModel?.expressions[0])) {
         if (
             STKindChecker.isQualifiedNameReference(
                 serviceModel.expressions[0].typeDescriptor
