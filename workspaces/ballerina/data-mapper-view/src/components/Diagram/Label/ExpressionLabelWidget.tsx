@@ -39,7 +39,7 @@ export interface EditableLabelWidgetProps {
 export const useStyles = () => ({
     container: css({
         width: '100%',
-        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
         borderRadius: "6px",
         display: "flex",

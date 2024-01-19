@@ -56,3 +56,4 @@ export const getOffsetMultiplier = (position: PositionType): OffsetMultiplier =>
 
     return { hoverEl, tooltipEl }
 }
+

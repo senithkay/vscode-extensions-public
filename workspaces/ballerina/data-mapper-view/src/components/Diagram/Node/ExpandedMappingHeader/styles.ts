@@ -51,14 +51,13 @@ export const useStyles = () => ({
         border: "1px solid var(--vscode-pickergroup-border)"
     }),
     clauseWrap: css({
-        background: "var(--vscode-welcomePage-tileBackground)",
+        background: "var(--vscode-sideBar-background)",
         height: "40px",
         marginLeft: "25px",
         marginRight: "10px",
         display: "flex",
         alignItems: "center",
         padding: "26px 10px",
-        // boxShadow: "0px 5px 50px rgba(203, 206, 219, 0.5)",
         "&:hover": {
             "& $addOrderKeyIcon": {
                 opacity: 0.7

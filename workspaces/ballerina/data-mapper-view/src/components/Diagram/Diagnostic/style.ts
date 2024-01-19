@@ -58,13 +58,13 @@ export const useStyles = () => ({
     }),
     pre: css({
         margin: 0,
-        overflowX: "auto",
+        width: "300px",
         whiteSpace: "pre-wrap",
         wordWrap: "break-word",
     }),
     code: css({
         borderRadius: 0,
-        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        backgroundColor: "var(--vscode-sideBar-background)",
         fontSize: "13px",
         padding: "4px 2px",
         "& span": {
@@ -72,7 +72,6 @@ export const useStyles = () => ({
         }
     }),
     diagnosticWrapper: css({
-        width: '300px',
         fontSize: '12px',
         letterSpacing: '0',
         color: "var(--vscode-errorForeground)"

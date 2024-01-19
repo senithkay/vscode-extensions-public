@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { CreateServiceRequest, UpdateServiceRequest, DeleteServiceRequest, CreateResourceRequest, UpdateResourceRequest, DeleteResourceRequest, KeywordTypeResponse } from "./types";
+import { CreateServiceRequest, UpdateServiceRequest, DeleteServiceRequest, CreateResourceRequest, UpdateResourceRequest, DeleteResourceRequest, KeywordTypeResponse, RecordSTResponse, RecordSTRequest } from "./types";
 
 export interface ServiceDesignerAPI {
     createService: (params: CreateServiceRequest) => void;
@@ -21,4 +21,5 @@ export interface ServiceDesignerAPI {
     updateResource: (params: UpdateResourceRequest) => void;
     deleteResource: (params: DeleteResourceRequest) => void;
     getKeywordTypes: () => Promise<KeywordTypeResponse>;
+    getRecordST: (params: RecordSTRequest) => Promise<RecordSTResponse>;
 }

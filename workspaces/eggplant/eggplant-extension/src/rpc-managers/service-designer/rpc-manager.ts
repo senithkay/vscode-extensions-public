@@ -16,15 +16,18 @@ import {
     DeleteResourceRequest,
     DeleteServiceRequest,
     KeywordTypeResponse,
+    RecordSTRequest,
+    RecordSTResponse,
     STModification,
     ServiceDesignerAPI,
     UpdateResourceRequest,
-    UpdateServiceRequest,
+    UpdateServiceRequest
 } from "@wso2-enterprise/ballerina-core";
-import { ModulePart, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import { applyModifications, updateFileContent } from "../../utils/modification";
-import { Uri } from "vscode";
+import { visitor as RecordsFinderVisitor } from "@wso2-enterprise/ballerina-core";
 
 export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
     async createService(params: CreateServiceRequest): Promise<void> {
@@ -112,5 +115,21 @@ export class ServiceDesignerRpcManager implements ServiceDesignerAPI {
         const langClient = await context.langServer!;
         const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
         return { completions: completions.filter(value => value.kind === 25) };
+    }
+
+    async getRecordST(params: RecordSTRequest): Promise<RecordSTResponse> {
+        const context = StateMachine.context();
+        const langClient = await context.langServer!;
+        const fileUri = Uri.file(context.fileName!).toString();
+        const stResponse = await langClient.getSyntaxTree({ documentIdentifier: { uri: fileUri } });
+        traversNode(stResponse.syntaxTree, RecordsFinderVisitor);
+        const records = RecordsFinderVisitor.getRecords();
+        const recordST = records.get(params.recordName);
+        if (recordST !== undefined) {
+            return { recordST };
+        } else {
+            // Handle the case where recordST is undefined, perhaps throw an error or return a default value
+            throw new Error(`Record with name ${params.recordName} not found.`);
+        }
     }
 }
