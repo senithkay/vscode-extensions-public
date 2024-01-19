@@ -8,14 +8,16 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { MIWebViewAPI } from './utils/WebViewRpc';
+// import MIWebViewAPI from './utils/WebViewRpc';
 import { ResourceCompartment } from './components/compartments/ResourceCompartment';
-import { Refresh } from '@wso2-enterprise/mi-core';
+// import { Refresh } from '@wso2-enterprise/mi-core';
 import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvider';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './components/sidePanel';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { MiDiagramRpcClient } from '@wso2-enterprise/mi-rpc-client/lib/rpc-clients/mi-diagram/rpc-client';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 export interface MIDiagramProps {
 	documentUri: string;
@@ -32,10 +34,10 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [sidePanelFormValues, setSidePanelFormValues] = useState<{ [key: string]: any }>();
 	const [sidePanelShowBackBtn, setSidePanelShowBackBtn] = useState<boolean>(false);
 	const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
-
-	MIWebViewAPI.getInstance().getMessenger().onNotification(Refresh, () => {
-		setLastUpdated(Date.now());
-	});
+	const { rpcClient } = useVisualizerContext();
+	// MIWebViewAPI.getInstance().refresh().onNotification(Refresh, () => {
+	// 	setLastUpdated(Date.now());
+	// });
 
 	const incrementCount = () => {
 		setSidePanelBackBtn(sidePanelBackBtn + 1);
@@ -43,14 +45,15 @@ export function MIDiagram(props: MIDiagramProps) {
 
 	useEffect(() => {
 		setLoading(true);
+		setLastUpdated(0);
 
 		(async () => {
-			const st = await MIWebViewAPI.getInstance().getSyntaxTree(props.documentUri);
+			const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.documentUri });
 			const stNode = (st as any).syntaxTree;
 			setSTNode(stNode);
 			setLoading(false);
 		})();
-	}, [lastUpdated]);
+	}, [props.documentUri]);
 
 	const closePanel = () => {
 		setSidePanelNodeRange(undefined);

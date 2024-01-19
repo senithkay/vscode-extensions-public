@@ -49,7 +49,7 @@
       "activitybar": [
         {
           "id": "wso2-integration-studio",
-          "title": "Integratoin Studio",
+          "title": "Integration Studio",
           "icon": "assets/icon.svg"
         }
       ]
@@ -184,6 +184,7 @@
     "vscode-messenger-common": "~0.4.5",
     "vscode-messenger": "~0.4.5",
     "@wso2-enterprise/mi-core": "workspace:*",
+    "@wso2-enterprise/mi-rpc-client": "workspace:*",
     "@playwright/test": "~1.37.1",
     "@wso2-enterprise/playwright-vscode-tester": "workspace:*",
     "vscode-extension-tester": "~5.9.1",
@@ -198,6 +199,7 @@
     "fast-xml-parser": "~4.3.2",
     "@wso2-enterprise/mi-syntax-tree": "workspace:*",
     "@wso2-enterprise/mi-diagram": "workspace:*",
-    "@wso2-enterprise/font-wso2-vscode": "workspace:*"
+    "@wso2-enterprise/font-wso2-vscode": "workspace:*",
+    "xstate": "^4.38.3"
   }
 }

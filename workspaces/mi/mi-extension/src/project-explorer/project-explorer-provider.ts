@@ -9,11 +9,11 @@
 
 import * as vscode from 'vscode';
 import { MILanguageClient } from '../lang-client/activator';
-import { GetProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
+import { ProjectStructureResponse, ProjectStructureEntry } from '@wso2-enterprise/mi-core';
 
 export class ProjectExplorerEntry extends vscode.TreeItem {
-	children: ProjectExplorerEntry[] | undefined
-	info: ProjectStructureEntry | undefined
+	children: ProjectExplorerEntry[] | undefined;
+	info: ProjectStructureEntry | undefined;
 
 	constructor(
 		public readonly label: string,
@@ -49,7 +49,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 	}
 
 	constructor(private context: vscode.ExtensionContext) {
-		this._data = []
+		this._data = [];
 
 		getProjectStructureData(context)
 			.then(data => {
@@ -97,7 +97,7 @@ async function getProjectStructureData(context: vscode.ExtensionContext): Promis
 
 }
 
-function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEntry[] {
+function generateTreeData(data: ProjectStructureResponse): ProjectExplorerEntry[] {
 	const directoryMap = data.directoryMap;
 	const result: ProjectExplorerEntry[] = [];
 	const workspaceName = vscode.workspace.name ?? '';

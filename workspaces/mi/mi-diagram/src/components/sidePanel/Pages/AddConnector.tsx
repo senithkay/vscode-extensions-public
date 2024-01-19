@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
-import { MIWebViewAPI } from '../../../utils/WebViewRpc';
+import MIWebViewAPI from '../../../utils/WebViewRpc';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
