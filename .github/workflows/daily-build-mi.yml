@@ -1,4 +1,4 @@
-name: Daily Build - Eggplant
+name: Daily Build - MI
 on:
   schedule:
     - cron:  '30 13 * * *'
@@ -6,22 +6,20 @@ on:
 jobs:
   Release:
     name: Release VSIX
-    needs: Build
-    timeout-minutes: 15
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+          ref: mi-ext
+
       - name: Build
         uses: ./.github/actions/build
         with:
-          eggplant: true
+          mi: true
           API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
-
-      - name: Notification - Eggplant
-        uses: ./.github/actions/dailyBuildNotification
-        with:
-          title: Eggplant
-          fileName: eggplant
-          api: https://chat.googleapis.com/v1/spaces/AAAApvQDm3o/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kX2amBnx58zmdZZjgbA-JZpi3OtM8CJaOv7WOKOihwM
 
       - name: Notification - MI
         uses: ./.github/actions/dailyBuildNotification

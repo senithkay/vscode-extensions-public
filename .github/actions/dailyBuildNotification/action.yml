@@ -26,7 +26,6 @@ runs:
           echo "fileName=$file" >> $GITHUB_OUTPUT
 
     - name: Save VSIX
-      shell: bash
       uses: actions/upload-artifact@v4
       id: artifact-upload
       with:
@@ -79,5 +78,5 @@ runs:
           curl \
           -X POST \
           -H 'Content-Type: application/json' \
-          "{{ inputs.api }}" \
+          "${{ inputs.api }}" \
           -d "$body"
