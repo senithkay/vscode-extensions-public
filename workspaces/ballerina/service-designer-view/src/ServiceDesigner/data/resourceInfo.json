@@ -1,0 +1,156 @@
+[
+    {
+        "advancedParams": [
+            [
+                "Request",
+                {
+                    "id": 0,
+                    "name": "param5",
+                    "type": "http:Request",
+                    "option": "Request",
+                    "isRequired": true
+                }
+            ],
+            [
+                "Header",
+                {
+                    "id": 0,
+                    "name": "param6",
+                    "type": "http:Headers",
+                    "option": "Header",
+                    "isRequired": true
+                }
+            ],
+            [
+                "Caller",
+                {
+                    "id": 0,
+                    "name": "paramcall",
+                    "type": "http:Caller",
+                    "option": "Caller",
+                    "isRequired": true
+                }
+            ]
+        ],
+        "path": "test/put",
+        "method": "put",
+        "params": [
+            {
+                "id": 0,
+                "name": "param1",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            },
+            {
+                "id": 1,
+                "name": "param2",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            },
+            {
+                "id": 2,
+                "name": "param3",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            },
+            {
+                "id": 3,
+                "name": "param4",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            }
+        ],
+        "responses": [
+            {
+                "id": 0,
+                "code": 200,
+                "type": "float",
+                "source": "float"
+            },
+            {
+                "id": 1,
+                "code": 200,
+                "type": "string",
+                "source": "string"
+            },
+            {
+                "id": 2,
+                "code": 200,
+                "type": "BadGatewayfloat",
+                "source": "BadGatewayfloat"
+            },
+            {
+                "id": 3,
+                "code": 500,
+                "type": "error?",
+                "source": "error?"
+            }
+        ]
+    },
+    {
+        "advancedParams": [
+        ],
+        "path": "test/get",
+        "method": "get",
+        "params": [
+            {
+                "id": 0,
+                "name": "param1",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            },
+            {
+                "id": 1,
+                "name": "param2",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            },
+            {
+                "id": 2,
+                "name": "param3",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            },
+            {
+                "id": 3,
+                "name": "param4",
+                "type": "string",
+                "option": "Query",
+                "isRequired": true
+            }
+        ],
+        "responses": [
+            {
+                "id": 0,
+                "code": 200,
+                "type": "float",
+                "source": "float"
+            },
+            {
+                "id": 1,
+                "code": 200,
+                "type": "string",
+                "source": "string"
+            },
+            {
+                "id": 2,
+                "code": 200,
+                "type": "BadGatewayfloat",
+                "source": "BadGatewayfloat"
+            },
+            {
+                "id": 3,
+                "code": 500,
+                "type": "error?",
+                "source": "error?"
+            }
+        ]
+    }
+]

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -9,10 +9,26 @@
 
 import React from "react";
 import { ServiceDesigner } from ".";
+import { ResourceInfo } from "./definitions";
+import model from "./data/service.json";
+import resourceInfo from "./data/resourceInfo.json";
+import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 export default {
   component: ServiceDesigner,
   title: 'Service Designer',
 };
 
-export const Primary = () => <ServiceDesigner />;
+const typeCompletions = ["int", "string", "float"];
+const onSave = (resources: ResourceInfo) => {
+  console.log(resources);
+};
+const onDeleteResource = (resources: ResourceInfo) => {
+  console.log("Delete Resource ", resources);
+};
+
+export const EmptyModel = () => <ServiceDesigner typeCompletions={typeCompletions} onSave={onSave} />;
+
+export const WithServiceDeclModel = () => <ServiceDesigner typeCompletions={typeCompletions} model={model as ServiceDeclaration} onSave={onSave} />;
+
+export const WithSampleResourceModel = () => <ServiceDesigner typeCompletions={typeCompletions} model={resourceInfo as unknown as ResourceInfo[]} onDeleteResource={onDeleteResource} onSave={onSave} />;

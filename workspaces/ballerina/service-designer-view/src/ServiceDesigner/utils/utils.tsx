@@ -166,8 +166,8 @@ export function isHeaderParam(annotations: Annotation[]): boolean {
 }
 
 const getRecordSource = async (recordName: string, rpcClient: any): Promise<string> => {
-    const response = await rpcClient.getRecordST({ recordName: recordName });
-    return response.recordST.source;
+    const response = await rpcClient?.getRecordST({ recordName: recordName });
+    return response?.recordST.source;
 };
 
 export async function getResourceInfo(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResourceInfo> {
@@ -175,9 +175,13 @@ export async function getResourceInfo(resource: ResourceAccessorDefinition, rpcC
     const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = getPayloadConfig(resource);
     const advanceParams: Map<string, ParameterConfig> = getAdvancedParams(resource);
-    // Collect resource responses
     const response: ResponseConfig[] = await getResponseConfig(resource, rpcClient);
-    
+    const position = {
+        startLine: resource?.functionName?.position?.startLine,
+        startColumn: resource?.functionName?.position?.startColumn,
+        endLine: resource?.functionSignature?.position?.endLine,
+        endColumn: resource?.functionSignature?.position?.endColumn
+    };
     return {
         method: resource.functionName.value,
         path: pathConfig.path,
@@ -186,7 +190,7 @@ export async function getResourceInfo(resource: ResourceAccessorDefinition, rpcC
         advancedParams: advanceParams,
         payloadConfig: payloadConfig,
         responses: response,
-        ST: resource,
+        position: position,
     };
 }
 

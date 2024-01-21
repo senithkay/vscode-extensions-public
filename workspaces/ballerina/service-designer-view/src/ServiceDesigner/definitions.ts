@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 export interface ResponseConfig {
     id: number;
@@ -41,7 +41,7 @@ export interface ResourceInfo {
     advancedParams?: Map<string, ParameterConfig>;
     payloadConfig?: ParameterConfig;
     responses?: ResponseConfig[];
-    ST?: ResourceAccessorDefinition;
+    position?: NodePosition;
 }
 
 export interface PathConfig {

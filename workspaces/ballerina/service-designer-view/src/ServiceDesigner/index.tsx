@@ -20,20 +20,23 @@ import { ResourceInfo } from "./definitions";
 import ResourceAccordion from "./components/ResourceAccordion/ResourceAccordion";
 
 interface ServiceDesignerProps {
-    model?: ServiceDeclaration | ResourceInfo;
+    // Model of the service. Please send a ServiceDeclaration object in using ballerina and a ResourceInfo[] in other scenarios,
+    // Send a empty ResourceInfo object if you want to create a new resource, in editing send the current resource info
+    model?: ServiceDeclaration | ResourceInfo[];
+    // RPC client to communicate with the backend for ballerina
     rpcClient?: ServiceDesignerRpcClient;
+    // Types to be shown in the autocomplete of respose
+    typeCompletions?: string[];
     showDiagram?: (position: NodePosition) =>  void;
+    // Callback to send the resource info back to the parent component
     onSave?: (resources: ResourceInfo) =>  void;
+    // Callback to send the resource info back to the parent component
+    onDeleteResource?: (resources: ResourceInfo) =>  void;
 }
 
-const defaultResourceInfo: ResourceInfo = {
-    path: "resourcePath",
-    method: "GET",
-    params: [],
-    responses: [],
-    advancedParams: new Map<string, any>(),
-    payloadConfig: undefined,
-}
+// Define ResourceInfo[] as the default model
+const defaultResourceInfo: ResourceInfo[] = [
+]
 
 const ServiceHeader = styled.div`
     display: flex;
@@ -55,11 +58,11 @@ const ResourceListHeader = styled.div`
 `;
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model = defaultResourceInfo, rpcClient, showDiagram, onSave } = props;
+    const { model = defaultResourceInfo, typeCompletions = [], rpcClient, showDiagram, onSave, onDeleteResource } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
-    const [typeCompletions, setTypeCompletions] = useState<string[]>([]);
+    const [types, setTypes] = useState<string[]>(typeCompletions);
 
     const [editingResource, setEditingResource] = useState<ResourceInfo>();
 
@@ -87,30 +90,39 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const fetchTypes = async () => {
-        const types = await rpcClient.getKeywordTypes();
-        setTypeCompletions(types.completions.map(type => type.insertText));
+        const types = await rpcClient?.getKeywordTypes();
+        setTypes(types?.completions.map(type => type.insertText));
     }
 
     useEffect(() => {
         const resourceList: JSX.Element[] = [];
-        if (serviceModel) {
-            serviceModel?.members.forEach(async (member) => {
-                if (STKindChecker.isResourceAccessorDefinition(member)) {
-                    const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
-                    const resourceInfo = await getResourceInfo(member, rpcClient);
-                    resourceList.push(
-                        <div data-start-position={startPosition} >
-                            <ResourceAccordion rpcClient={rpcClient} resourceInfo={resourceInfo} onEditResource={handleResourceEdit} modelPosition={(member as ResourceAccessorDefinition).position} showDiagram={showDiagram} />
-                        </div>
-                    );
+        const fetchResources = async () => {
+            if (serviceModel && serviceModel.members) {
+                for (const member of serviceModel.members) {
+                    if (STKindChecker.isResourceAccessorDefinition(member)) {
+                        const resourceInfo = await getResourceInfo(member, rpcClient);
+                        resourceList.push(
+                            <div>
+                                <ResourceAccordion rpcClient={rpcClient} resourceInfo={resourceInfo} onEditResource={handleResourceEdit} modelPosition={(member as ResourceAccessorDefinition).position} onDeleteResource={onDeleteResource} showDiagram={showDiagram} />
+                            </div>
+                        );
+                    }
                 }
-            });
-        } else {
-            <ResourceAccordion rpcClient={rpcClient} resourceInfo={model as ResourceInfo} onEditResource={handleResourceEdit} showDiagram={showDiagram} />
+            } else {
+                const resources = model as ResourceInfo[];
+                resources.forEach((resource) => {
+                    resourceList.push(
+                        <ResourceAccordion rpcClient={rpcClient} resourceInfo={resource} onEditResource={handleResourceEdit} onDeleteResource={onDeleteResource} showDiagram={showDiagram} />
+                    );
+                });
+            }
+            setResources(resourceList);
+        };
+        fetchResources();
+        if (types.length === 0) {
+            fetchTypes();
         }
-        setResources(resourceList);
-        fetchTypes();
-    }, [model]);
+    }, [model, serviceModel, showDiagram, types.length]);
 
     const handleServiceConfig = () => {
         // Handle service config form
@@ -188,7 +200,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     onSave={handleSave}
                     onClose={handleOnClose} 
                     addNameRecord={addNameRecord}
-                    typeCompletions={typeCompletions}
+                    isBallerina={!!serviceModel}
+                    typeCompletions={types}
                 />
             }
         </div>

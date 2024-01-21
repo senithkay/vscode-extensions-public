@@ -31,11 +31,12 @@ export interface ResourceFormProps {
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
 	onClose: () => void;
+	isBallerina?: boolean;
 	typeCompletions?: string[];
 }
 
 export function ResourceForm(props: ResourceFormProps) {
-	const { isOpen, resourceConfig, onClose, onSave, addNameRecord, typeCompletions } = props;
+	const { isOpen, resourceConfig, onClose, onSave, addNameRecord, isBallerina, typeCompletions } = props;
 
 	const [method, setMethod] = useState<HTTP_METHOD>(resourceConfig?.method.toUpperCase() as HTTP_METHOD || HTTP_METHOD.GET);
 	const [path, setPath] = useState<string>(resourceConfig?.path || "path");
@@ -117,20 +118,14 @@ export function ResourceForm(props: ResourceFormProps) {
 			responses: response
 		};
 		// Insert scenario
-		if (!resourceConfig?.ST) {
+		if (!resourceConfig?.position) {
 			// Insert scenario
 			genSource = generateNewResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
 			onSave && onSave(genSource, config);
 		} else {
 			// Edit scenario
-			const position = {
-				startLine: resourceConfig?.ST?.functionName?.position?.startLine,
-				startColumn: resourceConfig?.ST?.functionName?.position?.startColumn,
-				endLine: resourceConfig?.ST?.functionSignature?.position?.endLine,
-				endColumn: resourceConfig?.ST?.functionSignature?.position?.endColumn
-			};
 			genSource = updateResourceFunction({ METHOD: method.toLocaleLowerCase(), PATH: path, PARAMETERS: paramString, ADD_RETURN: responseString });
-			onSave && onSave(genSource, config, position);
+			onSave && onSave(genSource, config, resourceConfig?.position);
 		}
 		onClose();
 	};
@@ -164,7 +159,7 @@ export function ResourceForm(props: ResourceFormProps) {
 					<Divider />
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Responses</Typography>
-					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} typeCompletions={typeCompletions}/>
+					<ResourceResponse method={method} addNameRecord={addNameRecord} response={response} onChange={handleResponseChange} isBallerina={isBallerina} typeCompletions={typeCompletions}/>
 
 					<ActionButtons
 						primaryButton={{ text: "Save", onClick: handleSave, tooltip: "Save" }}

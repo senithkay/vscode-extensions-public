@@ -672,7 +672,7 @@ body {
     --vscode-gitlens-graphScrollMarkerTagsColor: #6b562e;
     --background: #1e1e1e;
     --border-width: 1;
-    --contrast-active-border: #f38518;
+    --contrast-active-border: transparent;
     --contrast-border: #6fc3df;
     --corner-radius: 0;
     --corner-radius-round: 2;

@@ -105,10 +105,11 @@ interface ResourceAccordionProps {
     rpcClient: ServiceDesignerRpcClient;
     showDiagram: (position: NodePosition) =>  void;
     onEditResource: (resourceInfo: ResourceInfo) => void;
+    onDeleteResource?: (resourceInfo: ResourceInfo) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { modelPosition, resourceInfo, rpcClient, showDiagram, onEditResource } = params;
+    const { modelPosition, resourceInfo, rpcClient, showDiagram, onEditResource, onDeleteResource } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -151,7 +152,11 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleConfirm = async () => {
         // Handle confirmation logic
-        await rpcClient.deleteResource({ position: modelPosition });
+        if (onDeleteResource) {
+            onDeleteResource(resourceInfo);
+        } else {
+            await rpcClient.deleteResource({ position: modelPosition });
+        }
         setConfirmOpen(false);
     };
 
