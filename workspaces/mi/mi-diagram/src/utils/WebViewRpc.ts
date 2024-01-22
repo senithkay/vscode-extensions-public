@@ -27,7 +27,11 @@ import {
     CreateEndpointParams,
     CreateEndpoint,
     GetEndpointDirectory,
-    OpenFile
+    OpenFile,
+    GetEndpointsAndSequences,
+    CreateSequenceParams,
+    CreateSequence,
+    GetSequenceDirectory
 } from "@wso2-enterprise/mi-core";
 
 export class MIWebViewAPI {
@@ -85,6 +89,19 @@ export class MIWebViewAPI {
 
     public createEndpoint(params: CreateEndpointParams): Promise<string> {
         return this._messenger.sendRequest(CreateEndpoint, HOST_EXTENSION, params);
+    }
+
+    public async getEndpointsAndSequences() {
+        const data = await this._messenger.sendRequest(GetEndpointsAndSequences, HOST_EXTENSION);
+        return data;
+    }
+
+    public getSequenceDirectory(): Promise<string> {
+        return this._messenger.sendRequest(GetSequenceDirectory, HOST_EXTENSION);
+    }
+
+    public createSequence(params: CreateSequenceParams): Promise<string> {
+        return this._messenger.sendRequest(CreateSequence, HOST_EXTENSION, params);
     }
 
     public closeWebView() {

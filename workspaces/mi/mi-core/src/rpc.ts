@@ -33,7 +33,14 @@ export interface CreateEndpointParams {
     address: string;
     uriTemplate: string;
     method: string;
- }
+}
+
+export interface CreateSequenceParams {
+    directory: string;
+    name: string;
+    endpoint: string;
+    onErrorSequence: string;
+}
 
 export interface GetConnectorsResponse {
     path: string;
@@ -78,6 +85,9 @@ export const GetAPIDirectory: RequestType<void, string> = { method: 'getAPIDirec
 export const CreateAPI: RequestType<CreateAPIParams, string> = {method: 'createAPI'};
 export const GetEndpointDirectory: RequestType<void, string> = { method: 'getEndpointDirectory' };
 export const CreateEndpoint: RequestType<CreateEndpointParams, string> = {method: 'createEndpoint'};
+export const GetEndpointsAndSequences: RequestType<void, string[][]> = {method: 'getEndpointsAndSequences'};
+export const GetSequenceDirectory: RequestType<void, string> = { method: 'getSequenceDirectory' };
+export const CreateSequence: RequestType<CreateSequenceParams, string> = {method: 'createSequence'};
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
