@@ -27,7 +27,6 @@ export interface UpdateFileContentRequest {
 }
 
 export interface ExtensionAPI {
-    getBallerinaVersion: () => Promise<string | undefined>;
     getEnv: (name: string) => Promise<string>;
     getFileContent: (url: string) => Promise<string>;
 
@@ -41,7 +40,6 @@ export interface ExtensionAPI {
 
 const extensionAPI = "extension-api/"
 
-export const getBallerinaVersion: RequestType<void, string | undefined> = { method: `${extensionAPI}getBallerinaVersion` };
 export const getEnv: RequestType<string, string> = { method: `${extensionAPI}getEnv` };
 export const getFileContent: RequestType<string, string> = { method: `${extensionAPI}getFileContent` };
 

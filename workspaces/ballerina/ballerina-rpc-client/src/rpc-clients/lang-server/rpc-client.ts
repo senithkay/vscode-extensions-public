@@ -43,6 +43,7 @@ import {
     didClose,
     didOpen,
     getBallerinaProjectComponents,
+    getBallerinaVersion,
     getCompletion,
     getDefinitionPosition,
     getDiagnostics,
@@ -85,6 +86,10 @@ export class LangServerRpcClient implements LangServerAPI {
 
     getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
         return this._messenger.sendRequest(getBallerinaProjectComponents, HOST_EXTENSION, params);
+    }
+
+    getBallerinaVersion(): Promise<string | undefined> {
+        return this._messenger.sendRequest(getBallerinaVersion, HOST_EXTENSION);
     }
 
     getCompletion(params: CompletionParams): Promise<CompletionResponse[]> {
