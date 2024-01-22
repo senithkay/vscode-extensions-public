@@ -103,7 +103,7 @@ function generateBlockNode(node: Node): string {
         config: {
             NODE_NAME: node.name,
             INPUT_PORTS: inputPorts,
-            CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.expression : undefined,
+            CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.code : undefined,
             OUTPUT_PORTS: outputPorts,
         },
     });

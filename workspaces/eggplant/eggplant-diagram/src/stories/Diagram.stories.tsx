@@ -257,7 +257,7 @@ const CodeBlockModel: Flow = {
             ],
             properties:{
                 codeBlock: {
-                    expression: "int a = 32 + x;\n"
+                    code: "int a = 32 + x;\n"
                 }
             }
         },
@@ -296,7 +296,7 @@ const CodeBlockModel: Flow = {
             ],
             properties:{
                 codeBlock: {
-                    expression: "int a = 32 + x;\n        int b = a % 12;\n"
+                    code: "int a = 32 + x;\n        int b = a % 12;\n"
                 }
             }
         },

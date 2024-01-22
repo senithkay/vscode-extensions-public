@@ -104,7 +104,7 @@ export function getDefaultNodeModel(model: DiagramModel, type: NodeKinds, endpoi
             // add additional metadata for code block node
             emptyNode.properties = {
                 codeBlock: {
-                    expression: `${DEFAULT_TYPE} payload = {};`,
+                    code: `${DEFAULT_TYPE} payload = {};`,
                 },
             };
             emptyNode.metadata = {
@@ -122,7 +122,7 @@ export function getDefaultNodeModel(model: DiagramModel, type: NodeKinds, endpoi
             // add additional metadata for code block node
             emptyNode.properties = {
                 codeBlock: {
-                    expression: `${DEFAULT_TYPE} payload = {};`,
+                    code: `${DEFAULT_TYPE} payload = {};`,
                 },
             };
             emptyNode.metadata = {
