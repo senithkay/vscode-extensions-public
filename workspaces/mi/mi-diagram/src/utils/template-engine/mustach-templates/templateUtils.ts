@@ -59,8 +59,24 @@ export function getMustacheTemplate(name: string) {
             return getValidateMustacheTemplate();
 
         // Endpoints
-        case MEDIATORS.HTTPENDPOINT:
-            return getHTTPEndpointMustacheTemplate();
+        // case ENDPOINTS.ADDRESS:
+        //     return getAddressEndpointMustacheTemplate();
+        // case ENDPOINTS.DEFAULT:
+        //     return getDefaultEndpointMustacheTemplate();
+        // case ENDPOINTS.FAILOVER:
+        //     return getFailoverEndpointMustacheTemplate();
+        // case ENDPOINTS.HTTP:
+        //     return getHTTPEndpointMustacheTemplate();
+        // case ENDPOINTS.LOADBALANCE:
+        //     return getLoadBalanceEndpointMustacheTemplate();
+        // case ENDPOINTS.NAMED:
+        //     return getNamedEndpointMustacheTemplate();
+        // case ENDPOINTS.RECIPIENTLIST:
+        //     return getRecipientListEndpointMustacheTemplate();
+        // case ENDPOINTS.TEMPLATE:
+        //     return getTemplateEndpointMustacheTemplate();
+        // case ENDPOINTS.WSDL:
+        //     return getWSDLEndpointMustacheTemplate();
     }
 }
 
