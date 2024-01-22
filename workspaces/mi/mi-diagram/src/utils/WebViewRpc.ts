@@ -1,13 +1,13 @@
-// /**
-//  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
-//  *
-//  * This software is the property of WSO2 LLC. and its suppliers, if any.
-//  * Dissemination of any information or reproduction of any material contained
-//  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
-//  * You may not alter or remove any copyright or other notice from copies of this content.
-//  */
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
-// import { Messenger } from "vscode-messenger-webview";
+import { Messenger } from "vscode-messenger-webview";
 // import { HOST_EXTENSION } from "vscode-messenger-common";
 
 // import {
@@ -23,66 +23,169 @@
 //     CreateAPI,
 //     GetAPIDirectory,
 //     CloseWebViewNotification,
-//     OpenDiagram
+//     OpenDiagram,
+//     CreateEndpointParams,
+//     CreateEndpoint,
+//     GetEndpointDirectory,
+//     OpenFile,
+//     GetEndpointsAndSequences,
+//     CreateSequenceParams,
+//     CreateSequence,
+//     GetSequenceDirectory
 // } from "@wso2-enterprise/mi-core";
 
-// export class MIWebViewAPI {
-//     private readonly _messenger;
-//     static _instance: MIWebViewAPI;
+export default class MIWebViewAPI {
+    private readonly _messenger;
+    static _instance: MIWebViewAPI;
 
-//     constructor() {
-//         this._messenger = new Messenger(acquireVsCodeApi());
-//         this._messenger.start();
-//     }
+    constructor() {
+        this._messenger = new Messenger(acquireVsCodeApi());
+        this._messenger.start();
+    }
 
-//     public static getInstance() {
-//         if (!this._instance) {
-//             this._instance = new MIWebViewAPI();
-//         }
-//         return this._instance;
-//     }
+    public static getInstance() {
+        if (!this._instance) {
+            this._instance = new MIWebViewAPI();
+        }
+        return this._instance;
+    }
 
 
-//     public triggerCmd(cmdId: string, ...args: any) {
-//         return this._messenger.sendRequest(ExecuteCommandRequest, HOST_EXTENSION, [cmdId, ...args]);
-//     }
+    // public triggerCmd(cmdId: string, ...args: any) {
+    //     return this._messenger.sendRequest(ExecuteCommandRequest, HOST_EXTENSION, [cmdId, ...args]);
+    // }
 
-//     public showErrorMsg(error: string) {
-//         this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
-//     }
+    // public showErrorMsg(error: string) {
+    //     this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
+    // }
 
-//     public getSyntaxTree(documentUri: string) {
-//         return this._messenger.sendRequest(GetSyntaxTreeRequest, HOST_EXTENSION, documentUri);
-//     }
+    // public getSyntaxTree(documentUri: string) {
+    //     return this._messenger.sendRequest(GetSyntaxTreeRequest, HOST_EXTENSION, documentUri);
+    // }
 
-//     public applyEdit(params: ApplyEditParams) {
-//         this._messenger.sendNotification(ApplyEdit, HOST_EXTENSION, params);
-//     }
+    // public applyEdit(params: ApplyEditParams) {
+    //     this._messenger.sendNotification(ApplyEdit, HOST_EXTENSION, params);
+    // }
 
-//     public getConnectors(): Promise<GetConnectorsResponse[]> {
-//         return this._messenger.sendRequest(GetConnectorsRequest, HOST_EXTENSION);
-//     }
+    // public getConnectors(): Promise<GetConnectorsResponse[]> {
+    //     return this._messenger.sendRequest(GetConnectorsRequest, HOST_EXTENSION);
+    // }
 
-//     public getConnector(connectorPath: string): Promise<string[]> {
-//         return this._messenger.sendRequest(GetConnectorRequest, HOST_EXTENSION, connectorPath);
-//     }
+    // public getConnector(connectorPath: string): Promise<string[]> {
+    //     return this._messenger.sendRequest(GetConnectorRequest, HOST_EXTENSION, connectorPath);
+    // }
 
-//     public getAPIDirectory(): Promise<string> {
-//         return this._messenger.sendRequest(GetAPIDirectory, HOST_EXTENSION);
-//     }
-//     public createAPI(params: CreateAPIParams): Promise<string> {
-//         return this._messenger.sendRequest(CreateAPI, HOST_EXTENSION, params);
-//     }
+    // public getAPIDirectory(): Promise<string> {
+    //     return this._messenger.sendRequest(GetAPIDirectory, HOST_EXTENSION);
+    // }
 
-//     public closeWebView() {
-//         this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
-//     }
+    // public createAPI(params: CreateAPIParams): Promise<string> {
+    //     return this._messenger.sendRequest(CreateAPI, HOST_EXTENSION, params);
+    // }
 
-//     public openDiagram(filePath: string) {
-//         this._messenger.sendNotification(OpenDiagram, HOST_EXTENSION, filePath);
-//     }
+    // public getEndpointDirectory(): Promise<string> {
+    //     return this._messenger.sendRequest(GetEndpointDirectory, HOST_EXTENSION);
+    // }
 
-//     public getMessenger() {
-//         return this._messenger;
-//     }
-// }
+    // public createEndpoint(params: CreateEndpointParams): Promise<string> {
+    //     return this._messenger.sendRequest(CreateEndpoint, HOST_EXTENSION, params);
+    // }
+
+    // public async getEndpointsAndSequences() {
+    //     const data = await this._messenger.sendRequest(GetEndpointsAndSequences, HOST_EXTENSION);
+    //     return data;
+    // }
+
+    // public getSequenceDirectory(): Promise<string> {
+    //     return this._messenger.sendRequest(GetSequenceDirectory, HOST_EXTENSION);
+    // }
+
+    // public createSequence(params: CreateSequenceParams): Promise<string> {
+    //     return this._messenger.sendRequest(CreateSequence, HOST_EXTENSION, params);
+    // }
+
+    // public closeWebView() {
+    //     this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
+    // }
+
+    // public openDiagram(filePath: string) {
+    //     this._messenger.sendNotification(OpenDiagram, HOST_EXTENSION, filePath);
+    // }
+
+    // public openFile(filePath: string) {
+    //     this._messenger.sendNotification(OpenFile, HOST_EXTENSION, filePath);
+    // }
+
+    // public getMessenger() {
+    //     return this._messenger;
+    // }
+
+    public triggerCmd(cmdId: string, ...args: any) {
+        // return this._messenger.sendRequest(ExecuteCommandRequest, HOST_EXTENSION, [cmdId, ...args]);
+    }
+
+    public showErrorMsg(error: string) {
+        // this._messenger.sendNotification(ShowErrorMessage, HOST_EXTENSION, error);
+    }
+
+    public getSyntaxTree(documentUri: string) {
+        // return this._messenger.sendRequest(GetSyntaxTreeRequest, HOST_EXTENSION, documentUri);
+    }
+
+    public applyEdit(params: any) {
+        // this._messenger.sendNotification(ApplyEdit, HOST_EXTENSION, params);
+    }
+
+    public getConnectors(): any {
+        // return this._messenger.sendRequest(GetConnectorsRequest, HOST_EXTENSION);
+    }
+
+    public getConnector(params: any): any {
+        // return this._messenger.sendRequest(GetConnectorRequest, HOST_EXTENSION, connectorPath);
+    }
+
+    public getAPIDirectory(): any {
+        // return this._messenger.sendRequest(GetAPIDirectory, HOST_EXTENSION);
+    }
+
+    public createAPI(params: any): any {
+        // return this._messenger.sendRequest(CreateAPI, HOST_EXTENSION, params);
+    }
+
+    public getEndpointDirectory(): any {
+        // return this._messenger.sendRequest(GetEndpointDirectory, HOST_EXTENSION);
+    }
+
+    public createEndpoint(params: any): any {
+        // return this._messenger.sendRequest(CreateEndpoint, HOST_EXTENSION, params);
+    }
+
+    public async getEndpointsAndSequences() {
+        // const data = await this._messenger.sendRequest(GetEndpointsAndSequences, HOST_EXTENSION);
+        // return data;
+    }
+
+    public getSequenceDirectory(): any {
+        // return this._messenger.sendRequest(GetSequenceDirectory, HOST_EXTENSION);
+    }
+
+    public createSequence(params: any): any {
+        // return this._messenger.sendRequest(CreateSequence, HOST_EXTENSION, params);
+    }
+
+    public closeWebView() {
+        // this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
+    }
+
+    public openDiagram(filePath: string) {
+        // this._messenger.sendNotification(OpenDiagram, HOST_EXTENSION, filePath);
+    }
+
+    public openFile(filePath: string) {
+        // this._messenger.sendNotification(OpenFile, HOST_EXTENSION, filePath);
+    }
+
+    public getMessenger() {
+        return this._messenger;
+    }
+}

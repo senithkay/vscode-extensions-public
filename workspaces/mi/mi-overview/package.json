@@ -1,0 +1,42 @@
+{
+  "name": "@wso2-enterprise/mi-overview",
+  "version": "1.0.0",
+  "description": "Contains overview page",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "pnpm run lint && tsc --pretty",
+    "watch": "tsc --pretty --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npm publish"
+  },
+  "author": "WSO2",
+  "devDependencies": {
+    "@types/react": "^18.2.33",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.52.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.10.5",
+    "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@wso2-enterprise/mi-core": "workspace:*",
+    "@wso2-enterprise/mi-rpc-client": "workspace:*",
+    "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vscode-uri": "^3.0.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}

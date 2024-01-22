@@ -14,8 +14,8 @@
 // import { APIWizard } from "./APIform";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { MIDiagram } from "./MIDiagram";
-import { ActivityPanel } from "./activity-panel";
+// import { MIDiagram } from "./MIDiagram";
+// import { ActivityPanel } from "./activity-panel";
 import { APIWizard } from "./APIform";
 import { EndpointWizard } from "./EndpointForm";
 

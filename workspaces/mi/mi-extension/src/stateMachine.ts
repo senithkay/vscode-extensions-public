@@ -6,14 +6,13 @@ import * as path from 'path';
 import { window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
-import { EventType, MachineStateValue } from '@wso2-enterprise/mi-core';
+import { EventType, MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { StateLocation } from '@wso2-enterprise/mi-rpc-client';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 
-export interface MachineContext {
+interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
     errorCode: string | null;
-    documentUri: string | null;
 }
 
 const stateMachine = createMachine<MachineContext>({

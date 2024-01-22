@@ -10,7 +10,7 @@
  */
 
 import { Messenger } from "vscode-messenger-webview";
-import { MachineStateValue, stateChanged, vscode, getVisualizerState } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, stateChanged, vscode, getVisualizerState, VisualizerLocation } from "@wso2-enterprise/mi-core";
 import { MiDiagramRpcClient } from "./rpc-clients/mi-diagram/rpc-client";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
@@ -33,7 +33,7 @@ export class RpcClient {
         this.messenger.onNotification(stateChanged, callback);
     }
 
-    getVisualizerState(): Promise<any> {
+    getVisualizerState(): Promise<VisualizerLocation> {
         return this.messenger.sendRequest(getVisualizerState, HOST_EXTENSION);
     }
 
