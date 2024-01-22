@@ -40,16 +40,16 @@ import { ENDPOINTS, MEDIATORS } from '../../constants';
 import { AdvancedMediatorNodeModel } from '../../components/nodes/mediators/advancedMediator/AdvancedMediatorModel';
 import { SimpleEndpointNodeModel } from '../../components/nodes/mediators/simpleEndpoint/SimpleEndpointModel';
 
+export interface SequenceNodes {
+    type: SequenceType;
+    nodes: BaseNodeModel[];
+    range?: Range;
+}
+
 export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
-    private inSequenceNodes: BaseNodeModel[] = [];
-    private inSequenceRange: Range;
 
-    private outSequenceNodes: BaseNodeModel[] = [];
-    private outSequenceRange: Range;
-
-    private sequenceNodes: BaseNodeModel[] = [];
-    private sequenceRange: Range;
+    private sequences: SequenceNodes[] = [];
 
     private parents: STNode[] = [];
     private documentUri: string;
@@ -247,9 +247,14 @@ export class NodeInitVisitor implements Visitor {
                 }
                 ));
         } else {
+            const sequenceNodes: SequenceNodes = {
+                type: SequenceType.SEQUENCE,
+                nodes: [],
+                range: node.range
+            };
+            this.sequences.push(sequenceNodes);
             this.sequenceType = SequenceType.SEQUENCE;
-            this.currentSequence = this.sequenceNodes;
-            this.sequenceRange = node.range;
+            this.currentSequence = sequenceNodes.nodes;
             this.parents.push(node);
         }
     }
@@ -403,9 +408,14 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitInSequence(node: Sequence): void {
+        const sequenceNodes: SequenceNodes = {
+            type: SequenceType.IN_SEQUENCE,
+            nodes: [],
+            range: node.range
+        };
+        this.sequences.push(sequenceNodes);
         this.sequenceType = SequenceType.IN_SEQUENCE;
-        this.currentSequence = this.inSequenceNodes;
-        this.inSequenceRange = node.range;
+        this.currentSequence = sequenceNodes.nodes;
         this.parents.push(node);
     }
 
@@ -414,9 +424,14 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitOutSequence(node: Sequence): void {
+        const sequenceNodes: SequenceNodes = {
+            type: SequenceType.OUT_SEQUENCE,
+            nodes: [],
+            range: node.range
+        };
+        this.sequences.push(sequenceNodes);
         this.sequenceType = SequenceType.OUT_SEQUENCE;
-        this.currentSequence = this.outSequenceNodes;
-        this.outSequenceRange = node.range;
+        this.currentSequence = sequenceNodes.nodes;
         this.parents.push(node);
     }
 
@@ -492,28 +507,8 @@ export class NodeInitVisitor implements Visitor {
         return this.skipChildrenVisit;
     }
 
-    getInSequenceNodes(): BaseNodeModel[] {
-        return this.inSequenceNodes;
-    }
-
-    getOutSequenceNodes(): BaseNodeModel[] {
-        return this.outSequenceNodes;
-    }
-
-    getSequenceNodes(): BaseNodeModel[] {
-        return this.sequenceNodes;
-    }
-
-    getInSequenceRange(): Range {
-        return this.inSequenceRange;
-    }
-
-    getOutSequenceRange(): Range {
-        return this.outSequenceRange;
-    }
-
-    getSequenceRange(): Range {
-        return this.sequenceRange;
+    getSequences(): SequenceNodes[] {
+        return this.sequences;
     }
 }
 
