@@ -38,7 +38,7 @@ import * as fs from "fs";
 import path = require("path");
 const { XMLParser } = require("fast-xml-parser");
 
-const connectorsPath = "../resources/connectors";
+const connectorsPath = path.join(".metadata", ".Connectors");
 
 // Register handlers
 export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPanel | WebviewView, context: ExtensionContext) {
@@ -64,14 +64,22 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(GetConnectorsRequest, async () => {
         const connectorNames: GetConnectorsResponse[] = [];
-        if (!fs.existsSync(path.join(__dirname, connectorsPath))) {
+        const workspaceFolders = workspace.workspaceFolders;
+
+        if (!workspaceFolders) {
             return connectorNames;
         }
 
-        const connectors = fs.readdirSync(path.join(__dirname, connectorsPath));
-        connectors.forEach(connector => {
-            const connectorPath = path.join(__dirname, `${connectorsPath}/${connector}`);
+        if (!fs.existsSync(path.join(workspaceFolders[0].uri.path, connectorsPath))) {
+            return connectorNames;
+        }
+
+        const connectorsRoot = path.join(workspaceFolders[0].uri.path, connectorsPath);
+        const connectors = fs.readdirSync(connectorsRoot, {withFileTypes: true});
+        connectors.filter(dirent => dirent.isDirectory()).forEach(connectorDir => {
+            const connectorPath = path.join(connectorsRoot, connectorDir.name);
             const connectorInfoFile = path.join(connectorPath, `connector.xml`);
+            const connectorIconFile = path.join(connectorPath, "icon", `icon-large.png`);
             if (fs.existsSync(connectorInfoFile)) {
                 const connectorDefinition = fs.readFileSync(connectorInfoFile, "utf8");
                 const options = {
@@ -82,7 +90,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                 const connectorInfo = parser.parse(connectorDefinition);
                 const connectorName = connectorInfo["connector"]["component"]["@_name"];
                 const connectorDescription = connectorInfo["connector"]["component"]["description"];
-                const connectorIcon = connectorInfo["connector"]["icon"];
+                const connectorIcon = Buffer.from(fs.readFileSync(connectorIconFile)).toString('base64');
                 connectorNames.push({ path: connectorPath, name: connectorName, description: connectorDescription, icon: connectorIcon });
             }
         });
@@ -146,8 +154,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         if (swaggerDef) {
             swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
         }
-    
-        const xmlData =  `<?xml version="1.0" encoding="UTF-8"?>
+
+        const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
     <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
         <resource methods="GET">
             <inSequence>
@@ -224,7 +232,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         let errorSequence = ``;
         if (endpoint) {
             endpointAttributes = `<send>
-            <endpoint key="${endpoint}"/>
+            <endpoint key="${endpoint.replace(".xml", "")}"/>
         </send>`;
         }
 
@@ -246,11 +254,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         let result = '';
         const findSynapseAPIPath = (startPath: string) => {
             const files = fs.readdirSync(startPath);
-            for(let i = 0; i < files.length; i++){
+            for (let i = 0; i < files.length; i++) {
                 const filename = path.join(startPath, files[i]);
                 const stat = fs.lstatSync(filename);
-                if (stat.isDirectory()){
-                    if(filename.includes('synapse-config/api')) {
+                if (stat.isDirectory()) {
+                    if (filename.includes('synapse-config/api')) {
                         result = filename;
                         return result;
                     } else {
@@ -260,7 +268,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             }
             return result;
         };
-        
+
         const workspaceFolder = workspace.workspaceFolders;
         if (workspaceFolder) {
             const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
@@ -346,7 +354,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             view.dispose();
         }
     });
-    
+
     messenger.onNotification(OpenDiagram, async (filePath) => {
         const document = await workspace.openTextDocument(filePath);
         await window.showTextDocument(document);

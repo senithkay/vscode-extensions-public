@@ -8,9 +8,29 @@
  */
 
 import { PayloadFactory } from "@wso2-enterprise/mi-syntax-tree/lib/src";
-import { getMustacheTemplate } from "../templateUtils";
-import { MEDIATORS } from "../../../../constants";
 import Mustache from "mustache";
+
+export function getPayloadMustacheTemplate() {
+    return `<payloadFactory {{#description}}description="{{description}}"{{/description}} media-type="{{mediaType}}" template-type="{{templateType}}">
+    {{#isInlined}}
+    <format>
+    {{payload}}
+    </format>
+    {{/isInlined}}
+    {{^isInlined}}
+    {{#payloadKey}}<format key="{{payloadKey}}"/>{{/payloadKey}}
+    {{#payload}}<format>
+        {{{payload}}}
+    </format>
+    {{/payload}}
+    {{/isInlined}}
+    <args>
+        {{#args}}
+        <arg {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" evaluator="{{evaluator}}" {{/expression}} />
+        {{/args}}
+    </args>
+</payloadFactory>`;
+}
 
 export function getPayloadXml(data: { [key: string]: any }) {
     const args = data.args.map((property: string[]) => {
@@ -29,7 +49,7 @@ export function getPayloadXml(data: { [key: string]: any }) {
         args
     }
 
-    return Mustache.render(getMustacheTemplate(MEDIATORS.PAYLOAD), modifiedData);
+    return Mustache.render(getPayloadMustacheTemplate(), modifiedData);
 }
 
 export function getPayloadFormDataFromSTNode(data: { [key: string]: any }, node: PayloadFactory) {

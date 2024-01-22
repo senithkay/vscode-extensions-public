@@ -13,10 +13,10 @@ import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise
 import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps } from '../../mediators/common';
 import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../../constants';
+import { ENDPOINTS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
@@ -38,7 +38,7 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const ValidateForm = (props: AddMediatorProps) => {
+const LoadbalanceEndpointForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
@@ -48,17 +48,18 @@ const ValidateForm = (props: AddMediatorProps) => {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
-       "enableSchemaCaching": false,
-       "schemas": [] as string[][],
-       "validateSchemaKeyType": "Static",
-       "features": [] as string[][],
-       "featureEnabled": false,
-       "resources": [] as string[][],});
+       "buildMessage": false,
+       "sessionType": "NONE",
+       "proeprties": [] as string[][],
+       "scope": "default",
+       "valueType": "LITERAL",
+       "failover": false,
+       "member": [] as string[][],});
        }
    }, [sidePanelContext.formValues]);
 
    const onClick = async () => {
-       const newErrors = {} as any;
+       let newErrors = {} as any;
        Object.keys(formValidators).forEach((key) => {
            const error = formValidators[key]();
            if (error) {
@@ -68,7 +69,7 @@ const ValidateForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(MEDIATORS.VALIDATE, formValues);
+           const xml = getXML(ENDPOINTS.LOADBALANCE, formValues);
            MIWebViewAPI.getInstance().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
@@ -80,22 +81,28 @@ const ValidateForm = (props: AddMediatorProps) => {
    };
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "source": (e?: any) => validateField("source", e, false),
-       "enableSchemaCaching": (e?: any) => validateField("enableSchemaCaching", e, false),
-       "validateSchemaKeyType": (e?: any) => validateField("validateSchemaKeyType", e, false),
-       "validateStaticSchemaKey": (e?: any) => validateField("validateStaticSchemaKey", e, false),
-       "validateDynamicSchemaKey": (e?: any) => validateField("validateDynamicSchemaKey", e, false),
-       "featureName": (e?: any) => validateField("featureName", e, false),
-       "featureEnabled": (e?: any) => validateField("featureEnabled", e, false),
-       "location": (e?: any) => validateField("location", e, false),
-       "locationKey": (e?: any) => validateField("locationKey", e, false),
+       "endpointName": (e?: any) => validateField("endpointName", e, false),
+       "algorithm": (e?: any) => validateField("algorithm", e, false),
+       "buildMessage": (e?: any) => validateField("buildMessage", e, false),
+       "sessionType": (e?: any) => validateField("sessionType", e, false),
+       "sessionTimeout": (e?: any) => validateField("sessionTimeout", e, false),
+       "name": (e?: any) => validateField("name", e, false),
+       "scope": (e?: any) => validateField("scope", e, false),
+       "valueType": (e?: any) => validateField("valueType", e, false),
+       "value": (e?: any) => validateField("value", e, false),
+       "valueExpression": (e?: any) => validateField("valueExpression", e, false),
+       "children": (e?: any) => validateField("children", e, false),
+       "failover": (e?: any) => validateField("failover", e, false),
+       "hostName": (e?: any) => validateField("hostName", e, false),
+       "httpPort": (e?: any) => validateField("httpPort", e, false),
+       "httpsPort": (e?: any) => validateField("httpsPort", e, false),
        "description": (e?: any) => validateField("description", e, false),
 
    };
 
    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
        const value = e ?? formValues[id];
-       const newErrors = { ...errors };
+       let newErrors = { ...errors };
        let error;
        if (isRequired && !value) {
            error = "This field is required";
@@ -121,90 +128,158 @@ const ValidateForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <TextField
-                        label="Source"
+                        label="Endpoint Name"
                         size={50}
                         placeholder=""
-                        value={formValues["source"]}
+                        value={formValues["endpointName"]}
                         onChange={(e: any) => {
-                            setFormValues({ ...formValues, "source": e });
-                            formValidators["source"](e);
+                            setFormValues({ ...formValues, "endpointName": e });
+                            formValidators["endpointName"](e);
                         }}
                         required={false}
                     />
-                    {errors["source"] && <Error>{errors["source"]}</Error>}
+                    {errors["endpointName"] && <Error>{errors["endpointName"]}</Error>}
                 </Field>
 
                 <Field>
-                    <VSCodeCheckbox type="checkbox" checked={formValues["enableSchemaCaching"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "enableSchemaCaching": e.target.checked });
-                        formValidators["enableSchemaCaching"](e);
+                    <TextField
+                        label="Algorithm"
+                        size={50}
+                        placeholder=""
+                        value={formValues["algorithm"]}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, "algorithm": e });
+                            formValidators["algorithm"](e);
+                        }}
+                        required={false}
+                    />
+                    {errors["algorithm"] && <Error>{errors["algorithm"]}</Error>}
+                </Field>
+
+                <Field>
+                    <VSCodeCheckbox type="checkbox" checked={formValues["buildMessage"]} onChange={(e: any) => {
+                        setFormValues({ ...formValues, "buildMessage": e.target.checked });
+                        formValidators["buildMessage"](e);
                     }
-                    }>Enable Schema Caching </VSCodeCheckbox>
-                    {errors["enableSchemaCaching"] && <Error>{errors["enableSchemaCaching"]}</Error>}
+                    }>Build Message </VSCodeCheckbox>
+                    {errors["buildMessage"] && <Error>{errors["buildMessage"]}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Schemas</h3>
+                    <h3>Session</h3>
+
+                    <Field>
+                        <label>Session Type</label>
+                        <AutoComplete items={["NONE", "http", "soap", "simpleClientSession"]} selectedItem={formValues["sessionType"]} onChange={(e: any) => {
+                            setFormValues({ ...formValues, "sessionType": e });
+                            formValidators["sessionType"](e);
+                        }} />
+                        {errors["sessionType"] && <Error>{errors["sessionType"]}</Error>}
+                    </Field>
+
+                    <Field>
+                        <TextField
+                            label="Session Timeout"
+                            size={50}
+                            placeholder=""
+                            value={formValues["sessionTimeout"]}
+                            onChange={(e: any) => {
+                                setFormValues({ ...formValues, "sessionTimeout": e });
+                                formValidators["sessionTimeout"](e);
+                            }}
+                            required={false}
+                        />
+                        {errors["sessionTimeout"] && <Error>{errors["sessionTimeout"]}</Error>}
+                    </Field>
+
+                </ComponentCard>
+
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <h3>Properties</h3>
 
                         <Field>
-                            <label>Validate Schema Key Type</label>
-                            <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["validateSchemaKeyType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "validateSchemaKeyType": e });
-                                formValidators["validateSchemaKeyType"](e);
+                            <TextField
+                                label="Name"
+                                size={50}
+                                placeholder=""
+                                value={formValues["name"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "name": e });
+                                    formValidators["name"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["name"] && <Error>{errors["name"]}</Error>}
+                        </Field>
+
+                        <Field>
+                            <label>Scope</label>
+                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "scope": e });
+                                formValidators["scope"](e);
                             }} />
-                            {errors["validateSchemaKeyType"] && <Error>{errors["validateSchemaKeyType"]}</Error>}
+                            {errors["scope"] && <Error>{errors["scope"]}</Error>}
                         </Field>
 
-                        {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "static" &&
+                        <Field>
+                            <label>Value Type</label>
+                            <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["valueType"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "valueType": e });
+                                formValidators["valueType"](e);
+                            }} />
+                            {errors["valueType"] && <Error>{errors["valueType"]}</Error>}
+                        </Field>
+
+                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "literal" &&
                             <Field>
                                 <TextField
-                                    label="Validate Static Schema Key"
+                                    label="Value"
                                     size={50}
                                     placeholder=""
-                                    value={formValues["validateStaticSchemaKey"]}
+                                    value={formValues["value"]}
                                     onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "validateStaticSchemaKey": e });
-                                        formValidators["validateStaticSchemaKey"](e);
+                                        setFormValues({ ...formValues, "value": e });
+                                        formValidators["value"](e);
                                     }}
                                     required={false}
                                 />
-                                {errors["validateStaticSchemaKey"] && <Error>{errors["validateStaticSchemaKey"]}</Error>}
+                                {errors["value"] && <Error>{errors["value"]}</Error>}
                             </Field>
                         }
 
-                        {formValues["validateSchemaKeyType"] && formValues["validateSchemaKeyType"].toLowerCase() == "dynamic" &&
+                        {formValues["valueType"] && formValues["valueType"].toLowerCase() == "expression" &&
                             <Field>
                                 <TextField
-                                    label="Validate Dynamic Schema Key"
+                                    label="Value Expression"
                                     size={50}
                                     placeholder=""
-                                    value={formValues["validateDynamicSchemaKey"]}
+                                    value={formValues["valueExpression"]}
                                     onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "validateDynamicSchemaKey": e });
-                                        formValidators["validateDynamicSchemaKey"](e);
+                                        setFormValues({ ...formValues, "valueExpression": e });
+                                        formValidators["valueExpression"](e);
                                     }}
                                     required={false}
                                 />
-                                {errors["validateDynamicSchemaKey"] && <Error>{errors["validateDynamicSchemaKey"]}</Error>}
+                                {errors["valueExpression"] && <Error>{errors["valueExpression"]}</Error>}
                             </Field>
                         }
 
 
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("validateSchemaKeyType", formValues["validateSchemaKeyType"], true) || validateField("validateDynamicSchemaKey", formValues["validateDynamicSchemaKey"], true))) {
+                        if (!(validateField("name", formValues["name"], true) || validateField("valueType", formValues["valueType"], true))) {
                             setFormValues({
-                                ...formValues, "validateSchemaKeyType": undefined, "validateDynamicSchemaKey": undefined,
-                                "schemas": [...formValues["schemas"], [formValues["validateSchemaKeyType"], formValues["validateStaticSchemaKey"], formValues["validateDynamicSchemaKey"]]]
+                                ...formValues, "name": undefined, "valueType": undefined,
+                                "proeprties": [...formValues["proeprties"], [formValues["name"], formValues["scope"], formValues["valueType"]]]
                             });
                         }
                     }}>
                         Add
                     </Button>
                 </div>
-                {formValues["schemas"] && formValues["schemas"].length > 0 && (
+                {formValues["proeprties"] && formValues["proeprties"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Schemas Table</h3>
+                        <h3>Properties Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -217,7 +292,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["schemas"].map((property: string, index: string) => (
+                            {formValues["proeprties"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -234,49 +309,82 @@ const ValidateForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                 )}
                 </ComponentCard>
+                <Field>
+                </Field>
+
+                <Field>
+                    <VSCodeCheckbox type="checkbox" checked={formValues["failover"]} onChange={(e: any) => {
+                        setFormValues({ ...formValues, "failover": e.target.checked });
+                        formValidators["failover"](e);
+                    }
+                    }>Failover </VSCodeCheckbox>
+                    {errors["failover"] && <Error>{errors["failover"]}</Error>}
+                </Field>
+
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Features</h3>
+                    <h3>Member</h3>
 
                         <Field>
                             <TextField
-                                label="Feature Name"
+                                label="Host Name"
                                 size={50}
                                 placeholder=""
-                                value={formValues["featureName"]}
+                                value={formValues["hostName"]}
                                 onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "featureName": e });
-                                    formValidators["featureName"](e);
+                                    setFormValues({ ...formValues, "hostName": e });
+                                    formValidators["hostName"](e);
                                 }}
                                 required={false}
                             />
-                            {errors["featureName"] && <Error>{errors["featureName"]}</Error>}
+                            {errors["hostName"] && <Error>{errors["hostName"]}</Error>}
                         </Field>
 
                         <Field>
-                            <VSCodeCheckbox type="checkbox" checked={formValues["featureEnabled"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "featureEnabled": e.target.checked });
-                                formValidators["featureEnabled"](e);
-                            }
-                            }>Feature Enabled </VSCodeCheckbox>
-                            {errors["featureEnabled"] && <Error>{errors["featureEnabled"]}</Error>}
+                            <TextField
+                                label="Http Port"
+                                size={50}
+                                placeholder=""
+                                value={formValues["httpPort"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "httpPort": e });
+                                    formValidators["httpPort"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["httpPort"] && <Error>{errors["httpPort"]}</Error>}
+                        </Field>
+
+                        <Field>
+                            <TextField
+                                label="Https Port"
+                                size={50}
+                                placeholder=""
+                                value={formValues["httpsPort"]}
+                                onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "httpsPort": e });
+                                    formValidators["httpsPort"](e);
+                                }}
+                                required={false}
+                            />
+                            {errors["httpsPort"] && <Error>{errors["httpsPort"]}</Error>}
                         </Field>
 
 
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("featureName", formValues["featureName"], true) || validateField("", formValues[""], true))) {
+                        if (!(validateField("hostName", formValues["hostName"], true) || validateField("httpsPort", formValues["httpsPort"], true))) {
                             setFormValues({
-                                ...formValues, "featureName": undefined, "": undefined,
-                                "features": [...formValues["features"], [formValues["featureName"], formValues["featureEnabled"], formValues[""]]]
+                                ...formValues, "hostName": undefined, "httpsPort": undefined,
+                                "member": [...formValues["member"], [formValues["hostName"], formValues["httpPort"], formValues["httpsPort"]]]
                             });
                         }
                     }}>
                         Add
                     </Button>
                 </div>
-                {formValues["features"] && formValues["features"].length > 0 && (
+                {formValues["member"] && formValues["member"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Features Table</h3>
+                        <h3>Member Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                             <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                 <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -289,85 +397,7 @@ const ValidateForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["features"].map((property: string, index: string) => (
-                                <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
-                                    <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                        {property[0]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                        {property[1]}
-                                    </VSCodeDataGridCell>
-                                    <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                        {property[2]}
-                                    </VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            ))}
-                        </VSCodeDataGrid>
-                    </ComponentCard>
-                )}
-                </ComponentCard>
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Resources</h3>
-
-                        <Field>
-                            <TextField
-                                label="Location"
-                                size={50}
-                                placeholder=""
-                                value={formValues["location"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "location": e });
-                                    formValidators["location"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["location"] && <Error>{errors["location"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="Location Key"
-                                size={50}
-                                placeholder=""
-                                value={formValues["locationKey"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "locationKey": e });
-                                    formValidators["locationKey"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["locationKey"] && <Error>{errors["locationKey"]}</Error>}
-                        </Field>
-
-
-                <div style={{ textAlign: "right", marginTop: "10px" }}>
-                    <Button appearance="primary" onClick={() => {
-                        if (!(validateField("location", formValues["location"], true) || validateField("", formValues[""], true))) {
-                            setFormValues({
-                                ...formValues, "location": undefined, "": undefined,
-                                "resources": [...formValues["resources"], [formValues["location"], formValues["locationKey"], formValues[""]]]
-                            });
-                        }
-                    }}>
-                        Add
-                    </Button>
-                </div>
-                {formValues["resources"] && formValues["resources"].length > 0 && (
-                    <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Resources Table</h3>
-                        <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
-                            <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
-                                <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
-                                    Name
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={1} style={{ flex: 1 }}>
-                                    Value Type
-                                </VSCodeDataGridCell>
-                                <VSCodeDataGridCell key={2} style={{ flex: 1 }}>
-                                    Value
-                                </VSCodeDataGridCell>
-                            </VSCodeDataGridRow>
-                            {formValues["resources"].map((property: string, index: string) => (
+                            {formValues["member"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -415,4 +445,4 @@ const ValidateForm = (props: AddMediatorProps) => {
     );
 };
 
-export default ValidateForm; 
+export default LoadbalanceEndpointForm; 

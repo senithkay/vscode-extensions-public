@@ -10,13 +10,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps } from '../../mediators/common';
 import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../../constants';
+import { ENDPOINTS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
@@ -38,7 +38,7 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const PropertyGroupForm = (props: AddMediatorProps) => {
+const FailoverEndpointForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
@@ -48,17 +48,15 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
-       "properties": [] as string[][],
-       "propertyDataType": "STRING",
-       "propertyAction": "set",
-       "propertyScope": "DEFAULT",
-       "valueType": "LITERAL",
-       "valueStringCapturingGroup": "0",});
+       "buildMessage": false,
+       "proeprties": [] as string[][],
+       "scope": "default",
+       "valueType": "LITERAL",});
        }
    }, [sidePanelContext.formValues]);
 
    const onClick = async () => {
-       const newErrors = {} as any;
+       let newErrors = {} as any;
        Object.keys(formValidators).forEach((key) => {
            const error = formValidators[key]();
            if (error) {
@@ -68,7 +66,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(MEDIATORS.PROPERTYGROUP, formValues);
+           const xml = getXML(ENDPOINTS.FAILOVER, formValues);
            MIWebViewAPI.getInstance().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
@@ -80,24 +78,21 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
    };
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "description": (e?: any) => validateField("description", e, false),
-       "propertyName": (e?: any) => validateField("propertyName", e, false),
-       "newPropertyName": (e?: any) => validateField("newPropertyName", e, false),
-       "propertyDataType": (e?: any) => validateField("propertyDataType", e, false),
-       "propertyAction": (e?: any) => validateField("propertyAction", e, false),
-       "propertyScope": (e?: any) => validateField("propertyScope", e, false),
+       "endpointName": (e?: any) => validateField("endpointName", e, false),
+       "buildMessage": (e?: any) => validateField("buildMessage", e, false),
+       "name": (e?: any) => validateField("name", e, false),
+       "scope": (e?: any) => validateField("scope", e, false),
        "valueType": (e?: any) => validateField("valueType", e, false),
        "value": (e?: any) => validateField("value", e, false),
        "valueExpression": (e?: any) => validateField("valueExpression", e, false),
-       "valueStringPattern": (e?: any) => validateField("valueStringPattern", e, false),
-       "valueStringCapturingGroup": (e?: any) => validateField("valueStringCapturingGroup", e, false),
-       "Properties.description": (e?: any) => validateField("Properties.description", e, false),
+       "children": (e?: any) => validateField("children", e, false),
+       "description": (e?: any) => validateField("description", e, false),
 
    };
 
    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
        const value = e ?? formValues[id];
-       const newErrors = { ...errors };
+       let newErrors = { ...errors };
        let error;
        if (isRequired && !value) {
            error = "This field is required";
@@ -123,71 +118,53 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
 
                 <Field>
                     <TextField
-                        label="Description"
+                        label="Endpoint Name"
                         size={50}
-                        placeholder="Description"
-                        value={formValues["description"]}
+                        placeholder=""
+                        value={formValues["endpointName"]}
                         onChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
+                            setFormValues({ ...formValues, "endpointName": e });
+                            formValidators["endpointName"](e);
                         }}
                         required={false}
                     />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    {errors["endpointName"] && <Error>{errors["endpointName"]}</Error>}
+                </Field>
+
+                <Field>
+                    <VSCodeCheckbox type="checkbox" checked={formValues["buildMessage"]} onChange={(e: any) => {
+                        setFormValues({ ...formValues, "buildMessage": e.target.checked });
+                        formValidators["buildMessage"](e);
+                    }
+                    }>Build Message </VSCodeCheckbox>
+                    {errors["buildMessage"] && <Error>{errors["buildMessage"]}</Error>}
                 </Field>
 
                 <ComponentCard sx={cardStyle} disbaleHoverEffect>
                     <h3>Properties</h3>
 
                         <Field>
-                            <label>Property Name</label>
-                            <AutoComplete items={["Action", "COPY_CONTENT_LENGTH_FROM_INCOMING", "CacheLevel", "ClientApiNonBlocking", "ConcurrentConsumers", "ContentType", "disableAddressingForOutMessages", "DISABLE_CHUNKING", "DISABLE_SMOOKS_RESULT_PAYLOAD", "ERROR_CODE", "ERROR_DETAIL", "ERROR_EXCEPTION", "ERROR_MESSAGE", "FAULTS_AS_HTTP_200", "FORCE_ERROR_ON_SOAP_FAULT", "FORCE_HTTP_1_0", "FORCE_HTTP_CONTENT_LENGTH", "FORCE_POST_PUT_NOBODY", "FORCE_SC_ACCEPTED", "FaultTo", "From", "HTTP_ETAG", "HTTP_SC", "JMS_COORELATION_ID", "messageType", "MESSAGE_FORMAT", "MaxConcurrentConsumers", "MercuryLastMessage", "MercurySequenceKey", "MessageID", "NO_ENTITY_BODY", "NO_KEEPALIVE", "OUT_ONLY", "OperationName", "POST_TO_URI", "preserveProcessedHeaders", "PRESERVE_WS_ADDRESSING", "REQUEST_HOST_HEADER", "RESPONSE", "REST_URL_POSTFIX", "RelatesTo", "ReplyTo", "SERVER_IP", "SYSTEM_DATE", "SYSTEM_TIME", "TRANSPORT_HEADERS", "TRANSPORT_IN_NAME", "To", "transportNonBlocking"]} selectedItem={formValues["propertyName"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyName": e });
-                                formValidators["propertyName"](e);
-                            }} />
-                            {errors["propertyName"] && <Error>{errors["propertyName"]}</Error>}
-                        </Field>
-
-                        <Field>
                             <TextField
-                                label="New Property Name"
+                                label="Name"
                                 size={50}
-                                placeholder="New Property Name"
-                                value={formValues["newPropertyName"]}
+                                placeholder=""
+                                value={formValues["name"]}
                                 onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "newPropertyName": e });
-                                    formValidators["newPropertyName"](e);
+                                    setFormValues({ ...formValues, "name": e });
+                                    formValidators["name"](e);
                                 }}
                                 required={false}
                             />
-                            {errors["newPropertyName"] && <Error>{errors["newPropertyName"]}</Error>}
+                            {errors["name"] && <Error>{errors["name"]}</Error>}
                         </Field>
 
                         <Field>
-                            <label>Property Data Type</label>
-                            <AutoComplete items={["STRING", "INTEGER", "BOOLEAN", "DOUBLE", "FLOAT", "LONG", "SHORT", "OM", "JSON"]} selectedItem={formValues["propertyDataType"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyDataType": e });
-                                formValidators["propertyDataType"](e);
+                            <label>Scope</label>
+                            <AutoComplete items={["default", "transport", "axis2", "axis2-client"]} selectedItem={formValues["scope"]} onChange={(e: any) => {
+                                setFormValues({ ...formValues, "scope": e });
+                                formValidators["scope"](e);
                             }} />
-                            {errors["propertyDataType"] && <Error>{errors["propertyDataType"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <label>Property Action</label>
-                            <AutoComplete items={["set", "remove"]} selectedItem={formValues["propertyAction"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyAction": e });
-                                formValidators["propertyAction"](e);
-                            }} />
-                            {errors["propertyAction"] && <Error>{errors["propertyAction"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <label>Property Scope</label>
-                            <AutoComplete items={["DEFAULT", "TRANSPORT", "AXIS2", "AXIS2_CLIENT", "OPERATION", "REGISTRY", "SYSTEM", "ANALYTICS"]} selectedItem={formValues["propertyScope"]} onChange={(e: any) => {
-                                setFormValues({ ...formValues, "propertyScope": e });
-                                formValidators["propertyScope"](e);
-                            }} />
-                            {errors["propertyScope"] && <Error>{errors["propertyScope"]}</Error>}
+                            {errors["scope"] && <Error>{errors["scope"]}</Error>}
                         </Field>
 
                         <Field>
@@ -233,65 +210,20 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                             </Field>
                         }
 
-                        <Field>
-                            <TextField
-                                label="Value String Pattern"
-                                size={50}
-                                placeholder="Value String Pattern"
-                                value={formValues["valueStringPattern"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueStringPattern": e });
-                                    formValidators["valueStringPattern"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueStringPattern"] && <Error>{errors["valueStringPattern"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="Value String Capturing Group"
-                                size={50}
-                                placeholder="Value String Capturing Group"
-                                value={formValues["valueStringCapturingGroup"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "valueStringCapturingGroup": e });
-                                    formValidators["valueStringCapturingGroup"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["valueStringCapturingGroup"] && <Error>{errors["valueStringCapturingGroup"]}</Error>}
-                        </Field>
-
-                        <Field>
-                            <TextField
-                                label="Description"
-                                size={50}
-                                placeholder="Description"
-                                value={formValues["Properties.description"]}
-                                onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "Properties.description": e });
-                                    formValidators["Properties.description"](e);
-                                }}
-                                required={false}
-                            />
-                            {errors["Properties.description"] && <Error>{errors["Properties.description"]}</Error>}
-                        </Field>
-
 
                 <div style={{ textAlign: "right", marginTop: "10px" }}>
                     <Button appearance="primary" onClick={() => {
-                        if (!(validateField("propertyName", formValues["propertyName"], true) || validateField("propertyDataType", formValues["propertyDataType"], true))) {
+                        if (!(validateField("name", formValues["name"], true) || validateField("valueType", formValues["valueType"], true))) {
                             setFormValues({
-                                ...formValues, "propertyName": undefined, "propertyDataType": undefined,
-                                "properties": [...formValues["properties"], [formValues["propertyName"], formValues["newPropertyName"], formValues["propertyDataType"]]]
+                                ...formValues, "name": undefined, "valueType": undefined,
+                                "proeprties": [...formValues["proeprties"], [formValues["name"], formValues["scope"], formValues["valueType"]]]
                             });
                         }
                     }}>
                         Add
                     </Button>
                 </div>
-                {formValues["properties"] && formValues["properties"].length > 0 && (
+                {formValues["proeprties"] && formValues["proeprties"].length > 0 && (
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
                         <h3>Properties Table</h3>
                         <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
@@ -306,7 +238,7 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                                     Value
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>
-                            {formValues["properties"].map((property: string, index: string) => (
+                            {formValues["proeprties"].map((property: string, index: string) => (
                                 <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                         {property[0]}
@@ -323,6 +255,24 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
                     </ComponentCard>
                 )}
                 </ComponentCard>
+                <Field>
+                </Field>
+
+                <Field>
+                    <TextField
+                        label="Description"
+                        size={50}
+                        placeholder=""
+                        value={formValues["description"]}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, "description": e });
+                            formValidators["description"](e);
+                        }}
+                        required={false}
+                    />
+                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                </Field>
+
             </ComponentCard>
 
 
@@ -339,4 +289,4 @@ const PropertyGroupForm = (props: AddMediatorProps) => {
     );
 };
 
-export default PropertyGroupForm; 
+export default FailoverEndpointForm; 

@@ -8,9 +8,38 @@
  */
 
 import Mustache from "mustache";
-import { getMustacheTemplate } from "../templateUtils";
-import { MEDIATORS } from "../../../../constants";
 import { Callout } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+
+export function getCalloutMustacheTemplate() {
+  return `<callout{{#serviceURL}} serviceURL="{{serviceURL}}"{{/serviceURL}}{{#soapAction}} action="{{soapAction}}"{{/soapAction}}{{#initAxis2ClientOptions}} initAxis2ClientOptions="{{initAxis2ClientOptions}}"{{/initAxis2ClientOptions}}{{#addressEndpoint}} endpointKey="{{addressEndpoint}}"{{/addressEndpoint}}{{#description}} description="{{description}}"{{/description}}>
+  {{#configurationEnabled}}
+  <configuration axis2xml="{{pathToAxis2xml}}" repository="{{pathToAxis2Repository}}"/>
+  {{/configurationEnabled}}
+  {{#xpathPayload}}
+  <source xpath="{{payloadMessageXPath}}"/>
+  {{/xpathPayload}}
+  {{#propertyPayload}}
+  <source key="{{payloadProperty}}"/>
+  {{/propertyPayload}}
+  {{#envelopePayload}}
+  <source type="envelope"/>
+  {{/envelopePayload}}
+  {{#xpathTarget}}
+  <target xpath="{{targetMessageXPath}}"/>
+  {{/xpathTarget}}
+  {{#propertyTarget}}
+  <target key="{{targetProperty}}"/>
+  {{/propertyTarget}}
+  {{#securityEnabled}}
+  {{#policies}}
+  <enableSec inboundPolicy="{{inboundPolicyKey}}" outboundPolicy="{{outboundPolicyKey}}"/>
+  {{/policies}}
+  {{^policies}}
+  <enableSec policy="{{policyKey}}"/>
+  {{/policies}}
+  {{/securityEnabled}}
+</callout>`
+}
 
 export function getCalloutXml(data: { [key: string]: any }) {
   let xpathPayload = data.payloadType === "XPATH";
@@ -33,7 +62,7 @@ export function getCalloutXml(data: { [key: string]: any }) {
     policies: policies,
   }
 
-  return Mustache.render(getMustacheTemplate(MEDIATORS.CALLOUT), modifiedData);
+  return Mustache.render(getCalloutMustacheTemplate(), modifiedData);
 }
 
 export function getCalloutFormDataFromSTNode(data: { [key: string]: any }, node: Callout) {

@@ -86,13 +86,14 @@ const generateForm = (jsonData: any): string => {
     let formValidators = '\n';
     let fields = '';
     let defaultValues = '';
+    let keys: string[] = [];
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
         elements.forEach((element, index) => {
             if (element.type === 'attribute') {
                 const { name, displayName, defaultValue, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
-                // const inputName = parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_');
-                const inputName = name.trim().replace(/\s/g, '_');
+                const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
+                keys.push(inputName);
                 const isRequired = required == 'true';
 
                 formValidators += `"${inputName}": (e?: any) => validateField("${inputName}", e, ${isRequired}${validation ? `, "${validation}"` : ""}${validationRegEx ? `, "${validationRegEx}"` : ""}),\n`;
@@ -112,7 +113,7 @@ const generateForm = (jsonData: any): string => {
                     fixIndentation(`
                     <Field>`, indentation);
                 indentation += 4;
-                if (inputType === 'stringOrExpression' || inputType === 'string' || inputType === 'registry') {
+                if (inputType === 'stringOrExpression' || inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
 
                     fields +=
                         fixIndentation(`
@@ -207,14 +208,14 @@ const generateForm = (jsonData: any): string => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>   
                         <h3>${element.value.groupName}</h3>\n`, indentation);
                 }
-                
+
                 generateFormItems(element.value.elements, indentation + 4, `${element.value.groupName.trim().replace(/\s/g, '_')}.`);
 
                 if (parentName !== "table") {
                     fields += fixIndentation(`
                     </ComponentCard>`, indentation);
                 }
-                
+
                 indentation -= enableCondition ? 4 : 0;
                 fields +=
                     fixIndentation(`${enableCondition ? `
@@ -230,7 +231,7 @@ const generateForm = (jsonData: any): string => {
                     "${inputName}": [] as string[][],`, 8);
                 const elements = element.value.form.elements;
                 generateFormItems(elements, indentation + 4, "table");
-                
+
                 const name = elements[0].value.elements[0].value.name;
                 const type = elements[0].value.elements[1].value.name;
                 const value = elements[0].value.elements[2] ? elements[0].value.elements[2].value.name : "";
@@ -338,7 +339,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     }, [sidePanelContext.formValues]);
 
     const onClick = async () => {
-        let newErrors = {} as any;
+        const newErrors = {} as any;
         Object.keys(formValidators).forEach((key) => {
             const error = formValidators[key]();
             if (error) {
@@ -364,7 +365,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         const value = e ?? formValues[id];
-        let newErrors = { ...errors };
+        const newErrors = { ...errors };
         let error;
         if (isRequired && !value) {
             error = "This field is required";
@@ -448,12 +449,29 @@ const generateForms = () => {
             console.log('-----------------------------------');
 
             const componentContent = generateForm(jsonData);
-            // console.log(componentContent);
-            fs.writeFileSync(destinationPath, componentContent);
-
+            if (!fs.existsSync(destinationPath)) {
+                // console.log(componentContent);
+                fs.writeFileSync(destinationPath, componentContent);
+            } else {
+                console.log(`${destinationPath} already exists. Skipping...`);
+            }
+            
             console.log('---------------END-----------------');
         }
     });
+
+    // lint generated files
+    console.log('Linting...');
+    const { exec } = require('child_process');
+    exec(`eslint --fix ${destination}/**/*.tsx`, (err: any, stdout: any, stderr: any) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log(stdout);
+        console.log(stderr);
+    }
+    );
 }
 
 generateForms();

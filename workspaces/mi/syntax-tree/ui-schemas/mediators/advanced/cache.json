@@ -229,7 +229,7 @@
             "value": {
               "name": "sequenceKey",
               "displayName": "Sequence Key",
-              "inputType": "combo",
+              "inputType": "registry",
               "defaultValue": "registry",
               "required": false,
               "helpTip": "",

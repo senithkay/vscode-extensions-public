@@ -9,13 +9,13 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { AutoComplete, Button, ComponentCard } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
-import { AddMediatorProps } from '../common';
+import { AddMediatorProps } from '../../mediators/common';
 import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
-import { MEDIATORS } from '../../../../../constants';
+import { ENDPOINTS } from '../../../../../constants';
 
 const cardStyle = { 
    display: "block",
@@ -37,7 +37,7 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const LoopbackForm = (props: AddMediatorProps) => {
+const NamedEndpointForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
@@ -46,12 +46,13 @@ const LoopbackForm = (props: AddMediatorProps) => {
        if (sidePanelContext.formValues) {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
-           setFormValues({});
+           setFormValues({
+       "referringEndpointType": "Static",});
        }
    }, [sidePanelContext.formValues]);
 
    const onClick = async () => {
-       const newErrors = {} as any;
+       let newErrors = {} as any;
        Object.keys(formValidators).forEach((key) => {
            const error = formValidators[key]();
            if (error) {
@@ -61,7 +62,7 @@ const LoopbackForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(MEDIATORS.LOOPBACK, formValues);
+           const xml = getXML(ENDPOINTS.NAMED, formValues);
            MIWebViewAPI.getInstance().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
@@ -73,13 +74,15 @@ const LoopbackForm = (props: AddMediatorProps) => {
    };
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "description": (e?: any) => validateField("description", e, false),
+       "referringEndpointType": (e?: any) => validateField("referringEndpointType", e, false),
+       "staticReferenceKey": (e?: any) => validateField("staticReferenceKey", e, false),
+       "dynamicReferenceKey": (e?: any) => validateField("dynamicReferenceKey", e, false),
 
    };
 
    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
        const value = e ?? formValues[id];
-       const newErrors = { ...errors };
+       let newErrors = { ...errors };
        let error;
        if (isRequired && !value) {
            error = "This field is required";
@@ -104,19 +107,23 @@ const LoopbackForm = (props: AddMediatorProps) => {
                 <h3>Properties</h3>
 
                 <Field>
-                    <TextField
-                        label="Description"
-                        size={50}
-                        placeholder="Description"
-                        value={formValues["description"]}
-                        onChange={(e: any) => {
-                            setFormValues({ ...formValues, "description": e });
-                            formValidators["description"](e);
-                        }}
-                        required={false}
-                    />
-                    {errors["description"] && <Error>{errors["description"]}</Error>}
+                    <label>Referring Endpoint Type</label>
+                    <AutoComplete items={["Static", "dynamic"]} selectedItem={formValues["referringEndpointType"]} onChange={(e: any) => {
+                        setFormValues({ ...formValues, "referringEndpointType": e });
+                        formValidators["referringEndpointType"](e);
+                    }} />
+                    {errors["referringEndpointType"] && <Error>{errors["referringEndpointType"]}</Error>}
                 </Field>
+
+                {formValues["referringEndpointType"] && formValues["referringEndpointType"].toLowerCase() == "static" &&
+                    <Field>
+                    </Field>
+                }
+
+                {formValues["referringEndpointType"] && formValues["referringEndpointType"].toLowerCase() == "dynamic" &&
+                    <Field>
+                    </Field>
+                }
 
             </ComponentCard>
 
@@ -134,4 +141,4 @@ const LoopbackForm = (props: AddMediatorProps) => {
     );
 };
 
-export default LoopbackForm; 
+export default NamedEndpointForm; 

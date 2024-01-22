@@ -8,9 +8,25 @@
  */
 
 import Mustache from "mustache";
-import { MEDIATORS } from "../../../../constants";
-import { getMustacheTemplate } from "../templateUtils";
 import { Call } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+
+export function getCallMustacheTemplate() {
+  return `<call blocking="{{enableBlockingCalls}}"{{#description}} description="{{description}}"{{/description}}>
+<endpoint {{#keyExpression}} key-expression="{{keyExpression}}"{{/keyExpression}}/>
+    {{#bodySource}}
+    <source contentType="{{contentType}}" type="{{sourceType}}"/>
+    {{/bodySource}}
+    {{#propertySource}}
+    <source contentType="{{contentType}}" type="{{sourceType}}">{{sourceProperty}}</source>
+    {{/propertySource}}
+    {{#bodyTarget}}
+    <target type="{{targetType}}"/>
+    {{/bodyTarget}}
+    {{#propertySource}}
+    <target type="{{targetType}}">{{targetProperty}}</target>
+{{/propertySource}}
+</call>`
+}
 
 export function getCallXml(data: { [key: string]: any }) {
   let bodySource;
@@ -37,7 +53,7 @@ export function getCallXml(data: { [key: string]: any }) {
     enableBlockingCalls: enableBlockingCalls,
   }
 
-  return Mustache.render(getMustacheTemplate(MEDIATORS.CALL), modifiedData)
+  return Mustache.render(getCallMustacheTemplate(), modifiedData)
 }
 
 export function getCallFormDataFromSTNode(data: { [key: string]: any }, node: Call) {

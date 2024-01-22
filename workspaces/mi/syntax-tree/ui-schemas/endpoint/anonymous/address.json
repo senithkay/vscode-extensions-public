@@ -383,9 +383,9 @@
                             "defaultValue": "",
                             "required": false,
                             "helpTip": "",
-                            "enableCondition": {
+                            "enableCondition": [{
                               "valueType": "LITERAL"
-                            }
+                            }]
                           }
                         },
                         {
@@ -397,9 +397,9 @@
                             "defaultValue": "",
                             "required": false,
                             "helpTip": "",
-                            "enableCondition": {
+                            "enableCondition": [{
                               "valueType": "EXPRESSION"
-                            }
+                            }]
                           }
                         }
                       ]
