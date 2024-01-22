@@ -31,5 +31,10 @@ export interface CommandProps {
     isService?: boolean
 }
 
+// State Machine context values
+export interface VisualizerLocation {
+    documentUri: string | null;
+}
+
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
-export const getVisualizerState: RequestType<void, any> = { method: 'getVisualizerState'};
+export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState'};

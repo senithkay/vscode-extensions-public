@@ -14,7 +14,7 @@
     "target": "ES6",
     "strictNullChecks": false,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false, // TODO - ENABLE THIS
     "preserveSymlinks": true,
     "declaration": true,
     "declarationDir": "./lib",

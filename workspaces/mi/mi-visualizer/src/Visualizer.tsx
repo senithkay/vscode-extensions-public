@@ -11,6 +11,8 @@ import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/mi-core";
 import DiagramPanel from "./DiagramPanel";
+import OverviewPanel from "./OverviewPanel";
+import GettingStartedPanel from "./GettingStartedPanel";
 
 
 export function Visualizer({ mode }: { mode: string }) {
@@ -33,33 +35,20 @@ export function Visualizer({ mode }: { mode: string }) {
         <>
             {(() => {
                 switch (mode) {
-                    case "activityPanel":
-                        return <h2>Hello Activity Panel</h2>
                     case "visualizer":
-                        return <LowCodeComponent state={state}/>
+                        return <VisualizerComponent state={state}/>
                 }
             })()}
         </>
     );
 };
 
-// const OverviewComponent = ({ state }: { state: MachineStateValue }) => {
-//     switch (true) {
-//         case typeof state === 'object' && 'ready' in state:
-//             return <Overview />;
-//         case typeof state === 'object' && 'newProject' in state:
-//             return <InitProject />;
-//         default:
-//             return <Loader />;
-//     }
-// };
-
-const LowCodeComponent = ({ state }: { state: MachineStateValue }) => {
+const VisualizerComponent = ({ state }: { state: MachineStateValue }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state:
-            return <DiagramPanel state={state} />;
+            return <OverviewPanel state={state} />;
         case typeof state === 'object' && 'newProject' in state:
-            return <h1>New Project Page</h1>
+            return <GettingStartedPanel state={state} />;
         default:
             return <h1>LOADING</h1>;
     }

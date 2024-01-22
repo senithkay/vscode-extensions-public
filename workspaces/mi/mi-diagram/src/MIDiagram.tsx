@@ -16,7 +16,6 @@ import { Button } from '@wso2-enterprise/ui-toolkit';
 import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
 import SidePanelList from './components/sidePanel';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
-import { MiDiagramRpcClient } from '@wso2-enterprise/mi-rpc-client/lib/rpc-clients/mi-diagram/rpc-client';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 export interface MIDiagramProps {
@@ -65,7 +64,7 @@ export function MIDiagram(props: MIDiagramProps) {
 
 	let canvas;
 	if (isLoading) {
-		canvas = <h1>Loading...</h1>;
+		canvas = <h1>Loading... {lastUpdated}</h1>;
 	} else {
 		canvas = stNode &&
 			<div>

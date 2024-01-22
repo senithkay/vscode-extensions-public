@@ -3386,6 +3386,45 @@ importers:
       webpack: 5.89.0_webpack-cli@5.1.4
       webpack-cli: 5.1.4_webpack@5.89.0
 
+  ../../workspaces/mi/mi-overview:
+    specifiers:
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
+      '@types/react': ^18.2.33
+      '@typescript-eslint/eslint-plugin': ^6.9.1
+      '@typescript-eslint/parser': ^6.9.1
+      '@vscode/webview-ui-toolkit': ^1.2.0
+      '@wso2-enterprise/mi-core': workspace:*
+      '@wso2-enterprise/mi-rpc-client': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
+      copyfiles: ^2.4.1
+      eslint: ^8.52.0
+      eslint-plugin-react-hooks: ^4.6.0
+      eslint-plugin-react-refresh: ^0.4.4
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      typescript: ^5.2.2
+      vscode-uri: ^3.0.8
+    dependencies:
+      '@emotion/react': 11.11.1_qinpt5tsrh57s4kh6guy25fqdq
+      '@emotion/styled': 11.11.0_ksuq5na5e72uen54lcvd7upyei
+      '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
+      '@wso2-enterprise/mi-core': link:../mi-core
+      '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      vscode-uri: 3.0.8
+    devDependencies:
+      '@types/react': 18.2.45
+      '@typescript-eslint/eslint-plugin': 6.14.0_g5ffftcw5jzq3plu4f37zsyrfq
+      '@typescript-eslint/parser': 6.14.0_7hj7rehet5x3fvq7nqub5sammm
+      copyfiles: 2.4.1
+      eslint: 8.55.0
+      eslint-plugin-react-hooks: 4.6.0_eslint@8.55.0
+      eslint-plugin-react-refresh: 0.4.5_eslint@8.55.0
+      typescript: 5.3.3
+
   ../../workspaces/mi/mi-rpc-client:
     specifiers:
       '@types/react': ^18.2.33
@@ -3436,6 +3475,7 @@ importers:
       '@vscode/webview-ui-toolkit': ^1.2.0
       '@wso2-enterprise/mi-core': workspace:*
       '@wso2-enterprise/mi-diagram': workspace:*
+      '@wso2-enterprise/mi-overview': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
@@ -3456,6 +3496,7 @@ importers:
       '@vscode/webview-ui-toolkit': 1.4.0_react@18.2.0
       '@wso2-enterprise/mi-core': link:../mi-core
       '@wso2-enterprise/mi-diagram': link:../mi-diagram
+      '@wso2-enterprise/mi-overview': link:../mi-overview
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -25855,6 +25896,14 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
+    dependencies:
+      eslint: 8.55.0
+    dev: true
+
+  /eslint-plugin-react-refresh/0.4.5_eslint@8.55.0:
+    resolution: {integrity: sha512-D53FYKJa+fDmZMtriODxvhwrO+IOqrxoEo21gMA0sjHdU6dPVH4OhyFip9ypl8HOF5RV5KdTo+rBQLvnY2cO8w==}
+    peerDependencies:
+      eslint: '>=7'
     dependencies:
       eslint: 8.55.0
     dev: true

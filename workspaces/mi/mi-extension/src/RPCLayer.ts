@@ -9,8 +9,8 @@
 
 import { WebviewView, WebviewPanel } from 'vscode';
 import { Messenger } from 'vscode-messenger';
-import { MachineContext, StateMachine } from './stateMachine';
-import { stateChanged, getVisualizerState } from '@wso2-enterprise/mi-core';
+import { StateMachine } from './stateMachine';
+import { stateChanged, getVisualizerState, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { State } from 'xstate';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 
@@ -40,10 +40,10 @@ export class RPCLayer {
         return new RPCLayer(webViewPanel);
     }
 
-    async getContext(): Promise<MachineContext> {
+    async getContext(): Promise<VisualizerLocation> {
         const context = StateMachine.context();
         return new Promise((resolve) => {
-            resolve({documentUri: context.documentUri, langClient: null, errorCode: null});
+            resolve({ documentUri: context.documentUri });
         });
     }
 }
