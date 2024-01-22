@@ -452,8 +452,8 @@ export const useStmtEditorHelperPanelStyles = () => ({
             height: '48px'
         }
     }),
-    lsSuggestionList: css({
-        height: '98%',
+    suggestionListContainer: css({
+        height: 'inherit',
         "& .MuiList-padding": {
             ...removePadding
         }
@@ -486,7 +486,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         textOverflow: 'ellipsis',
         fontSize: '13px',
     }),
-    expressionSuggestionList: css({
+    suggestionListInner: css({
         width: '100%',
         height: '100%',
         display: 'flex',
@@ -1043,7 +1043,7 @@ export const useStatementEditorStyles = () => ({
         padding: '0 15px 15px 15px',
         marginTop: '15px',
         height: 'inherit',
-        overflowY: 'scroll',
+        overflowY: 'scroll'
     }),
     helpText: css({
         fontStyle: "italic"

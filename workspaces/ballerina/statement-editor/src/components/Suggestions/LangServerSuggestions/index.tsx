@@ -251,7 +251,7 @@ export function LSSuggestions() {
     }
 
     return (
-        <>
+        <div className={stmtEditorHelperClasses.suggestionListInner} data-testid="expression-list">
             <div className={stmtEditorHelperClasses.searchBox}>
                 <SearchBox
                     id={'ls-suggestions-searchbar'}
@@ -265,7 +265,7 @@ export function LSSuggestions() {
             </div>
             {(filteredSuggestions?.length || filteredSecondLevelSuggestions?.length) ?
             (
-                <div className={stmtEditorHelperClasses.lsSuggestionList}>
+                <div className={stmtEditorHelperClasses.suggestionListContainer}>
                     <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
                         {references?.length > 0 && (
                             <SuggestionsList
@@ -303,6 +303,6 @@ export function LSSuggestions() {
                     <p>Suggestions not available</p>
                 </div>
             )}
-        </>
+        </div>
     );
 }

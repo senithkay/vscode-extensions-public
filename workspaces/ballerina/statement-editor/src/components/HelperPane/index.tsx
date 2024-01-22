@@ -34,6 +34,7 @@ import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../st
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
+// import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -103,6 +104,43 @@ export function HelperPane() {
             setSelectedTab(TabElements.suggestions);
         }
     }, [currentModel.model]);
+
+    // return (
+    //     <PanelWrapper>
+    //         <VSCodePanels activeid="suggestions">
+    //             <VSCodePanelTab id="suggestions">{TabElements.suggestions}</VSCodePanelTab>
+    //             <VSCodePanelTab id="expressions">{TabElements.expressions}</VSCodePanelTab>
+    //             <VSCodePanelTab id="libraries">{TabElements.libraries}</VSCodePanelTab>
+    //             <VSCodePanelTab id="parameters">{TabElements.parameters}</VSCodePanelTab>
+    //             <PanelContent>
+    //                 <LSSuggestions />
+    //             </PanelContent>
+    //             <PanelContent>
+    //                 <ExpressionSuggestions />
+    //             </PanelContent>
+    //             <PanelContent>
+    //                 <>
+    //                     <Dropdown
+    //                         onChange={onLibTypeSelection}
+    //                         id="lib-filter-dropdown"
+    //                         value={libraryType}
+    //                         items={[
+    //                             { id: "allLibs", value: ALL_LIBS_IDENTIFIER },
+    //                             { id: "langLibs", value: LANG_LIBS_IDENTIFIER },
+    //                             { id: "stdLibs", value: STD_LIBS_IDENTIFIER }
+    //                         ]}
+    //                         data-testid="library-selector-dropdown"
+    //                         sx={{position: 'absolute', zIndex: 1, top: '-27px', right: '25px'}}
+    //                     />
+    //                     <LibraryBrowser libraryType={libraryType} />
+    //                 </>
+    //             </PanelContent>
+    //             <PanelContent>
+    //                 <ParameterSuggestions />
+    //             </PanelContent>
+    //         </VSCodePanels>
+    //     </PanelWrapper>
+    // );
 
     return (
         <>

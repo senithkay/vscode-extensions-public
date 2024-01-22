@@ -197,25 +197,24 @@ export function ExpressionSuggestions() {
     }
 
     return (
-        <>
-
-            <div className={stmtEditorHelperClasses.expressionSuggestionList} data-testid="expression-list">
-                <div className={stmtEditorHelperClasses.searchBox}>
-                    <SearchBox
-                        id={'expr-suggestions-searchbar'}
-                        autoFocus={true}
-                        placeholder={`Search Expression`}
-                        value={keyword}
-                        onChange={searchExpressions}
-                        size={100}
-                        data-testid="expr-suggestions-searchbar"
-                    />
+        <div className={stmtEditorHelperClasses.suggestionListInner} data-testid="expression-list">
+            <div className={stmtEditorHelperClasses.searchBox}>
+                <SearchBox
+                    id={'expr-suggestions-searchbar'}
+                    autoFocus={true}
+                    placeholder={`Search Expression`}
+                    value={keyword}
+                    onChange={searchExpressions}
+                    size={100}
+                    data-testid="expr-suggestions-searchbar"
+                />
+            </div>
+            {!filteredExpressions.length && (
+                <div className={statementEditorClasses.stmtEditorInnerWrapper}>
+                    <p>Expressions not available</p>
                 </div>
-                {!filteredExpressions.length && (
-                    <div className={statementEditorClasses.stmtEditorInnerWrapper}>
-                        <p>Expressions not available</p>
-                    </div>
-                )}
+            )}
+            <div className={stmtEditorHelperClasses.suggestionListContainer}>
                 <div className={statementEditorClasses.stmtEditorExpressionWrapper}>
                     {!!filteredExpressions.length && (
                         <>
@@ -269,6 +268,6 @@ export function ExpressionSuggestions() {
                     )}
                 </div>
             </div>
-        </>
+        </div>
     );
 }
