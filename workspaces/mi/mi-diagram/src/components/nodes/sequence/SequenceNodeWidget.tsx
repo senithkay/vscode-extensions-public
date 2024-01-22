@@ -9,10 +9,11 @@
 
 import React from 'react';
 import { PortModelAlignment } from '@projectstorm/react-diagrams-core';
-import { BaseNodeProps, SequenceType } from '../../base/base-node/base-node';
+import { BaseNodeModel, BaseNodeProps, SequenceType } from '../../base/base-node/base-node';
 import { OFFSET } from '../../../constants';
 import { MediatorPortWidget } from '../../port/MediatorPortWidget';
-import { IN_SEQUENCE_TAG, OUT_SEQUENCE_TAG } from '../../compartments/Sequence';
+import { OUT_SEQUENCE_TAG } from '../../compartments/Sequence';
+import { SequenceNodeModel } from './SequenceNodeModel';
 
 interface SequenceNodeProps extends BaseNodeProps {
     side: "right" | "left",
@@ -22,19 +23,24 @@ interface SequenceNodeProps extends BaseNodeProps {
 export function SequenceNodeWidget(props: SequenceNodeProps) {
     const node = props.node;
     const nodes = props.diagramEngine.getModel().getNodes();
-    const inSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === IN_SEQUENCE_TAG);
-    const outSeqNodes = nodes.filter((node: any) => node.parentNode?.tag === OUT_SEQUENCE_TAG);
-    const canvasHeightInSeqNodes = inSeqNodes.length > 0 ? inSeqNodes[inSeqNodes.length - 1].getY() + inSeqNodes[inSeqNodes.length - 1].height + 100 : 150;
-    const canvasHeightOutSeqNodes = outSeqNodes.length > 0 ? outSeqNodes[outSeqNodes.length - 1].getY() - outSeqNodes[0].getY() + outSeqNodes[0].height + 350: 150;
-    const height = props.sequenceType === SequenceType.IN_SEQUENCE ? canvasHeightInSeqNodes : canvasHeightOutSeqNodes;
+    const getCanvasDimensions = (nodes: any[], tag: string, isReverse: boolean = false) => {
+        let width = 200;
+        let height = 150;
+        nodes.filter((node: any) => !(node instanceof SequenceNodeModel)).forEach((node: any) => {
+            width = Math.max(width, node.width);
+        });
 
-    let width = 200;
-    inSeqNodes.forEach((node: any) => {
-        width = Math.max(width, node.width);
-    });
-    outSeqNodes.forEach((node: any) => {
-        width = Math.max(width, node.width);
-    });
+        const filteredNodes = nodes.filter((node: BaseNodeModel) => node.getParentNode()?.tag === tag);
+        if (filteredNodes.length > 0) {
+
+            height = filteredNodes[filteredNodes.length - 1].getY() + (isReverse ? filteredNodes[0].height - filteredNodes[0].getY() + 250 : filteredNodes[filteredNodes.length - 1].height) + 100;
+            return { width, height };
+        }
+        return { width, height };
+    };
+
+    let { width, height } = getCanvasDimensions(nodes, props.sequenceType, props.sequenceType === OUT_SEQUENCE_TAG);
+
     width += OFFSET.MARGIN.SEQUENCE;
     node.width = width;
     node.height = height;
@@ -53,7 +59,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
     bottomPort.setPosition(nodePosition.x + node.width / 2, nodePosition.y);
 
     node.fireEvent({}, "updateDimensions");
-    const sequenceType = node.getSequenceType() ;
+    const sequenceType = node.getSequenceType();
     return (
         <>
             <div style={{
@@ -61,7 +67,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
                 height: height,
                 border: "2px solid gold",
                 background: "var(--vscode-editor-background)",
-                borderRadius:"20px",
+                borderRadius: "20px",
             }}>
                 <div style={{
                     display: "flex",
@@ -70,7 +76,7 @@ export function SequenceNodeWidget(props: SequenceNodeProps) {
                     padding: "20px",
                     fontSize: "14px"
                 }}>
-                    {sequenceType === SequenceType.IN_SEQUENCE ? <span>In sequence</span> : <span>Out sequence</span>}
+                    {sequenceType === SequenceType.IN_SEQUENCE ? <span>In sequence</span> : sequenceType === SequenceType.OUT_SEQUENCE ? <span>Out sequence</span> : ""}
                 </div>
             </div>
             <MediatorPortWidget

@@ -30,6 +30,8 @@ export interface SequenceDiagramProps {
     inSequenceRange?: Range;
     outSequence: BaseNodeModel[];
     outSequenceRange?: Range;
+    sequence: BaseNodeModel[];
+    sequenceRange?: Range;
 }
 
 SequenceDiagram.defaultProps = {
@@ -47,12 +49,14 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         (async () => {
             const inSequenceNodes = props.inSequence;
             const outSequenceNodes = props.outSequence;
+            const sequenceNodes = props.sequence;
 
             diagramEngine.setModel(model);
             setEngine(diagramEngine);
 
-            if (props.inSequenceRange) drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE, props.inSequenceRange, "inSequence");
-            if (props.outSequenceRange) drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE, props.outSequenceRange, "outSequence");
+            if (props.inSequenceRange) drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE, props.inSequenceRange, SequenceType.IN_SEQUENCE);
+            if (props.outSequenceRange) drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE, props.outSequenceRange, SequenceType.OUT_SEQUENCE);
+            if (props.sequenceRange) drawSequence(sequenceNodes, SequenceType.SEQUENCE, props.sequenceRange, SequenceType.SEQUENCE);
 
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
@@ -124,7 +128,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         let x = OFFSET.START.X;
         let y = OFFSET.START.Y;
         const nodes: any = diagramEngine.getModel().getNodes();
-        const inSeqNodes = nodes.filter((node: BaseNodeModel) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === IN_SEQUENCE_TAG);
+        const inSeqNodes = nodes.filter((node: BaseNodeModel) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === IN_SEQUENCE_TAG || node.getParentNode()?.tag === "sequence");
         const outSeqNodes = nodes.filter((node: BaseNodeModel) => (node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === OUT_SEQUENCE_TAG);
         const inSeqNode = nodes.filter((node: any) => !node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const outSeqNode = nodes.filter((node: any) => node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
