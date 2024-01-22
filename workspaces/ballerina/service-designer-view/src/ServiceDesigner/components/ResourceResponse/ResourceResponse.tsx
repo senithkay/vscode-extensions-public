@@ -15,10 +15,13 @@ import styled from '@emotion/styled';
 import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
 import { ResponseConfig } from '../../definitions';
+import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getResponseRecordDefCode, getSourceFromResponseCode } from '../../utils/utils';
 
 export interface ResourceParamProps {
+    method: HTTP_METHOD;
     response: ResponseConfig[];
-    onChange?: (parameters: ResponseConfig[]) => void,
+    onChange?: (parameters: ResponseConfig[]) => void;
+    addNameRecord?: (source: string) => void;
     readonly?: boolean;
     typeCompletions?: string[];
 }
@@ -27,8 +30,8 @@ const AddButtonWrapper = styled.div`
 	margin: 8px 0;
 `;
 
-export function Response(props: ResourceParamProps) {
-    const { response, readonly, onChange, typeCompletions } = props;
+export function ResourceResponse(props: ResourceParamProps) {
+    const { method, response, readonly, onChange, addNameRecord, typeCompletions } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -41,8 +44,7 @@ export function Response(props: ResourceParamProps) {
         setEditingSegmentId(updatedParameters.length);
         const newResp: ResponseConfig = {
             id: updatedParameters.length,
-            code: 200,
-            type: "json"
+            code: getDefaultResponse(method)
         };
         updatedParameters.push(newResp);
         onChange(updatedParameters);
@@ -71,11 +73,49 @@ export function Response(props: ResourceParamProps) {
         onChange(updatedParameters);
     };
 
-    const onSaveParam = (paramConfig: ResponseConfig) => {
+    const onSaveParam = (paramConfig: ResponseConfig, defineRecordName: string) => {
         const updatedParameters = [...response];
+        let modifiedParamConfig: ResponseConfig;
+        if (paramConfig.type && (paramConfig.code !== getDefaultResponse(method))) {
+            modifiedParamConfig = {
+                ...paramConfig,
+                source: getResponseRecordCode(paramConfig.code, paramConfig.type)
+            };
+        } else if (paramConfig.type && (paramConfig.code === getDefaultResponse(method))) {
+            modifiedParamConfig = {
+                ...paramConfig,
+                source: paramConfig.type
+            };
+        } else if (paramConfig.source) {
+            modifiedParamConfig = {
+                ...paramConfig,
+                source: paramConfig.source,
+            };
+        } else {
+            modifiedParamConfig = {
+                ...paramConfig,
+                source: getSourceFromResponseCode(paramConfig.code)
+            };
+        }
+        if (paramConfig.type === "error" || paramConfig.type === "error?") {
+            modifiedParamConfig = {
+                ...modifiedParamConfig,
+                code: 500
+            };
+        }
+        if (defineRecordName && paramConfig.type) {
+            const recordCode = getResponseRecordDefCode(defineRecordName, paramConfig.code, paramConfig.type);
+            modifiedParamConfig = {
+                ...modifiedParamConfig,
+                code: paramConfig.code,
+                type: defineRecordName,
+                source: defineRecordName
+            };
+            addNameRecord(recordCode);
+        }
         const index = updatedParameters.findIndex(param => param.id === paramConfig.id);
         if (index !== -1) {
-            updatedParameters[index] = paramConfig;
+            updatedParameters[index] = modifiedParamConfig;
         }
         setEditingSegmentId(-1);
         setIsNew(false);
@@ -99,7 +139,8 @@ export function Response(props: ResourceParamProps) {
                         response={{
                             id: index,
                             type: param.type,
-                            code: param.code
+                            code: param.code,
+                            source: param.source
                         }}
                         isEdit={true}
                         onChange={onChangeParam}
@@ -108,13 +149,15 @@ export function Response(props: ResourceParamProps) {
                         typeCompletions={typeCompletions}
                     />
                 )
-            } else if ((editingSegmentId !== index) && param.type && param.type !== "nil") {
+            } else if (editingSegmentId !== index) {
                 paramComponents.push(
                     <ResponseItem
+                        method={method}
                         response={{
                             id: index,
                             type: param.type,
-                            code: param.code
+                            code: param.code,
+                            source: param.source
                         }}
                         readonly={editingSegmentId !== -1 || readonly}
                         onDelete={onDelete}

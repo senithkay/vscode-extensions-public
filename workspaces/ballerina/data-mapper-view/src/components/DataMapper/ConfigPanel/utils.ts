@@ -6,7 +6,6 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     addToTargetPosition,
     BallerinaProjectComponents,
@@ -18,7 +17,7 @@ import {
     STModification,
     Type,
     updateFunctionSignature
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import {
     FunctionDefinition,
     IdentifierToken,
@@ -27,7 +26,6 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import * as monaco from "monaco-editor";
 import { CompletionItemKind, Diagnostic } from "vscode-languageserver-types";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
@@ -38,6 +36,7 @@ import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupp
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./InputParamsPanel/types";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { URI } from "vscode-uri";
 
 export const FILE_SCHEME = "file://";
 export const EXPR_SCHEME = "expr://";
@@ -297,7 +296,7 @@ export async function getDefaultFnName(
 ): Promise<string> {
     const completionParams: CompletionParams = {
         textDocument: {
-            uri: monaco.Uri.file(filePath).toString()
+            uri: URI.file(filePath).toString()
         },
         position: {
             character: targetPosition.endColumn,
@@ -326,7 +325,7 @@ async function getVirtualDiagnostics(filePath: string,
                                      currentFileContent: string,
                                      newContent: string,
                                      langServerRpcClient: LangServerRpcClient): Promise<Diagnostic[]> {
-    const docUri = monaco.Uri.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const docUri = URI.file(filePath).toString().replace(FILE_SCHEME, EXPR_SCHEME);
     langServerRpcClient.didOpen({
         textDocument: {
             uri: docUri,

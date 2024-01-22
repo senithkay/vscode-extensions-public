@@ -8,15 +8,14 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import { Point } from "@projectstorm/geometry";
-import { ResolvedTypeForExpression } from "@wso2-enterprise/ballerina-languageclient";
+import { ResolvedTypeForExpression } from "@wso2-enterprise/ballerina-core";
 import {
     ComponentInfo,
     ExpressionRange,
     PrimitiveBalType,
     Type,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+} from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { Uri } from "monaco-editor";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -25,6 +24,7 @@ import { ENUM_TYPE_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getDefinitionPosition, getTypesForExpressions } from "../../utils/ls-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ModuleVariable, ModuleVarKind } from "../ModuleVariable";
+import { URI } from "vscode-uri";
 
 export const ENUM_TYPE_SOURCE_NODE_TYPE = "datamapper-node-type-desc-enum-type";
 
@@ -97,9 +97,9 @@ export class EnumTypeNode extends DataMapperNodeModel {
                 this.context.langServerRpcClient
             );
             if (definitionPosition.parseSuccess) {
-                const enumTypePath = Uri.parse(definitionPosition.defFilePath).fsPath;
+                const enumTypePath = URI.parse(definitionPosition.defFilePath).fsPath;
                 for (const enumType of this.enums) {
-                    const enumMemberPath = Uri.parse(
+                    const enumMemberPath = URI.parse(
                         enumType.filePath + enumType.enum.filePath
                     ).fsPath;
                     const contains = containsWithin(

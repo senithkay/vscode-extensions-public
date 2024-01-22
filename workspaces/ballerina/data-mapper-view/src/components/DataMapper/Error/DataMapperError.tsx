@@ -8,8 +8,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React from 'react';
-
-import Typography from "@material-ui/core/Typography";
+import { ISSUES_URL } from '../utils';
 
 export enum ErrorNodeKind {
     Input,
@@ -39,12 +38,12 @@ export function DataMapperError(props: DataMapperErrorProps) {
 
     return (
         <>
-            <Typography component="div">
+            <p>
                 {errorMessage}
-            </Typography>
-            <Typography >
-                Please raise an issue with the sample code in our <a href="https://github.com/wso2/ballerina-plugin-vscode/issues">issue tracker</a>
-            </Typography>
+            </p>
+            <p>
+                Please raise an issue with the sample code in our <a href={ISSUES_URL}>issue tracker</a>
+            </p>
         </>
     )
 }

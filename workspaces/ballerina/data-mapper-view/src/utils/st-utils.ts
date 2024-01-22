@@ -1,5 +1,4 @@
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LinePosition } from "@wso2-enterprise/ballerina-core";
 import {
     CaptureBindingPattern,
     LetExpression,

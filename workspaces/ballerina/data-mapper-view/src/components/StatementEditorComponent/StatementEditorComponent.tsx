@@ -1,9 +1,8 @@
 // tslint:disable: no-implicit-dependencies
 import React from "react";
 
-import FormControl from "@material-ui/core/FormControl";
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse, STModification } from "@wso2-enterprise/ballerina-core";
 // import { Panel } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 // import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 
@@ -12,7 +11,7 @@ import { ExpressionInfo } from "../DataMapper/DataMapper";
 
 export interface StatementEditorComponentProps {
     expressionInfo: ExpressionInfo,
-    langClientPromise?: Promise<IBallerinaLangClient>;
+    langClientPromise?: LangServerRpcClient;
     currentFile?: {
         content: string,
         path: string,

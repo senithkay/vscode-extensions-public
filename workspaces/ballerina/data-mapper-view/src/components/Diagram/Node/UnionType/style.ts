@@ -50,7 +50,7 @@ export const useStyles = () => ({
         alignItems: "flex-start",
         width: "inherit",
         padding: "10px",
-        background: "var(--vscode-editorWidget-background)",
+        background: "var(--vscode-sideBar-background)",
         borderRadius: "4px"
     }),
     unionTypesList: css({
@@ -64,13 +64,13 @@ export const useStyles = () => ({
         }
     }),
     unionTypeListItem: css({
-        "& .MuiListItemText-root": {
-            margin: '0'
-        },
+        display: 'flex',
+        alignItems: 'center',
         ...hoverColor1,
         ...activeColour
     }),
     unionTypeValue: css({
+        color: "var(--vscode-foreground)",
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
@@ -86,7 +86,7 @@ export const useStyles = () => ({
         alignItems: 'center'
     }),
     warningText: css({
-        color:  'var(--vscode-statusBar-debuggingBackground)',
+        color:  'var(--vscode-errorForeground)',
         fontSize: '15px',
         fontFamily: 'Droid Sans Mono',
         fontWeight: 'normal'

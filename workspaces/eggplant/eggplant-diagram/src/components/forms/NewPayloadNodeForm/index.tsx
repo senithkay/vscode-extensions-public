@@ -32,7 +32,7 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
         nodeProperties.current = node.current.properties as CodeNodeProperties;
         nodeMetadata.current = getNodeMetadata(node.current);
         setPayloadSource(
-            nodeProperties.current?.codeBlock.expression
+            nodeProperties.current?.codeBlock.code
                 ?.split(`${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} =`)[1]
                 ?.split(";")[0]
         );
@@ -43,7 +43,7 @@ export function NewPayloadNodeForm(props: OptionWidgetProps) {
 
     const handleOnSave = () => {
         node.current.metadata = nodeMetadata.current;
-        nodeProperties.current.codeBlock.expression = `${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} = ${payloadSource};`;
+        nodeProperties.current.codeBlock.code = `${nodeMetadata.current.outputs[0].type} ${nodeMetadata.current.outputs[0].name} = ${payloadSource};`;
         node.current.properties = nodeProperties.current;
         selectedNode.setNode(node.current);
         updateFlowModel();

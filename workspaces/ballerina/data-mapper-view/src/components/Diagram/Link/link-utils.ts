@@ -1,4 +1,4 @@
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-core";
 
 import { RecordFieldPortModel } from "../Port";
 import {

@@ -9,9 +9,8 @@
 // tslint:disable: jsx-no-multiline-js
 import * as React from 'react';
 
-import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentViewInfo } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 import { css } from '@emotion/css'
@@ -26,7 +25,7 @@ import { LinkConnectorNode } from './LinkConnectorNode';
 const styles = () => ({
     root: css({
         width: '100%',
-        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
         borderRadius: "6px",
         display: "flex",
@@ -195,6 +194,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
                 <Tooltip
                     content={isTnfFunctionCall ? "Transformation Function Call" : "Multi-Input Expression"}
+                    position="bottom-end"
                 >
                     {isTnfFunctionCall ? (
                         <Icon name="function-icon" sx={{ height: "20px", width: "20px" }} iconSx={{ fontSize: "20px" }} />) : (
@@ -230,13 +230,12 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     </Button>
                 )}
                 { diagnostic && (
-                    <div className={classes.element}>
-                        <DiagnosticWidget
-                            diagnostic={diagnostic}
-                            value={props.node.valueNode.source}
-                            onClick={onClickEdit}
-                        />
-                    </div>
+                    <DiagnosticWidget
+                        diagnostic={diagnostic}
+                        value={props.node.valueNode.source}
+                        onClick={onClickEdit}
+                        btnSx={{ margin: "0 2px" }}
+                    />
                 )}
                 <DataMapperPortWidget engine={engine} port={node.outPort} dataTestId={`link-connector-node-${node?.value}-output`}/>
             </div>

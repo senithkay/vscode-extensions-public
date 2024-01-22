@@ -23,12 +23,12 @@ import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisi
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
-import { Button, Codicon, Icon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
+import { Button, Codicon, ProgressRing, Tooltip } from '@wso2-enterprise/ui-toolkit';
 
 export const useStyles = () => ({
     root: css({
         width: '100%',
-        backgroundColor: "var(--vscode-welcomePage-tileBackground)",
+        backgroundColor: "var(--vscode-sideBar-background)",
         padding: "2px",
         borderRadius: "6px",
         display: "flex",

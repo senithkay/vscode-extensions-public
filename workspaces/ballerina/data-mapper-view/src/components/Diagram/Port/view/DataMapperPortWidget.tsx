@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
-import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 // tslint:disable-next-line: no-implicit-dependencies
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
 
 import { DataMapperLinkModel } from "../../Link"
 import { IntermediatePortModel } from "../IntermediatePort";
 import { RecordFieldPortModel } from "../model/RecordFieldPortModel";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 
 export interface DataMapperPortWidgetProps {
 	engine: DiagramEngine;
@@ -83,6 +82,24 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 		'data-testid': dataTestId
 	};
 
+	const RadioButton = (checked: boolean) => (
+		<Icon
+			sx={{ height: "18px", width: "18px" }}
+			iconSx={{ display: "flex", fontSize: "18px", color: "inherit" }}
+			name={checked ? "radio-button-checked" : "radio-button-unchecked"}
+		/>
+	);
+
+	const RadioButtonChecked = styled(() => RadioButton(true))`
+		user-select: none;
+		pointer-events: auto;
+	`;
+
+	const RadioButtonUnchecked = styled(() => RadioButton(false))`
+		user-select: none;
+		pointer-events: auto;
+	`;
+
 	return !disable ? (
 		!disableNewLinking ? (
 			<PortWidget
@@ -90,7 +107,7 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				engine={engine}
 			>
 				<ActivePortContainer {...containerProps}>
-					{hasLinks || portState === PortState.PortSelected ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>}
+					{hasLinks || portState === PortState.PortSelected ? <RadioButtonChecked /> : <RadioButtonUnchecked />}
 				</ActivePortContainer>
 			</PortWidget>
 		) : (
@@ -99,14 +116,14 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				engine={engine}
 			>
 				<DisabledNewLinkingPortContainer {...containerProps}>
-					{hasLinks ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon/>}
+					{hasLinks ? <RadioButtonChecked /> : <RadioButtonUnchecked /> }
 				</DisabledNewLinkingPortContainer>
 			</PortWidget>
 		)
 
 	) : (
 		<DisabledPortContainer data-testid={dataTestId}>
-			<RadioButtonUncheckedIcon/>
+			<RadioButtonUnchecked />
 		</DisabledPortContainer>
 	);
 }
@@ -117,13 +134,15 @@ interface PortsContainerProps {
 	hasError: boolean;
 }
 
+const portActiveColor = "var(--vscode-list-focusAndSelectionOutline, var(--vscode-contrastActiveBorder, var(--vscode-list-focusOutline)))";
+
 const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "pointer",
 	display: "flex",
 	strokeOpacity: props.active ? 0.1 : 0,
-	color: (props.active ? "var(--vscode-dropdown-border)" : props.hasLinks ? (props.hasError ? '#FE523C' : "var(--vscode-input-placeholderForeground)") : "var(--vscode-input-placeholderForeground)"),
+	color: (props.active ? portActiveColor : props.hasLinks ? (props.hasError ? "var(--vscode-errorForeground)" : portActiveColor) : "var(--vscode-list-activeSelectionBackground)"),
 	"&:hover": {
-		color: "var(--vscode-dropdown-border)"
+		color: portActiveColor
 	}
 }));
 
@@ -135,5 +154,5 @@ const DisabledPortContainer = styled.div`
 const DisabledNewLinkingPortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "not-allowed",
 	display: "flex",
-	color: props.hasLinks ? (props.hasError ? '#FE523C' : "var(--vscode-input-placeholderForeground)") : "var(--vscode-input-placeholderForeground)",
+	color: props.hasLinks ? (props.hasError ? 'var(--vscode-errorForeground)' : portActiveColor) : "var(--vscode-list-activeSelectionBackground)",
 }));

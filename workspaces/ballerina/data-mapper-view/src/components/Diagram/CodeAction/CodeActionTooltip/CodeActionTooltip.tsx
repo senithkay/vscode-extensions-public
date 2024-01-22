@@ -10,7 +10,7 @@
 import React from "react";
 
 import { Item, Menu, MenuItem, Tooltip } from "@wso2-enterprise/ui-toolkit";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-types";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -30,7 +30,7 @@ export const CodeActionTooltipID = "data-mapper-codeaction-tooltip";
 export function CodeActionTooltip(props: Partial<Props>) {
     const { codeActions, context, children, additionalActions } = props;
     const menuItems: React.ReactNode[] = [];
-
+    
     const onCodeActionSelect = (action: CodeAction) => {
         const modifications: STModification[] = [];
         (action.edit?.documentChanges[0] as TextDocumentEdit).edits.forEach(
@@ -56,9 +56,8 @@ export function CodeActionTooltip(props: Partial<Props>) {
             const menuItem: Item = { id: `${item.title}-${index}`, label: item.title, onClick: item.onClick }
             menuItems.push(
                 <MenuItem
-                    sx={{ padding: 0 }}
+                    sx={{ pointerEvents: "auto", userSelect: "none" }}
                     item={menuItem}
-                    onClick={item.onClick}
                     data-testid={`code-action-additional-${index}`}
                 />
             );
@@ -69,9 +68,8 @@ export function CodeActionTooltip(props: Partial<Props>) {
             const menuItem: Item = { id: index, label: action.title, onClick: () => onCodeActionSelect(action) };
             menuItems.push(
                 <MenuItem
-                    sx={{ padding: 0 }}
+                    sx={{ pointerEvents: "auto", userSelect: "none" }}
                     item={menuItem}
-                    onClick={() => onCodeActionSelect(action)}
                     data-testid={`code-action-${index}`}
                 />
             );
@@ -89,6 +87,7 @@ export function CodeActionTooltip(props: Partial<Props>) {
         <Tooltip
             content={tooltipTitleComponent}
             position="bottom"
+            sx={{ padding: 0 }}
         >
             {children}
         </Tooltip>

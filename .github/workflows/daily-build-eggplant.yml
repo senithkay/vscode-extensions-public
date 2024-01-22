@@ -2,98 +2,29 @@ name: Daily Build - Eggplant
 on:
   schedule:
     - cron:  '30 13 * * *'
-jobs:
-  Build:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    with:
-       eggplant: true
-       isReleaseBuild: false
 
+jobs:
   Release:
     name: Release VSIX
-    needs: Build
-    timeout-minutes: 15
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - name: Restore build
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v2
         with:
-            name: ExtBuild
-            path: ./
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+          ref: rewrite
 
-      - name: Set up workspace
-        run: |
-            unzip build.zip
-            rm build.zip
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          eggplant: true
+          ref: rewrite
+          API_CHAT_API_KEY: ${{ secrets.API_CHAT_API_KEY }}  
 
-      - name: Get version
-        id: vsix
-        run: |
-            file=$(ls eggplant*.vsix)
-            fileName=${file##*-}
-            version=$version+eggplant-${fileName%.*}  
-
-            echo $version
-            echo "version=$version" >> $GITHUB_OUTPUT
-
-      - name: Get download link
-        id: download
-        shell: bash
-        run: |
-            link=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" \
-            https://api.github.com/repos/wso2-enterprise/vscode-extensions/actions/artifacts\?per_page\=10 | \
-            jq '[.artifacts[] | {name : .name, archive_download_url : .archive_download_url}]' | jq -r '.[] | select (.name == "VSIX") | .archive_download_url'`
-            
-            echo $link
-            echo "VSIXLink=$link" >> $GITHUB_OUTPUT
-
-      - name: "Release Notification"
-        shell: bash
-        run: |
-            body=$(cat << EOF
-            {
-            "cards": [
-                { 
-                "header": {
-                    "title": "Daily Build",
-                },
-                "sections": [
-                    {
-                    "widgets": [
-                        {
-                        "keyValue": {
-                            "topLabel": "Eggplant",
-                            "content": "v${{ steps.vsix.outputs.version }}",
-                            "onClick": {
-                            "openLink": {
-                                "url": "https://github.com/wso2-enterprise/vscode-extensions/actions/runs/${{ github.run_id }}"
-                            }
-                            },": "https://upl
-                                    oad.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
-                            "button": {
-                            "textButton": {
-                                "text": "Download VSIX",
-                                "onClick": {
-                                "openLink": {
-                                    "url": "${{ steps.download.outputs.VSIXLink }}"
-                                }
-                                }
-                            }
-                            }
-                        }
-                        }
-                    ]
-                    }
-                ]
-                }
-            ]
-            }
-            EOF
-            )
-            curl \
-            -X POST \
-            -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAApvQDm3o/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=kX2amBnx58zmdZZjgbA-JZpi3OtM8CJaOv7WOKOihwM" \
-            -d "$body"
+      - name: Notification - Eggplant
+        uses: ./.github/actions/dailyBuildNotification
+        with:
+          title: Eggplant
+          fileName: eggplant
+          api: ${{ secrets.EGGPLANT_EXT_CHAT_API }}

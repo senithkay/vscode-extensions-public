@@ -8,22 +8,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-
-export interface DiagramDiagnostic {
-    message: string,
-    diagnosticInfo: {
-        code: string,
-        severity: string
-    },
-    range: NodePosition
-}
-
-export interface NonPrimitiveBal {
-    orgName: string;
-    moduleName: string;
-    name: string;
-    version?: string;
-}
+import { DiagramDiagnostic, NonPrimitiveBal } from "./connector-wizard-types";
 
 export interface Type {
     typeName: string;

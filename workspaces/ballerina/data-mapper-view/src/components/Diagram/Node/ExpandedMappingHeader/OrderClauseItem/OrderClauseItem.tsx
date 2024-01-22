@@ -9,16 +9,13 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { MenuItem, Select } from "@material-ui/core";
-import Add from "@material-ui/icons/Add";
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import { CommaToken, NodePosition, OrderByClause, OrderKey, QueryExpression, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
 import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
-import { ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Dropdown, OptionProps, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export function OrderByClauseItem(props: {
     intermediateNode: OrderByClause;
@@ -111,6 +108,11 @@ export function OrderByClauseItem(props: {
         }
     }
 
+    const dropDownItems: OptionProps[] = [
+        { id: "ascending", content: "Ascending", value: "ascending" },
+        { id: "descending", content: "Descending", value: "descending" }
+    ];
+
     return (
         <>
             <div className={classes.clauseItem}>
@@ -132,20 +134,20 @@ export function OrderByClauseItem(props: {
                                         }
                                         index={itemIndex}
                                     />
-                                    <Select
-                                        value={item.orderDirection?.value}
-                                        onChange={(event) => onOrderDirectionChange(event.target.value as string, item)}
-                                        className={classes.orderSelect}
-                                    >
-                                        <MenuItem value="ascending">ascending</MenuItem>
-                                        <MenuItem value="descending">descending</MenuItem>
-                                    </Select>
+                                    <Dropdown
+                                        id={`order-direction-${itemIndex}-${index}`}
+                                        value="ascending"
+                                        onChange={(val: string) => onOrderDirectionChange(val, item)}
+                                        items={dropDownItems}
+                                    />
 
                                     {intermediateNode.orderKey.length > 1 && (
-                                        <DeleteOutline
-                                            className={classes.deleteOrderKeyIcon}
+                                        <Button
+                                            appearance="icon"
                                             onClick={() => onDeleteOrderKey(index)}
-                                        />
+                                        >
+                                            <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                                        </Button>
                                     )}
                                 </span>
                             );
@@ -153,13 +155,25 @@ export function OrderByClauseItem(props: {
                             return <span>{item.value}</span>;
                         }
                     })}
-                    <Add className={classes.addOrderKeyIcon} onClick={addOrderKey} />
+                    <Button
+                        appearance="icon"
+                        onClick={addOrderKey}
+                        data-testid={`order-clause-add-${itemIndex}`}
+                    >
+                        <Codicon name="add" iconSx={{ color: "var(--vscode-input-placeholderForeground)" }} />
+                    </Button>
                 </div>
 
                 {isLoading ? (
                     <ProgressRing sx={{ height: '16px', width: '16px' }} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`order-clause-delete-${itemIndex}`} />
+                    <Button
+                        appearance="icon"
+                        onClick={onDelete}
+                        data-testid={`order-clause-delete-${itemIndex}`}
+                    >
+                        <Codicon name="trash" iconSx={{ color: "var(--vscode-errorForeground)" }} />
+                    </Button>
                 )}
             </div>
 

@@ -80,7 +80,7 @@ export class WebviewRpcManager implements WebviewAPI {
             });
         }
         const params: EggplantModelRequest = {
-            filePath: context.fileName!,
+            filePath: Uri.parse(context.fileName!).fsPath,
             startLine: {
                 line: context.position.startLine ?? 0,
                 offset: context.position.startColumn ?? 0
@@ -132,7 +132,7 @@ export class WebviewRpcManager implements WebviewAPI {
     async getSTNodeFromLocation(location: VisualizerLocation): Promise<STNode> {
 
         const req: BallerinaFunctionSTRequest = {
-            documentIdentifier: { uri: Uri.file(location.fileName!).toString() },
+            documentIdentifier: { uri: Uri.parse(location.fileName!).toString() },
             lineRange: {
                 start: {
                     line: location.position!.startLine as number,

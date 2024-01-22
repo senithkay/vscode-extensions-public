@@ -11,8 +11,7 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification, Type, PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 import {
     ExpressionFunctionBody,
     IdentifierToken,

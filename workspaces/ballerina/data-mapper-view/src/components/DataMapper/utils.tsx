@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { useState, useEffect } from "react";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-core";
 
 export const ObjectBalType = "object";
 
@@ -32,6 +32,8 @@ export const DM_UNSUPPORTED_TYPES = [
 ];
 
 const balVersionRegex = new RegExp("^[0-9]{4}.[0-9]+.[0-9]+");
+
+export const ISSUES_URL = "https://github.com/wso2/ballerina-plugin-vscode/issues";
 
 export function isDMSupported(version: string): boolean {
     if (!version) {

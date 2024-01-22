@@ -10,7 +10,7 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons/lib/types/lang-client-extended";
+import { STModification } from "@wso2-enterprise/ballerina-core";
 import { DataMapper } from "./components/DataMapper/DataMapper";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 
