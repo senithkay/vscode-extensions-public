@@ -108,7 +108,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingTop: theme.spacing(1.5),
         },
         linkTextSytle: {
-            paddingLeft: theme.spacing(0.5),
+            paddingLeft: theme.spacing(0),
         },
         mainLabel: {
             alignItems: "center",
@@ -167,6 +167,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             borderLeftColor: theme.palette.primary.main,
             boxShadow: `inset 2px 0px 0px ${theme.palette.primary.main}`,
             padding: theme.spacing(0, 0, 0, 1.5),
+        },
+        textInput: {
+            fontSize: theme.spacing(1.75),
         },
         textInputRoot: {
             "& .MuiInputBase-root": {

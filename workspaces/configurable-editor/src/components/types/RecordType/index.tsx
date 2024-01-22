@@ -178,6 +178,8 @@ function getNestedElements(nestedObjects: ConfigElementProps[], connectionConfig
             type: property.type,
             value: property.value,
             valueRef: property.valueRef,
+            isSecret: property.isSecret,
+            isSensitive: property.isSensitive,
         });
     });
     return properties;

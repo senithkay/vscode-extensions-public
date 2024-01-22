@@ -155,7 +155,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
 
     const handleClickSensitive = () => {
         setIsSensitive(false);
-        setIsMarkedSensitive(false);
+        setIsMarkedSensitive(true);
     };
 
     const handleChange = () => {
@@ -264,16 +264,6 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
         </Box>
     );
 
-    const markSensitiveCheckbox = (
-        <Box>
-            <FormControlLabel
-                control={<Checkbox color={"primary"} />}
-                onChange={handleChange}
-                label="Mark as Sensitive"
-            />
-        </Box>
-    );
-
     if (!isSensitive) {
         returnElement.push(
             (
@@ -290,23 +280,16 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                 isRequired={isRequired}
                                 placeholder={props.isNestedArray ? "Enter comma seperated array" : "Select config or Enter a value"}
                                 setTextFieldValue={setBooleanValue}
-                                type={isMarkedSensitive ? "password" : "text"}
+                                type={"text"}
                                 disabled={textInputDisabledState}
                                 value={selectedValue}
                                 valueRef={selectedValueRef}
-                                isSensitiveField={isMarkedSensitive || props.isSensitive}
                             />
                         </Box>
                         {!isInsideArray &&
                             !isLowCode &&
                             iconButton}
                     </Box>
-                    {
-                        !isLowCode &&
-                        isFeaturePreview &&
-                        (selectedValueRef === undefined || selectedValueRef === "") &&
-                        markSensitiveCheckbox
-                    }
                     <Box>
                         <Popover
                             id={ids}
@@ -331,25 +314,6 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
         returnElement.push(
             (
                 <div key={id + "-FIELD"}>
-                    <Box
-                        flexGrow={1}
-                        display="flex"
-                        gridGap={4}
-                        alignItems="center"
-                    >
-                        <Box flexGrow={1}>
-                            <Link
-                                component="button"
-                                variant="inherit"
-                                underline="none"
-                                onClick={handleClickSensitive}
-                                className={classes.linkStyle}
-                            >
-                                <EditIcon />
-                                <span className={classes.linkTextSytle}>Update Sensitive Content</span>
-                            </Link>
-                        </Box>
-                    </Box>
                     <Box>
                         <Popover
                             id={ids}

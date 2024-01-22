@@ -23,6 +23,8 @@ export interface SimpleTypeProps extends ConfigElementProps {
     setSimpleConfig?: (id: string, simpleValue: ConfigElementProps) => void;
     isInsideArray?: boolean;
     isNestedArray?: boolean;
+    enableMarkingSecret?: boolean;
+    updateSecret?: (id: string) => void;
 }
 
 const SimpleType = (props: SimpleTypeProps): ReactElement => {
@@ -39,15 +41,23 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
         name: props.name,
         type: props.type,
         value: props.value,
+        isSecret: props.isSecret,
+        isSensitive: props.isSensitive,
     };
 
     useEffect(() => {
         props.setSimpleConfig(props.id, element);
     }, []);
 
-    const setSimpleElememt = (id: string, value: any, valueRef: any) => {
+    const setSimpleElememt = (id: string, value: any, valueRef: any, isSecret?: boolean) => {
         element.value = value;
         element.valueRef = valueRef;
+        element.isSecret = isSecret;
+        props.setSimpleConfig(id, element);
+    };
+
+    const updateSecret = (id: string) => {
+        element.isSensitive = false;
         props.setSimpleConfig(id, element);
     };
 
@@ -70,6 +80,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
             const integerTypeProp: IntegerTypeProps = {
                 ...props,
                 setIntegerConfig: setSimpleElememt,
+                updateSecret,
             };
 
             returnElement.push (
@@ -84,6 +95,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
             const floatTypeProp: FloatTypeProps = {
                 ...props,
                 setFloatConfig: setSimpleElememt,
+                updateSecret,
             };
 
             returnElement.push (
@@ -98,6 +110,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
             const stringTypeProp: StringTypeProps = {
                 ...props,
                 setStringType: setSimpleElememt,
+                updateSecret,
             };
 
             returnElement.push (
