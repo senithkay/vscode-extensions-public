@@ -243,11 +243,11 @@ const SidePanelList = (props: SidePanelListProps) => {
             operations: ["mediators", "sequences", "connectors"]
         },
         {
-            name: "Switch",
+            name: MEDIATORS.SWITCH,
             operations: ["mediators", "sequences", "connectors"]
         },
         {
-            name: "cache",
+            name: MEDIATORS.CACHE,
             operations: ["mediators", "sequences", "connectors"]
         },
         {
@@ -255,7 +255,7 @@ const SidePanelList = (props: SidePanelListProps) => {
             operations: ["mediators", "sequences", "connectors"]
         },
         {
-            name: "aggregate",
+            name: MEDIATORS.AGGREGATE,
             operations: ["mediators", "sequences", "connectors"]
         },
         {
