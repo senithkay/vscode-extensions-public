@@ -41,7 +41,7 @@ import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
-import { useProjectComponents } from "../Hooks";
+import { useDMMetaData, useProjectComponents } from "../Hooks";
 import { DataMapperViewProps } from "../..";
 import { WarningBanner } from "./Warning/DataMapperWarning";
 
@@ -162,7 +162,6 @@ export function DataMapperC(props: DataMapperViewProps) {
         applyModifications,
         onClose
     } = props;
-    const ballerinaVersion = '2201.7.2 (swan lake update 7)';
     const openedViaPlus = false;
     const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
@@ -178,6 +177,13 @@ export function DataMapperC(props: DataMapperViewProps) {
     const updateSelectedComponent: (info: ComponentViewInfo) => void = undefined;
 
     const { projectComponents, isFetching: isFetchingComponents } = useProjectComponents(langServerRpcClient, filePath);
+    const { 
+        ballerinaVersion,
+        dMSupported,
+        dMUnsupportedMessage,
+        isFetching: isFetchingDMMetaData,
+        isError: isErrorDMMetaData
+    } = useDMMetaData(langServerRpcClient);
     // const { data } = useSyntaxTreeFromRange();
 
     // const fnST = data?.syntaxTree as FunctionDefinition;
@@ -364,7 +370,7 @@ export function DataMapperC(props: DataMapperViewProps) {
     useEffect(() => {
         setIsSelectionComplete(false)
         void (async () => {
-            if (selection.selectedST.stNode && !isFetchingComponents) {
+            if (selection.selectedST.stNode && !isFetchingComponents && !isFetchingDMMetaData) {
                 const diagnostics = await handleDiagnostics(filePath, langServerRpcClient);
 
                 const context = new DataMapperContext(
@@ -401,7 +407,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             }
         })();
         setIsSelectionComplete(true)
-    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, isFetchingComponents]);
+    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, isFetchingComponents, isFetchingDMMetaData]);
 
     useEffect(() => {
         if (isSelectionComplete && dmContext && selection?.selectedST?.stNode) {
@@ -421,11 +427,6 @@ export function DataMapperC(props: DataMapperViewProps) {
             setDmNodes([]);
         }
     }, [isSelectionComplete, dmContext, typeStoreStatus]);
-
-    const dMSupported = isDMSupported(ballerinaVersion);
-    const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
-        "(swan lake)", "").trim()
-        } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
 
     useEffect(() => {
         let inputParams: DataMapperInputParam[] = [];
@@ -511,7 +512,7 @@ export function DataMapperC(props: DataMapperViewProps) {
             <CurrentFileContext.Provider value={currentFile}>
                 {selection.state === DMState.INITIALIZED && (
                     <div className={classes.root}>
-                        {(!!showDMOverlay || showLocalVarConfigPanel) &&
+                        {(!isFetchingDMMetaData && !isErrorDMMetaData) && (!!showDMOverlay || showLocalVarConfigPanel) &&
                             <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
                         }
                         {fnST && (
@@ -523,11 +524,11 @@ export function DataMapperC(props: DataMapperViewProps) {
                                 onClose={onClose}
                             />
                         )}
-                        {!dMSupported && (
+                        {(!isFetchingDMMetaData && !isErrorDMMetaData) && !dMSupported && (
                             <>
                                 {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
                                 <div className={classes.dmUnsupportedMessage}>
-                                    <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
+                                    <WarningBanner message={dMUnsupportedMessage} testId={"warning-message"} />
                                 </div>
                             </>
                         )}
