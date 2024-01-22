@@ -90,6 +90,18 @@
         "group": "navigation"
       },
       {
+        "command": "project-explorer.add-endpoint",
+        "title": "Add Endpoint",
+        "icon": "$(add)",
+        "group": "navigation"
+      },
+      {
+        "command": "project-explorer.add-sequence",
+        "title": "Add Sequence",
+        "icon": "$(add)",
+        "group": "navigation"
+      },
+      {
         "command": "project-explorer.view",
         "title": "View"
       }
@@ -118,6 +130,16 @@
         {
           "command": "project-explorer.add-api",
           "when": "view == project-explorer && viewItem == api",
+          "group": "inline"
+        },
+        {
+          "command": "project-explorer.add-endpoint",
+          "when": "view == project-explorer && viewItem == endpoints",
+          "group": "inline"
+        },
+        {
+          "command": "project-explorer.add-sequence",
+          "when": "view == project-explorer && viewItem == sequences",
           "group": "inline"
         }
       ]

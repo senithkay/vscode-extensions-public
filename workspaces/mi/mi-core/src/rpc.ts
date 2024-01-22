@@ -25,6 +25,23 @@ export interface CreateAPIParams {
    version: string;
 }
 
+export interface CreateEndpointParams {
+    directory: string;
+    name: string;
+    type: string;
+    configuration: string;
+    address: string;
+    uriTemplate: string;
+    method: string;
+}
+
+export interface CreateSequenceParams {
+    directory: string;
+    name: string;
+    endpoint: string;
+    onErrorSequence: string;
+}
+
 export interface GetConnectorsResponse {
     path: string;
     name: string;
@@ -66,6 +83,11 @@ export const GetConnectorRequest: RequestType<string, string[]> = { method: 'get
 export const GetProjectStructureRequest: RequestType<string, GetProjectStructureResponse> = { method: 'xml/getSynapseSourceMap' };
 export const GetAPIDirectory: RequestType<void, string> = { method: 'getAPIDirectory' };
 export const CreateAPI: RequestType<CreateAPIParams, string> = {method: 'createAPI'};
+export const GetEndpointDirectory: RequestType<void, string> = { method: 'getEndpointDirectory' };
+export const CreateEndpoint: RequestType<CreateEndpointParams, string> = {method: 'createEndpoint'};
+export const GetEndpointsAndSequences: RequestType<void, string[][]> = {method: 'getEndpointsAndSequences'};
+export const GetSequenceDirectory: RequestType<void, string> = { method: 'getSequenceDirectory' };
+export const CreateSequence: RequestType<CreateSequenceParams, string> = {method: 'createSequence'};
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
@@ -73,6 +95,7 @@ export const Refresh: NotificationType<void> = { method: 'refresh' };
 export const ApplyEdit: NotificationType<ApplyEditParams> = { method: 'applyEdit' };
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
 export const OpenDiagram: NotificationType<string> = { method: 'openDiagram' };
+export const OpenFile: NotificationType<string> = { method: 'openFile' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function serializeError(err: any) {

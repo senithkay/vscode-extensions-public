@@ -23,7 +23,15 @@ import {
     CreateAPI,
     GetAPIDirectory,
     CloseWebViewNotification,
-    OpenDiagram
+    OpenDiagram,
+    CreateEndpointParams,
+    CreateEndpoint,
+    GetEndpointDirectory,
+    OpenFile,
+    GetEndpointsAndSequences,
+    CreateSequenceParams,
+    CreateSequence,
+    GetSequenceDirectory
 } from "@wso2-enterprise/mi-core";
 
 export class MIWebViewAPI {
@@ -70,8 +78,30 @@ export class MIWebViewAPI {
     public getAPIDirectory(): Promise<string> {
         return this._messenger.sendRequest(GetAPIDirectory, HOST_EXTENSION);
     }
+
     public createAPI(params: CreateAPIParams): Promise<string> {
         return this._messenger.sendRequest(CreateAPI, HOST_EXTENSION, params);
+    }
+
+    public getEndpointDirectory(): Promise<string> {
+        return this._messenger.sendRequest(GetEndpointDirectory, HOST_EXTENSION);
+    }
+
+    public createEndpoint(params: CreateEndpointParams): Promise<string> {
+        return this._messenger.sendRequest(CreateEndpoint, HOST_EXTENSION, params);
+    }
+
+    public async getEndpointsAndSequences() {
+        const data = await this._messenger.sendRequest(GetEndpointsAndSequences, HOST_EXTENSION);
+        return data;
+    }
+
+    public getSequenceDirectory(): Promise<string> {
+        return this._messenger.sendRequest(GetSequenceDirectory, HOST_EXTENSION);
+    }
+
+    public createSequence(params: CreateSequenceParams): Promise<string> {
+        return this._messenger.sendRequest(CreateSequence, HOST_EXTENSION, params);
     }
 
     public closeWebView() {
@@ -80,6 +110,10 @@ export class MIWebViewAPI {
 
     public openDiagram(filePath: string) {
         this._messenger.sendNotification(OpenDiagram, HOST_EXTENSION, filePath);
+    }
+
+    public openFile(filePath: string) {
+        this._messenger.sendNotification(OpenFile, HOST_EXTENSION, filePath);
     }
 
     public getMessenger() {
