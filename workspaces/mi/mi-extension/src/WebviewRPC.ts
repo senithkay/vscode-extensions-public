@@ -27,12 +27,15 @@ import {
     CreateEndpoint,
     CreateEndpointParams,
     GetEndpointDirectory,
-    OpenFile
+    OpenFile,
+    GetEndpointsAndSequences,
+    CreateSequenceParams,
+    CreateSequence,
+    GetSequenceDirectory
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
 import path = require("path");
-import { createDiagramWebview } from "./diagram/webview";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = "../resources/connectors";
@@ -214,6 +217,31 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         return filePath;
     });
 
+    messenger.onRequest(CreateSequence, async (params: CreateSequenceParams): Promise<string> => {
+        const { directory, name, endpoint, onErrorSequence } = params;
+
+        let endpointAttributes = ``;
+        let errorSequence = ``;
+        if (endpoint) {
+            endpointAttributes = `<send>
+            <endpoint key="${endpoint}"/>
+        </send>`;
+        }
+
+        if (onErrorSequence) {
+            errorSequence = `onError="${onErrorSequence}"`;
+        }
+
+        const xmlData =  `<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    ${endpointAttributes}
+</sequence>`;
+
+        const filePath = path.join(directory, `${name}.xml`);
+        fs.writeFileSync(filePath, xmlData);
+        return filePath;
+    });
+
     messenger.onRequest(GetAPIDirectory, async (): Promise<string> => {
         let result = '';
         const findSynapseAPIPath = (startPath: string) => {
@@ -268,6 +296,49 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return synapseEndpointPath;
         }
         return "";
+    });
+
+    messenger.onRequest(GetSequenceDirectory, async (): Promise<string> => {
+        let result = '';
+        const findSynapseSequencePath = (startPath: string) => {
+            const files = fs.readdirSync(startPath);
+            for(let i = 0; i < files.length; i++){
+                const filename = path.join(startPath, files[i]);
+                const stat = fs.lstatSync(filename);
+                if (stat.isDirectory()){
+                    if(filename.includes('synapse-config/sequences')) {
+                        result = filename;
+                        return result;
+                    } else {
+                        result = findSynapseSequencePath(filename);
+                    }
+                }
+            }
+            return result;
+        };
+        
+        const workspaceFolder = workspace.workspaceFolders;
+        if (workspaceFolder) {
+            const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+            const synapseSequencePath = findSynapseSequencePath(workspaceFolderPath);
+            return synapseSequencePath;
+        }
+        return "";
+    });
+
+    messenger.onRequest(GetEndpointsAndSequences, async () => {
+        const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+		workspace.workspaceFolders[0].uri.fsPath
+		: undefined;
+
+        if (!!rootPath) {
+            const resp = await (await MILanguageClient.getInstance(context)).languageClient!.getProjectStructure(rootPath);
+            const endpoints = (resp.directoryMap.esbConfigs.endpoints).map(endpoint => endpoint.name);
+            const sequences = (resp.directoryMap.esbConfigs.sequences).map(sequence => sequence.name);
+            return [endpoints, sequences]
+        }
+
+        return [];
     });
 
     messenger.onNotification(CloseWebViewNotification, () => {
