@@ -428,6 +428,7 @@ export class NodeInitVisitor implements Visitor {
         const currentSequence = this.currentSequence;
         const thenSequenceNodes: [] = [];
         const elseSequenceNodes: [] = [];
+        const subSequences = [];
 
         this.parents.push(node);
         if (node.then) {
@@ -437,6 +438,9 @@ export class NodeInitVisitor implements Visitor {
                     traversNode(mediator, this);
                 });
             }
+            subSequences.push({
+                name: "Then", nodes: thenSequenceNodes, range: node.then?.range
+            });
         }
 
         if (node.else_) {
@@ -446,6 +450,9 @@ export class NodeInitVisitor implements Visitor {
                     traversNode(mediator, this);
                 });
             }
+            subSequences.push({
+                name: "Else", nodes: elseSequenceNodes, range: node.else_?.range
+            });
         }
         this.parents.pop();
 
@@ -458,14 +465,14 @@ export class NodeInitVisitor implements Visitor {
                 documentUri: this.documentUri,
                 sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
-                subSequences: [{
-                    name: "Then", nodes: thenSequenceNodes, range: node.then?.range
-                }, {
-                    name: "Else", nodes: elseSequenceNodes, range: node.else_?.range
-                }]
+                subSequences
             }
             ));
         this.skipChildrenVisit = true;
+    }
+
+    endVisitFilter(): void {
+        this.skipChildrenVisit = false;
     }
 
     beginVisitPayloadFactory(node: PayloadFactory): void {
