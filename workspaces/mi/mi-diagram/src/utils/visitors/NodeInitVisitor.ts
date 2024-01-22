@@ -36,7 +36,7 @@ import {
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
-import { MEDIATORS } from '../../constants';
+import { ENDPOINTS, MEDIATORS } from '../../constants';
 import { AdvancedMediatorNodeModel } from '../../components/nodes/mediators/advancedMediator/AdvancedMediatorModel';
 import { SimpleEndpointNodeModel } from '../../components/nodes/mediators/simpleEndpoint/SimpleEndpointModel';
 
@@ -354,7 +354,7 @@ export class NodeInitVisitor implements Visitor {
         this.currentSequence.push(
             new SimpleMediatorNodeModel({
                 node: node,
-                name: MEDIATORS.HTTPENDPOINT,
+                name: ENDPOINTS.HTTP,
                 description: node.key?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
@@ -367,7 +367,7 @@ export class NodeInitVisitor implements Visitor {
         this.currentSequence.push(
             new SimpleMediatorNodeModel({
                 node: node,
-                name: MEDIATORS.HTTPENDPOINT,
+                name: ENDPOINTS.HTTP,
                 description: node.tag?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
