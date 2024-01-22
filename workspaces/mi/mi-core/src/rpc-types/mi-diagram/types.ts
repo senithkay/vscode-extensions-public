@@ -25,12 +25,12 @@ export interface ApplyEditResponse {
 }
 
 export interface CreateAPIRequest {
-   directory: string;
-   name: string;
-   context: string;
-   swaggerDef: string;
-   type: string;
-   version: string;
+    directory: string;
+    name: string;
+    context: string;
+    swaggerDef: string;
+    type: string;
+    version: string;
 }
 
 export interface CreateEndpointRequest {
@@ -43,7 +43,7 @@ export interface CreateEndpointRequest {
     method: string;
 }
 export interface CreateEndpointResponse {
-    data: string;
+    path: string;
 }
 
 export interface Connector {
@@ -102,11 +102,11 @@ export interface ConnectorRequest {
     path: string;
 }
 export interface ConnectorResponse {
-    data: Connector[];
+    data: string[];
 }
 
 export interface ProjectStructureRequest {
-    data: string;
+    documentUri: string;
 }
 
 export interface ApiDirectoryResponse {
@@ -120,11 +120,12 @@ export interface ShowErrorMessageRequest {
     message: string;
 }
 
-export interface OpenDiagramRequest extends CreateAPIRequest{
+export interface OpenDiagramRequest {
+    path: string;
 }
 
 export interface CreateAPIResponse {
-    data: string;
+    path: string;
 }
 
 export interface EndpointsAndSequencesResponse {
@@ -136,7 +137,7 @@ export interface SequenceDirectoryResponse {
 }
 
 export interface CreateSequenceRequest {
-    
+
 }
 export interface CreateSequenceResponse {
 

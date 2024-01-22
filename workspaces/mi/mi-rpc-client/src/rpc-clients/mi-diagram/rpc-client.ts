@@ -18,6 +18,7 @@ import {
     ConnectorResponse,
     ConnectorsResponse,
     CreateAPIRequest,
+    CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
     CreateSequenceRequest,
@@ -90,7 +91,7 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getAPIDirectory, HOST_EXTENSION);
     }
 
-    createAPI(params: CreateAPIRequest): Promise<CreateAPIRequest> {
+    createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
         return this._messenger.sendRequest(createAPI, HOST_EXTENSION, params);
     }
 

@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, OpenDiagramRequest, ProjectStructureRequest, ProjectStructureResponse, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse } from "./types";
+import { ApiDirectoryResponse, ApplyEditRequest, ApplyEditResponse, CommandsRequest, CommandsResponse, ConnectorRequest, ConnectorResponse, ConnectorsResponse, CreateAPIRequest, CreateAPIResponse, CreateEndpointRequest, CreateEndpointResponse, CreateSequenceRequest, CreateSequenceResponse, EndpointDirectoryResponse, EndpointsAndSequencesResponse, OpenDiagramRequest, ProjectStructureRequest, ProjectStructureResponse, SequenceDirectoryResponse, ShowErrorMessageRequest, getSTRequest, getSTResponse } from "./types";
 
 export interface MiDiagramAPI {
     executeCommand: (params: CommandsRequest) => Promise<CommandsResponse>;
@@ -17,7 +17,7 @@ export interface MiDiagramAPI {
     getConnectors: () => Promise<ConnectorsResponse>;
     getConnector: (params: ConnectorRequest) => Promise<ConnectorResponse>;
     getAPIDirectory: () => Promise<ApiDirectoryResponse>;
-    createAPI: (params: CreateAPIRequest) => Promise<CreateAPIRequest>;
+    createAPI: (params: CreateAPIRequest) => Promise<CreateAPIResponse>;
     getEndpointDirectory: () => Promise<EndpointDirectoryResponse>;
     createEndpoint: (params: CreateEndpointRequest) => Promise<CreateEndpointResponse>;
     getEndpointsAndSequences: () => Promise<EndpointsAndSequencesResponse>;
