@@ -599,22 +599,19 @@ export const useStmtEditorHelperPanelStyles = () => ({
         width: '100%',
         alignItems: 'center',
         zIndex: 1,
+        color: 'var(--vscode-sideBar-foreground)',
         ...stmtEditorPadding
+    }),
+    searchResult: css({
+        paddingTop: '15px',
     }),
 
     moduleTitle: css({
-        marginRight: '43px',
-        marginLeft: '4.25px',
-        marginBottom: '16px',
+        fontSize: '14px',
+        margin: '0 10px'
     }),
     libraryReturnIcon: css({
-        alignSelf: 'center',
-        margin: '0 10px 16px 0',
-        "& .MuiSvgIcon-root": {
-            fontSize: '13px',
-        },
-        ...hoverColor1,
-        ...focusColor1
+        marginRight: '8px'
     }),
     arrowBack: css({
         color: '#5567D5'
@@ -1039,7 +1036,8 @@ export const useStatementEditorStyles = () => ({
         height: '1px',
         opacity: '0.52',
         backgroundColor: 'var(--vscode-panel-border)',
-        marginBottom: '25px'
+        marginBottom: '25px',
+        marginLeft: '10px'
     }),
     stmtEditorExpressionWrapper: css({
         padding: '0 15px 15px 15px',

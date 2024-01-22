@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { FormControl } from '@material-ui/core';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
     CommandResponse,
     KeyboardNavigationManager,
@@ -67,6 +68,17 @@ export interface StatementEditorWrapperProps extends LowCodeEditorProps {
     skipSemicolon?: boolean;
     currentReferences?: string[];
 }
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 1000,
+        cacheTime: 1000,
+      },
+    },
+});
 
 export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const overlayClasses = useStatementEditorStyles();
@@ -211,54 +223,56 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     }, []);
 
     return (
-        <FormControl data-testid="property-form">
-            {!editor && (
-                <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
-                    <div className={overlayClasses.loadingWrapper}>Loading statement editor...</div>
-                </div>
-            )}
-            {editor && (
-                    <>
-                        <StatementEditor
-                            editor={editor}
-                            editorManager={{
-                                switchEditor,
-                                updateEditor,
-                                dropLastEditor,
-                                addConfigurable,
-                                activeEditorId,
-                                editors
-                            }}
-                            onWizardClose={onWizardClose}
-                            onCancel={onCancel}
-                            config={config}
-                            formArgs={formArgs}
-                            langServerRpcClient={langServerRpcClient}
-                            libraryBrowserRpcClient={libraryBrowserRpcClient}
-                            applyModifications={applyModifications}
-                            currentFile={
-                                {
-                                    ...currentFile,
-                                    content: fullSource,
-                                    originalContent: fullSource
-                                }
-                            }
-                            importStatements={importStatements}
-                            syntaxTree={syntaxTree}
-                            stSymbolInfo={stSymbolInfo}
-                            extraModules={extraModules}
-                            experimentalEnabled={experimentalEnabled}
-                            runBackgroundTerminalCommand={runBackgroundTerminalCommand}
-                            isExpressionMode={isExpressionMode}
-                            skipSemicolon={skipSemicolon}
-                            ballerinaVersion={ballerinaVersion}
-                            isCodeServerInstance={isCodeServerInstance}
-                            openExternalUrl={openExternalUrl}
-                            isHeaderHidden={isHeaderHidden}
-                            currentReferences={currentReferences}
-                        />
-                    </>
+        <QueryClientProvider client={queryClient}>
+            <FormControl data-testid="property-form">
+                {!editor && (
+                    <div className={overlayClasses.mainStatementWrapper} data-testid="statement-editor-loader">
+                        <div className={overlayClasses.loadingWrapper}>Loading statement editor...</div>
+                    </div>
                 )}
-        </FormControl>
+                {editor && (
+                        <>
+                            <StatementEditor
+                                editor={editor}
+                                editorManager={{
+                                    switchEditor,
+                                    updateEditor,
+                                    dropLastEditor,
+                                    addConfigurable,
+                                    activeEditorId,
+                                    editors
+                                }}
+                                onWizardClose={onWizardClose}
+                                onCancel={onCancel}
+                                config={config}
+                                formArgs={formArgs}
+                                langServerRpcClient={langServerRpcClient}
+                                libraryBrowserRpcClient={libraryBrowserRpcClient}
+                                applyModifications={applyModifications}
+                                currentFile={
+                                    {
+                                        ...currentFile,
+                                        content: fullSource,
+                                        originalContent: fullSource
+                                    }
+                                }
+                                importStatements={importStatements}
+                                syntaxTree={syntaxTree}
+                                stSymbolInfo={stSymbolInfo}
+                                extraModules={extraModules}
+                                experimentalEnabled={experimentalEnabled}
+                                runBackgroundTerminalCommand={runBackgroundTerminalCommand}
+                                isExpressionMode={isExpressionMode}
+                                skipSemicolon={skipSemicolon}
+                                ballerinaVersion={ballerinaVersion}
+                                isCodeServerInstance={isCodeServerInstance}
+                                openExternalUrl={openExternalUrl}
+                                isHeaderHidden={isHeaderHidden}
+                                currentReferences={currentReferences}
+                            />
+                        </>
+                    )}
+            </FormControl>
+        </QueryClientProvider>
     )
 }

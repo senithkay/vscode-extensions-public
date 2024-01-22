@@ -925,6 +925,8 @@ importers:
       '@storybook/builder-webpack5': ^6.5.9
       '@storybook/manager-webpack5': ^6.5.9
       '@storybook/react': ^6.5.9
+      '@tanstack/query-core': ^4.0.0-beta.1
+      '@tanstack/react-query': 4.0.10
       '@types/classnames': ^2.2.9
       '@types/handlebars': ^4.1.0
       '@types/lodash.camelcase': ^4.3.0
@@ -1012,6 +1014,8 @@ importers:
       '@material-ui/icons': 4.11.3_mkre2ojqraiap6nunvaaz2nrdu
       '@material-ui/lab': 4.0.0-alpha.61_mkre2ojqraiap6nunvaaz2nrdu
       '@material-ui/pickers': 3.3.11_phlbjj2qqbzyjdfzujtmlw3coi
+      '@tanstack/query-core': 4.36.1
+      '@tanstack/react-query': 4.0.10_sfoxds7t5ydpegc3knd667wn6m
       '@vscode/webview-ui-toolkit': 1.4.0_react@17.0.2
       '@wso2-enterprise/ballerina-core': link:../ballerina-core
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient

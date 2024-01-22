@@ -9,7 +9,8 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryKind, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LibraryBrowserRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
@@ -17,14 +18,12 @@ import {
     CurrentModel,
     DocumentationInfo,
     EditorModel,
-    EmptySymbolInfo,
     LSSuggestions,
     StatementSyntaxDiagnostics
 } from "../models/definitions";
 
 import { InputEditorContextProvider } from "./input-editor-context";
 import { ToolbarContextProvider } from './toolbar-context';
-import { LibraryBrowserRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 
 export const StatementEditorContext = React.createContext({
     modelCtx: {

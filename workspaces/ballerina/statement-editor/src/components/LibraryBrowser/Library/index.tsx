@@ -11,9 +11,9 @@ import React, { useContext } from 'react';
 
 import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
 // import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
-import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -33,9 +33,9 @@ export function Library(props: LibraryProps) {
     const onClickOnLibrary = async () => {
         libraryDataFetchingHandler(true);
         const response = await libraryBrowserRpcClient.getLibraryData({
-            orgName: orgName,
+            orgName,
             moduleName: id,
-            version: version
+            version
         });
 
         if (response) {
@@ -53,11 +53,13 @@ export function Library(props: LibraryProps) {
             disableRipple={true}
         >
             <ListItemIcon style={{ minWidth: 'fit-content', textAlign: 'left', marginRight: '6.25px'}}>
-                <LibraryModuleIcon/>
+                <Icon name="module-icon" sx={{color: 'var(--vscode-icon-foreground)'}} />
             </ListItemIcon>
             {/* <StatementEditorHint content={id}> */}
                 <ListItemText
-                    primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{id}</Typography>}
+                    primary={
+                        <div className={stmtEditorHelperClasses.suggestionValue}>{id}</div>
+                    }
                 />
             {/* </StatementEditorHint> */}
         </ListItem>

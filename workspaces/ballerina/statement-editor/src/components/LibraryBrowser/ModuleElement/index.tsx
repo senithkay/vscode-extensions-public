@@ -105,7 +105,9 @@ export function ModuleElement(props: ModuleElementProps) {
             />
             {/* <StatementEditorHint content={`${moduleId}:${id}`}> */}
                 <ListItemText
-                    primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</Typography>}
+                    primary={
+                        <div className={stmtEditorHelperClasses.suggestionValue}>{`${moduleId}:${id}`}</div>
+                    }
                 />
             {/* </StatementEditorHint> */}
             {`${moduleId}:${id}` === clickedModuleElement && (circularProgress)}
