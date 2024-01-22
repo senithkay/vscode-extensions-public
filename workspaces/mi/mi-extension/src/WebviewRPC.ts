@@ -232,7 +232,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         let errorSequence = ``;
         if (endpoint) {
             endpointAttributes = `<send>
-            <endpoint key="${endpoint}"/>
+            <endpoint key="${endpoint.replace(".xml", "")}"/>
         </send>`;
         }
 
