@@ -56,7 +56,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
 
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
-                    if (event.function == "updateDimensions") {
+                    if (event.function === "updateDimensions") {
                         autoDistribute();
                     }
                 }

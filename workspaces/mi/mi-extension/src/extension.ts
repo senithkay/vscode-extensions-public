@@ -16,10 +16,9 @@ import { activateVisualizer } from './visualizer/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-	StateMachine.initialize();
 	extension.context = context;
 	activateProjectExplorer(context);
 	// activateAiPrompt(context);
 	activateVisualizer(context);
-
+	StateMachine.initialize();
 }

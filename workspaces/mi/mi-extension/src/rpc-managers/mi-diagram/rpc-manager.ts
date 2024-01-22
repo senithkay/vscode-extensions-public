@@ -17,16 +17,22 @@ import {
     ConnectorResponse,
     ConnectorsResponse,
     CreateAPIRequest,
+    CreateEndpointRequest,
+    CreateEndpointResponse,
+    CreateSequenceRequest,
+    CreateSequenceResponse,
+    EndpointDirectoryResponse,
+    EndpointsAndSequencesResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
 import { StateMachine, openView } from "../../stateMachine";
-import { State } from "xstate";
 
 export class MiDiagramRpcManager implements MiDiagramAPI {
     async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
@@ -95,5 +101,40 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     async openDiagram(params: OpenDiagramRequest): Promise<void> {
 
         openView({ fileName: "FILE NAME" });
+    }
+
+    async getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async closeWebView(): Promise<> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
+    }
+
+    async openFile(params: OpenDiagramRequest): Promise<> {
+        // ADD YOUR IMPLEMENTATION HERE
+        throw new Error('Not implemented');
     }
 }

@@ -11,29 +11,44 @@
 import {
     ApiDirectoryResponse,
     ApplyEditRequest,
+    ApplyEditResponse,
     CommandsRequest,
     CommandsResponse,
     ConnectorRequest,
     ConnectorResponse,
     ConnectorsResponse,
     CreateAPIRequest,
+    CreateEndpointRequest,
+    CreateEndpointResponse,
+    CreateSequenceRequest,
+    CreateSequenceResponse,
+    EndpointDirectoryResponse,
+    EndpointsAndSequencesResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     applyEdit,
+    closeWebView,
     closeWebViewNotification,
     createAPI,
+    createEndpoint,
+    createSequence,
     executeCommand,
     getAPIDirectory,
     getConnector,
     getConnectors,
+    getEndpointDirectory,
+    getEndpointsAndSequences,
     getProjectStructure,
     getSTRequest,
     getSTResponse,
+    getSequenceDirectory,
     getSyntaxTree,
     openDiagram,
+    openFile,
     refresh,
     showErrorMessage
 } from "@wso2-enterprise/mi-core";
@@ -51,8 +66,16 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(executeCommand, HOST_EXTENSION, params);
     }
 
+    showErrorMessage(params: ShowErrorMessageRequest): void {
+        return this._messenger.sendNotification(showErrorMessage, HOST_EXTENSION, params);
+    }
+
     getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
         return this._messenger.sendRequest(getSyntaxTree, HOST_EXTENSION, params);
+    }
+
+    applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
+        return this._messenger.sendRequest(applyEdit, HOST_EXTENSION, params);
     }
 
     getConnectors(): Promise<ConnectorsResponse> {
@@ -63,10 +86,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getConnector, HOST_EXTENSION, params);
     }
 
-    getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
-        return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
-    }
-
     getAPIDirectory(): Promise<ApiDirectoryResponse> {
         return this._messenger.sendRequest(getAPIDirectory, HOST_EXTENSION);
     }
@@ -75,23 +94,47 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(createAPI, HOST_EXTENSION, params);
     }
 
-    showErrorMessage(params: ShowErrorMessageRequest): void {
-        return this._messenger.sendNotification(showErrorMessage, HOST_EXTENSION, params);
+    getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
+        return this._messenger.sendRequest(getEndpointDirectory, HOST_EXTENSION);
+    }
+
+    createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
+        return this._messenger.sendRequest(createEndpoint, HOST_EXTENSION, params);
+    }
+
+    getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
+        return this._messenger.sendRequest(getEndpointsAndSequences, HOST_EXTENSION);
+    }
+
+    getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
+        return this._messenger.sendRequest(getSequenceDirectory, HOST_EXTENSION);
+    }
+
+    createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
+        return this._messenger.sendRequest(createSequence, HOST_EXTENSION, params);
+    }
+
+    closeWebView(): void {
+        return this._messenger.sendNotification(closeWebView, HOST_EXTENSION);
+    }
+
+    openDiagram(params: OpenDiagramRequest): void {
+        return this._messenger.sendNotification(openDiagram, HOST_EXTENSION, params);
+    }
+
+    openFile(params: OpenDiagramRequest): void {
+        return this._messenger.sendNotification(openFile, HOST_EXTENSION, params);
+    }
+
+    getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
+        return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
     }
 
     refresh(): void {
         return this._messenger.sendNotification(refresh, HOST_EXTENSION);
     }
 
-    applyEdit(params: ApplyEditRequest): Promise<boolean> {
-        return this._messenger.sendRequest(applyEdit, HOST_EXTENSION, params);
-    }
-
     closeWebViewNotification(): void {
         return this._messenger.sendNotification(closeWebViewNotification, HOST_EXTENSION);
-    }
-
-    openDiagram(params: OpenDiagramRequest): void {
-        return this._messenger.sendNotification(openDiagram, HOST_EXTENSION, params);
     }
 }
