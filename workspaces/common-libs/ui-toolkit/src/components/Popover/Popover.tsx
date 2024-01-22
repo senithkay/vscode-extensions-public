@@ -6,12 +6,13 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { useEffect } from "react";
 import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 
 import styled from "@emotion/styled";
 import { createPortal } from "react-dom";
 import { SxStyle } from "../Commons/Definitions";
+import { ClickAwayListener } from "../ClickAwayListener/ClickAwayListener";
 
 export interface ContainerProps {
 	top?: number;
@@ -44,21 +45,28 @@ export interface PopoverProps {
 
 export const Popover: React.FC<PopoverProps> = (props: PopoverProps) => {
     const { open, id, anchorEl: anchorEvent, sx, children } = props;
+    const [isOpen, handleOpen] = React.useState(open);
+
+    useEffect(() => {
+        handleOpen(open);
+    }, [open]);
   
     return (
-        <div id={id}>
-            {open &&
-                createPortal(
-                    <StyledPopover
-                        top={anchorEvent?.getBoundingClientRect().top}
-                        left={anchorEvent?.getBoundingClientRect().left}
-                        sx={sx}
-                    >
-                        {children}
-                    </StyledPopover>,
-                    document.body
-                )
-            }
-        </div>
+        <ClickAwayListener onClickAway={() => handleOpen(false)}>
+            <div id={id}>
+                {isOpen &&
+                    createPortal(
+                        <StyledPopover
+                            top={anchorEvent?.getBoundingClientRect().top}
+                            left={anchorEvent?.getBoundingClientRect().left}
+                            sx={sx}
+                        >
+                            {children}
+                        </StyledPopover>,
+                        document.body
+                    )
+                }
+            </div>
+        </ClickAwayListener>
     );
 }
