@@ -76,7 +76,7 @@ const SidePanelList = (props: SidePanelListProps) => {
 
     const goBackRef = useRef(0);
 
-    const mediators = {
+    let mediators = {
         "core": [
             {
                 title: "Call",
@@ -213,19 +213,115 @@ const SidePanelList = (props: SidePanelListProps) => {
         }
     ];
 
-    useEffect(() => {
-    sidePanelContext.setShowBackBtn(false);
-    let form;
-        for (const key in mediators) {
-            form = mediators[key as keyof typeof mediators].find((mediator) => mediator.operationName === sidePanelContext.mediator);
-            if (form) break;
+    const mediatorRulesOnPlus = [
+        {
+            name: MEDIATORS.CALL,
+            operations: ["endpoints"]
+        },
+        {
+            name: MEDIATORS.SEND,
+            operations: ["endpoints"]
+        },
+        {
+            name: MEDIATORS.RESPOND,
+            operations: []
+        },
+        {
+            name: MEDIATORS.LOOPBACK,
+            operations: []
+        },
+        {
+            name: MEDIATORS.DROP,
+            operations: []
+        },
+        {
+            name: MEDIATORS.FILTER,
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: MEDIATORS.VALIDATE,
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: "Switch",
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: "cache",
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: MEDIATORS.THROTTLE,
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: "aggregate",
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: MEDIATORS.CLONE,
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: MEDIATORS.ENTITLEMENT,
+            operations: ["mediators", "sequences", "connectors"]
+        },
+        {
+            name: MEDIATORS.ITERATE,
+            operations: ["mediators", "sequences", "connectors"],
+            exception: ["send", "respond", "loopback", "drop"]
+        },
+        {
+            name: MEDIATORS.FOREACH,
+            operations: ["mediators", "sequences", "connectors"],
+            exception: ["send", "respond", "loopback", "drop"]
+        },
+        {
+            name: MEDIATORS.RULE,
+            operations: []
         }
-        if (!form) form = endpoints.find((mediator) => mediator.operationName === sidePanelContext.mediator);
+    ];
 
-        if (form) {
-            setShowMenu(false);
-            setMediatorForm(form.form);
-            return;
+    type MediatorsType = typeof mediators;
+
+    useEffect(() => {
+        sidePanelContext.setShowBackBtn(false);
+        let form;
+        if (sidePanelContext.isEditing) {
+            for (const key in mediators) {
+                form = mediators[key as keyof typeof mediators].find((mediator) => mediator.operationName === sidePanelContext.operationName);
+                if (form) break;
+            }
+            if (!form) form = endpoints.find((mediator) => mediator.operationName === sidePanelContext.operationName);
+    
+            if (form) {
+                setShowMenu(false);
+                setMediatorForm(form.form);
+                return;
+            }
+        } else {
+            const mediator = mediatorRulesOnPlus.find(m => m.name === sidePanelContext.operationName);
+
+            // If the mediator is found
+            if (mediator) {
+                if (mediator.exception){
+                    const filteredMediators: MediatorsType = {
+                        core: [],
+                        transformation: [],
+                        filter: []
+                    };
+
+                    for (const category in mediators) {
+                        filteredMediators[category as keyof typeof mediators] = mediators[category as keyof typeof mediators].filter(mediatorItem => !mediator.exception.includes(mediatorItem.operationName));
+                    }
+                    mediators = filteredMediators;
+                }
+
+                // Set the states based on the operations array
+                setShowMediators(mediator.operations.includes("mediators"));
+                setShowConnectors(mediator.operations.includes("connectors"));
+                setShowEndpoints(mediator.operations.includes("endpoints"));                
+            }
         }
 
         if (sidePanelContext.backBtn > goBackRef.current) {
@@ -239,6 +335,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setActions([]);
             }
         }
+        
         switch (stackRef.pop()) {
             case "mediators":
                 setShowMediators(true);
@@ -391,23 +488,23 @@ const SidePanelList = (props: SidePanelListProps) => {
                     <VSCodePanelTab id="connectors" onClick={(e: any) => { setActiveTab(e.target.id) }}>Connectors</VSCodePanelTab>
                     <VSCodePanelTab id="endpoints" onClick={(e: any) => { setActiveTab(e.target.id) }}>Endpoints</VSCodePanelTab>
 
-                    <VSCodePanelView id="view-1">
+                    {showConnectors && <VSCodePanelView id="view-1">
                         <div style={{ "width": "100%" }}>
                             {showMediators && <MediatorList />}
                         </div>
-                    </VSCodePanelView>
+                    </VSCodePanelView>}
 
-                    <VSCodePanelView id="view-2">
+                    {showConnectors && <VSCodePanelView id="view-2">
                         <div style={{ "width": "100%" }}>
                             {showConnectors && <ConnectorList />}
                         </div>
-                    </VSCodePanelView>
+                    </VSCodePanelView>}
 
-                    <VSCodePanelView id="view-3">
+                    {showEndpoints && <VSCodePanelView id="view-3">
                         <div style={{ "width": "100%" }}>
-                            {showEndpoints && <EndpointList />}
+                             <EndpointList />
                         </div>
-                    </VSCodePanelView>
+                    </VSCodePanelView>}
                 </VSCodePanels>}
 
                 {mediatorForm && <>{mediatorForm}</>}

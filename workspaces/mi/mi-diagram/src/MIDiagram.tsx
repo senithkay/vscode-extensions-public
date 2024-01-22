@@ -26,6 +26,7 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [lastUpdated, setLastUpdated] = useState<number>(0);
 	const [stNode, setSTNode] = useState<number>(0);
 	const [isSidePanelOpen, setSidePanelOpen] = useState<boolean>(false);
+	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [sidePanelnodeRange, setSidePanelNodeRange] = useState<Range>();
 	const [sidePanelMediator, setSidePanelMediator] = useState<string>();
 	const [sidePanelFormValues, setSidePanelFormValues] = useState<{ [key: string]: any }>();
@@ -56,6 +57,7 @@ export function MIDiagram(props: MIDiagramProps) {
 		setSidePanelMediator(undefined);
 		setSidePanelOpen(false);
 		setSidePanelFormValues(undefined);
+		setIsEditing(false);
 	};
 
 	let canvas;
@@ -67,12 +69,14 @@ export function MIDiagram(props: MIDiagramProps) {
 				<SidePanelProvider value={{
 					setIsOpen: setSidePanelOpen,
 					isOpen: isSidePanelOpen,
+					setIsEditing: setIsEditing,
+					isEditing: isEditing,
 					setNodeRange: setSidePanelNodeRange,
 					nodeRange: sidePanelnodeRange,
 					setShowBackBtn: setSidePanelShowBackBtn,
 					showBackBtn: sidePanelShowBackBtn,
-					setMediator: setSidePanelMediator,
-					mediator: sidePanelMediator,
+					setOperationName: setSidePanelMediator,
+					operationName: sidePanelMediator,
 					setFormValues: setSidePanelFormValues,
 					formValues: sidePanelFormValues,
 					setBackBtn: setSidePanelBackBtn,
@@ -89,7 +93,7 @@ export function MIDiagram(props: MIDiagramProps) {
 									sidePanelShowBackBtn && <Button onClick={incrementCount} appearance="icon">{"<"}</Button>
 								}
 							</div>
-							<div>Add Mediator</div>
+							{isEditing ? <div>Edit {sidePanelMediator}</div> : <div>Add New</div>}
 							<Button onClick={closePanel} appearance="icon">X</Button>
 						</SidePanelTitleContainer>
 						<SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />

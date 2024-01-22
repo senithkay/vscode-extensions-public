@@ -78,8 +78,9 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
 
     const editNode = async () => {
         sidePanelContext.setNodeRange(props.nodePosition);
-        sidePanelContext.setMediator(props.name.toLowerCase());
+        sidePanelContext.setOperationName(props.name.toLowerCase());
         sidePanelContext.setIsOpen(true);
+        sidePanelContext.setIsEditing(true);
         const formData = getDataFromXML(
             props.name,
             props.node.getNode()
@@ -93,7 +94,7 @@ export function MediatorNodeWidget(props: SimpleMediatorWidgetProps) {
         });
         sidePanelContext.setFormValues(undefined);
         sidePanelContext.setNodeRange(undefined);
-        sidePanelContext.setMediator(undefined);
+        sidePanelContext.setOperationName(undefined);
     }
 
     return (
