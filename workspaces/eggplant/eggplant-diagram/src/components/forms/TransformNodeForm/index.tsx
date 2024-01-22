@@ -28,14 +28,13 @@ export function TransformNodeForm(props: OptionWidgetProps) {
         node.current = JSON.parse(JSON.stringify(selectedNode.getOptions().node)) as Node;
         nodeProperties.current = node.current.properties as TransformNodeProperties;
         nodeMetadata.current = getNodeMetadata(node.current);
-        nodeMetadata.current.isEdited = false;
         if (selectedNode.getOutPorts().length > 0) {
             outPortType.current = selectedNode.getOutPorts()[0].getOptions()?.port.type || DEFAULT_TYPE;
         }
     }, [selectedNode.getID()]);
 
     const handleOpenDataMapper = () => {
-        if (nodeProperties.current.isFormEdited) {
+        if (nodeProperties.current.resetFuncBody || nodeProperties.current.updateFuncSignature) {
             node.current.metadata = nodeMetadata.current;
             node.current.properties = nodeProperties.current;
             selectedNode.setNode(node.current);
@@ -100,6 +99,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                 required={true}
                 onChange={(value: string) => {
                     node.current.name = toSnakeCase(value);
+                    nodeProperties.current.updateFuncSignature = true;
                 }}
                 size={32}
             />
@@ -120,7 +120,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                                     value={nodePort.type}
                                     required={true}
                                     onChange={(value: string) => {
-                                        nodeProperties.current.isFormEdited = true;
+                                        nodeProperties.current.resetFuncBody = true;
                                         if (nodeMetadata.current.inputs[index]) {
                                             nodeMetadata.current.inputs[index].type = value;
                                         }
@@ -138,7 +138,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                                         if (nodeMetadata.current.inputs[index]) {
                                             nodeMetadata.current.inputs[index].name = value;
                                         }
-                                        nodeProperties.current.isFormEdited = true;
+                                        nodeProperties.current.resetFuncBody = true;
                                     }}
                                     size={32}
                                 />
@@ -160,7 +160,7 @@ export function TransformNodeForm(props: OptionWidgetProps) {
                             if (nodeMetadata.current.outputs[0]) {
                                 nodeMetadata.current.outputs[0].type = value;
                             }
-                            nodeProperties.current.isFormEdited = true;
+                            nodeProperties.current.resetFuncBody = true;
                         }}
                         size={32}
                     />

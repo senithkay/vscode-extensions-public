@@ -111,5 +111,9 @@ export default {
     {{{TYPE}}} {{{VAR_NAME}}} = check {{{FUNCTION_NAME}}}({{{PARAMETERS}}});`,
     UNION_EXPRESSION:
     `{{#each UNION_FIELDS}}{{this}}{{#unless @last}} | {{/unless}}{{/each}}`,
+    TRANSFORM_FUNCTION_WITH_BODY:
+    `
+    function {{{FUNCTION_NAME}}}({{{PARAMETERS}}}) {{{FUNCTION_RETURN}}} {{{FUNCTION_BODY}}}
+    `,
 
 }

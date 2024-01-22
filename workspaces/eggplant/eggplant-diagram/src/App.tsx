@@ -105,6 +105,9 @@ export function EggplantApp(props: EggplantAppProps) {
             return;
         }
         const nodeWithSameName = flowModel.nodes.find((node) => node.name === selectedNode.getName() && node.templateId === "TransformNode");
+        if (!nodeWithSameName) {
+            return;
+        }
         const nodeProperties = nodeWithSameName.properties as TransformNodeProperties;
         const tnfFnLocation = nodeProperties.transformFunctionLocation;
         const updatedLocation = {
