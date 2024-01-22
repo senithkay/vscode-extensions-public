@@ -103,13 +103,13 @@ interface ResourceAccordionProps {
     resourceInfo: ResourceInfo;
     modelPosition?: NodePosition;
     rpcClient: ServiceDesignerRpcClient;
-    showDiagram: (position: NodePosition) =>  void;
+    goToSource: (position: NodePosition) =>  void;
     onEditResource: (resourceInfo: ResourceInfo) => void;
     onDeleteResource?: (resourceInfo: ResourceInfo) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { modelPosition, resourceInfo, rpcClient, showDiagram, onEditResource, onDeleteResource } = params;
+    const { modelPosition, resourceInfo, rpcClient, goToSource, onEditResource, onDeleteResource } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -118,7 +118,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleShowDiagram = () => {
         // Show the eggplant diagram
-        showDiagram(modelPosition);
+        goToSource(modelPosition);
     };
 
     const handleEditResource = () => {
@@ -193,13 +193,13 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
             {isOpen && (
                 <AccordionContent>
                     {resourceParams?.length > 0 &&
-                        <AccordionTable titile="Parameters" headers={["Type", "Description"]} content={resourceParams} /> 
+                        <AccordionTable key="params" titile="Parameters" headers={["Type", "Description"]} content={resourceParams} /> 
                     }
                     {payloadInfo.length > 0 && 
-                        <AccordionTable titile="Body"  headers={["Description"]} content={payloadInfo} />
+                        <AccordionTable key="body" titile="Body"  headers={["Description"]} content={payloadInfo} />
                     }
                     {responses.length > 0 &&
-                        <AccordionTable titile="Responses" headers={["Code", "Description"]} content={responses} />
+                        <AccordionTable key="responses" titile="Responses" headers={["Code", "Description"]} content={responses} />
                     }
                 </AccordionContent>
             )}

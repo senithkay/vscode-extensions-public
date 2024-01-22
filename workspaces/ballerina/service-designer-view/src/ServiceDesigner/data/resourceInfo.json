@@ -53,7 +53,7 @@
                 "id": 2,
                 "name": "param3",
                 "type": "string",
-                "option": "Query",
+                "option": "Header",
                 "isRequired": true
             },
             {
@@ -89,7 +89,13 @@
                 "type": "error?",
                 "source": "error?"
             }
-        ]
+        ],
+        "position": {
+            "startLine": 1,
+            "startColumn": 0,
+            "endLine": 2,
+            "endColumn": 0
+        }
     },
     {
         "advancedParams": [
@@ -151,6 +157,12 @@
                 "type": "error?",
                 "source": "error?"
             }
-        ]
+        ],
+        "position": {
+            "startLine": 3,
+            "startColumn": 0,
+            "endLine": 4,
+            "endColumn": 0
+        }
     }
 ]

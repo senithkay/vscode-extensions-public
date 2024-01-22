@@ -12,7 +12,7 @@ import { ServiceDesigner } from ".";
 import { ResourceInfo } from "./definitions";
 import model from "./data/service.json";
 import resourceInfo from "./data/resourceInfo.json";
-import { ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 export default {
   component: ServiceDesigner,
@@ -26,9 +26,12 @@ const onSave = (resources: ResourceInfo) => {
 const onDeleteResource = (resources: ResourceInfo) => {
   console.log("Delete Resource ", resources);
 };
+const goToSource = (postion: NodePosition) => {
+  console.log("Go to source ", postion);
+};
 
 export const EmptyModel = () => <ServiceDesigner typeCompletions={typeCompletions} onSave={onSave} />;
 
-export const WithServiceDeclModel = () => <ServiceDesigner typeCompletions={typeCompletions} model={model as ServiceDeclaration} onSave={onSave} />;
+export const WithServiceDeclModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={model as ServiceDeclaration} onSave={onSave} />;
 
-export const WithSampleResourceModel = () => <ServiceDesigner typeCompletions={typeCompletions} model={resourceInfo as unknown as ResourceInfo[]} onDeleteResource={onDeleteResource} onSave={onSave} />;
+export const WithSampleResourceModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={resourceInfo as unknown as ResourceInfo[]} onDeleteResource={onDeleteResource} onSave={onSave} />;

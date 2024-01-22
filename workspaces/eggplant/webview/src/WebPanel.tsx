@@ -41,7 +41,7 @@ const WebPanel = (props: { state: MachineStateValue }) => {
 
     return (
         <div>
-            {serviceST ? <ServiceDesigner model={serviceST} rpcClient={eggplantRpcClient.getServiceDesignerRpcClient()} showDiagram={showDiagram} /> : <LowCode state={state} />}
+            {serviceST ? <ServiceDesigner model={serviceST} rpcClient={eggplantRpcClient.getServiceDesignerRpcClient()} goToSource={showDiagram} /> : <LowCode state={state} />}
         </div>
     );
 };

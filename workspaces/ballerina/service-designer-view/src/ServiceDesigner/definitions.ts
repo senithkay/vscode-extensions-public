@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export interface ResponseConfig {
     id: number;

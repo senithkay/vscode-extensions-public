@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
@@ -27,7 +28,8 @@ interface ServiceDesignerProps {
     rpcClient?: ServiceDesignerRpcClient;
     // Types to be shown in the autocomplete of respose
     typeCompletions?: string[];
-    showDiagram?: (position: NodePosition) =>  void;
+    // Callback to send the position of the resource to navigae to code
+    goToSource?: (position: NodePosition) =>  void;
     // Callback to send the resource info back to the parent component
     onSave?: (resources: ResourceInfo) =>  void;
     // Callback to send the resource info back to the parent component
@@ -58,7 +60,7 @@ const ResourceListHeader = styled.div`
 `;
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model = defaultResourceInfo, typeCompletions = [], rpcClient, showDiagram, onSave, onDeleteResource } = props;
+    const { model = defaultResourceInfo, typeCompletions = [], rpcClient, goToSource, onSave, onDeleteResource } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
@@ -98,21 +100,38 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         const resourceList: JSX.Element[] = [];
         const fetchResources = async () => {
             if (serviceModel && serviceModel.members) {
+                let i = 0;
                 for (const member of serviceModel.members) {
                     if (STKindChecker.isResourceAccessorDefinition(member)) {
                         const resourceInfo = await getResourceInfo(member, rpcClient);
                         resourceList.push(
                             <div>
-                                <ResourceAccordion rpcClient={rpcClient} resourceInfo={resourceInfo} onEditResource={handleResourceEdit} modelPosition={(member as ResourceAccessorDefinition).position} onDeleteResource={onDeleteResource} showDiagram={showDiagram} />
+                                <ResourceAccordion
+                                    key={i}
+                                    rpcClient={rpcClient}
+                                    resourceInfo={resourceInfo}
+                                    onEditResource={handleResourceEdit}
+                                    modelPosition={(member as ResourceAccessorDefinition).position}
+                                    onDeleteResource={onDeleteResource}
+                                    goToSource={goToSource} 
+                                />
                             </div>
                         );
                     }
+                    i++;
                 }
             } else {
                 const resources = model as ResourceInfo[];
-                resources.forEach((resource) => {
+                resources.forEach((resource, i) => {
                     resourceList.push(
-                        <ResourceAccordion rpcClient={rpcClient} resourceInfo={resource} onEditResource={handleResourceEdit} onDeleteResource={onDeleteResource} showDiagram={showDiagram} />
+                        <ResourceAccordion
+                            key={i}
+                            rpcClient={rpcClient} resourceInfo={resource}
+                            onEditResource={handleResourceEdit}
+                            modelPosition={resource.position}
+                            onDeleteResource={onDeleteResource}
+                            goToSource={goToSource} 
+                        />
                     );
                 });
             }
@@ -122,7 +141,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         if (types.length === 0) {
             fetchTypes();
         }
-    }, [model, serviceModel, showDiagram, types.length]);
+    }, [model, types.length]);
 
     const handleServiceConfig = () => {
         // Handle service config form
@@ -144,7 +163,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         await rpcClient.createResource({ position: position, source });
     };
 
-    // let serviceType = "";
     let portNumber = "";
 
     if (serviceModel && STKindChecker.isExplicitNewExpression(serviceModel?.expressions[0])) {
