@@ -13,7 +13,7 @@ import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { ServiceDesignerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { AccordionTable } from '../AccordionTable/AccordionTable';
-import { ResourceInfo } from '../../definitions';
+import { Resource } from '../../definitions';
 import ConfirmDialog from '../ConfirmBox/ConfirmBox';
 
 // Define styles using @emotion/styled
@@ -100,16 +100,16 @@ type MethodProp = {
 
 
 interface ResourceAccordionProps {
-    resourceInfo: ResourceInfo;
+    resource: Resource;
     modelPosition?: NodePosition;
     rpcClient: ServiceDesignerRpcClient;
     goToSource: (position: NodePosition) =>  void;
-    onEditResource: (resourceInfo: ResourceInfo) => void;
-    onDeleteResource?: (resourceInfo: ResourceInfo) => void;
+    onEditResource: (resourceInfo: Resource) => void;
+    onDeleteResource?: (resourceInfo: Resource) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { modelPosition, resourceInfo, rpcClient, goToSource, onEditResource, onDeleteResource } = params;
+    const { modelPosition, resource, rpcClient, goToSource, onEditResource, onDeleteResource } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -122,7 +122,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     };
 
     const handleEditResource = () => {
-        onEditResource(resourceInfo);
+        onEditResource(resource);
     };
 
     const handleDeleteResource = (e: Event) => {
@@ -131,20 +131,20 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     };
 
     const resourceParams: string[][] = [];
-    resourceInfo?.advancedParams?.forEach((param) => {
+    resource?.advancedParams?.forEach((param) => {
         resourceParams.push([param.type, `${param.name}${param?.defaultValue ? ` = ${param.defaultValue}` : ""}`]);
     });
-    resourceInfo?.params?.forEach((param) => {
+    resource?.params?.forEach((param) => {
         resourceParams.push([param.type, `${param.name}${param?.defaultValue ? ` = ${param.defaultValue}` : ""}`]);
     });
 
     const payloadInfo: string[][] = [];
-    if (resourceInfo?.payloadConfig) {
-        payloadInfo.push([`@http:Payload ${resourceInfo?.payloadConfig.type} ${resourceInfo?.payloadConfig.name}`]);
+    if (resource?.payloadConfig) {
+        payloadInfo.push([`@http:Payload ${resource?.payloadConfig.type} ${resource?.payloadConfig.name}`]);
     }
 
     const responses: string[][] = [];
-    resourceInfo?.responses?.forEach((response) => {
+    resource?.responses?.forEach((response) => {
         responses.push([`${response.code}`, response.type]);
     });
 
@@ -153,7 +153,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     const handleConfirm = async () => {
         // Handle confirmation logic
         if (onDeleteResource) {
-            onDeleteResource(resourceInfo);
+            onDeleteResource(resource);
         } else {
             await rpcClient.deleteResource({ position: modelPosition });
         }
@@ -172,7 +172,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         <AccordionContainer className={isOpen ? 'open' : 'closed'}>
             <AccordionHeader onClick={toggleAccordion}>
                 <MethodSection>
-                    <MethodBox color={getColorByMethod(resourceInfo.method)}>{resourceInfo.method.toUpperCase()}</MethodBox><MethodPath>{resourceInfo?.path}</MethodPath>
+                    <MethodBox color={getColorByMethod(resource.method)}>{resource.method.toUpperCase()}</MethodBox><MethodPath>{resource?.path}</MethodPath>
                 </MethodSection>
                 <ButtonSection>
                     <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>

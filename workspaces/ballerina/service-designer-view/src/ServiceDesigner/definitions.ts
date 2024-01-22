@@ -33,7 +33,7 @@ export interface ParameterConfig {
     isRequired?: boolean;
 }
 
-export interface ResourceInfo {
+export interface Resource {
     method: string;
     path: string;
     pathSegments?: ParameterConfig[];
@@ -47,4 +47,10 @@ export interface ResourceInfo {
 export interface PathConfig {
     path: string;
     resources: ParameterConfig[];
+}
+
+export interface Service {
+    name: string;
+    port: number;
+    resources: Resource[];
 }

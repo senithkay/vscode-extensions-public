@@ -16,14 +16,14 @@ import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { getResourceInfo } from "./utils/utils";
-import { ResourceInfo } from "./definitions";
+import { getResource } from "./utils/utils";
+import { Resource } from "./definitions";
 import ResourceAccordion from "./components/ResourceAccordion/ResourceAccordion";
 
 interface ServiceDesignerProps {
     // Model of the service. Please send a ServiceDeclaration object in using ballerina and a ResourceInfo[] in other scenarios,
     // Send a empty ResourceInfo object if you want to create a new resource, in editing send the current resource info
-    model?: ServiceDeclaration | ResourceInfo[];
+    model?: ServiceDeclaration | Resource[];
     // RPC client to communicate with the backend for ballerina
     rpcClient?: ServiceDesignerRpcClient;
     // Types to be shown in the autocomplete of respose
@@ -31,13 +31,13 @@ interface ServiceDesignerProps {
     // Callback to send the position of the resource to navigae to code
     goToSource?: (position: NodePosition) =>  void;
     // Callback to send the resource info back to the parent component
-    onSave?: (resources: ResourceInfo) =>  void;
+    onSave?: (resources: Resource) =>  void;
     // Callback to send the resource info back to the parent component
-    onDeleteResource?: (resources: ResourceInfo) =>  void;
+    onDeleteResource?: (resources: Resource) =>  void;
 }
 
 // Define ResourceInfo[] as the default model
-const defaultResourceInfo: ResourceInfo[] = [
+const defaultResource: Resource[] = [
 ]
 
 const ServiceHeader = styled.div`
@@ -59,14 +59,20 @@ const ResourceListHeader = styled.div`
     align-items: center;
 `;
 
+const emptyView = (
+    <Typography variant="h3" sx={{ textAlign: "center"}}>
+        No resources found. Add a new resource.
+    </Typography>
+);
+
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model = defaultResourceInfo, typeCompletions = [], rpcClient, goToSource, onSave, onDeleteResource } = props;
+    const { model = defaultResource, typeCompletions = [], rpcClient, goToSource, onSave, onDeleteResource } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
     const [types, setTypes] = useState<string[]>(typeCompletions);
 
-    const [editingResource, setEditingResource] = useState<ResourceInfo>();
+    const [editingResource, setEditingResource] = useState<Resource>();
 
     let servicePath = "";
 
@@ -86,7 +92,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const handleOnClick = () => {
         setIsSidePanelOpen(true);
     };
-    const handleResourceEdit = async (resource: ResourceInfo) => {
+    const handleResourceEdit = async (resource: Resource) => {
         setEditingResource(resource);
         setIsSidePanelOpen(true);
     };
@@ -103,13 +109,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 let i = 0;
                 for (const member of serviceModel.members) {
                     if (STKindChecker.isResourceAccessorDefinition(member)) {
-                        const resourceInfo = await getResourceInfo(member, rpcClient);
+                        const resource = await getResource(member, rpcClient);
                         resourceList.push(
                             <div>
                                 <ResourceAccordion
                                     key={i}
                                     rpcClient={rpcClient}
-                                    resourceInfo={resourceInfo}
+                                    resource={resource}
                                     onEditResource={handleResourceEdit}
                                     modelPosition={(member as ResourceAccessorDefinition).position}
                                     onDeleteResource={onDeleteResource}
@@ -121,12 +127,13 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     i++;
                 }
             } else {
-                const resources = model as ResourceInfo[];
+                const resources = model as Resource[];
                 resources.forEach((resource, i) => {
                     resourceList.push(
                         <ResourceAccordion
                             key={i}
-                            rpcClient={rpcClient} resourceInfo={resource}
+                            rpcClient={rpcClient}
+                            resource={resource}
                             onEditResource={handleResourceEdit}
                             modelPosition={resource.position}
                             onDeleteResource={onDeleteResource}
@@ -147,7 +154,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         // Handle service config form
     };
 
-    const handleSave = async (content: string, config: ResourceInfo, updatePosition?: NodePosition) => {
+    const handleSave = async (content: string, config: Resource, updatePosition?: NodePosition) => {
         if (serviceModel) {
             const position = serviceModel.closeBraceToken.position;
             position.endColumn = 0;
@@ -186,12 +193,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             }
         }
     }
-
-    const emptyView = (
-        <Typography variant="h3" sx={{ textAlign: "center"}}>
-            No resources found. Add a new resource.
-        </Typography>
-    );
 
     return (
         <div data-testid="service-design-view">

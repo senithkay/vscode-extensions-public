@@ -12,7 +12,7 @@ import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, S
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
-import { PARAM_TYPES, ParameterConfig, ResourceInfo, ResponseConfig } from '../../definitions';
+import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
@@ -26,8 +26,8 @@ const AdvancedParamTitleWrapper = styled.div`
 
 export interface ResourceFormProps {
 	isOpen: boolean;
-	resourceConfig?: ResourceInfo;
-	onSave?: (source: string, config: ResourceInfo, updatePosition?: NodePosition) => void;
+	resourceConfig?: Resource;
+	onSave?: (source: string, config: Resource, updatePosition?: NodePosition) => void;
 	getRecordST?: (recordName: string) => void;
 	addNameRecord?: (source: string) => void;
 	onClose: () => void;

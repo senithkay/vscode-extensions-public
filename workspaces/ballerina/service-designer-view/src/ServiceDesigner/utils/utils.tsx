@@ -13,7 +13,7 @@ import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
 import { Annotation, NodePosition, OptionalTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
-import { PARAM_TYPES, ParameterConfig, PathConfig, ResourceInfo, ResponseConfig } from '../definitions';
+import { PARAM_TYPES, ParameterConfig, PathConfig, Resource, ResponseConfig } from '../definitions';
 
 export interface ResourceDefinition {
     METHOD: string;
@@ -170,7 +170,7 @@ const getRecordSource = async (recordName: string, rpcClient: any): Promise<stri
     return response?.recordST.source;
 };
 
-export async function getResourceInfo(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResourceInfo> {
+export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any): Promise<Resource> {
     const pathConfig = getResourcePath(resource);
     const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = getPayloadConfig(resource);

@@ -9,7 +9,7 @@
 
 import React from "react";
 import { ServiceDesigner } from ".";
-import { ResourceInfo } from "./definitions";
+import { Resource } from "./definitions";
 import model from "./data/service.json";
 import resourceInfo from "./data/resourceInfo.json";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
@@ -20,10 +20,10 @@ export default {
 };
 
 const typeCompletions = ["int", "string", "float"];
-const onSave = (resources: ResourceInfo) => {
+const onSave = (resources: Resource) => {
   console.log(resources);
 };
-const onDeleteResource = (resources: ResourceInfo) => {
+const onDeleteResource = (resources: Resource) => {
   console.log("Delete Resource ", resources);
 };
 const goToSource = (postion: NodePosition) => {
@@ -34,4 +34,4 @@ export const EmptyModel = () => <ServiceDesigner typeCompletions={typeCompletion
 
 export const WithServiceDeclModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={model as ServiceDeclaration} onSave={onSave} />;
 
-export const WithSampleResourceModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={resourceInfo as unknown as ResourceInfo[]} onDeleteResource={onDeleteResource} onSave={onSave} />;
+export const WithSampleResourceModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={resourceInfo as unknown as Resource[]} onDeleteResource={onDeleteResource} onSave={onSave} />;
