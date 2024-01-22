@@ -10,20 +10,20 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { ResourceForm } from "./components/ResourceForm//ResourceForm";
+import { ResourceForm } from "./components/ResourceForm/ResourceForm";
 import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { getResource } from "./utils/utils";
-import { Resource } from "./definitions";
+import { Resource, Service } from "./definitions";
 import ResourceAccordion from "./components/ResourceAccordion/ResourceAccordion";
 
 interface ServiceDesignerProps {
     // Model of the service. Please send a ServiceDeclaration object in using ballerina and a ResourceInfo[] in other scenarios,
     // Send a empty ResourceInfo object if you want to create a new resource, in editing send the current resource info
-    model?: ServiceDeclaration | Resource[];
+    model?: ServiceDeclaration | Service;
     // RPC client to communicate with the backend for ballerina
     rpcClient?: ServiceDesignerRpcClient;
     // Types to be shown in the autocomplete of respose
@@ -31,14 +31,17 @@ interface ServiceDesignerProps {
     // Callback to send the position of the resource to navigae to code
     goToSource?: (position: NodePosition) =>  void;
     // Callback to send the resource info back to the parent component
-    onSave?: (resources: Resource) =>  void;
+    onResourceSave?: (resource: Resource) =>  void;
     // Callback to send the resource info back to the parent component
-    onDeleteResource?: (resources: Resource) =>  void;
+    onResourceDelete?: (resource: Resource) =>  void;
 }
 
 // Define ResourceInfo[] as the default model
-const defaultResource: Resource[] = [
-]
+const defaultService: Service = {
+    path: "",
+    port: 0,
+    resources: []
+}
 
 const ServiceHeader = styled.div`
     display: flex;
@@ -66,7 +69,7 @@ const emptyView = (
 );
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model = defaultResource, typeCompletions = [], rpcClient, goToSource, onSave, onDeleteResource } = props;
+    const { model = defaultService, typeCompletions = [], rpcClient, goToSource, onResourceSave, onResourceDelete } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
@@ -118,7 +121,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                                     resource={resource}
                                     onEditResource={handleResourceEdit}
                                     modelPosition={(member as ResourceAccessorDefinition).position}
-                                    onDeleteResource={onDeleteResource}
+                                    onDeleteResource={onResourceDelete}
                                     goToSource={goToSource} 
                                 />
                             </div>
@@ -127,8 +130,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                     i++;
                 }
             } else {
-                const resources = model as Resource[];
-                resources.forEach((resource, i) => {
+                const serviceModel: Service = model as Service;
+                serviceModel.resources.forEach((resource, i) => {
                     resourceList.push(
                         <ResourceAccordion
                             key={i}
@@ -136,7 +139,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                             resource={resource}
                             onEditResource={handleResourceEdit}
                             modelPosition={resource.position}
-                            onDeleteResource={onDeleteResource}
+                            onDeleteResource={onResourceDelete}
                             goToSource={goToSource} 
                         />
                     );
@@ -160,7 +163,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             position.endColumn = 0;
             await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source: content });
         } else {
-            onSave && onSave(config);
+            onResourceSave && onResourceSave(config);
         }
     };
 

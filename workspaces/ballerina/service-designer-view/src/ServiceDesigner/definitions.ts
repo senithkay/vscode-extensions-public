@@ -50,7 +50,7 @@ export interface PathConfig {
 }
 
 export interface Service {
-    name: string;
+    path: string;
     port: number;
     resources: Resource[];
 }
