@@ -92,7 +92,7 @@ export class WebviewRpcManager implements WebviewAPI {
 
         }
 
-        console.log("===ParamsForBackend", params);
+        
         return langClient.getEggplantModel(params).then((model) => {
             console.log("===BackEndModel", model);
             //@ts-ignore
@@ -175,20 +175,23 @@ export class WebviewRpcManager implements WebviewAPI {
 
         modificationList.push(modification);
 
-        if (code.transformFunction) {
+        if (code.transformFunctions && code.transformFunctions.length > 0) {
+            code.transformFunctions.forEach((transformFunction) => {
+
             const modification: STModification = {
-                startLine: code.transformFunction.location ? code.transformFunction.location.start.line : flowModel.fileSourceRange?.end.line,
-                startColumn: code.transformFunction.location ? code.transformFunction.location.start.offset : flowModel.fileSourceRange?.end.offset,
-                endLine: code.transformFunction.location ? code.transformFunction.location.end.line : flowModel.fileSourceRange?.end.line,
-                endColumn: code.transformFunction.location ? code.transformFunction.location.end.offset : flowModel.fileSourceRange?.end.offset,
+                startLine: transformFunction.location ? transformFunction.location.start.line : flowModel.fileSourceRange?.end.line,
+                startColumn: transformFunction.location ? transformFunction.location.start.offset : flowModel.fileSourceRange?.end.offset,
+                endLine: transformFunction.location ? transformFunction.location.end.line : flowModel.fileSourceRange?.end.line,
+                endColumn: transformFunction.location ? transformFunction.location.end.offset : flowModel.fileSourceRange?.end.offset,
                 type: "INSERT",
                 isImport: false,
                 config: {
-                    "STATEMENT": code.transformFunction.code
+                    "STATEMENT": transformFunction.code
                 }
             };
 
             modificationList.push(modification);
+        });
 
             // TODO: Remove this logic once verified with the LS team
             // const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
