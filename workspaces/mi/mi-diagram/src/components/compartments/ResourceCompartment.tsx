@@ -20,17 +20,14 @@ interface Props {
 
 export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
     const visitor = new NodeInitVisitor(props.documentUri);
-    traversNode(props.stNode.api, visitor);
+    traversNode(props.stNode.api ? props.stNode.api : props.stNode.sequence, visitor);
 
-    const inSequenceNodes = visitor.getInSequenceNodes();
-    const outSequenceNodes = visitor.getOutSequenceNodes();
-    const inSequenceRange = visitor.getInSequenceRange();
-    const outSequenceRange = visitor.getOutSequenceRange();
+    const sequences = visitor.getSequences();
 
     return (
         <>
-            {/* Input & Output sequences */}
-            <SequenceDiagram inSequence={inSequenceNodes} inSequenceRange={inSequenceRange} outSequence={outSequenceNodes} outSequenceRange={outSequenceRange}></SequenceDiagram>
+            {/* Sequences */}
+            <SequenceDiagram sequences={sequences}></SequenceDiagram>
         </>
     );
 };

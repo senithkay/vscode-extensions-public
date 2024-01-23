@@ -21,15 +21,13 @@ import { OFFSET } from '../../constants';
 import { SequenceNodeModel } from '../nodes/sequence/SequenceNodeModel';
 import { PlusNodeModel } from '../nodes/plusNode/PlusNodeModel';
 import { Position, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { SequenceNodes } from '../../utils/visitors/NodeInitVisitor';
 
 export const IN_SEQUENCE_TAG = "inSequence";
 export const OUT_SEQUENCE_TAG = "outSequence";
 
 export interface SequenceDiagramProps {
-    inSequence: BaseNodeModel[];
-    inSequenceRange?: Range;
-    outSequence: BaseNodeModel[];
-    outSequenceRange?: Range;
+    sequences: SequenceNodes[];
 }
 
 SequenceDiagram.defaultProps = {
@@ -45,14 +43,14 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     useEffect(() => {
         setLoading(true);
         (async () => {
-            const inSequenceNodes = props.inSequence;
-            const outSequenceNodes = props.outSequence;
+            const sequences = props.sequences;
 
             diagramEngine.setModel(model);
             setEngine(diagramEngine);
 
-            if (props.inSequenceRange) drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE, props.inSequenceRange, "inSequence");
-            if (props.outSequenceRange) drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE, props.outSequenceRange, "outSequence");
+            sequences.forEach((sequence: SequenceNodes) => {
+                drawSequence(sequence.nodes, sequence.type, sequence.range);
+            });
 
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
@@ -67,7 +65,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         })();
     }, []);
 
-    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType, range: Range, tag: string) {
+    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType, range: Range) {
         let canvasPortNode = new SequenceNodeModel(`sequence-${sequenceType}`, sequenceType, range);
         const sequenceNode = canvasPortNode;
 
@@ -75,7 +73,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         const plusNode = new PlusNodeModel(`${sequenceType}:plus:start`, null, sequenceType, null);
         const position: Position = {
             line: range.start.line,
-            character: range.start.character + tag.length + 2
+            character: range.start.character + sequenceType.length + 2
         }
 
         plusNode.setNodeRange({
@@ -124,7 +122,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         let x = OFFSET.START.X;
         let y = OFFSET.START.Y;
         const nodes: any = diagramEngine.getModel().getNodes();
-        const inSeqNodes = nodes.filter((node: BaseNodeModel) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === IN_SEQUENCE_TAG);
+        const inSeqNodes = nodes.filter((node: BaseNodeModel) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === IN_SEQUENCE_TAG || node.getParentNode()?.tag === "sequence");
         const outSeqNodes = nodes.filter((node: BaseNodeModel) => (node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === OUT_SEQUENCE_TAG);
         const inSeqNode = nodes.filter((node: any) => !node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const outSeqNode = nodes.filter((node: any) => node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];

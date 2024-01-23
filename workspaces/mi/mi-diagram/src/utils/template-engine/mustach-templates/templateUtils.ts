@@ -8,7 +8,7 @@
  */
 
 import Mustache from "mustache";
-import { MEDIATORS } from "../../../constants";
+import { ENDPOINTS, MEDIATORS } from "../../../constants";
 import { getCallFormDataFromSTNode, getCallMustacheTemplate, getCallXml } from "./core/call";
 import { Call, Callout, Header, Log, STNode, CallTemplate, PayloadFactory, Property } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 import { getLogFormDataFromSTNode, getLogMustacheTemplate, getLogXml } from "./core/log";
@@ -65,8 +65,8 @@ export function getMustacheTemplate(name: string) {
         //     return getDefaultEndpointMustacheTemplate();
         // case ENDPOINTS.FAILOVER:
         //     return getFailoverEndpointMustacheTemplate();
-        // case ENDPOINTS.HTTP:
-        //     return getHTTPEndpointMustacheTemplate();
+        case ENDPOINTS.HTTP:
+            return getHTTPEndpointMustacheTemplate();
         // case ENDPOINTS.LOADBALANCE:
         //     return getLoadBalanceEndpointMustacheTemplate();
         // case ENDPOINTS.NAMED:
