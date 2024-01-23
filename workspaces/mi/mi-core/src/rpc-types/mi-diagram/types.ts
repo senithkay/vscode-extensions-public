@@ -20,13 +20,30 @@ export interface ApplyEditRequest {
     range: Range;
 }
 
+export interface ApplyEditResponse {
+    status: boolean;
+}
+
 export interface CreateAPIRequest {
-   directory: string;
-   name: string;
-   context: string;
-   swaggerDef: string;
-   type: string;
-   version: string;
+    directory: string;
+    name: string;
+    context: string;
+    swaggerDef: string;
+    type: string;
+    version: string;
+}
+
+export interface CreateEndpointRequest {
+    directory: string;
+    name: string;
+    type: string;
+    configuration: string;
+    address: string;
+    uriTemplate: string;
+    method: string;
+}
+export interface CreateEndpointResponse {
+    path: string;
 }
 
 export interface Connector {
@@ -85,23 +102,43 @@ export interface ConnectorRequest {
     path: string;
 }
 export interface ConnectorResponse {
-    data: Connector[];
+    data: string[];
 }
 
 export interface ProjectStructureRequest {
-    data: string;
+    documentUri: string;
 }
 
 export interface ApiDirectoryResponse {
+    data: string;
+}
+
+export interface EndpointDirectoryResponse {
     data: string;
 }
 export interface ShowErrorMessageRequest {
     message: string;
 }
 
-export interface OpenDiagramRequest extends CreateAPIRequest{
+export interface OpenDiagramRequest {
+    path: string;
 }
 
 export interface CreateAPIResponse {
+    path: string;
+}
+
+export interface EndpointsAndSequencesResponse {
+    data: any;
+}
+
+export interface SequenceDirectoryResponse {
     data: string;
+}
+
+export interface CreateSequenceRequest {
+
+}
+export interface CreateSequenceResponse {
+
 }

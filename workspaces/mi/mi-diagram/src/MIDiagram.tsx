@@ -34,9 +34,10 @@ export function MIDiagram(props: MIDiagramProps) {
 	const [sidePanelShowBackBtn, setSidePanelShowBackBtn] = useState<boolean>(false);
 	const [sidePanelBackBtn, setSidePanelBackBtn] = useState<number>(0);
 	const { rpcClient } = useVisualizerContext();
-	// MIWebViewAPI.getInstance().refresh().onNotification(Refresh, () => {
-	// 	setLastUpdated(Date.now());
-	// });
+
+	rpcClient.getMiDiagramRpcClient().onRefresh(() => {
+		setLastUpdated(Date.now());
+	});
 
 	const incrementCount = () => {
 		setSidePanelBackBtn(sidePanelBackBtn + 1);
@@ -44,15 +45,13 @@ export function MIDiagram(props: MIDiagramProps) {
 
 	useEffect(() => {
 		setLoading(true);
-		setLastUpdated(0);
-
 		(async () => {
 			const st = await rpcClient.getMiDiagramRpcClient().getSyntaxTree({ documentUri: props.documentUri });
 			const stNode = (st as any).syntaxTree;
 			setSTNode(stNode);
 			setLoading(false);
 		})();
-	}, [props.documentUri]);
+	}, [lastUpdated]);
 
 	const closePanel = () => {
 		setSidePanelNodeRange(undefined);

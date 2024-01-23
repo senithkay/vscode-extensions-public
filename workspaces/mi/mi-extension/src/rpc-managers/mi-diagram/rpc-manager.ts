@@ -11,27 +11,46 @@
 import {
     ApiDirectoryResponse,
     ApplyEditRequest,
+    ApplyEditResponse,
     CommandsRequest,
     CommandsResponse,
+    Connector,
     ConnectorRequest,
     ConnectorResponse,
     ConnectorsResponse,
     CreateAPIRequest,
+    CreateAPIResponse,
+    CreateEndpointRequest,
+    CreateEndpointResponse,
+    CreateSequenceRequest,
+    CreateSequenceResponse,
+    EndpointDirectoryResponse,
+    EndpointsAndSequencesResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     getSTRequest,
-    getSTResponse
+    getSTResponse,
 } from "@wso2-enterprise/mi-core";
+import * as fs from "fs";
+import { Position, Range, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
-import { State } from "xstate";
+import path = require("path");
+const { XMLParser } = require("fast-xml-parser");
 
+const connectorsPath = path.join(".metadata", ".Connectors");
 export class MiDiagramRpcManager implements MiDiagramAPI {
     async executeCommand(params: CommandsRequest): Promise<CommandsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            if (params.commands.length >= 1) {
+                const cmdArgs = params.commands.length > 1 ? params.commands.slice(1) : [];
+                await commands.executeCommand(params.commands[0], ...cmdArgs);
+                resolve({ data: "SUCCESS" });
+            }
+        });
     }
 
     async getSyntaxTree(params: getSTRequest): Promise<getSTResponse> {
@@ -47,53 +66,350 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     async getConnectors(): Promise<ConnectorsResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const connectorNames: Connector[] = [];
+            const workspaceFolders = workspace.workspaceFolders;
+
+            if (!workspaceFolders) {
+                return connectorNames;
+            }
+
+            if (!fs.existsSync(path.join(workspaceFolders[0].uri.path, connectorsPath))) {
+                return connectorNames;
+            }
+
+            const connectorsRoot = path.join(workspaceFolders[0].uri.path, connectorsPath);
+            const connectors = fs.readdirSync(connectorsRoot, { withFileTypes: true });
+            connectors.filter(dirent => dirent.isDirectory()).forEach(connectorDir => {
+                const connectorPath = path.join(connectorsRoot, connectorDir.name);
+                const connectorInfoFile = path.join(connectorPath, `connector.xml`);
+                const connectorIconFile = path.join(connectorPath, "icon", `icon-large.png`);
+                if (fs.existsSync(connectorInfoFile)) {
+                    const connectorDefinition = fs.readFileSync(connectorInfoFile, "utf8");
+                    const options = {
+                        ignoreAttributes: false,
+                        attributeNamePrefix: "@_"
+                    };
+                    const parser = new XMLParser(options);
+                    const connectorInfo = parser.parse(connectorDefinition);
+                    const connectorName = connectorInfo["connector"]["component"]["@_name"];
+                    const connectorDescription = connectorInfo["connector"]["component"]["description"];
+                    const connectorIcon = Buffer.from(fs.readFileSync(connectorIconFile)).toString('base64');
+                    connectorNames.push({ path: connectorPath, name: connectorName, description: connectorDescription, icon: connectorIcon });
+                }
+            });
+
+            resolve({ data: connectorNames });
+        });
     }
 
     async getConnector(params: ConnectorRequest): Promise<ConnectorResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const connectorFiles: string[] = [];
+            const uiSchemas = path.join(params.path, "uischema");
+            if (fs.existsSync(uiSchemas)) {
+                const connectorFilesList = fs.readdirSync(uiSchemas);
+                connectorFilesList.forEach(file => {
+                    const connectorFile = fs.readFileSync(path.join(uiSchemas, file), "utf8");
+                    connectorFiles.push(connectorFile);
+                });
+            }
+            resolve({ data: connectorFiles });
+        });
     }
 
     async getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
+        return new Promise(async (resolve) => {
+            const langClient = StateMachine.context().langClient!;
+            const res = await langClient.getProjectStructure(params.documentUri);
+            resolve(res);
+        });
     }
 
     async getAPIDirectory(): Promise<ApiDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            let result = '';
+            const findSynapseAPIPath = (startPath: string) => {
+                const files = fs.readdirSync(startPath);
+                for (let i = 0; i < files.length; i++) {
+                    const filename = path.join(startPath, files[i]);
+                    const stat = fs.lstatSync(filename);
+                    if (stat.isDirectory()) {
+                        if (filename.includes('synapse-config/api')) {
+                            result = filename;
+                            return result;
+                        } else {
+                            result = findSynapseAPIPath(filename);
+                        }
+                    }
+                }
+                return result;
+            };
+
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseAPIPath = findSynapseAPIPath(workspaceFolderPath);
+                return synapseAPIPath;
+            }
+            resolve({ data: "" });
+        });
+    }
+
+    async createAPI(params: CreateAPIRequest): Promise<CreateAPIResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, context, swaggerDef, type, version } = params;
+            let versionAttributes = '';
+            let swaggerAttributes = '';
+            if (version && type !== 'none') {
+                versionAttributes = ` version="${version}" version-type="${type}"`;
+            }
+
+            if (swaggerDef) {
+                swaggerAttributes = ` publishSwagger="${swaggerDef}"`;
+            }
+
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+    <api context="${context}" name="${name}" ${swaggerAttributes}${versionAttributes} xmlns="http://ws.apache.org/ns/synapse">
+        <resource methods="GET">
+            <inSequence>
+            </inSequence>
+            <outSequence>
+            </outSequence>
+            <faultSequence>
+            </faultSequence>
+        </resource>
+    </api>`;
+
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    showErrorMessage(params: ShowErrorMessageRequest): void {
+        window.showErrorMessage(params.message);
+    }
+
+    refresh(): void {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }
 
-    async createAPI(params: CreateAPIRequest): Promise<CreateAPIRequest> {
+
+    closeWebViewNotification(): void {
+        // if ("dispose" in view) {
+        //     view.dispose();
+        // }
+    }
+
+    openDiagram(params: OpenDiagramRequest): void {
+        openView({ fileName: params.path });
+    }
+
+    async getEndpointDirectory(): Promise<EndpointDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            let result = '';
+            const findSynapseEndpointPath = (startPath: string) => {
+                const files = fs.readdirSync(startPath);
+                for (let i = 0; i < files.length; i++) {
+                    const filename = path.join(startPath, files[i]);
+                    const stat = fs.lstatSync(filename);
+                    if (stat.isDirectory()) {
+                        if (filename.includes('synapse-config/endpoints')) {
+                            result = filename;
+                            return result;
+                        } else {
+                            result = findSynapseEndpointPath(filename);
+                        }
+                    }
+                }
+                return result;
+            };
+
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseEndpointPath = findSynapseEndpointPath(workspaceFolderPath);
+                return synapseEndpointPath;
+            }
+            resolve({ data: "" });
+        });
+    }
+
+    async createEndpoint(params: CreateEndpointRequest): Promise<CreateEndpointResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name, address, configuration, method, type, uriTemplate } = params;
+            const endpointType = type.split(" ")[0].toLowerCase();
+
+            let endpointAttributes = `${endpointType}`;
+            let otherAttributes = '';
+            let closingAttributes = `</${endpointType}>`;
+            if (endpointType === 'http') {
+                endpointAttributes = `${endpointAttributes} method="${method.toLowerCase()}" uri-template="${uriTemplate}"`;
+            } else if (endpointType === 'address') {
+                endpointAttributes = `${endpointAttributes} uri="${address}"`;
+            } else if (endpointType === 'fail') {
+                endpointAttributes = `failover`;
+                otherAttributes = `<endpoint name="endpoint_urn_uuid">
+            <address uri="http://localhost">`;
+                closingAttributes = `       </address>
+        </endpoint>
+    </failover>`;
+            } else if (endpointType === 'load') {
+                endpointAttributes = `loadbalance algorithm="org.apache.synapse.endpoints.algorithms.RoundRobin"`;
+                otherAttributes = `<endpoint name="endpoint_urn_uuid">
+            <address uri="http://localhost">`;
+                closingAttributes = `       </address>
+        </endpoint>
+    </loadbalance>`;
+            } else if (endpointType === 'recipient') {
+                endpointAttributes = `recipientlist`;
+                otherAttributes = `<endpoint>
+            <default>`;
+                closingAttributes = `       </default>
+        </endpoint>
+    </recipientlist>`;
+            }
+
+            const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+<endpoint name="${name}" xmlns="http://ws.apache.org/ns/synapse">
+    <${endpointAttributes}>
+        ${otherAttributes}
+        <suspendOnFailure>
+            <initialDuration>-1</initialDuration>
+            <progressionFactor>1.0</progressionFactor>
+        </suspendOnFailure>
+        <markForSuspension>
+            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+        </markForSuspension>
+    ${closingAttributes}
+</endpoint>`;
+
+            const filePath = path.join(directory, `${name}.xml`);
+            fs.writeFileSync(filePath, xmlData);
+            resolve({ path: filePath });
+        });
+    }
+
+    async getEndpointsAndSequences(): Promise<EndpointsAndSequencesResponse> {
+        return new Promise(async (resolve) => {
+            const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
+                workspace.workspaceFolders[0].uri.fsPath
+                : undefined;
+
+            if (!!rootPath) {
+                const langClient = StateMachine.context().langClient!;
+                const resp = await langClient.getProjectStructure(rootPath);
+                const endpoints = (resp.directoryMap.esbConfigs.endpoints).map(endpoint => endpoint.name);
+                const sequences = (resp.directoryMap.esbConfigs.sequences).map(sequence => sequence.name);
+                return [endpoints, sequences];
+            }
+
+            resolve({data: []});
+        });
+    }
+
+    async getSequenceDirectory(): Promise<SequenceDirectoryResponse> {
+        return new Promise(async (resolve) => {
+            let result = '';
+            const findSynapseSequencePath = (startPath: string) => {
+                const files = fs.readdirSync(startPath);
+                for (let i = 0; i < files.length; i++) {
+                    const filename = path.join(startPath, files[i]);
+                    const stat = fs.lstatSync(filename);
+                    if (stat.isDirectory()) {
+                        if (filename.includes('synapse-config/sequences')) {
+                            result = filename;
+                            return result;
+                        } else {
+                            result = findSynapseSequencePath(filename);
+                        }
+                    }
+                }
+                return result;
+            };
+
+            const workspaceFolder = workspace.workspaceFolders;
+            if (workspaceFolder) {
+                const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
+                const synapseSequencePath = findSynapseSequencePath(workspaceFolderPath);
+                return synapseSequencePath;
+            }
+            return "";
+        });
+    }
+
+    async createSequence(params: CreateSequenceRequest): Promise<CreateSequenceResponse> {
+        return new Promise(async (resolve) => {
+            //             const { directory, name, endpoint, onErrorSequence } = params;
+
+            //             let endpointAttributes = ``;
+            //             let errorSequence = ``;
+            //             if (endpoint) {
+            //                 endpointAttributes = `<send>
+            //             <endpoint key="${endpoint.replace(".xml", "")}"/>
+            //         </send>`;
+            //             }
+
+            //             if (onErrorSequence) {
+            //                 errorSequence = `onError="${onErrorSequence}"`;
+            //             }
+
+            //             const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+            // <sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+            //     ${endpointAttributes}
+            // </sequence>`;
+
+            //             const filePath = path.join(directory, `${name}.xml`);
+            //             fs.writeFileSync(filePath, xmlData);
+            //             return filePath;
+        });
+    }
+
+    async applyEdit(params: ApplyEditRequest): Promise<ApplyEditResponse> {
+        return new Promise(async (resolve) => {
+            const edit = new WorkspaceEdit();
+            let document = workspace.textDocuments.find(doc => doc.uri.fsPath === params.documentUri);
+
+            if (!document) {
+                document = await workspace.openTextDocument(Uri.parse(params.documentUri));
+            }
+
+            const range = new Range(new Position(params.range.start.line, params.range.start.character),
+                new Position(params.range.end.line, params.range.end.character));
+            const startLine = document.lineAt(range.start.line).text;
+            const startLineIndentation = startLine.match(/^\s*/);
+            const endLine = document.lineAt(range.end.line).text;
+            const endLineIndentation = endLine.match(/^\s*/);
+
+            const sIndentation = startLineIndentation ? startLineIndentation[0] : "";
+            const eIndentation = endLineIndentation ? endLineIndentation[0] : "";
+            const textEmpty = params.text.trim().length === 0;
+            const textBefore = startLine.substring(0, range.start.character).trim();
+            const textAfter = endLine.substring(range.end.character).trim();
+            let text = params.text;
+            if (!textEmpty) {
+                text = `${textBefore.length > 0 ? "\n" + sIndentation : ""}${params.text.replace(/\n/g, "\n" + sIndentation)}${textAfter.length > 0 ? "\n" + eIndentation : ""}`;
+            }
+            edit.replace(Uri.parse(params.documentUri), range, text);
+            await workspace.applyEdit(edit);
+            resolve({ status: true });
+        });
+    }
+
+    closeWebView(): void {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }
 
-    async showErrorMessage(params: ShowErrorMessageRequest): Promise<void> {
+    openFile(params: OpenDiagramRequest): void {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }
 
-    async refresh(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-
-    async applyEdit(params: ApplyEditRequest): Promise<boolean> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    };
-
-    async closeWebViewNotification(): Promise<void> {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
-    async openDiagram(params: OpenDiagramRequest): Promise<void> {
-
-        openView({ fileName: "FILE NAME" });
+    onRefresh(callback: () => void): void {
+         // USE THE RPC METHOD TO BROADCAST NOTIFICATIONS TO WEBVIEW
+         // EX: RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: 'visualizer' });
     }
 }

@@ -13,22 +13,30 @@ import {
     CommandsRequest,
     ConnectorRequest,
     CreateAPIRequest,
+    CreateEndpointRequest,
+    CreateSequenceRequest,
     OpenDiagramRequest,
     ProjectStructureRequest,
     ShowErrorMessageRequest,
     applyEdit,
+    closeWebView,
     closeWebViewNotification,
     createAPI,
+    createEndpoint,
+    createSequence,
     executeCommand,
     getAPIDirectory,
     getConnector,
     getConnectors,
+    getEndpointDirectory,
+    getEndpointsAndSequences,
     getProjectStructure,
     getSTRequest,
+    getSequenceDirectory,
     getSyntaxTree,
     openDiagram,
-    refresh,
-    showErrorMessage
+    openFile,
+    showErrorMessage,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
 import { MiDiagramRpcManager } from "./rpc-manager";
@@ -36,15 +44,21 @@ import { MiDiagramRpcManager } from "./rpc-manager";
 export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     const rpcManger = new MiDiagramRpcManager();
     messenger.onRequest(executeCommand, (args: CommandsRequest) => rpcManger.executeCommand(args));
+    messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
     messenger.onRequest(getSyntaxTree, (args: getSTRequest) => rpcManger.getSyntaxTree(args));
+    messenger.onRequest(applyEdit, (args: ApplyEditRequest) => rpcManger.applyEdit(args));
     messenger.onRequest(getConnectors, () => rpcManger.getConnectors());
     messenger.onRequest(getConnector, (args: ConnectorRequest) => rpcManger.getConnector(args));
-    messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onRequest(getAPIDirectory, () => rpcManger.getAPIDirectory());
     messenger.onRequest(createAPI, (args: CreateAPIRequest) => rpcManger.createAPI(args));
-    messenger.onNotification(showErrorMessage, (args: ShowErrorMessageRequest) => rpcManger.showErrorMessage(args));
-    messenger.onNotification(refresh, () => rpcManger.refresh());
-    messenger.onRequest(applyEdit, (args: ApplyEditRequest) => rpcManger.applyEdit(args));
-    messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
+    messenger.onRequest(getEndpointDirectory, () => rpcManger.getEndpointDirectory());
+    messenger.onRequest(createEndpoint, (args: CreateEndpointRequest) => rpcManger.createEndpoint(args));
+    messenger.onRequest(getEndpointsAndSequences, () => rpcManger.getEndpointsAndSequences());
+    messenger.onRequest(getSequenceDirectory, () => rpcManger.getSequenceDirectory());
+    messenger.onRequest(createSequence, (args: CreateSequenceRequest) => rpcManger.createSequence(args));
+    messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
+    messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
+    messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
+    messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
 }

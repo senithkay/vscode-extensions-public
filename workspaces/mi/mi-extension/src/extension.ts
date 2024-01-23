@@ -13,13 +13,14 @@ import { extension } from './MIExtensionContext';
 import { activateProjectExplorer } from './project-explorer/activate';
 import { activateAiPrompt } from './ai-prompt/activate';
 import { activateVisualizer } from './visualizer/activate';
+import { activateActivityPanel } from './activity-panel/activate';
 
 export async function activate(context: vscode.ExtensionContext) {
 
-	StateMachine.initialize();
 	extension.context = context;
+	// activateActivityPanel(context);
 	activateProjectExplorer(context);
 	// activateAiPrompt(context);
 	activateVisualizer(context);
-
+	StateMachine.initialize();
 }

@@ -13,42 +13,42 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
+import { onRefresh } from '@wso2-enterprise/mi-core';
+import { debounce } from 'lodash';
 
-export class DiagramWebview {
-    public static currentPanel: DiagramWebview | undefined;
+export class VisualizerWebview {
+    public static currentPanel: VisualizerWebview | undefined;
+	public static readonly viewType = 'integration-studio.visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
     constructor() {
-        this._panel = DiagramWebview.createWebview();
+        this._panel = VisualizerWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
 
+        // Handle the text change and diagram update with rpc notification
+        const refreshDiagram = debounce(() => {
+            if (this.getWebview()) {
+                RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: VisualizerWebview.viewType });
+            }
+        }, 500);
 
-        // TODO: Handle the text change and diagram update
-        // const rpc = new RegisterWebViewPanelRpc(context, panel);
-
-        // const refreshDiagram = debounce(() => {
-        //     if (diagramWebview) {
-        //         rpc.getMessenger().sendNotification(Refresh, { type: 'webview', webviewType: 'diagram' });
-        //     }
-        // }, 500);
-
-
-        // workspace.onDidChangeTextDocument(function () {
-        //     refreshDiagram();
-        // }, context);
+        vscode.workspace.onDidChangeTextDocument(function () {
+            refreshDiagram();
+        }, extension.context);
     }
 
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
-            'visualizer',
+            VisualizerWebview.viewType,
             'Integration Studio',
             ViewColumn.Two,
             {
                 enableScripts: true,
-                localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))]
+                localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],
+                retainContextWhenHidden: true,
             }
         );
         return panel;
@@ -96,7 +96,7 @@ export class DiagramWebview {
     }
 
     public dispose() {
-        DiagramWebview.currentPanel = undefined;
+        VisualizerWebview.currentPanel = undefined;
         this._panel?.dispose();
 
         while (this._disposables.length) {

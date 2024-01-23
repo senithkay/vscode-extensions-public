@@ -62,6 +62,12 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+          "view": "project-explorer",
+          "contents": "Welcome to Integration Studio [learn more](https://google.com/).\n[Get Started](command:integrationStudio.showDiagram)"
+      }
+    ],
     "commands": [
       {
         "command": "integrationStudio.showDiagram",
