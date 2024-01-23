@@ -11,14 +11,15 @@
 
 import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm/ResourceForm";
-import { ServiceDeclaration, STKindChecker, ResourceAccessorDefinition, NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ServiceDeclaration, STKindChecker, NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Typography, Codicon } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
-import { getResource } from "./utils/utils";
+import { getService, updateServiceDecl } from "./utils/utils";
 import { Resource, Service } from "./definitions";
 import ResourceAccordion from "./components/ResourceAccordion/ResourceAccordion";
+import { ServiceForm } from "./components/ServiceForm/ServiceForm";
 
 interface ServiceDesignerProps {
     // Model of the service. Please send a ServiceDeclaration object in using ballerina and a ResourceInfo[] in other scenarios,
@@ -30,10 +31,12 @@ interface ServiceDesignerProps {
     typeCompletions?: string[];
     // Callback to send the position of the resource to navigae to code
     goToSource?: (position: NodePosition) =>  void;
-    // Callback to send the resource info back to the parent component
+    // Callback to send the resource back to the parent component
     onResourceSave?: (resource: Resource) =>  void;
-    // Callback to send the resource info back to the parent component
+    // Callback to send the resource back to the parent component
     onResourceDelete?: (resource: Resource) =>  void;
+    // Callback to send the service back to the parent component
+    onServiceSave?: (service: Service) =>  void;
 }
 
 // Define ResourceInfo[] as the default model
@@ -72,79 +75,66 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     const { model = defaultService, typeCompletions = [], rpcClient, goToSource, onResourceSave, onResourceDelete } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
-    const [isSidePanelOpen, setIsSidePanelOpen] = useState<boolean>(false);
+    const [isResourceFormOpen, setResourceFormOpen] = useState<boolean>(false);
+    const [isServiceFormOpen, setServiceFormOpen] = useState<boolean>(false);
     const [types, setTypes] = useState<string[]>(typeCompletions);
 
     const [editingResource, setEditingResource] = useState<Resource>();
 
-    let servicePath = "";
-
-    let serviceModel = model as ServiceDeclaration;
-    if (!STKindChecker.isServiceDeclaration(serviceModel)) {
-        serviceModel = undefined;
+    let ballerinaServiceModel = model as ServiceDeclaration;
+    if (!STKindChecker.isServiceDeclaration(ballerinaServiceModel)) {
+        ballerinaServiceModel = undefined;
     }
+    const [balServiceConfig, setServiceConfig] = useState<Service>(!ballerinaServiceModel ? model as Service : undefined);
 
-    serviceModel?.absoluteResourcePath.forEach((pathSegment) => {
-        servicePath += pathSegment.value;
-    });
-
-    const handleOnClose = () => {
-        setIsSidePanelOpen(false);
+    const handleResourceFormClose = () => {
+        setResourceFormOpen(false);
         setEditingResource(undefined);
     };
-    const handleOnClick = () => {
-        setIsSidePanelOpen(true);
+    const handleResourceFormOpen = () => {
+        setResourceFormOpen(true);
     };
     const handleResourceEdit = async (resource: Resource) => {
         setEditingResource(resource);
-        setIsSidePanelOpen(true);
+        setResourceFormOpen(true);
+    };
+
+    const handleServiceEdit = () => {
+        setServiceFormOpen(true);
+    };
+    const handleServiceFormClose = () => {
+        setServiceFormOpen(false);
+    };
+    const handleServiceFormSave = async (service: Service) => {
+        const content = updateServiceDecl({BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http"});
+        await rpcClient.createResource({ position: service.position, source: content });
     };
 
     const fetchTypes = async () => {
         const types = await rpcClient?.getKeywordTypes();
         setTypes(types?.completions.map(type => type.insertText));
-    }
+    };
 
     useEffect(() => {
         const resourceList: JSX.Element[] = [];
         const fetchResources = async () => {
-            if (serviceModel && serviceModel.members) {
-                let i = 0;
-                for (const member of serviceModel.members) {
-                    if (STKindChecker.isResourceAccessorDefinition(member)) {
-                        const resource = await getResource(member, rpcClient);
-                        resourceList.push(
-                            <div>
-                                <ResourceAccordion
-                                    key={i}
-                                    rpcClient={rpcClient}
-                                    resource={resource}
-                                    onEditResource={handleResourceEdit}
-                                    modelPosition={(member as ResourceAccessorDefinition).position}
-                                    onDeleteResource={onResourceDelete}
-                                    goToSource={goToSource} 
-                                />
-                            </div>
-                        );
-                    }
-                    i++;
-                }
-            } else {
-                const serviceModel: Service = model as Service;
-                serviceModel.resources.forEach((resource, i) => {
-                    resourceList.push(
-                        <ResourceAccordion
-                            key={i}
-                            rpcClient={rpcClient}
-                            resource={resource}
-                            onEditResource={handleResourceEdit}
-                            modelPosition={resource.position}
-                            onDeleteResource={onResourceDelete}
-                            goToSource={goToSource} 
-                        />
-                    );
-                });
+            const service = (ballerinaServiceModel && ballerinaServiceModel.members) ? await getService(ballerinaServiceModel, rpcClient) : model as Service;
+            if (ballerinaServiceModel) {
+                setServiceConfig(service);
             }
+            service.resources.forEach((resource, i) => {
+                resourceList.push(
+                    <ResourceAccordion
+                        key={i}
+                        rpcClient={rpcClient}
+                        resource={resource}
+                        onEditResource={handleResourceEdit}
+                        modelPosition={resource.position}
+                        onDeleteResource={onResourceDelete}
+                        goToSource={goToSource} 
+                    />
+                );
+            });
             setResources(resourceList);
         };
         fetchResources();
@@ -153,13 +143,9 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         }
     }, [model, types.length]);
 
-    const handleServiceConfig = () => {
-        // Handle service config form
-    };
-
-    const handleSave = async (content: string, config: Resource, updatePosition?: NodePosition) => {
-        if (serviceModel) {
-            const position = serviceModel.closeBraceToken.position;
+    const handleResourceFormSave = async (content: string, config: Resource, updatePosition?: NodePosition) => {
+        if (ballerinaServiceModel) {
+            const position = ballerinaServiceModel.closeBraceToken.position;
             position.endColumn = 0;
             await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source: content });
         } else {
@@ -168,62 +154,46 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
 
     const addNameRecord = async (source: string) => {
-        const position = serviceModel.closeBraceToken.position;
+        const position = ballerinaServiceModel.closeBraceToken.position;
         position.startColumn = position.endColumn;
         await rpcClient.createResource({ position: position, source });
     };
 
-    let portNumber = "";
-
-    if (serviceModel && STKindChecker.isExplicitNewExpression(serviceModel?.expressions[0])) {
-        if (
-            STKindChecker.isQualifiedNameReference(
-                serviceModel.expressions[0].typeDescriptor
-            )
-        ) {
-            // serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
-            const listeningOnText = serviceModel.expressions[0].source;
-            // Define a regular expression pattern to match the port number
-            const pattern: RegExp = /\b(\d{4})\b/;
-
-            // Use RegExp.exec to find the match in the input string
-            const match: RegExpExecArray | null = pattern.exec(listeningOnText);
-
-            // Check if a match is found and extract the port number
-            if (match && match[1]) {
-                portNumber = match[1];
-                console.log("Port Number:", portNumber);
-            }
-        }
-    }
-
     return (
         <div data-testid="service-design-view">
             <ServiceHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {servicePath} </Typography>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening on port {portNumber}</Typography>
-                <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceConfig}>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {balServiceConfig ? balServiceConfig.path : (model as Service).path } </Typography>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening on port {balServiceConfig ? balServiceConfig.port : (model as Service).port }</Typography>
+                <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
                     <Codicon name="settings-gear" />
                 </VSCodeButton>
             </ServiceHeader>
             <ResourceListHeader>
                 <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Available resources </Typography>
-                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleOnClick}>
+                <VSCodeButton appearance="primary" title="Edit Service" onClick={handleResourceFormOpen}>
                     <Codicon name="add" sx={{ marginRight: 5 }} /> Resource
                 </VSCodeButton>
             </ResourceListHeader>
             <>
                 {resources?.length > 0 ? resources : emptyView}
             </>
-            {isSidePanelOpen &&
+            {isResourceFormOpen &&
                 <ResourceForm
-                    isOpen={isSidePanelOpen}
+                    isOpen={isResourceFormOpen}
                     resourceConfig={resources?.length > 0 ? editingResource : undefined}
-                    onSave={handleSave}
-                    onClose={handleOnClose} 
+                    onSave={handleResourceFormSave}
+                    onClose={handleResourceFormClose} 
                     addNameRecord={addNameRecord}
-                    isBallerina={!!serviceModel}
+                    isBallerina={!!ballerinaServiceModel}
                     typeCompletions={types}
+                />
+            }
+            {isServiceFormOpen &&
+                <ServiceForm
+                    isOpen={isServiceFormOpen}
+                    serviceConfig={ballerinaServiceModel ? balServiceConfig : model as Service}
+                    onSave={handleServiceFormSave}
+                    onClose={handleServiceFormClose} 
                 />
             }
         </div>

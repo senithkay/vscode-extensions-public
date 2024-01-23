@@ -33,6 +33,11 @@ export interface ParameterConfig {
     isRequired?: boolean;
 }
 
+export interface ServiceData {
+    path: string;
+    port: number;
+}
+
 export interface Resource {
     method: string;
     path: string;
@@ -52,5 +57,7 @@ export interface PathConfig {
 export interface Service {
     path: string;
     port: number;
+    serviceType?: string;
     resources: Resource[];
+    position?: NodePosition;
 }

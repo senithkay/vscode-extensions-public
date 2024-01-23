@@ -10,8 +10,8 @@
 import React from "react";
 import { ServiceDesigner } from "./ServiceDesigner";
 import { Resource, Service } from "./definitions";
-import model from "./data/serviceConfig.json";
-import resourceInfo from "./data/serviceST.json";
+import serviceST from "./data/serviceConfig.json";
+import serviceModel from "./data/serviceST.json";
 import { NodePosition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 
 export default {
@@ -32,6 +32,6 @@ const goToSource = (postion: NodePosition) => {
 
 export const EmptyModel = () => <ServiceDesigner typeCompletions={typeCompletions} onResourceSave={onSave} />;
 
-export const WithServiceDeclModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={model as unknown as ServiceDeclaration} onResourceSave={onSave} />;
+export const WithServiceDeclModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={serviceModel as unknown as Service} onResourceSave={onSave} />;
 
-export const WithSampleResourceModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={resourceInfo as unknown as Service} onResourceDelete={onDeleteResource} onResourceSave={onSave} />;
+export const WithSampleResourceModel = () => <ServiceDesigner typeCompletions={typeCompletions} goToSource={goToSource} model={serviceST as unknown as ServiceDeclaration} onResourceDelete={onDeleteResource} onResourceSave={onSave} />;

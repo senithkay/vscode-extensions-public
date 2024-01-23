@@ -149,7 +149,7 @@ export function ResourceForm(props: ResourceFormProps) {
 
 					<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Parameters</Typography>
 					<ResourceParam parameters={parameters} onChange={handleParamChange} />
-					{method !== "GET" && <Payload parameter={payload} onChange={handlePayloadChange} />}
+					{method !== HTTP_METHOD.GET && <Payload parameter={payload} onChange={handlePayloadChange} />}
 					<AdvancedParamTitleWrapper>
 						<Typography sx={{ marginBlockEnd: 10 }} variant="h4">Advanced Parameters</Typography>
 						<LinkButton sx={{ marginTop: 12, marginLeft: 8 }} onClick={handleAdvanceParamToggle}> {showAdvanced ? "Hide" : "Show"} </LinkButton>
