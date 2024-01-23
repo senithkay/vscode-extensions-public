@@ -16,7 +16,7 @@ import { ObservationLabel } from "../../ObservationLabel/ObservationLabel";
 import { TooltipLabel } from "../../TooltipLabel/TooltipLabel";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { DiagramLayer } from "../../../types";
-import { SharedLink } from "../../shared-link/shared-link";
+import { SharedLink } from "../../SharedLink/SharedLink";
 
 interface WidgetProps {
     engine: DiagramEngine;

@@ -36,9 +36,9 @@ export function MIIcon(props: { styles?: CSSProperties }) {
                     gradientUnits="userSpaceOnUse"
                     gradientTransform="translate(14.0787 22.9407) scale(31.6127 80.5262)"
                 >
-                    <stop stop-color="#C8D0FF" />
-                    <stop offset="0.0001" stop-color="#B1BDFF" />
-                    <stop offset="1" stop-color="#7E8FFA" />
+                    <stop stopColor="#C8D0FF" />
+                    <stop offset="0.0001" stopColor="#B1BDFF" />
+                    <stop offset="1" stopColor="#7E8FFA" />
                 </radialGradient>
                 <clipPath id="clip0_529_26847">
                     <rect width="48" height="48" fill="white" />

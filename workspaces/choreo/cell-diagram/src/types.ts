@@ -9,6 +9,14 @@
 
 import { CellLinkModel, ComponentLinkModel, ComponentModel, ConnectionModel, EmptyModel, ExternalLinkModel, ExternalModel } from "./components";
 
+export interface Organization {
+    id: string;
+    name: string;
+    projects: Project[];
+    configurations?: Connection[];
+    modelVersion: string;
+}
+
 export interface Project {
     id: string;
     name: string;
