@@ -103,7 +103,7 @@ function generateBlockNode(node: Node): string {
         config: {
             NODE_NAME: node.name,
             INPUT_PORTS: inputPorts,
-            CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.expression : undefined,
+            CODE_BLOCK: nodeProperties?.codeBlock ? nodeProperties.codeBlock.code : undefined,
             OUTPUT_PORTS: outputPorts,
         },
     });
@@ -336,7 +336,7 @@ function generateTransformNode(node: Node): TransformNodeData {
     const metadata = getNodeMetadata(node);
 
     // create the transform_Function
-    if (!nodeProperties?.expression?.expression || metadata.isEdited) {
+    if (!nodeProperties?.expression?.expression || nodeProperties?.resetFuncBody) {
         const outputType = metadata?.outputs[0]?.type;
         const inputPortNames: string[] = [];
         const inputPortTypes: string[] = [];
@@ -376,6 +376,84 @@ function generateTransformNode(node: Node): TransformNodeData {
                 FUNCTION_NAME: transFunName,
                 PARAMETERS: functionParams,
                 FUNCTION_RETURN: functionReturn,
+            },
+        });
+
+        const transFunctionCall = getComponentSource({
+            name: "TRANSFORM_FUNCTION_CALL",
+            config: {
+                TYPE: outputType,
+                VAR_NAME: outputVar,
+                FUNCTION_NAME: transFunName,
+                PARAMETERS: funcArgs,
+            },
+        });
+
+        // generate the worker node
+        const workerNode: string = getComponentSource({
+            name: "TRANSFORM_NODE",
+            config: {
+                NODE_NAME: node.name,
+                INPUT_PORTS: inputPorts,
+                TRANSFORM_FUNCTION: transFunctionCall,
+                OUTPUT_PORTS: outputPorts,
+            },
+        });
+
+        // node with annotation
+        const completeNode = `
+            ${generateDisplayNode(node)}
+            ${workerNode}
+            `;
+
+        return {
+            transformFunction: {
+                code: transFunction,
+                location: nodeProperties?.transformFunctionLocation ? nodeProperties.transformFunctionLocation : undefined,
+            },
+            transformNode: completeNode,
+        };
+    } else if (nodeProperties?.expression?.expression && nodeProperties.updateFuncSignature){
+        const outputType = metadata?.outputs[0]?.type;
+        const inputPortNames: string[] = [];
+        const inputPortTypes: string[] = [];
+
+        if (node.inputPorts.length > 0) {
+            node.inputPorts.forEach((input) => {
+                inputPortNames.push(input.name);
+                inputPortTypes.push(input.type);
+            });
+        } else {
+            metadata?.inputs.forEach((input) => {
+                inputPortNames.push(input.name);
+                inputPortTypes.push(input.type);
+            });
+        }
+
+        const functionParams = inputPortTypes
+            .map((type, index) => {
+                return type + " " + inputPortNames[index];
+            })
+            .join(", ");
+
+        const funcArgs = inputPortNames.join(", ");
+
+        const functionReturn = getComponentSource({
+            name: "FUNCTION_RETURN",
+            config: {
+                TYPE: outputType
+            },
+        });
+
+        const transFunName = (node.name + "_transform").toLocaleLowerCase();
+
+        const transFunction = getComponentSource({
+            name: "TRANSFORM_FUNCTION_WITH_BODY",
+            config: {
+                FUNCTION_NAME: transFunName,
+                PARAMETERS: functionParams,
+                FUNCTION_RETURN: functionReturn,
+                FUNCTION_BODY: nodeProperties.transformFunctionBody?.code
             },
         });
 

@@ -11,12 +11,12 @@ import React, { useRef, useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
 import { getSelectedUnionMember, isRequiredParam } from "../../utils";
-import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 export default function UnionType(props: TypeProps) {
     const { param, depth, onChange } = props;

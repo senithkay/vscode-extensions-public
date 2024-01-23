@@ -6,10 +6,10 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Icon } from "@wso2-enterprise/ui-toolkit";
 // import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";

@@ -54,6 +54,7 @@ export interface LangServerAPI {
     getST: (params: GetSyntaxTreeParams) => Promise<GetSyntaxTreeResponse>;
     getSTByRange(params: BallerinaFunctionSTRequest): Promise<BallerinaSTModifyResponse>;
     getBallerinaProjectComponents: (params: GetBallerinaPackagesParams) => Promise<BallerinaProjectComponents>;
+    getBallerinaVersion: () => Promise<string | undefined>;
     getCompletion: (params: CompletionParams) => Promise<CompletionResponse[]>;
     getDiagnostics: (params: BallerinaProjectParams) => Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE>;
     codeAction: (params: CodeActionParams) => Promise<CodeAction[]>;

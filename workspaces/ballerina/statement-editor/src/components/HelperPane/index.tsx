@@ -10,6 +10,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 import {
     ALL_LIBS_IDENTIFIER,
@@ -33,7 +34,6 @@ import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../st
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
-import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 // import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
 
 enum TabElements {

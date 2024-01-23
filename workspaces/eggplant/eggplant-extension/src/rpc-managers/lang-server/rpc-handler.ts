@@ -36,6 +36,7 @@ import {
     didClose,
     didOpen,
     getBallerinaProjectComponents,
+    getBallerinaVersion,
     getCompletion,
     getDefinitionPosition,
     getDiagnostics,
@@ -66,6 +67,7 @@ export function registerLangServerRpcHandlers(messenger: Messenger) {
     messenger.onRequest(getST, (args: GetSyntaxTreeParams) => rpcManger.getST(args));
     messenger.onRequest(getSTByRange, (args: BallerinaFunctionSTRequest) => rpcManger.getSTByRange(args));
     messenger.onRequest(getBallerinaProjectComponents, (args: GetBallerinaPackagesParams) => rpcManger.getBallerinaProjectComponents(args));
+    messenger.onRequest(getBallerinaVersion, () => rpcManger.getBallerinaVersion());
     messenger.onRequest(getCompletion, (args: CompletionParams) => rpcManger.getCompletion(args));
     messenger.onRequest(getDiagnostics, (args: BallerinaProjectParams) => rpcManger.getDiagnostics(args));
     messenger.onRequest(codeAction, (args: CodeActionParams) => rpcManger.codeAction(args));
@@ -90,3 +92,4 @@ export function registerLangServerRpcHandlers(messenger: Messenger) {
     messenger.onNotification(didChange, (args: DidChangeTextDocumentParams) => rpcManger.didChange(args));
     messenger.onNotification(didClose, (args: DidCloseTextDocumentParams) => rpcManger.didClose(args));
 }
+

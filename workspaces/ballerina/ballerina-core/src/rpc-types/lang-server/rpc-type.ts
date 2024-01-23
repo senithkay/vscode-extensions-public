@@ -8,24 +8,20 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
-import { CodeAction, WorkspaceEdit } from "vscode-languageserver-types";
+import { WorkspaceEdit } from "vscode-languageserver-types";
 import {
     BallerinaProjectComponents,
     BallerinaProjectParams,
     BallerinaSTModifyResponse,
     CodeActionParams,
     CompletionParams,
-    CompletionResponse,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     GetBallerinaPackagesParams,
     JsonToRecordRequest,
-    JsonToRecordResponse,
-    PublishDiagnosticsParams,
     RenameParams,
     TextDocumentPositionParams,
-    NOT_SUPPORTED_TYPE,
     GetSyntaxTreeResponse,
     GetSyntaxTreeParams,
     BallerinaFunctionSTRequest,
@@ -44,7 +40,6 @@ import {
     SymbolInfoResponse
 } from "../..";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Location, LocationLink } from "vscode-languageserver-types";
 import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "lang-server";
@@ -52,6 +47,7 @@ export const getSyntaxTree: RequestType<void, STNode> = { method: `${_preFix}/ge
 export const getST: RequestType<GetSyntaxTreeParams, GetSyntaxTreeResponse> = { method: `${_preFix}/getST` };
 export const getSTByRange: RequestType<BallerinaFunctionSTRequest, BallerinaSTModifyResponse> = { method: `${_preFix}/getSTByRange` };
 export const getBallerinaProjectComponents: RequestType<GetBallerinaPackagesParams, BallerinaProjectComponents> = { method: `${_preFix}/getBallerinaProjectComponents` };
+export const getBallerinaVersion: RequestType<void, string | undefined> = { method: `${_preFix}/getBallerinaVersion` };
 export const getCompletion: NotificationType<CompletionParams> = { method: `${_preFix}/getCompletion` };
 export const getDiagnostics: NotificationType<BallerinaProjectParams> = { method: `${_preFix}/getDiagnostics` };
 export const codeAction: NotificationType<CodeActionParams> = { method: `${_preFix}/codeAction` };

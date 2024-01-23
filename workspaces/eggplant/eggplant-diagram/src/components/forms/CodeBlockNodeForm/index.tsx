@@ -114,12 +114,12 @@ export function CodeBlockNodeForm(props: OptionWidgetProps) {
             <Form.Divider />
             <TextArea
                 label="Code Block"
-                value={nodeProperties.current?.codeBlock?.expression.trim() || ""}
+                value={nodeProperties.current?.codeBlock?.code.trim() || ""}
                 rows={16}
                 resize="vertical"
                 onChange={(value: string) => {
                     if (node) {
-                        nodeProperties.current.codeBlock.expression = value;
+                        nodeProperties.current.codeBlock.code = value;
                     }
                 }}
             />
