@@ -75,7 +75,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(true);
     const [connectorList, setConnectorList] = useState<GetConnectorsResponse[]>([]);
     const [actions, setActions] = useState<any[]>([]);
-    const [connectorForm, setForm] = useState<any>();
+    const [connectorForm, setConnectorForm] = useState<any>();
     const [mediatorForm, setMediatorForm] = useState<any>();
     const [showMediators, setShowMediators] = useState<boolean>(true);
     const [showConnectors, setShowConnectors] = useState<boolean>(true);
@@ -384,8 +384,9 @@ const SidePanelList = (props: SidePanelListProps) => {
 
         if (sidePanelContext.backBtn > goBackRef.current) {
             if (connectorForm) {
-                sidePanelContext.setShowBackBtn(false);
-                setForm(undefined);
+                sidePanelContext.setShowBackBtn(true);
+                setShowMenu(false);
+                setConnectorForm(undefined);
             } else if (mediatorForm) {
                 sidePanelContext.setShowBackBtn(false);
                 setMediatorForm(undefined);
@@ -404,7 +405,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setShowMenu(true);
                 break;
             case "connector":
-                sidePanelContext.setShowBackBtn(true);
+                setMediatorForm(undefined);
+                return;
             case "endpoints":
                 setShowEndpoints(true);
                 setShowMenu(true);
@@ -469,7 +471,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     const showConnectorForm = async (connectorSchema: any) => {
         sidePanelContext.setShowBackBtn(true);
         stackRef.push("connector");
-        setForm(connectorSchema);
+        setConnectorForm(connectorSchema);
     };
 
     const MediatorList = () => {
@@ -510,7 +512,6 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     const EndpointList = () => {
-        setShowEndpoints(true);
         return endpoints.length === 0 ? <h3 style={{ textAlign: "center" }}>No endpoints found</h3> :
             <ButtonGrid>
                 {endpoints.map((endpoint) => (
