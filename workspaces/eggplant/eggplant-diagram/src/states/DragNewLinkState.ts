@@ -16,7 +16,7 @@ import {
 } from "@projectstorm/react-canvas-core";
 import { DiagramEngine, LinkModel, DragNewLinkStateOptions } from "@projectstorm/react-diagrams-core";
 import { DefaultLinkModel, DefaultNodeModel, DefaultPortModel } from "../components/default";
-import { getNodeMetadata } from "@wso2-enterprise/eggplant-core";
+import { TransformNodeProperties, getNodeMetadata } from "@wso2-enterprise/eggplant-core";
 
 export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
     port: DefaultPortModel;
@@ -67,7 +67,8 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                         if (this.port.canLinkToPort(model) && !model.hasLinks()) {
                             if (nodeModel.getKind() === "TransformNode") {
                                 const metaData = getNodeMetadata(nodeModel.getOptions().node);
-                                metaData.isEdited = true;
+                                const nodeProperties = nodeModel.getOptions().node.properties as TransformNodeProperties;
+                                nodeProperties.updateFuncSignature = true;
                                 nodeModel.getOptions().node.metadata = metaData;
                             }
                             this.link.setTargetPort(model);
@@ -90,7 +91,8 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                             }
                             if (nodeModel.getKind() === "TransformNode") {
                                 const metaData = getNodeMetadata(nodeModel.getOptions().node);
-                                metaData.isEdited = true;
+                                const nodeProperties = nodeModel.getOptions().node.properties as TransformNodeProperties;
+                                nodeProperties.updateFuncSignature = true;
                                 nodeModel.getOptions().node.metadata = metaData;
                             }
                             // create a new port and link
@@ -131,7 +133,8 @@ export class DragNewLinkState extends AbstractDisplacementState<DiagramEngine> {
                         }
                         if (model.getKind() === "TransformNode") {
                             const metaData = getNodeMetadata(model.getOptions().node);
-                            metaData.isEdited = true;
+                            const nodeProperties = model.getOptions().node.properties as TransformNodeProperties;
+                            nodeProperties.updateFuncSignature = true;
                             model.getOptions().node.metadata = metaData;
                         }
                         const availablePort = model.getAvailableInPort();

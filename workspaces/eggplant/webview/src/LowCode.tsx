@@ -36,9 +36,9 @@ const LowCode = (props: { state: MachineStateValue }) => {
     const { eggplantRpcClient } = useVisualizerContext();
     const [flowModel, setModel] = useState<Flow>(undefined);
 
-    const onModelChange = (model: Flow) => {
+    const onModelChange = async (model: Flow) => {
         if (eggplantRpcClient) {
-            eggplantRpcClient.getWebviewRpcClient().updateSource(model);
+            await eggplantRpcClient.getWebviewRpcClient().updateSource(model);
         }
     }
 
