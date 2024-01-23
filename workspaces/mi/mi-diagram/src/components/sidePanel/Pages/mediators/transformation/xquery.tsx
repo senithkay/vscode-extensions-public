@@ -9,8 +9,8 @@
 
 
 import React, { useEffect, useState } from 'react';
-import { AutoComplete, Button, ComponentCard, TextArea, TextField } from '@wso2-enterprise/ui-toolkit';
-import { VSCodeCheckbox, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
+import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise/ui-toolkit';
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
@@ -38,7 +38,7 @@ const Field = styled.div`
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
-const PayloadForm = (props: AddMediatorProps) => {
+const XQueryForm = (props: AddMediatorProps) => {
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
@@ -48,12 +48,10 @@ const PayloadForm = (props: AddMediatorProps) => {
            setFormValues({ ...formValues, ...sidePanelContext.formValues });
        } else {
            setFormValues({
-       "payload": "<inline/>",
-       "args": [] as string[][],
-       "argumentType": "Value",
-       "argumentValue": "default",
-       "evaluator": "xml",
-       "literal": false,});
+       "scriptKeyType": "Static",
+       "variables": [] as string[][],
+       "variableType": "STRING",
+       "variableOption": "LITERAL",});
        }
    }, [sidePanelContext.formValues]);
 
@@ -68,7 +66,7 @@ const PayloadForm = (props: AddMediatorProps) => {
        if (Object.keys(newErrors).length > 0) {
            setErrors(newErrors);
        } else {
-           const xml = getXML(MEDIATORS.PAYLOAD, formValues);
+           const xml = getXML(MEDIATORS.XQUERY, formValues);
            MIWebViewAPI.getInstance().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
@@ -80,16 +78,16 @@ const PayloadForm = (props: AddMediatorProps) => {
    };
 
    const formValidators: { [key: string]: (e?: any) => string | undefined } = {
-       "payloadFormat": (e?: any) => validateField("payloadFormat", e, false),
-       "mediaType": (e?: any) => validateField("mediaType", e, false),
-       "templateType": (e?: any) => validateField("templateType", e, false),
-       "payloadKey": (e?: any) => validateField("payloadKey", e, false),
-       "payload": (e?: any) => validateField("payload", e, false),
-       "argumentType": (e?: any) => validateField("argumentType", e, false),
-       "argumentValue": (e?: any) => validateField("argumentValue", e, false),
-       "argumentExpression": (e?: any) => validateField("argumentExpression", e, false),
-       "evaluator": (e?: any) => validateField("evaluator", e, false),
-       "literal": (e?: any) => validateField("literal", e, false),
+       "scriptKeyType": (e?: any) => validateField("scriptKeyType", e, false),
+       "staticScriptKey": (e?: any) => validateField("staticScriptKey", e, false),
+       "dynamicScriptKey": (e?: any) => validateField("dynamicScriptKey", e, false),
+       "targetXPath": (e?: any) => validateField("targetXPath", e, false),
+       "variableName": (e?: any) => validateField("variableName", e, false),
+       "variableType": (e?: any) => validateField("variableType", e, false),
+       "variableOption": (e?: any) => validateField("variableOption", e, false),
+       "variableLiteral": (e?: any) => validateField("variableLiteral", e, false),
+       "variableExpression": (e?: any) => validateField("variableExpression", e, false),
+       "variableKey": (e?: any) => validateField("variableKey", e, false),
        "description": (e?: any) => validateField("description", e, false),
 
    };
@@ -121,160 +119,167 @@ const PayloadForm = (props: AddMediatorProps) => {
                 <h3>Properties</h3>
 
                 <Field>
-                    <label>Payload Format</label>
-                    <AutoComplete items={["Inline", "Registry Reference"]} selectedItem={formValues["payloadFormat"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "payloadFormat": e });
-                        formValidators["payloadFormat"](e);
+                    <label>Script Key Type</label>
+                    <AutoComplete items={["Static", "Dynamic"]} selectedItem={formValues["scriptKeyType"]} onChange={(e: any) => {
+                        setFormValues({ ...formValues, "scriptKeyType": e });
+                        formValidators["scriptKeyType"](e);
                     }} />
-                    {errors["payloadFormat"] && <Error>{errors["payloadFormat"]}</Error>}
+                    {errors["scriptKeyType"] && <Error>{errors["scriptKeyType"]}</Error>}
                 </Field>
 
-                <Field>
-                    <label>Media Type</label>
-                    <AutoComplete items={["xml", "json", "text"]} selectedItem={formValues["mediaType"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "mediaType": e });
-                        formValidators["mediaType"](e);
-                    }} />
-                    {errors["mediaType"] && <Error>{errors["mediaType"]}</Error>}
-                </Field>
-
-                <Field>
-                    <label>Template Type</label>
-                    <AutoComplete items={["Default", "Freemarker"]} selectedItem={formValues["templateType"]} onChange={(e: any) => {
-                        setFormValues({ ...formValues, "templateType": e });
-                        formValidators["templateType"](e);
-                    }} />
-                    {errors["templateType"] && <Error>{errors["templateType"]}</Error>}
-                </Field>
-
-                {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "registry reference" &&
+                {formValues["scriptKeyType"] && formValues["scriptKeyType"].toLowerCase() == "static" &&
                     <Field>
                         <TextField
-                            label="Payload Key"
+                            label="Static Script Key"
                             size={50}
                             placeholder=""
-                            value={formValues["payloadKey"]}
+                            value={formValues["staticScriptKey"]}
                             onChange={(e: any) => {
-                                setFormValues({ ...formValues, "payloadKey": e });
-                                formValidators["payloadKey"](e);
+                                setFormValues({ ...formValues, "staticScriptKey": e });
+                                formValidators["staticScriptKey"](e);
                             }}
                             required={false}
                         />
-                        {errors["payloadKey"] && <Error>{errors["payloadKey"]}</Error>}
+                        {errors["staticScriptKey"] && <Error>{errors["staticScriptKey"]}</Error>}
                     </Field>
                 }
 
-                <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                    <h3>Payload</h3>
-
-                    {formValues["payloadFormat"] && formValues["payloadFormat"].toLowerCase() == "inline" &&
-                        <Field>
-                            <TextArea
-                            label="Payload"
+                {formValues["scriptKeyType"] && formValues["scriptKeyType"].toLowerCase() == "dynamic" &&
+                    <Field>
+                        <TextField
+                            label="Dynamic Script Key"
+                            size={50}
                             placeholder=""
-                            value={formValues["payload"]}
+                            value={formValues["dynamicScriptKey"]}
                             onChange={(e: any) => {
-                                setFormValues({ ...formValues, "payload": e });
-                                formValidators["payload"](e);
+                                setFormValues({ ...formValues, "dynamicScriptKey": e });
+                                formValidators["dynamicScriptKey"](e);
                             }}
                             required={false}
                         />
-                        {errors["payload"] && <Error>{errors["payload"]}</Error>}
-                        </Field>
-                    }
+                        {errors["dynamicScriptKey"] && <Error>{errors["dynamicScriptKey"]}</Error>}
+                    </Field>
+                }
+
+                <Field>
+                    <TextField
+                        label="Target XPath"
+                        size={50}
+                        placeholder=""
+                        value={formValues["targetXPath"]}
+                        onChange={(e: any) => {
+                            setFormValues({ ...formValues, "targetXPath": e });
+                            formValidators["targetXPath"](e);
+                        }}
+                        required={false}
+                    />
+                    {errors["targetXPath"] && <Error>{errors["targetXPath"]}</Error>}
+                </Field>
+
+                <ComponentCard sx={cardStyle} disbaleHoverEffect>
+                    <h3>Variables</h3>
 
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                        <h3>Args</h3>
+                        <h3>Variables</h3>
 
                             <Field>
-                                <label>Argument Type</label>
-                                <AutoComplete items={["Value", "Expression"]} selectedItem={formValues["argumentType"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "argumentType": e });
-                                    formValidators["argumentType"](e);
-                                }} />
-                                {errors["argumentType"] && <Error>{errors["argumentType"]}</Error>}
+                                <TextField
+                                    label="Variable Name"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["variableName"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "variableName": e });
+                                        formValidators["variableName"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["variableName"] && <Error>{errors["variableName"]}</Error>}
                             </Field>
 
-                            {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "value" &&
+                            <Field>
+                                <label>Variable Type</label>
+                                <AutoComplete items={["DOCUMENT", "DOCUMENT_ELEMENT", "ELEMENT", "INT", "INTEGER", "BOOLEAN", "BYTE", "DOUBLE", "SHORT", "LONG", "FLOAT", "STRING"]} selectedItem={formValues["variableType"]} onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "variableType": e });
+                                    formValidators["variableType"](e);
+                                }} />
+                                {errors["variableType"] && <Error>{errors["variableType"]}</Error>}
+                            </Field>
+
+                            <Field>
+                                <label>Variable Option</label>
+                                <AutoComplete items={["LITERAL", "EXPRESSION"]} selectedItem={formValues["variableOption"]} onChange={(e: any) => {
+                                    setFormValues({ ...formValues, "variableOption": e });
+                                    formValidators["variableOption"](e);
+                                }} />
+                                {errors["variableOption"] && <Error>{errors["variableOption"]}</Error>}
+                            </Field>
+
+                            {formValues["variableType"] && formValues["variableType"].toLowerCase() == "literal" &&
                                 <Field>
                                     <TextField
-                                        label="Argument Value"
+                                        label="Variable Literal"
                                         size={50}
                                         placeholder=""
-                                        value={formValues["argumentValue"]}
+                                        value={formValues["variableLiteral"]}
                                         onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "argumentValue": e });
-                                            formValidators["argumentValue"](e);
+                                            setFormValues({ ...formValues, "variableLiteral": e });
+                                            formValidators["variableLiteral"](e);
                                         }}
                                         required={false}
                                     />
-                                    {errors["argumentValue"] && <Error>{errors["argumentValue"]}</Error>}
+                                    {errors["variableLiteral"] && <Error>{errors["variableLiteral"]}</Error>}
                                 </Field>
                             }
 
-                            {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "expression" &&
+                            {formValues["variableType"] && formValues["variableType"].toLowerCase() == "expression" &&
                                 <Field>
                                     <TextField
-                                        label="Argument Expression"
+                                        label="Variable Expression"
                                         size={50}
                                         placeholder=""
-                                        value={formValues["argumentExpression"]}
+                                        value={formValues["variableExpression"]}
                                         onChange={(e: any) => {
-                                            setFormValues({ ...formValues, "argumentExpression": e });
-                                            formValidators["argumentExpression"](e);
+                                            setFormValues({ ...formValues, "variableExpression": e });
+                                            formValidators["variableExpression"](e);
                                         }}
                                         required={false}
                                     />
-                                    {errors["argumentExpression"] && <Error>{errors["argumentExpression"]}</Error>}
-                                </Field>
-                            }
-
-                            {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "expression" &&
-                                <Field>
-                                    <label>Evaluator</label>
-                                    <AutoComplete items={["xml", "json"]} selectedItem={formValues["evaluator"]} onChange={(e: any) => {
-                                        setFormValues({ ...formValues, "evaluator": e });
-                                        formValidators["evaluator"](e);
-                                    }} />
-                                    {errors["evaluator"] && <Error>{errors["evaluator"]}</Error>}
+                                    {errors["variableExpression"] && <Error>{errors["variableExpression"]}</Error>}
                                 </Field>
                             }
 
                             <Field>
-                                <VSCodeCheckbox type="checkbox" checked={formValues["literal"]} onChange={(e: any) => {
-                                    setFormValues({ ...formValues, "literal": e.target.checked });
-                                    formValidators["literal"](e);
-                                }
-                                }>Literal </VSCodeCheckbox>
-                                {errors["literal"] && <Error>{errors["literal"]}</Error>}
+                                <TextField
+                                    label="Variable Key"
+                                    size={50}
+                                    placeholder=""
+                                    value={formValues["variableKey"]}
+                                    onChange={(e: any) => {
+                                        setFormValues({ ...formValues, "variableKey": e });
+                                        formValidators["variableKey"](e);
+                                    }}
+                                    required={false}
+                                />
+                                {errors["variableKey"] && <Error>{errors["variableKey"]}</Error>}
                             </Field>
 
 
                     <div style={{ textAlign: "right", marginTop: "10px" }}>
-                        {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "expression" && <Button appearance="primary" onClick={() => {
-                            if (!(validateField("argumentExpression", formValues["argumentExpression"], true))) {
+                        <Button appearance="primary" onClick={() => {
+                            if (!(validateField("variableName", formValues["variableName"], true) || validateField("variableOption", formValues["variableOption"], true))) {
                                 setFormValues({
-                                    ...formValues, "argumentType": undefined, "argumentExpression": undefined,
-                                    "args": [...formValues["args"], [null, formValues["argumentType"], formValues["argumentExpression"]]]
+                                    ...formValues, "variableName": undefined, "variableOption": undefined,
+                                    "variables": [...formValues["variables"], [formValues["variableName"], formValues["variableType"], formValues["variableOption"]]]
                                 });
                             }
                         }}>
                             Add
-                        </Button>}
-                        {formValues["argumentType"] && formValues["argumentType"].toLowerCase() == "value" && <Button appearance="primary" onClick={() => {
-                            if (!(validateField("argumentValue", formValues["argumentValue"], true))) {
-                                setFormValues({
-                                    ...formValues, "argumentType": undefined, "argumentExpression": undefined,
-                                    "args": [...formValues["args"], [null, formValues["argumentType"], formValues["argumentValue"]]]
-                                });
-                            }
-                        }}>
-                            Add
-                        </Button>}
+                        </Button>
                     </div>
-                    {formValues["args"] && formValues["args"].length > 0 && (
+                    {formValues["variables"] && formValues["variables"].length > 0 && (
                         <ComponentCard sx={cardStyle} disbaleHoverEffect>
-                            <h3>Args Table</h3>
+                            <h3>Variables Table</h3>
                             <VSCodeDataGrid style={{ display: 'flex', flexDirection: 'column' }}>
                                 <VSCodeDataGridRow className="header" style={{ display: 'flex', background: 'gray' }}>
                                     <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
@@ -287,7 +292,7 @@ const PayloadForm = (props: AddMediatorProps) => {
                                         Value
                                     </VSCodeDataGridCell>
                                 </VSCodeDataGridRow>
-                                {formValues["args"].map((property: string, index: string) => (
+                                {formValues["variables"].map((property: string, index: string) => (
                                     <VSCodeDataGridRow key={index} style={{ display: 'flex' }}>
                                         <VSCodeDataGridCell key={0} style={{ flex: 1 }}>
                                             {property[0]}
@@ -337,4 +342,4 @@ const PayloadForm = (props: AddMediatorProps) => {
     );
 };
 
-export default PayloadForm; 
+export default XQueryForm; 

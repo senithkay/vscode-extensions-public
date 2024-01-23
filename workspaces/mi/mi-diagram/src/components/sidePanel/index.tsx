@@ -43,6 +43,15 @@ import TemplateEndpointForm from './Pages/endpoint/anonymous/template';
 import WSDLEndpointForm from './Pages/endpoint/anonymous/wsdl';
 import { getSVGIcon } from '../nodes/mediators/Icons';
 import { ENDPOINTS, MEDIATORS } from '../../constants';
+import DataMapperForm from './Pages/mediators/transformation/datamapper';
+import EnrichForm from './Pages/mediators/transformation/enrich';
+import FastXSLTForm from './Pages/mediators/transformation/fastXSLT';
+import FaultForm from './Pages/mediators/transformation/fault';
+import JSONTransformForm from './Pages/mediators/transformation/jsonTransform';
+import RewriteForm from './Pages/mediators/transformation/rewrite';
+import SmooksForm from './Pages/mediators/transformation/smooks';
+import XQueryForm from './Pages/mediators/transformation/xquery';
+import XSLTForm from './Pages/mediators/transformation/xslt';
 
 const ButtonGrid = styled.div`
     display: grid;
@@ -151,9 +160,54 @@ const SidePanelList = (props: SidePanelListProps) => {
         ],
         "transformation": [
             {
+                title: "Data Mapper",
+                operationName: MEDIATORS.DATAMAPPER,
+                form: <DataMapperForm nodePosition={props.nodePosition} documentUri={props.documentUri}></DataMapperForm>,
+            },
+            {
+                title: "Enrich",
+                operationName: MEDIATORS.ENRICH,
+                form: <EnrichForm nodePosition={props.nodePosition} documentUri={props.documentUri}></EnrichForm>,
+            },
+            {
+                title: "Fast XSLT",
+                operationName: MEDIATORS.FASTXSLT,
+                form: <FastXSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FastXSLTForm>,
+            },
+            {
+                title: "Fault",
+                operationName: MEDIATORS.FAULT,
+                form: <FaultForm nodePosition={props.nodePosition} documentUri={props.documentUri}></FaultForm>,
+            },
+            {
+                title: "Json Transform",
+                operationName: MEDIATORS.JSONTRANSFORM,
+                form: <JSONTransformForm nodePosition={props.nodePosition} documentUri={props.documentUri}></JSONTransformForm>,
+            },
+            {
                 title: "Payload",
                 operationName: MEDIATORS.PAYLOAD,
                 form: <PayloadForm nodePosition={props.nodePosition} documentUri={props.documentUri}></PayloadForm>,
+            },
+            {
+                title: "Rewrite",
+                operationName: MEDIATORS.REWRITE,
+                form: <RewriteForm nodePosition={props.nodePosition} documentUri={props.documentUri}></RewriteForm>,
+            },
+            {
+                title: "Smooks",
+                operationName: MEDIATORS.SMOOKS,
+                form: <SmooksForm nodePosition={props.nodePosition} documentUri={props.documentUri}></SmooksForm>,
+            },
+            {
+                title: "xquery",
+                operationName: MEDIATORS.XQUERY,
+                form: <XQueryForm nodePosition={props.nodePosition} documentUri={props.documentUri}></XQueryForm>,
+            },
+            {
+                title: "XSLT",
+                operationName: MEDIATORS.XSLT,
+                form: <XSLTForm nodePosition={props.nodePosition} documentUri={props.documentUri}></XSLTForm>,
             }
         ],
         "filter": [
