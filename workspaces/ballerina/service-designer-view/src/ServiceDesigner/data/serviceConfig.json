@@ -3,38 +3,6 @@
     "path": "api",
     "resources": [
         {
-            "advancedParams": [
-                [
-                    "Request",
-                    {
-                        "id": 0,
-                        "name": "param5",
-                        "type": "http:Request",
-                        "option": "Request",
-                        "isRequired": true
-                    }
-                ],
-                [
-                    "Header",
-                    {
-                        "id": 0,
-                        "name": "param6",
-                        "type": "http:Headers",
-                        "option": "Header",
-                        "isRequired": true
-                    }
-                ],
-                [
-                    "Caller",
-                    {
-                        "id": 0,
-                        "name": "paramcall",
-                        "type": "http:Caller",
-                        "option": "Caller",
-                        "isRequired": true
-                    }
-                ]
-            ],
             "path": "test/put",
             "method": "put",
             "params": [

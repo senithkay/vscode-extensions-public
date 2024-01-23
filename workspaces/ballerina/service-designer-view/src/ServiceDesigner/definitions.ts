@@ -47,6 +47,7 @@ export interface Resource {
     payloadConfig?: ParameterConfig;
     responses?: ResponseConfig[];
     position?: NodePosition;
+    deletePosition?: NodePosition;
 }
 
 export interface PathConfig {

@@ -17,11 +17,11 @@ import {
     DefaultLinkModel,
 } from "../components/default";
 import { OverlayLayerFactory, OverlayLayerModel } from "../components/overlay";
-import { DeleteItemsAction } from "@projectstorm/react-canvas-core";
 import { action } from "@storybook/addon-actions";
 import { Flow } from "@wso2-enterprise/eggplant-core";
 import { generateFlowModelFromDiagramModel } from "./generator";
 import { DefaultState } from "../states/DefaultState";
+import { CustomDeleteItemsAction } from "./customDeleteAction";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({ registerDefaultDeleteItemsAction: false });
@@ -33,14 +33,14 @@ export function generateEngine(): DiagramEngine {
     engine.getLayerFactories().registerFactory(new OverlayLayerFactory());
 
     // register an DeleteItemsAction with only ctrl + d or meta + d as keyCodes
-    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [68], modifiers: { ctrlKey: true } }));
-    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [68], modifiers: { metaKey: true } }));
+    engine.getActionEventBus().registerAction(new CustomDeleteItemsAction({ keyCodes: [68], modifiers: { ctrlKey: true } }));
+    engine.getActionEventBus().registerAction(new CustomDeleteItemsAction({ keyCodes: [68], modifiers: { metaKey: true } }));
     // register an DeleteItemsAction with only ctrl + backspace or meta + backspace as keyCodes
-    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { ctrlKey: true } }));
-    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [8], modifiers: { metaKey: true } }));
+    engine.getActionEventBus().registerAction(new CustomDeleteItemsAction({ keyCodes: [8], modifiers: { ctrlKey: true } }));
+    engine.getActionEventBus().registerAction(new CustomDeleteItemsAction({ keyCodes: [8], modifiers: { metaKey: true } }));
     // register an DeleteItemsAction with only ctrl + delete or meta + delete as keyCodes
-    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [46], modifiers: { ctrlKey: true } }));
-    engine.getActionEventBus().registerAction(new DeleteItemsAction({ keyCodes: [46], modifiers: { metaKey: true } }));
+    engine.getActionEventBus().registerAction(new CustomDeleteItemsAction({ keyCodes: [46], modifiers: { ctrlKey: true } }));
+    engine.getActionEventBus().registerAction(new CustomDeleteItemsAction({ keyCodes: [46], modifiers: { metaKey: true } }));
 
     // register custom state
     engine.getStateMachine().pushState(new DefaultState());

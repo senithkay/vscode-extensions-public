@@ -34,12 +34,11 @@ interface ServiceDesignerProps {
     // Callback to send the resource back to the parent component
     onResourceSave?: (resource: Resource) =>  void;
     // Callback to send the resource back to the parent component
-    onResourceDelete?: (resource: Resource) =>  void;
+    onResourceDelete?: (resource: Resource, position?: NodePosition) =>  void;
     // Callback to send the service back to the parent component
     onServiceSave?: (service: Service) =>  void;
 }
 
-// Define ResourceInfo[] as the default model
 const defaultService: Service = {
     path: "",
     port: 0,
@@ -72,7 +71,7 @@ const emptyView = (
 );
 
 export function ServiceDesigner(props: ServiceDesignerProps) {
-    const { model = defaultService, typeCompletions = [], rpcClient, goToSource, onResourceSave, onResourceDelete } = props;
+    const { model = defaultService, typeCompletions = [], rpcClient, goToSource, onResourceSave, onServiceSave, onResourceDelete } = props;
     const [resources, setResources] = useState<JSX.Element[]>([]);
 
     const [isResourceFormOpen, setResourceFormOpen] = useState<boolean>(false);
@@ -87,6 +86,7 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     }
     const [balServiceConfig, setServiceConfig] = useState<Service>(!ballerinaServiceModel ? model as Service : undefined);
 
+    // Callbacks for resource form
     const handleResourceFormClose = () => {
         setResourceFormOpen(false);
         setEditingResource(undefined);
@@ -98,7 +98,23 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         setEditingResource(resource);
         setResourceFormOpen(true);
     };
+    const handleResourceDelete = async (resource: Resource, position: NodePosition) => {
+        if (ballerinaServiceModel) {
+            rpcClient.deleteResource({ position: position });
+        }
+        onResourceDelete && onResourceDelete(resource, position);
+    };
+    const handleResourceFormSave = async (content: string, config: Resource, resourcePosition?: NodePosition) => {
+        if (ballerinaServiceModel) {
+            const position = ballerinaServiceModel.closeBraceToken.position;
+            position.endColumn = 0;
+            rpcClient.createResource({ position: resourcePosition ? resourcePosition : position, source: content });
+        } else {
+            onResourceSave && onResourceSave(config);
+        }
+    };
 
+    // Callbacks for service form
     const handleServiceEdit = () => {
         setServiceFormOpen(true);
     };
@@ -107,7 +123,11 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     };
     const handleServiceFormSave = async (service: Service) => {
         const content = updateServiceDecl({BASE_PATH: service.path, PORT: `${service.port}`, SERVICE_TYPE: "http"});
-        await rpcClient.createResource({ position: service.position, source: content });
+        if (ballerinaServiceModel) {
+            rpcClient.createResource({ position: service.position, source: content });
+        } else {
+            onServiceSave && onServiceSave(service);
+        }
     };
 
     const fetchTypes = async () => {
@@ -126,11 +146,10 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                 resourceList.push(
                     <ResourceAccordion
                         key={i}
-                        rpcClient={rpcClient}
                         resource={resource}
                         onEditResource={handleResourceEdit}
                         modelPosition={resource.position}
-                        onDeleteResource={onResourceDelete}
+                        onDeleteResource={handleResourceDelete}
                         goToSource={goToSource} 
                     />
                 );
@@ -143,20 +162,10 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
         }
     }, [model, types.length]);
 
-    const handleResourceFormSave = async (content: string, config: Resource, updatePosition?: NodePosition) => {
-        if (ballerinaServiceModel) {
-            const position = ballerinaServiceModel.closeBraceToken.position;
-            position.endColumn = 0;
-            await rpcClient.createResource({ position: updatePosition ? updatePosition : position, source: content });
-        } else {
-            onResourceSave && onResourceSave(config);
-        }
-    };
-
     const addNameRecord = async (source: string) => {
         const position = ballerinaServiceModel.closeBraceToken.position;
         position.startColumn = position.endColumn;
-        await rpcClient.createResource({ position: position, source });
+        rpcClient.createResource({ position: position, source });
     };
 
     return (

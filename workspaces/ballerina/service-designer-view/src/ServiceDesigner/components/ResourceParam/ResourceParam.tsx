@@ -138,11 +138,6 @@ export function ResourceParam(props: ResourceParamProps) {
                     </LinkButton>
                 </AddButtonWrapper>
             )}
-            {/* {(editingSegmentId !== -1) && !isEditingPram && (
-                <div>
-                    <TextPreloaderVertical position="fixedMargin" />
-                </div>
-                )} */}
         </div>
     );
 }

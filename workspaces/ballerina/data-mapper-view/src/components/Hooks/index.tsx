@@ -33,6 +33,7 @@ import { LetExpressionNode } from '../Diagram/Node/LetExpression';
 import { ModuleVariableNode } from '../Diagram/Node/ModuleVariable';
 import { EnumTypeNode } from '../Diagram/Node/EnumType';
 import { ExpandedMappingHeaderNode } from '../Diagram/Node/ExpandedMappingHeader';
+import { isDMSupported } from '../DataMapper/utils';
 
 export const useProjectComponents = (langServerRpcClient: LangServerRpcClient, fileName: string): {
     projectComponents: BallerinaProjectComponents;
@@ -174,3 +175,35 @@ export const useRepositionedNodes = (nodes: DataMapperNodeModel[]) => {
 
     return nodesClone;
 }
+
+export const useDMMetaData = (langServerRpcClient: LangServerRpcClient): {
+    ballerinaVersion: string;
+    dMSupported: boolean;
+    dMUnsupportedMessage: string;
+    isFetching: boolean;
+    isError: boolean;
+    refetch: any;
+} => {
+    const fetchDMMetaData = async () => {
+        try {
+            const ballerinaVersion = await langServerRpcClient.getBallerinaVersion();
+            const dMSupported = isDMSupported(ballerinaVersion);
+            const dMUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
+                "(swan lake)", "").trim()
+            } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
+            return { ballerinaVersion, dMSupported, dMUnsupportedMessage };
+        } catch (networkError: any) {
+            console.error('Error while fetching ballerina version', networkError);
+        }
+    };
+
+    const {
+        data: { ballerinaVersion, dMSupported, dMUnsupportedMessage } = {},
+        isFetching,
+        isError,
+        refetch,
+    } = useQuery(['fetchDMMetaData'], () => fetchDMMetaData(), {});
+
+    return { ballerinaVersion, dMSupported, dMUnsupportedMessage, isFetching, isError, refetch };
+};
+

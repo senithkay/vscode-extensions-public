@@ -12,7 +12,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { debounce } from "lodash";
 import { BodyWidget } from "./components/layout/BodyWidget";
-import { Flow } from "./types";
+import { Flow, TransformNodeProperties } from "./types";
 import {
     addDiagramListener,
     addStartNode as addDefaultNodesIfNotExists,
@@ -91,6 +91,40 @@ export function EggplantApp(props: EggplantAppProps) {
         removeOverlay(diagramEngine);
     };
 
+    const openDataMapper = () => {
+        if (!selectedNode) {
+            return (
+                <DataMapperWidget
+                    filePath={flowModel.fileName}
+                    fnLocation={tnfFnPosition}
+                    onFnChange={handleTnfFnPosition}
+                />
+            );
+        }
+        if (selectedNode.getKind() !== "TransformNode") {
+            return;
+        }
+        const nodeWithSameName = flowModel.nodes.find((node) => node.name === selectedNode.getName() && node.templateId === "TransformNode");
+        if (!nodeWithSameName) {
+            return;
+        }
+        const nodeProperties = nodeWithSameName.properties as TransformNodeProperties;
+        const tnfFnLocation = nodeProperties.transformFunctionLocation;
+        const updatedLocation = {
+            startLine: tnfFnLocation.start.line,
+            startColumn: tnfFnLocation.start.offset,
+            endLine: tnfFnLocation.end.line,
+            endColumn: tnfFnLocation.end.offset,
+        };
+        return (
+            <DataMapperWidget
+                filePath={flowModel.fileName}
+                fnLocation={updatedLocation}
+                onFnChange={handleTnfFnPosition}
+            />
+        );
+    };
+
     return (
         <>
             <QueryClientProvider client={queryClient}>
@@ -106,13 +140,7 @@ export function EggplantApp(props: EggplantAppProps) {
                                 openDataMapper={handleTnfFnPosition}
                             />
                         )}
-                        {tnfFnPosition && (
-                            <DataMapperWidget
-                                filePath={flowModel.fileName}
-                                fnLocation={tnfFnPosition}
-                                onFnChange={handleTnfFnPosition}
-                            />
-                        )}
+                        {tnfFnPosition && openDataMapper()}
                     </>
                 )}
             </QueryClientProvider>

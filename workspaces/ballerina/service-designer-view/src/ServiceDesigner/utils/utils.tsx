@@ -230,6 +230,7 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         payloadConfig: payloadConfig,
         responses: response,
         position: position,
+        deletePosition: resource.position
     };
 }
 

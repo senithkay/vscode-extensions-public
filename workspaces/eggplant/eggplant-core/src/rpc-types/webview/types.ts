@@ -77,7 +77,7 @@ export type NodeProperties = {
 };
 
 export type CodeNodeProperties = NodeProperties & {
-    codeBlock: BalExpression;
+    codeBlock: CodeBlock;
     returnVar?: string; // TODO: remove this
 };
 
@@ -90,6 +90,9 @@ export type TransformNodeProperties = NodeProperties & {
     expression: BalExpression;
     outputType: string;
     transformFunctionLocation?: CodeLocation;
+    transformFunctionBody?: CodeBlock;
+    updateFuncSignature?: boolean;
+    resetFuncBody?: boolean;
 }
 
 export type SwitchCaseBlock = {
@@ -118,6 +121,11 @@ export type Endpoint = {
 
 export type BalExpression = {
     expression: string;
+    location?: CodeLocation;
+};
+
+export type CodeBlock = {
+    code: string;
     location?: CodeLocation;
 };
 

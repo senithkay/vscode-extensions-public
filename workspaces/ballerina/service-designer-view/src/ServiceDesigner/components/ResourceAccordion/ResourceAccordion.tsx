@@ -11,7 +11,6 @@ import styled from '@emotion/styled';
 import { Codicon, Icon } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { ServiceDesignerRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
 import ConfirmDialog from '../ConfirmBox/ConfirmBox';
@@ -102,14 +101,13 @@ type MethodProp = {
 interface ResourceAccordionProps {
     resource: Resource;
     modelPosition?: NodePosition;
-    rpcClient: ServiceDesignerRpcClient;
     goToSource: (position: NodePosition) =>  void;
     onEditResource: (resourceInfo: Resource) => void;
-    onDeleteResource?: (resourceInfo: Resource) => void;
+    onDeleteResource?: (resourceInfo: Resource, position: NodePosition) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { modelPosition, resource, rpcClient, goToSource, onEditResource, onDeleteResource } = params;
+    const { modelPosition, resource, goToSource, onEditResource, onDeleteResource } = params;
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = () => {
@@ -152,11 +150,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleConfirm = async () => {
         // Handle confirmation logic
-        if (onDeleteResource) {
-            onDeleteResource(resource);
-        } else {
-            await rpcClient.deleteResource({ position: modelPosition });
-        }
+        onDeleteResource && onDeleteResource(resource, resource?.deletePosition);
         setConfirmOpen(false);
     };
 
