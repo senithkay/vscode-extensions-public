@@ -24,13 +24,14 @@ import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-
 import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateTryIt } from './tryIt/tryit';
 import { activate as activateNotebook } from './notebook';
-import { activate as activateLibraryBrowser } from './library-browser';
+import { DIST_LIB_LIST_CACHE, LANG_LIB_LIST_CACHE, LIBRARY_SEARCH_CACHE, STD_LIB_LIST_CACHE, activate as activateLibraryBrowser, cachedLibrariesList, cachedSearchList, getAllResources, getLibrariesList } from './library-browser';
 import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, handleResolveMissingDependencies, log } from './utils';
 import { activateUriHandlers } from './uri-handlers';
 import { startMachine } from './visualizer/activator';
 import { activateSubscriptions } from './visualizer/subscription';
+import { LibraryKind } from '@wso2-enterprise/ballerina-core';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -156,6 +157,36 @@ export async function activateBallerina(context: ExtensionContext): Promise<Ball
         handleResolveMissingDependencies(ballerinaExtInstance);
     });
     return ballerinaExtInstance;
+}
+
+export function fetchAndCacheLibraryData() {
+    // Cache the lang lib list
+	getLibrariesList(LibraryKind.langLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(LANG_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the std lib list
+	getLibrariesList(LibraryKind.stdLib).then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(STD_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the distribution lib list (lang libs + std libs)
+	getLibrariesList().then((libs) => {
+		if (libs && libs.librariesList.length > 0) {
+			cachedLibrariesList.set(DIST_LIB_LIST_CACHE, libs);
+		}
+	});
+
+	// Cache the library search data
+	getAllResources().then((data) => {
+		if (data && data.modules.length > 0) {
+			cachedSearchList.set(LIBRARY_SEARCH_CACHE, data);
+		}
+	});
 }
 
 export function deactivate(): Thenable<void> | undefined {

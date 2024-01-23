@@ -3,7 +3,7 @@ import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from '../core';
 import { ExtensionContext, ViewColumn, WebviewPanel, window } from 'vscode';
 import { createMachine, assign, interpret } from 'xstate';
 import { getCommonWebViewOptions } from '../utils';
-import { activateBallerina } from '../extension';
+import { activateBallerina, fetchAndCacheLibraryData } from '../extension';
 import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 import { RPCLayer } from './webRPCRegister';
 import { render } from './renderer';
@@ -40,6 +40,7 @@ function activateLanguageServer(): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         // wait for ls to be started
         balExtContext = await activateBallerina(vsContext);
+        fetchAndCacheLibraryData();
         resolve();
     });
 }
