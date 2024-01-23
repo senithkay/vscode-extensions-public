@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { window } from 'vscode';
 import { registerNewLSMethods } from './utils/lang-client';
+import { activateLibraryBrowser } from './LibraryBrowser/activate';
 
 interface Context extends VisualizerLocation {
     langServer: LangClientInterface | null;
@@ -128,11 +129,13 @@ const stateMachine = createMachine<Context>({
                     if (!ballerinaExt.isActive) {
                         ballerinaExt.activate().then(() => {
                             resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
+                            activateLibraryBrowser();
                         }, error => {
                             reject('BE_ACTIVATION_FAILED');
                         });
                     } else {
                         resolve(registerNewLSMethods(ballerinaExt.exports.langClient));
+                        activateLibraryBrowser();
                     }
                 }
             });

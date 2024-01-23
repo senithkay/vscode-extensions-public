@@ -36,6 +36,7 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
     const { data, isFetching } = useSyntaxTreeFromRange(fnLocation , filePath, rerender);
     const { eggplantRpcClient, viewLocation } = useVisualizerContext();
     const langServerRpcClient = eggplantRpcClient.getLangServerRpcClient();
+    const libraryBrowserRpcClient = eggplantRpcClient.getLibraryBrowserRpcClient();
     const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
     const [filePosition, setFilePosition] = useState<NodePosition>(null);
 
@@ -97,6 +98,7 @@ export function DataMapperWidget(props: DataMapperWidgetProps) {
                     fnST={syntaxTree}
                     filePath={filePath}
                     langServerRpcClient={langServerRpcClient}
+                    libraryBrowserRpcClient={libraryBrowserRpcClient}
                     applyModifications={applyModifications}
                     onClose={closeDataMapper}
                 />

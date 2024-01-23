@@ -3,10 +3,11 @@ import { BallerinaExtension, ExtendedLangClient, LANGUAGE } from '../core';
 import { ExtensionContext, ViewColumn, WebviewPanel, window } from 'vscode';
 import { createMachine, assign, interpret } from 'xstate';
 import { getCommonWebViewOptions } from '../utils';
-import { activateBallerina, fetchAndCacheLibraryData } from '../extension';
+import { activateBallerina } from '../extension';
 import { VisualizerLocationContext } from "@wso2-enterprise/ballerina-core";
 import { RPCLayer } from './webRPCRegister';
 import { render } from './renderer';
+import { fetchAndCacheLibraryData } from '../library-browser';
 
 
 let webViewPanel: WebviewPanel | undefined;

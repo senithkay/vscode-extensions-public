@@ -1,21 +1,24 @@
-/**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
+/*
+ *  Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
  */
 
 import https from "https";
-import { debug } from "../utils";
-import { BallerinaExtension } from "../core";
 import {
 	LibraryDataResponse,
 	LibraryDocResponse,
 	LibraryKind,
 	LibrarySearchResponse
 } from '@wso2-enterprise/ballerina-core';
+import { extensions } from "vscode";
 
 export const cachedLibrariesList = new Map<string, LibraryDocResponse>();
 export const cachedSearchList = new Map<string, LibrarySearchResponse>();
@@ -38,14 +41,17 @@ const DOC_API_PATH = '/2.0/docs';
 let LibrariesListEndpoint = DOC_API_PATH + '/stdlib/' + balVersion;
 let LibrariesSearchEndpoint = LibrariesListEndpoint + '/search';
 
-export function activate(ballerinaExtInstance: BallerinaExtension) {
-    const balHome = ballerinaExtInstance.getBallerinaHome();
+export function activateLibraryBrowser() {
+    const balExtContext = extensions.getExtension('wso2.ballerina');
+    const balHome = balExtContext?.exports.getBallerinaHome();
     const match = BAL_VERSION_CAPTURING_REGEXP.exec(balHome);
     if (match) {
-        [, balVersion] = match;
+        // TODO: Use below line once central APIs are updated for eggplant compaible ballerina version.
+        // [, balVersion] = match;
         LibrariesListEndpoint = DOC_API_PATH + '/stdlib/' + balVersion;
         LibrariesSearchEndpoint = LibrariesListEndpoint + '/search';
     }
+    fetchAndCacheLibraryData();
 }
 
 export function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse | undefined> {
@@ -68,7 +74,7 @@ export function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse
 
             res.on('end',function(){
                 if (res.statusCode !== 200) {
-                    debug('Failed to fetch the libraries list');
+                    console.log('Failed to fetch the libraries list');
                     return null;
                 } else {
                     let responseJson;
@@ -89,7 +95,7 @@ export function getLibrariesList(kind?: LibraryKind): Promise<LibraryDocResponse
         });
 
         req.on('error', error => {
-            debug(error.message);
+            console.log(error.message);
             reject();
         });
 
@@ -113,7 +119,7 @@ export function getAllResources(): Promise<LibrarySearchResponse | undefined> {
 
             res.on('end',function(){
                 if (res.statusCode !== 200) {
-                    debug('Failed to fetch the library data');
+                    console.log('Failed to fetch the library data');
                     return null;
                 } else {
                     return resolve(JSON.parse(body));
@@ -122,7 +128,7 @@ export function getAllResources(): Promise<LibrarySearchResponse | undefined> {
         });
 
         req.on('error', error => {
-            debug(error.message);
+            console.log(error.message);
             reject();
         });
 
@@ -147,7 +153,7 @@ export function getLibraryData(orgName: string, moduleName: string, version: str
 
             res.on('end',function(){
                 if (res.statusCode !== 200) {
-                    debug(`Failed to fetch the library data for ${orgName}:${moduleName}`);
+                    console.log(`Failed to fetch the library data for ${orgName}:${moduleName}`);
                     return null;
                 } else {
                     const libraryData = JSON.parse(body);
@@ -158,7 +164,7 @@ export function getLibraryData(orgName: string, moduleName: string, version: str
         });
 
         req.on('error', error => {
-            debug(error.message);
+            console.log(error.message);
             reject();
         });
 
