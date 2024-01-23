@@ -10,6 +10,7 @@ const DiagramPanel = (props: { state: MachineStateValue }) => {
     const [documentUri, setDocumentUri] = useState<string>("");
 
     useEffect(() => {
+        setDocumentUri("");
         if (typeof state === 'object' && 'ready' in state && state.ready === 'viewReady') {
             try {
                 rpcClient.getVisualizerState().then((vState: any) => {

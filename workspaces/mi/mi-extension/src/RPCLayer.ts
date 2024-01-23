@@ -13,6 +13,7 @@ import { StateMachine } from './stateMachine';
 import { stateChanged, getVisualizerState, VisualizerLocation } from '@wso2-enterprise/mi-core';
 import { State } from 'xstate';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
+import { VisualizerWebview } from './visualizer/webview';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -20,9 +21,9 @@ export class RPCLayer {
     constructor(webViewPanel: WebviewPanel | WebviewView) {
         RPCLayer._messenger = new Messenger();
         if (isWebviewPanel(webViewPanel)) {
-            const aa = RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
+            RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {
-                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, state.value);
+                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: VisualizerWebview.viewType }, state.value);
             });
         } else {
             RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
