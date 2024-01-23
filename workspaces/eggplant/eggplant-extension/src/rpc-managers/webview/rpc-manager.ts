@@ -92,7 +92,7 @@ export class WebviewRpcManager implements WebviewAPI {
 
         }
 
-        
+
         return langClient.getEggplantModel(params).then((model) => {
             console.log("===BackEndModel", model);
             //@ts-ignore
@@ -154,117 +154,123 @@ export class WebviewRpcManager implements WebviewAPI {
 
     async updateSource(flowModel: Flow): Promise<void> {
         return new Promise(async (resolve) => {
-        const context = StateMachine.context();
-        const code: CodeGeneartionData = workerCodeGen(flowModel);
+            const context = StateMachine.context();
+            const code: CodeGeneartionData = workerCodeGen(flowModel);
 
-        const langClient = context.langServer as LangClientInterface;
+            const langClient = context.langServer as LangClientInterface;
 
-        const modificationList: STModification[] = [];
-
-        const modification: STModification = {
-            startLine: flowModel.bodyCodeLocation?.start.line,
-            startColumn: flowModel.bodyCodeLocation?.start.offset,
-            endLine: flowModel.bodyCodeLocation?.end.line,
-            endColumn: flowModel.bodyCodeLocation?.end.offset,
-            type: "INSERT",
-            isImport: false,
-            config: {
-                "STATEMENT": code.workerBlocks
-            }
-        };
-
-        modificationList.push(modification);
-
-        if (code.transformFunctions && code.transformFunctions.length > 0) {
-            code.transformFunctions.forEach((transformFunction) => {
+            const modificationList: STModification[] = [];
 
             const modification: STModification = {
-                startLine: transformFunction.location ? transformFunction.location.start.line : flowModel.fileSourceRange?.end.line,
-                startColumn: transformFunction.location ? transformFunction.location.start.offset : flowModel.fileSourceRange?.end.offset,
-                endLine: transformFunction.location ? transformFunction.location.end.line : flowModel.fileSourceRange?.end.line,
-                endColumn: transformFunction.location ? transformFunction.location.end.offset : flowModel.fileSourceRange?.end.offset,
+                startLine: flowModel.bodyCodeLocation?.start.line,
+                startColumn: flowModel.bodyCodeLocation?.start.offset,
+                endLine: flowModel.bodyCodeLocation?.end.line,
+                endColumn: flowModel.bodyCodeLocation?.end.offset,
                 type: "INSERT",
                 isImport: false,
                 config: {
-                    "STATEMENT": transformFunction.code
+                    "STATEMENT": code.workerBlocks
                 }
             };
 
             modificationList.push(modification);
-        });
+
+            if (code.transformFunctions && code.transformFunctions.length > 0) {
+                code.transformFunctions.forEach((transformFunction) => {
+
+                    const modification: STModification = {
+                        startLine: transformFunction.location ? transformFunction.location.start.line : flowModel.fileSourceRange?.end.line,
+                        startColumn: transformFunction.location ? transformFunction.location.start.offset : flowModel.fileSourceRange?.end.offset,
+                        endLine: transformFunction.location ? transformFunction.location.end.line : flowModel.fileSourceRange?.end.line,
+                        endColumn: transformFunction.location ? transformFunction.location.end.offset : flowModel.fileSourceRange?.end.offset,
+                        type: "INSERT",
+                        isImport: false,
+                        config: {
+                            "STATEMENT": transformFunction.code
+                        }
+                    };
+
+                    modificationList.push(modification);
+                });
+
+                // TODO: Remove this logic once verified with the LS team
+                // const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+                //     documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
+                //     astModifications: [modification]
+                // });
+
+                // if (parseSuccess) {
+                //     writeFileSync(flowModel.fileName, source);
+                //     await langClient.didChange({
+                //         textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
+                //         contentChanges: [
+                //             {
+                //                 text: source
+                //             }
+                //         ],
+                //     });
+                // }
+            }
 
             // TODO: Remove this logic once verified with the LS team
-            // const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
-            //     documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
-            //     astModifications: [modification]
-            // });
+            // const modification: STModification = {
+            //     startLine: flowModel.bodyCodeLocation?.start.line,
+            //     startColumn: flowModel.bodyCodeLocation?.start.offset,
+            //     endLine: flowModel.bodyCodeLocation?.end.line,
+            //     endColumn: flowModel.bodyCodeLocation?.end.offset,
+            //     type: "INSERT",
+            //     isImport: false,
+            //     config: {
+            //         "STATEMENT": code.workerBlocks
+            //     }
+            // };
 
-            // if (parseSuccess) {
-            //     writeFileSync(flowModel.fileName, source);
-            //     await langClient.didChange({
-            //         textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
-            //         contentChanges: [
-            //             {
-            //                 text: source
-            //             }
-            //         ],
-            //     });
-            // }
-        }
+            // modificationList.push(modification);
 
-        // TODO: Remove this logic once verified with the LS team
-        // const modification: STModification = {
-        //     startLine: flowModel.bodyCodeLocation?.start.line,
-        //     startColumn: flowModel.bodyCodeLocation?.start.offset,
-        //     endLine: flowModel.bodyCodeLocation?.end.line,
-        //     endColumn: flowModel.bodyCodeLocation?.end.offset,
-        //     type: "INSERT",
-        //     isImport: false,
-        //     config: {
-        //         "STATEMENT": code.workerBlocks
-        //     }
-        // };
-
-        // modificationList.push(modification);
-
-        const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
-            documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
-            astModifications: modificationList
-        });
-
-        if (parseSuccess) {
-            writeFileSync(flowModel.fileName, source);
-            await langClient.didChange({
-                textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
-                contentChanges: [
-                    {
-                        text: source
-                    }
-                ],
+            const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
+                documentIdentifier: { uri: Uri.file(flowModel.fileName).toString() },
+                astModifications: modificationList
             });
 
+            if (parseSuccess) {
+                writeFileSync(flowModel.fileName, source);
+                await langClient.didChange({
+                    textDocument: { uri: Uri.file(flowModel.fileName).toString(), version: 1 },
+                    contentChanges: [
+                        {
+                            text: source
+                        }
+                    ],
+                });
 
-            const st = newST as ModulePart;
-            outerLoop: for (const member of st.members) {
-                if (STKindChecker.isServiceDeclaration(member)) {
-                    const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
-                    for (const resource of member.members) {
-                        if (STKindChecker.isResourceAccessorDefinition(resource)) {
-                            let resourcePath = "";
-                            resource.relativeResourcePath?.forEach((res: any) => {
-                                resourcePath += res.source ? res.source : res.value;
-                            })
-                            const identifier = service + `/${resource.functionName.value}/${resourcePath}`;
-                            if (identifier === context.identifier) {
-                                openView({ position: resource.position });
-                                break outerLoop;  // Break out of the inner loop
+
+                const st = newST as ModulePart;
+                outerLoop: for (const member of st.members) {
+                    if (STKindChecker.isServiceDeclaration(member)) {
+                        const service = member.absoluteResourcePath.reduce((result, obj) => result + obj.value, "");
+                        for (const resource of member.members) {
+                            if (STKindChecker.isResourceAccessorDefinition(resource)) {
+                                let resourcePath = "";
+                                resource.relativeResourcePath?.forEach((res: any) => {
+                                    resourcePath += res.source ? res.source : res.value;
+                                })
+                                const identifier = service + `/${resource.functionName.value}/${resourcePath}`;
+                                if (identifier === context.identifier) {
+                                    openView({ position: resource.position });
+                                    break outerLoop;  // Break out of the inner loop
+                                }
                             }
+                        }
+                    } else if (STKindChecker.isFunctionDefinition(member)) {
+                        const identifier = member.functionName.value;
+                        if (identifier === context.identifier) {
+                            openView({ position: member.position });
+                            break outerLoop;
                         }
                     }
                 }
             }
-        }
-        resolve();
+            resolve();
         });
     }
 
