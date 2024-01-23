@@ -16,13 +16,14 @@ import { extension } from '../MIExtensionContext';
 import { onRefresh } from '@wso2-enterprise/mi-core';
 import { debounce } from 'lodash';
 
-export class DiagramWebview {
-    public static currentPanel: DiagramWebview | undefined;
+export class VisualizerWebview {
+    public static currentPanel: VisualizerWebview | undefined;
+	public static readonly viewType = 'integration-studio.visualizer';
     private _panel: vscode.WebviewPanel | undefined;
     private _disposables: vscode.Disposable[] = [];
 
     constructor() {
-        this._panel = DiagramWebview.createWebview();
+        this._panel = VisualizerWebview.createWebview();
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
@@ -30,7 +31,7 @@ export class DiagramWebview {
         // Handle the text change and diagram update with rpc notification
         const refreshDiagram = debounce(() => {
             if (this.getWebview()) {
-                RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: 'visualizer' });
+                RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: VisualizerWebview.viewType });
             }
         }, 500);
 
@@ -41,7 +42,7 @@ export class DiagramWebview {
 
     private static createWebview(): vscode.WebviewPanel {
         const panel = vscode.window.createWebviewPanel(
-            'visualizer',
+            VisualizerWebview.viewType,
             'Integration Studio',
             ViewColumn.Two,
             {
@@ -95,7 +96,7 @@ export class DiagramWebview {
     }
 
     public dispose() {
-        DiagramWebview.currentPanel = undefined;
+        VisualizerWebview.currentPanel = undefined;
         this._panel?.dispose();
 
         while (this._disposables.length) {

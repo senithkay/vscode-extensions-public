@@ -37,16 +37,30 @@ export function Visualizer({ mode }: { mode: string }) {
                 switch (mode) {
                     case "visualizer":
                         return <VisualizerComponent state={state}/>
+                    case "activityPanel":
+                        return <ActivityPanelComponent state={state}/>
                 }
             })()}
         </>
     );
 };
 
-const VisualizerComponent = ({ state }: { state: MachineStateValue }) => {
+const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state:
             return <DiagramPanel state={state} />;
+            // return <OverviewPanel state={state} />;
+        case typeof state === 'object' && 'newProject' in state:
+            return <GettingStartedPanel state={state} />;
+        default:
+            return <h1>LOADING</h1>;
+    }
+});
+
+const ActivityPanelComponent = ({ state }: { state: MachineStateValue }) => {
+    switch (true) {
+        case typeof state === 'object' && 'ready' in state:
+            return <GettingStartedPanel state={state} />;
             // return <OverviewPanel state={state} />;
         case typeof state === 'object' && 'newProject' in state:
             return <GettingStartedPanel state={state} />;

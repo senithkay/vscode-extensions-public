@@ -8,19 +8,19 @@
  */
 
 import * as vscode from 'vscode';
-import { DiagramWebview } from './webview';
+import { VisualizerWebview } from './webview';
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
-    if (!DiagramWebview.currentPanel) {
-        DiagramWebview.currentPanel = new DiagramWebview();
+    if (!VisualizerWebview.currentPanel) {
+        VisualizerWebview.currentPanel = new VisualizerWebview();
     }
 
     context.subscriptions.push(
         vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
-            if (!DiagramWebview.currentPanel) {
-                DiagramWebview.currentPanel = new DiagramWebview();
+            if (!VisualizerWebview.currentPanel) {
+                VisualizerWebview.currentPanel = new VisualizerWebview();
             }
-            DiagramWebview.currentPanel!.getWebview()?.reveal();
+            VisualizerWebview.currentPanel!.getWebview()?.reveal();
         })
     );
 }
