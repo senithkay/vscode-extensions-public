@@ -12,7 +12,7 @@ import { Messenger } from 'vscode-messenger';
 import { registerWebviewRpcHandlers } from './rpc-managers/webview/rpc-handler';
 import { StateMachine } from './stateMachine';
 import { stateChanged } from '@wso2-enterprise/eggplant-core';
-import { registerLangServerRpcHandlers } from './rpc-managers/langServer/rpc-handler';
+import { registerLangServerRpcHandlers } from './rpc-managers/lang-server/rpc-handler';
 import { registerServiceDesignerRpcHandlers } from './rpc-managers/service-designer/rpc-handler';
 
 export class RPCLayer {

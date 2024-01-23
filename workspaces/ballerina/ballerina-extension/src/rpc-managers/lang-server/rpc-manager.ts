@@ -41,7 +41,7 @@ import {
     InsertorDelete
 } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { getLangClient, getService} from "../../visualizer/activator";
+import { getBallerinaVersion, getLangClient, getService} from "../../visualizer/activator";
 import { URI } from "vscode-uri";
 import { getSyntaxTreeFromPosition } from "../../utils/navigation";
 import { Position, Range, WorkspaceEdit, workspace } from "vscode";
@@ -208,4 +208,9 @@ export class LangServerRpcManager implements LangServerAPI {
     async didClose(params: DidCloseTextDocumentParams): Promise<void> {
         return this._langClient.didClose(params);
     }
+
+    async getBallerinaVersion(): Promise<string | undefined> {
+        return getBallerinaVersion();
+    }
 }
+

@@ -40,7 +40,7 @@ import {
     InsertorDelete
 } from "@wso2-enterprise/ballerina-core";
 import { URI } from "vscode-uri";
-import { Position, Range, WorkspaceEdit, workspace } from "vscode";
+import { Position, Range, WorkspaceEdit, extensions, workspace } from "vscode";
 import { CodeAction, WorkspaceEdit as WorkspaceEditType, Location, LocationLink } from "vscode-languageserver-types";
 import { writeFileSync } from 'fs';
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -222,4 +222,10 @@ export class LangServerRpcManager implements LangServerAPI {
         const langClient = stateService.getSnapshot().context.langServer as LangClientInterface;
         return langClient.didClose(params);
     }
+
+    async getBallerinaVersion(): Promise<string | undefined> {
+        const balExtContext = extensions.getExtension('wso2.ballerina');
+        return Promise.resolve(balExtContext?.exports.ballerinaVersion);
+    }
 }
+
