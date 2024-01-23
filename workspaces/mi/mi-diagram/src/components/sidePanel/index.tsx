@@ -83,6 +83,10 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [showMenu, setShowMenu] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>("mediators");
 
+    function isEqualOperationName(operationName: String): unknown {
+        return operationName && sidePanelContext.operationName && operationName.toLowerCase() === sidePanelContext.operationName.toLowerCase();
+    }
+
     const goBackRef = useRef(0);
 
     let mediators = {
@@ -343,22 +347,22 @@ const SidePanelList = (props: SidePanelListProps) => {
         let form;
         if (sidePanelContext.isEditing) {
             for (const key in mediators) {
-                form = mediators[key as keyof typeof mediators].find((mediator) => mediator.operationName === sidePanelContext.operationName);
+                form = mediators[key as keyof typeof mediators].find((mediator) => isEqualOperationName(mediator.operationName));
                 if (form) break;
             }
-            if (!form) form = endpoints.find((mediator) => mediator.operationName === sidePanelContext.operationName);
-    
+            if (!form) form = endpoints.find((mediator) => isEqualOperationName(mediator.operationName));
+
             if (form) {
                 setShowMenu(false);
                 setMediatorForm(form.form);
                 return;
             }
         } else {
-            const mediator = mediatorRulesOnPlus.find(m => m.name === sidePanelContext.operationName);
+            const mediator = mediatorRulesOnPlus.find((mediator) => isEqualOperationName(mediator.name));
 
             // If the mediator is found
             if (mediator) {
-                if (mediator.exception){
+                if (mediator.exception) {
                     const filteredMediators: MediatorsType = {
                         core: [],
                         transformation: [],
@@ -374,7 +378,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 // Set the states based on the operations array
                 setShowMediators(mediator.operations.includes("mediators"));
                 setShowConnectors(mediator.operations.includes("connectors"));
-                setShowEndpoints(mediator.operations.includes("endpoints"));                
+                setShowEndpoints(mediator.operations.includes("endpoints"));
             }
         }
 
@@ -389,7 +393,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setActions([]);
             }
         }
-        
+
         switch (stackRef.pop()) {
             case "mediators":
                 setShowMediators(true);
@@ -400,7 +404,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setShowMenu(true);
                 break;
             case "connector":
-                sidePanelContext.setShowBackBtn(true);    
+                sidePanelContext.setShowBackBtn(true);
             case "endpoints":
                 setShowEndpoints(true);
                 setShowMenu(true);
@@ -538,25 +542,25 @@ const SidePanelList = (props: SidePanelListProps) => {
                 padding: "10px",
             }}>
                 {showMenu && <VSCodePanels aria-label="Default" activeid={activeTab}>
-                    <VSCodePanelTab id="mediators" onClick={(e: any) => { setActiveTab(e.target.id) }}>Mediators</VSCodePanelTab>
-                    <VSCodePanelTab id="connectors" onClick={(e: any) => { setActiveTab(e.target.id) }}>Connectors</VSCodePanelTab>
-                    <VSCodePanelTab id="endpoints" onClick={(e: any) => { setActiveTab(e.target.id) }}>Endpoints</VSCodePanelTab>
+                    {showConnectors && <VSCodePanelTab id="mediators" onClick={(e: any) => { setActiveTab(e.target.id) }}>Mediators</VSCodePanelTab>}
+                    {showConnectors && <VSCodePanelTab id="connectors" onClick={(e: any) => { setActiveTab(e.target.id) }}>Connectors</VSCodePanelTab>}
+                    {showEndpoints && <VSCodePanelTab id="endpoints" onClick={(e: any) => { setActiveTab(e.target.id) }}>Endpoints</VSCodePanelTab>}
 
-                    {showConnectors && <VSCodePanelView id="view-1">
+                    {showMediators && <VSCodePanelView id="mediators">
                         <div style={{ "width": "100%" }}>
-                            {showMediators && <MediatorList />}
+                            <MediatorList />
                         </div>
                     </VSCodePanelView>}
 
-                    {showConnectors && <VSCodePanelView id="view-2">
+                    {showConnectors && <VSCodePanelView id="connectors">
                         <div style={{ "width": "100%" }}>
-                            {showConnectors && <ConnectorList />}
+                            <ConnectorList />
                         </div>
                     </VSCodePanelView>}
 
-                    {showEndpoints && <VSCodePanelView id="view-3">
+                    {showEndpoints && <VSCodePanelView id="endpoints">
                         <div style={{ "width": "100%" }}>
-                             <EndpointList />
+                            <EndpointList />
                         </div>
                     </VSCodePanelView>}
                 </VSCodePanels>}
