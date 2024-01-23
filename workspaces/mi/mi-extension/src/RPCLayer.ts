@@ -15,9 +15,10 @@ import { State } from 'xstate';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 
 export class RPCLayer {
-    static _messenger: Messenger = new Messenger();
+    static _messenger: Messenger;
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
+        RPCLayer._messenger = new Messenger();
         if (isWebviewPanel(webViewPanel)) {
             const aa = RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
             StateMachine.service().onTransition((state) => {

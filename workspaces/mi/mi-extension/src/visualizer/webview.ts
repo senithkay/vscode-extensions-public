@@ -46,7 +46,8 @@ export class DiagramWebview {
             ViewColumn.Two,
             {
                 enableScripts: true,
-                localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))]
+                localResourceRoots: [Uri.file(path.join(extension.context.extensionPath, 'resources'))],
+                retainContextWhenHidden: true,
             }
         );
         return panel;
