@@ -36,7 +36,6 @@ import {
     getSyntaxTree,
     openDiagram,
     openFile,
-    refresh,
     showErrorMessage,
 } from "@wso2-enterprise/mi-core";
 import { Messenger } from "vscode-messenger";
@@ -61,6 +60,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
     messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
-    messenger.onNotification(refresh, () => rpcManger.refresh());
     messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
 }

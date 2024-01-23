@@ -27,6 +27,6 @@ export interface MiDiagramAPI {
     openDiagram: (params: OpenDiagramRequest) => void;
     openFile: (params: OpenDiagramRequest) => void;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
-    refresh: () => void;
+    onRefresh: (callback: () => void) => void;
     closeWebViewNotification: () => void;
 }

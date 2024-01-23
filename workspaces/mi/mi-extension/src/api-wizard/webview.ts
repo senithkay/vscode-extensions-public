@@ -10,7 +10,7 @@
 import * as path from 'path';
 // import { RegisterWebViewPanelRpc } from '../WebviewRPC';
 import { ExtensionContext, Uri, ViewColumn, Webview, WebviewPanel, window, workspace } from 'vscode';
-import { refresh } from '@wso2-enterprise/mi-core';
+import { onRefresh } from '@wso2-enterprise/mi-core';
 import { debounce } from "lodash";
 import { getComposerJSFiles } from '../util';
 

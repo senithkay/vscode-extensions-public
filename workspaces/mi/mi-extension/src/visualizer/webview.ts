@@ -13,6 +13,8 @@ import { Uri, ViewColumn } from 'vscode';
 import { getComposerJSFiles } from '../util';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../MIExtensionContext';
+import { onRefresh } from '@wso2-enterprise/mi-core';
+import { debounce } from 'lodash';
 
 export class DiagramWebview {
     public static currentPanel: DiagramWebview | undefined;
@@ -25,20 +27,16 @@ export class DiagramWebview {
         this._panel.webview.html = this.getWebviewContent(this._panel.webview);
         RPCLayer.create(this._panel);
 
+        // Handle the text change and diagram update with rpc notification
+        const refreshDiagram = debounce(() => {
+            if (this.getWebview()) {
+                RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: 'visualizer' });
+            }
+        }, 500);
 
-        // TODO: Handle the text change and diagram update
-        // const rpc = new RegisterWebViewPanelRpc(context, panel);
-
-        // const refreshDiagram = debounce(() => {
-        //     if (diagramWebview) {
-        //         rpc.getMessenger().sendNotification(Refresh, { type: 'webview', webviewType: 'diagram' });
-        //     }
-        // }, 500);
-
-
-        // workspace.onDidChangeTextDocument(function () {
-        //     refreshDiagram();
-        // }, context);
+        vscode.workspace.onDidChangeTextDocument(function () {
+            refreshDiagram();
+        }, extension.context);
     }
 
     private static createWebview(): vscode.WebviewPanel {

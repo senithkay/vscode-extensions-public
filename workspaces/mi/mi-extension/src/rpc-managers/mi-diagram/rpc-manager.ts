@@ -407,4 +407,9 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         // ADD YOUR IMPLEMENTATION HERE
         throw new Error('Not implemented');
     }
+
+    onRefresh(callback: () => void): void {
+         // USE THE RPC METHOD TO BROADCAST NOTIFICATIONS TO WEBVIEW
+         // EX: RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: 'visualizer' });
+    }
 }

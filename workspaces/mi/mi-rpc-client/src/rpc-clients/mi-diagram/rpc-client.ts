@@ -48,9 +48,9 @@ import {
     getSTResponse,
     getSequenceDirectory,
     getSyntaxTree,
+    onRefresh,
     openDiagram,
     openFile,
-    refresh,
     showErrorMessage
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
@@ -131,8 +131,8 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
     }
 
-    refresh(): void {
-        return this._messenger.sendNotification(refresh, HOST_EXTENSION);
+    onRefresh(callback: () => void): void {
+        this._messenger.onNotification(onRefresh, callback);
     }
 
     closeWebViewNotification(): void {

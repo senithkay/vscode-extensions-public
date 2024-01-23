@@ -29,5 +29,5 @@ export const closeWebView: NotificationType<void> = { method: `${_preFix}/closeW
 export const openDiagram: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openDiagram` };
 export const openFile: NotificationType<OpenDiagramRequest> = { method: `${_preFix}/openFile` };
 export const getProjectStructure: RequestType<ProjectStructureRequest, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
-export const refresh: NotificationType<void> = { method: `${_preFix}/refresh` };
+export const onRefresh: NotificationType<void> = { method: `${_preFix}/onRefresh` };
 export const closeWebViewNotification: NotificationType<void> = { method: `${_preFix}/closeWebViewNotification` };

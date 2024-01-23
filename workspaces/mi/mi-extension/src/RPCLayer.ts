@@ -15,40 +15,39 @@ import { State } from 'xstate';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 
 export class RPCLayer {
-    private _messenger: Messenger = new Messenger();
+    static _messenger: Messenger = new Messenger();
 
     constructor(webViewPanel: WebviewPanel | WebviewView) {
         if (isWebviewPanel(webViewPanel)) {
-            this._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
+            const aa = RPCLayer._messenger.registerWebviewPanel(webViewPanel as WebviewPanel);
+            StateMachine.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, state.value);
+            });
         } else {
-            this._messenger.registerWebviewView(webViewPanel as WebviewView);
+            RPCLayer._messenger.registerWebviewView(webViewPanel as WebviewView);
+            StateMachine.service().onTransition((state) => {
+                RPCLayer._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
+            });
         }
 
-        // Register state change notification
-        StateMachine.service().onTransition((state) => {
-            this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'visualizer' }, state.value);
-            // this._messenger.sendNotification(stateChanged, { type: 'webview', webviewType: 'activity.panel' }, state.value);
-        });
-
-        this._messenger.onRequest(getVisualizerState, () => this.getContext());
-
-        registerMiDiagramRpcHandlers(this._messenger);
-
+        RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
+        registerMiDiagramRpcHandlers(RPCLayer._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
         return new RPCLayer(webViewPanel);
     }
 
-    async getContext(): Promise<VisualizerLocation> {
-        const context = StateMachine.context();
-        return new Promise((resolve) => {
-            resolve({ documentUri: context.documentUri });
-        });
-    }
+
+
 }
 
-
+async function getContext(): Promise<VisualizerLocation> {
+    const context = StateMachine.context();
+    return new Promise((resolve) => {
+        resolve({ documentUri: context.documentUri });
+    });
+}
 
 function isWebviewPanel(webview: WebviewPanel | WebviewView): boolean {
     const title = webview.title;
