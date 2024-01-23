@@ -12,8 +12,8 @@ import { PortModelAlignment } from '@projectstorm/react-diagrams-core';
 import { BaseNodeModel, BaseNodeProps, SequenceType } from '../../base/base-node/base-node';
 import { OFFSET } from '../../../constants';
 import { MediatorPortWidget } from '../../port/MediatorPortWidget';
-import { OUT_SEQUENCE_TAG } from '../../compartments/Sequence';
 import { SequenceNodeModel } from './SequenceNodeModel';
+import { PlusNodeModel } from '../plusNode/PlusNodeModel';
 
 interface SequenceNodeProps extends BaseNodeProps {
     side: "right" | "left",
@@ -23,23 +23,25 @@ interface SequenceNodeProps extends BaseNodeProps {
 export function SequenceNodeWidget(props: SequenceNodeProps) {
     const node = props.node;
     const nodes = props.diagramEngine.getModel().getNodes();
-    const getCanvasDimensions = (nodes: any[], tag: string, isReverse: boolean = false) => {
+    const getCanvasDimensions = (nodes: any[], sequenceType: SequenceType) => {
         let width = 200;
         let height = 150;
         nodes.filter((node: any) => !(node instanceof SequenceNodeModel)).forEach((node: any) => {
             width = Math.max(width, node.width);
         });
 
-        const filteredNodes = nodes.filter((node: BaseNodeModel) => node.getParentNode()?.tag === tag);
+        const filteredNodes = nodes.filter((node: BaseNodeModel) => node.getParentNode()?.tag === sequenceType);
         if (filteredNodes.length > 0) {
 
-            height = filteredNodes[filteredNodes.length - 1].getY() + (isReverse ? filteredNodes[0].height - filteredNodes[0].getY() + 250 : filteredNodes[filteredNodes.length - 1].height) + 100;
+            const plusNodes = nodes.filter((node: BaseNodeModel) => node.getParentNode() == null && node instanceof PlusNodeModel && node.getSequenceType() === sequenceType);
+            const lastNode = filteredNodes[filteredNodes.length - 1].isDropSequence() ? filteredNodes[filteredNodes.length - 1] : plusNodes[plusNodes.length - 1];
+            height = lastNode.getY() + lastNode.height - plusNodes[0].getY() + OFFSET.BETWEEN.Y + OFFSET.MARGIN.BOTTOM;
             return { width, height };
         }
         return { width, height };
     };
 
-    let { width, height } = getCanvasDimensions(nodes, props.sequenceType, props.sequenceType === OUT_SEQUENCE_TAG);
+    let { width, height } = getCanvasDimensions(nodes, props.sequenceType);
 
     width += OFFSET.MARGIN.SEQUENCE;
     node.width = width;
