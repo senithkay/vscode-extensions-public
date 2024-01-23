@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-function getHTTPEndpointMustacheTemplate() {
+export function getHTTPEndpointMustacheTemplate() {
     return `<endpoint>
     <http method="{{httpMethod}}" {{#statisticsEnabled}}statistics="enable"{{/statisticsEnabled}} {{#traceEnabled}}trace="enable"{{/traceEnabled}} uri-template="{{uriTemplate}}">
     <timeout>

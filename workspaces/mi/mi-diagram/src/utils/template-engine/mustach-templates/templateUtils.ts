@@ -22,6 +22,7 @@ import { getLoopbackMustacheTemplate } from "./core/loopback";
 import { getPropertyGroupMustacheTemplate } from "./core/propertyGroup";
 import { getReponseMustacheTemplate } from "./core/respond";
 import { getSendMustacheTemplate } from "./core/send";
+import { getHTTPEndpointMustacheTemplate } from "./endpoints/http";
 
 export function getMustacheTemplate(name: string) {
     switch (name) {
