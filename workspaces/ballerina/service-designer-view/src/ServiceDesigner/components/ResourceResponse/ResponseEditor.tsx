@@ -74,7 +74,7 @@ export function ResponseEditor(props: ParamProps) {
         <EditorContainer>
             <EditorContent>
                 <AutoComplete
-                    sx={{ zIndex: 1 }}
+                    sx={{ zIndex: 1, position: "relative" }}
                     label="Code"
                     selectedItem={getTitleFromResponseCode(response.code)}
                     items={responseCodes.map(code => code.title)}
@@ -82,7 +82,7 @@ export function ResponseEditor(props: ParamProps) {
                 />
                 {typeCompletions && (
                     <AutoComplete
-                        sx={{ zIndex: 1 }}
+                        sx={{ zIndex: 1, position: "relative" }}
                         label="Type"
                         selectedItem={response.type}
                         items={typeCompletions}
