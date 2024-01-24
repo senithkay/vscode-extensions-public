@@ -75,13 +75,17 @@ const SidePanelList = (props: SidePanelListProps) => {
     const [isLoading, setLoading] = useState<boolean>(true);
     const [connectorList, setConnectorList] = useState<GetConnectorsResponse[]>([]);
     const [actions, setActions] = useState<any[]>([]);
-    const [connectorForm, setForm] = useState<any>();
+    const [connectorForm, setConnectorForm] = useState<any>();
     const [mediatorForm, setMediatorForm] = useState<any>();
     const [showMediators, setShowMediators] = useState<boolean>(true);
     const [showConnectors, setShowConnectors] = useState<boolean>(true);
     const [showEndpoints, setShowEndpoints] = useState<boolean>(true);
     const [showMenu, setShowMenu] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>("mediators");
+
+    function isEqualOperationName(operationName: String): unknown {
+        return operationName && sidePanelContext.operationName && operationName.toLowerCase() === sidePanelContext.operationName.toLowerCase();
+    }
 
     const goBackRef = useRef(0);
 
@@ -343,22 +347,22 @@ const SidePanelList = (props: SidePanelListProps) => {
         let form;
         if (sidePanelContext.isEditing) {
             for (const key in mediators) {
-                form = mediators[key as keyof typeof mediators].find((mediator) => mediator.operationName === sidePanelContext.operationName);
+                form = mediators[key as keyof typeof mediators].find((mediator) => isEqualOperationName(mediator.operationName));
                 if (form) break;
             }
-            if (!form) form = endpoints.find((mediator) => mediator.operationName === sidePanelContext.operationName);
-    
+            if (!form) form = endpoints.find((mediator) => isEqualOperationName(mediator.operationName));
+
             if (form) {
                 setShowMenu(false);
                 setMediatorForm(form.form);
                 return;
             }
         } else {
-            const mediator = mediatorRulesOnPlus.find(m => m.name === sidePanelContext.operationName);
+            const mediator = mediatorRulesOnPlus.find((mediator) => isEqualOperationName(mediator.name));
 
             // If the mediator is found
             if (mediator) {
-                if (mediator.exception){
+                if (mediator.exception) {
                     const filteredMediators: MediatorsType = {
                         core: [],
                         transformation: [],
@@ -374,14 +378,15 @@ const SidePanelList = (props: SidePanelListProps) => {
                 // Set the states based on the operations array
                 setShowMediators(mediator.operations.includes("mediators"));
                 setShowConnectors(mediator.operations.includes("connectors"));
-                setShowEndpoints(mediator.operations.includes("endpoints"));                
+                setShowEndpoints(mediator.operations.includes("endpoints"));
             }
         }
 
         if (sidePanelContext.backBtn > goBackRef.current) {
             if (connectorForm) {
-                sidePanelContext.setShowBackBtn(false);
-                setForm(undefined);
+                sidePanelContext.setShowBackBtn(true);
+                setShowMenu(false);
+                setConnectorForm(undefined);
             } else if (mediatorForm) {
                 sidePanelContext.setShowBackBtn(false);
                 setMediatorForm(undefined);
@@ -389,7 +394,7 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setActions([]);
             }
         }
-        
+
         switch (stackRef.pop()) {
             case "mediators":
                 setShowMediators(true);
@@ -400,7 +405,8 @@ const SidePanelList = (props: SidePanelListProps) => {
                 setShowMenu(true);
                 break;
             case "connector":
-                sidePanelContext.setShowBackBtn(true);    
+                setMediatorForm(undefined);
+                return;
             case "endpoints":
                 setShowEndpoints(true);
                 setShowMenu(true);
@@ -465,11 +471,10 @@ const SidePanelList = (props: SidePanelListProps) => {
     const showConnectorForm = async (connectorSchema: any) => {
         sidePanelContext.setShowBackBtn(true);
         stackRef.push("connector");
-        setForm(connectorSchema);
+        setConnectorForm(connectorSchema);
     };
 
     const MediatorList = () => {
-        setShowMediators(true);
         return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
                 {Object.entries(mediators).map(([key, values]) => (
@@ -506,7 +511,6 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     const EndpointList = () => {
-        setShowEndpoints(true);
         return endpoints.length === 0 ? <h3 style={{ textAlign: "center" }}>No endpoints found</h3> :
             <ButtonGrid>
                 {endpoints.map((endpoint) => (
@@ -533,30 +537,30 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     return (
-        isLoading ? <h1>Loading...</h1> :
+        isLoading ? <h1>Loading...S</h1> :
             <div style={{
                 padding: "10px",
             }}>
                 {showMenu && <VSCodePanels aria-label="Default" activeid={activeTab}>
-                    <VSCodePanelTab id="mediators" onClick={(e: any) => { setActiveTab(e.target.id) }}>Mediators</VSCodePanelTab>
-                    <VSCodePanelTab id="connectors" onClick={(e: any) => { setActiveTab(e.target.id) }}>Connectors</VSCodePanelTab>
-                    <VSCodePanelTab id="endpoints" onClick={(e: any) => { setActiveTab(e.target.id) }}>Endpoints</VSCodePanelTab>
+                    {showConnectors && <VSCodePanelTab id="mediators" onClick={(e: any) => { setActiveTab(e.target.id) }}>Mediators</VSCodePanelTab>}
+                    {showConnectors && <VSCodePanelTab id="connectors" onClick={(e: any) => { setActiveTab(e.target.id) }}>Connectors</VSCodePanelTab>}
+                    {showEndpoints && <VSCodePanelTab id="endpoints" onClick={(e: any) => { setActiveTab(e.target.id) }}>Endpoints</VSCodePanelTab>}
 
-                    {showConnectors && <VSCodePanelView id="view-1">
+                    {showMediators && <VSCodePanelView id="mediators">
                         <div style={{ "width": "100%" }}>
-                            {showMediators && <MediatorList />}
+                            <MediatorList />
                         </div>
                     </VSCodePanelView>}
 
-                    {showConnectors && <VSCodePanelView id="view-2">
+                    {showConnectors && <VSCodePanelView id="connectors">
                         <div style={{ "width": "100%" }}>
-                            {showConnectors && <ConnectorList />}
+                            <ConnectorList />
                         </div>
                     </VSCodePanelView>}
 
-                    {showEndpoints && <VSCodePanelView id="view-3">
+                    {showEndpoints && <VSCodePanelView id="endpoints">
                         <div style={{ "width": "100%" }}>
-                             <EndpointList />
+                            <EndpointList />
                         </div>
                     </VSCodePanelView>}
                 </VSCodePanels>}
