@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { BaseNodeProps } from '../../base/base-node/base-node';
 import SidePanelContext from '../../sidePanel/SidePanelContexProvider';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
@@ -46,8 +46,8 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
         sidePanelContext.setOperationName(parentName);
     }
 
-    return (
-        <>
+    const plusNode = useMemo(() => {
+        return <>
             <svg
                 width={props.node.width}
                 height={props.node.height}
@@ -80,6 +80,12 @@ export function PlusNodeWidget(props: PlusNodeWidgetProps) {
                 engine={props.diagramEngine}
                 node={props.node}
             />
+        </>;
+    }, []);
+
+    return (
+        <>
+            {plusNode}
         </>
     );
 }
