@@ -8,12 +8,25 @@
  */
 
 import React, { useEffect } from "react";
-import { MachineStateValue, VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { MachineStateValue, ProjectStructureResponse, WorkspaceFolder } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import styled from "@emotion/styled";
+
+
+const DropDownContainer = styled.div`
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    display: none;
+`;
 
 export function Overview() {
     const { rpcClient } = useVisualizerContext();
-    const [visualizerState, setVisualizerState] = React.useState<VisualizerLocation>(null);
+    const [workspaces, setWorkspaces] = React.useState<WorkspaceFolder[]>([]);
+    const [selected, setSelected] = React.useState<string>("");
+    const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
     const [state, setState] = React.useState<MachineStateValue>('initialize');
 
@@ -21,18 +34,41 @@ export function Overview() {
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         setState(newState);
     });
-    
+
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerState().then((stateValue) => {
-                setVisualizerState(stateValue);
+            rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
+                setWorkspaces(response.workspaces);
             });
         }
     }, [state]);
 
+    useEffect(() => {
+        if (selected) {
+            rpcClient.getMiVisualizerRpcClient().getProjectStructure({ documentUri: selected }).then((response) => {
+                setProjectStructure(response);
+            });
+        }
+    }, [selected]);
+
+    const changeWorkspace = (fsPath: string) => {
+        setSelected(fsPath);
+    }
+
     return (
         <>
-            <h1>Hello Overview - {visualizerState?.documentUri}</h1>
+            <DropDownContainer>
+                <label htmlFor="workspaces">MI Workspaces</label>
+                <VSCodeDropdown id="workspaces" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => changeWorkspace(e.target.value)}>
+                    {workspaces.map((option) => (
+                        <VSCodeOption key={option.index} value={option.fsPath} selected={option.fsPath === selected}>
+                            {option.name}
+                        </VSCodeOption>
+                    ))}
+                </VSCodeDropdown>
+            </DropDownContainer>
+            <h1>Hello Overview </h1>
+            
         </>
     );
 }

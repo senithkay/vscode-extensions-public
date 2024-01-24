@@ -16,7 +16,6 @@ import {
     CreateEndpointRequest,
     CreateSequenceRequest,
     OpenDiagramRequest,
-    ProjectStructureRequest,
     ShowErrorMessageRequest,
     applyEdit,
     closeWebView,
@@ -30,10 +29,10 @@ import {
     getConnectors,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getProjectStructure,
     getSTRequest,
     getSequenceDirectory,
     getSyntaxTree,
+    onRefresh,
     openDiagram,
     openFile,
     showErrorMessage,
@@ -59,6 +58,5 @@ export function registerMiDiagramRpcHandlers(messenger: Messenger) {
     messenger.onNotification(closeWebView, () => rpcManger.closeWebView());
     messenger.onNotification(openDiagram, (args: OpenDiagramRequest) => rpcManger.openDiagram(args));
     messenger.onNotification(openFile, (args: OpenDiagramRequest) => rpcManger.openFile(args));
-    messenger.onRequest(getProjectStructure, (args: ProjectStructureRequest) => rpcManger.getProjectStructure(args));
     messenger.onNotification(closeWebViewNotification, () => rpcManger.closeWebViewNotification());
 }

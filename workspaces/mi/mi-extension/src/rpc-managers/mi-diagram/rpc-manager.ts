@@ -28,8 +28,6 @@ import {
     EndpointsAndSequencesResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
-    ProjectStructureRequest,
-    ProjectStructureResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     getSTRequest,
@@ -118,14 +116,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         });
     }
 
-    async getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
-        return new Promise(async (resolve) => {
-            const langClient = StateMachine.context().langClient!;
-            const res = await langClient.getProjectStructure(params.documentUri);
-            resolve(res);
-        });
-    }
-
     async getAPIDirectory(): Promise<ApiDirectoryResponse> {
         return new Promise(async (resolve) => {
             let result = '';
@@ -190,12 +180,6 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     showErrorMessage(params: ShowErrorMessageRequest): void {
         window.showErrorMessage(params.message);
     }
-
-    refresh(): void {
-        // ADD YOUR IMPLEMENTATION HERE
-        throw new Error('Not implemented');
-    }
-
 
     closeWebViewNotification(): void {
         // if ("dispose" in view) {
@@ -306,7 +290,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
                 return [endpoints, sequences];
             }
 
-            resolve({data: []});
+            resolve({ data: [] });
         });
     }
 
@@ -409,7 +393,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     onRefresh(callback: () => void): void {
-         // USE THE RPC METHOD TO BROADCAST NOTIFICATIONS TO WEBVIEW
-         // EX: RPCLayer._messenger.sendNotification(onRefresh, { type: 'webview', webviewType: 'visualizer' });
+        // USE THE RPC METHOD TO BROADCAST NOTIFICATIONS TO WEBVIEW
+        // EX: RPCLayer._messenger.send
     }
 }

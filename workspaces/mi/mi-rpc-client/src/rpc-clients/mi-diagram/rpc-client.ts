@@ -27,8 +27,6 @@ import {
     EndpointsAndSequencesResponse,
     MiDiagramAPI,
     OpenDiagramRequest,
-    ProjectStructureRequest,
-    ProjectStructureResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     applyEdit,
@@ -43,7 +41,6 @@ import {
     getConnectors,
     getEndpointDirectory,
     getEndpointsAndSequences,
-    getProjectStructure,
     getSTRequest,
     getSTResponse,
     getSequenceDirectory,
@@ -125,10 +122,6 @@ export class MiDiagramRpcClient implements MiDiagramAPI {
 
     openFile(params: OpenDiagramRequest): void {
         return this._messenger.sendNotification(openFile, HOST_EXTENSION, params);
-    }
-
-    getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
-        return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
     }
 
     onRefresh(callback: () => void): void {
