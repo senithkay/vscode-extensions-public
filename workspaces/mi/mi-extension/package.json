@@ -65,7 +65,7 @@
     "viewsWelcome": [
       {
           "view": "project-explorer",
-          "contents": "Welcome to Integration Studio [learn more](https://google.com/).\n[Get Started](command:integrationStudio.showDiagram)"
+          "contents": "Welcome to Integration Studio. You can open a folder containing a MI project or create a new project.\n[Open MI Project](command:integrationStudio.openProject)\n[Create New](command:integrationStudio.showDiagram)\nTo learn more about how to use Integration Studio in VS Code [read our docs](https://ei.docs.wso2.com)."
       }
     ],
     "commands": [
@@ -73,6 +73,10 @@
         "command": "integrationStudio.showDiagram",
         "title": "Show Diagram",
         "icon": "$(design-view)"
+      },
+      {
+        "command": "integrationStudio.openProject",
+        "title": "Open Project"
       },
       {
         "command": "integrationStudio.addMediator",
