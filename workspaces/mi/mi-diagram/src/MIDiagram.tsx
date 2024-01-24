@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 // import MIWebViewAPI from './utils/WebViewRpc';
 import { ResourceCompartment } from './components/compartments/ResourceCompartment';
 // import { Refresh } from '@wso2-enterprise/mi-core';
@@ -61,6 +61,10 @@ export function MIDiagram(props: MIDiagramProps) {
 		setIsEditing(false);
 	};
 
+	const compartment = useMemo(() => {
+		return <ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />;
+	}, [stNode, props.documentUri]);
+
 	let canvas;
 	if (isLoading) {
 		canvas = <h1>Loading... {lastUpdated}</h1>;
@@ -99,7 +103,7 @@ export function MIDiagram(props: MIDiagramProps) {
 						</SidePanelTitleContainer>
 						<SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
 					</SidePanel>}
-					<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
+					{compartment}
 				</SidePanelProvider>
 			</div >
 			;

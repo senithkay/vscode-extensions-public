@@ -349,8 +349,6 @@ const SidePanelList = (props: SidePanelListProps) => {
     }
 
     const MediatorList = () => {
-        sidePanelContext.setShowBackBtn(false);
-        setShowMediators(true);
         return Object.keys(mediators).length === 0 ? <h3 style={{ textAlign: "center" }}>No mediators found</h3> :
             <>
                 {Object.entries(mediators).map(([key, values]) => (
@@ -403,7 +401,7 @@ const SidePanelList = (props: SidePanelListProps) => {
     };
 
     return (
-        isLoading ? <h1>Loading...</h1> :
+        isLoading ? <h1>Loading...S</h1> :
             <div style={{
                 padding: "10px",
             }}>
