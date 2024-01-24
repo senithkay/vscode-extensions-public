@@ -9,12 +9,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
-
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
 import { isAllDefaultableFields, isRequiredParam } from "../../utils";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 export default function InclusionType(props: TypeProps) {
     const { param, depth, onChange } = props;
@@ -39,44 +39,41 @@ export default function InclusionType(props: TypeProps) {
     };
 
     return (
-        <ListItem className={stmtEditorHelperClasses.docListDefault}>
+        <div className={stmtEditorHelperClasses.docListDefault}>
             <div className={stmtEditorHelperClasses.listItemMultiLine} data-testid="inclusion-arg">
                 <div className={stmtEditorHelperClasses.listItemHeader}>
-                    <Checkbox
-                        classes={{
-                            root: stmtEditorHelperClasses.parameterCheckbox,
-                            checked: stmtEditorHelperClasses.checked,
-                        }}
+                    <VSCodeCheckbox
                         checked={paramSelected}
                         disabled={requiredParam && !isAllIncludedParamDefaultable}
                         onClick={toggleParamCheck}
+                        className={stmtEditorHelperClasses.parameterCheckbox}
                         data-testid="arg-check"
                     />
-                    <ListItemText
-                        className={stmtEditorHelperClasses.docListItemText}
-                        primary={param.name}
-                        data-testid="arg-name"
-                    />
+                    <Typography
+                        variant="body3"
+                        sx={{margin: '0px 5px'}}
+                    >
+                        {param.name}
+                    </Typography>
                     {param.inclusionType?.typeInfo && (
-                        <ListItemText
-                            className={stmtEditorHelperClasses.paramDataType}
+                        <Typography
+                            className={stmtEditorHelperClasses.suggestionDataType}
+                            variant="body3"
                             data-testid="arg-type"
-                            primary={(
-                                <Typography className={stmtEditorHelperClasses.suggestionDataType}>
-                                    {(param.optional || param.defaultable) && " (Optional)"} *
+                        >
+                            {(param.optional || param.defaultable) && " (Optional)"} *
                                     {param.inclusionType.typeInfo.name}
-                                </Typography>
-                            )}
-                        />
+                        </Typography>
                     )}
                 </div>
                 {param.documentation && (
                     <div className={stmtEditorHelperClasses.documentationWrapper}>
-                        <ListItemText
+                        <Typography
                             className={stmtEditorHelperClasses.paramTreeDescriptionText}
-                            primary={param.documentation}
-                            data-testid="arg-documentation"
-                        />
+                            variant="body3"
+                        >
+                            {param.documentation}
+                        </Typography>
                     </div>
                 )}
                 {paramSelected && param.inclusionType?.fields?.length > 0 && (
@@ -89,6 +86,6 @@ export default function InclusionType(props: TypeProps) {
                     </div>
                 )}
             </div>
-        </ListItem>
+        </div>
     );
 }

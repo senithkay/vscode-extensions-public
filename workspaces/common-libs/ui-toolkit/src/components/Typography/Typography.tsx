@@ -9,53 +9,65 @@
 import styled from "@emotion/styled";
 import React, { ReactNode } from "react";
 
+const removeMargin = {
+    margin: 'unset'
+}
+
 const Subtitle1 = styled.p`
-    font-weight: regular;
+    font-weight: normal;
     font-size: 16px;
     letter-spacing: 0.15px;
-    text-transform: sentence;
+    ${removeMargin};
 `;
 
 const Subtitle2 = styled.p`
-    font-weight: regular;
+    font-weight: bold;
     font-size: 14px;
-    letter-spacing: 0.1px;
-    text-transform: sentence;
+    letter-spacing: 0.09px;
+    ${removeMargin};
 `;
 
 const Body1 = styled.p`
-    font-weight: regular;
+    font-weight: normal;
     font-size: 16px;
-    letter-spacing: 0.5px;
-    text-transform: sentence;
+    letter-spacing: 0.15px;
+    ${removeMargin};
 `;
 
 const Body2 = styled.p`
-    font-weight: regular;
+    font-weight: normal;
     font-size: 14px;
-    letter-spacing: 0.25px;
-    text-transform: sentence;
+    letter-spacing: 0.149px;
+    ${removeMargin};
+`;
+
+const Body3 = styled.p`
+    font-weight: normal;
+    font-size: 13px;
+    ${removeMargin};
 `;
 
 const Button = styled.p`
-    font-weight: medium;
+    font-weight: bold;
     font-size: 14px;
-    letter-spacing: 1.25px;
+    letter-spacing: 0.39px;
     text-transform: uppercase;
+    ${removeMargin};
 `;
 
 const Caption = styled.p`
-    font-weight: regular;
+    font-weight: normal;
     font-size: 12px;
-    letter-spacing: 0.4px;
-    text-transform: sentence;
+    letter-spacing: 0.39px;
+    ${removeMargin};
 `;
 
 const Overline = styled.p`
-    font-weight: medium;
+    font-weight: normal;
     font-size: 10px;
-    letter-spacing: 1.5px;
+    letter-spacing: 0.99px;
     text-transform: uppercase;
+    ${removeMargin};
 `;
 
 export interface TypographyProps {
@@ -64,7 +76,7 @@ export interface TypographyProps {
     children: ReactNode;
     variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"
     | "subtitle1" | "subtitle2"
-    | "body1" | "body2"
+    | "body1" | "body2" | "body3"
     | "button"
     | "caption"
     | "overline";
@@ -95,6 +107,8 @@ export const Typography: React.FC<TypographyProps> = (props: TypographyProps) =>
             return <Body1 id={id} className={className} style={sx}>{children}</Body1>;
         case "body2":
             return <Body2 id={id} className={className} style={sx}>{children}</Body2>;
+        case "body3":
+            return <Body3 id={id} className={className} style={sx}>{children}</Body3>;
         case "button":
             return <Button id={id} className={className} style={sx}>{children}</Button>;
         case "caption":

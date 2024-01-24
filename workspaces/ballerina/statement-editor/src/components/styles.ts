@@ -430,6 +430,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         fontSize: '13px',
+        marginLeft: '4px',
     }),
     suggestionValue: css({
         whiteSpace: 'nowrap',
@@ -596,33 +597,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         padding: '0 10px'
     }),
     parameterCheckbox: css({
-        alignSelf: "flex-start",
-        color: '#2FA86C',
-        padding: '3px 6px 0 0',
-        "& .MuiCheckbox-colorSecondary.Mui-checked": {
-            color: "#2FA86C"
-        },
-        "&$checked": {
-            color: "#2FA86C",
-            paddingLeft: '0px',
-            "&:hover": {
-                background: "transparent",
-            },
-            "& .MuiIconButton-label": {
-                position: "relative"
-            },
-            "& .MuiIconButton-label::after": {
-                content: '""',
-                left: 1,
-                top: 1,
-                width: 19,
-                height: 19,
-                position: "absolute",
-                backgroundColor: "#fff",
-                zIndex: -1,
-                borderRadius: 3,
-            }
-        }
+        margin: '0px'
     }),
     parameterTabCheckBox: css({
         root: {
@@ -663,13 +638,10 @@ export const useStmtEditorHelperPanelStyles = () => ({
         ...stmtEditorPadding
     }),
     returnSeparator: css({
-        width: '516px',
+        height: '1px',
         opacity: '0.52',
-        backgroundColor: "#DCDEE4",
-        display: 'block',
-        float: 'left',
-        marginTop: '20px',
-        marginBottom: '18px'
+        backgroundColor: 'var(--vscode-panel-border)',
+        marginBottom: '15px'
     }),
     docListItemText: css({
         "& .MuiListItem-root": {
@@ -690,6 +662,10 @@ export const useStmtEditorHelperPanelStyles = () => ({
         padding: '0px',
         marginLeft: '10px'
     }),
+    paramHeader: css({
+        marginTop: '0px',
+        color: 'var(--vscode-editor-foreground)'
+    }),
     paramDataType: css({
         marginLeft: '8px',
         marginRight: '8px',
@@ -697,14 +673,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         ...removePadding
     }),
     requiredArgList: css({
-        "& .MuiListItem-root": {
-            padding: '0px'
-        },
-        "& .MuiListItemText-root": {
-            margin: '0 6px 0 0',
-            flex: 'inherit',
-            minWidth: 'auto'
-        },
+        display: 'flex',
         alignItems: 'flex-start',
         overflowX: 'hidden',
         width: 'fit-content',
@@ -715,10 +684,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
         overflowY: 'scroll',
         whiteSpace: 'break-spaces',
         display: 'block',
-        "& .MuiListItem-root": {
-            paddingLeft: '0px',
-            paddingTop: '0px',
-        },
+        margin: '10px 0px',
         ...removePadding
     }),
     returnDescription: css({
@@ -732,6 +698,7 @@ export const useStmtEditorHelperPanelStyles = () => ({
     }),
     paramList: css({
         overflowY: 'auto',
+        margin: '10px 0px',
     }),
     documentationWrapper: css({
         marginLeft: '28px',
@@ -783,7 +750,10 @@ export const useStmtEditorHelperPanelStyles = () => ({
         marginTop: '20px'
     }),
     exampleCode: css({
-        color: 'var(--vscode-editor-foreground)'
+        display: 'flex',
+        padding: '5px',
+        fontFamily: 'monospace',
+        borderRadius: '0px'
     }),
     paramTreeList: css({
         display: 'flex',
