@@ -885,7 +885,6 @@ export const useStatementEditorStyles = () => ({
     }),
     stmtEditorInnerWrapper: css({
         fontSize: '13px',
-        fontFamily: 'Gilmer',
         overflowY: 'hidden',
         paddingTop: '0px',
         ...stmtEditorPadding
