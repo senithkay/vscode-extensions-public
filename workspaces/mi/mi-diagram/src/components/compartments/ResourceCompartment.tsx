@@ -16,11 +16,19 @@ interface Props {
     name: string;
     stNode: any;
     documentUri: string;
+    resource?: string;
 }
 
 export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
     const visitor = new NodeInitVisitor(props.documentUri);
-    traversNode(props.stNode.api ? props.stNode.api : props.stNode.sequence, visitor);
+
+    // Show diagram for a single resource
+    let resourceNode;
+    if (props.resource) {
+        resourceNode = props.stNode.api.resource.find((resource: any) => resource.uriTemplate === props.resource);
+    }
+
+    traversNode(resourceNode ? resourceNode : props.stNode.api ? props.stNode.api : props.stNode.sequence, visitor);
 
     const sequences = visitor.getSequences();
 

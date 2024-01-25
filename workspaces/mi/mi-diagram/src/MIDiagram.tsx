@@ -19,6 +19,7 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface MIDiagramProps {
 	documentUri: string;
+	resource?: string;
 }
 
 export function MIDiagram(props: MIDiagramProps) {
@@ -98,7 +99,7 @@ export function MIDiagram(props: MIDiagramProps) {
 						</SidePanelTitleContainer>
 						<SidePanelList nodePosition={sidePanelnodeRange} documentUri={props.documentUri} />
 					</SidePanel>}
-					<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />
+					<ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} resource={props.resource} />
 				</SidePanelProvider>
 			</div >
 			;
