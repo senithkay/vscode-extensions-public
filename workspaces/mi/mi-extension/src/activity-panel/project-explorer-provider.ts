@@ -161,6 +161,9 @@ function generateTreeData(data: GetProjectStructureResponse): ProjectExplorerEnt
 						case 'templates':
 							parentEntry.iconPath = new vscode.ThemeIcon('file');
 							break;
+						case 'resources':
+							parentEntry.iconPath = new vscode.ThemeIcon('globe');
+							break;
 						default:
 					}
 
@@ -208,9 +211,44 @@ function genProjectStructureEntry(data: ProjectStructureEntry[]): ProjectExplore
 	const result: ProjectExplorerEntry[] = [];
 
 	for (const entry of data) {
-		const children = genProjectStructureEntry(entry.sequences ?? [])
-			.concat(genProjectStructureEntry(entry.endpoints ?? []))
-		result.push(new ProjectExplorerEntry(entry.name, isCollapsibleState(children.length > 0), entry, 'code'));
+		let explorerEntry;
+		
+		if (entry.resources) {
+			const folderEntry = new ProjectExplorerEntry(entry.name.replace(".xml",""), isCollapsibleState(true), undefined, 'folder');
+
+			// Generate resource structure
+			const resourceFolder = new ProjectExplorerEntry(
+				"resources",
+				isCollapsibleState(entry.resources.length > 0),
+				undefined,
+				'folder'
+			);
+			
+			const resources: ProjectExplorerEntry[] = [];
+
+			for (const resource of entry.resources) {
+				const resourceEntry: ProjectStructureEntry = {
+					...entry,
+					name : resource.uriTemplate,
+					type : 'resource'
+				}
+				resources.push(new ProjectExplorerEntry(resource.uriTemplate, isCollapsibleState(false), resourceEntry, 'code'))
+			}
+
+			resourceFolder.children = resources;
+			resourceFolder.contextValue = 'resource';
+
+			// Generate API structure
+			const apiEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
+			
+			folderEntry.children = [apiEntry, resourceFolder];
+			explorerEntry = folderEntry;
+			
+		} else {
+			explorerEntry = new ProjectExplorerEntry(entry.name, isCollapsibleState(false), entry, 'code');
+		}
+		
+		result.push(explorerEntry);
 	}
 
 	return result;
