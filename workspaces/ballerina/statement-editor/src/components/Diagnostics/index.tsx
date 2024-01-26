@@ -7,17 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
 
-import React, { useContext, useState } from "react";
-
-import { Box, List, ListItemText, Typography } from "@material-ui/core";
-
-import DiagnosticsErrorIcon from "../../assets/icons/DiagnosticsErrorIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { filterCodeActions } from "../../utils";
 import { CodeActionButton } from "../CodeActionButton";
 import { useStatementEditorDiagnosticStyles } from "../styles";
+import { Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();
@@ -32,40 +29,38 @@ export function Diagnostics() {
             hasCodeAction = true;
             return <CodeActionButton syntaxDiagnostic={diag} index={key}/>;
         } else if (hasCodeAction) {
-            return <Box style={{ width: "30px", marginRight: "6px" }} />;
+            return <div style={{ width: "30px", marginRight: "6px" }} />;
         }
     }
 
     return (
         <div className={statementEditorDiagnosticClasses.diagnosticsPane} data-testid="diagnostics-pane">
-            <List>
+            <div className={statementEditorDiagnosticClasses.diagnosticsPaneInner}>
                 {diagnostics &&
                     diagnostics.map(
                         (diag: StatementSyntaxDiagnostics, index: number) =>
                             !diag.isPlaceHolderDiag && (
-                                <ListItemText
-                                    data-testid="diagnostic-message"
-                                    key={index}
-                                    primary={(
-                                        <Typography style={{ display: "flex", flexDirection: "row" }}>
-                                            {actionButton(diag, index)}
-                                            <div className={statementEditorDiagnosticClasses.diagnosticsErrorIcon}>
-                                                <DiagnosticsErrorIcon />
-                                            </div>
-                                            {diag.message}
-                                        </Typography>
-                                    )}
-                                />
+                                <>
+                                    {actionButton(diag, index)}
+                                    <Codicon name="error" />
+                                    <Typography
+                                        variant="body2"
+                                        sx={{marginLeft: "5px"}}
+                                    >
+                                        {diag.message}
+                                    </Typography>
+                                </>
                             )
                     )}
                 {errorMsg && errorMsg.length > 0 && (
-                    <ListItemText
+                    <Typography
+                        variant="body2"
                         data-testid="error-message"
-                        key="error"
-                        primary={<Typography style={{ display: "flex", flexDirection: "row" }}>{errorMsg}</Typography>}
-                    />
+                    >
+                        {errorMsg}
+                    </Typography>
                 )}
-            </List>
+            </div>
         </div>
     );
 }

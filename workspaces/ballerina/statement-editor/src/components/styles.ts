@@ -344,15 +344,14 @@ export const useStatementEditorDiagnosticStyles = () => ({
         maxHeight: '125px',
         overflowY: 'scroll',
         marginRight: '-25px',
-        color: '#ea4c4d',
+        color: 'var(--vscode-editorError-foreground)',
         paddingTop: '13px',
         width: '100%',
-        "& .MuiList-padding": {
-            ...removePadding
-        },
-        "& .MuiListItemText-root": {
-            margin: '0px'
-        }
+        fontFamily: 'var(--vscode-font-family)',
+    }),
+    diagnosticsPaneInner: css({
+        display: 'flex',
+        alignItems: 'center',
     }),
     diagnosticsErrorIcon: css({
         padding: '4px 6px 0 0'
