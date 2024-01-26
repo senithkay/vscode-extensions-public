@@ -22,9 +22,7 @@ export interface ProjectStructureRequest {
 
 export interface ProjectStructureResponse {
     directoryMap: {
-        esbConfigs: {
-            [key: string]: ProjectStructureEntry[]
-        },
+        esbConfigs: ProjectDirectoryMap;
         dataServiceConfigs: ProjectStructureEntry[],
         dataSourceConfigs: ProjectStructureEntry[],
         mediatorProjects: ProjectStructureEntry[],
@@ -35,6 +33,10 @@ export interface ProjectStructureResponse {
         dockerExporters: ProjectStructureEntry[],
         kubernetesExporters: ProjectStructureEntry[]
     };
+}
+
+export interface ProjectDirectoryMap {
+    [key: string]: ProjectStructureEntry[];
 }
 
 export interface ProjectStructureEntry {

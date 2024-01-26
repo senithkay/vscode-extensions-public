@@ -7,9 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+import { VisualizerLocation } from "../../state-machine-types";
 import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse } from "./types";
 
 export interface MIVisualizerAPI {
     getWorkspaces: () => Promise<WorkspacesResponse>;
     getProjectStructure: (params: ProjectStructureRequest) => Promise<ProjectStructureResponse>;
+    openView: (params: VisualizerLocation) => void;
 }

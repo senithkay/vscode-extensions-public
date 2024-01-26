@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap } from '@wso2-enterprise/mi-core';
 import { ComponentCard, Typography } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 const allowedConfigs = ["esbConfigs", "endpoints", "api"];
 
@@ -19,12 +20,12 @@ const HorizontalCardContainer = styled.div`
 
 const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse }) => {
     const { projectStructure } = props;
-
-    const [selectedPath, setSelectedPath] = useState('');
+    const { rpcClient } = useVisualizerContext();
 
     const handleClick = (directory: string, path?: string) => {
-        setSelectedPath(path);
-        console.log('Clicked on path:', directory, path);
+        if (directory === "api") {
+            rpcClient.getMiVisualizerRpcClient().openView({view: "ServiceDesigner", documentUri: path});
+        }
     };
 
     const renderEntries = (entries: ProjectStructureEntry[]) => {

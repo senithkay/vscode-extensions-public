@@ -30,21 +30,12 @@ export function Overview() {
     const [selected, setSelected] = React.useState<string>("");
     const [projectStructure, setProjectStructure] = React.useState<ProjectStructureResponse>(undefined);
 
-    const [state, setState] = React.useState<MachineStateValue>('initialize');
-
-    // Listening to state value change
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setState(newState);
-    });
-
     useEffect(() => {
-        if (rpcClient) {
-            rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
-                setWorkspaces(response.workspaces);
-                changeWorkspace(response.workspaces[0].fsPath);
-            });
-        }
-    }, [state]);
+        rpcClient.getMiVisualizerRpcClient().getWorkspaces().then((response) => {
+            setWorkspaces(response.workspaces);
+            changeWorkspace(response.workspaces[0].fsPath);
+        });
+    }, []);
 
     useEffect(() => {
         if (workspaces && selected) {
@@ -72,8 +63,8 @@ export function Overview() {
                 </VSCodeDropdown>
             </DropDownContainer> */}
             <Typography variant="h2">Project Overview</Typography>
-            {projectStructure && <ProjectStructureView projectStructure={projectStructure}/>}
-            
+            {projectStructure && <ProjectStructureView projectStructure={projectStructure} />}
+
         </>
     );
 }

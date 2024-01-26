@@ -7,13 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 import { MachineStateValue } from "@wso2-enterprise/mi-core";
-import DiagramPanel from "./DiagramPanel";
-import OverviewPanel from "./OverviewPanel";
-import GettingStartedPanel from "./GettingStartedPanel";
-
+import MainPanel from "./MainPanel";
+import { GettingStarted } from "./views/GettingStarted";
 
 export function Visualizer({ mode }: { mode: string }) {
     const { rpcClient } = useVisualizerContext();
@@ -22,14 +20,6 @@ export function Visualizer({ mode }: { mode: string }) {
     rpcClient?.onStateChanged((newState: MachineStateValue) => {
         setState(newState);
     });
-
-    useEffect(() => {
-        if (rpcClient) {
-            // rpcClient.getWebviewRpcClient().getState().then((initialState: any) => {
-            //     setState(initialState);
-            // });
-        }
-    }, [rpcClient]);
 
     return (
         <>
@@ -49,10 +39,9 @@ export function Visualizer({ mode }: { mode: string }) {
 const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue }) => {
     switch (true) {
         case typeof state === 'object' && 'ready' in state:
-            // return <DiagramPanel state={state} />;
-            return <OverviewPanel state={state} />;
+            return <MainPanel state={state} />;
         case typeof state === 'object' && 'newProject' in state:
-            return <GettingStartedPanel state={state} />;
+            return <GettingStarted />;
         default:
             return <h1>LOADING</h1>;
     }
@@ -64,7 +53,7 @@ const VisualizerComponent = React.memo(({ state }: { state: MachineStateValue })
 //     switch (true) {
 //         case typeof state === 'object' && 'ready' in state:
 //             return <GettingStartedPanel state={state} />;
-//             // return <OverviewPanel state={state} />;
+//             // return <MainPanel state={state} />;
 //         case typeof state === 'object' && 'newProject' in state:
 //             return <GettingStartedPanel state={state} />;
 //         default:

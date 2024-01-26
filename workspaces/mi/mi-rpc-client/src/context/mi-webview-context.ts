@@ -10,18 +10,12 @@
 
 import { createContext, useContext } from "react";
 import { RpcClient } from "../RpcClient";
-
-export interface StateLocation {
-    view?: any;
-    position?: any;
-    fileName?: string;
-    identifier?: string;
-}
+import { VisualizerLocation } from "@wso2-enterprise/mi-core";
 
 export interface VisualizerContext {
-    viewLocation: StateLocation,
+    viewLocation: VisualizerLocation,
     rpcClient?: RpcClient
-    setViewLocation?: (view: StateLocation) => void
+    setViewLocation?: (view: VisualizerLocation) => void
 }
 
 /**

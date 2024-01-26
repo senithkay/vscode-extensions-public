@@ -588,10 +588,6 @@
       "projectFolder": "workspaces/mi/mi-rpc-client"
     },
     {
-      "packageName": "@wso2-enterprise/mi-overview",
-      "projectFolder": "workspaces/mi/mi-overview"
-    },
-    {
       "packageName": "api-chat",
       "projectFolder": "workspaces/api-chat/extension",
       "versionPolicyName": "ballerina-extension"

@@ -33,8 +33,10 @@ export interface CommandProps {
 
 // State Machine context values
 export interface VisualizerLocation {
-    documentUri: string | null;
     view: MachineViews | null;
+    documentUri?: string;
+    identifier?: string;
+    position?: any;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

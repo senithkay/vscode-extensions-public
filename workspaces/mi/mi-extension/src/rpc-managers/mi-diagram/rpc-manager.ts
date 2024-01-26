@@ -188,7 +188,7 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
     }
 
     openDiagram(params: OpenDiagramRequest): void {
-        openView({ fileName: params.path });
+        openView({ view: "Diagram", documentUri: params.path });
     }
 
     async getEndpointDirectory(): Promise<EndpointDirectoryResponse> {

@@ -12,9 +12,11 @@ import {
     MIVisualizerAPI,
     ProjectStructureRequest,
     ProjectStructureResponse,
+    VisualizerLocation,
     WorkspacesResponse,
     getProjectStructure,
-    getWorkspaces
+    getWorkspaces,
+    openView
 } from "@wso2-enterprise/mi-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
@@ -32,5 +34,9 @@ export class MiVisualizerRpcClient implements MIVisualizerAPI {
 
     getProjectStructure(params: ProjectStructureRequest): Promise<ProjectStructureResponse> {
         return this._messenger.sendRequest(getProjectStructure, HOST_EXTENSION, params);
+    }
+
+    openView(params: VisualizerLocation): void {
+        return this._messenger.sendNotification(openView, HOST_EXTENSION, params);
     }
 }

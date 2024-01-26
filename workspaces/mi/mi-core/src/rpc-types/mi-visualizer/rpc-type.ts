@@ -8,9 +8,11 @@
  * 
  * THIS FILE INCLUDES AUTO GENERATED CODE
  */
+import { VisualizerLocation } from "../../state-machine-types";
 import { ProjectStructureRequest, ProjectStructureResponse, WorkspacesResponse } from "./types";
-import { RequestType } from "vscode-messenger-common";
+import { RequestType, NotificationType } from "vscode-messenger-common";
 
 const _preFix = "mi-visualizer";
 export const getWorkspaces: RequestType<void, WorkspacesResponse> = { method: `${_preFix}/getWorkspaces` };
 export const getProjectStructure: RequestType<ProjectStructureRequest, ProjectStructureResponse> = { method: `${_preFix}/getProjectStructure` };
+export const openView: NotificationType<VisualizerLocation> = { method: `${_preFix}/openView` };

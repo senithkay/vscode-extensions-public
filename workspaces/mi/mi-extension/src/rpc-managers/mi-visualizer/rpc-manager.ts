@@ -12,11 +12,12 @@ import {
     MIVisualizerAPI,
     ProjectStructureRequest,
     ProjectStructureResponse,
-    WorkspacesResponse,
-    WorkspaceFolder
+    VisualizerLocation,
+    WorkspaceFolder,
+    WorkspacesResponse
 } from "@wso2-enterprise/mi-core";
-import { StateMachine } from "../../stateMachine";
 import { workspace } from "vscode";
+import { StateMachine, openView } from "../../stateMachine";
 
 export class MiVisualizerRpcManager implements MIVisualizerAPI {
     async getWorkspaces(): Promise<WorkspacesResponse> {
@@ -45,5 +46,9 @@ export class MiVisualizerRpcManager implements MIVisualizerAPI {
             const res = await langClient.getProjectStructure(projectUrl);
             resolve(res);
         });
+    }
+
+    openView(params: VisualizerLocation): void {
+       openView(params);
     }
 }
