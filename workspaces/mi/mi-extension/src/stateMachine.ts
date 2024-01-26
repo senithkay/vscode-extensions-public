@@ -22,7 +22,8 @@ const stateMachine = createMachine<MachineContext>({
     context: {
         langClient: null,
         errorCode: null,
-        documentUri: null
+        documentUri: null,
+        view: null
     },
     states: {
         initialize: {
@@ -77,13 +78,15 @@ const stateMachine = createMachine<MachineContext>({
                         OPEN_VIEW: {
                             target: "viewLoading",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.fileName
+                                documentUri: (context, event) => event.viewLocation.fileName,
+                                view: (context, event) => event.viewLocation.view
                             })
                         },
                         FILE_EDIT: {
                             target: "viewEditing",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.fileName
+                                documentUri: (context, event) => event.viewLocation.fileName,
+                                view: (context, event) => event.viewLocation.view
                             })
                         }
                     }
@@ -93,7 +96,8 @@ const stateMachine = createMachine<MachineContext>({
                         EDIT_DONE: {
                             target: "viewReady",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.fileName
+                                documentUri: (context, event) => event.viewLocation.fileName,
+                                view: (context, event) => event.viewLocation.view
                             })
                         }
                     }

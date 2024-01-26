@@ -10,7 +10,7 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
-export type Views = "Overview" | "Architecture" | "ER" | "Type" | "Unsupported" | "ServiceDesigner" | "DataMapper";
+export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm";
 
 export type MachineStateValue = 
 | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled' 
@@ -34,6 +34,7 @@ export interface CommandProps {
 // State Machine context values
 export interface VisualizerLocation {
     documentUri: string | null;
+    view: MachineViews | null;
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };

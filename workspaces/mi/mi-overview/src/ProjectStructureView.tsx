@@ -1,46 +1,74 @@
-// import React, { useState } from 'react';
+import React, { useState } from 'react';
+import { ProjectStructureEntry, ProjectStructureResponse, ProjectDirectoryMap } from '@wso2-enterprise/mi-core';
+import { ComponentCard, Typography } from '@wso2-enterprise/ui-toolkit';
+import styled from '@emotion/styled';
 
-// const ProjectStructureView = ({ projectStructure }) => {
-//   const [selectedPath, setSelectedPath] = useState('');
+const allowedConfigs = ["esbConfigs", "endpoints", "api"];
 
-//   const handleItemClick = (path) => {
-//     setSelectedPath(path);
-//   };
+const IconWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+`;
 
-//   const renderEntries = (entries, parentPath = '') => (
-//     <ul>
-//       {entries.map((entry, index) => (
-//         <li key={index}>
-//           <span
-//             style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
-//             onClick={() => handleItemClick(parentPath + entry.path)}
-//           >
-//             {entry.name}
-//           </span>
-//           {entry.sequences && renderEntries(entry.sequences, parentPath + entry.path + '/')}
-//           {entry.endpoints && renderEntries(entry.endpoints, parentPath + entry.path + '/')}
-//         </li>
-//       ))}
-//     </ul>
-//   );
+const HorizontalCardContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+`;
 
-//   const renderDirectory = (directory) => (
-//     <div key={directory}>
-//       <h3>{directory}</h3>
-//       {renderEntries(projectStructure[directory])}
-//     </div>
-//   );
+const ProjectStructureView = (props: { projectStructure: ProjectStructureResponse }) => {
+    const { projectStructure } = props;
 
-//   return (
-//     <div>
-//       {Object.keys(projectStructure).map((directory) => renderDirectory(directory))}
-//       {selectedPath && (
-//         <div>
-//           <strong>Selected Path:</strong> {selectedPath}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
+    const [selectedPath, setSelectedPath] = useState('');
 
-// export default ProjectStructureView;
+    const handleClick = (directory: string, path?: string) => {
+        setSelectedPath(path);
+        console.log('Clicked on path:', directory, path);
+    };
+
+    const renderEntries = (entries: ProjectStructureEntry[]) => {
+        return entries.map((entry, index) => (
+            <ComponentCard key={index} onClick={() => handleClick(entry.type, entry.path)} sx={{ height: 40, marginTop: 15, margin: 10 }}>
+                <IconWrapper>
+                    <div>{entry.name}</div>
+                </IconWrapper>
+            </ComponentCard>
+        ));
+    };
+
+    const renderObject = (entry: ProjectDirectoryMap | ProjectStructureResponse["directoryMap"]) => {
+        return Object.entries(entry).map(([key, value]) => {
+            if (allowedConfigs.includes(key)) {
+                if (Array.isArray(value)) {
+                    return (
+                        <div key={key}>
+                            <Typography variant="h3">{key.toUpperCase()}</Typography>
+                            <HorizontalCardContainer>
+                                {renderEntries(value)}
+                                <ComponentCard key={0} onClick={() => handleClick("NEW")} sx={{ height: 40, marginTop: 15, margin: 10 }}>
+                                    <IconWrapper>+</IconWrapper>
+                                </ComponentCard>
+                            </HorizontalCardContainer>
+                        </div>
+                    )
+                } else {
+                    return (<div>{renderObject(value)}</div>)
+                }
+            }
+        });
+    }
+
+    const renderDirectoryMap = () => {
+        const { directoryMap } = projectStructure;
+        return renderObject(directoryMap);
+    };
+
+    return (
+        <div>
+            {renderDirectoryMap()}
+        </div>
+    );
+};
+
+export default ProjectStructureView;
