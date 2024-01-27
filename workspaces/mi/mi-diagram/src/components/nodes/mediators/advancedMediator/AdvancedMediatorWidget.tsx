@@ -9,17 +9,18 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { PortModelAlignment } from '@projectstorm/react-diagrams-core';
-import { BaseNodeProps } from '../../../base/base-node/base-node';
+import { BaseNodeProps, SequenceType } from '../../../base/base-node/base-node';
 import { AdvancedMediatorNodeModel } from './AdvancedMediatorModel';
 import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
-import { createLinks, setNodePositions } from '../../../../utils/Utils';
-import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
+import { drawSequence, setNodePositions } from '../../../../utils/Utils';
 import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
 import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelContext from '../../../sidePanel/SidePanelContexProvider';
+import { MediatorLinkModel } from '../../../link/MediatorLinkModel';
+import { OFFSET } from '../../../../constants';
 
 const ButtonComponent = styled.div`
     top: 45px;
@@ -83,7 +84,7 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
     useEffect(() => {
         distribute();
         node.fireEvent({}, "updateAdDimensions");
-    }, [nodePosition.x]);
+    }, [node.width, node.height]);
 
     function distribute() {
         let subSequencesX = 0;
@@ -92,48 +93,36 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
             let subSequenceHeight = 0;
             let subSequenceWidth = 40;
             const subNodes = subSequence.nodes;
-            const subNodesAndLinks = [];
+            // if (subSequence.range == null) {
+            //     return;
+            // }
 
-            if (subNodes.length > 1) {
-                for (let i = 0; i < subNodes.length; i++) {
-                    subSequenceHeight = Math.max(subSequenceHeight, subNodes[i].height);
-                    subSequenceWidth = Math.max(subSequenceWidth, subNodes[i].width);
-                    for (let j = i + 1; j < subNodes.length; j++) {
-                        if (subNodes[i].getParentNode() == subNodes[j].getParentNode()) {
-                            const link = createLinks(subNodes[i], subNodes[j], subNodes[i].getParentNode());
-                            props.diagramEngine.getModel().addAll(subNodes[i], ...link, subNodes[j]);
-                            subNodesAndLinks.push(subNodes[i], ...link.filter((plusNode) => plusNode instanceof PlusNodeModel), subNodes[j]);
-                            break;
-                        }
-                    }
-                }
-            } else if (subNodes.length == 1) {
-                subSequenceHeight = subNodes[0].height;
-                subSequenceWidth = subNodes[0].width;
-                props.diagramEngine.getModel().addNode(subNodes[0]);
-                subNodesAndLinks.push(subNodes[0]);
-            } else {
-                subSequenceHeight = 80;
-                subSequenceWidth = 80;
-                const plusNode = new PlusNodeModel(`${subSequence.name}-${subSequence.range}:plus`, node.getDocumentUri(), node.getSequenceType(), node.getNode());
-                plusNode.setNodeRange({
-                    start: {
-                        line: subSequence.range.start.line,
-                        character: subSequence.range.start.character + 6
-                    },
-                    end: {
-                        line: subSequence.range.end.line,
-                        character: subSequence.range.end.character - 7
-                    }
-                });
-                props.diagramEngine.getModel().addNode(plusNode);
-                subNodesAndLinks.push(plusNode);
-            }
+            // props.diagramEngine.getModel().getNodes().forEach(node => {
+            //     const found = subNodes.find((subNode) => subNode.getID() === node.getID());
+            //     if (found) {
+            //         props.diagramEngine.getModel().removeNode(node);
+            //     }
+            // })
+            // props.diagramEngine.getModel().getLinks().forEach(link => {
+            //     const found = subNodes.find((subNode) => subNode.getID() === link.getID());
+            //     if (found) {
+            //         props.diagramEngine.getModel().removeLink(link);
+            //     }
+            // })
+
+            const nodesAndLinks = drawSequence(subNodes, SequenceType.SUB_SEQUENCE, subSequence.range, props.diagramEngine.getModel(), node.getNode());
+            const nodes = nodesAndLinks.filter(nodeOrLink => !(nodeOrLink instanceof MediatorLinkModel));
+
+            nodes.forEach((node) => {
+                subSequenceHeight = Math.max(subSequenceHeight, node.height);
+                subSequenceWidth = Math.max(subSequenceWidth, node.width);
+            });
 
             subSequence.width = subSequenceWidth + 30;
             subSequencesWidth += subSequence.width;
-            setNodePositions(subNodesAndLinks, nodePosition.x + subSequencesX + 30, node.getY() + 75, subSequence.width);
-            subSequence.height = subNodes.length > 0 ? (subNodes[subNodes.length - 1].getY() - subNodes[0].getY()) + subNodes[subNodes.length - 1].height + 40 : 80;
+
+            setNodePositions(nodes, nodePosition.x + subSequencesX + 25, node.getY() + 75, subSequence.width);
+            subSequence.height = nodes.length > 0 ? (nodes[nodes.length - 1].getY() - nodes[0].getY()) + nodes[nodes.length - 1].height + OFFSET.BETWEEN.Y : 80;
             subSequencesX += subSequence.width + 35;
             subSequencesHeight = Math.max(subSequencesHeight, subSequence.height);
         });

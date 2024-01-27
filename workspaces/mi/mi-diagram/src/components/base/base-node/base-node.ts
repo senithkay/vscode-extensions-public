@@ -21,7 +21,8 @@ export enum SequenceType {
     IN_SEQUENCE = "inSequence",
     OUT_SEQUENCE = "outSequence",
     FAULT_SEQUENCE = "faultSequence",
-    SEQUENCE = "sequence"
+    SEQUENCE = "sequence",
+    SUB_SEQUENCE = "subSequence"
 }
 
 export class BaseNodeModel extends NodeModel<NodeModelGenerics> {
