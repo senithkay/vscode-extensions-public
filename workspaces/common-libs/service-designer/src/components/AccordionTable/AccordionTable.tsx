@@ -18,28 +18,28 @@ export interface AccordionTableProps {
 }
 
 export function AccordionTable(props: AccordionTableProps) {
-	const { titile, headers, content} = props;
+    const { titile, headers, content} = props;
 
-	return (
-		<>
-			<Typography sx={{ marginBlockEnd: 10 }} variant="h3">{titile}</Typography>
-			<VSCodeDivider />
-			<VSCodeDataGrid>
-				<VSCodeDataGridRow row-type="header">
-					{headers.map((header, index) => (
-						<VSCodeDataGridCell cell-type="columnheader" grid-column={`${index + 1}`}>
-							{header}
-						</VSCodeDataGridCell>
-					))}
-				</VSCodeDataGridRow>
-				{content.map((row) => (
-					<VSCodeDataGridRow>
-						{row.map((cell, j) => (
-							<VSCodeDataGridCell grid-column={`${j + 1}`}>{cell}</VSCodeDataGridCell>
-						))}
-					</VSCodeDataGridRow>
-				))}
-			</VSCodeDataGrid>
-		</>
-	);
+    return (
+        <>
+            <Typography sx={{ marginBlockEnd: 10 }} variant="h3">{titile}</Typography>
+            <VSCodeDivider />
+            <VSCodeDataGrid>
+                <VSCodeDataGridRow row-type="header">
+                    {headers.map((header, index) => (
+                        <VSCodeDataGridCell key={index} cell-type="columnheader" grid-column={`${index + 1}`}>
+                            {header}
+                        </VSCodeDataGridCell>
+                    ))}
+                </VSCodeDataGridRow>
+                {content.map((row, i) => (
+                    <VSCodeDataGridRow key={i}>
+                        {row.map((cell, j) => (
+                            <VSCodeDataGridCell key={j} grid-column={`${j + 1}`}>{cell}</VSCodeDataGridCell>
+                        ))}
+                    </VSCodeDataGridRow>
+                ))}
+            </VSCodeDataGrid>
+        </>
+    );
 }

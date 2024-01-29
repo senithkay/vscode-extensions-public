@@ -101,8 +101,8 @@ export interface ResourceAccordionProps {
     resource: Resource;
     modelPosition?: NodePosition;
     goToSource: (position: NodePosition) =>  void;
-    onEditResource: (resourceInfo: Resource) => void;
-    onDeleteResource?: (resourceInfo: Resource) => void;
+    onEditResource: (resource: Resource) => void;
+    onDeleteResource?: (resource: Resource) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
@@ -152,7 +152,10 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleConfirm = async () => {
         // Handle confirmation logic
-        onDeleteResource && onDeleteResource(resource, resource?.deletePosition);
+        // Modify the resource object delete position to the model position
+        const modifiedResource = {...resource};
+        modifiedResource.deletePosition = modelPosition;
+        onDeleteResource && onDeleteResource(modifiedResource);
         setConfirmOpen(false);
     };
 
