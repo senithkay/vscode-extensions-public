@@ -601,6 +601,10 @@
       "packageName": "apk-config-language-support",
       "projectFolder": "workspaces/apk/apk-extension",
       "versionPolicyName": "ballerina-extension"
-    }
+    },
+    {
+      "packageName": "@wso2-enterprise/mi-diagram-2",
+      "projectFolder": "workspaces/mi/mi-diagram-2"
+  }
   ]
 }
