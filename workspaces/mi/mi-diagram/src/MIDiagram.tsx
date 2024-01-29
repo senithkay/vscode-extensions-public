@@ -19,6 +19,7 @@ import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 
 export interface MIDiagramProps {
 	documentUri: string;
+	resource?: string;
 }
 
 export function MIDiagram(props: MIDiagramProps) {
@@ -61,7 +62,7 @@ export function MIDiagram(props: MIDiagramProps) {
 	};
 
 	const compartment = useMemo(() => {
-		return <ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />;
+		return <ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} resource={props.resource} />;
 	}, [stNode, props.documentUri]);
 
 	let canvas;
