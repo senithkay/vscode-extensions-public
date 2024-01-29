@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useVisualizerContext } from "@wso2-enterprise/eggplant-rpc-client";
 import { MachineStateValue, VisualizerLocation, NodePosition } from "@wso2-enterprise/eggplant-core";
-import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
+import { ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
 import LowCode from "./LowCode";
 
 
@@ -41,7 +41,7 @@ const WebPanel = (props: { state: MachineStateValue }) => {
 
     return (
         <div>
-            {serviceST ? <ServiceDesigner model={serviceST} rpcClient={eggplantRpcClient.getServiceDesignerRpcClient()} goToSource={showDiagram} /> : <LowCode state={state} />}
+            {serviceST ? <ServiceDesignerView model={serviceST} rpcClient={eggplantRpcClient.getServiceDesignerRpcClient()} goToSource={showDiagram} /> : <LowCode state={state} />}
         </div>
     );
 };

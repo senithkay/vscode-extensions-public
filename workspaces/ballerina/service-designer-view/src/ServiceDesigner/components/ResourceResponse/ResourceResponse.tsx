@@ -23,7 +23,6 @@ export interface ResourceParamProps {
     onChange?: (parameters: ResponseConfig[]) => void;
     addNameRecord?: (source: string) => void;
     readonly?: boolean;
-    isBallerina?: boolean;
     typeCompletions?: string[];
 }
 
@@ -32,7 +31,7 @@ const AddButtonWrapper = styled.div`
 `;
 
 export function ResourceResponse(props: ResourceParamProps) {
-    const { method, response, readonly, onChange, addNameRecord, isBallerina, typeCompletions } = props;
+    const { method, response, readonly, onChange, addNameRecord, typeCompletions } = props;
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
@@ -147,7 +146,6 @@ export function ResourceResponse(props: ResourceParamProps) {
                         onChange={onChangeParam}
                         onSave={onSaveParam}
                         onCancel={onParamEditCancel}
-                        isBallerina={isBallerina}
                         typeCompletions={typeCompletions}
                     />
                 )

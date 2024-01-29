@@ -46,8 +46,8 @@ export interface Resource {
     advancedParams?: Map<string, ParameterConfig>;
     payloadConfig?: ParameterConfig;
     responses?: ResponseConfig[];
-    position?: NodePosition;
-    deletePosition?: NodePosition;
+    updatePosition?: NodePosition; // Insert or Edit position of the resource
+    position?: NodePosition; // Actual position of the resource which is used delete the resource
 }
 
 export interface PathConfig {

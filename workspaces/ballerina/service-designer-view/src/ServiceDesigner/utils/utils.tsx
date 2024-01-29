@@ -229,8 +229,8 @@ export async function getResource(resource: ResourceAccessorDefinition, rpcClien
         advancedParams: advanceParams,
         payloadConfig: payloadConfig,
         responses: response,
-        position: position,
-        deletePosition: resource.position
+        updatePosition: position,
+        position: resource.position
     };
 }
 

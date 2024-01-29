@@ -7,4 +7,4 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 export * from "./ServiceDesigner/definitions";
-export { ServiceDesigner } from "./ServiceDesigner/ServiceDesigner";
+export { ServiceDesignerView } from "./ServiceDesigner/ServiceDesignerView";

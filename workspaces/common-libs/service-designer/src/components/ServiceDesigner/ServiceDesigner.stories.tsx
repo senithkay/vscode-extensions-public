@@ -82,7 +82,7 @@ const resource: Resource = {
             type: "int"
         }
     ],
-    position: {
+    updatePosition: {
         startColumn: 0,
         startLine: 0,
         endColumn: 0,

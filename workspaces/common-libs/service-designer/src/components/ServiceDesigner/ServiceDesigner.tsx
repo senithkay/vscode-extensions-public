@@ -72,9 +72,9 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
             onResourceEdit(resource);
         }
     };
-    const handleResourceDelete = (resource: Resource, position?: NodePosition) => {
+    const handleResourceDelete = (resource: Resource) => {
         if (onResourceDelete) {
-            onResourceDelete(resource, position);
+            onResourceDelete(resource);
         }
     };
     const handleServiceEdit = () => {
@@ -92,7 +92,6 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
                         key={i}
                         resource={resource}
                         onEditResource={handleResourceEdit}
-                        modelPosition={resource.position}
                         onDeleteResource={handleResourceDelete}
                         goToSource={goToSource} 
                     />
@@ -106,8 +105,8 @@ export function ServiceDesigner(props: ServiceDesignerProps) {
     return (
         <div data-testid="service-design-view">
             <ServiceHeader>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service /path </Typography>
-                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening on port 8000</Typography>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h3">Service {model.path} </Typography>
+                <Typography sx={{ marginBlockEnd: 10 }} variant="h4">Listening {model.port}</Typography>
                 <VSCodeButton appearance="icon" title="Edit Service" onClick={handleServiceEdit}>
                     <Codicon name="settings-gear" />
                 </VSCodeButton>

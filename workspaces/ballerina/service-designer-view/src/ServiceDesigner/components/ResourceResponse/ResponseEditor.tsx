@@ -20,7 +20,6 @@ import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 export interface ParamProps {
     response: ResponseConfig;
     isEdit: boolean;
-    isBallerina?: boolean;
     onChange: (param: ResponseConfig) => void;
     onSave?: (param: ResponseConfig, defineRecordName: string) => void;
     onCancel?: (id?: number) => void;
@@ -28,7 +27,7 @@ export interface ParamProps {
 }
 
 export function ResponseEditor(props: ParamProps) {
-    const { response, isBallerina, onSave, onChange, onCancel, typeCompletions } = props;
+    const { response, onSave, onChange, onCancel, typeCompletions } = props;
 
     const [isNameRecord, setIsNameRecord] = useState(false);
     const [definedRecordName, setDefinedRecordName] = useState("");
@@ -91,11 +90,9 @@ export function ResponseEditor(props: ParamProps) {
                     />
                 )}
             </EditorContent>
-            {isBallerina && (
-                <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">
-                    Define a name record for the return type
-                </VSCodeCheckbox>
-            )}
+            <VSCodeCheckbox checked={isNameRecord} onChange={handleReqFieldChange} id="is-name-rec-checkbox">
+                Define a name record for the return type
+            </VSCodeCheckbox>
             {isNameRecord && (
                 <TextField
                     size={33}
