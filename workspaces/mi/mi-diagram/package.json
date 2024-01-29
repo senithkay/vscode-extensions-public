@@ -4,6 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
+    "lint": "eslint .",
     "build": "pnpm run lint && tsc --pretty",
     "watch": "tsc --pretty --watch",
     "copy-assets": "cp -r ./src/resources/assets ./lib/resources",
