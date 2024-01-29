@@ -86,6 +86,7 @@ export async function activateBallerina(context: ExtensionContext): Promise<Ball
     // Enable URI handlers
     activateUriHandlers(ballerinaExtInstance);
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
+        activateLibraryBrowser(ballerinaExtInstance);
         activateSubscriptions(context);
         // start the features.
         // Enable Ballerina diagram
@@ -106,7 +107,6 @@ export async function activateBallerina(context: ExtensionContext): Promise<Ball
         // activateTesting(ballerinaExtInstance);
         // // Enable Ballerina Notebook
         // activateNotebook(ballerinaExtInstance);
-        // activateLibraryBrowser(ballerinaExtInstance);
         // activateDesignDiagramView(ballerinaExtInstance);
         // activateERDiagram(ballerinaExtInstance);
 

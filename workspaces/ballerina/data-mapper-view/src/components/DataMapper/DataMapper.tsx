@@ -159,17 +159,12 @@ export function DataMapperC(props: DataMapperViewProps) {
         fnST,
         filePath,
         langServerRpcClient,
+        libraryBrowserRpcClient,
         applyModifications,
         onClose
     } = props;
     const openedViaPlus = false;
-    const updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean> = undefined;
     const goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void = undefined;
-    const library: {
-        getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
-        getLibrariesData: () => Promise<LibrarySearchResponse>;
-        getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
-    } = undefined;
     const onSave: (fnName: string) => void = undefined;
     const importStatements: string[] = [];
     const recordPanel: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element = undefined;
@@ -553,11 +548,10 @@ export function DataMapperC(props: DataMapperViewProps) {
                         {!!currentEditableField && dMSupported && (
                             <StatementEditorComponent
                                 expressionInfo={currentEditableField}
-                                langClientPromise={undefined}
-                                applyModifications={undefined}
-                                updateFileContent={updateFileContent}
+                                langServerRpcClient={langServerRpcClient}
+                                libraryBrowserRpcClient={libraryBrowserRpcClient}
+                                applyModifications={applyModifications}
                                 currentFile={currentFile}
-                                library={library}
                                 onCancel={cancelStatementEditor}
                                 onClose={closeStatementEditor}
                                 importStatements={importStatements}

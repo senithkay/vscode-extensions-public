@@ -14,6 +14,7 @@ import { StateMachine } from './stateMachine';
 import { stateChanged } from '@wso2-enterprise/eggplant-core';
 import { registerLangServerRpcHandlers } from './rpc-managers/lang-server/rpc-handler';
 import { registerServiceDesignerRpcHandlers } from './rpc-managers/service-designer/rpc-handler';
+import { registerLibraryBrowserRpcHandlers } from './rpc-managers/library-browser/rpc-handler';
 
 export class RPCLayer {
     private _messenger: Messenger = new Messenger();
@@ -33,6 +34,7 @@ export class RPCLayer {
 
         registerWebviewRpcHandlers(this._messenger);
         registerLangServerRpcHandlers(this._messenger);
+        registerLibraryBrowserRpcHandlers(this._messenger);
         registerServiceDesignerRpcHandlers(this._messenger);
     }
 

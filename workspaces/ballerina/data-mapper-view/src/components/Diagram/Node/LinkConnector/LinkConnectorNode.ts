@@ -188,6 +188,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     },
                 })
 
+                if (!this.editorLabel) {
+                    this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
+                }
                 this.getModel().addAll(lm);
             }
         } else {
@@ -212,6 +215,9 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                         },
                     })
                     this.getModel().addAll(lm);
+                    if (!this.editorLabel) {
+                        this.editorLabel = this.targetMappedPort.fieldFQN.split('.').pop();
+                    }
                 })
             }
         }

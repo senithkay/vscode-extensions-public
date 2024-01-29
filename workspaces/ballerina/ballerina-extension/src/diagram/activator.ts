@@ -9,7 +9,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern, WorkspaceFolder, TextEdit, TextEditorRevealType, Selection
+	ProgressLocation, ExtensionContext, WorkspaceFolder, TextEdit, TextEditorRevealType, Selection
 } from 'vscode';
 import { render } from './renderer';
 import {
@@ -41,11 +41,11 @@ import {
 	STD_LIB_LIST_CACHE
 } from "../library-browser";
 import {
-	LibrariesListResponse,
 	LibraryDataResponse,
+	LibraryDocResponse,
 	LibraryKind,
 	LibrarySearchResponse
-} from "../library-browser/model";
+} from '@wso2-enterprise/ballerina-core';
 import { getSentryConfig, SentryConfig } from './sentry';
 import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-languageclient';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -567,7 +567,7 @@ class DiagramPanel {
 			},
 			{
 				methodName: "getLibrariesList",
-				handler: async (args: any[]): Promise<LibrariesListResponse | undefined> => {
+				handler: async (args: any[]): Promise<LibraryDocResponse | undefined> => {
 					return await getLibrariesList(args[0]);
 				}
 			},

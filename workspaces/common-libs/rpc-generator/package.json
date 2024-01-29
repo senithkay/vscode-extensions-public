@@ -4,11 +4,11 @@
   "description": "Generate rpc-manager,rpc-handler and rpc-client ts files in relevant libraries",
   "main": "index.js",
   "config": { 
-    "CORE_RPC_TYPE_FILE": "webview/index.ts",
-    "CORE_RPC_TYPE_DIR": "../../eggplant/eggplant-core/",
-    "EXT_RPC_MANAGER_DIR": "../../eggplant/eggplant-extension/",
-    "RPC_CLIENT_DIR": "../../eggplant/eggplant-rpc-client/",
-    "CORE_MODULE_NAME": "@wso2-enterprise/eggplant-core"
+    "CORE_RPC_TYPE_FILE": "lang-server/index.ts",
+    "CORE_RPC_TYPE_DIR": "../../ballerina/ballerina-core/",
+    "EXT_RPC_MANAGER_DIR": "../../ballerina/ballerina-extension/",
+    "RPC_CLIENT_DIR": "../../ballerina/ballerina-rpc-client/",
+    "CORE_MODULE_NAME": "@wso2-enterprise/ballerina-core"
   },
   "scripts": {
     "generate": "node index.js"

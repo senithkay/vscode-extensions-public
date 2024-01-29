@@ -40,7 +40,11 @@ import {
     TypesFromFnDefinitionRequest,
     TypesFromSymbolResponse,
     ExecutorPositionsResponse,
-    GetBallerinaProjectParams 
+    GetBallerinaProjectParams, 
+    PartialSTResponse,
+    PartialSTRequest,
+    SymbolInfoRequest,
+    SymbolInfoResponse
 } from "../..";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 import { Location, LocationLink } from "vscode-languageserver-types";
@@ -63,8 +67,14 @@ export interface LangServerAPI {
     getTypeFromSymbol: (params: TypeFromSymbolRequest) => Promise<TypesFromSymbolResponse>;
     getTypesFromFnDefinition: (params: TypesFromFnDefinitionRequest) => Promise<TypesFromSymbolResponse>;
     definition: (params: TextDocumentPositionParams) => Promise<Location | Location[] | LocationLink[] | null>;
-    getSTForFunction: (params: BallerinaFunctionSTRequest) => Promise<BallerinaSTModifyResponse>;
+    getSTForFunction: (params: BallerinaSTModifyRequest) => Promise<BallerinaSTModifyResponse>;
     getExecutorPositions: (params: GetBallerinaProjectParams) => Promise<ExecutorPositionsResponse>;
+    getSTForExpression: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForSingleStatement: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForResource: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForModuleMembers: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSTForModulePart: (params: PartialSTRequest) => Promise<PartialSTResponse | NOT_SUPPORTED_TYPE>;
+    getSymbolDocumentation: (params: SymbolInfoRequest) => Promise<SymbolInfoResponse>;
     didOpen: (Params: DidOpenTextDocumentParams) => void;
     didChange: (params: DidChangeTextDocumentParams) => void;
     didClose: (params: DidCloseTextDocumentParams) => void;

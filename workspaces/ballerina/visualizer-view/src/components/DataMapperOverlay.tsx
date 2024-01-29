@@ -21,6 +21,7 @@ export function DataMapperOverlay() {
     const { data, isFetching } = useSyntaxTreeFromRange(rerender);
     const { ballerinaRpcClient, viewLocation } = useVisualizerContext();
     const langServerRpcClient = ballerinaRpcClient.getLangServerRpcClient();
+    const libraryBrowserRPCClient = ballerinaRpcClient.getLibraryBrowserRPCClient();
     const [mapperData, setMapperData] = useState<BallerinaSTModifyResponse>(data);
 
     useEffect(() => {
@@ -74,6 +75,7 @@ export function DataMapperOverlay() {
                 fnST={syntaxTree as FunctionDefinition}
                 filePath={viewLocation.location.fileName}
                 langServerRpcClient={langServerRpcClient}
+                libraryBrowserRpcClient={libraryBrowserRPCClient}
                 applyModifications={applyModifications}
             />
         );

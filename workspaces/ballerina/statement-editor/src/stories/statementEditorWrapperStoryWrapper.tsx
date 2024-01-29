@@ -13,7 +13,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { StatementEditorWrapper, StatementEditorWrapperProps } from "../components/StatementEditorWrapper";
 
-import { getFileContent, getFileURI, langClientPromise } from './story-utils';
+import { getFileContent, getFileURI } from './story-utils';
 
 export interface StatementEditorWrapperStoryWrapperProps {
     statement: STNode,
@@ -57,7 +57,6 @@ function getStatementEditorWrapperProps(statement: STNode, file: string,
             }
         },
         applyModifications: (arg: any) => null,
-        updateFileContent: (arg: any) => null,
         currentFile: {
             content: fileContent,
             path: file,
@@ -71,16 +70,8 @@ function getStatementEditorWrapperProps(statement: STNode, file: string,
         onWizardClose: () => null,
         syntaxTree: null,
         stSymbolInfo: null,
-        getLangClient: async () =>  {
-            const ls = await langClientPromise;
-            await ls.onReady();
-            return ls;
-        },
-        library: {
-            getLibrariesList: () => Promise.resolve(undefined),
-            getLibrariesData: () => Promise.resolve(undefined),
-            getLibraryData: () => Promise.resolve(undefined)
-        },
+        langServerRpcClient: undefined,
+        libraryBrowserRpcClient: undefined,
         label: statement.kind,
         initialSource: statement.source
     };

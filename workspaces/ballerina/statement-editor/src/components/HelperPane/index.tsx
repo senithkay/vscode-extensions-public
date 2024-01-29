@@ -10,6 +10,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 import {
     ALL_LIBS_IDENTIFIER,
@@ -27,13 +28,13 @@ import {
     isInsideConnectorParams,
     isRecordFieldName
 } from "../../utils";
-import SelectDropdown from "../Dropdown";
 import { LibraryBrowser } from "../LibraryBrowser";
 import { ParameterSuggestions } from "../Parameters/ParameterSuggestions";
 import { useStatementEditorStyles, useStmtEditorHelperPanelStyles  } from "../styles";
 import { ExpressionSuggestions } from "../Suggestions/ExpressionSuggestions";
 import { LSSuggestions } from "../Suggestions/LangServerSuggestions";
 import TabPanel from "../Tab";
+// import { VSCodePanels, VSCodePanelTab, VSCodePanelView } from "@vscode/webview-ui-toolkit/react";
 
 enum TabElements {
     suggestions = 'Suggestions',
@@ -104,6 +105,43 @@ export function HelperPane() {
         }
     }, [currentModel.model]);
 
+    // return (
+    //     <PanelWrapper>
+    //         <VSCodePanels activeid="suggestions">
+    //             <VSCodePanelTab id="suggestions">{TabElements.suggestions}</VSCodePanelTab>
+    //             <VSCodePanelTab id="expressions">{TabElements.expressions}</VSCodePanelTab>
+    //             <VSCodePanelTab id="libraries">{TabElements.libraries}</VSCodePanelTab>
+    //             <VSCodePanelTab id="parameters">{TabElements.parameters}</VSCodePanelTab>
+    //             <PanelContent>
+    //                 <LSSuggestions />
+    //             </PanelContent>
+    //             <PanelContent>
+    //                 <ExpressionSuggestions />
+    //             </PanelContent>
+    //             <PanelContent>
+    //                 <>
+    //                     <Dropdown
+    //                         onChange={onLibTypeSelection}
+    //                         id="lib-filter-dropdown"
+    //                         value={libraryType}
+    //                         items={[
+    //                             { id: "allLibs", value: ALL_LIBS_IDENTIFIER },
+    //                             { id: "langLibs", value: LANG_LIBS_IDENTIFIER },
+    //                             { id: "stdLibs", value: STD_LIBS_IDENTIFIER }
+    //                         ]}
+    //                         data-testid="library-selector-dropdown"
+    //                         sx={{position: 'absolute', zIndex: 1, top: '-27px', right: '25px'}}
+    //                     />
+    //                     <LibraryBrowser libraryType={libraryType} />
+    //                 </>
+    //             </PanelContent>
+    //             <PanelContent>
+    //                 <ParameterSuggestions />
+    //             </PanelContent>
+    //         </VSCodePanels>
+    //     </PanelWrapper>
+    // );
+
     return (
         <>
             <div className={statementEditorClasses.stmtEditorInnerWrapper}>
@@ -116,11 +154,17 @@ export function HelperPane() {
                     />
                     <div className={stmtEditorHelperClasses.libraryTypeSelector} data-testid="library-type-selector">
                         {selectedTab === TabElements.libraries && (
-                            <SelectDropdown
+                            <Dropdown
+                                onChange={onLibTypeSelection}
+                                id="lib-filter-dropdown"
+                                value={libraryType}
+                                items={[
+                                    { id: "allLibs", value: ALL_LIBS_IDENTIFIER },
+                                    { id: "langLibs", value: LANG_LIBS_IDENTIFIER },
+                                    { id: "stdLibs", value: STD_LIBS_IDENTIFIER }
+                                ]}
                                 data-testid="library-selector-dropdown"
-                                values={[ALL_LIBS_IDENTIFIER, LANG_LIBS_IDENTIFIER, STD_LIBS_IDENTIFIER]}
-                                defaultValue={ALL_LIBS_IDENTIFIER}
-                                onSelection={onLibTypeSelection}
+                                sx={{position: 'absolute', zIndex: 1, transform: 'translateY(-50%)'}}
                             />
                         )}
                     </div>
