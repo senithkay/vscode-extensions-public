@@ -16,19 +16,23 @@ const Container = styled.div`
 `;
 
 export type ClickAwayListenerProps = {
+    anchorEl?: HTMLElement | SVGGElement;
     children: React.ReactNode;
     onClickAway: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 };
 
 export const ClickAwayListener: React.FC<ClickAwayListenerProps> = (props: ClickAwayListenerProps) => {
-    const { children, onClickAway } = props;
+    const { anchorEl, children, onClickAway } = props;
     const ref = React.useRef<HTMLDivElement>(null);
 
     const handleClickAway = useCallback((event: MouseEvent) => {
-        if (ref.current && !ref.current.contains(event.target as Node)) {
+        if (
+            (ref.current && !ref.current.contains(event.target as Node)) && 
+            (!anchorEl?.contains(event.target as Node))
+        ) {
             onClickAway();
         }
-    }, [onClickAway]);
+    }, [anchorEl, onClickAway]);
 
     useEffect(() => {
         document.addEventListener("click", handleClickAway);
