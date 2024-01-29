@@ -9,12 +9,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
+
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { MemoizedParameterBranch } from "../../ParameterBranch";
 import { isRequiredParam } from "../../utils";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 
 export default function RecordType(props: TypeProps) {
     const { param, depth, onChange } = props;

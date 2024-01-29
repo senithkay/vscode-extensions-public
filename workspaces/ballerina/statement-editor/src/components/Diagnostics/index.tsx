@@ -9,12 +9,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
+import { Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
+
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { filterCodeActions } from "../../utils";
 import { CodeActionButton } from "../CodeActionButton";
 import { useStatementEditorDiagnosticStyles } from "../styles";
-import { Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 export function Diagnostics() {
     const statementEditorDiagnosticClasses = useStatementEditorDiagnosticStyles();

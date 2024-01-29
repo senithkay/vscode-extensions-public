@@ -9,14 +9,15 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useRef, useState } from "react";
 
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { FormField } from "@wso2-enterprise/ballerina-core";
 import { Dropdown, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../..";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
 import { getSelectedUnionMember, isRequiredParam } from "../../utils";
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { FormField } from "@wso2-enterprise/ballerina-core";
 
 export default function UnionType(props: TypeProps) {
     const { param, depth, onChange } = props;

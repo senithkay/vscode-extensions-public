@@ -9,7 +9,9 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { BallerinaConnectorInfo, FormField } from "@wso2-enterprise/ballerina-core";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { ACTION, CONNECTOR, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -20,8 +22,6 @@ import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../
 
 import { MemoizedParameterBranch } from "./ParameterBranch";
 import { getDefaultParams, mapActionToFormField, mapEndpointToFormField } from "./utils";
-import { Typography } from "@wso2-enterprise/ui-toolkit";
-import { BallerinaConnectorInfo, FormField } from "@wso2-enterprise/ballerina-core";
 
 export interface TypeProps {
     param: FormField;

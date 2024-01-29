@@ -10,8 +10,9 @@ import React, { useContext } from "react";
 
 // tslint:disable-next-line:no-submodule-imports
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
 import { STNode } from "@wso2-enterprise/syntax-tree";
-import { Button, Codicon, Grid, Typography } from "@wso2-enterprise/ui-toolkit";
+import { Button, Codicon, Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { SymbolParameterType } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
@@ -29,7 +30,8 @@ import { useStmtEditorHelperPanelStyles } from "../../styles";
 import { IncludedRecord } from "../IncludedRecord";
 import { NamedArgIncludedRecord } from "../NamedArgIncludedRecord";
 import { RequiredArg } from "../RequiredArg";
-import { ParameterInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-core";
+
+// tslint:disable-next-line:no-submodule-imports
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 export interface ParameterListProps {
