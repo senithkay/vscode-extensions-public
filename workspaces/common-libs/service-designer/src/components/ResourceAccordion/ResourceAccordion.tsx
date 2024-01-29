@@ -99,14 +99,13 @@ function getColorByMethod(method: string) {
 
 export interface ResourceAccordionProps {
     resource: Resource;
-    modelPosition?: NodePosition;
     goToSource: (position: NodePosition) =>  void;
     onEditResource: (resource: Resource) => void;
     onDeleteResource?: (resource: Resource) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
-    const { modelPosition, resource, goToSource, onEditResource, onDeleteResource } = params;
+    const { resource, goToSource, onEditResource, onDeleteResource } = params;
     const [isOpen, setIsOpen] = useState(false);
     const [isConfirmOpen, setConfirmOpen] = useState(false);
 
@@ -116,7 +115,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
 
     const handleShowDiagram = () => {
         // Show the eggplant diagram
-        goToSource(modelPosition);
+        goToSource(resource.position);
     };
 
     const handleEditResource = () => {
@@ -153,9 +152,7 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     const handleConfirm = async () => {
         // Handle confirmation logic
         // Modify the resource object delete position to the model position
-        const modifiedResource = {...resource};
-        modifiedResource.deletePosition = modelPosition;
-        onDeleteResource && onDeleteResource(modifiedResource);
+        onDeleteResource && onDeleteResource(resource);
         setConfirmOpen(false);
     };
 
