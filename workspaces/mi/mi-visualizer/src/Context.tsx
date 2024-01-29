@@ -8,13 +8,14 @@
  */
 
 import React, { ReactNode, useState } from "react";
-import { Context, StateLocation, VisualizerContext} from "@wso2-enterprise/mi-rpc-client";
+import { Context, VisualizerContext} from "@wso2-enterprise/mi-rpc-client";
 import { RpcClient } from "@wso2-enterprise/mi-rpc-client/lib/RpcClient";
+import { VisualizerLocation } from "@wso2-enterprise/mi-core";
 
 
 export function VisualizerContextProvider({ children }: { children: ReactNode }) {
 
-  const setView = (view: StateLocation) => {
+  const setView = (view: VisualizerLocation) => {
     setVisualizerState((prevState: VisualizerContext) => ({
       ...prevState,
       viewLocation: view,

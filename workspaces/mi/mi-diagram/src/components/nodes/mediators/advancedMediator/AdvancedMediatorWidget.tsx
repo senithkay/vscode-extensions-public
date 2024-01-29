@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { PortModelAlignment } from '@projectstorm/react-diagrams-core';
 import { BaseNodeProps } from '../../../base/base-node/base-node';
 import { AdvancedMediatorNodeModel } from './AdvancedMediatorModel';
@@ -181,8 +181,8 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
         </div>);
     }
 
-    return (
-        <>
+    const advancedNode = useMemo(() => {
+        return <>
             <div style={{
                 border: "1px",
                 borderStyle: "solid",
@@ -233,6 +233,12 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
                 engine={props.diagramEngine}
                 node={props.node}
             />
+        </>;
+    }, [subSequencesWidth, subSequencesHeight]);
+
+    return (
+        <>
+            {advancedNode}
         </>
     );
 }

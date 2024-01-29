@@ -68,25 +68,6 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
 
 	getChildren(element?: ProjectExplorerEntry | undefined): vscode.ProviderResult<ProjectExplorerEntry[]> {
 		if (element === undefined) {
-			if (this._data.length === 0) {
-                // // Return a special entry for the "Create New" button
-                // const createNewButton: ProjectExplorerEntry = new ProjectExplorerEntry(
-                //     'Create New Workspace',
-                //     vscode.TreeItemCollapsibleState.None,
-                //     undefined, // Set your ProjectStructureEntry or other data as needed
-                //     'folder' // Set the appropriate icon for the button
-                // );
-
-                // // Set a command for the button
-                // createNewButton.command = {
-                //     command: 'extension.createNewWorkspace', // Replace with your command ID
-                //     title: 'Create New Workspace',
-                //     arguments: [this.context],
-                // };
-
-                // return [createNewButton];
-            }
-
 			return this._data;
 		}
 		return element.children;

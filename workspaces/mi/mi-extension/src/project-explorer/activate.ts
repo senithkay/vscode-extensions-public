@@ -42,7 +42,7 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			// TODO: Open file logic should go here
 			// const document = await vscode.workspace.openTextDocument(info.path);
 			// await vscode.window.showTextDocument(document);
-			openView( { fileName: info.path });
+			openView( { view: "Overview", documentUri: info.path });
 			vscode.commands.executeCommand('integrationStudio.showDiagram');
 		}
 	});

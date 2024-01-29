@@ -8,31 +8,25 @@
  */
 
 import React, { useEffect } from "react";
-import { MachineStateValue, VisualizerLocation } from "@wso2-enterprise/mi-core";
+import { VisualizerLocation } from "@wso2-enterprise/mi-core";
 import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
-export function Overview() {
+export function ServiceDesigner() {
     const { rpcClient } = useVisualizerContext();
-    const [visualizerState, setVisualizerState] = React.useState<VisualizerLocation>(null);
+    const [state, setState] = React.useState<VisualizerLocation>(null);
 
-    const [state, setState] = React.useState<MachineStateValue>('initialize');
-
-    // Listening to state value change
-    rpcClient?.onStateChanged((newState: MachineStateValue) => {
-        setState(newState);
-    });
-    
     useEffect(() => {
         if (rpcClient) {
-            rpcClient.getVisualizerState().then((stateValue) => {
-                setVisualizerState(stateValue);
+            rpcClient.getVisualizerState().then((initialState) => {
+                setState(initialState);
             });
         }
-    }, [state]);
+    }, [rpcClient]);
 
+    
     return (
         <>
-            <h1>Hello Overview - {visualizerState?.documentUri}</h1>
+            <h1>Hello Service Designer - {state?.documentUri}</h1>
         </>
     );
 }

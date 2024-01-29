@@ -7,7 +7,6 @@ import { window } from 'vscode';
 import { MILanguageClient } from './lang-client/activator';
 import { extension } from './MIExtensionContext';
 import { EventType, MachineStateValue, VisualizerLocation } from '@wso2-enterprise/mi-core';
-import { StateLocation } from '@wso2-enterprise/mi-rpc-client';
 import { ExtendedLanguageClient } from './lang-client/ExtendedLanguageClient';
 
 interface MachineContext extends VisualizerLocation {
@@ -19,10 +18,11 @@ const stateMachine = createMachine<MachineContext>({
     /** @xstate-layout N4IgpgJg5mDOIC5QFsCWA6VA7VAXVAhgDaoBeYAxBAPZZiZYBu1A1vQMYAWY7LACgCdqAKx64A2gAYAuolAAHarDypackAA9EAJkkA2dJIDMegCwBWIwE4zNgBwB2ADQgAnogCM+ww8narVh5Wdkbm+gC+4S5oDCrEZJRgAkIC6PJEBLgAZtQCyOhcPPxCouwSMuqKyvhqSJo63sZmljam9s5uOnpG6EHWdoEOvqbadpHRGPIlYgAiYLhikBRSsnVVKrWgWgjm2i7uCA5G2uh2kh7apqZ2dl56dtrjIDFEsACSOLhUtPTYzGzoF7vT4IP7UdiZVRYFYrSpKDZYdTbIzWdDaDyhbQOM5HDx6PT7RB6KzmU7dY4YjzYyRHJ5Aj54ChJFJpDLZXL5ekgsEQmrQmSwtbwvlIxAoqxojG7am4-GEhCOUl+UzEo5GSSSEZ0jACMAECCudCMVBgADuABlqPrsFBvnQGP96DFdfrDcazZbrVgoKCmODIbQYRUhdUoaKFeYHKcHPisVZTCYQnZ5fdTOghmYUVSPBZzFZtegXQajSbTQAlPUGigAeT4AFEAHIAfQAam86wB1QUKYVhurbOx6DzoQKmfQ0jzma7ysKkoymI6+ePnbF2cwFotu0sV10UABib3NdabdZmbwAKt2QOsRf3PLoJZJbqY+kN-B55UM7CPI9cQmYrmxDdKy3M06wgFRvQoU8LybGZqwbOsrxvPstk8DwBnTIJJCsXwHDxc5zHlBdvxfS4znxa4USMBwCzoU1BBEMR0FNMAiHYahkEoABxOtzybABlc8AEEy3PU9kN7TZ6h2BcRxjKcSXVXw9CIzoEHVUkHEjBxAl-bFrFMOizUY0pcAKF0FgoABhYSG2sutzSbayyzrYTzzeBDJNDaTtinKNcNUtpLBpfQ1IObRzFJeNdjzUIjBzXQ9EiKIQCwagIDgdQ0DhHzETvBAAFoCXU4rDA1DUgqo0JktSmJsDiEhyFyhFwxGeUSXQFoF2JNd8Ro2i6smaYyjmBYykgFrbzQhAVUkdMTCseLrCHNd5VudBjnfYk8xjQcjALV4GVwKbUJknMDBfMcovMSc9BwnNPyfQxLAeIdugXBLgNdU7fMQKcDEihx0WxK70XCsVAkMAYovw+7tASydvuLd0LStCDvV+-KZrzNMgZBuwwcnFMgnQBd4zmhdzG6fMhsLECSzNHcDSx8MvEjSVItU-yluplMhlOXYE2xYIczaZHQNNcDIKgVmCoxMd0CHdmPCCYk9EilMzk2oW-EkPNVauAsINgAgACMiEmkNWoKsIAu6Kcn1uMxRg6A4BkupobG6fQjDGOn6NMsQ5ZmmitIShwVTaFUwmTdS8W-DWEeJLFtDMDWjIDkyRvM1j2M4sAQ5kkYelxSPbBjp95TT4d7hCBLtH8TVIwOrOGJziy9QWIvtm0tNsTMHM12pwJq7MXobizRurGbwbIiAA */
     id: 'mi',
     initial: 'initialize',
+    predictableActionArguments: true,
     context: {
         langClient: null,
         errorCode: null,
-        documentUri: null
+        view: "Overview"
     },
     states: {
         initialize: {
@@ -40,9 +40,7 @@ const stateMachine = createMachine<MachineContext>({
         },
         projectDetected: {
             entry: 'openMiPerspective',
-            on: {
-                '': 'lsInit'
-            }
+            always: 'lsInit'
         },
         lsInit: {
             invoke: {
@@ -77,13 +75,15 @@ const stateMachine = createMachine<MachineContext>({
                         OPEN_VIEW: {
                             target: "viewLoading",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.fileName
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                view: (context, event) => event.viewLocation.view
                             })
                         },
                         FILE_EDIT: {
                             target: "viewEditing",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.fileName
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                view: (context, event) => event.viewLocation.view
                             })
                         }
                     }
@@ -93,7 +93,8 @@ const stateMachine = createMachine<MachineContext>({
                         EDIT_DONE: {
                             target: "viewReady",
                             actions: assign({
-                                documentUri: (context, event) => event.viewLocation.fileName
+                                documentUri: (context, event) => event.viewLocation.documentUri,
+                                view: (context, event) => event.viewLocation.view
                             })
                         }
                     }
@@ -163,11 +164,11 @@ export const StateMachine = {
     sendEvent: (eventType: EventType) => { stateService.send({ type: eventType }); },
 };
 
-export function openView(viewLocation: StateLocation) {
+export function openView(viewLocation: VisualizerLocation) {
     stateService.send({ type: "OPEN_VIEW", viewLocation: viewLocation });
 }
 
-export function fileUpdated(viewLocation: StateLocation) {
+export function fileUpdated(viewLocation: VisualizerLocation) {
     stateService.send({ type: "FILE_UPDATED", viewLocation: viewLocation });
 }
 

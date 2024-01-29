@@ -14,6 +14,7 @@ import { stateChanged, getVisualizerState, VisualizerLocation } from '@wso2-ente
 import { State } from 'xstate';
 import { registerMiDiagramRpcHandlers } from './rpc-managers/mi-diagram/rpc-handler';
 import { VisualizerWebview } from './visualizer/webview';
+import { registerMiVisualizerRpcHandlers } from './rpc-managers/mi-visualizer/rpc-handler';
 
 export class RPCLayer {
     static _messenger: Messenger;
@@ -34,6 +35,7 @@ export class RPCLayer {
 
         RPCLayer._messenger.onRequest(getVisualizerState, () => getContext());
         registerMiDiagramRpcHandlers(RPCLayer._messenger);
+        registerMiVisualizerRpcHandlers(RPCLayer._messenger);
     }
 
     static create(webViewPanel: WebviewPanel | WebviewView) {
@@ -47,7 +49,7 @@ export class RPCLayer {
 async function getContext(): Promise<VisualizerLocation> {
     const context = StateMachine.context();
     return new Promise((resolve) => {
-        resolve({ documentUri: context.documentUri });
+        resolve({ documentUri: context.documentUri, view: context.view });
     });
 }
 

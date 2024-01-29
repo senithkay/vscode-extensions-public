@@ -3477,6 +3477,7 @@ importers:
       '@wso2-enterprise/mi-diagram': workspace:*
       '@wso2-enterprise/mi-overview': workspace:*
       '@wso2-enterprise/mi-rpc-client': workspace:*
+      '@wso2-enterprise/ui-toolkit': workspace:*
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
       react: ^18.2.0
@@ -3498,6 +3499,7 @@ importers:
       '@wso2-enterprise/mi-diagram': link:../mi-diagram
       '@wso2-enterprise/mi-overview': link:../mi-overview
       '@wso2-enterprise/mi-rpc-client': link:../mi-rpc-client
+      '@wso2-enterprise/ui-toolkit': link:../../common-libs/ui-toolkit
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
