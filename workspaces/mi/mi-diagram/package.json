@@ -4,10 +4,10 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "watch": "npm run copy-assets && tsc --pretty --watch",
+    "build": "pnpm run lint && tsc --pretty",
+    "watch": "tsc --pretty --watch",
     "copy-assets": "cp -r ./src/resources/assets ./lib/resources",
     "start": "webpack-dev-server",
-    "build": "webpack && pnpm run postbuild",
     "build:tsc": "tsc --pretty",
     "storybook": "storybook dev",
     "build-storybook": "storybook build",
