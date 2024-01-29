@@ -1,0 +1,1 @@
+export { default as DiagramComponentStory } from './DiagramComponent.stories';
