@@ -15,9 +15,9 @@ import { APIWizard } from "./APIform";
 import { EndpointWizard } from "./EndpointForm";
 import { SequenceWizard } from "./SequenceForm";
 
-export function renderMIDiagram(documentUri: string, resource: string) {
+export function renderMIDiagram(documentUri: string) {
     ReactDOM.render(
-        <MIDiagram documentUri={documentUri} resource={resource}></MIDiagram>,
+        <MIDiagram documentUri={documentUri}></MIDiagram>,
         document.getElementById("mi-diagram-container")
     );
 }

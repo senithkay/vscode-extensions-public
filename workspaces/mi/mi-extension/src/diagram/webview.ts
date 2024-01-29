@@ -16,7 +16,7 @@ import { getComposerJSFiles } from '../util';
 
 let diagramWebview: WebviewPanel | undefined;
 
-export function createDiagramWebview(context: ExtensionContext, documentUri: string, resource?: string) {
+export function createDiagramWebview(context: ExtensionContext, documentUri: string) {
     if (diagramWebview && diagramWebview.active) {
         diagramWebview.reveal();
         return;
@@ -72,7 +72,6 @@ export function createDiagramWebview(context: ExtensionContext, documentUri: str
                     function render() {
                         MIDiagram.renderMIDiagram(
                             ${JSON.stringify(documentUri)},
-                            ${JSON.stringify(resource)},
 							document.getElementById("root")
 						);
                     }
