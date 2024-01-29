@@ -24,11 +24,11 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
 
     // Show diagram for a single resource
     let resourceNode;
-    if (props.resource) {
+    if (props.resource && props.stNode.api.resource) {
         resourceNode = props.stNode.api.resource.find((resource: any) => resource.uriTemplate === props.resource);
     }
 
-    traversNode(resourceNode ? resourceNode : props.stNode.api ? props.stNode.api : props.stNode.sequence, visitor);
+    traversNode(resourceNode ? resourceNode : props.stNode.sequence, visitor);
 
     const sequences = visitor.getSequences();
 
