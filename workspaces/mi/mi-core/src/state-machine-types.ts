@@ -10,13 +10,13 @@
 
 import { NotificationType, RequestType } from "vscode-messenger-common";
 
-export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm";
+export type MachineViews = "Overview" | "Diagram" | "ServiceDesigner" | "APIForm" | "EndPointForm" | "SequenceForm";
 
-export type MachineStateValue = 
-| 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled' 
-| { ready: 'viewReady' } | { ready: 'viewUpdate' }
-| { newProject: 'welcome' } | { newProject: 'create' };
- 
+export type MachineStateValue =
+    | 'initialize' | 'projectDetected' | 'LSInit' | 'ready' | 'disabled'
+    | { ready: 'viewReady' } | { ready: 'viewUpdate' }
+    | { newProject: 'welcome' } | { newProject: 'create' };
+
 export type EventType = "OPEN_VIEW" | "GET_STARTED" | "CANCEL_CREATION";
 
 export type VoidCommands = "OPEN_LOW_CODE" | "OPEN_PROJECT" | "CREATE_PROJECT";
@@ -40,4 +40,4 @@ export interface VisualizerLocation {
 }
 
 export const stateChanged: NotificationType<MachineStateValue> = { method: 'stateChanged' };
-export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState'};
+export const getVisualizerState: RequestType<void, VisualizerLocation> = { method: 'getVisualizerState' };

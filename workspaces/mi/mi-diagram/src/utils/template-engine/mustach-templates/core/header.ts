@@ -9,6 +9,10 @@
 
 import { Header } from "@wso2-enterprise/mi-syntax-tree/lib/src";
 
+export function getHeaderMustacheTemplate() {
+    return `<header name="{{headerName}}" action="{{headerAction}}" scope="{{scope}}" {{#expression}}expression="{{expression}}"{{/expression}} {{#value}}value="{{value}}"{{/value}} {{#description}}description="{{description}}"{{/description}}/>`;
+}
+
 export function getHeaderFormDataFromSTNode(data: { [key: string]: any }, node: Header) {
     if (node.name) {
         data.headerName = node.name;

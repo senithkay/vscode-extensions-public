@@ -8,9 +8,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-// import MIWebViewAPI from './utils/WebViewRpc';
 import { ResourceCompartment } from './components/compartments/ResourceCompartment';
-// import { Refresh } from '@wso2-enterprise/mi-core';
 import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvider';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
@@ -20,6 +18,7 @@ import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 
 export interface MIDiagramProps {
 	documentUri: string;
+	resource?: string;
 }
 
 export function MIDiagram(props: MIDiagramProps) {
@@ -62,7 +61,7 @@ export function MIDiagram(props: MIDiagramProps) {
 	};
 
 	const compartment = useMemo(() => {
-		return <ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} />;
+		return <ResourceCompartment name='Resource' stNode={stNode} documentUri={props.documentUri} resource={props.resource} />;
 	}, [stNode, props.documentUri]);
 
 	let canvas;

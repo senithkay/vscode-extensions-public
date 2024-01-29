@@ -27,11 +27,12 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 				vscode.commands.executeCommand('project-explorer.add-api');
 			}
 		});
-
+		
 	});
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
 		// Update state machine to show the api wizard
 		// createApiWizardWebview(context);
+		openView( { view: "APIForm" });
 		console.log('Add API');
 	});
 
@@ -42,8 +43,12 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 			// TODO: Open file logic should go here
 			// const document = await vscode.workspace.openTextDocument(info.path);
 			// await vscode.window.showTextDocument(document);
-			openView( { view: "Overview", documentUri: info.path });
-			vscode.commands.executeCommand('integrationStudio.showDiagram');
+			if (info.type === 'api') {
+				vscode.commands.executeCommand('integrationStudio.showDiagram');
+			} else if (info.type === 'resource') {
+				openView( { view: "Diagram", documentUri: info.path, identifier: info.name });
+				vscode.commands.executeCommand('integrationStudio.showDiagram');
+			}
 		}
 	});
 

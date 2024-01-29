@@ -13,7 +13,7 @@ import { AutoComplete, Button, ComponentCard, TextField } from '@wso2-enterprise
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
-import MIWebViewAPI from '../../../../../utils/WebViewRpc';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../constants';
 
@@ -38,6 +38,7 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const HeaderForm = (props: AddMediatorProps) => {
+   const { rpcClient } = useVisualizerContext();
    const sidePanelContext = React.useContext(SidePanelContext);
    const [formValues, setFormValues] = useState({} as { [key: string]: any });
    const [errors, setErrors] = useState({} as any);
@@ -55,7 +56,7 @@ const HeaderForm = (props: AddMediatorProps) => {
    }, [sidePanelContext.formValues]);
 
    const onClick = async () => {
-       let newErrors = {} as any;
+       const newErrors = {} as any;
        Object.keys(formValidators).forEach((key) => {
            const error = formValidators[key]();
            if (error) {
@@ -66,7 +67,7 @@ const HeaderForm = (props: AddMediatorProps) => {
            setErrors(newErrors);
        } else {
            const xml = getXML(MEDIATORS.HEADER, formValues);
-           MIWebViewAPI.getInstance().applyEdit({
+           rpcClient.getMiDiagramRpcClient().applyEdit({
                documentUri: props.documentUri, range: props.nodePosition, text: xml
            });
            sidePanelContext.setIsOpen(false);
@@ -90,7 +91,7 @@ const HeaderForm = (props: AddMediatorProps) => {
 
    const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
        const value = e ?? formValues[id];
-       let newErrors = { ...errors };
+       const newErrors = { ...errors };
        let error;
        if (isRequired && !value) {
            error = "This field is required";

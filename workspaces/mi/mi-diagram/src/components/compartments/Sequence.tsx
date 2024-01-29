@@ -14,22 +14,19 @@ import {
 } from '@projectstorm/react-diagrams';
 
 import { CanvasContainer } from '../../Canvas';
-import { generateEngine, createLinks, setNodePositions } from '../../utils/Utils';
-import { BaseNodeModel, SequenceType } from '../base/base-node/base-node';
+import { generateEngine, setNodePositions, drawSequence } from '../../utils/Utils';
+import { BaseNodeModel } from '../base/base-node/base-node';
 import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
 import { SequenceNodeModel } from '../nodes/sequence/SequenceNodeModel';
 import { PlusNodeModel } from '../nodes/plusNode/PlusNodeModel';
-import { Position, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { SequenceNodes } from '../../utils/visitors/NodeInitVisitor';
 
 export const IN_SEQUENCE_TAG = "inSequence";
 export const OUT_SEQUENCE_TAG = "outSequence";
 
 export interface SequenceDiagramProps {
-    inSequence: BaseNodeModel[];
-    inSequenceRange?: Range;
-    outSequence: BaseNodeModel[];
-    outSequenceRange?: Range;
+    sequences: SequenceNodes[];
 }
 
 SequenceDiagram.defaultProps = {
@@ -45,14 +42,14 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
     useEffect(() => {
         setLoading(true);
         (async () => {
-            const inSequenceNodes = props.inSequence;
-            const outSequenceNodes = props.outSequence;
+            const sequences = props.sequences;
 
             diagramEngine.setModel(model);
             setEngine(diagramEngine);
 
-            if (props.inSequenceRange) drawSequence(inSequenceNodes, SequenceType.IN_SEQUENCE, props.inSequenceRange, "inSequence");
-            if (props.outSequenceRange) drawSequence(outSequenceNodes, SequenceType.OUT_SEQUENCE, props.outSequenceRange, "outSequence");
+            sequences.forEach((sequence: SequenceNodes) => {
+                drawSequence(sequence.nodes, sequence.type, sequence.range, model);
+            });
 
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
                 eventDidFire: (event: any) => {
@@ -67,64 +64,11 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
         })();
     }, []);
 
-    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType, range: Range, tag: string) {
-        let canvasPortNode = new SequenceNodeModel(`sequence-${sequenceType}`, sequenceType, range);
-        const sequenceNode = canvasPortNode;
-
-        // Add initial plus node
-        const plusNode = new PlusNodeModel(`${sequenceType}:plus:start`, null, sequenceType, null);
-        const position: Position = {
-            line: range.start.line,
-            character: range.start.character + tag.length + 2
-        }
-
-        plusNode.setNodeRange({
-            start: position,
-            end: position
-        });
-
-        if (nodes.length > 0) {
-            const targetNode = nodes[0];
-            const canvasPortLink = createLinks(plusNode, targetNode, null);
-            model.addAll(sequenceNode, ...canvasPortLink, targetNode);
-        } else {
-            model.addAll(sequenceNode, plusNode);
-        }
-
-        if (nodes.length > 1) {
-            for (let i = 0; i < nodes.length; i++) {
-                for (let j = i + 1; j < nodes.length; j++) {
-                    if (nodes[i].getParentNode() == nodes[j].getParentNode()) {
-                        const link = createLinks(nodes[i], nodes[j], null);
-                        model.addAll(nodes[i], ...link, nodes[j]);
-                        break;
-                    }
-                }
-            }
-        }
-        if (nodes.length > 0) {
-            // Add final plus node
-            const sourceNode = nodes[nodes.length - 1];
-            const plusNode = new PlusNodeModel(`${sequenceType}:plus:end`, null, sequenceType, null);
-            const position: Position = {
-                line: sourceNode.getNodeRange().end.line,
-                character: sourceNode.getNodeRange().end.character
-            }
-
-            plusNode.setNodeRange({
-                start: position,
-                end: position
-            });
-            const canvasPortLink = createLinks(sourceNode, plusNode, null);
-            model.addAll(...canvasPortLink);
-        }
-    }
-
     function autoDistribute() {
         let x = OFFSET.START.X;
         let y = OFFSET.START.Y;
         const nodes: any = diagramEngine.getModel().getNodes();
-        const inSeqNodes = nodes.filter((node: BaseNodeModel) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === IN_SEQUENCE_TAG);
+        const inSeqNodes = nodes.filter((node: BaseNodeModel) => (!node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === IN_SEQUENCE_TAG || node.getParentNode()?.tag === "sequence");
         const outSeqNodes = nodes.filter((node: BaseNodeModel) => (node.isInOutSequenceNode() && node instanceof PlusNodeModel && !node.getParentNode()) || node.getParentNode()?.tag === OUT_SEQUENCE_TAG);
         const inSeqNode = nodes.filter((node: any) => !node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];
         const outSeqNode = nodes.filter((node: any) => node.isInOutSequenceNode() && node instanceof SequenceNodeModel)[0];

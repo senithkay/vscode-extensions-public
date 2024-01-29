@@ -35,7 +35,8 @@ export class VisualizerWebview {
             }
         }, 500);
 
-        vscode.workspace.onDidChangeTextDocument(function () {
+        vscode.workspace.onDidChangeTextDocument(async function (document) {
+            await document.document.save();
             refreshDiagram();
         }, extension.context);
     }

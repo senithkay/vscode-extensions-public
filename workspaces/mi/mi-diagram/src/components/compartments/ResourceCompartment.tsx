@@ -16,21 +16,26 @@ interface Props {
     name: string;
     stNode: any;
     documentUri: string;
+    resource?: string;
 }
 
 export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
     const visitor = new NodeInitVisitor(props.documentUri);
-    traversNode(props.stNode.api, visitor);
 
-    const inSequenceNodes = visitor.getInSequenceNodes();
-    const outSequenceNodes = visitor.getOutSequenceNodes();
-    const inSequenceRange = visitor.getInSequenceRange();
-    const outSequenceRange = visitor.getOutSequenceRange();
+    // Show diagram for a single resource
+    let resourceNode;
+    if (props.resource && props.stNode?.api?.resource) {
+        resourceNode = props.stNode.api.resource.find((resource: any) => resource.uriTemplate === props.resource);
+    }
+
+    traversNode(resourceNode ? resourceNode : props.stNode.sequence, visitor);
+
+    const sequences = visitor.getSequences();
 
     return (
         <>
-            {/* Input & Output sequences */}
-            <SequenceDiagram inSequence={inSequenceNodes} inSequenceRange={inSequenceRange} outSequence={outSequenceNodes} outSequenceRange={outSequenceRange}></SequenceDiagram>
+            {/* Sequences */}
+            <SequenceDiagram sequences={sequences}></SequenceDiagram>
         </>
     );
 };

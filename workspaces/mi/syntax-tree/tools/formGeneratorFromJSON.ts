@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -86,13 +87,14 @@ const generateForm = (jsonData: any): string => {
     let formValidators = '\n';
     let fields = '';
     let defaultValues = '';
+    const keys: string[] = [];
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
         elements.forEach((element, index) => {
             if (element.type === 'attribute') {
                 const { name, displayName, defaultValue, enableCondition, inputType, required, helpTip, allowedConnectionTypes, validation, validationRegEx } = element.value;
-                // const inputName = parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_');
-                const inputName = name.trim().replace(/\s/g, '_');
+                const inputName = keys.includes(name.trim().replace(/\s/g, '_')) ? (parentName ? `${parentName}${name.trim().replace(/\s/g, '_')}` : name.trim().replace(/\s/g, '_')) : name.trim().replace(/\s/g, '_');
+                keys.push(inputName);
                 const isRequired = required == 'true';
 
                 formValidators += `"${inputName}": (e?: any) => validateField("${inputName}", e, ${isRequired}${validation ? `, "${validation}"` : ""}${validationRegEx ? `, "${validationRegEx}"` : ""}),\n`;
@@ -112,7 +114,7 @@ const generateForm = (jsonData: any): string => {
                     fixIndentation(`
                     <Field>`, indentation);
                 indentation += 4;
-                if (inputType === 'stringOrExpression' || inputType === 'string' || inputType === 'registry') {
+                if (inputType === 'stringOrExpression' || inputType === 'string' || inputType === 'registry' || inputType === 'expression') {
 
                     fields +=
                         fixIndentation(`
@@ -161,7 +163,7 @@ const generateForm = (jsonData: any): string => {
                 } else if (inputType === 'comboOrExpression' || inputType === 'combo') {
 
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
-                    let comboStr = `
+                    const comboStr = `
                         <label>${displayName}</label> ${isRequired ? `<RequiredFormInput />` : ''}
                         <AutoComplete items={[${comboValues}]} selectedItem={formValues["${inputName}"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e });
@@ -177,7 +179,7 @@ const generateForm = (jsonData: any): string => {
                         "${inputName}": false,`, 8);
                     }
 
-                    let checkboxStr = `
+                    const checkboxStr = `
                         <VSCodeCheckbox type="checkbox" checked={formValues["${inputName}"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e.target.checked });
                             formValidators["${inputName}"](e);
@@ -207,14 +209,14 @@ const generateForm = (jsonData: any): string => {
                     <ComponentCard sx={cardStyle} disbaleHoverEffect>   
                         <h3>${element.value.groupName}</h3>\n`, indentation);
                 }
-                
+
                 generateFormItems(element.value.elements, indentation + 4, `${element.value.groupName.trim().replace(/\s/g, '_')}.`);
 
                 if (parentName !== "table") {
                     fields += fixIndentation(`
                     </ComponentCard>`, indentation);
                 }
-                
+
                 indentation -= enableCondition ? 4 : 0;
                 fields +=
                     fixIndentation(`${enableCondition ? `
@@ -230,7 +232,7 @@ const generateForm = (jsonData: any): string => {
                     "${inputName}": [] as string[][],`, 8);
                 const elements = element.value.form.elements;
                 generateFormItems(elements, indentation + 4, "table");
-                
+
                 const name = elements[0].value.elements[0].value.name;
                 const type = elements[0].value.elements[1].value.name;
                 const value = elements[0].value.elements[2] ? elements[0].value.elements[2].value.name : "";
@@ -300,7 +302,7 @@ import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDat
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
-import MIWebViewAPI from '../../../../../utils/WebViewRpc';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../constants';
 
@@ -325,6 +327,7 @@ const emailRegex = /^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const ${operationNameCapitalized} = (props: AddMediatorProps) => {
+    const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
@@ -338,7 +341,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
     }, [sidePanelContext.formValues]);
 
     const onClick = async () => {
-        let newErrors = {} as any;
+        const newErrors = {} as any;
         Object.keys(formValidators).forEach((key) => {
             const error = formValidators[key]();
             if (error) {
@@ -349,7 +352,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
             setErrors(newErrors);
         } else {
             const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, formValues);
-            MIWebViewAPI.applyEdit({
+            rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
             sidePanelContext.setIsOpen(false);
@@ -364,7 +367,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         const value = e ?? formValues[id];
-        let newErrors = { ...errors };
+        const newErrors = { ...errors };
         let error;
         if (isRequired && !value) {
             error = "This field is required";
@@ -448,12 +451,29 @@ const generateForms = () => {
             console.log('-----------------------------------');
 
             const componentContent = generateForm(jsonData);
-            // console.log(componentContent);
-            fs.writeFileSync(destinationPath, componentContent);
-
+            if (!fs.existsSync(destinationPath)) {
+                // console.log(componentContent);
+                fs.writeFileSync(destinationPath, componentContent);
+            } else {
+                console.log(`${destinationPath} already exists. Skipping...`);
+            }
+            
             console.log('---------------END-----------------');
         }
     });
+
+    // lint generated files
+    console.log('Linting...');
+    const { exec } = require('child_process');
+    exec(`eslint --fix ${destination}/**/*.tsx`, (err: any, stdout: any, stderr: any) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log(stdout);
+        console.log(stderr);
+    }
+    );
 }
 
 generateForms();

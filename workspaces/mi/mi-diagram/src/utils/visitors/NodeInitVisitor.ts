@@ -36,19 +36,24 @@ import {
 } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { BaseNodeModel, SequenceType } from '../../components/base/base-node/base-node';
 import { SimpleMediatorNodeModel } from '../../components/nodes/mediators/simpleMediator/SimpleMediatorModel';
-import { MEDIATORS } from '../../constants';
+import { ENDPOINTS, MEDIATORS } from '../../constants';
 import { AdvancedMediatorNodeModel } from '../../components/nodes/mediators/advancedMediator/AdvancedMediatorModel';
 import { SimpleEndpointNodeModel } from '../../components/nodes/mediators/simpleEndpoint/SimpleEndpointModel';
 
+export interface SequenceNodes {
+    type: SequenceType;
+    nodes: BaseNodeModel[];
+    range?: Range;
+}
+
 export class NodeInitVisitor implements Visitor {
     private currentSequence: BaseNodeModel[];
-    private inSequenceNodes: BaseNodeModel[] = [];
-    private outSequenceNodes: BaseNodeModel[] = [];
-    private inSequenceRange: Range;
-    private outSequenceRange: Range;
+
+    private sequences: SequenceNodes[] = [];
+
     private parents: STNode[] = [];
     private documentUri: string;
-    private isInOutSequence = false;
+    private sequenceType: SequenceType;
     private skipChildrenVisit = false;
 
     constructor(documentUri: string) {
@@ -78,7 +83,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.LOG,
                 description: node.level?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -96,7 +101,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.STORE,
                 description: node.messageStore?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -109,7 +114,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.PROPERTY,
                 description: "",
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -122,7 +127,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.PROPERTYGROUP,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -135,7 +140,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.RESPOND,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
                 dropSequence: true
             }
@@ -149,7 +154,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.LOOPBACK,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
                 dropSequence: true
             }
@@ -175,7 +180,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.CALL,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
                     name: "Endpoints", nodes: endpointNodes
@@ -192,7 +197,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.CALLTEMPLATE,
                 description: node.target?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -219,7 +224,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.SEND,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
                     name: "Endpoints", nodes: endpointNodes
@@ -230,16 +235,28 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitSequence(node: Sequence) {
-        this.currentSequence.push(
-            new SimpleMediatorNodeModel({
-                node: node,
-                name: MEDIATORS.SEQUENCE,
-                description: node.tag?.toString(),
-                documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
-                parentNode: this.parents[this.parents.length - 1]
-            }
-            ));
+        if (this.currentSequence) {
+            this.currentSequence.push(
+                new SimpleMediatorNodeModel({
+                    node: node,
+                    name: MEDIATORS.SEQUENCE,
+                    description: node.tag?.toString(),
+                    documentUri: this.documentUri,
+                    sequenceType: this.sequenceType,
+                    parentNode: this.parents[this.parents.length - 1]
+                }
+                ));
+        } else {
+            const sequenceNodes: SequenceNodes = {
+                type: SequenceType.SEQUENCE,
+                nodes: [],
+                range: node.range
+            };
+            this.sequences.push(sequenceNodes);
+            this.sequenceType = SequenceType.SEQUENCE;
+            this.currentSequence = sequenceNodes.nodes;
+            this.parents.push(node);
+        }
     }
 
     beginVisitDrop(node: Drop) {
@@ -249,7 +266,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.DROP,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
                 dropSequence: true
             }
@@ -263,7 +280,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.CALLOUT,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -276,7 +293,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.HEADER,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -302,7 +319,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.VALIDATE,
                 description: node.description?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
                     name: "OnFail", nodes: onFailSequenceNodes, range: node.onFail?.range
@@ -340,7 +357,7 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.THROTTLE,
                 description: node.id?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
                 subSequences: [{
                     name: "OnAccept", nodes: onAcceptSequenceNodes, range: node.onAccept?.range
@@ -353,13 +370,15 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitEndpoint(node: Endpoint): void {
+        type EndpointType = keyof typeof ENDPOINTS;
+        const type: EndpointType = (node as any).type.split("_").slice(0, -1).join('');
         this.currentSequence.push(
             new SimpleMediatorNodeModel({
                 node: node,
-                name: MEDIATORS.HTTPENDPOINT,
+                name: ENDPOINTS[type],
                 description: node.key?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -369,10 +388,10 @@ export class NodeInitVisitor implements Visitor {
         this.currentSequence.push(
             new SimpleMediatorNodeModel({
                 node: node,
-                name: MEDIATORS.HTTPENDPOINT,
+                name: ENDPOINTS.HTTP,
                 description: node.tag?.toString(),
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1]
             }
             ));
@@ -391,8 +410,14 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitInSequence(node: Sequence): void {
-        this.currentSequence = this.inSequenceNodes;
-        this.inSequenceRange = node.range;
+        const sequenceNodes: SequenceNodes = {
+            type: SequenceType.IN_SEQUENCE,
+            nodes: [],
+            range: node.range
+        };
+        this.sequences.push(sequenceNodes);
+        this.sequenceType = SequenceType.IN_SEQUENCE;
+        this.currentSequence = sequenceNodes.nodes;
         this.parents.push(node);
     }
 
@@ -401,14 +426,18 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitOutSequence(node: Sequence): void {
-        this.isInOutSequence = true;
-        this.currentSequence = this.outSequenceNodes;
-        this.outSequenceRange = node.range;
+        const sequenceNodes: SequenceNodes = {
+            type: SequenceType.OUT_SEQUENCE,
+            nodes: [],
+            range: node.range
+        };
+        this.sequences.push(sequenceNodes);
+        this.sequenceType = SequenceType.OUT_SEQUENCE;
+        this.currentSequence = sequenceNodes.nodes;
         this.parents.push(node);
     }
 
     endVisitOutSequence(): void {
-        this.isInOutSequence = false;
         this.parents.pop();
     }
 
@@ -416,6 +445,7 @@ export class NodeInitVisitor implements Visitor {
         const currentSequence = this.currentSequence;
         const thenSequenceNodes: [] = [];
         const elseSequenceNodes: [] = [];
+        const subSequences = [];
 
         this.parents.push(node);
         if (node.then) {
@@ -425,6 +455,9 @@ export class NodeInitVisitor implements Visitor {
                     traversNode(mediator, this);
                 });
             }
+            subSequences.push({
+                name: "Then", nodes: thenSequenceNodes, range: node.then?.range
+            });
         }
 
         if (node.else_) {
@@ -434,6 +467,9 @@ export class NodeInitVisitor implements Visitor {
                     traversNode(mediator, this);
                 });
             }
+            subSequences.push({
+                name: "Else", nodes: elseSequenceNodes, range: node.else_?.range
+            });
         }
         this.parents.pop();
 
@@ -444,16 +480,16 @@ export class NodeInitVisitor implements Visitor {
                 name: MEDIATORS.FILTER,
                 description: "",
                 documentUri: this.documentUri,
-                sequenceType: this.isInOutSequence ? SequenceType.OUT_SEQUENCE : SequenceType.IN_SEQUENCE,
+                sequenceType: this.sequenceType,
                 parentNode: this.parents[this.parents.length - 1],
-                subSequences: [{
-                    name: "Then", nodes: thenSequenceNodes, range: node.then?.range
-                }, {
-                    name: "Else", nodes: elseSequenceNodes, range: node.else_?.range
-                }]
+                subSequences
             }
             ));
         this.skipChildrenVisit = true;
+    }
+
+    endVisitFilter(): void {
+        this.skipChildrenVisit = false;
     }
 
     beginVisitPayloadFactory(node: PayloadFactory): void {
@@ -473,20 +509,8 @@ export class NodeInitVisitor implements Visitor {
         return this.skipChildrenVisit;
     }
 
-    getInSequenceNodes(): BaseNodeModel[] {
-        return this.inSequenceNodes;
-    }
-
-    getOutSequenceNodes(): BaseNodeModel[] {
-        return this.outSequenceNodes;
-    }
-
-    getInSequenceRange(): Range {
-        return this.inSequenceRange;
-    }
-
-    getOutSequenceRange(): Range {
-        return this.outSequenceRange;
+    getSequences(): SequenceNodes[] {
+        return this.sequences;
     }
 }
 

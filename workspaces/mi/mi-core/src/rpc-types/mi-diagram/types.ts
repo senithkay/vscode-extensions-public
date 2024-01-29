@@ -106,5 +106,5 @@ export interface CreateSequenceRequest {
 
 }
 export interface CreateSequenceResponse {
-
+    filePath: string;
 }

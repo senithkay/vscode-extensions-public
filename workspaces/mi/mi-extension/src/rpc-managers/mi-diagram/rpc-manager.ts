@@ -69,11 +69,11 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             const workspaceFolders = workspace.workspaceFolders;
 
             if (!workspaceFolders) {
-                return connectorNames;
+                return resolve({ data: connectorNames });
             }
 
             if (!fs.existsSync(path.join(workspaceFolders[0].uri.path, connectorsPath))) {
-                return connectorNames;
+                return resolve({ data: connectorNames });
             }
 
             const connectorsRoot = path.join(workspaceFolders[0].uri.path, connectorsPath);
