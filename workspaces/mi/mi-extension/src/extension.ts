@@ -61,14 +61,16 @@ export async function activate(context: vscode.ExtensionContext) {
 			await vscode.window.showTextDocument(document);
 			if (info.type === 'api') {
 				vscode.commands.executeCommand('integrationStudio.showDiagram');
+			} else if (info.type === 'resource') {
+				vscode.commands.executeCommand('integrationStudio.showDiagram', info.name);
 			}
 		}
 	})
 
 	vscode.commands.executeCommand('project-explorer.focus');
 
-	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', () => {
-		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath);
+	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', async (resource: string) => {
+		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath, resource);
 	});
 
 	context.subscriptions.push(disposable);
