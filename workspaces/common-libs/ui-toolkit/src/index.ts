@@ -33,6 +33,7 @@ export * from './components/ProgressRing/ProgressRing';
 export * from './components/Tooltip/Tooltip';
 export * from './components/Breadcrumb/Breadcrumb';
 export * from './components/Grid/Grid';
+export * from './components/Grid/GridItem';
 export * from './components/SeachBox/SearchBox';
 
 export * from './components/SampleForm/Header/Header';

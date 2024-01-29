@@ -78,6 +78,12 @@ const inputEditorTemplateStyles = {
     }
 }
 
+const truncateText = {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+}
+
 export const parameterHeader = {
     root: {
         fontSize: '13px',
@@ -417,25 +423,23 @@ export const useStmtEditorHelperPanelStyles = () => ({
         },
     }),
     suggestionListItem: css({
-        "& .MuiListItemText-root": {
-            margin: '0'
-        },
-        ...hoverColor1,
-        ...activeColour
+        display: 'flex',
+        // "& .MuiListItemText-root": {
+        //     margin: '0'
+        // },
+        // ...hoverColor1,
+        // ...activeColour
     }),
     suggestionDataType: css({
-        color: '#05A26B',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        fontSize: '13px',
-        marginLeft: '4px',
+        color: 'var(--vscode-terminal-ansiGreen)',
+        ...truncateText,
     }),
     suggestionValue: css({
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        fontSize: '13px',
+        ...truncateText,
+    }),
+    listItem: css({
+        display: 'flex',
+        maxWidth: '155px',
     }),
     suggestionListInner: css({
         width: '100%',

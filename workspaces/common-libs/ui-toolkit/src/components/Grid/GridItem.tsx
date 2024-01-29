@@ -14,6 +14,7 @@ export interface GridItemProps {
     sx?: any;
     onClick?: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     children?: React.ReactNode;
+    selected?: boolean;
 }
 
 interface ContainerProps {
@@ -42,7 +43,7 @@ export const GridItem: React.FC<GridItemProps> = (props: GridItemProps) => {
             sx={sx}
             id={`grid-item-${id}`}
         >
-            {children}
+            <div style={{...sx}}>{children}</div>
         </Container>
     );
 };

@@ -11,54 +11,78 @@ import React, { ReactNode } from "react";
 import styled from "@emotion/styled";
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 
+interface DataGridCellProps {
+    selected?: boolean;
+}
 export const DataGridRow = styled(VSCodeDataGridRow)`
-  &:hover {
-    background: none;
-  }
+    &:hover {
+        background: none;
+    }
 `;
 
-export const DataGridCell = styled(VSCodeDataGridCell)`
-  &:hover {
-    background: var(--vscode-list-hoverBackground);
-    cursor: pointer;
-  };
+export const DataGridCell = styled(VSCodeDataGridCell) <DataGridCellProps>`
+    background: ${(props: DataGridCellProps) => props.selected ? 'var(--vscode-list-activeSelectionBackground)' : 'var(--vscode-editor-background)'};
+    border: ${(props: DataGridCellProps) => props.selected ? '1px var(--vscode-list-focusOutline) solid' : 'none'};
+    &:hover {
+        background: var(--vscode-list-hoverBackground);
+        cursor: pointer;
+    };
+    &:active {
+        background: var(--vscode-list-activeSelectionBackground);
+    };
+`;
+
+export const DataGridEmptyCell = styled(VSCodeDataGridCell)`
+    background: var(--vscode-editor-background);
+    border: none;
 `;
 
 export interface GridProps {
-  id?: string;
-  className?: string;
-  columns?: number;
-  children?: ReactNode;
-}
-
-export function Grid(props: GridProps) {
-  const { children, columns } = props;
-  const numberOfChildren = React.Children.count(children);
-  const rowData = numberOfChildren > 0 ? generateRowData(columns, children) : [];
-
-  return (
-    <VSCodeDataGrid>
-      {rowData}
-    </VSCodeDataGrid>
-  );
+    id?: string;
+    className?: string;
+    columns?: number;
+    children?: ReactNode;
 }
 
 const generateRowData = (numColumns: number, children: ReactNode) => {
-  const gridItems = React.Children.toArray(children);
-  const rowData: ReactNode[] = [];
-  const columnTemplate = Array.from({ length: numColumns }, () => '1fr').join(' ');
-  for (let i = 0; i < gridItems.length; i += numColumns) {
-    const row = [];
-    for (let j = 0; j < numColumns; j++) {
-      if (i + j < gridItems.length) {
-        row.push(gridItems[i + j]);
-      }
+    const gridItems = React.Children.toArray(children);
+    const rowData: ReactNode[] = [];
+    const columnTemplate = Array.from({ length: numColumns }, () => '1fr').join(' ');
+    for (let i = 0; i < gridItems.length; i += numColumns) {
+        const row = [];
+        for (let j = 0; j < numColumns; j++) {
+            row.push(gridItems[i + j]);
+        }
+        rowData.push(
+            <DataGridRow grid-template-columns={columnTemplate} key={rowData?.length}>
+                {row.map((cell, index) => {
+                    const selectedCell = cell && (cell as any).props.selected;
+                    return cell ? (
+                        <DataGridCell
+                            key={`cell${i+index}`}
+                            grid-column={index + 1}
+                            selected={selectedCell}
+                        >
+                            {cell}
+                        </DataGridCell>
+                    ) : (
+                        <DataGridEmptyCell grid-column={index + 1}/>
+                    );
+                })}
+            </DataGridRow>
+        );
     }
-    rowData.push(
-      <DataGridRow grid-template-columns={columnTemplate} key={rowData?.length}>
-        {row.map((cell, index) => <DataGridCell grid-column={index + 1}>{cell}</DataGridCell>)}
-      </DataGridRow>
-    );
-  }
-  return rowData;
+    return rowData;
 };
+
+export function Grid(props: GridProps) {
+    const { children, columns } = props;
+    const numberOfChildren = React.Children.count(children);
+    const rowData = numberOfChildren > 0 ? generateRowData(columns, children) : [];
+
+    return (
+        <VSCodeDataGrid>
+            {rowData}
+        </VSCodeDataGrid>
+    );
+}

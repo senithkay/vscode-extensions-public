@@ -29,10 +29,12 @@ const items: Item[] = [
 
 const Template: ComponentStory<typeof Grid> = (args: GridProps) => (
     <Grid {...args}>
-        {items.map((item) => (
+        {items.map(item => (
             <GridItem
                 id={item.id}
+                key={item.id}
                 onClick={item.onClick}
+                sx={{color: 'var(--foreground)'}}
             >
                 {item.label}
             </GridItem>
