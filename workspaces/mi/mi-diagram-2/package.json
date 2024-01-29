@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.tsx",
   "scripts": {
+    "build": "pnpm run lint && tsc --pretty",
     "start": "tsc && node dist/index.js",
     "storybook": "start-storybook -p 6006",
     "watch": "tsc --pretty --watch",
