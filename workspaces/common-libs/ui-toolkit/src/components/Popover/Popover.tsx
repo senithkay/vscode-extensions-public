@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 
 import styled from "@emotion/styled";
@@ -40,39 +40,41 @@ export interface PopoverProps {
     anchorEl: HTMLElement | SVGGElement | null;
     sx?: SxStyle;
     id?: string;
-    children?: React.ReactNode;
     handleClose?: () => void;
 }
 
-export const Popover: React.FC<PopoverProps> = (props: PopoverProps) => {
-    const { open, id, anchorEl: anchorEvent, sx, children, handleClose } = props;
+export const Popover: React.FC<PropsWithChildren<PopoverProps>> = 
+    (props: PropsWithChildren<PopoverProps>) => {
+        const { open, id, anchorEl: anchorEvent, sx, children, handleClose } = props;
 
-    let PopoverElement = (
-        <StyledPopover
-            top={anchorEvent?.getBoundingClientRect().top}
-            left={anchorEvent?.getBoundingClientRect().left}
-            sx={sx}
-        >
-            {children}
-        </StyledPopover>
-    );
+        let PopoverElement = (
+            <StyledPopover
+                top={anchorEvent?.getBoundingClientRect().top}
+                left={anchorEvent?.getBoundingClientRect().left}
+                sx={sx}
+            >
+                {children}
+            </StyledPopover>
+        );
 
-    if (handleClose) {
-        PopoverElement = (
-            <ClickAwayListener anchorEl={anchorEvent} onClickAway={handleClose}>
-                {PopoverElement}
-            </ClickAwayListener>
-        )
+        if (handleClose) {
+            PopoverElement = (
+                <ClickAwayListener anchorEl={anchorEvent} onClickAway={handleClose}>
+                    {PopoverElement}
+                </ClickAwayListener>
+            )
+        }
+    
+        return (
+            <div id={id}>
+                {open &&
+                    createPortal(
+                        PopoverElement,
+                        document.body
+                    )
+                }
+            </div>
+        );
     }
-  
-    return (
-        <div id={id}>
-            {open &&
-                createPortal(
-                    PopoverElement,
-                    document.body
-                )
-            }
-        </div>
-    );
-}
+
+    

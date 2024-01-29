@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { ReactNode, useEffect } from 'react';
+import React, { PropsWithChildren, ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styled from "@emotion/styled";
 import { getOffsetMultiplier } from './utils';
@@ -49,7 +49,6 @@ export interface TooltipProps {
     className?: string;
     content?: string | ReactNode;
     position?: PositionType;
-    children?: ReactNode;
     sx?: any;
 }
 
@@ -78,7 +77,7 @@ const TooltipContent = styled.div<TooltipProps>`
     ${(props: TooltipProps) => props.sx}
 `;
 
-export const Tooltip: React.FC<TooltipProps> = (props: TooltipProps) => {
+export const Tooltip: React.FC<PropsWithChildren<TooltipProps>> = (props: PropsWithChildren<TooltipProps>) => {
     const { id, className, content, position, children, sx } = props;
     const [isVisible, setIsVisible] = React.useState(false);
     const [diagramPosition, setDiagramPosition] = React.useState<Position>({ top: 0, bottom: 0, left: 0, right: 0 });

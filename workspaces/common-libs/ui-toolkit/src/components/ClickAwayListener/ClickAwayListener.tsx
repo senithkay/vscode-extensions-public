@@ -8,7 +8,7 @@
  */
 
 import styled from "@emotion/styled";
-import React, { useCallback, useEffect } from "react";
+import React, { PropsWithChildren, useCallback, useEffect } from "react";
 
 const Container = styled.div`
     height: fit-content;
@@ -17,34 +17,34 @@ const Container = styled.div`
 
 export type ClickAwayListenerProps = {
     anchorEl?: HTMLElement | SVGGElement;
-    children: React.ReactNode;
     onClickAway: (event?: React.MouseEvent<HTMLElement, MouseEvent>) => void;
 };
 
-export const ClickAwayListener: React.FC<ClickAwayListenerProps> = (props: ClickAwayListenerProps) => {
-    const { anchorEl, children, onClickAway } = props;
-    const ref = React.useRef<HTMLDivElement>(null);
+export const ClickAwayListener: React.FC<PropsWithChildren<ClickAwayListenerProps>> = 
+    (props: PropsWithChildren<ClickAwayListenerProps>) => {
+        const { anchorEl, children, onClickAway } = props;
+        const ref = React.useRef<HTMLDivElement>(null);
 
-    const handleClickAway = useCallback((event: MouseEvent) => {
-        if (
-            (ref.current && !ref.current.contains(event.target as Node)) && 
-            (!anchorEl?.contains(event.target as Node))
-        ) {
-            onClickAway();
-        }
-    }, [anchorEl, onClickAway]);
+        const handleClickAway = useCallback((event: MouseEvent) => {
+            if (
+                (ref.current && !ref.current.contains(event.target as Node)) && 
+                (!anchorEl?.contains(event.target as Node))
+            ) {
+                onClickAway();
+            }
+        }, [anchorEl, onClickAway]);
 
-    useEffect(() => {
-        document.addEventListener("click", handleClickAway);
-        return () => {
-            document.removeEventListener("click", handleClickAway);
-        };
-    }, [handleClickAway])
+        useEffect(() => {
+            document.addEventListener("click", handleClickAway);
+            return () => {
+                document.removeEventListener("click", handleClickAway);
+            };
+        }, [handleClickAway])
 
-    return (
-        <Container ref={ref}>
-            {children}
-        </Container>
-    );
-}
+        return (
+            <Container ref={ref}>
+                {children}
+            </Container>
+        );
+    }
 

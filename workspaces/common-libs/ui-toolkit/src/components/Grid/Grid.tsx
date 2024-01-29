@@ -7,7 +7,7 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import styled from "@emotion/styled";
 
 export const GridDirections = {
@@ -20,7 +20,6 @@ export interface GridProps {
     className?: string;
     key?: string | number;
     direction?: (typeof GridDirections)[keyof typeof GridDirections];
-    children: React.ReactNode;
     item?: boolean;
     columns?: number;
 }
@@ -47,7 +46,7 @@ const GridItem = styled.div`
     height: fit-content;
 `;
 
-export function Grid(props: GridProps) {
+export const Grid: React.FC<PropsWithChildren<GridProps>> = (props: PropsWithChildren<GridProps>) => {
     const { id, className, key, children, columns, direction = GridDirections.column, item = false } = props;
     const columnCount = columns ? columns : React.Children.count(children);
     return item ? (
@@ -57,4 +56,5 @@ export function Grid(props: GridProps) {
             {children}
         </GridContainer>
     );
-}
+};
+
