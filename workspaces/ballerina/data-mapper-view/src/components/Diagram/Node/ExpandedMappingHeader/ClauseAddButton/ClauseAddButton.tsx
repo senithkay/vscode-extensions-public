@@ -14,7 +14,7 @@ import { NodePosition, QueryExpression, STNode } from "@wso2-enterprise/syntax-t
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { genLetClauseVariableName } from "../../../../../utils/st-utils";
 import { useStyles } from "../styles";
-import { Button, Icon, Item, Menu, MenuItem, ProgressRing } from "@wso2-enterprise/ui-toolkit";
+import { Button, Icon, Item, Menu, MenuItem, Popover, ProgressRing } from "@wso2-enterprise/ui-toolkit";
 
 export interface ExpandedMappingHeaderWidgetProps {
     queryExprNode: QueryExpression;
@@ -122,14 +122,31 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
                 </div>
                 <div className={classes.line} />
             </div>
-            <Menu>
-                {menuItems.map((item) => (
-                    <MenuItem
-                        key={item.id}
-                        item={item}
-                    />
-                ))}
-            </Menu>
+            <Popover
+                open={open}
+                anchorEl={anchorEl}
+                handleClose={handleClose}
+                sx={{
+                    padding: 0,
+                    borderRadius: 0
+                }}
+            >
+                <Menu 
+                    sx={{ 
+                        padding: 0,
+                        backgroundColor: "var(--vscode-editor-background)",
+                        color: "var(--vscode-inputOption-activeForeground)",
+                    }}
+                >
+                    {menuItems.map((item) => (
+                        <MenuItem
+                            key={item.id}
+                            item={item}
+                            sx={{ fontSize: "var(--type-ramp-base-font-size)" }}
+                        />
+                    ))}
+                </Menu>
+            </Popover>
         </>
     );
 }
