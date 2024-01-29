@@ -40,10 +40,16 @@ export interface ProjectDirectoryMap {
 }
 
 export interface ProjectStructureEntry {
+    resources: ResourceStructureEntry[],
     sequences?: ProjectStructureEntry[],
     endpoints?: ProjectStructureEntry[],
     type: string,
     name: string,
     path: string
 
+}
+
+export interface ResourceStructureEntry {
+    uriTemplate: string,
+    method: string
 }

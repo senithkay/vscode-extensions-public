@@ -76,7 +76,8 @@ const stateMachine = createMachine<MachineContext>({
                             target: "viewLoading",
                             actions: assign({
                                 documentUri: (context, event) => event.viewLocation.documentUri,
-                                view: (context, event) => event.viewLocation.view
+                                view: (context, event) => event.viewLocation.view,
+                                identifier: (context, event) => event.viewLocation.identifier
                             })
                         },
                         FILE_EDIT: {
