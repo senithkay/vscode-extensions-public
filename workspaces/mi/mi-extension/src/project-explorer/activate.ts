@@ -27,11 +27,12 @@ export function activateProjectExplorer(context: vscode.ExtensionContext) {
 				vscode.commands.executeCommand('project-explorer.add-api');
 			}
 		});
-
+		
 	});
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
 		// Update state machine to show the api wizard
 		// createApiWizardWebview(context);
+		openView( { view: "APIForm" });
 		console.log('Add API');
 	});
 
