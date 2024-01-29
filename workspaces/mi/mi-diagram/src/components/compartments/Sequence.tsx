@@ -14,13 +14,12 @@ import {
 } from '@projectstorm/react-diagrams';
 
 import { CanvasContainer } from '../../Canvas';
-import { generateEngine, createLinks, setNodePositions } from '../../utils/Utils';
-import { BaseNodeModel, SequenceType } from '../base/base-node/base-node';
+import { generateEngine, setNodePositions, drawSequence } from '../../utils/Utils';
+import { BaseNodeModel } from '../base/base-node/base-node';
 import { NavigationWrapperCanvasWidget } from '@wso2-enterprise/ui-toolkit';
 import { OFFSET } from '../../constants';
 import { SequenceNodeModel } from '../nodes/sequence/SequenceNodeModel';
 import { PlusNodeModel } from '../nodes/plusNode/PlusNodeModel';
-import { Position, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { SequenceNodes } from '../../utils/visitors/NodeInitVisitor';
 
 export const IN_SEQUENCE_TAG = "inSequence";
@@ -49,7 +48,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             setEngine(diagramEngine);
 
             sequences.forEach((sequence: SequenceNodes) => {
-                drawSequence(sequence.nodes, sequence.type, sequence.range);
+                drawSequence(sequence.nodes, sequence.type, sequence.range, model);
             });
 
             diagramEngine.getModel().getNodes().forEach(node => node.registerListener({
@@ -64,59 +63,6 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             setLoading(false);
         })();
     }, []);
-
-    function drawSequence(nodes: BaseNodeModel[], sequenceType: SequenceType, range: Range) {
-        let canvasPortNode = new SequenceNodeModel(`sequence-${sequenceType}`, sequenceType, range);
-        const sequenceNode = canvasPortNode;
-
-        // Add initial plus node
-        const plusNode = new PlusNodeModel(`${sequenceType}:plus:start`, null, sequenceType, null);
-        const position: Position = {
-            line: range.start.line,
-            character: range.start.character + sequenceType.length + 2
-        }
-
-        plusNode.setNodeRange({
-            start: position,
-            end: position
-        });
-
-        if (nodes.length > 0) {
-            const targetNode = nodes[0];
-            const canvasPortLink = createLinks(plusNode, targetNode, null);
-            model.addAll(sequenceNode, ...canvasPortLink, targetNode);
-        } else {
-            model.addAll(sequenceNode, plusNode);
-        }
-
-        if (nodes.length > 1) {
-            for (let i = 0; i < nodes.length; i++) {
-                for (let j = i + 1; j < nodes.length; j++) {
-                    if (nodes[i].getParentNode() == nodes[j].getParentNode()) {
-                        const link = createLinks(nodes[i], nodes[j], null);
-                        model.addAll(nodes[i], ...link, nodes[j]);
-                        break;
-                    }
-                }
-            }
-        }
-        if (nodes.length > 0) {
-            // Add final plus node
-            const sourceNode = nodes[nodes.length - 1];
-            const plusNode = new PlusNodeModel(`${sequenceType}:plus:end`, null, sequenceType, null);
-            const position: Position = {
-                line: sourceNode.getNodeRange().end.line,
-                character: sourceNode.getNodeRange().end.character
-            }
-
-            plusNode.setNodeRange({
-                start: position,
-                end: position
-            });
-            const canvasPortLink = createLinks(sourceNode, plusNode, null);
-            model.addAll(...canvasPortLink);
-        }
-    }
 
     function autoDistribute() {
         let x = OFFSET.START.X;
