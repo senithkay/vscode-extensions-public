@@ -8,9 +8,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-// import MIWebViewAPI from './utils/WebViewRpc';
 import { ResourceCompartment } from './components/compartments/ResourceCompartment';
-// import { Refresh } from '@wso2-enterprise/mi-core';
 import { SidePanelProvider } from './components/sidePanel/SidePanelContexProvider';
 import { Button } from '@wso2-enterprise/ui-toolkit';
 import { SidePanel, SidePanelTitleContainer } from '@wso2-enterprise/ui-toolkit'
