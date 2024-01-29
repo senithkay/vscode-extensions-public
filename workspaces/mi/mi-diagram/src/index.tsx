@@ -14,6 +14,7 @@ import { ActivityPanel } from "./activity-panel";
 import { APIWizard } from "./APIform";
 import { EndpointWizard } from "./EndpointForm";
 import { SequenceWizard } from "./SequenceForm";
+import { ProjectWizard } from "./ProjectForm";
 
 export function renderMIDiagram(documentUri: string) {
     ReactDOM.render(
@@ -47,5 +48,12 @@ export function renderSequenceWizard() {
     ReactDOM.render(
         <SequenceWizard />,
         document.getElementById("mi-sequence-wizard-container")
+    );
+}
+
+export function renderProjectWizard() {
+    ReactDOM.render(
+        <ProjectWizard />,
+        document.getElementById("mi-project-wizard-container")
     );
 }

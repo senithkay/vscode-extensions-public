@@ -81,6 +81,7 @@ export const GetSyntaxTreeRequest: RequestType<string, unknown> = { method: 'xml
 export const GetConnectorsRequest: RequestType<void, GetConnectorsResponse[]> = { method: 'getConnectors' };
 export const GetConnectorRequest: RequestType<string, string[]> = { method: 'getConnector' };
 export const GetProjectStructureRequest: RequestType<string, GetProjectStructureResponse> = { method: 'xml/getSynapseSourceMap' };
+export const GetProjectRoot: RequestType<void, string> = { method: 'getProjectRoot' };
 export const GetAPIDirectory: RequestType<void, string> = { method: 'getAPIDirectory' };
 export const CreateAPI: RequestType<CreateAPIParams, string> = {method: 'createAPI'};
 export const GetEndpointDirectory: RequestType<void, string> = { method: 'getEndpointDirectory' };
@@ -88,6 +89,7 @@ export const CreateEndpoint: RequestType<CreateEndpointParams, string> = {method
 export const GetEndpointsAndSequences: RequestType<void, string[][]> = {method: 'getEndpointsAndSequences'};
 export const GetSequenceDirectory: RequestType<void, string> = { method: 'getSequenceDirectory' };
 export const CreateSequence: RequestType<CreateSequenceParams, string> = {method: 'createSequence'};
+export const AskProjectDirPath: RequestType<void, string | undefined> = { method: 'askProjectDirPath' };
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };

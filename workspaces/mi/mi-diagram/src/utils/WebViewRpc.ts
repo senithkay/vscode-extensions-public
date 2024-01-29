@@ -31,7 +31,9 @@ import {
     GetEndpointsAndSequences,
     CreateSequenceParams,
     CreateSequence,
-    GetSequenceDirectory
+    GetSequenceDirectory,
+    AskProjectDirPath,
+    GetProjectRoot
 } from "@wso2-enterprise/mi-core";
 
 export class MIWebViewAPI {
@@ -73,6 +75,14 @@ export class MIWebViewAPI {
 
     public getConnector(connectorPath: string): Promise<string[]> {
         return this._messenger.sendRequest(GetConnectorRequest, HOST_EXTENSION, connectorPath);
+    }
+
+    public getProjectRoot(): Promise<string> {
+        return this._messenger.sendRequest(GetProjectRoot, HOST_EXTENSION);
+    } 
+
+    public async askProjectDirPath(): Promise<string | undefined> {
+        return this._messenger.sendRequest(AskProjectDirPath, HOST_EXTENSION, undefined);
     }
 
     public getAPIDirectory(): Promise<string> {

@@ -16,6 +16,7 @@ import { ProjectExplorerEntryProvider } from './activity-panel/project-explorer-
 import { createApiWizardWebview } from './api-wizard/webview';
 import { createEndpointWizardWebview } from './endpoint-wizard/webview';
 import { createSequenceWizardWebview } from './sequence-wizard/webview';
+import { createProjectWizardWebview } from './project-wizard/webview';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -25,6 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('project-explorer.refresh', () => { projectExplorerDataProvider.refresh() })
 	vscode.commands.registerCommand('project-explorer.add', () => {
 		vscode.window.showQuickPick([
+			{ label: 'Project', description: 'Add new Project' },
 			{ label: 'API', description: 'Add new API' },
 			{ label: 'Endpoint', description: 'Add new Endpoint' },
 			{ label: 'Sequence', description: 'Add new Sequence' }
@@ -37,10 +39,16 @@ export async function activate(context: vscode.ExtensionContext) {
 				vscode.commands.executeCommand('project-explorer.add-endpoint');
 			} else if (selection?.label === 'Sequence') {
 				vscode.commands.executeCommand('project-explorer.add-sequence');
+			} else if (selection?.label === 'Project') {
+				vscode.commands.executeCommand('project-explorer.add-project');
 			}
 		});
 
 	})
+	vscode.commands.registerCommand('project-explorer.add-project', () => {
+		createProjectWizardWebview(context);
+	})
+
 	vscode.commands.registerCommand('project-explorer.add-api', () => {
 		createApiWizardWebview(context);
 	})

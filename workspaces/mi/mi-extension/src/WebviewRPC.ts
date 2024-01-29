@@ -9,6 +9,7 @@
 
 import { commands, WebviewPanel, window, WebviewView, workspace, Range, WorkspaceEdit, Uri, Position, ExtensionContext } from "vscode";
 import { Messenger } from "vscode-messenger";
+import * as os from 'os';
 import {
     ApplyEdit,
     ApplyEditParams,
@@ -31,7 +32,9 @@ import {
     GetEndpointsAndSequences,
     CreateSequenceParams,
     CreateSequence,
-    GetSequenceDirectory
+    GetSequenceDirectory,
+    AskProjectDirPath,
+    GetProjectRoot
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
@@ -141,6 +144,25 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
         edit.replace(Uri.parse(params.documentUri), range, text);
         await workspace.applyEdit(edit);
+    });
+    
+    messenger.onRequest(GetProjectRoot, async () => {
+        const workspaceFolders = workspace.workspaceFolders;
+        if (workspaceFolders) {
+            return workspaceFolders[0].uri.fsPath;
+        }
+        return "";
+    });
+
+    messenger.onRequest(AskProjectDirPath, async () => {
+        const selectedDir = await askProjectClonePath();
+        if (!selectedDir || selectedDir.length === 0) {
+            window.showErrorMessage('A folder must be selected to start cloning');
+            return;
+        } else {
+            const parentDir = selectedDir[0].fsPath;
+            return parentDir;
+        }
     });
 
     messenger.onRequest(CreateAPI, async (params: CreateAPIParams): Promise<string> => {
@@ -364,6 +386,16 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     messenger.onNotification(OpenFile, async (filePath) => {
         const document = await workspace.openTextDocument(filePath);
         await window.showTextDocument(document);
+    });
+}
+
+export async function askProjectClonePath() {
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a folder to create the Project"
     });
 }
 
