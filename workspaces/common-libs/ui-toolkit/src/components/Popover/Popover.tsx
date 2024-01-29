@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import React, { useEffect } from "react";
+import React from "react";
 import "@wso2-enterprise/font-wso2-vscode/dist/wso2-vscode.css";
 
 import styled from "@emotion/styled";
@@ -41,32 +41,38 @@ export interface PopoverProps {
     sx?: SxStyle;
     id?: string;
     children?: React.ReactNode;
+    handleClose?: () => void;
 }
 
 export const Popover: React.FC<PopoverProps> = (props: PopoverProps) => {
-    const { open, id, anchorEl: anchorEvent, sx, children } = props;
-    const [isOpen, handleOpen] = React.useState(open);
+    const { open, id, anchorEl: anchorEvent, sx, children, handleClose } = props;
 
-    useEffect(() => {
-        handleOpen(open);
-    }, [open]);
+    let PopoverElement = (
+        <StyledPopover
+            top={anchorEvent?.getBoundingClientRect().top}
+            left={anchorEvent?.getBoundingClientRect().left}
+            sx={sx}
+        >
+            {children}
+        </StyledPopover>
+    );
+
+    if (handleClose) {
+        PopoverElement = (
+            <ClickAwayListener anchorEl={anchorEvent} onClickAway={handleClose}>
+                {PopoverElement}
+            </ClickAwayListener>
+        )
+    }
   
     return (
-        <ClickAwayListener onClickAway={() => handleOpen(false)}>
-            <div id={id}>
-                {isOpen &&
-                    createPortal(
-                        <StyledPopover
-                            top={anchorEvent?.getBoundingClientRect().top}
-                            left={anchorEvent?.getBoundingClientRect().left}
-                            sx={sx}
-                        >
-                            {children}
-                        </StyledPopover>,
-                        document.body
-                    )
-                }
-            </div>
-        </ClickAwayListener>
+        <div id={id}>
+            {open &&
+                createPortal(
+                    PopoverElement,
+                    document.body
+                )
+            }
+        </div>
     );
 }
