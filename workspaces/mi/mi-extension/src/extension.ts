@@ -57,11 +57,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		if (e.selection.length > 0 && e.selection[0].info) {
 			const info = e.selection[0].info;
 			// TODO: Open file logic should go here
-			const document = await vscode.workspace.openTextDocument(info.path);
-			await vscode.window.showTextDocument(document);
-			if (info.type === 'api') {
-				vscode.commands.executeCommand('integrationStudio.showDiagram');
-			} else if (info.type === 'resource') {
+			if (info.type === 'resource') {
+				const document = await vscode.workspace.openTextDocument(info.path);
+				await vscode.window.showTextDocument(document);
 				vscode.commands.executeCommand('integrationStudio.showDiagram', info.name);
 			}
 		}
@@ -72,6 +70,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', async (resource: string) => {
 		createDiagramWebview(context, vscode.window.activeTextEditor!.document.uri.fsPath, resource);
 	});
+
+	// TODO: Show diagram without opening the file
+	// let disposable = vscode.commands.registerCommand('integrationStudio.showDiagram', async (filePath :string, resource: string) => {
+	// 	const content: string = readFileSync(filePath, { encoding: 'utf-8' });
+	// 	(await MILanguageClient.getInstance(context)).languageClient?.didOpen({textDocument: {
+	// 		uri: filePath,
+	// 		languageId: 'SynapseXml',
+	// 		version: 1,
+	// 		text: content
+	// 	}});
+	// 	createDiagramWebview(context, filePath, resource);
+	// });
 
 	context.subscriptions.push(disposable);
 
