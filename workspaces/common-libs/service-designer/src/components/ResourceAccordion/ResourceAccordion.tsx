@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -14,6 +14,10 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { AccordionTable } from '../AccordionTable/AccordionTable';
 import { Resource } from '../../definitions';
 import ConfirmDialog from '../ConfirmBox/ConfirmBox';
+
+type MethodProp = {
+    color: string;
+};
 
 // Define styles using @emotion/styled
 const AccordionContainer = styled.div`
@@ -93,22 +97,18 @@ function getColorByMethod(method: string) {
     }
 }
 
-type MethodProp = {
-    color: string;
-};
-
-
-interface ResourceAccordionProps {
+export interface ResourceAccordionProps {
     resource: Resource;
     modelPosition?: NodePosition;
     goToSource: (position: NodePosition) =>  void;
     onEditResource: (resourceInfo: Resource) => void;
-    onDeleteResource?: (resourceInfo: Resource, position: NodePosition) => void;
+    onDeleteResource?: (resourceInfo: Resource) => void;
 }
 
 const ResourceAccordion = (params: ResourceAccordionProps) => {
     const { modelPosition, resource, goToSource, onEditResource, onDeleteResource } = params;
     const [isOpen, setIsOpen] = useState(false);
+    const [isConfirmOpen, setConfirmOpen] = useState(false);
 
     const toggleAccordion = () => {
         setIsOpen(!isOpen);
@@ -123,16 +123,20 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         onEditResource(resource);
     };
 
+    const handleOpenConfirm = () => {
+        setConfirmOpen(true);
+    };
+
     const handleDeleteResource = (e: Event) => {
         e.stopPropagation(); // Stop the event propagation
         handleOpenConfirm();
     };
 
     const resourceParams: string[][] = [];
-    resource?.advancedParams?.forEach((param) => {
+    resource?.advancedParams?.forEach(param => {
         resourceParams.push([param.type, `${param.name}${param?.defaultValue ? ` = ${param.defaultValue}` : ""}`]);
     });
-    resource?.params?.forEach((param) => {
+    resource?.params?.forEach(param => {
         resourceParams.push([param.type, `${param.name}${param?.defaultValue ? ` = ${param.defaultValue}` : ""}`]);
     });
 
@@ -142,20 +146,14 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     }
 
     const responses: string[][] = [];
-    resource?.responses?.forEach((response) => {
+    resource?.responses?.forEach(response => {
         responses.push([`${response.code}`, response.type]);
     });
-
-    const [isConfirmOpen, setConfirmOpen] = useState(false);
 
     const handleConfirm = async () => {
         // Handle confirmation logic
         onDeleteResource && onDeleteResource(resource, resource?.deletePosition);
         setConfirmOpen(false);
-    };
-
-    const handleOpenConfirm = () => {
-        setConfirmOpen(true);
     };
 
     const handleCloseConfirm = () => {

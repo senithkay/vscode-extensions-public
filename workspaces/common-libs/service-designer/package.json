@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/service-designer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "WSO2 Service Designer",
   "homepage": "http://wso2-enterprise.github.io/vscode-extensions.git",
   "files": [
@@ -11,11 +11,12 @@
   "typings": "lib/index",
   "scripts": {
     "prebuild": "pnpm run lint",
-    "build": "tsc --pretty",
-    "storybook": "start-storybook --port 6006",
+    "copy-font": "copyfiles -u 1 node_modules/@wso2-enterprise/font-wso2-vscode/dist/* .storybook/fonts/ && copyfiles -u 1 node_modules/@vscode/codicons/dist/* .storybook/fonts/",
+    "build": "tsc --pretty && npm run copy-font",
+    "storybook": "sb dev --port 6008",
+    "build-storybook": "sb build",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "build-storybook": "build-storybook",
     "serve-storybook": "pnpm run build-storybook && http-server ./storybook-static -o"
   },
   "dependencies": {
@@ -25,7 +26,8 @@
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@vscode/codicons": "0.0.33",
     "@wso2-enterprise/syntax-tree": "workspace:*",
-    "@wso2-enterprise/ui-toolkit": "workspace:*"
+    "@wso2-enterprise/ui-toolkit": "workspace:*",
+    "@wso2-enterprise/font-wso2-vscode": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=17.0.2",

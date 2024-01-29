@@ -429,6 +429,11 @@
       "versionPolicyName": "ui-toolkit"
     },
     {
+      "packageName": "@wso2-enterprise/service-designer",
+      "projectFolder": "workspaces/common-libs/service-designer",
+      "versionPolicyName": "service-designer"
+    },
+    {
       "packageName": "@wso2-enterprise/choreo-client",
       "projectFolder": "workspaces/choreo/choreo-client",
       "versionPolicyName": "choreo-extension"

@@ -8,9 +8,24 @@
  */
 
 import React from "react";
-import { ServiceDesigner } from "./ServiceDesigner";
-import { PARAM_TYPES, Resource, Service } from "../../definitions";
+import ResourceAccordion from "./ResourceAccordion";
+import { PARAM_TYPES, Resource } from "../../definitions";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
+export default {
+    component: ResourceAccordion,
+    title: 'Resource Accordion',
+};
+
+const handleResourceDelete = (resource: Resource) => {
+    console.log("Delete resource ", resource);
+};
+const handleResourceEdit = (resource: Resource) => {
+    console.log("Edit resource ", resource);
+};
+const handleGoToSource = (position: NodePosition) => {
+    console.log("Go to source postion ", position);
+};
 
 const resource: Resource = {
     method: "GET",
@@ -90,50 +105,14 @@ const resource: Resource = {
     }
 };
 
-export default {
-    component: ServiceDesigner,
-    title: 'Service Designer',
-};
-
-const handleResourceAdd = () => {
-    console.log("Add resource");
-};
-const handleResourceDelete = (resource: Resource) => {
-    console.log("Delete resource ", resource);
-};
-const handleResourceEdit = (resource: Resource) => {
-    console.log("Edit resource ", resource);
-};
-const handleGoToSource = (position: NodePosition) => {
-    console.log("Go to source postion ", position);
-};
-const handleServiceEdit = (service: Service) => {
-    console.log("Edit service ", service);
-};
-
-const serviceModel: Service = {
-    path: "foo",
-    port: 9090,
-    position: {
-        startColumn: 0,
-        startLine: 0,
-        endColumn: 0,
-        endLine: 0
-    },
-    resources: [
-        resource
-    ]
-};
-
-export const ServiceDesignerStory = () => {
+export const ResourceAccordionStory = () => {
     return (
-        <ServiceDesigner
-            model={serviceModel}
-            onResourceAdd={handleResourceAdd}
+        <ResourceAccordion
             goToSource={handleGoToSource}
-            onResourceDelete={handleResourceDelete}
-            onResourceEdit={handleResourceEdit}
-            onServiceEdit={handleServiceEdit} 
+            onEditResource={handleResourceEdit}
+            modelPosition={{ startColumn: 0, startLine: 0, endColumn: 0, endLine: 0}}
+            onDeleteResource={handleResourceDelete}
+            resource={resource}
         />
     );
 };
