@@ -8,7 +8,6 @@
  */
 
 import * as path from 'path';
-// import { RegisterWebViewPanelRpc } from '../WebviewRPC';
 import { ExtensionContext, Uri, ViewColumn, Webview, WebviewPanel, window, workspace } from 'vscode';
 import { onRefresh } from '@wso2-enterprise/mi-core';
 import { debounce } from "lodash";
