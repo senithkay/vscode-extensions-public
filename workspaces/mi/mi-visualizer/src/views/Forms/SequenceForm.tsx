@@ -9,7 +9,8 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { MIWebViewAPI } from "./utils/WebViewRpc";
+import { SectionWrapper } from "./Commons";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -35,28 +36,6 @@ const TitleWrapper = styled.div`
 `;
 
 
-export const SectionWrapper: React.FC<React.HTMLAttributes<HTMLDivElement>> = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
-`;
-
 export interface Region {
     label: string;
     value: string;
@@ -64,20 +43,21 @@ export interface Region {
 
 export function SequenceWizard() {
 
+    const { rpcClient } = useVisualizerContext();
     const [sequenceName, setSequenceName] = useState("");
     const [projectDir, setProjectDir] = useState("");
     const [selectedEndpoint, setSelectedEndpoint] = useState("");
     const [onErrorSequence, setOnErrorSequence] = useState("");
     const [endpoints, setEndpoints] = useState([]);
-    const [sequences,setSequences] = useState([]);
+    const [sequences, setSequences] = useState([]);
 
     useEffect(() => {
         (async () => {
-            const synapseSequencePath = await MIWebViewAPI.getInstance().getSequenceDirectory();
-            setProjectDir(synapseSequencePath);
-            const data = await MIWebViewAPI.getInstance().getEndpointsAndSequences();
-            setEndpoints(data[0]);
-            setSequences(data[1]);
+            const synapseSequencePath = await rpcClient.getMiDiagramRpcClient().getSequenceDirectory();
+            setProjectDir(synapseSequencePath.data);
+            const data = await rpcClient.getMiDiagramRpcClient().getEndpointsAndSequences();
+            setEndpoints(data.data[0]);
+            setSequences(data.data[1]);
         })();
 
     }, []);
@@ -97,13 +77,13 @@ export function SequenceWizard() {
             endpoint: selectedEndpoint,
             onErrorSequence: onErrorSequence,
         }
-        const file = await MIWebViewAPI.getInstance().createSequence(createSequenceParams);
-        MIWebViewAPI.getInstance().openFile(file);
-        MIWebViewAPI.getInstance().closeWebView();
+        const file = await rpcClient.getMiDiagramRpcClient().createSequence(createSequenceParams);
+        rpcClient.getMiDiagramRpcClient().openFile({ path: file.filePath });
+        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const handleCancel = () => {
-        MIWebViewAPI.getInstance().closeWebView();
+        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const isValid: boolean = sequenceName.length > 0;

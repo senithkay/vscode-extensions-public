@@ -9,7 +9,8 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import MIWebViewAPI from "./utils/WebViewRpc";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -52,29 +53,6 @@ const TitleWrapper = styled.div`
     gap: 10px;
 `;
 
-
-export const SectionWrapper: React.FC<React.HTMLAttributes<HTMLDivElement>> = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
-`;
-
 export interface Region {
     label: string;
     value: string;
@@ -82,7 +60,7 @@ export interface Region {
 
 export function APIWizard() {
 
-
+    const { rpcClient } = useVisualizerContext();
     const [apiName, setAPIName] = useState("");
     const [apiContext, setAPIContext] = useState("");
     const [versionType, setVersionType] = useState("none");
@@ -92,7 +70,7 @@ export function APIWizard() {
 
     useEffect(() => {
         (async () => {
-            const synapseAPIPath = await MIWebViewAPI.getInstance().getAPIDirectory();
+            const synapseAPIPath = await rpcClient.getMiDiagramRpcClient().getAPIDirectory();
             setProjectDir(synapseAPIPath.data);
         })();
 
@@ -113,15 +91,15 @@ export function APIWizard() {
             type: versionType,
             version: version
         }
-        const file = await MIWebViewAPI.getInstance().createAPI(createAPIParams);
+        const file = await rpcClient.getMiDiagramRpcClient().createAPI(createAPIParams);
         console.log("API created");
-        MIWebViewAPI.getInstance().openDiagram(file);
-        // MIWebViewAPI.getInstance().closeWebView();
+        rpcClient.getMiDiagramRpcClient().openDiagram(file);
+        // rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const handleCancel = () => {
         console.log("cancel");
-        // MIWebViewAPI.getInstance().closeWebView();
+        // rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;

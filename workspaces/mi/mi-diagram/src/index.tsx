@@ -17,8 +17,8 @@ import * as ReactDOM from "react-dom";
 // import { MIDiagram } from "./MIDiagram";
 // import { ActivityPanel } from "./activity-panel";
 import { APIWizard } from "./APIform";
-import { EndpointWizard } from "./EndpointForm";
-import { SequenceWizard } from "./SequenceForm";
+import { EndpointWizard } from "../../mi-visualizer/src/views/Forms/EndpointForm";
+import { SequenceWizard } from "../../mi-visualizer/src/views/Forms/SequenceForm";
 
 // export function renderMIDiagram(documentUri: string) {
 //     ReactDOM.render(

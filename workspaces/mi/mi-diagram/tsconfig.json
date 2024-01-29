@@ -36,7 +36,7 @@
   },
   "include": [
       "src"
-  ],
+, "../mi-visualizer/src/views/Forms/SequenceForm.tsx", "../mi-visualizer/src/views/Forms/EndpointForm.tsx"  ],
   "exclude": [
       "node_modules",
       "lib"

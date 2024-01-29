@@ -9,7 +9,9 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import MIWebViewAPI from "./utils/WebViewRpc";
+import { SectionWrapper } from "./Commons";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { CreateEndpointRequest, EndpointDirectoryResponse } from "@wso2-enterprise/mi-core";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -42,29 +44,6 @@ const TitleWrapper = styled.div`
     gap: 10px;
 `;
 
-
-export const SectionWrapper: React.FC<React.HTMLAttributes<HTMLDivElement>> = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
-`;
-
 export interface Region {
     label: string;
     value: string;
@@ -72,7 +51,7 @@ export interface Region {
 
 export function EndpointWizard() {
 
-
+    const { rpcClient } = useVisualizerContext();
     const [endpointName, setEndpointName] = useState("");
     const [endpointType, setEndpointType] = useState("Address Endpoint");
     const [endpointConfiguration, setEndpointConfiguration] = useState("Static Endpoint (Save in an ESB Project)");
@@ -83,8 +62,8 @@ export function EndpointWizard() {
 
     useEffect(() => {
         (async () => {
-            const synapseEndpointsPath = await MIWebViewAPI.getInstance().getEndpointDirectory();
-            setProjectDir(synapseEndpointsPath);
+            const synapseEndpointsPath = await rpcClient.getMiDiagramRpcClient().getEndpointDirectory();
+            setProjectDir(synapseEndpointsPath.data);
         })();
 
     }, []);
@@ -128,7 +107,7 @@ export function EndpointWizard() {
     };
 
     const handleCreateEndpoint = async () => {
-        const createEndpointParams = {
+        const createEndpointParams: CreateEndpointRequest = {
             directory: projectDir,
             name: endpointName,
             type: endpointType,
@@ -137,13 +116,13 @@ export function EndpointWizard() {
             uriTemplate: URITemplate,
             method: method
         }
-        const file = await MIWebViewAPI.getInstance().createEndpoint(createEndpointParams);
-        MIWebViewAPI.getInstance().openFile(file);
-        MIWebViewAPI.getInstance().closeWebView();
+        const file = await rpcClient.getMiDiagramRpcClient().createEndpoint(createEndpointParams);
+        rpcClient.getMiDiagramRpcClient().openFile(file);
+        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const handleCancel = () => {
-        MIWebViewAPI.getInstance().closeWebView();
+        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const isValid: boolean = endpointName.length > 0 &&
