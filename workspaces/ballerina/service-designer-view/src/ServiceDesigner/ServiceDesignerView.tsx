@@ -12,10 +12,9 @@
 import React, { useState, useEffect } from "react";
 import { ResourceForm } from "./components/ResourceForm/ResourceForm";
 import { ServiceDeclaration, NodePosition } from "@wso2-enterprise/syntax-tree";
-import { ServiceDesigner } from "@wso2-enterprise/service-designer";
+import { Resource, Service, ServiceDesigner } from "@wso2-enterprise/service-designer";
 import { ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { getService, updateServiceDecl } from "./utils/utils";
-import { Resource, Service } from "./definitions";
 import { ServiceForm } from "./components/ServiceForm/ServiceForm";
 
 interface ServiceDesignerProps {

@@ -14,8 +14,8 @@ import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
 import { ResponseItem } from './ResponseItem';
 import { ResponseEditor } from './ResponseEditor';
-import { ResponseConfig } from '../../definitions';
 import { HTTP_METHOD, getDefaultResponse, getResponseRecordCode, getResponseRecordDefCode, getSourceFromResponseCode } from '../../utils/utils';
+import { ResponseConfig } from '@wso2-enterprise/service-designer';
 
 export interface ResourceParamProps {
     method: HTTP_METHOD;

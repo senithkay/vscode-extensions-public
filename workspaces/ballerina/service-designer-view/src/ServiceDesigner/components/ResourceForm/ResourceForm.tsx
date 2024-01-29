@@ -12,12 +12,12 @@ import { ActionButtons, Button, Divider, LinkButton, SidePanel, SidePanelBody, S
 import { ResourcePath } from '../ResourcePath/ResourcePath';
 import { ResourceResponse } from '../ResourceResponse/ResourceResponse';
 import { ResourceParam } from '../ResourceParam/ResourceParam';
-import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '../../definitions';
 import { Payload } from '../Payload/Payload';
 import { AdvancedParams } from '../AdvancedParam/AdvancedParam';
 import styled from '@emotion/styled';
 import { HTTP_METHOD, generateNewResourceFunction, updateResourceFunction } from '../../utils/utils';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { PARAM_TYPES, ParameterConfig, Resource, ResponseConfig } from '@wso2-enterprise/service-designer';
 
 const AdvancedParamTitleWrapper = styled.div`
 	display: flex;

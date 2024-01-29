@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react';
 import { ActionButtons, Button, SidePanel, SidePanelBody, SidePanelTitleContainer, TextField, Typography } from '@wso2-enterprise/ui-toolkit';
-import { Service } from '../../definitions';
+import { Service } from '@wso2-enterprise/service-designer';
 
 export interface ResourceFormProps {
 	isOpen: boolean;

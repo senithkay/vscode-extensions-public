@@ -9,7 +9,7 @@
 
 import React from "react";
 import { ServiceForm } from "./ServiceForm";
-import { Service } from "../../definitions";
+import { Service } from "@wso2-enterprise/service-designer";
 
 export default {
     component: ServiceForm,

@@ -12,9 +12,9 @@ import React, { ReactElement, useState } from 'react';
 
 import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { PARAM_TYPES, ParameterConfig } from '../../definitions';
 import { ParamEditor } from '../ResourceParam/ParamEditor';
 import { ParamItem } from '../ResourceParam/ParamItem';
+import { PARAM_TYPES, ParameterConfig } from '@wso2-enterprise/service-designer';
 
 export interface ResourceParamProps {
     parameters: Map<string, ParameterConfig>;
