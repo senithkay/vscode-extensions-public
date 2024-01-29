@@ -370,10 +370,12 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitEndpoint(node: Endpoint): void {
+        type EndpointType = keyof typeof ENDPOINTS;
+        const type: EndpointType = (node as any).type.split("_").slice(0, -1).join('');
         this.currentSequence.push(
             new SimpleMediatorNodeModel({
                 node: node,
-                name: ENDPOINTS.HTTP,
+                name: ENDPOINTS[type],
                 description: node.key?.toString(),
                 documentUri: this.documentUri,
                 sequenceType: this.sequenceType,
