@@ -24,7 +24,7 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
 
     // Show diagram for a single resource
     let resourceNode;
-    if (props.resource && props.stNode.api.resource) {
+    if (props.resource && props.stNode?.api?.resource) {
         resourceNode = props.stNode.api.resource.find((resource: any) => resource.uriTemplate === props.resource);
     }
 
