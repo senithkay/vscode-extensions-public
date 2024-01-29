@@ -301,7 +301,7 @@ import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDat
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
-import { MIWebViewAPI } from '../../../../../utils/WebViewRpc';
+import MIWebViewAPI from '../../../../../utils/WebViewRpc';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../constants';
 
@@ -350,7 +350,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
             setErrors(newErrors);
         } else {
             const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, formValues);
-            MIWebViewAPI.getInstance().applyEdit({
+            MIWebViewAPI.applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
             sidePanelContext.setIsOpen(false);

@@ -12,7 +12,7 @@ import { BaseNodeProps } from '../../../base/base-node/base-node';
 import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { SimpleMediatorNodeModel } from './SimpleMediatorModel';
 import { getSVGIcon } from '../Icons';
-import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
+import MIWebViewAPI from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import styled from '@emotion/styled';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'

@@ -15,7 +15,7 @@ import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { drawSequence, setNodePositions } from '../../../../utils/Utils';
 import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
-import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
+import MIWebViewAPI from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { Codicon } from '@wso2-enterprise/ui-toolkit'
 import SidePanelContext from '../../../sidePanel/SidePanelContexProvider';

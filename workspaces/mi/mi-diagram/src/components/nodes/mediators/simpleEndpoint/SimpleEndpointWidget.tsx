@@ -13,7 +13,7 @@ import { SimpleEndpointNodeModel } from './SimpleEndpointModel';
 import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
-import { MIWebViewAPI } from '../../../../utils/WebViewRpc';
+import MIWebViewAPI from '../../../../utils/WebViewRpc';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';

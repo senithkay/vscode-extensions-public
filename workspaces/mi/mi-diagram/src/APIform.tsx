@@ -9,7 +9,7 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { MIWebViewAPI } from "./utils/WebViewRpc";
+import MIWebViewAPI from "./utils/WebViewRpc";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -93,7 +93,7 @@ export function APIWizard() {
     useEffect(() => {
         (async () => {
             const synapseAPIPath = await MIWebViewAPI.getInstance().getAPIDirectory();
-            setProjectDir(synapseAPIPath);
+            setProjectDir(synapseAPIPath.data);
         })();
 
     }, []);
@@ -116,12 +116,12 @@ export function APIWizard() {
         const file = await MIWebViewAPI.getInstance().createAPI(createAPIParams);
         console.log("API created");
         MIWebViewAPI.getInstance().openDiagram(file);
-        MIWebViewAPI.getInstance().closeWebView();
+        // MIWebViewAPI.getInstance().closeWebView();
     };
 
     const handleCancel = () => {
         console.log("cancel");
-        MIWebViewAPI.getInstance().closeWebView();
+        // MIWebViewAPI.getInstance().closeWebView();
     };
 
     const isValid: boolean = apiName.length > 0 && apiContext.length > 0 && versionType.length > 0;

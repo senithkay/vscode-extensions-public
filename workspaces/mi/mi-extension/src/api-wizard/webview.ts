@@ -8,9 +8,9 @@
  */
 
 import * as path from 'path';
-import { RegisterWebViewPanelRpc } from '../WebviewRPC';
+// import { RegisterWebViewPanelRpc } from '../WebviewRPC';
 import { ExtensionContext, Uri, ViewColumn, Webview, WebviewPanel, window, workspace } from 'vscode';
-import { Refresh } from '@wso2-enterprise/mi-core';
+import { onRefresh } from '@wso2-enterprise/mi-core';
 import { debounce } from "lodash";
 import { getComposerJSFiles } from '../util';
 
@@ -37,18 +37,18 @@ export function createApiWizardWebview(context: ExtensionContext) {
     const scripts = getComposerJSFiles(context, 'MIDiagram', panel.webview).map(jsFile =>
         '<script charset="UTF-8" src="' + jsFile + '"></script>').join('\n');
 
-    const rpc = new RegisterWebViewPanelRpc(context, panel);
+    // const rpc = new RegisterWebViewPanelRpc(context, panel);
 
-    const refreshDiagram = debounce(() => {
-        if (apiWizardWebview) {
-            rpc.getMessenger().sendNotification(Refresh, { type: 'webview', webviewType: 'diagram' });
-        }
-    }, 500);
+    // const refreshDiagram = debounce(() => {
+    //     if (apiWizardWebview) {
+    //         rpc.getMessenger().sendNotification(refresh, { type: 'webview', webviewType: 'diagram' });
+    //     }
+    // }, 500);
 
 
-    workspace.onDidChangeTextDocument(function() {
-        refreshDiagram();
-    }, context);
+    // workspace.onDidChangeTextDocument(function() {
+    //     refreshDiagram();
+    // }, context);
 
     apiWizardWebview.onDidDispose(() => {
         apiWizardWebview = undefined;

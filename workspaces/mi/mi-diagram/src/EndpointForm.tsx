@@ -9,7 +9,7 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { AutoComplete, Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { MIWebViewAPI } from "./utils/WebViewRpc";
+import MIWebViewAPI from "./utils/WebViewRpc";
 
 const WizardContainer = styled.div`
     width: 95%;
