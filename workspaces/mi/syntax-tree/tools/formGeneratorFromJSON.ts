@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
  *
@@ -86,7 +87,7 @@ const generateForm = (jsonData: any): string => {
     let formValidators = '\n';
     let fields = '';
     let defaultValues = '';
-    let keys: string[] = [];
+    const keys: string[] = [];
 
     const generateFormItems = (elements: any[], indentation: number, parentName?: string) => {
         elements.forEach((element, index) => {
@@ -162,7 +163,7 @@ const generateForm = (jsonData: any): string => {
                 } else if (inputType === 'comboOrExpression' || inputType === 'combo') {
 
                     const comboValues = element.value.comboValues.map((value: string) => `"${value}"`).toString().replaceAll(",", ", ");
-                    let comboStr = `
+                    const comboStr = `
                         <label>${displayName}</label> ${isRequired ? `<RequiredFormInput />` : ''}
                         <AutoComplete items={[${comboValues}]} selectedItem={formValues["${inputName}"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e });
@@ -178,7 +179,7 @@ const generateForm = (jsonData: any): string => {
                         "${inputName}": false,`, 8);
                     }
 
-                    let checkboxStr = `
+                    const checkboxStr = `
                         <VSCodeCheckbox type="checkbox" checked={formValues["${inputName}"]} onChange={(e: any) => {
                             setFormValues({ ...formValues, "${inputName}": e.target.checked });
                             formValidators["${inputName}"](e);
@@ -301,7 +302,7 @@ import { VSCodeCheckbox, VSCodeDropdown, VSCodeOption, VSCodeDataGrid, VSCodeDat
 import styled from '@emotion/styled';
 import SidePanelContext from '../../../SidePanelContexProvider';
 import { AddMediatorProps } from '../common';
-import MIWebViewAPI from '../../../../../utils/WebViewRpc';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { getXML } from '../../../../../utils/template-engine/mustach-templates/templateUtils';
 import { MEDIATORS } from '../../../../../constants';
 
@@ -326,6 +327,7 @@ const emailRegex = /^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const ${operationNameCapitalized} = (props: AddMediatorProps) => {
+    const { rpcClient } = useVisualizerContext();
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as { [key: string]: any });
     const [errors, setErrors] = useState({} as any);
@@ -350,7 +352,7 @@ const ${operationNameCapitalized} = (props: AddMediatorProps) => {
             setErrors(newErrors);
         } else {
             const xml = getXML(MEDIATORS.${operationNameCapitalized.toUpperCase().substring(0, operationNameCapitalized.length - 4)}, formValues);
-            MIWebViewAPI.applyEdit({
+            rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: xml
             });
             sidePanelContext.setIsOpen(false);
