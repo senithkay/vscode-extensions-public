@@ -10,21 +10,37 @@
 import React from "react";
 import { ComponentStory } from "@storybook/react";
 import { Grid, GridProps } from "./Grid";
+import { GridItem } from "./GridItem";
+
+interface Item {
+    id: number | string;
+    label: React.ReactNode;
+    onClick: () => void;
+}
+  
+const items: Item[] = [
+    {id: "i1", label: <>Item 1</>, onClick: () => {console.log("Item1 Selected")}},
+    {id: "i2", label: <>Item 2</>, onClick: () => {console.log("Item2 Selected")}},
+    {id: "i3", label: <>Item 3</>, onClick: () => {console.log("Item3 Selected")}},
+    {id: "i4", label: <>Item 4</>, onClick: () => {console.log("Item4 Selected")}},
+    {id: "i5", label: <>Item 5</>, onClick: () => {console.log("Item5 Selected")}},
+    {id: "i6", label: <>Item 6</>, onClick: () => {console.log("Item6 Selected")}}
+]
 
 const Template: ComponentStory<typeof Grid> = (args: GridProps) => (
     <Grid {...args}>
-        <Grid item={true} key={1}>Item 1</Grid>
-        <Grid item={true} key={2}>Item 2</Grid>
-        <Grid item={true} key={3}>Item 3</Grid>
-        <Grid item={true} key={4}>Item 4</Grid>
-        <Grid item={true} key={5}>Item 5</Grid>
-        <Grid item={true} key={6}>Item 6</Grid>
-        <Grid item={true} key={7}>Item 7</Grid>
-        <Grid item={true} key={8}>Item 8</Grid>
-        <Grid item={true} key={9}>Item 9</Grid>     
+        {items.map((item) => (
+            <GridItem
+                id={item.id}
+                onClick={item.onClick}
+            >
+                {item.label}
+            </GridItem>
+        ))}
     </Grid>
 );
 
-export const Default = Template.bind();
+export const GridC = Template.bind();
+GridC.args = { columns: 3};
 
-export default { component: Grid, title: "Grid" };
+export default { component: GridC, title: "Grid" };
