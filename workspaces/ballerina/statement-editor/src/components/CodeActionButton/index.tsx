@@ -16,7 +16,8 @@ import { StatementEditorContext } from "../../store/statement-editor-context";
 import {
     filterCodeActions,
     getContentFromSource,
-    getStatementLine,
+    getStatementIndex,
+    getStatementPosition,
     getUpdatedSource,
     isPositionsEquals
 } from "../../utils";
@@ -116,7 +117,9 @@ export function CodeActionButton(props: CodeActionButtonProps) {
 
             currentSource = getUpdatedSource(textEdit.newText, currentSource, targetedEditPosition, undefined, true, false);
             if (targetedEditPosition.startLine < editorActivePosition.startLine) {
-                const newLine = getStatementLine(currentSource, editorActiveStatement);
+                const stmtIndex = getStatementIndex(currentSource, editorActiveStatement, editorActivePosition);
+                const newTargetPosition = getStatementPosition(currentSource, editorActiveStatement, stmtIndex);
+                const newLine = newTargetPosition.startLine;
                 editorActivePosition.startLine = newLine;
                 editorActivePosition.endLine += newLine - editorActivePosition.startLine;
             } else if (targetedEditPosition.startLine >= editorActivePosition.startLine
