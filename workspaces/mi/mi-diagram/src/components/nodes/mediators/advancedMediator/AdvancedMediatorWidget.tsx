@@ -93,22 +93,6 @@ export function MediatorNodeWidget(props: AdvancedMediatorWidgetProps) {
             let subSequenceHeight = 0;
             let subSequenceWidth = 40;
             const subNodes = subSequence.nodes;
-            // if (subSequence.range == null) {
-            //     return;
-            // }
-
-            // props.diagramEngine.getModel().getNodes().forEach(node => {
-            //     const found = subNodes.find((subNode) => subNode.getID() === node.getID());
-            //     if (found) {
-            //         props.diagramEngine.getModel().removeNode(node);
-            //     }
-            // })
-            // props.diagramEngine.getModel().getLinks().forEach(link => {
-            //     const found = subNodes.find((subNode) => subNode.getID() === link.getID());
-            //     if (found) {
-            //         props.diagramEngine.getModel().removeLink(link);
-            //     }
-            // })
 
             const nodesAndLinks = drawSequence(subNodes, SequenceType.SUB_SEQUENCE, subSequence.range, props.diagramEngine.getModel(), node.getNode());
             const nodes = nodesAndLinks.filter(nodeOrLink => !(nodeOrLink instanceof MediatorLinkModel));
