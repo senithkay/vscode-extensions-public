@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 import { Button, ComponentCard, RequiredFormInput, TextField } from '@wso2-enterprise/ui-toolkit';
 import { VSCodeDropdown, VSCodeOption } from '@vscode/webview-ui-toolkit/react';
 import styled from '@emotion/styled';
-import MIWebViewAPI from '../../../utils/WebViewRpc';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import SidePanelContext from '../SidePanelContexProvider';
 import { create } from 'xmlbuilder2';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
@@ -49,6 +49,8 @@ const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
 const nameWithoutSpecialCharactorsRegex = /^[a-zA-Z0-9]+$/g;
 
 const AddConnector = (props: AddConnectorProps) => {
+    const { rpcClient } = useVisualizerContext();
+
     const sidePanelContext = React.useContext(SidePanelContext);
     const [formValues, setFormValues] = useState({} as any);
     const [errors, setErrors] = useState({} as any);
@@ -57,7 +59,7 @@ const AddConnector = (props: AddConnectorProps) => {
 
     const validateField = (id: string, e: any, isRequired: boolean, validation?: "e-mail" | "nameWithoutSpecialCharactors" | "custom", regex?: string): string => {
         const value = e ?? formValues[id];
-        let newErrors = { ...errors };
+        const newErrors = { ...errors };
         let error;
         if (isRequired && !value) {
             error = "This field is required";
@@ -76,7 +78,7 @@ const AddConnector = (props: AddConnectorProps) => {
     };
 
     const onClick = async () => {
-        let newErrors = {} as any;
+        const newErrors = {} as any;
         Object.keys(formValidators).forEach((key) => {
             const error = formValidators[key]();
             if (error) {
@@ -94,7 +96,7 @@ const AddConnector = (props: AddConnectorProps) => {
             });
             const modifiedXml = template.end({ prettyPrint: true, headless: true });
             
-            MIWebViewAPI.getInstance().applyEdit({
+            rpcClient.getMiDiagramRpcClient().applyEdit({
                 documentUri: props.documentUri, range: props.nodePosition, text: modifiedXml
             });
             sidePanelContext.setIsOpen(false);

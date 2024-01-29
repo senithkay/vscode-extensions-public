@@ -13,7 +13,7 @@ import { SimpleEndpointNodeModel } from './SimpleEndpointModel';
 import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
-import MIWebViewAPI from '../../../../utils/WebViewRpc';
+import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
 import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
@@ -63,6 +63,8 @@ export interface SimpleEndpointWidgetProps extends BaseNodeProps {
 }
 
 export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
+    const { rpcClient } = useVisualizerContext();
+
     const node: SimpleEndpointNodeModel = props.node as SimpleEndpointNodeModel;
     const sidePanelContext = React.useContext(SidePanelContext);
 
@@ -94,7 +96,7 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
     }, [nodePosition]);
 
     const deleteNode = async () => {
-        MIWebViewAPI.getInstance().applyEdit({
+        rpcClient.getMiDiagramRpcClient().applyEdit({
             documentUri: props.documentUri, range: props.nodePosition, text: ""
         });
     }
