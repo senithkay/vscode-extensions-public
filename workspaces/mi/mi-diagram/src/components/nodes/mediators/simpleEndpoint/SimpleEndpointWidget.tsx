@@ -14,7 +14,7 @@ import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Call, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
 import { Codicon } from '@wso2-enterprise/ui-toolkit';
@@ -131,16 +131,30 @@ export function EndpointNodeWidget(props: SimpleEndpointWidgetProps) {
     }
 
     const addEndpoint = async () => {
-        sidePanelContext.setNodeRange({
-            start: {
-                line: props.nodePosition.end.line,
-                character: props.nodePosition.end.character - 7
-            },
-            end: {
-                line: props.nodePosition.end.line,
-                character: props.nodePosition.end.character - 7
-            }
-        });
+        const currentEndpoint = (props.node.getNode() as Call).endpoint;
+        if (currentEndpoint) {
+            sidePanelContext.setNodeRange({
+                start: {
+                    line: currentEndpoint.range.start.line,
+                    character: currentEndpoint.range.start.character
+                },
+                end: {
+                    line: currentEndpoint.range.end.line,
+                    character: currentEndpoint.range.end.character
+                }
+            });
+        } else {
+            sidePanelContext.setNodeRange({
+                start: {
+                    line: props.nodePosition.start.line,
+                    character: props.nodePosition.end.character - 7
+                },
+                end: {
+                    line: props.nodePosition.end.line,
+                    character: props.nodePosition.end.character - 7
+                }
+            });
+        }
         sidePanelContext.setOperationName(props.name.toLowerCase());
         sidePanelContext.setIsOpen(true);
     }

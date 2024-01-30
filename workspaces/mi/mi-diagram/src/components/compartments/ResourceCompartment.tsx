@@ -38,5 +38,4 @@ export function ResourceCompartment(props: React.PropsWithChildren<Props>) {
             <SequenceDiagram sequences={sequences}></SequenceDiagram>
         </>
     );
-};
-
+}
