@@ -14,6 +14,7 @@ import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory
 import { EndNodeFactory } from "../components/nodes/EndNode/EndNodeFactory";
 import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
 import { NodePortModel } from "../components/NodePort/NodePortModel";
+import { ConditionNodeFactory } from "../components/nodes/ConditionNode/ConditionNodeFactory";
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine({
@@ -25,6 +26,7 @@ export function generateEngine(): DiagramEngine {
     engine.getNodeFactories().registerFactory(new MediatorNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
     engine.getNodeFactories().registerFactory(new EndNodeFactory());
+    engine.getNodeFactories().registerFactory(new ConditionNodeFactory());
     return engine;
 }
 
