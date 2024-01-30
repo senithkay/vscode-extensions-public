@@ -34,14 +34,14 @@ export class MediatorBaseLinkModel extends DefaultLinkModel {
 		const lineCurve = new BezierCurve();
 
 		if (this.getSourcePort() && this.getTargetPort()) {
-			let markerSpace: number = this.getType() === 'entityLink' ? 125 : 70;
+			const markerSpace: number = this.getType() === 'entityLink' ? 125 : 70;
 
 			lineCurve.setSource(this.getSourcePort().getPosition());
 			lineCurve.setTarget(this.getTargetPort().getPosition());
 
 			// With a leeway space for the marker
-			let sourcePoint: Point = this.getSourcePort().getPosition().clone();
-			let targetPoint: Point = this.getTargetPort().getPosition().clone();
+			const sourcePoint: Point = this.getSourcePort().getPosition().clone();
+			const targetPoint: Point = this.getTargetPort().getPosition().clone();
 
 			if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
 				targetPoint.x = targetPoint.x - markerSpace;
@@ -93,7 +93,7 @@ export class MediatorBaseLinkModel extends DefaultLinkModel {
 
 	getArrowHeadPoints = (): string => {
 		let points: string;
-		let targetPort: Point = this.getTargetPort().getPosition();
+		const targetPort: Point = this.getTargetPort().getPosition();
 
 		const alignment = this.getTargetPort().getOptions().alignment;
 		const isInOutSequence = (this.getSourcePort().getNode() as BaseNodeModel).isInOutSequenceNode();

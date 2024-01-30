@@ -55,5 +55,4 @@ export function APICompartment(props: React.PropsWithChildren<Props>) {
             </div>
         </div>
     );
-};
-
+}

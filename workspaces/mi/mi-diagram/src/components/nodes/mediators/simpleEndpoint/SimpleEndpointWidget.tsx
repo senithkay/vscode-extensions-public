@@ -14,7 +14,7 @@ import { MediatorPortWidget } from '../../../port/MediatorPortWidget';
 import { getSVGIcon } from '../Icons';
 import styled from '@emotion/styled';
 import { useVisualizerContext } from '@wso2-enterprise/mi-rpc-client';
-import { Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
+import { Call, Range } from '@wso2-enterprise/mi-syntax-tree/lib/src';
 import { createLinks, setNodePositions } from '../../../../utils/Utils';
 import { PlusNodeModel } from '../../plusNode/PlusNodeModel';
 import { Codicon } from '@wso2-enterprise/ui-toolkit';
