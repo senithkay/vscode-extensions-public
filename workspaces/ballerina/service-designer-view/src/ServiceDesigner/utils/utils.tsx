@@ -13,13 +13,19 @@ import { BallerinaRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import * as Handlebars from 'handlebars';
 import { Annotation, NodePosition, OptionalTypeDesc, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { URI } from 'vscode-uri';
-import { PARAM_TYPES, ParameterConfig, PathConfig, ResourceInfo, ResponseConfig } from '../definitions';
+import { PARAM_TYPES, ParameterConfig, PathConfig, Resource, ResponseConfig, Service, ServiceData } from '@wso2-enterprise/service-designer';
 
 export interface ResourceDefinition {
     METHOD: string;
     PATH: string;
     PARAMETERS: string;
     ADD_RETURN?: string;
+}
+
+export interface ServiceDefinition {
+    BASE_PATH: string;
+    SERVICE_TYPE: string;
+    PORT: string;
 }
 
 export enum HTTP_METHOD {
@@ -43,6 +49,16 @@ export function generateNewResourceFunction(data: ResourceDefinition): string {
 export function updateResourceFunction(data: ResourceDefinition): string {
     // Your Handlebars template
     const templateString = `{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}{{/if}}`;
+    // Compile the template
+    const compiledTemplate = Handlebars.compile(templateString);
+    // Apply data to the template
+    const resultString = compiledTemplate(data);
+    return resultString;
+}
+
+export function updateServiceDecl(data: ServiceDefinition): string {
+    // Your Handlebars template
+    const templateString = `service {{{ BASE_PATH }}} on new {{{ SERVICE_TYPE }}}:Listener({{{ PORT }}})`;
     // Compile the template
     const compiledTemplate = Handlebars.compile(templateString);
     // Apply data to the template
@@ -165,19 +181,46 @@ export function isHeaderParam(annotations: Annotation[]): boolean {
     return annotations?.some((annotation) => annotation?.source.trim() === "@http:Header");
 }
 
-const getRecordSource = async (recordName: string, rpcClient: any): Promise<string> => {
-    const response = await rpcClient.getRecordST({ recordName: recordName });
-    return response.recordST.source;
+export const getRecordSource = async (recordName: string, rpcClient: any): Promise<string> => {
+    const response = await rpcClient?.getRecordST({ recordName: recordName });
+    return response?.recordST.source;
 };
 
-export async function getResourceInfo(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResourceInfo> {
+export const getServiceData = async (service: ServiceDeclaration): Promise<ServiceData> => {
+    let serviceData: ServiceData;
+    if (service && STKindChecker.isExplicitNewExpression(service?.expressions[0])) {
+        if (
+            STKindChecker.isQualifiedNameReference(
+                service.expressions[0].typeDescriptor
+            )
+        ) {
+            const expression = service.expressions[0];
+            const port = expression.parenthesizedArgList?.arguments[0]?.source.trim();
+            let absolutePath = "";
+            service.absoluteResourcePath?.forEach((path) => {
+                absolutePath += path.value;
+            });
+            serviceData = {
+                port: parseInt(port, 10),
+                path: absolutePath
+            };          
+        }
+    }
+    return serviceData;
+}
+
+export async function getResource(resource: ResourceAccessorDefinition, rpcClient: any): Promise<Resource> {
     const pathConfig = getResourcePath(resource);
     const queryParams: ParameterConfig[] = getQueryParams(resource);
     const payloadConfig: ParameterConfig = getPayloadConfig(resource);
     const advanceParams: Map<string, ParameterConfig> = getAdvancedParams(resource);
-    // Collect resource responses
     const response: ResponseConfig[] = await getResponseConfig(resource, rpcClient);
-    
+    const position = {
+        startLine: resource?.functionName?.position?.startLine,
+        startColumn: resource?.functionName?.position?.startColumn,
+        endLine: resource?.functionSignature?.position?.endLine,
+        endColumn: resource?.functionSignature?.position?.endColumn
+    };
     return {
         method: resource.functionName.value,
         path: pathConfig.path,
@@ -186,8 +229,35 @@ export async function getResourceInfo(resource: ResourceAccessorDefinition, rpcC
         advancedParams: advanceParams,
         payloadConfig: payloadConfig,
         responses: response,
-        ST: resource,
+        updatePosition: position,
+        position: resource.position
     };
+}
+
+export function getServicePosition(service: ServiceDeclaration): NodePosition {
+    const serviceKeywordPosition = service.serviceKeyword?.position;
+    const serviceExpressionPosition = service.expressions[0]?.position;
+    return {
+        startLine: serviceKeywordPosition.startLine,
+        startColumn: serviceKeywordPosition.startColumn,
+        endLine: serviceExpressionPosition.endLine,
+        endColumn: serviceExpressionPosition.endColumn
+    };
+}
+
+export async function getService(serviceDecl: ServiceDeclaration, rpcClient: any): Promise<Service> {
+    const serviceData: ServiceData = await getServiceData(serviceDecl);
+    const resources: Resource[] = [];
+    for (const member of serviceDecl.members) {
+        if (STKindChecker.isResourceAccessorDefinition(member)) {
+            resources.push(await getResource(member, rpcClient));
+        }
+    }
+    return {
+        ...serviceData,
+        resources: resources,
+        position: getServicePosition(serviceDecl)
+    }
 }
 
 export async function getResponseConfig(resource: ResourceAccessorDefinition, rpcClient: any): Promise<ResponseConfig[]> {
@@ -207,7 +277,6 @@ export async function getResponseConfig(resource: ResourceAccessorDefinition, rp
                 response.push({
                     id: index,
                     code: findResponseCodeByRecordSource(recordST),
-                    description: member.signature,
                     type: member.name,
                     source: member.name
                 });

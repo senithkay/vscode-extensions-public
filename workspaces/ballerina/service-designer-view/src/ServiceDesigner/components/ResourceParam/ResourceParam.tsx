@@ -12,9 +12,9 @@ import React, { useState } from 'react';
 
 import { Codicon, LinkButton } from '@wso2-enterprise/ui-toolkit';
 import styled from '@emotion/styled';
-import { PARAM_TYPES, ParameterConfig } from '../../definitions';
 import { ParamEditor } from './ParamEditor';
 import { ParamItem } from './ParamItem';
+import { PARAM_TYPES, ParameterConfig } from '@wso2-enterprise/service-designer';
 
 export interface ResourceParamProps {
     parameters: ParameterConfig[];
@@ -138,11 +138,6 @@ export function ResourceParam(props: ResourceParamProps) {
                     </LinkButton>
                 </AddButtonWrapper>
             )}
-            {/* {(editingSegmentId !== -1) && !isEditingPram && (
-                <div>
-                    <TextPreloaderVertical position="fixedMargin" />
-                </div>
-                )} */}
         </div>
     );
 }

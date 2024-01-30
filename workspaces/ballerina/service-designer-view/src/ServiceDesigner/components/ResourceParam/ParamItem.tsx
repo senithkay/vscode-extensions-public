@@ -11,8 +11,8 @@ import React from "react";
 
 import { ParamIcon } from "./ParamIcon";
 import { Codicon } from "@wso2-enterprise/ui-toolkit";
-import { ParameterConfig } from "../../definitions";
 import { ActionIconWrapper, ContentSection, DeleteIconWrapper, EditIconWrapper, HeaderLabel, IconTextWrapper, IconWrapper, OptionLabel, disabledHeaderLabel, headerLabelStyles } from "../../styles";
+import { ParameterConfig } from "@wso2-enterprise/service-designer";
 
 interface ParamItemProps {
     param: ParameterConfig;

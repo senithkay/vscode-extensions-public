@@ -14,7 +14,7 @@ import { Button, FormContainer, TextField } from '../../..';
 import { Header } from '../Header/Header';
 import { VerticleIcons } from '../VerticleIcons/VerticleIcons';
 
-export const FORM_WIDTH = 600;
+const FORM_WIDTH = 600;
 
 export interface WebAppCreationProps {
     id?: string;
