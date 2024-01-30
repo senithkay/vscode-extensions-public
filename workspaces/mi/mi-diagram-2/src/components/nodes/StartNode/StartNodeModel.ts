@@ -20,6 +20,7 @@ export class StartNodeModel extends NodeModel {
         super({
             id: stNode.viewState?.id || uuidv4(),
             type: "start-node",
+            locked: true,
         });
         this.stNode = stNode;
         this.addOutPort("out");

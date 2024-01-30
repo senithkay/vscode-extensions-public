@@ -16,6 +16,7 @@ export class EndNodeModel extends NodeModel {
     constructor() {
         super({
             type: "end-node",
+            locked: true,
         });
         this.addInPort("in");
     }

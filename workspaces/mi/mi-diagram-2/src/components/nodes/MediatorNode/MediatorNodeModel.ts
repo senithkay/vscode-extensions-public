@@ -19,8 +19,9 @@ export class MediatorNodeModel extends NodeModel {
 
     constructor(stNode: STNode) {
         super({
-            id: stNode.viewState.id || uuidv4(),
+            id: stNode.viewState?.id || uuidv4(),
             type: "mediator-node",
+            locked: true,
         });
         this.stNode = stNode;
         this.portsIn = [];

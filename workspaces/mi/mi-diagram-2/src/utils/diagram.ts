@@ -11,14 +11,27 @@ import { MediatorNodeFactory } from "../components/nodes/MediatorNode/MediatorNo
 import { NodeLinkFactory } from "../components/NodeLink/NodeLinkFactory";
 import { NodePortFactory } from "../components/NodePort/NodePortFactory";
 import { StartNodeFactory } from "../components/nodes/StartNode/StartNodeFactory";
-
+import { EndNodeFactory } from "../components/nodes/EndNode/EndNodeFactory";
+import { NodeLinkModel } from "../components/NodeLink/NodeLinkModel";
+import { NodePortModel } from "../components/NodePort/NodePortModel";
 
 export function generateEngine(): DiagramEngine {
-    const engine = createEngine();
-    
+    const engine = createEngine({
+        registerDefaultDeleteItemsAction: false,
+    });
+
     engine.getPortFactories().registerFactory(new NodePortFactory());
     engine.getLinkFactories().registerFactory(new NodeLinkFactory());
     engine.getNodeFactories().registerFactory(new MediatorNodeFactory());
     engine.getNodeFactories().registerFactory(new StartNodeFactory());
+    engine.getNodeFactories().registerFactory(new EndNodeFactory());
     return engine;
+}
+
+export function createLink(sourcePort: NodePortModel, targetPort: NodePortModel) {
+    const link = new NodeLinkModel();
+    link.setSourcePort(sourcePort);
+    link.setTargetPort(targetPort);
+    sourcePort.addLink(link);
+    return link;
 }
