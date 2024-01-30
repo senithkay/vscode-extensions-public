@@ -160,10 +160,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 
     messenger.onRequest(AskProjectDirPath, async () => {
-        const selectedDir = await askProjectClonePath();
+        const selectedDir = await askProjectPath();
         if (!selectedDir || selectedDir.length === 0) {
-            window.showErrorMessage('A folder must be selected to start cloning');
-            return;
+            window.showErrorMessage('A folder must be selected to create project');
+            return "";
         } else {
             const parentDir = selectedDir[0].fsPath;
             return parentDir;
@@ -420,6 +420,9 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         };
 
         createFolderStructure(directory, folderStructure);
+
+        window.showInformationMessage(`Successfully created ${name} project`);
+
         return `${directory}/${name}`;
     });
 
@@ -441,7 +444,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     });
 }
 
-export async function askProjectClonePath() {
+export async function askProjectPath() {
     return await window.showOpenDialog({
         canSelectFiles: false,
         canSelectFolders: true,
