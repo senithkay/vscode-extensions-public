@@ -36,6 +36,7 @@
     "@types/node": "^18.11.19",
     "@types/vscode-webview": "^1.57.0",
     "@wso2-enterprise/syntax-tree": "workspace:*",
+    "@wso2-enterprise/ui-toolkit": "workspace:*",
     "closest": "^0.0.1",
     "dagre": "^0.8.5",
     "file-loader": "^5.0.2",

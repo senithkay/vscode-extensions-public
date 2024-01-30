@@ -6,14 +6,14 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from 'react';
 
-import { ListItem, ListItemIcon, ListItemText, Typography } from "@material-ui/core";
+import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { LibraryDataResponse, LibraryInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { Icon } from "@wso2-enterprise/ui-toolkit";
+// import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
-import LibraryModuleIcon from "../../../assets/icons/LibraryModuleIcon";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -25,18 +25,18 @@ interface LibraryProps {
 }
 
 export function Library(props: LibraryProps) {
-    const {
-        library: {
-            getLibraryData
-        }
-    } = useContext(StatementEditorContext);
+    const { libraryBrowserRpcClient } = useContext(StatementEditorContext);
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
     const { libraryInfo, key, libraryBrowsingHandler, libraryDataFetchingHandler } = props;
     const { id, orgName, version } = libraryInfo;
 
     const onClickOnLibrary = async () => {
         libraryDataFetchingHandler(true);
-        const response = await getLibraryData(orgName, id, version);
+        const response = await libraryBrowserRpcClient.getLibraryData({
+            orgName,
+            moduleName: id,
+            version
+        });
 
         if (response) {
             libraryBrowsingHandler(response);
@@ -53,13 +53,15 @@ export function Library(props: LibraryProps) {
             disableRipple={true}
         >
             <ListItemIcon style={{ minWidth: 'fit-content', textAlign: 'left', marginRight: '6.25px'}}>
-                <LibraryModuleIcon/>
+                <Icon name="module-icon" sx={{color: 'var(--vscode-icon-foreground)'}} />
             </ListItemIcon>
-            <StatementEditorHint content={id}>
-            <ListItemText
-                primary={<Typography className={stmtEditorHelperClasses.suggestionValue}>{id}</Typography>}
-            />
-            </StatementEditorHint>
+            {/* <StatementEditorHint content={id}> */}
+                <ListItemText
+                    primary={
+                        <div className={stmtEditorHelperClasses.suggestionValue}>{id}</div>
+                    }
+                />
+            {/* </StatementEditorHint> */}
         </ListItem>
     );
 }

@@ -9,7 +9,8 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React from 'react';
 
-import { LibraryKind, STModification, SymbolInfoResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LibraryBrowserRpcClient } from '@wso2-enterprise/ballerina-rpc-client';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { LowCodeEditorProps } from "../components/StatementEditorWrapper";
@@ -17,7 +18,6 @@ import {
     CurrentModel,
     DocumentationInfo,
     EditorModel,
-    EmptySymbolInfo,
     LSSuggestions,
     StatementSyntaxDiagnostics
 } from "../models/definitions";
@@ -71,14 +71,9 @@ export const StatementEditorContext = React.createContext({
         activeEditorId: 0,
         editors: []
     },
-    getLangClient: () => (Promise.resolve({} as any)),
+    langServerRpcClient: null,
+    libraryBrowserRpcClient: null as LibraryBrowserRpcClient,
     applyModifications: (modifications: STModification[]) => undefined,
-    updateFileContent: (content: string, skipForceSave?: boolean) => (Promise.resolve({} as any)),
-    library: {
-        getLibrariesList: (kind?: LibraryKind) => (Promise.resolve({} as any)),
-        getLibrariesData: () => (Promise.resolve({} as any)),
-        getLibraryData: (orgName: string, moduleName: string, version: string) => (Promise.resolve({} as any))
-    },
     currentFile: {
         content: "",
         path: "",
@@ -137,7 +132,6 @@ export interface CtxProviderProps extends LowCodeEditorProps {
         editors?: EditorModel[]
     },
     targetPosition: NodePosition,
-    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>,
     currentReferences?: string[]
 }
 
@@ -180,8 +174,9 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
         ballerinaVersion,
         isCodeServerInstance,
         openExternalUrl,
-        updateFileContent,
         currentReferences,
+        langServerRpcClient,
+        libraryBrowserRpcClient,
         ...restProps
     } = props;
 
@@ -243,7 +238,8 @@ export const StatementEditorContextProvider = (props: CtxProviderProps) => {
                 ballerinaVersion,
                 isCodeServerInstance,
                 openExternalUrl,
-                updateFileContent,
+                langServerRpcClient,
+                libraryBrowserRpcClient,
                 currentReferences,
                 ...restProps
             }}

@@ -9,6 +9,8 @@
 import styled from "@emotion/styled";
 import React from "react";
 export interface OverlayProps {
+    id?: string;
+    className?: string;
     onClose?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     sx?: any;
 }
@@ -24,9 +26,9 @@ const OverlayContainer = styled.div<OverlayProps>`
 `;
 
 export const Overlay: React.FC<OverlayProps> = (props: OverlayProps) => {
-    const { sx, onClose } = props;
+    const { id, className, sx, onClose } = props;
 
     return (
-        <OverlayContainer sx={sx} onClick={onClose} />
+        <OverlayContainer id={id} className={className} sx={sx} onClick={onClose} />
     );
 };
