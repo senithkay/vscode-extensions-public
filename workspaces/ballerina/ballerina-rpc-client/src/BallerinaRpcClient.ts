@@ -13,18 +13,21 @@ import { Messenger } from "vscode-messenger-webview";
 import { VisualizerRpcClient } from "./rpc-clients/visualizer/rpc-client";
 import { vscode } from "@wso2-enterprise/ballerina-core";
 import { LangServerRpcClient } from "./rpc-clients/lang-server/rpc-client";
+import { LibraryBrowserRpcClient } from "./rpc-clients/library-browser/rpc-client";
 
 export class BallerinaRpcClient {
 
     private messenger: Messenger;
     private _visualizer: VisualizerRpcClient;
     private _langServer: LangServerRpcClient;
+    private _libraryBrowser: LibraryBrowserRpcClient;
 
     constructor() {
         this.messenger = new Messenger(vscode);
         this.messenger.start();
         this._visualizer = new VisualizerRpcClient(this.messenger);
         this._langServer = new LangServerRpcClient(this.messenger);
+        this._libraryBrowser = new LibraryBrowserRpcClient(this.messenger);
     }
 
     getVisualizerRpcClient(): VisualizerRpcClient {
@@ -33,6 +36,10 @@ export class BallerinaRpcClient {
 
     getLangServerRpcClient(): LangServerRpcClient {
         return this._langServer;
+    }
+
+    getLibraryBrowserRPCClient(): LibraryBrowserRpcClient {
+        return this._libraryBrowser;
     }
 
     onStateChanged(callback: (state: any) => void) {

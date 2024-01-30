@@ -41,7 +41,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     />
                 )}
             </BreadCrumb>
-            {!hasEditDisabled && (
+            {!hasEditDisabled && !onClose && (
                 <>
                     <FilterBar>
                         <HeaderSearchBox selection={selection} />

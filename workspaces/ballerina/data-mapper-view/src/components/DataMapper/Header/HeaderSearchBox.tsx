@@ -19,7 +19,7 @@ import { useDMSearchStore } from "../../../store/store";
 import { SelectionState } from "../DataMapper";
 
 import { getInputOutputSearchTerms } from "./utils";
-import { SearchBox } from '@wso2-enterprise/ui-toolkit';
+import { Codicon, SearchBox } from '@wso2-enterprise/ui-toolkit';
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
@@ -130,11 +130,13 @@ export default function HeaderSearchBox(props: SearchBoxProps) {
     }, [selection.selectedST.fieldPath]);
 
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
+    const filterIcon = (<Codicon name="filter" sx= {{cursor: "auto"}}/>);
 
     return (
         <SearchBox
             id={`search-${searchOption}`}
             autoFocus={true}
+            icon={filterIcon}
             placeholder={`filter input and output fields`}
             value={searchTerm}
             onChange={handleSearchInputChange}

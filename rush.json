@@ -568,11 +568,11 @@
     //   "projectFolder": "workspaces/ballerina/persist-layer-diagram",
     //   "versionPolicyName": "ballerina-extension"
     // },
-    // {
-    //   "packageName": "@wso2-enterprise/ballerina-statement-editor",
-    //   "projectFolder": "workspaces/ballerina/statement-editor",
-    //   "versionPolicyName": "ballerina-extension"
-    // },
+    {
+      "packageName": "@wso2-enterprise/ballerina-statement-editor",
+      "projectFolder": "workspaces/ballerina/statement-editor",
+      "versionPolicyName": "ballerina-extension"
+    },
     // {
     //   "packageName": "swaggerview-lib",
     //   "projectFolder": "workspaces/ballerina/swagger",

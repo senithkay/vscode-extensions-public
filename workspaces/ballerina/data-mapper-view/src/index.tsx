@@ -13,6 +13,7 @@ import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
 import { STModification } from "@wso2-enterprise/ballerina-core";
 import { DataMapper } from "./components/DataMapper/DataMapper";
 import { LangServerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LibraryBrowserRpcClient } from "@wso2-enterprise/ballerina-rpc-client/lib/rpc-clients/library-browser/rpc-client";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,18 +30,20 @@ export interface DataMapperViewProps {
   fnST: FunctionDefinition;
   filePath: string;
   langServerRpcClient: LangServerRpcClient;
+  libraryBrowserRpcClient?: LibraryBrowserRpcClient;
   applyModifications: (modifications: STModification[]) => Promise<void>;
   onClose?: () => void;
 }
 
 export function DataMapperView(props: DataMapperViewProps) {
-  const { fnST, filePath, langServerRpcClient, applyModifications, onClose } = props;
+  const { fnST, filePath, langServerRpcClient, libraryBrowserRpcClient, applyModifications, onClose } = props;
   return (
     <QueryClientProvider client={queryClient}>
       <DataMapper
         fnST={fnST}
         filePath={filePath}
         langServerRpcClient={langServerRpcClient}
+        libraryBrowserRpcClient={libraryBrowserRpcClient}
         applyModifications={applyModifications}
         onClose={onClose}
       />

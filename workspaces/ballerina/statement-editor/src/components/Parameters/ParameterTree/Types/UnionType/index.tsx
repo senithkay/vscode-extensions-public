@@ -11,9 +11,9 @@ import React, { useRef, useState } from "react";
 
 import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Dropdown } from "@wso2-enterprise/ui-toolkit";
 
 import { TypeProps } from "../..";
-import SelectDropdown from "../../../../Dropdown";
 import { useStmtEditorHelperPanelStyles } from "../../../../styles";
 import { ParameterBranch } from "../../ParameterBranch";
 import { getSelectedUnionMember, isRequiredParam } from "../../utils";
@@ -23,7 +23,7 @@ export default function UnionType(props: TypeProps) {
     const stmtEditorHelperClasses = useStmtEditorHelperPanelStyles();
 
     const requiredParam = isRequiredParam(param);
-    const memberTypes = param.members?.map((field) => getUnionParamName(field));
+    const memberTypes = param.members?.map((field, index) => ({id: index.toString(), value: getUnionParamName(field)}));
     const initSelectedMember = getSelectedUnionMember(param);
 
     const [paramSelected, setParamSelected] = useState(param.selected || requiredParam);
@@ -93,11 +93,12 @@ export default function UnionType(props: TypeProps) {
                         />
                     )}
                     <div className={stmtEditorHelperClasses.listDropdownWrapper} data-testid="arg-dropdown">
-                        <SelectDropdown
-                            className={stmtEditorHelperClasses.listSelectDropDown}
-                            values={memberTypes}
-                            defaultValue={selectedMemberType}
-                            onSelection={handleMemberType}
+                        <Dropdown
+                            onChange={handleMemberType}
+                            id="arg-dropdown"
+                            value={selectedMemberType}
+                            items={memberTypes}
+                            data-testid="arg-dropdown-component"
                         />
                     </div>
                 </div>

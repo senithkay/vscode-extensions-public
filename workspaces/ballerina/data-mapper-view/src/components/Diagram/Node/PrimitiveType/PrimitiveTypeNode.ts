@@ -143,7 +143,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value as string
-                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+                        : `${outPort.fieldFQN.split('.').pop()}${outPort.index ? `[${outPort.index}]`: ''}`,
                     deleteLink: () => this.deleteField(field),
                 }));
                 lm.setTargetPort(mappedOutPort);

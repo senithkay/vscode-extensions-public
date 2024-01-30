@@ -11,7 +11,7 @@
 import { Messenger } from "vscode-messenger-webview";
 import { WebviewRpcClient } from "./rpc-clients/webview/rpc-client";
 import { MachineStateValue, stateChanged } from "@wso2-enterprise/eggplant-core";
-import { LangServerRpcClient, ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
+import { LangServerRpcClient, LibraryBrowserRpcClient, ServiceDesignerRpcClient } from "@wso2-enterprise/ballerina-rpc-client";
 import { vscode } from "@wso2-enterprise/ballerina-core";
 
 export class EggplantRpcClient {
@@ -19,6 +19,7 @@ export class EggplantRpcClient {
     private messenger: Messenger;
     private _overview: WebviewRpcClient;
     private _langServer: LangServerRpcClient;
+    private _libraryBrowser: LibraryBrowserRpcClient;
     private _serviceDesigner: ServiceDesignerRpcClient;
 
     constructor() {
@@ -26,6 +27,7 @@ export class EggplantRpcClient {
         this.messenger.start();
         this._overview = new WebviewRpcClient(this.messenger);
         this._langServer = new LangServerRpcClient(this.messenger);
+        this._libraryBrowser = new LibraryBrowserRpcClient(this.messenger);
         this._serviceDesigner = new ServiceDesignerRpcClient(this.messenger);
     }
 
@@ -35,6 +37,10 @@ export class EggplantRpcClient {
 
     getLangServerRpcClient(): LangServerRpcClient {
         return this._langServer;
+    }
+
+    getLibraryBrowserRpcClient(): LibraryBrowserRpcClient {
+        return this._libraryBrowser;
     }
 
     getServiceDesignerRpcClient(): ServiceDesignerRpcClient {
