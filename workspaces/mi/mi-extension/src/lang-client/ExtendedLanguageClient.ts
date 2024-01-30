@@ -116,8 +116,4 @@ export class ExtendedLanguageClient extends LanguageClient {
     async getSnippetCompletion(req: LogSnippetCompletionRequest): Promise<LogSnippet> {
         return this.sendRequest("xml/getSnippetCompletion", req);
     }
-
-    didOpen(params: DidOpenParams): void{
-        this.sendNotification("textDocument/didOpen", params);
-    }
 }

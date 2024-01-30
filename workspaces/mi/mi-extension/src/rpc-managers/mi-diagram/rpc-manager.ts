@@ -22,21 +22,29 @@ import {
     CreateAPIResponse,
     CreateEndpointRequest,
     CreateEndpointResponse,
+    CreateProjectRequest,
+    CreateProjectResponse,
     CreateSequenceRequest,
     CreateSequenceResponse,
     EndpointDirectoryResponse,
     EndpointsAndSequencesResponse,
+    FileStructure,
     MiDiagramAPI,
     OpenDiagramRequest,
+    ProjectDirResponse,
+    ProjectRootResponse,
     SequenceDirectoryResponse,
     ShowErrorMessageRequest,
     getSTRequest,
-    getSTResponse,
+    getSTResponse
 } from "@wso2-enterprise/mi-core";
 import * as fs from "fs";
+import * as os from 'os';
 import { Position, Range, Uri, WorkspaceEdit, commands, window, workspace } from "vscode";
 import { StateMachine, openView } from "../../stateMachine";
 import path = require("path");
+import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "../../util/templates";
+import { createFolderStructure } from "../../util";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -285,8 +293,8 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
             if (!!rootPath) {
                 const langClient = StateMachine.context().langClient!;
                 const resp = await langClient.getProjectStructure(rootPath);
-                const endpoints = (resp.directoryMap.esbConfigs.endpoints).map(endpoint => endpoint.name);
-                const sequences = (resp.directoryMap.esbConfigs.sequences).map(sequence => sequence.name);
+                const endpoints = (resp.directoryMap.esbConfigs.endpoints).map((endpoint :any) => endpoint.name);
+                const sequences = (resp.directoryMap.esbConfigs.sequences).map((sequence :any) => sequence.name);
                 return [endpoints, sequences];
             }
 
@@ -396,4 +404,90 @@ export class MiDiagramRpcManager implements MiDiagramAPI {
         // USE THE RPC METHOD TO BROADCAST NOTIFICATIONS TO WEBVIEW
         // EX: RPCLayer._messenger.send
     }
+
+    async getProjectRoot(): Promise<ProjectRootResponse> {
+        return new Promise(async (resolve) => {
+            const workspaceFolders = workspace.workspaceFolders;
+            if (workspaceFolders) {
+                resolve({ path: "workspaceFolders[0].uri.fsPath" });
+            }
+            resolve({ path: "" });
+        });
+    }
+
+    async askProjectDirPath(): Promise<ProjectDirResponse> {
+        return new Promise(async (resolve) => {
+            const selectedDir = await askProjectPath();
+            if (!selectedDir || selectedDir.length === 0) {
+                window.showErrorMessage('A folder must be selected to create project');
+                resolve({ path: "" });
+            } else {
+                const parentDir = selectedDir[0].fsPath;
+                console.log(parentDir);
+                resolve({ path: parentDir});
+            }
+        });
+    }
+
+    async createProject(params: CreateProjectRequest): Promise<CreateProjectResponse> {
+        return new Promise(async (resolve) => {
+            const { directory, name } = params;
+
+            const folderStructure: FileStructure = {
+                [name]: { // Project folder
+                    '.project': projectFileContent(name),
+                    'pom.xml': rootPomXmlContent(name),
+                    [`${name}CompositeExporter`]: {
+                        '.project': compositeProjectContent(name),
+                        'pom.xml': compositePomXmlContent(name, directory),
+                    },
+                    [`${name}Configs`]: {
+                        'artifact.xml': artifactsContent(),
+                        '.project': configsProjectContent(name),
+                        'pom.xml': configsPomXmlContent(name, directory),
+                        'src': {
+                            'main': {
+                                'resources': {
+                                    'metadata': '',
+                                },
+                                'synapse-config': {
+                                    'api': '',
+                                    'endpoints': '',
+                                    'inbound-endpoints': '',
+                                    'local-entries': '',
+                                    'message-processors': '',
+                                    'message-stores': '',
+                                    'proxy-services': '',
+                                    'sequences': '',
+                                    'tasks': '',
+                                    'templates': '',
+                                },
+                            },
+                        },
+                        'test': {
+                            'resources': {
+                                'mock-services': '',
+                            },
+                        },
+                    },
+                },
+            };
+
+            createFolderStructure(directory, folderStructure);
+
+            window.showInformationMessage(`Successfully created ${name} project`);
+
+            return `${directory}/${name}`;
+        });
+    }
+}
+
+export async function askProjectPath() {
+    return await window.showOpenDialog({
+        canSelectFiles: false,
+        canSelectFolders: true,
+        canSelectMany: false,
+        defaultUri: Uri.file(os.homedir()),
+        title: "Select a folder to create the Project"
+    });
 }

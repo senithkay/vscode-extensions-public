@@ -9,8 +9,9 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { Button, TextField } from "@wso2-enterprise/ui-toolkit";
-import { MIWebViewAPI } from "./utils/WebViewRpc";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { useVisualizerContext } from "@wso2-enterprise/mi-rpc-client";
+import { SectionWrapper } from "./Commons";
 
 const WizardContainer = styled.div`
     width: 95%;
@@ -53,29 +54,6 @@ const TitleWrapper = styled.div`
     gap: 10px;
 `;
 
-
-export const SectionWrapper: React.FC<React.HTMLAttributes<HTMLDivElement>> = styled.div`
-    // Flex Props
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    position: relative;
-    gap: 10px;
-    // End Flex Props
-    // Sizing Props
-    padding: 20px;
-    // End Sizing Props
-    // Border Props
-    border-radius: 10px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: transparent;
-    background-color: var(--vscode-welcomePage-tileBackground);
-    &.active {
-        border-color: var(--vscode-focusBorder);
-    }
-`;
-
 const BrowseBtn = styled(VSCodeButton)`
     width: fit-content;
     padding: 5px;
@@ -88,21 +66,21 @@ export interface Region {
 
 export function ProjectWizard() {
 
-
+    const { rpcClient } = useVisualizerContext();
     const [projectName, setProjectName] = useState("");
     const [projectDir, setProjectDir] = useState("");
 
     useEffect(() => {
         (async () => {
-            const currentDir = await MIWebViewAPI.getInstance().getProjectRoot();
-            setProjectDir(currentDir);
+            const currentDir = await rpcClient.getMiDiagramRpcClient().getProjectRoot();
+            setProjectDir(currentDir.path);
         })();
 
     }, []);
 
     const handleProjecDirSelection = async () => {
-        const projectDirectory = await MIWebViewAPI.getInstance().askProjectDirPath();
-        setProjectDir(projectDirectory);
+        const projectDirectory = await rpcClient.getMiDiagramRpcClient().askProjectDirPath();
+        setProjectDir(projectDirectory.path);
     }
 
     const handleCreateProject = async () => {
@@ -110,14 +88,14 @@ export function ProjectWizard() {
             name: projectName,
             directory: projectDir
         }
-        await MIWebViewAPI.getInstance().createProject(createProjectParams);
+        await rpcClient.getMiDiagramRpcClient().createProject(createProjectParams);
         console.log("Project created");
-        MIWebViewAPI.getInstance().closeWebView();
+        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const handleCancel = () => {
         console.log("cancel");
-        MIWebViewAPI.getInstance().closeWebView();
+        rpcClient.getMiDiagramRpcClient().closeWebView();
     };
 
     const isValid: boolean = projectName.length > 0 && projectDir.length > 0;
