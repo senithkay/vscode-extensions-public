@@ -12,6 +12,15 @@ export interface STNode {
     selfClosed: boolean;
     range: Range;
     tag: string;
+    viewState?: viewState;
+}
+
+export interface viewState {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    parentId?: string;
 }
 
 export interface Range {
@@ -999,7 +1008,7 @@ export interface APIResource extends STNode {
     inSequence: Sequence;
     outSequence: Sequence;
     faultSequence: Sequence;
-    methods: string;
+    methods: [string];
     protocol: string;
     inSequenceAttribute: string;
     outSequenceAttribute: string;

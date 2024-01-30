@@ -9,12 +9,12 @@
 
 import { STNode, Visitor, Resource, Sequence } from "@wso2-enterprise/mi-syntax-tree/src";
 
-export class PositionVisitor implements Visitor {
+export class NodeVisitor implements Visitor {
     private nodes: STNode[] = [];
     private skipChildrenVisit = false;
 
     constructor() {
-        console.log("PositionVisitor");
+        console.log("NodeVisitor");
     }
 
     skipChildren(): boolean {
@@ -39,5 +39,9 @@ export class PositionVisitor implements Visitor {
 
     endVisitOutSequence(): void {
         console.log("endVisitOutSequence");
+    }
+
+    getNodes() {
+        return this.nodes;
     }
 }
