@@ -1,31 +1,63 @@
 import * as React from "react";
-import { DiagramEngine, DiagramModel, DefaultNodeModel, DiagramWidget } from "@projectstorm/react-diagrams";
-import { APIResource, Sequence } from "@wso2-enterprise/mi-syntax-tree/lib/src";
+import { css } from '@emotion/react';
+import createEngine, {
+    DefaultLinkModel,
+    DefaultNodeModel,
+    DiagramModel
+} from '@projectstorm/react-diagrams';
+
+import {
+    CanvasWidget
+} from '@projectstorm/react-canvas-core';
+import { APIResource, Sequence, traversNode } from "@wso2-enterprise/mi-syntax-tree/src";
+import { SizingVisitor } from "../visitors/SizingVisitor";
+import { PositionVisitor } from "../visitors/PositionVisitor";
+import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 
 interface DiagramProps {
     model: APIResource | Sequence;
 }
 
-export const Diagram: React.FC = () => {
-    //1. Create the diagram engine
-    var engine = new DiagramEngine();
 
-    // engine.installDefaultFactories();
+export const Diagram: React.FC<DiagramProps> = (props: DiagramProps) => {
+    // 1) Visit model and calculate sizing 
+    traversNode(props.model, new SizingVisitor());
+    // 2) Visit model and calculate positions
+    traversNode(props.model, new PositionVisitor)
+    // 3) Initialize Diagram engine
+    const engine = createEngine();
+    const model = new DiagramModel();
+    // 4) Create Diagram Nodes 
+    const nodefactory = new NodeFactoryVisitor();
+    traversNode(props.model, nodefactory);
+    const nodes = nodefactory.getNodes();
+    // 5) Create Links 
+    // 6) Populate Diagram engine 
+    // 7) Render the diagram!
 
-    //2. Create the diagram model
-    var model = new DiagramModel();
 
-    //3. Create a default node
-    var node1 = new DefaultNodeModel("Node 1", "rgb(0,192,255)");
-    let port = node1.addOutPort("Out");
-    node1.setPosition(100, 100);
+    // Connect the nodes with links.
+    // for (let i = 0; i < 4; i++) {
+    //     let link = new DefaultLinkModel();
+    //     link.setSourcePort(nodes[i].addOutPort(''));
+    //     link.setTargetPort(nodes[i + 1].addInPort(''));
+    //     model.addAll(link);
+    // }
 
-    //4. Add the node to the diagram model
-    model.addAll(node1);
+    // Add nodes to the model
+    model.addAll(...nodes);
 
-    //5. Load the model into the diagram engine
+    // Load the model into the engine
     engine.setModel(model);
 
-    //6. Render the diagram!
-    return <DiagramWidget className="diagram-container" diagramEngine={engine} />;
-};
+    return (
+        <div style={{ height: '100vh' }}>
+            <style>{`
+                .canvas-widget{
+                    height: 100vh;
+                }
+            `}</style>
+            <CanvasWidget engine={engine} className="canvas-widget" />
+        </div>
+    );
+}
