@@ -6,24 +6,19 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { css } from "@emotion/css";
 
-export const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        container: {
-          userSelect: "none",
-          pointerEvents: "auto",
-          marginRight: '6px'
-        },
-        iconButton: {
-          padding: "4px 4px",
-        },
-        menu: {
-          '& .MuiMenuItem-root': {
-              fontSize: '11px',
-              paddingBottom: "1px",
-              paddingTop: "1px"
-          }
-      }
-    })
-);
+export const useStyles = () => ({
+  container: css({
+    userSelect: "none",
+    pointerEvents: "auto",
+    marginRight: '6px'
+  }),
+  itemContainer: css({
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center',
+    color: 'var(--vscode-inputOption-activeForeground)'
+  })
+});

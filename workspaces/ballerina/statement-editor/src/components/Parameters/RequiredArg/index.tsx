@@ -6,23 +6,27 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+// tslint:disable: jsx-no-multiline-js
 import React, { useContext } from "react";
 
-import { Checkbox, ListItem, ListItemText, Typography } from "@material-ui/core";
-import { ParameterInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { ParameterInfo } from "@wso2-enterprise/ballerina-core";
+import { Typography } from "@wso2-enterprise/ui-toolkit";
 
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamHighlight } from "../../../utils";
-import { useStatementEditorStyles, useStmtEditorHelperPanelStyles } from "../../styles";
-// tslint:disable: jsx-no-multiline-js
+import { useStmtEditorHelperPanelStyles } from "../../styles";
+
 interface RequiredArgProps {
-    param : ParameterInfo
-    value : number
+    param: ParameterInfo
+    value: number
     handleCheckboxClick: (param: ParameterInfo) => () => void
 }
-export function RequiredArg(props : RequiredArgProps){
-    const { param, value, handleCheckboxClick} = props;
+export function RequiredArg(props: RequiredArgProps) {
+    const { param, value, handleCheckboxClick } = props;
     const statementEditorHelperClasses = useStmtEditorHelperPanelStyles();
+    const isMandatory = !!param.modelPosition;
 
     const {
         modelCtx: {
@@ -31,43 +35,40 @@ export function RequiredArg(props : RequiredArgProps){
     } = useContext(StatementEditorContext);
 
 
-    return(
-        <ListItem
+    return (
+        <div
             key={value}
             className={statementEditorHelperClasses.requiredArgList}
             style={getParamHighlight(currentModel.model, param)}
             data-testid="required-arg"
         >
-            <Checkbox
-                classes={{
-                    root : !!param.modelPosition ?
-                        statementEditorHelperClasses.disabledCheckbox :
-                        statementEditorHelperClasses.parameterCheckbox,
-                    checked : statementEditorHelperClasses.checked
-                }}
+            <VSCodeCheckbox
                 checked={param.modelPosition !== undefined}
-                disabled={!!param.modelPosition}
-                onClick={handleCheckboxClick(param)}
+                disabled={isMandatory}
+                onClick={isMandatory ? undefined : handleCheckboxClick(param)}
+                className={statementEditorHelperClasses.parameterCheckbox}
                 data-testid="arg-check"
             />
-            <ListItemText
-                className={statementEditorHelperClasses.docListItemText}
-                primary={param.name}
-            />
-            <ListItemText
-                className={statementEditorHelperClasses.paramDataType}
-                primary={(
-                    <Typography className={statementEditorHelperClasses.suggestionDataType}>
-                        {param.type}
-                    </Typography>
-                )}
-            />
+            <Typography
+                variant="body3"
+                sx={{margin: '0px 5px'}}
+            >
+                {param.name}
+            </Typography>
+            <Typography
+                className={statementEditorHelperClasses.suggestionDataType}
+                variant="body3"
+            >
+                {param.type}
+            </Typography>
             {param.description !== undefined && (
-                <ListItemText
+                <Typography
                     className={statementEditorHelperClasses.docParamDescriptionText}
-                    primary={" : " + param.description}
-                />
+                    variant="body3"
+                >
+                    {" : " + param.description}
+                </Typography>
             )}
-        </ListItem>
+        </div>
     );
 }
