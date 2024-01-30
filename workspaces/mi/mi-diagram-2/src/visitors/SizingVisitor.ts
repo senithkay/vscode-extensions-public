@@ -7,7 +7,18 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-import { STNode, Visitor, Resource, Sequence } from "@wso2-enterprise/mi-syntax-tree/src";
+import { STNode, Visitor, WithParam } from "@wso2-enterprise/mi-syntax-tree/src";
+
+export const NODE_WIDTH = 100;
+export const NODE_HEIGHT = 50;
+
+const calculateBasicMediator = (node: STNode): void => {
+    if (node.viewState == undefined) {
+        node.viewState = { x: 0, y: 0, w: 0, h: 0 }
+    }
+    node.viewState.w = NODE_WIDTH;
+    node.viewState.h = NODE_HEIGHT;
+}
 
 export class SizingVisitor implements Visitor {
     private nodes: STNode[] = [];
@@ -17,31 +28,34 @@ export class SizingVisitor implements Visitor {
         console.log("SizingVisitor");
     }
 
+    endVisitSend = (node: STNode): void => calculateBasicMediator(node);
+    endVisitWithParam = (node: WithParam): void => calculateBasicMediator(node);
+
     skipChildren(): boolean {
         return this.skipChildrenVisit;
     }
 
-    beginVisitResource(node: Resource): void {
-        console.log("beginVisitResource", node);
-    }
+    // beginVisitResource(node: Resource): void {
+    //     console.log("beginVisitResource", node);
+    // }
 
-    endVisitResource(): void {
-        console.log("endVisitResource");
-    }
+    // endVisitResource(): void {
+    //     console.log("endVisitResource");
+    // }
 
-    beginVisitInSequence(node: Sequence): void {
-        console.log("beginVisitInSequence", node);
-    }
+    // beginVisitInSequence(node: Sequence): void {
+    //     console.log("beginVisitInSequence", node);
+    // }
 
-    endVisitInSequence(): void {
-        console.log("endVisitInSequence");
-    }
+    // endVisitInSequence(): void {
+    //     console.log("endVisitInSequence");
+    // }
 
-    beginVisitOutSequence(node: Sequence): void {
-        console.log("beginVisitOutSequence", node);
-    }
+    // beginVisitOutSequence(node: Sequence): void {
+    //     console.log("beginVisitOutSequence", node);
+    // }
 
-    endVisitOutSequence(): void {
-        console.log("endVisitOutSequence");
-    }
+    // endVisitOutSequence(): void {
+    //     console.log("endVisitOutSequence");
+    // }
 }

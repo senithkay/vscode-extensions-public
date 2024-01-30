@@ -3,7 +3,7 @@ import { Story, Meta } from "@storybook/react/types-6-0";
 import { Diagram, DiagramProps } from "../components/Diagram";
 import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 
-const resourceModel: APIResource = { // TODO: find and check APIResource model types and model structure
+const resourceModel: any = { // TODO: find and check APIResource model types and model structure
     inSequence: {
         mediatorList: [
             {
@@ -850,7 +850,7 @@ const resourceModel: APIResource = { // TODO: find and check APIResource model t
     },
     hasTextNode: false,
     selfClosed: false,
-    tag: "resource",
+    tag: "APIResource",
 };
 
 export default {
@@ -858,7 +858,7 @@ export default {
     component: Diagram,
 } as Meta;
 
-const Template: Story<DiagramProps> = (args) => <Diagram {...args} />;
+const Template: Story<DiagramProps> = (args: React.JSX.IntrinsicAttributes & DiagramProps) => <Diagram {...args} />;
 
 export const Primary = Template.bind({});
 Primary.args = {
