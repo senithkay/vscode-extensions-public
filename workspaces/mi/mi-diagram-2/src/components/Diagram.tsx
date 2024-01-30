@@ -17,7 +17,6 @@ import { generateEngine } from "../utils/diagram";
 import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 import { MediatorNodeModel } from "./nodes/MediatorNode/MediatorNodeModel";
-import { NodeLinkModel } from "./NodeLink/NodeLinkModel";
 
 export interface DiagramProps {
     model: APIResource | Sequence;
@@ -53,30 +52,9 @@ export function Diagram(props: DiagramProps) {
 
     const drawDiagram = (nodes: MediatorNodeModel[]) => {
         const newDiagramModel = new DiagramModel();
-
         newDiagramModel.addAll(...nodes);
-
-        // Start sample code
-        // var mediatorList = (model as APIResource).inSequence.mediatorList;
-        // console.log("mediatorList", mediatorList);
-        // // create nodes
-        // var node1 = new MediatorNodeModel(mediatorList[0]);
-        // node1.setPosition(100, 100);
-        // var updatedMediator = mediatorList[2];
-        // updatedMediator.viewState.id = "abc-node";
-        // var node2 = new MediatorNodeModel(updatedMediator);
-        // node2.setPosition(100, 300);
-
-        // // create links
-        // let port1 = node1.getOutPorts().at(0);
-        // let port2 = node2.getInPorts().at(0);
-        // let link1 = new NodeLinkModel();
-        // link1.setSourcePort(port1);
-        // link1.setTargetPort(port2);
-        // port1.addLink(link1);
-
-        // newDiagramModel.addAll(node1, node2, link1);
-        // End sample code
+        // uncomment below to see the sample diagram. comment above line
+        // sampleDiagram(model, newDiagramModel);
 
         diagramEngine.setModel(newDiagramModel);
         setDiagramModel(newDiagramModel);
