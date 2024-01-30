@@ -8,7 +8,7 @@
  */
 
 import { Overview } from "@wso2-enterprise/overview-view";
-import { ServiceDesigner } from "@wso2-enterprise/service-designer-view";
+import { ServiceDesignerView } from "@wso2-enterprise/service-designer-view";
 import React, { useEffect } from "react";
 import { useVisualizerContext } from "@wso2-enterprise/ballerina-rpc-client";
 import { NavigationBar } from "./components/NavigationBar";
@@ -58,7 +58,7 @@ export function Webview() {
             <VisualizerContainer>
                 <NavigationBar />
                 {viewLocation.view === "Overview" && <Overview />}
-                {viewLocation.view === "ServiceDesigner" && <ServiceDesigner model={null} rpcClient={null} goToSource={null}/>}
+                {viewLocation.view === "ServiceDesigner" && <ServiceDesignerView model={null} rpcClient={null} goToSource={null}/>}
                 {viewLocation.view === "DataMapper" && <DataMapperOverlay />}
                 {viewLocation.view === "Architecture" && <h2>Hello Arch</h2>}
             </VisualizerContainer>

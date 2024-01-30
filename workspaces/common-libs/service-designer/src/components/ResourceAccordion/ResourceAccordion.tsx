@@ -19,20 +19,17 @@ type MethodProp = {
     color: string;
 };
 
-// Define styles using @emotion/styled
-const AccordionContainer = styled.div`
+type ContainerProps = {
+    borderColor?: string;
+};
+
+const AccordionContainer = styled.div<ContainerProps>`
     margin-top: 10px;
     overflow: hidden;
-
-    &.open {
-        background-color: var(--vscode-sideBar-background);
-    }
-
-    &.closed {
-        &:hover {
-            background-color: var(--vscode-inputOption-hoverBackground);
-            cursor: pointer;
-        }
+    background-color: var(--vscode-editorHoverWidget-background);
+    &:hover {
+        background-color: var(--vscode-list-hoverBackground);
+        cursor: pointer;
     }
 `;
 
@@ -45,10 +42,15 @@ const AccordionHeader = styled.div`
 `;
 
 const MethodBox = styled.div<MethodProp>`
-    width: 60px;
+    display: flex;
+    justify-content: center;
+    height: 25px;
+    width: 70px;
     text-align: center;
     padding: 3px 0px 3px 0px;
-    color: ${(p: MethodProp) => p.color};
+    background-color: ${(p: MethodProp) => p.color};
+    color: #FFF;
+    align-items: center;
     font-weight: bold;
 `;
 
@@ -74,8 +76,8 @@ const MethodPath = styled.span`
 
 const colors = {
     "GET": '#3d7eff',
-    "PUT": '#49cc90',
-    "POST": '#fca130',
+    "PUT": '#fca130',
+    "POST": '#49cc90',
     "DELETE": '#f93e3e',
     "PATCH": '#986ee2',
 }
@@ -113,12 +115,13 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
         setIsOpen(!isOpen);
     };
 
-    const handleShowDiagram = () => {
-        // Show the eggplant diagram
+    const handleShowDiagram = (e: Event) => {
+        e.stopPropagation(); // Stop the event propagation
         goToSource(resource.position);
     };
 
-    const handleEditResource = () => {
+    const handleEditResource = (e: Event) => {
+        e.stopPropagation(); // Stop the event propagation
         onEditResource(resource);
     };
 
@@ -161,10 +164,11 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
     };
 
     return (
-        <AccordionContainer className={isOpen ? 'open' : 'closed'}>
+        <AccordionContainer borderColor={getColorByMethod(resource.method)}>
             <AccordionHeader onClick={toggleAccordion}>
                 <MethodSection>
-                    <MethodBox color={getColorByMethod(resource.method)}>{resource.method.toUpperCase()}</MethodBox><MethodPath>{resource?.path}</MethodPath>
+                    <MethodBox color={getColorByMethod(resource.method)}>{resource.method.toUpperCase()}</MethodBox>
+                    <MethodPath>{resource?.path}</MethodPath>
                 </MethodSection>
                 <ButtonSection>
                     <VSCodeButton appearance="icon" title="Show Diagram" onClick={handleShowDiagram}>
@@ -179,7 +183,16 @@ const ResourceAccordion = (params: ResourceAccordionProps) => {
                         <Icon name="delete" />
                     </VSCodeButton>
 
-                    {isOpen ? <Codicon name="chevron-up" /> : <Codicon name="chevron-down" />}
+                    {isOpen ? 
+                        <Codicon
+                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
+                            name="chevron-up" 
+                        /> : 
+                        <Codicon
+                            name="chevron-down"
+                            sx={{"&:hover": {"backgroundColor": "var(--button-icon-hover-background)"}}}
+                        />
+                    }
                 </ButtonSection>
             </AccordionHeader>
             {isOpen && (

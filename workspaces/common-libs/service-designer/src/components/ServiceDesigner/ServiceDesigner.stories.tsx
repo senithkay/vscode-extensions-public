@@ -12,9 +12,9 @@ import { ServiceDesigner } from "./ServiceDesigner";
 import { PARAM_TYPES, Resource, Service } from "../../definitions";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-const resource: Resource = {
+const GET: Resource = {
     method: "GET",
-    path: "foo",
+    path: "pathGet",
     pathSegments: [
         {
             id: 0,
@@ -87,8 +87,306 @@ const resource: Resource = {
         startLine: 0,
         endColumn: 0,
         endLine: 0
+    },
+    position: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
     }
 };
+
+// Generate a similar PUT as above
+const putResource: Resource = {
+    method: "PUT",
+    path: "pathPut",
+    pathSegments: [
+        {
+            id: 0,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    advancedParams: new Map<string, any>([
+        [PARAM_TYPES.REQUEST, {
+            id: 0,
+            name: "param1",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        }],
+        [PARAM_TYPES.CALLER, {
+            id: 1,
+            name: "param2",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }]
+    ]),
+    params: [
+        {
+            id: 0,
+            name: "param3",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "param4",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    payloadConfig: {
+        id: 0,
+        name: "payload",
+        type: "string",
+        option: PARAM_TYPES.PAYLOAD,
+        isRequired: true
+    },
+    updatePosition: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    },
+    position: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    }
+}
+
+// Create a simalar POST resource
+const postResource: Resource = {
+    method: "POST",
+    path: "pathPost",
+    pathSegments: [
+        {
+            id: 0,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    advancedParams: new Map<string, any>([
+        [PARAM_TYPES.REQUEST, {
+            id: 0,
+            name: "param1",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        }],
+        [PARAM_TYPES.CALLER, {
+            id: 1,
+            name: "param2",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }]
+    ]),
+    params: [
+        {
+            id: 0,
+            name: "param3",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "param4",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    payloadConfig: {
+        id: 0,
+        name: "payload",
+        type: "string",
+        option: PARAM_TYPES.PAYLOAD,
+        isRequired: true
+    },
+    updatePosition: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    },
+    position: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    }
+}
+
+// Create a simalar DELETE resource
+const deleteResource: Resource = {
+    method: "DELETE",
+    path: "pathDelete",
+    pathSegments: [
+        {
+            id: 0,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    advancedParams: new Map<string, any>([
+        [PARAM_TYPES.REQUEST, {
+            id: 0,
+            name: "param1",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        }],
+        [PARAM_TYPES.CALLER, {
+            id: 1,
+            name: "param2",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }]
+    ]),
+    params: [
+        {
+            id: 0,
+            name: "param3",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "param4",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    payloadConfig: {
+        id: 0,
+        name: "payload",
+        type: "string",
+        option: PARAM_TYPES.PAYLOAD,
+        isRequired: true
+    },
+    updatePosition: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    },
+    position: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    }
+}
+
+// Create a simalar PATCH resource
+const patchResource: Resource = {
+    method: "PATCH",
+    path: "pathPatch",
+    pathSegments: [
+        {
+            id: 0,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "path",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    advancedParams: new Map<string, any>([
+        [PARAM_TYPES.REQUEST, {
+            id: 0,
+            name: "param1",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        }],
+        [PARAM_TYPES.CALLER, {
+            id: 1,
+            name: "param2",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }]
+    ]),
+    params: [
+        {
+            id: 0,
+            name: "param3",
+            type: "string",
+            option: PARAM_TYPES.HEADER,
+            isRequired: true
+        },
+        {
+            id: 1,
+            name: "param4",
+            type: "string",
+            option: PARAM_TYPES.DEFAULT,
+            isRequired: true
+        }
+    ],
+    payloadConfig: {
+        id: 0,
+        name: "payload",
+        type: "string",
+        option: PARAM_TYPES.PAYLOAD,
+        isRequired: true
+    },
+    updatePosition: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    },
+    position: {
+        startColumn: 0,
+        startLine: 0,
+        endColumn: 0,
+        endLine: 0
+    }
+}
 
 export default {
     component: ServiceDesigner,
@@ -121,7 +419,7 @@ const serviceModel: Service = {
         endLine: 0
     },
     resources: [
-        resource
+        GET, putResource, postResource, deleteResource, patchResource
     ]
 };
 
