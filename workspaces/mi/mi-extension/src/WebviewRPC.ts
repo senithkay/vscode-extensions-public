@@ -34,11 +34,16 @@ import {
     CreateSequence,
     GetSequenceDirectory,
     AskProjectDirPath,
-    GetProjectRoot
+    GetProjectRoot,
+    CreateProject,
+    CreateProjectParams,
+    FileStructure
 } from "@wso2-enterprise/mi-core";
 import { MILanguageClient } from "./lang-client/activator";
 import * as fs from "fs";
 import path = require("path");
+import { createFolderStructure } from "./util";
+import { artifactsContent, compositePomXmlContent, compositeProjectContent, configsPomXmlContent, configsProjectContent, projectFileContent, rootPomXmlContent } from "./util/templates";
 const { XMLParser } = require("fast-xml-parser");
 
 const connectorsPath = path.join(".metadata", ".Connectors");
@@ -78,7 +83,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
 
         const connectorsRoot = path.join(workspaceFolders[0].uri.path, connectorsPath);
-        const connectors = fs.readdirSync(connectorsRoot, {withFileTypes: true});
+        const connectors = fs.readdirSync(connectorsRoot, { withFileTypes: true });
         connectors.filter(dirent => dirent.isDirectory()).forEach(connectorDir => {
             const connectorPath = path.join(connectorsRoot, connectorDir.name);
             const connectorInfoFile = path.join(connectorPath, `connector.xml`);
@@ -145,7 +150,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         edit.replace(Uri.parse(params.documentUri), range, text);
         await workspace.applyEdit(edit);
     });
-    
+
     messenger.onRequest(GetProjectRoot, async () => {
         const workspaceFolders = workspace.workspaceFolders;
         if (workspaceFolders) {
@@ -228,7 +233,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
     </recipientlist>`;
         }
 
-        const xmlData =  `<?xml version="1.0" encoding="UTF-8"?>
+        const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <endpoint name="${name}" xmlns="http://ws.apache.org/ns/synapse">
     <${endpointAttributes}>
         ${otherAttributes}
@@ -262,7 +267,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             errorSequence = `onError="${onErrorSequence}"`;
         }
 
-        const xmlData =  `<?xml version="1.0" encoding="UTF-8"?>
+        const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
 <sequence name="${name}" ${errorSequence} trace="disable" xmlns="http://ws.apache.org/ns/synapse">
     ${endpointAttributes}
 </sequence>`;
@@ -304,11 +309,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         let result = '';
         const findSynapseEndpointPath = (startPath: string) => {
             const files = fs.readdirSync(startPath);
-            for(let i = 0; i < files.length; i++){
+            for (let i = 0; i < files.length; i++) {
                 const filename = path.join(startPath, files[i]);
                 const stat = fs.lstatSync(filename);
-                if (stat.isDirectory()){
-                    if(filename.includes('synapse-config/endpoints')) {
+                if (stat.isDirectory()) {
+                    if (filename.includes('synapse-config/endpoints')) {
                         result = filename;
                         return result;
                     } else {
@@ -318,7 +323,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             }
             return result;
         };
-        
+
         const workspaceFolder = workspace.workspaceFolders;
         if (workspaceFolder) {
             const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
@@ -332,11 +337,11 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         let result = '';
         const findSynapseSequencePath = (startPath: string) => {
             const files = fs.readdirSync(startPath);
-            for(let i = 0; i < files.length; i++){
+            for (let i = 0; i < files.length; i++) {
                 const filename = path.join(startPath, files[i]);
                 const stat = fs.lstatSync(filename);
-                if (stat.isDirectory()){
-                    if(filename.includes('synapse-config/sequences')) {
+                if (stat.isDirectory()) {
+                    if (filename.includes('synapse-config/sequences')) {
                         result = filename;
                         return result;
                     } else {
@@ -346,7 +351,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             }
             return result;
         };
-        
+
         const workspaceFolder = workspace.workspaceFolders;
         if (workspaceFolder) {
             const workspaceFolderPath = workspaceFolder[0].uri.fsPath;
@@ -358,8 +363,8 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(GetEndpointsAndSequences, async () => {
         const rootPath = workspace.workspaceFolders && workspace.workspaceFolders.length > 0 ?
-		workspace.workspaceFolders[0].uri.fsPath
-		: undefined;
+            workspace.workspaceFolders[0].uri.fsPath
+            : undefined;
 
         if (!!rootPath) {
             const resp = await (await MILanguageClient.getInstance(context)).languageClient!.getProjectStructure(rootPath);
@@ -369,6 +374,53 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
         }
 
         return [];
+    });
+
+    messenger.onRequest(CreateProject, async (params: CreateProjectParams) => {
+        const { directory, name } = params;
+
+        const folderStructure: FileStructure = {
+            [name]: { // Project folder
+                '.project': projectFileContent(name),
+                'pom.xml': rootPomXmlContent(name),
+                [`${name}CompositeExporter`]: {
+                    '.project': compositeProjectContent(name),
+                    'pom.xml': compositePomXmlContent(name, directory),
+                },
+                [`${name}Configs`]: {
+                    'artifact.xml': artifactsContent(),
+                    '.project': configsProjectContent(name),
+                    'pom.xml': configsPomXmlContent(name, directory),
+                    'src': {
+                        'main': {
+                            'resources': {
+                                'metadata': '',
+                            },
+                            'synapse-config': {
+                                'api': '',
+                                'endpoints': '',
+                                'inbound-endpoints': '',
+                                'local-entries': '',
+                                'message-processors': '',
+                                'message-stores': '',
+                                'proxy-services': '',
+                                'sequences': '',
+                                'tasks': '',
+                                'templates': '',
+                            },
+                        },
+                    },
+                    'test': {
+                        'resources': {
+                            'mock-services': '',
+                        },
+                    },
+                },
+            },
+        };
+
+        createFolderStructure(directory, folderStructure);
+        return `${directory}/${name}`;
     });
 
     messenger.onNotification(CloseWebViewNotification, () => {

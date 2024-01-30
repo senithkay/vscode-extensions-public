@@ -33,7 +33,9 @@ import {
     CreateSequence,
     GetSequenceDirectory,
     AskProjectDirPath,
-    GetProjectRoot
+    GetProjectRoot,
+    CreateProjectParams,
+    CreateProject
 } from "@wso2-enterprise/mi-core";
 
 export class MIWebViewAPI {
@@ -112,6 +114,10 @@ export class MIWebViewAPI {
 
     public createSequence(params: CreateSequenceParams): Promise<string> {
         return this._messenger.sendRequest(CreateSequence, HOST_EXTENSION, params);
+    }
+
+    public createProject(params: CreateProjectParams): Promise<string> {
+        return this._messenger.sendRequest(CreateProject, HOST_EXTENSION, params);
     }
 
     public closeWebView() {

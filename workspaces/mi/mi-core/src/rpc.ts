@@ -42,6 +42,11 @@ export interface CreateSequenceParams {
     onErrorSequence: string;
 }
 
+export interface CreateProjectParams {
+    directory: string;
+    name: string;
+}
+
 export interface GetConnectorsResponse {
     path: string;
     name: string;
@@ -81,6 +86,10 @@ export interface ResourceStructureEntry {
     method: string
 }
 
+export interface FileStructure {
+    [key: string]: string | FileStructure;
+}
+
 // request types 
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const GetSyntaxTreeRequest: RequestType<string, unknown> = { method: 'xml/getSynapseSyntaxTree' };
@@ -96,6 +105,7 @@ export const GetEndpointsAndSequences: RequestType<void, string[][]> = {method: 
 export const GetSequenceDirectory: RequestType<void, string> = { method: 'getSequenceDirectory' };
 export const CreateSequence: RequestType<CreateSequenceParams, string> = {method: 'createSequence'};
 export const AskProjectDirPath: RequestType<void, string | undefined> = { method: 'askProjectDirPath' };
+export const CreateProject: RequestType<CreateProjectParams, string> = {method: 'createProject'};
 
 // notification types
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };

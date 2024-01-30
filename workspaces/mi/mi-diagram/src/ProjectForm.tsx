@@ -106,17 +106,12 @@ export function ProjectWizard() {
     }
 
     const handleCreateProject = async () => {
-        const createAPIParams = {
+        const createProjectParams = {
             name: projectName,
-            context: "apiContext",
-            directory: projectDir,
-            swaggerDef: "swaggerdefPath",
-            type: "versionType",
-            version: "version"
+            directory: projectDir
         }
-        const file = await MIWebViewAPI.getInstance().createAPI(createAPIParams);
-        console.log("API created");
-        MIWebViewAPI.getInstance().openDiagram(file);
+        await MIWebViewAPI.getInstance().createProject(createProjectParams);
+        console.log("Project created");
         MIWebViewAPI.getInstance().closeWebView();
     };
 
