@@ -25,6 +25,10 @@ export class SizingVisitor implements Visitor {
         console.log("beginVisitResource", node);
     }
 
+    endVisitResource(): void {
+        console.log("endVisitResource");
+    }
+
     beginVisitInSequence(node: Sequence): void {
         console.log("beginVisitInSequence", node);
     }

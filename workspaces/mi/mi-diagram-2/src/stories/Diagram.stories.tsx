@@ -1,9 +1,9 @@
 import React from "react";
 import { Story, Meta } from "@storybook/react/types-6-0";
 import { Diagram, DiagramProps } from "../components/Diagram";
-// import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
+import { APIResource } from "@wso2-enterprise/mi-syntax-tree/src";
 
-const resourceModel: any = { // TODO: find and check APIResource model types and model structure
+const resourceModel: APIResource = { // TODO: find and check APIResource model types and model structure
     inSequence: {
         mediatorList: [
             {

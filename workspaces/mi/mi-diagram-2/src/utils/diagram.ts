@@ -7,13 +7,16 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import createEngine, { DagreEngine, DiagramEngine, DiagramModel, LinkModel } from "@projectstorm/react-diagrams";
+import { CallNodeFactory } from "../components/nodes/CallNode/CallNodeFactory";
+import { NodeLinkFactory } from "../components/NodeLink/NodeLinkFactory";
+import { NodePortFactory } from "../components/NodePort/NodePortFactory";
 
 
 export function generateEngine(): DiagramEngine {
     const engine = createEngine();
-    // register default factories
-    // engine.getNodeFactories().registerFactory(new DefaultNodeFactory());
-    // engine.getPortFactories().registerFactory(new DefaultPortFactory());
-    // engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
+    
+    engine.getPortFactories().registerFactory(new NodePortFactory());
+    engine.getLinkFactories().registerFactory(new NodeLinkFactory());
+    engine.getNodeFactories().registerFactory(new CallNodeFactory());
     return engine;
 }
