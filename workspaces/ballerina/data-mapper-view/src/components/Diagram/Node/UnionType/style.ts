@@ -13,7 +13,7 @@
 import { css } from '@emotion/css';
 
 export const useStyles = () => ({
-        valueLabel: css({
+    valueLabel: css({
         verticalAlign: "middle",
         padding: "5px"
     }),
