@@ -7,4 +7,15 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export { Diagram } from './Diagram';
+import { DefaultLinkModel } from '@projectstorm/react-diagrams';
+
+export class NodeLinkModel extends DefaultLinkModel {
+    constructor() {
+        super({
+            type: 'node-link',
+            width: 2,
+            color: 'blue',
+            curvyness: 0,
+        });
+    }
+}
