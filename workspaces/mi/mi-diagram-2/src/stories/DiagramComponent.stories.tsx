@@ -852,7 +852,7 @@ const resourceModel =
   },
   "hasTextNode": false,
   "selfClosed": false,
-  "tag": "resource"
+  "tag": "APIResource"
 };
 
 export default {
