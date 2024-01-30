@@ -42,14 +42,14 @@ export function getCalloutMustacheTemplate() {
 }
 
 export function getCalloutXml(data: { [key: string]: any }) {
-  let xpathPayload = data.payloadType === "XPATH";
-  let propertyPayload = data.payloadType === "PROPERTY";
-  let envelopePayload = data.payloadType === "ENVELOPE";
-  let xpathTarget = data.targetType === "XPATH";
-  let propertyTarget = data.targetType === "PROPERTY";
-  let securityEnabled = data.securityType === "TRUE";
-  let configurationEnabled = data.pathToAxis2Repository ?? data.pathToAxis2Xml !== null;
-  let policies = data.policies === "TRUE";
+  const xpathPayload = data.payloadType === "XPATH";
+  const propertyPayload = data.payloadType === "PROPERTY";
+  const envelopePayload = data.payloadType === "ENVELOPE";
+  const xpathTarget = data.targetType === "XPATH";
+  const propertyTarget = data.targetType === "PROPERTY";
+  const securityEnabled = data.securityType === "TRUE";
+  const configurationEnabled = data.pathToAxis2Repository ?? data.pathToAxis2Xml !== null;
+  const policies = data.policies === "TRUE";
   const modifiedData = {
     ...data,
     xpathPayload: xpathPayload,

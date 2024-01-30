@@ -7,15 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
-export function getHTTPEndpointMustacheTemplate() {
+export function getWSDLEndpointMustacheTemplate() {
     return `<endpoint>
-    <http method="{{httpMethod}}" {{#statisticsEnabled}}statistics="enable"{{/statisticsEnabled}} {{#traceEnabled}}trace="enable"{{/traceEnabled}} uri-template="{{uriTemplate}}">
-    <timeout>
-    <duration>{{timeoutDuration}}</duration>
-    <responseAction>{{timeoutAction}}</responseAction>
-    </timeout>    
-    <suspendOnFailure>
-            {{#suspendErrorCodes}}<errorCodes>{{suspendErrorCodes}}</errorCodes>{{/suspendErrorCodes}}
+    <wsdl {{#statisticsEnabled}}statistics="enable"{{/statisticsEnabled}} {{#traceEnabled}}trace="enable"{{/traceEnabled}} uri="{{uri}}">
+        <suspendOnFailure>
+            {{#errorCodes}}<errorCodes>{{errorCodes}}</errorCodes>{{/errorCodes}}
             <initialDuration>{{suspendInitialDuration}}</initialDuration>
             <progressionFactor>{{suspendProgressionFactor}}</progressionFactor>
             <maximumDuration>{{suspendMaximumDuration}}</maximumDuration>
@@ -30,7 +26,7 @@ export function getHTTPEndpointMustacheTemplate() {
             <disabledErrorCodes>{{failoverNonRetryErrorCodes}}</disabledErrorCodes>
         </retryConfig>
         {{/failoverNonRetryErrorCodes}}
-    </http>
+    </wsdl>
     {{#properties}}
     <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}"{{/expression}} />
     {{/properties}}

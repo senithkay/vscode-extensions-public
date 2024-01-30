@@ -58,7 +58,7 @@ export class NodeInitVisitor implements Visitor {
 
     constructor(documentUri: string) {
         this.documentUri = documentUri;
-    };
+    }
 
     beginVisitResource(node: Resource): void {
         this.parents.push(node);
