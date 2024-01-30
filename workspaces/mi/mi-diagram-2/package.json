@@ -1,36 +1,35 @@
 {
-  "name": "@wso2-enterprise/mi-diagram-2",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/index.tsx",
-  "scripts": {
-    "lint": "eslint .",
-    "build": "pnpm run lint && tsc --pretty",
-    "start": "tsc && node dist/index.js",
-    "storybook": "start-storybook -p 6006",
-    "watch": "tsc --pretty --watch",
-    "build-storybook": "build-storybook"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "@projectstorm/react-diagrams": "^6.1.2",
-    "@projectstorm/react-canvas-core": "^6.1.2",
-    "@emotion/react": "^11.4.0",
-    "@wso2-enterprise/mi-syntax-tree": "workspace:*"
-  },
-  "devDependencies": {
-    "@storybook/react": "^6.3.7",
-    "@types/react": "^17.0.14",
-    "@types/react-dom": "^17.0.9",
-    "typescript": "^4.3.5",
-    "@typescript-eslint/parser": "^6.9.1",
-    "@typescript-eslint/eslint-plugin": "^6.9.1",
-    "eslint-plugin-react-hooks": "~4.6.0",
-    "eslint-plugin-unused-imports": "~3.0.0",
-    "eslint": "^8.52.0"
-  }
+    "name": "@wso2-enterprise/mi-diagram-2",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.tsx",
+    "scripts": {
+        "start": "tsc && node dist/index.js",
+        "build": "tsc --pretty",
+        "storybook": "start-storybook -p 6006",
+        "watch": "tsc --pretty --watch",
+        "build-storybook": "build-storybook"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "@projectstorm/geometry": "^6.7.4",
+        "@projectstorm/react-canvas-core": "^6.7.4",
+        "@projectstorm/react-diagrams": "^6.7.4",
+        "@projectstorm/react-diagrams-core": "^6.7.4",
+        "@projectstorm/react-diagrams-defaults": "^6.7.4",
+        "@projectstorm/react-diagrams-routing": "^6.7.4",
+        "@emotion/react": "^11.9.3",
+        "@emotion/styled": "^11.10.5",
+        "@wso2-enterprise/mi-syntax-tree": "workspace:*"
+    },
+    "devDependencies": {
+        "@storybook/react": "^6.3.7",
+        "@types/react": "^17.0.14",
+        "@types/react-dom": "^17.0.9",
+        "typescript": "^4.3.5"
+    }
 }

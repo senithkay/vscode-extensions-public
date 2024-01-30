@@ -1,63 +1,87 @@
-import * as React from "react";
-import { css } from '@emotion/react';
-import createEngine, {
-    DefaultLinkModel,
-    DefaultNodeModel,
-    DiagramModel
-} from '@projectstorm/react-diagrams';
+/**
+ * Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
-import {
-    CanvasWidget
-} from '@projectstorm/react-canvas-core';
+import React, { useState, useEffect } from "react";
+import { DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { APIResource, Sequence, traversNode } from "@wso2-enterprise/mi-syntax-tree/src";
 import { SizingVisitor } from "../visitors/SizingVisitor";
 import { PositionVisitor } from "../visitors/PositionVisitor";
+import { generateEngine } from "../utils/diagram";
+import { DiagramCanvas } from "./DiagramCanvas";
 import { NodeFactoryVisitor } from "../visitors/NodeFactoryVisitor";
 
-interface DiagramProps {
+export interface DiagramProps {
     model: APIResource | Sequence;
 }
 
+export function Diagram(props: DiagramProps) {
+    const { model } = props;
 
-export const Diagram: React.FC<DiagramProps> = (props: DiagramProps) => {
-    // 1) Visit model and calculate sizing 
-    traversNode(props.model, new SizingVisitor());
-    // 2) Visit model and calculate positions
-    traversNode(props.model, new PositionVisitor)
-    // 3) Initialize Diagram engine
-    const engine = createEngine();
-    const model = new DiagramModel();
-    // 4) Create Diagram Nodes 
-    const nodefactory = new NodeFactoryVisitor();
-    traversNode(props.model, nodefactory);
-    const nodes = nodefactory.getNodes();
-    // 5) Create Links 
-    // 6) Populate Diagram engine 
-    // 7) Render the diagram!
+    const [diagramEngine] = useState<DiagramEngine>(generateEngine());
+    const [diagramModel, setDiagramModel] = useState<DiagramModel | null>(null);
 
+    useEffect(() => {
+        if (diagramEngine) {
+            drawDiagram();
+        }
+    }, []);
 
-    // Connect the nodes with links.
-    // for (let i = 0; i < 4; i++) {
-    //     let link = new DefaultLinkModel();
-    //     link.setSourcePort(nodes[i].addOutPort(''));
-    //     link.setTargetPort(nodes[i + 1].addInPort(''));
-    //     model.addAll(link);
-    // }
+    // run sizing visitor
+    const sizingVisitor = new SizingVisitor();
+    traversNode(model, sizingVisitor);
+    // run position visitor
+    const positionVisitor = new PositionVisitor();
+    traversNode(model, positionVisitor);
+    // run node visitor
+    const nodeVisitor = new NodeFactoryVisitor();
+    traversNode(model, nodeVisitor);
+    const nodes = nodeVisitor.getNodes();
+    console.log("nodes", nodes);
 
-    // Add nodes to the model
-    model.addAll(...nodes);
+    // add node edges
+    // setup react diagram engine
+    // render diagram
 
-    // Load the model into the engine
-    engine.setModel(model);
+    const drawDiagram = () => {
+        const newDiagramModel = new DiagramModel();
+
+        newDiagramModel.addAll(...nodes);
+
+        // Start sample code
+        // var node1 = new DefaultNodeModel({
+        //     name: "Node 1",
+        //     color: "rgb(0,192,255)",
+        // });
+        // node1.setPosition(100, 100);
+        // let port1 = node1.addOutPort("Out");
+
+        // var node2 = new CallNodeModel(model);
+        // node2.setPosition(400, 100);
+
+        // let link1 = port1.link<NodeLinkModel>(node2.getPort("in")!);
+        // link1.getOptions().testName = "Test";
+
+        // newDiagramModel.addAll(node1, node2, link1);
+        // End sample code
+
+        diagramEngine.setModel(newDiagramModel);
+        setDiagramModel(newDiagramModel);
+    };
 
     return (
-        <div style={{ height: '100vh' }}>
-            <style>{`
-                .canvas-widget{
-                    height: 100vh;
-                }
-            `}</style>
-            <CanvasWidget engine={engine} className="canvas-widget" />
-        </div>
+        <>
+            {diagramEngine && diagramModel && (
+                <DiagramCanvas>
+                    <CanvasWidget engine={diagramEngine} />
+                </DiagramCanvas>
+            )}
+        </>
     );
 }
