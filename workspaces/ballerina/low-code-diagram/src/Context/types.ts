@@ -122,7 +122,6 @@ export interface LowCodeDiagramAPI {
 
     webView?: {
         showTryitView?: (serviceName: string, range: LineRange) => void;
-        showDocumentationView?: (url: string) => void;
     };
 
     project?: {

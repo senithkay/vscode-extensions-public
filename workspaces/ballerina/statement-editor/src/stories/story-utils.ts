@@ -37,7 +37,6 @@ export async function updateFileContent(filePath: string, text: string): Promise
     }).then(result => result.success);
 }
 
-
 function getProjectPath() {
   return devproject.projectPath;
 }

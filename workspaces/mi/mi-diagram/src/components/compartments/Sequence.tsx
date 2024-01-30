@@ -92,7 +92,7 @@ export function SequenceDiagram(props: SequenceDiagramProps) {
             setNodePositions(outSeqNodes, x, y, canvasWidthOutSeqNodes);
         }
         setCanvasHeight(inSequenceHeight + outSequenceHeight + OFFSET.START.Y + OFFSET.MARGIN.TOP + OFFSET.MARGIN.BOTTOM);
-    };
+    }
 
     if (isLoading) {
         return <h1>Loading...</h1>;

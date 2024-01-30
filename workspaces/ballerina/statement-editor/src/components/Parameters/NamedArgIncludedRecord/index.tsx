@@ -8,7 +8,8 @@
  */
 import React, { useState } from "react";
 
-import { Checkbox, ListItem, OutlinedInput } from "@material-ui/core";
+// tslint:disable-next-line:no-submodule-imports
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 
 import { useStmtEditorHelperPanelStyles } from "../../styles";
 
@@ -37,23 +38,19 @@ export function NamedArgIncludedRecord(props: NamedArgIncludedRecordProps){
     return (
         <>
             {isNewRecord && (
-                <ListItem className={stmtEditorHelperClasses.docListDefault} data-testid="named-arg">
-                    <Checkbox
-                        classes={{
-                            root : stmtEditorHelperClasses.disabledCheckbox,
-                            checked : stmtEditorHelperClasses.checked
-                        }}
+                <div className={stmtEditorHelperClasses.docListDefault} data-testid="named-arg">
+                    <VSCodeCheckbox
                         checked={true}
                     />
-                    <OutlinedInput
+                    <input
                         placeholder={defaultNamedArg}
                         autoFocus={true}
                         onKeyDown={inputEnterHandler}
                         onInput={inputChangeHandler}
-                        inputProps={{ style: { padding: '8px'} }}
+                        style={{ padding: '8px'}}
                         data-testid="named-arg-input"
                     />
-                </ListItem>
+                </div>
             )}
         </>
     );

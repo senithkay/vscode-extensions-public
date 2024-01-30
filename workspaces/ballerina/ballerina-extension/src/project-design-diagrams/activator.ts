@@ -167,7 +167,7 @@ async function setupWebviewPanel() {
         WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);
 
         isChoreoProject = await checkIsChoreoProject();
-        EditLayerRPC.create(designDiagramWebview, langClient, extInstance.context, isChoreoProject);
+        // EditLayerRPC.create(designDiagramWebview, langClient, extInstance.context, isChoreoProject);
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;
@@ -238,7 +238,7 @@ async function setupCellWebviewPanel() {
         WebViewRPCHandler.create(cellDiagramWebview, langClient, remoteMethods);
 
         isChoreoProject = await checkIsChoreoProject();
-        EditLayerRPC.create(cellDiagramWebview, langClient, extInstance.context, isChoreoProject);
+        // EditLayerRPC.create(cellDiagramWebview, langClient, extInstance.context, isChoreoProject);
 
         cellDiagramWebview.onDidDispose(() => {
             cellDiagramWebview = undefined;
