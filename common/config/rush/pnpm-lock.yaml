@@ -3326,6 +3326,7 @@ importers:
       react: ~18.2.0
       react-dom: ~18.2.0
       typescript: ^4.3.5
+      uuid: ~9.0.1
     dependencies:
       '@emotion/react': 11.11.3_ujupp4aqvz5yjxfmu635blrdgm
       '@emotion/styled': 11.11.0_a5ezjtzmbjq2agin6it3jktdwe
@@ -3338,6 +3339,7 @@ importers:
       '@wso2-enterprise/mi-syntax-tree': link:../syntax-tree
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      uuid: 9.0.1
     devDependencies:
       '@storybook/react': 6.5.16_ygqkwb4gg3aean7xjfdauovyqq
       '@types/react': 17.0.75
@@ -46314,7 +46316,6 @@ packages:
   /uuid/9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
-    dev: true
 
   /v8-compile-cache-lib/3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
